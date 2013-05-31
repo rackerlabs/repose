@@ -17,17 +17,18 @@
                <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
             </xs:documentation>
          </xs:annotation>
-
-         <xs:all vc:minVersion="1.1">
-            <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-            <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
-         </xs:all>
+            <xs:all vc:minVersion="1.1">
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
             
-         <!-- Order matters in 1.0 land :-( -->
-         <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
-            <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-            <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
-         </xs:sequence>
+            <!-- Order matters in 1.0 land :-( -->
+            <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
 
          <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
@@ -99,23 +100,37 @@
          </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="password" type="xs:string" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Password to use</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-        
-  
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
-      <xs:attribute name="uri" type="xs:anyURI" use="required">
-         <xs:annotation>
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="tenantId" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ClientMapping">
+        <xs:annotation>
             <xs:documentation>
                <html:p>Target URI for authentication requests</html:p>
             </xs:documentation>
          </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="tenantId" type="xs:string" use="optional">
          <xs:annotation>
             <xs:documentation>
@@ -123,27 +138,52 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-   </xs:complexType>
 
-   <xs:complexType name="ClientMapping">
-      <xs:annotation>
-         <xs:documentation>
-            <html:p>Describes how to extract the client id from a given URI</html:p>
-         </xs:documentation>
-      </xs:annotation>
+        <xs:attribute name="id-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex used to extract the client id from a given URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
 
-      <xs:attribute name="id-regex" type="xs:string" use="required">
-         <xs:annotation>
+    <!--This will be used to put the endpoints catalog in a x-catalog header.-->
+    <xs:complexType name="Endpoints">
+        <xs:annotation>
             <xs:documentation>
-               <html:p>Regex used to extract the client id from a given URI</html:p>
+                <html:p>Determines whether or not to include endpoints in a headers, what format, what identity contract version, and cache timeout.</html:p>
             </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-   </xs:complexType>
-    
-   <xs:simpleType name="longGTEZero">
-      <xs:restriction base="xs:long">
-         <xs:minInclusive value="0"/>
-      </xs:restriction>
-   </xs:simpleType>
+        </xs:annotation>
+
+        <xs:attribute name="format" type="xs:string" use="optional" default="json">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines endpoint header format.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines cache timeout.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="identity-contract-version" type="xs:integer" use="optional" default="2">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines the contract identity version.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="longGTEZero">
+        <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

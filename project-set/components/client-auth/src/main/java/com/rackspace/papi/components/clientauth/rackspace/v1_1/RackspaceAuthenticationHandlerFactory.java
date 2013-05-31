@@ -3,15 +3,17 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.auth.rackspace.AuthenticationServiceFactory;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.papi.components.clientauth.common.*;
+import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.AuthUserCache;
+import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
+import com.rackspace.papi.components.clientauth.common.Configurables;
+import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public final class RackspaceAuthenticationHandlerFactory {
-    private static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
-    private static final String AUTH_GROUP_CACHE_PREFIX = "rackspace.v1.1.group";
-    private static final String AUTH_USER_CACHE_PREFIX = "rackspace.v1.1.user";
     
     private RackspaceAuthenticationHandlerFactory() {
     }
@@ -33,9 +35,10 @@ public final class RackspaceAuthenticationHandlerFactory {
                 authConfig.getGroupCacheTimeout(), 
                 authConfig.getTokenCacheTimeout(),
                 authConfig.getTokenCacheTimeout(),
-                authConfig.isRequestGroups()); 
+                authConfig.isRequestGroups(),
+                null); 
 
-        return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, usrCache, uriMatcher);
+        return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, usrCache,null, uriMatcher);
     }
 
 }

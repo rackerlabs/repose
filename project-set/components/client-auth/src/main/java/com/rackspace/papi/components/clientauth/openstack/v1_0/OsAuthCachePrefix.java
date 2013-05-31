@@ -7,7 +7,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 public enum OsAuthCachePrefix {
    
-   TOKEN("openstack.identity.token"), USER("openstack.identity.group"), GROUP("openstack.identity.user");
+   TOKEN("openstack.identity.token"), USER("openstack.identity.group"), GROUP("openstack.identity.user"), ENDPOINTS("openstack.endpoints.cache");
    
    private final String prefix;
    

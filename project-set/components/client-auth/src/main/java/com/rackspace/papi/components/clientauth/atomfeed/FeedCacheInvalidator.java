@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.atomfeed;
 import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.AuthUserCache;
+import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RsAuthCachePrefix;
 import com.rackspace.papi.service.datastore.Datastore;
@@ -22,13 +23,15 @@ public class FeedCacheInvalidator implements Runnable {
    private AuthTokenCache tknCache;
    private AuthGroupCache grpCache;
    private AuthUserCache usrCache;
+   private EndpointsCache endpntsCache;
    private static final long DEFAULT_CHECK_INTERVAL = 5000;
    private long checkInterval;
 
-   private FeedCacheInvalidator(AuthTokenCache tknCache, AuthGroupCache grpCache, AuthUserCache usrCache, long checkInterval) {
+   private FeedCacheInvalidator(AuthTokenCache tknCache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpntsCache, long checkInterval) {
       this.tknCache = tknCache;
       this.grpCache = grpCache;
       this.usrCache = usrCache;
+      this.endpntsCache = endpntsCache;
       this.checkInterval = checkInterval;
 
    }
@@ -38,8 +41,9 @@ public class FeedCacheInvalidator implements Runnable {
       AuthTokenCache tokens = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
       AuthGroupCache groups = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
       AuthUserCache users = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
+      EndpointsCache endpntsCache = new EndpointsCache(datastore, OsAuthCachePrefix.ENDPOINTS.toString());
 
-      return new FeedCacheInvalidator(tokens, groups, users, checkInterval);
+      return new FeedCacheInvalidator(tokens, groups, users, endpntsCache, checkInterval);
 
    }
 
@@ -49,7 +53,7 @@ public class FeedCacheInvalidator implements Runnable {
       AuthGroupCache groups = new AuthGroupCache(datastore, RsAuthCachePrefix.GROUP.toString());
       AuthUserCache users = new AuthUserCache(datastore, RsAuthCachePrefix.USER.toString());
 
-      return new FeedCacheInvalidator(tokens, groups, users, checkInterval);
+      return new FeedCacheInvalidator(tokens, groups, users, null, checkInterval);
 
    }
 
@@ -121,6 +125,9 @@ public class FeedCacheInvalidator implements Runnable {
    private void deleteFromTokenGroupCache(String id) {
       tknCache.deleteCacheItem(id);
       grpCache.deleteCacheItem(id);
+      if(endpntsCache != null){
+         endpntsCache.deleteCacheItem(id);
+      }
    }
 
    public void done() {

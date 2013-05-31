@@ -28,8 +28,6 @@ public class ServiceClientResponse<E> {
       return data;
    }
 
-
-
    public E getEntity() {
       return entity;
    }
