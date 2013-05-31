@@ -5,12 +5,13 @@ import org.linkedin.util.clock.SystemClock
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ValveLauncher implements ReposeLauncher {
+class ReposeValveLauncher implements ReposeLauncher {
 
     def String reposeJar = "/Users/lisa/workspace/repose/test/spock-functional-test/target/repose_home/repose-valve.jar"
     def String configDir = "/Users/lisa/workspace/repose/test/spock-functional-test/target/repose_home/configs"
 
     def ReposeClient reposeClient
+    def clock = new SystemClock()
 
     def int shutdownPort = 9999
     def int jmxPort = 9001
@@ -31,18 +32,16 @@ class ValveLauncher implements ReposeLauncher {
 
         def th = new Thread({cmd.execute()});
 
-
         th.run()
         th.join()
 
-        def clock = new SystemClock()
         print("Waiting for repose to start")
         waitForCondition(clock, '30s', '1s', {
             isRunning()
         })
     }
 
-    boolean isRunning() {
+    private boolean isRunning() {
 
         if (reposeClient == null) {
             reposeClient = new ReposeClient("http://localhost:8888")
@@ -50,7 +49,6 @@ class ValveLauncher implements ReposeLauncher {
 
         try {
             def response = reposeClient.doGet("/", new HttpRequestParams())
-
             return response.getHeader("Via").contains("Repose")
         } catch (Exception e) {
         }
@@ -66,5 +64,8 @@ class ValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
+        waitForCondition(clock, '5s', '1s', {
+            !isRunning()
+        })
     }
 }

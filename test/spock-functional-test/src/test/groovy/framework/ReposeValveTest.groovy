@@ -8,7 +8,7 @@ abstract class ReposeValveTest extends Specification {
 
     @Shared def configDirectory
     @Shared def configSamples
-    @Shared def ConfigHelper configHelper
+    @Shared def ReposeConfigurationProvider reposeConfigProvider
 
     @Shared def ReposeLauncher reposeLauncher
     @Shared def ReposeClient reposeClient
@@ -20,8 +20,8 @@ abstract class ReposeValveTest extends Specification {
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
-        configHelper = new ConfigHelper(configDirectory, configSamples)
-        reposeLauncher = new ValveLauncher()
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        reposeLauncher = new ReposeValveLauncher()
         reposeClient = new ReposeClient(properties.getProperty("repose.endpoint"))
     }
 
