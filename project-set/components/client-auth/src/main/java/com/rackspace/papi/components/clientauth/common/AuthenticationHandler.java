@@ -48,7 +48,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final UriMatcher uriMatcher;
    private final boolean tenanted;
    private final long groupCacheTtl;
-   private final long endpointsCacheTtl;
    private final long userCacheTtl;
    private final boolean requestGroups;
    private final EndpointsConfiguration endpointsConfiguration;
@@ -59,15 +58,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
       this.cache = cache;
       this.grpCache = grpCache;
-        this.endpointsCache = endpointsCache;
+      this.endpointsCache = endpointsCache;
       this.uriMatcher = uriMatcher;
       this.tenanted = configurables.isTenanted();
       this.groupCacheTtl = configurables.getGroupCacheTtl();
-      this.endpointsCacheTtl = configurables.getEndpointsConfiguration().getCacheTimeout();
       this.userCacheTtl = configurables.getUserCacheTtl();
       this.requestGroups= configurables.isRequestGroups();
       this.endpointsConfiguration = configurables.getEndpointsConfiguration();
-   }
+    }
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
@@ -301,8 +299,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    }
 
    //get the ttl but prevent bad integers
-    private int safeEndpointsTtl() {
-        final Long endpointsTtl = this.endpointsCacheTtl;
+    private Integer safeEndpointsTtl() {
+        final Long endpointsTtl;
+
+        if (endpointsConfiguration != null) {
+            endpointsTtl = endpointsConfiguration.getCacheTimeout();
+        } else {
+            return null;
+        }
 
         if (endpointsTtl >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;

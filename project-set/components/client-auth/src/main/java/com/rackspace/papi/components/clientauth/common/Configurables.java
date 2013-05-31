@@ -27,7 +27,7 @@ public class Configurables {
         this.tenanted = tenanted;
         this.groupCacheTtl = groupCacheTtl;
         this.userCacheTtl = tokenCacheTtl;
-        this.requestGroups=requestGroups;
+        this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
     }
 
