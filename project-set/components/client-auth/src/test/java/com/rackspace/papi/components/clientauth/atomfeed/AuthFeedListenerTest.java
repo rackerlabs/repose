@@ -49,7 +49,6 @@ public class AuthFeedListenerTest {
    private Datastore datastore;
    private FeedCacheInvalidator listener;
    private AuthFeedReader rdr;
-   private String data1;
    private AuthTokenCache tkn;
    private AuthUserCache usr;
    private AuthGroupCache grp;
@@ -85,7 +84,7 @@ public class AuthFeedListenerTest {
       AuthToken token2 = new OpenStackToken(getServiceResponse());
       tkn.storeToken("token2", token2, 1000000);
 
-      usr.storeUserTokenList("user1", tokens, 1000000);
+      usr.storeUserTokenList("224277258", tokens, 1000000);
 
       listener = FeedCacheInvalidator.openStackInstance(datastore);
 
@@ -94,7 +93,7 @@ public class AuthFeedListenerTest {
       CacheKeys keys = new FeedCacheKeys();
 
       keys.addTokenKey("token1");
-      keys.addUserKey("user1");
+      keys.addUserKey("224277258");
 
       when(rdr.getCacheKeys()).thenReturn(keys);
 
@@ -124,7 +123,7 @@ public class AuthFeedListenerTest {
       rsp.setServiceCatalog(catalog);
 
       UserForAuthenticateResponse user = new UserForAuthenticateResponse();
-      user.setId("userId");
+      user.setId("224277258");
       user.setName("userName");
       RoleList roles = new RoleList();
 
@@ -171,8 +170,6 @@ public class AuthFeedListenerTest {
 
       assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1", "tokenid"));
       assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2", "tokenid"));
-
-
 
    }
 }
