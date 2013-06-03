@@ -7,8 +7,6 @@ import org.linkedin.util.clock.SystemClock
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeValveLauncher implements ReposeLauncher {
-    def JmxClient jmx
-    def String jmxUrl
 
     def String reposeJar
     def String configDir
@@ -18,38 +16,42 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     def reposeEndpoint
     def int shutdownPort
-    def int jmxPort
-    def jmxprops = ""
+
+    def JmxClient jmx
+    def boolean jmxEnabled = false
+    def String jmxUrl
+    def int jmxPort = 9001
 
     def ReposeConfigurationProvider configurationProvider
 
-    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider) {
+    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider, String reposeJar, String reposeEndpoint, String configDir, int shutdownPort, String jmxUrl, int jmxPort) {
         this.configurationProvider = configurationProvider
-    }
-
-    def setJmxUrl(String jmxUrl) {
+        this.reposeJar = reposeJar
+        this.reposeEndpoint = reposeEndpoint
+        this.shutdownPort = shutdownPort
+        this.configDir = configDir
         this.jmxUrl = jmxUrl
-        jmx = new JmxClient(jmxUrl)
+        this.jmxPort = jmxPort
     }
 
-    void enableJmx(boolean isEnabled) {
-        if (isEnabled) {
-            jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
-        } else {
-            jmxprops = ""
-        }
-    }
-
+    @Override
     void applyConfigs(String[] configLocations) {
         configurationProvider.applyConfigs(configLocations)
     }
 
+    @Override
     void updateConfigs(String[] configLocations) {
         configurationProvider.updateConfigs(configLocations)
     }
 
     @Override
     void start() {
+        def jmxprops = ""
+
+        if (jmxEnabled) {
+            jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        }
+
         def cmd = "java ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
         println("Starting repose: ${cmd}")
 
@@ -62,6 +64,26 @@ class ReposeValveLauncher implements ReposeLauncher {
         waitForCondition(clock, '30s', '1s', {
             isRunning()
         })
+
+        if (jmxEnabled) {
+            jmx = new JmxClient(jmxUrl)
+        }
+    }
+
+    @Override
+    void stop() {
+        def cmd = "java -jar ${reposeJar} -s ${shutdownPort} stop"
+        println("Stopping repose: ${cmd}")
+
+        cmd.execute();
+        waitForCondition(clock, '5s', '1s', {
+            !isRunning()
+        })
+    }
+
+    @Override
+    void enableJmx(boolean isEnabled) {
+        this.jmxEnabled = isEnabled
     }
 
     private boolean isRunning() {
@@ -80,15 +102,4 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
 
 
-
-    @Override
-    void stop() {
-        def cmd = "java -jar ${reposeJar} -s ${shutdownPort} stop"
-        println("Stopping repose: ${cmd}")
-
-        cmd.execute();
-        waitForCondition(clock, '5s', '1s', {
-            !isRunning()
-        })
-    }
 }

@@ -27,10 +27,35 @@ class JmxClient {
      * @param beanName
      * @return
      */
-    def getMBean(String beanName) {
+    def findMBeanByName(String beanName) {
 
         def server = JMXConnectorFactory.connect(new JMXServiceURL(jmxUrl)).MBeanServerConnection
         server.queryMBeans(new ObjectName(beanName), null)
+    }
+
+    /**
+     * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
+     *
+     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
+     *
+     * @param beanName
+     * @return
+     */
+    def getMBeans(domain, expectedClassName, expectedCount) {
+
+        def mbeans
+
+        def clock = new SystemClock()
+        try {
+            waitForCondition(clock, '30s', '1s', {
+                def beansInDomain = findMBeanByName(domain)
+                mbeans = beansInDomain.findAll { it.className == expectedClassName }
+                mbeans.size() == expectedCount
+            })
+        } catch (TimeoutException) {
+            // ignore this and simply return the total mbeans found
+        }
+        mbeans
     }
 
     /**
@@ -41,24 +66,10 @@ class JmxClient {
      *
      */
     def getMBeanCount(domain, expectedClassName, expectedCount) {
-
-        def totalFound
-
-        def clock = new SystemClock()
-        try {
-            waitForCondition(clock, '15s', '1s', {
-                def mbeans = getMBean(domain)
-                totalFound = 0
-                mbeans.each {
-                    if (it.className == expectedClassName)
-                        totalFound++
-                }
-                totalFound == expectedCount
-            })
-        } catch (TimeoutException) {
-            // ignore this and simply return the total mbeans found
-        }
-        totalFound
+        def Set mbeans = getMBeans(domain, expectedClassName, expectedCount)
+        mbeans.size()
     }
+
+
 
 }

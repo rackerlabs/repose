@@ -9,7 +9,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     def setup() {
         repose.applyConfigs("features/filters/apivalidator/common", "features/filters/apivalidator/jmx")
         repose.enableJmx(true)
-        repose.setJmxUrl(properties.getProperty("repose.jmxUrl"))
         repose.start()
     }
 
@@ -17,41 +16,33 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "when loading validators, should register MXBeans"() {
-
-        given:
-        Foo foo
+    def "when loading validators on startup, should register validator MXBeans"() {
 
         when:
-        deproxy.doGet("/", ['X-Roles': "role-1, role-2, role-3"])
-        def totalMXBeans = repose.jmx.getMBeanCount(validatorBeanDomain, validatorClassName, 3)
+        def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
 
         then:
-        totalMXBeans == 3
+        validatorBeans.size() == 3
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
 
         when:
-        deproxy.doGet("/", ['X-Roles': "role-1, role-2, role-3"])
-        def totalMXBeans = repose.jmx.getMBeanCount(validatorBeanDomain, validatorClassName, 3)
-        totalMXBeans == 3
+        def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+        beforeUpdateBeans.size() == 3
 
         and:
         repose.updateConfigs("features/filters/apivalidator/jmxupdate")
-        deproxy.doGet("/", ['X-Roles': "role-a, role-b"])
-        totalMXBeans = repose.jmx.getMBeanCount(validatorBeanDomain, validatorClassName, 2)
+        def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
 
         then:
-        totalMXBeans == 2
+        afterUpdateBeans.size() == 2
+        afterUpdateBeans.each { updatedBean ->
+            beforeUpdateBeans.each {
+                updatedBean.name != it.name
+            }
+        }
     }
 
 
-}
-
-class TestableFoo extends Foo {
-
-    def TestableFoo(String bar) {
-        super(bar)
-    }
 }

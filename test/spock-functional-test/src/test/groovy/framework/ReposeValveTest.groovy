@@ -18,15 +18,20 @@ abstract class ReposeValveTest extends Specification {
     def setupSpec() {
         properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
+
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        repose = new ReposeValveLauncher(reposeConfigProvider)
-        repose.configDir = configDirectory
-        repose.jmxPort = properties.getProperty("repose.jmxport")
-        repose.shutdownPort = properties.getProperty("repose.shutdown.port")
-        repose.reposeEndpoint = properties.getProperty("repose.endpoint")
+        repose = new ReposeValveLauncher(
+                reposeConfigProvider,
+                properties.getProperty("repose.jar"),
+                properties.getProperty("repose.endpoint"),
+                configDirectory,
+                properties.getProperty("repose.shutdown.port").toInteger(),
+                properties.getProperty("repose.jmx.url"),
+                properties.getProperty("repose.jmx.port").toInteger()
+        )
 
         deproxy = new GDeproxy(properties.getProperty("repose.endpoint"))
     }
@@ -34,7 +39,5 @@ abstract class ReposeValveTest extends Specification {
     def teardownSpec() {
         repose.stop()
     }
-
-    abstract def foo()
 
 }

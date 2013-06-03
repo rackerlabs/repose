@@ -3,14 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi</groupId>
-        <artifactId>papi</artifactId>
-        <version>2.7.1-SNAPSHOT</version>
-    </parent>
+    <!--<parent>-->
+        <!--<groupId>com.rackspace.papi</groupId>-->
+        <!--<artifactId>papi</artifactId>-->
+        <!--<version>2.7.1-SNAPSHOT</version>-->
+    <!--</parent>-->
 
-    <groupId>com.rackspace.papi.</groupId>
+    <groupId>com.rackspace.papi</groupId>
     <artifactId>repose-spock-tests</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <name>Repose Tests - Spock Functional Tests</name>
 
@@ -79,8 +80,8 @@
                 <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target</filter.extensions.dir>
 
                 <repose.valve.jar>repose-valve.jar</repose.valve.jar>
-                <filter.ear>filter-bundle-${project.version}.ear</filter.ear>
-                <filter.extensions.ear>extensions-filter-bundle-${project.version}.ear</filter.extensions.ear>
+                <filter.ear>filter-bundle-*.ear</filter.ear>
+                <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
                 <repose_port>8888</repose_port>
                 <repose_jmx_port>9001</repose_jmx_port>
