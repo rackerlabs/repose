@@ -7,6 +7,7 @@ package com.rackspace.papi.components.clientauth.atomfeed.sax;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import static com.rackspace.papi.commons.util.http.HttpStatusCode.OK;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.components.clientauth.atomfeed.AuthFeedReader;
@@ -43,17 +44,19 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
    private boolean isAuthed = false; //If the atom feed is authed then we have to provide an admin token with the request;
    private String adminToken;
    private AdminTokenProvider provider;
+   private String feedId;
 
-   public SaxAuthFeedReader(ServiceClient client, String targetFeed) {
+   public SaxAuthFeedReader(ServiceClient client, String targetFeed, String feedId) {
       this.client = client;
       this.targetFeed = targetFeed;
+      this.feedId = feedId;
       factory = SAXParserFactory.newInstance();
       factory.setNamespaceAware(true);
    }
 
    public void setAuthed(String uri, String user, String pass) {
       isAuthed = true;
-      provider = new AdminTokenProvider(client,uri, user, pass);
+      provider = new AdminTokenProvider(client, uri, user, pass);
       adminToken = provider.getAdminToken();
    }
 
@@ -62,21 +65,11 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
       moreData = true;
       ServiceClientResponse resp;
-      final Map<String, String> headers = new HashMap<String, String>();
       resultKeys = new FeedCacheKeys();
-      while (moreData) {   
+      while (moreData) {
 
-         if (isAuthed) {
-            headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
-         }
-         resp = client.get(targetFeed, headers);
+         resp = getFeed();
 
-         if (resp.getStatusCode() == HttpStatusCode.UNAUTHORIZED.intValue() && isAuthed) {
-            adminToken = provider.getFreshAdminToken();
-            headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
-            resp = client.get(targetFeed, headers);
-         }
-         
          if (resp.getStatusCode() == HttpStatusCode.OK.intValue()) {
 
             try {
@@ -90,18 +83,48 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             } catch (IOException ex) {
                LOG.error("Error reading response from atom feed", ex);
             }
-         } else {
-            LOG.warn("Unable to retrieve atom feed");
-            LOG.debug("Status code from " + targetFeed + ": " + resp.getStatusCode());
          }
       }
-      
+
       return resultKeys;
+   }
+
+   private ServiceClientResponse getFeed() {
+
+      ServiceClientResponse resp;
+      final Map<String, String> headers = new HashMap<String, String>();
+
+      if (isAuthed) {
+         headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
+      }
+      resp = client.get(targetFeed, headers);
+
+
+      switch (HttpStatusCode.fromInt(resp.getStatusCode())) {
+         case OK:
+            break;
+         case UNAUTHORIZED:
+            if (isAuthed) {
+               adminToken = provider.getFreshAdminToken();
+               headers.put(CommonHttpHeader.AUTH_TOKEN.toString(), adminToken);
+               resp = client.get(targetFeed, headers);
+            }else{ // case where we're getting back 401s and the client has not configured auth credentials for this feed.
+               LOG.warn("Feed at " + targetFeed + " requires Authentication. Please reconfigure Feed " + feedId + " with valid credentials and/or configure "
+                       + "isAuthed to true");
+               moreData = false;
+            }
+            break;
+         default: // If we receive anything other than a 200 or a 401 there is an error with the atom feed
+            LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatusCode());
+            moreData = false;
+
+      }
+      return resp;
    }
 
    @Override
    public void startDocument() {
-      
+
       moreData = false;
    }
 
@@ -147,5 +170,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
          }
          curResource = "";
       }
+   }
+
+   @Override
+   public String getFeedId() {
+      return feedId;
    }
 }
