@@ -41,7 +41,7 @@ class ReposeConfigurationProvider {
         }
 
         // TODO: add some conditional check here to only sleep until the configs have been reloaded
-        // For now, we know that configs get checked every 15 seconds, so sleep this long... suckaroos
-        sleep(15000)
+        // For now, we know that configs get checked every 15 seconds, so sleep a bit longer than this... suckaroos
+        sleep(25000)
     }
 }
