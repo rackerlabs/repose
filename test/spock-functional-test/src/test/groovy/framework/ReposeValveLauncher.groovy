@@ -76,7 +76,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
-        waitForCondition(clock, '5s', '1s', {
+        waitForCondition(clock, '15s', '1s', {
             !isRunning()
         })
     }

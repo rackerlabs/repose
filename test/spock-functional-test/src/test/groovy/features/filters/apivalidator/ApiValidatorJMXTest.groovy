@@ -7,7 +7,9 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
     def setup() {
-        repose.applyConfigs("features/filters/apivalidator/common", "features/filters/apivalidator/jmx")
+        repose.applyConfigs(
+                "features/filters/apivalidator/common",
+                "features/filters/apivalidator/jmx")
         repose.enableJmx(true)
         repose.start()
     }
@@ -42,6 +44,5 @@ class ApiValidatorJMXTest extends ReposeValveTest {
             }
         }
     }
-
 
 }

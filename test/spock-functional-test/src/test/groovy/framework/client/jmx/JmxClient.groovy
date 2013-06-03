@@ -14,23 +14,13 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 class JmxClient {
 
     def String jmxUrl
+    def clock = new SystemClock()
+    def server
 
     JmxClient(String jmxUrl) {
         this.jmxUrl = jmxUrl
-    }
+        server = JMXConnectorFactory.connect(new JMXServiceURL(jmxUrl)).MBeanServerConnection
 
-    /**
-     * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
-     *
-     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
-     *
-     * @param beanName
-     * @return
-     */
-    def findMBeanByName(String beanName) {
-
-        def server = JMXConnectorFactory.connect(new JMXServiceURL(jmxUrl)).MBeanServerConnection
-        server.queryMBeans(new ObjectName(beanName), null)
     }
 
     /**
@@ -44,17 +34,20 @@ class JmxClient {
     def getMBeans(domain, expectedClassName, expectedCount) {
 
         def mbeans
+        println("looking up mbeans")
 
-        def clock = new SystemClock()
         try {
-            waitForCondition(clock, '30s', '1s', {
-                def beansInDomain = findMBeanByName(domain)
+            waitForCondition(clock, '25s', '1s', {
+                def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
                 mbeans = beansInDomain.findAll { it.className == expectedClassName }
                 mbeans.size() == expectedCount
             })
         } catch (TimeoutException) {
             // ignore this and simply return the total mbeans found
+            println("failed to find total expected mbeans")
         }
+        println("found " + mbeans.size() + " mbeans")
+
         mbeans
     }
 

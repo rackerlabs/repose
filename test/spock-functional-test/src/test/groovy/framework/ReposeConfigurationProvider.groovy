@@ -1,6 +1,11 @@
 package framework
 
 import org.apache.commons.io.FileUtils
+import org.linkedin.util.clock.SystemClock
+
+import java.util.concurrent.TimeoutException
+
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 /**
  * Responsible for applying and updating configuration files for an instance of Repose
@@ -10,6 +15,7 @@ class ReposeConfigurationProvider {
     def File reposeConfigDir
     def File samplesDir
     def File commonSamplesDir
+    def clock = new SystemClock()
 
     ReposeConfigurationProvider(String reposeConfigDir, String samplesDir) {
         this.reposeConfigDir = new File(reposeConfigDir)
@@ -39,9 +45,19 @@ class ReposeConfigurationProvider {
         configLocations.each { configs ->
             FileUtils.copyDirectory(new File(samplesDir.absolutePath + "/" + configs), reposeConfigDir)
         }
+        println("updating configs")
 
         // TODO: add some conditional check here to only sleep until the configs have been reloaded
         // For now, we know that configs get checked every 15 seconds, so sleep a bit longer than this... suckaroos
-        sleep(25000)
+        try {
+            waitForCondition(clock, '25s', '1s', {
+                false
+            })
+        } catch (TimeoutException e) {
+            // do nothing... eventually make this conditional wait actually check some condition
+        }
+
+        println("updated configs")
     }
+
 }
