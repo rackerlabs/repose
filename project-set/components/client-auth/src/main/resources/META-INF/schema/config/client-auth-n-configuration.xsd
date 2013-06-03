@@ -66,6 +66,11 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      
+      <xs:assert vc:minVersion="1.1" test="count(distinct-values(auth:*/@id)) = count(auth:*/@id)"
+                 xerces:message="Each Atom Feed must have a unique id"
+                 saxon:message="Each Atom Feed must have a unique id">
+      </xs:assert>
    </xs:complexType>
     
    <xs:complexType name="AtomFeed">
@@ -78,7 +83,13 @@
          </xs:annotation>
       </xs:attribute>
       
-      
+      <xs:attribute name="id" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Unique id of Atom Feed</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
          
    </xs:complexType>
    

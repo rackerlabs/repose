@@ -105,7 +105,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
          List<AuthFeedReader> listeners = new ArrayList<AuthFeedReader>();
             
             for(RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()){
-               SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(), feed.getUri());
+               SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(), feed.getUri(), feed.getId());
                
                //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                if(feed.isIsAuthed()){ 
