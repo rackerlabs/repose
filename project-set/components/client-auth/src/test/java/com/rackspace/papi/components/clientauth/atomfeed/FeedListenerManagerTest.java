@@ -148,8 +148,8 @@ public class FeedListenerManagerTest {
    @Test
    public void shouldStartAndStopFeedListener(){
       
-      assertNotNull("Token1 should be present in cache", tkn.getUserToken("token1", "tokenid"));
-      assertNotNull("Token2 should be present in cache", tkn.getUserToken("token2", "tokenid"));
+      assertNotNull("Token1 should be present in cache", tkn.getUserToken("token1"));
+      assertNotNull("Token2 should be present in cache", tkn.getUserToken("token2"));
       List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
       feeds.add(rdr);
       
@@ -170,7 +170,7 @@ public class FeedListenerManagerTest {
       usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
 
 
-      assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1", "tokenid"));
-      assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2", "tokenid"));
+      assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1"));
+      assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2"));
    }
 }

@@ -238,7 +238,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       if (cache == null) {
          return null;
       }
-      return cache.getUserToken(token, token);
+      return cache.getUserToken(token);
    }
 
    /*
