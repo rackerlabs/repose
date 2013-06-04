@@ -4,6 +4,9 @@
            targetNamespace="http://openrepose.org/repose/validator/v1.0"
            xmlns:scr="http://openrepose.org/repose/validator/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
     
        <!-- Enumeration and SimpleType definitions -->
@@ -208,5 +211,8 @@
             </xs:annotation>
         </xs:attribute>
         
+        <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
+            xerces:message="Cannot define wadl file and embedded wadl"
+            saxon:message="Cannot define wadl file and embedded wadl"/>
     </xs:complexType>
 </xs:schema>
