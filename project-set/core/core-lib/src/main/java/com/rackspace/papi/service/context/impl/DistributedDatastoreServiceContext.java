@@ -22,7 +22,7 @@ import com.rackspace.papi.servlet.InitParameter;
 /*
  * Class that will listen to system-model.cfg.xml and dist-datastore.cfg.xml file to launch the distributed-datastore servlet
  */
-@Component("distributedDatastoreService")
+@Component("distributedDatastoreServiceContext  ")
 public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
 
    DistributedDatastoreLauncherService distDatastoreServiceLauncher;
@@ -159,6 +159,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
+      distDatastoreServiceLauncher.destroy();
       configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
    }
 }

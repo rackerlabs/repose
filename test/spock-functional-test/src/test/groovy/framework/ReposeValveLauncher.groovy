@@ -48,8 +48,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void start() {
-        if(isUp())
-            throw new RuntimeException("Failed to start: Repose already running")
+        killIfUp()
 
         def jmxprops = ""
         def debugProps = ""
@@ -116,13 +115,31 @@ class ReposeValveLauncher implements ReposeLauncher {
         return false
     }
 
-    private boolean isUp() {
+    private String getJvmProcesses() {
         def runningJvms = "jps".execute()
         runningJvms.waitFor()
 
-        String jpsResult = runningJvms.in.text
+        return runningJvms.in.text
+    }
 
-        return jpsResult.contains("repose-valve.jar")
+    private boolean isUp() {
+        return getJvmProcesses().contains("repose-valve.jar")
+    }
+
+    private void killIfUp() {
+        String processes = getJvmProcesses()
+        def regex = /(\d*) repose-valve.jar/
+        def matcher = ( processes =~ regex )
+        String pid = matcher[0][1]
+
+        if (!pid.isEmpty()) {
+            println("Killing running repose-valve process: " + pid)
+            Runtime rt = Runtime.getRuntime();
+            if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                rt.exec("taskkill " + pid.toInteger());
+            else
+                rt.exec("kill -9 " + pid.toInteger());
+        }
     }
 
 

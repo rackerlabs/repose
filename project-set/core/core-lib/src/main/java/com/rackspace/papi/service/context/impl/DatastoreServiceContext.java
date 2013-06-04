@@ -3,6 +3,7 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import com.rackspace.papi.service.reporting.metrics.MetricsRegistryService;
@@ -60,6 +61,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
         LOG.info("Destroying datastore service context");
         ehCacheManager.removalAll();
         ehCacheManager.shutdown();
+        datastoreService.unregisterDatastoreManager(DatastoreService.DEFAULT_LOCAL);
      }
 
     @Override
