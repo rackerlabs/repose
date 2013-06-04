@@ -5,13 +5,12 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.Service;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import java.net.URL;
-import java.util.Collection;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
-import javax.servlet.ServletException;
 
 /*
  * Class that will listen to system-model.cfg.xml and dist-datastore.cfg.xml file to launch the distributed-datastore servlet
@@ -35,15 +33,18 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
    private ConfigurationService configurationManager;
    private SystemModelConfigurationListener systemModelConfigurationListener;
    private DatastoreService datastoreService;
+   private ServiceRegistry registry;
    private ServicePorts servicePorts;
    private RoutingService routingService;
    private String configDirectory;
+
 
    @Autowired
    public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherService service,
            @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
            @Qualifier("configurationManager") ConfigurationService configurationManager,
            @Qualifier("datastoreService") DatastoreService datastoreService,
+           @Qualifier("serviceRegistry") ServiceRegistry registry,
            @Qualifier("servicePorts") ServicePorts servicePorts,
            @Qualifier("routingService") RoutingService routingService) {
 
@@ -52,9 +53,16 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
       this.configurationManager = configurationManager;
       this.systemModelConfigurationListener = new SystemModelConfigurationListener();
       this.datastoreService = datastoreService;
+      this.registry = registry;
       this.servicePorts = servicePorts;
       this.routingService = routingService;
 
+   }
+
+   public void register() {
+       if (registry != null) {
+           registry.addService(this);
+       }
    }
 
    @Override
@@ -73,6 +81,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
       configDirectory = System.getProperty(configProp, sce.getServletContext().getInitParameter(configProp));
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
       configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
+      register();
    }
 
    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
