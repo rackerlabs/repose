@@ -3,7 +3,7 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="node1" hostname="localhost" http-port="8887"/>
+      <node id="node1" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
 
     <filters>
@@ -14,7 +14,7 @@
 	<service name="dist-datastore"/>
    </services>
     <destinations>
-      <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80" default="true"/>
+      <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true"/>
     </destinations>
 
   </repose-cluster>
