@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
+  <validator role="role-a" wadl="fail-405.wadl" default="false" use-saxon="false" />
+  <validator role="role-b" wadl="pass.wadl" default="true" use-saxon="false" />
+</validators>

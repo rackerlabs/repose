@@ -81,11 +81,17 @@ public class ValidatorInfo {
     }
 
     public void clearValidator() {
-        validator = null;
+        if (validator != null) {
+            validator.destroy();
+            validator = null;
+        }
     }
 
     public boolean reinitValidator() {
-        validator = null;
+        if (validator != null) {
+            validator.destroy();
+            validator = null;
+        }
         return initValidator();
     }
 
