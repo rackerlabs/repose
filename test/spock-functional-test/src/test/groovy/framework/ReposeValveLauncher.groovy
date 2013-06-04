@@ -46,6 +46,9 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void start() {
+        if(isUp())
+            throw new RuntimeException("Failed to start: Repose already running")
+
         def jmxprops = ""
 
         if (jmxEnabled) {
@@ -62,7 +65,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         print("Waiting for repose to start")
         waitForCondition(clock, '30s', '1s', {
-            isRunning()
+            isAvailable()
         })
 
         if (jmxEnabled) {
@@ -77,7 +80,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         cmd.execute();
         waitForCondition(clock, '15s', '1s', {
-            !isRunning()
+            !isAvailable()
         })
     }
 
@@ -86,7 +89,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         this.jmxEnabled = isEnabled
     }
 
-    private boolean isRunning() {
+    private boolean isAvailable() {
 
         if (reposeClient == null) {
             reposeClient = new GDeproxy(reposeEndpoint)
@@ -99,6 +102,15 @@ class ReposeValveLauncher implements ReposeLauncher {
         }
         print('.')
         return false
+    }
+
+    private boolean isUp() {
+        def runningJvms = "jps".execute()
+        runningJvms.waitFor()
+
+        String jpsResult = runningJvms.in.text
+
+        return jpsResult.contains("repose-valve.jar")
     }
 
 
