@@ -8,8 +8,8 @@
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    
-       <!-- Enumeration and SimpleType definitions -->
+
+    <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="StringList">
         <xs:list itemType="xs:string"/>
     </xs:simpleType>
@@ -18,18 +18,18 @@
     <xs:element name="validators" type="scr:ValidatorConfiguration"/>
 
     <xs:complexType name="ValidatorConfiguration">
-        
-       <xs:annotation>
-         <xs:documentation>
-            <html:p></html:p>
-         </xs:documentation>
-      </xs:annotation>
-      
-       <xs:sequence>
+
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
             <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
-       </xs:sequence>
-      
-       <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
+        </xs:sequence>
+
+        <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -37,7 +37,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-       
+
 
     </xs:complexType>
 
@@ -211,8 +211,12 @@
             </xs:annotation>
         </xs:attribute>
         
-        <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
+        <xs:assert vc:minVersion="1.1" test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
             xerces:message="Cannot define wadl file and embedded wadl"
             saxon:message="Cannot define wadl file and embedded wadl"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
+                   xerces:message="Cannot define wadl file and embedded wadl"
+                   saxon:message="Cannot define wadl file and embedded wadl"/>
     </xs:complexType>
 </xs:schema>
