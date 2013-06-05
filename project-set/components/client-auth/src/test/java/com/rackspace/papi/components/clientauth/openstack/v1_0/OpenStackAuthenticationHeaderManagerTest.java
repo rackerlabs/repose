@@ -27,15 +27,18 @@ public class OpenStackAuthenticationHeaderManagerTest {
         Boolean isDelegatable;
         List<AuthGroup> authGroupList;
         String wwwAuthHeaderContents;
+        String endpointsBase64;
 
         @Before
         public void setUp() throws Exception {
             filterDirector = new FilterDirectorImpl();
             isDelegatable = false;
             wwwAuthHeaderContents = "test URI";
+            endpointsBase64 = "";
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
-                                                             tenantId, authGroupList, wwwAuthHeaderContents);
+                                                             tenantId, authGroupList, wwwAuthHeaderContents,
+                                                             endpointsBase64);
         }
 
         @Test
