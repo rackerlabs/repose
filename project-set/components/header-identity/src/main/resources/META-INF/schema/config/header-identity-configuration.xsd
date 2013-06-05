@@ -5,15 +5,17 @@
            xmlns:header-identity="http://docs.api.rackspacecloud.com/repose/header-identity/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <!-- Client IP Identity Configuration -->
     <xs:element name="header-identity" type="header-identity:HeaderIdentityConfig" />
 
     <xs:complexType name="HeaderIdentityConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Header Identity can be configured by editing the header-identity.cfg.xml file. The user can specify the following information:</html:p>
             </xs:documentation>
         </xs:annotation>
         
@@ -25,13 +27,19 @@
     <xs:complexType name="HttpHeaderList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>List of headers to identify the incoming user.</html:p>
             </xs:documentation>
         </xs:annotation>
         
         <xs:sequence>
-            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+        
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(header-identity:header/@id)) = count(header-identity:header/@id)"
+            xerces:message="Headers must have ids unique within their containing header list"
+            saxon:message="Headers must have ids unique within their containing header list"/>
+        
+            
         
     </xs:complexType>
     
@@ -39,24 +47,40 @@
     <xs:complexType name="HttpHeader">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Header to identify incoming user.</html:p>
             </xs:documentation>
         </xs:annotation>
         
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>This header key is applied to the x-pp-group header. The header value associated with this key is applied to the x-pp-user header.</html:p>
                 </xs:documentation>
             </xs:annotation>            
         </xs:attribute>
         
-        <xs:attribute name="quality" type="xs:string">
+        <xs:attribute name="quality" type="header-identity:doubleBetweenZeroandOne" use="optional" default="0.1">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>Quality assigned to users found in the request headers.
+                            If no quality is set, Repose will default this value to 0.1
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC - Section-3.9</html:a>
+                        (for usage examples, see <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section 14.1</html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
+        
     </xs:complexType>
+    
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
