@@ -91,6 +91,7 @@ import logging
 import argparse
 import sys
 import os
+import glob
 import string
 import datetime
 from pprint import pprint
@@ -182,7 +183,7 @@ def setUpModule():
         rmc.get_repose(valve_dest='usr/share/repose/repose-valve.jar',
                        get_filter=False, get_ext_filter=False,
                        snapshot=snapshot)
-    if not os.path.exists('usr/share/repose/filter-bundle.ear'):
+    if not glob.glob('usr/share/repose/filter-bundle*.ear'):
         rmc = ReposeMavenConnector()
         logger.debug('Downloading filter bundle')
         rmc.get_repose(filter_dest='usr/share/repose/filter-bundle.ear',
