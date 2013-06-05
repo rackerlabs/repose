@@ -57,7 +57,9 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
    public void stopDistributedDatastoreServlet() {
       LOG.info("Stopping Distributed Datastore listener at port " + datastorePort);
       try {
-         server.stop();
+          if (server != null) {
+              server.stop();
+          }
       } catch (Exception ex) {
          LOG.error("Unable to stop Distributed Datastore listener at port " + datastorePort, ex);
       }

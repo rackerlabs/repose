@@ -86,7 +86,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         cmd.execute();
         waitForCondition(clock, '15s', '1s', {
-            !isAvailable()
+            !isUp()
         })
     }
 
@@ -130,15 +130,16 @@ class ReposeValveLauncher implements ReposeLauncher {
         String processes = getJvmProcesses()
         def regex = /(\d*) repose-valve.jar/
         def matcher = ( processes =~ regex )
-        String pid = matcher[0][1]
 
-        if (!pid.isEmpty()) {
-            println("Killing running repose-valve process: " + pid)
-            Runtime rt = Runtime.getRuntime();
-            if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                rt.exec("taskkill " + pid.toInteger());
-            else
-                rt.exec("kill -9 " + pid.toInteger());
+        if (matcher.size() > 0 && matcher[0].size() > 0) {
+            matcher[0][1].each {pid ->
+                println("Killing running repose-valve process: " + pid)
+                Runtime rt = Runtime.getRuntime();
+                if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                    rt.exec("taskkill " + pid.toInteger());
+                else
+                    rt.exec("kill -9 " + pid.toInteger());
+            }
         }
     }
 
