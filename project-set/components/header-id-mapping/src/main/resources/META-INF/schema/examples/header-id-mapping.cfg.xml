@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-id-mapping  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0 ../config/header-id-mapping-configuration.xsd'>
-
+<header-id-mapping xmlns='http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0'>
+   
    <source-headers>
-      <header id="header-mapping-1" user-header="X-RAX-USER" group-header="X-RAX-GROUPS" quality="0.2"/>
+      <header id="header-mapping-1" user-header="X-RAX-USER1" group-header="X-RAX-GROUPS1"/>
+      <header id="header-mapping-2" user-header="X-RAX-USER2" group-header="X-RAX-GROUPS2" quality="0.2"/>
    </source-headers>
-      
+   
 </header-id-mapping>
