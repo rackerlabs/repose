@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
+    <token id="${token}"
+           expires="${expires}">
+        <tenant id="${tenant}"
+                name="${tenant}"/>
+    </token>
+    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+          id="${userid}"
+          name="${username}"
+          rax-auth:defaultRegion="">
+        <roles>
+            <role id="684"
+                  name="compute:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000001"
+                  tenantId="12345"/>
+            <role id="5"
+                  name="object-store:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="12345"/>
+        </roles>
+    </user>
+    <serviceCatalog>
+        <service type="rax:object-cdn"
+                 name="cloudFilesCDN">
+            <endpoint region="DFW"
+                      tenantId="${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/${tenant}"/>
+            <endpoint region="ORD"
+                      tenantId="${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/${tenant}"/>
+        </service>
+        <service type="object-store"
+                 name="cloudFiles">
+            <endpoint region="ORD"
+                      tenantId="${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/${tenant}"/>
+            <endpoint region="DFW"
+                      tenantId="${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/${tenant}"/>
+        </service>
+    </serviceCatalog>
+</access>
+
+
