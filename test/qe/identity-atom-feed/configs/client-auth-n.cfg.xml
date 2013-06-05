@@ -11,4 +11,8 @@
                           uri="http://localhost:${identity_port}" />
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
+    <!-- Atom feeds for cache invalidation -->
+    <atom-feeds check-interval="10000">
+        <rs-identity-feed uri="http://localhost:${atom_port}/feed"/>
+    </atom-feeds>
 </client-auth>

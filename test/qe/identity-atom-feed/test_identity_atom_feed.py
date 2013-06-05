@@ -95,6 +95,7 @@ import string
 import datetime
 from pprint import pprint
 import re
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +125,11 @@ groups_xml_template = string.Template(
         <description>Default Limits</description>
     </group>
 </groups>''')
+
+with open('atom-empty.xml', 'r') as f:
+    atom_empty_template = string.Template(f.read())
+with open('atom-with-entry.xml', 'r') as f:
+    atom_with_entry_template = string.Template(f.read())
 
 client_token = 'this-is-the-token'
 client_tenant = 'this-is-the-tenant'
@@ -271,6 +277,39 @@ class FakeIdentityService(object):
                                 body=body)
 
 
+class FakeAtomService(object):
+    def __init__(self, atom_port):
+        self.has_entry = False
+        self.atom_port = atom_port
+
+    def handler(self, request):
+        logger.debug('Handling a request')
+        if self.has_entry:
+            template = atom_with_entry_template
+        else:
+            template = atom_empty_template
+
+        params = {
+            'atom_port': self.atom_port,
+            'time': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'token': client_token,
+            'tenant': client_tenant,
+        }
+
+        body = template.safe_substitute(params)
+        logger.debug(body)
+
+        headers = {
+            'Connection': 'close',
+            'Content-type': 'application/xml',
+        }
+
+        self.has_entry = False
+
+        return deproxy.Response(code=200, message='OK', headers=headers,
+                                body=body)
+
+
 class TestIdentityFeedCacheClearing(unittest.TestCase):
     def setUp(self):
         logger.debug('setting up')
@@ -298,8 +337,11 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
                                              default_handler=handler)
         self.identity_endpoint = endpoint
 
+        self.atom_service = FakeAtomService(atom_port)
+        handler = self.atom_service.handler
         self.atom_endpoint = self.deproxy.add_endpoint(atom_port,
-                                                       'atom service')
+                                                       'atom service',
+                                                       default_handler=handler)
 
         params = {
             'target_hostname': 'localhost',
@@ -349,10 +391,21 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
         self.assertEqual(mc.handlings[0].endpoint, self.origin_endpoint)
 
         # change identity atom feed
+        self.identity_service.ok = False
+        self.atom_service.has_entry = True
+        logger.debug('sleeping for 11 seconds, so that repose can check the '
+                     'atom feed')
+        time.sleep(11)
 
         # request 3 - Repose should not have the token in the cache any more,
         #   so it try to validate it, which will fail. Repose should then
         #   return a 401.
+        self.identity_service.validations = 0
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(mc.received_response.code, '401')
+        self.assertEqual(len(mc.handlings), 0)
+        self.assertEqual(self.identity_service.validations, 1)
 
         pass
 
