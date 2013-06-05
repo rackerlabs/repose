@@ -212,8 +212,8 @@
         </xs:attribute>
         
         <xs:assert vc:minVersion="1.1" test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
-            xerces:message="Cannot define wadl file and embedded wadl"
-            saxon:message="Cannot define wadl file and embedded wadl"/>
+            xerces:message="Roles list must contain unique roles"
+            saxon:message="Roles list must contain unique roles"/>
 
         <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
                    xerces:message="Cannot define wadl file and embedded wadl"
