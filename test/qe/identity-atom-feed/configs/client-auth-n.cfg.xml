@@ -8,7 +8,7 @@
                     xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username"
                           password="admin_password"
-                          uri="https://localhost:${identity_port}" />
+                          uri="http://localhost:${identity_port}" />
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
 </client-auth>

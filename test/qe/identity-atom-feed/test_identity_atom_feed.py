@@ -91,8 +91,21 @@ import logging
 import argparse
 import sys
 import os
+import string
+import datetime
+from pprint import pprint
+import re
 
 logger = logging.getLogger(__name__)
+
+with open('identity-success.xml', 'r') as f:
+    identity_success_xml_template = string.Template(f.read())
+with open('identity-success.json', 'r') as f:
+    identity_success_json_template = string.Template(f.read())
+with open('identity-failure.xml', 'r') as f:
+    identity_failure_xml_template = string.Template(f.read())
+with open('identity-failure.xml', 'r') as f:
+    identity_failure_json_template = string.Template(f.read())
 
 port_base = 11000
 port_port = None
@@ -145,6 +158,80 @@ def setUpModule():
                        snapshot=snapshot)
 
 
+class FakeIdentityService(object):
+    def __init__(self):
+        self.ok = True
+        self.validations = 0
+
+    def handler(self, request):
+        xml = False
+        if 'Accept' in request.headers:
+            for value in request.headers.find_all('Accept'):
+                if 'application/xml' in value:
+                    xml = True
+                    break
+
+        t = datetime.datetime.now() + datetime.timedelta(days=1)
+        params = {
+            'expires': ('%04d-%02d-%02dT%02d:%02d:%02d.000-05:00' %
+                        (t.year, t.month, t.day, t.hour, t.minute, t.second)),
+            'userid': 123456,
+            'username': 'username',
+            'tenant': 'this-is-the-tenant',
+        }
+
+        if request.method == 'GET':
+            # validating a token
+            if '/' in request.path:
+                index = request.path.rfind('/')
+                token = request.path[index+1:]
+            else:
+                token = request.path
+
+            params['token'] = token
+
+            if request.path.startswith('/tokens'):
+                self.validations += 1
+
+            if self.ok:
+                code = 200
+                message = 'OK'
+                if xml:
+                    template = identity_success_xml_template
+                else:
+                    template = identity_success_json_template
+            else:
+                code = 404
+                message = 'Not Found'
+                if xml:
+                    template = identity_failure_xml_template
+                else:
+                    template = identity_failure_json_template
+        elif request.method == 'POST':
+            # get admin token
+            params['token'] = 'this-is-the-token'
+            code = 200
+            message = 'OK'
+            if xml:
+                template = identity_success_xml_template
+            else:
+                template = identity_success_json_template
+            pass
+        else:
+            raise 'Unknown request: %r' % request
+
+        body = template.safe_substitute(params)
+        headers = {
+            'Connection': 'close',
+        }
+        if xml:
+            headers['Content-type'] = 'application/xml'
+        else:
+            headers['Content-type'] = 'application/json'
+        return deproxy.Response(code=code, message=message, headers=headers,
+                                body=body)
+
+
 class TestIdentityFeedCacheClearing(unittest.TestCase):
     def setUp(self):
         logger.debug('setting up')
@@ -155,8 +242,15 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
         atom_port = get_next_open_port()
         deproxy_port = get_next_open_port()
 
+        self.identity_service = FakeIdentityService()
         self.deproxy = deproxy.Deproxy()
-        self.deproxy.add_endpoint(deproxy_port)
+        self.origin_endpoint = self.deproxy.add_endpoint(deproxy_port,
+                                                         'origin service')
+        self.identity_endpoint = self.deproxy.add_endpoint(identity_port,
+                                                           'identity service',
+                                                           default_handler=self.identity_service.handler)
+        self.atom_endpoint = self.deproxy.add_endpoint(atom_port,
+                                                       'atom service')
 
         params = {
             'target_hostname': 'localhost',
@@ -177,8 +271,42 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
         self.valve = valve.Valve(config_dir='etc/repose', stop_port=stop_port,
                                  wait_on_start=True, port=repose_port)
 
+        self.token = 'tokentokentoken'
+
     def test_something(self):
-        self.assertTrue(True)
+
+        # request 1 - Repose should validate the token and then pass the
+        #   request to the origin service
+        self.identity_service.validations = 0
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': self.token})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+        #self.assertEqual(len(mc.orphaned_handlings), 1)
+        # Repose is getting an admin token and groups, so the number of
+        # orphaned handlings doesn't necessarily equal the number of times a
+        # token gets validated
+        self.assertEqual(self.identity_service.validations, 1)
+        self.assertEqual(mc.handlings[0].endpoint, self.origin_endpoint)
+
+        # request 2 - Repose should use the cache, and therefore not call out
+        #   to the fake identity service, and pass the request to the origin
+        #   service
+        self.identity_service.validations = 0
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': self.token})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+        self.assertEqual(self.identity_service.validations, 0)
+        self.assertEqual(mc.handlings[0].endpoint, self.origin_endpoint)
+
+        # change identity atom feed
+
+        # request 3 - Repose should not have the token in the cache any more,
+        #   so it try to validate it, which will fail. Repose should then
+        #   return a 401.
+
+        pass
 
     def tearDown(self):
         if self.valve is not None:
