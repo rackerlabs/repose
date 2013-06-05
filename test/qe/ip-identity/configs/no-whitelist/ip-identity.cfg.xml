@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ip-identity xmlns="http://docs.api.rackspacecloud.com/repose/ip-identity/v1.0">
+    <quality>0.2</quality>
+</ip-identity>
+
