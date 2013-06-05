@@ -1,0 +1,6 @@
+{
+   "itemNotFound" : {
+      "message" : "Invalid Token, not found.",
+      "code" : 404
+   }
+}
