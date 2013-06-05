@@ -107,6 +107,33 @@ with open('identity-failure.xml', 'r') as f:
 with open('identity-failure.xml', 'r') as f:
     identity_failure_json_template = string.Template(f.read())
 
+groups_json_template = string.Template('''{
+    "RAX-KSGRP:groups": [
+        {
+            "id": "0",
+            "description": "Default Limits",
+            "name": "Default"
+        }
+    ]
+}''')
+
+groups_xml_template = string.Template(
+    '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
+    <group id="0" name="Default">
+        <description>Default Limits</description>
+    </group>
+</groups>''')
+
+client_token = 'this-is-the-token'
+client_tenant = 'this-is-the-tenant'
+client_username = 'username'
+client_userid = 12345
+admin_token = 'this-is-the-admin-token'
+admin_tenant = 'this-is-the-admin-tenant'
+admin_username = 'admin_username'
+admin_userid = 67890
+
 port_base = 11000
 port_port = None
 
@@ -117,7 +144,6 @@ def get_next_open_port(start=None):
         port_port = start
     elif port_port is None:
         port_port = port_base
-
     while port_port < 65535:
         try:
             requests.get('http://localhost:%i' % port_port)
@@ -164,6 +190,7 @@ class FakeIdentityService(object):
         self.validations = 0
 
     def handler(self, request):
+        logger.debug('Handling a request')
         xml = False
         if 'Accept' in request.headers:
             for value in request.headers.find_all('Accept'):
@@ -172,44 +199,56 @@ class FakeIdentityService(object):
                     break
 
         t = datetime.datetime.now() + datetime.timedelta(days=1)
-        params = {
-            'expires': ('%04d-%02d-%02dT%02d:%02d:%02d.000-05:00' %
-                        (t.year, t.month, t.day, t.hour, t.minute, t.second)),
-            'userid': 123456,
-            'username': 'username',
-            'tenant': 'this-is-the-tenant',
-        }
 
         if request.method == 'GET':
-            # validating a token
-            if '/' in request.path:
-                index = request.path.rfind('/')
-                token = request.path[index+1:]
-            else:
-                token = request.path
 
-            params['token'] = token
-
-            if request.path.startswith('/tokens'):
+            if 'tokens' in request.path:
+                # validating a client token
                 self.validations += 1
 
-            if self.ok:
+                params = {
+                    'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                    'userid': client_userid,
+                    'username': client_username,
+                    'tenant': client_tenant,
+                    'token': client_token,
+                }
+
+                if self.ok:
+                    code = 200
+                    message = 'OK'
+                    if xml:
+                        template = identity_success_xml_template
+                    else:
+                        template = identity_success_json_template
+                else:
+                    code = 404
+                    message = 'Not Found'
+                    if xml:
+                        template = identity_failure_xml_template
+                    else:
+                        template = identity_failure_json_template
+            else:
+                # getting groups
+                if xml:
+                    template = groups_xml_template
+                else:
+                    template = groups_json_template
+                params = {}
                 code = 200
                 message = 'OK'
-                if xml:
-                    template = identity_success_xml_template
-                else:
-                    template = identity_success_json_template
-            else:
-                code = 404
-                message = 'Not Found'
-                if xml:
-                    template = identity_failure_xml_template
-                else:
-                    template = identity_failure_json_template
+
         elif request.method == 'POST':
             # get admin token
-            params['token'] = 'this-is-the-token'
+
+            params = {
+                'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                'userid': admin_userid,
+                'username': admin_username,
+                'tenant': admin_tenant,
+                'token': admin_token
+            }
+
             code = 200
             message = 'OK'
             if xml:
@@ -242,13 +281,23 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
         atom_port = get_next_open_port()
         deproxy_port = get_next_open_port()
 
-        self.identity_service = FakeIdentityService()
+        logger.info('repose port: {0}'.format(repose_port))
+        logger.info('stop port: {0}'.format(stop_port))
+        logger.info('identity port: {0}'.format(identity_port))
+        logger.info('atom port: {0}'.format(atom_port))
+        logger.info('origin port: {0}'.format(deproxy_port))
+
         self.deproxy = deproxy.Deproxy()
+
         self.origin_endpoint = self.deproxy.add_endpoint(deproxy_port,
                                                          'origin service')
-        self.identity_endpoint = self.deproxy.add_endpoint(identity_port,
-                                                           'identity service',
-                                                           default_handler=self.identity_service.handler)
+
+        self.identity_service = FakeIdentityService()
+        handler = self.identity_service.handler
+        endpoint = self.deproxy.add_endpoint(identity_port, 'identity service',
+                                             default_handler=handler)
+        self.identity_endpoint = endpoint
+
         self.atom_endpoint = self.deproxy.add_endpoint(atom_port,
                                                        'atom service')
 
@@ -269,17 +318,16 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
 
         # start Valve
         self.valve = valve.Valve(config_dir='etc/repose', stop_port=stop_port,
-                                 wait_on_start=True, port=repose_port)
+                                 wait_on_start=True, port=repose_port,
+                                 insecure=True)
 
-        self.token = 'tokentokentoken'
-
-    def test_something(self):
+    def test_identity_feed_cache_clearing(self):
 
         # request 1 - Repose should validate the token and then pass the
         #   request to the origin service
         self.identity_service.validations = 0
         mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': self.token})
+                                       headers={'X-Auth-Token': client_token})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
         #self.assertEqual(len(mc.orphaned_handlings), 1)
@@ -294,7 +342,7 @@ class TestIdentityFeedCacheClearing(unittest.TestCase):
         #   service
         self.identity_service.validations = 0
         mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': self.token})
+                                       headers={'X-Auth-Token': client_token})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
         self.assertEqual(self.identity_service.validations, 0)
