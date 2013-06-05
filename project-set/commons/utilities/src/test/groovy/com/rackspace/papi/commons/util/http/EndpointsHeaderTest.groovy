@@ -2,6 +2,10 @@ package com.rackspace.papi.commons.util.http
 
 import spock.lang.Specification
 
+/**
+ * Some groovy tests as an experiment.
+ */
+
 class EndpointsHeaderTest extends Specification {
 
     def "matches should return true when comparing 2 strings and should ignore case"() {

@@ -31,14 +31,14 @@ public class EndpointsCache {
         return candidate;
     }
 
-    public void storeEndpoints(String token, String endpoints, int ttl) throws IOException {
-        if (endpoints == null || token == null || ttl < 0) {
+    public void storeEndpoints(String tokenId, String endpoints, int ttl) throws IOException {
+        if (endpoints == null || tokenId == null || ttl < 0) {
             // TODO Should we throw an exception here?
             return;
         }
 
         byte[] data = ObjectSerializer.instance().writeObject(endpoints);
 
-        store.put(cachePrefix + "." + token, data, ttl, TimeUnit.MILLISECONDS);
+        store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
     }
 }
