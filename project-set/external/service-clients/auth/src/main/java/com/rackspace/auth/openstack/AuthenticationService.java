@@ -17,4 +17,6 @@ public interface AuthenticationService {
     List<Endpoint> getEndpointsForToken(String userToken);
 
     AuthGroups getGroups(String userId);
+
+    String getBase64EndpointsStringForHeaders(String userToken, String format);
 }
