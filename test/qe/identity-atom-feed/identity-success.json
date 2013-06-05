@@ -1,0 +1,66 @@
+{
+   "access" : {
+      "serviceCatalog" : [
+         {
+            "name" : "cloudFilesCDN",
+            "type" : "rax:object-cdn",
+            "endpoints" : [
+               {
+                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/${tenant}",
+                  "tenantId" : "${tenant}",
+                  "region" : "DFW"
+               },
+               {
+                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/${tenant}",
+                  "tenantId" : "${tenant}",
+                  "region" : "ORD"
+               }
+            ]
+         },
+         {
+            "name" : "cloudFiles",
+            "type" : "object-store",
+            "endpoints" : [
+               {
+                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/${tenant}",
+                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/${tenant}",
+                  "tenantId" : "${tenant}",
+                  "region" : "ORD"
+               },
+               {
+                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/${tenant}",
+                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/${tenant}",
+                  "tenantId" : "${tenant}",
+                  "region" : "DFW"
+               }
+            ]
+         }
+      ],
+      "user" : {
+         "roles" : [
+            {
+               "tenantId" : "${tenant}",
+               "name" : "compute:default",
+               "id" : "684",
+               "description" : "A Role that allows a user access to keystone Service methods"
+            },
+            {
+               "name" : "identity:admin",
+               "id" : "1",
+               "description" : "Admin Role."
+            }
+         ],
+         "RAX-AUTH:defaultRegion" : "",
+         "name" : "${username}",
+         "id" : "${userid}"
+      },
+      "token" : {
+         "tenant" : {
+            "name" : "${tenant}",
+            "id" : "${tenant}"
+         },
+         "id" : "${token}",
+         "expires" : "${expires}"
+      }
+   }
+}
