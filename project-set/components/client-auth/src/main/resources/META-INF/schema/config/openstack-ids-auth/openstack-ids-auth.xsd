@@ -153,12 +153,12 @@
         <xs:attribute name="cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Determines cache timeout.</html:p>
+                    <html:p>Determines cache timeout in milliseconds.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="identity-contract-version" type="xs:integer" use="optional" default="2">
+        <xs:attribute name="identity-contract-version" type="xs:integer" use="optional" fixed="2">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Determines the contract identity version.</html:p>
