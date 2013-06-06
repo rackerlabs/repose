@@ -8,7 +8,6 @@ class DistDataShutdownTest extends ReposeValveTest {
     def "when shutting down repose, should stop dd service" () {
         given:
         repose.applyConfigs("features/services/distdatastore/")
-        repose.enableDebug()
         repose.start()
 
         when:

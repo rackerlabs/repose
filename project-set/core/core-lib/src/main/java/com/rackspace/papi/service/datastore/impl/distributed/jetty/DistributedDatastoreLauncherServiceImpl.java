@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.service.datastore.impl.distributed.jetty;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
@@ -9,16 +5,17 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
-import org.springframework.stereotype.Component;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.routing.RoutingService;
+import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.impl.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.impl.distributed.config.Port;
-import java.net.URL;
+import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.net.URL;
 
 @Component("distributedDatastoreLauncher")
 public class DistributedDatastoreLauncherServiceImpl implements DistributedDatastoreLauncherService {
@@ -42,7 +39,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
          server.start();
          server.setStopAtShutdown(true);
       } catch (Exception e) {
-         LOG.error("Unable to start Distributed Datastore Jetty Insance: " + e.getMessage(), e);
+         LOG.error("Unable to start Distributed Datastore Jetty Instance: " + e.getMessage(), e);
          if (server != null) {
             try {
                server.stop();
@@ -56,23 +53,22 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
    @Override
    public void stopDistributedDatastoreServlet() {
       LOG.info("Stopping Distributed Datastore listener at port " + datastorePort);
-      try {
-          if (server != null) {
-              server.stop();
-          }
-      } catch (Exception ex) {
-         LOG.error("Unable to stop Distributed Datastore listener at port " + datastorePort, ex);
-      }
 
+      if (server != null && server.isStarted()) {
+          try {
+              server.stop();
+          } catch (Exception ex) {
+              LOG.error("Unable to stop Distributed Datastore listener at port " + datastorePort, ex);
+          }
+      }
    }
 
    @Override
    public void destroy() {
-      stopDistributedDatastoreServlet();
       if(configurationManager != null){
          configurationManager.unsubscribeFrom("dist-datastore.cfg.xml", distributedDatastoreConfigurationListener);
       }
-      
+      stopDistributedDatastoreServlet();
    }
   
 
