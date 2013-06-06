@@ -5,6 +5,7 @@ from narwhal import valve
 from narwhal import conf
 from narwhal import pathutil
 from narwhal.download_repose import ReposeMavenConnector
+import zlib
 import deproxy
 import requests
 import logging
@@ -15,6 +16,7 @@ import sys
 import os
 import glob
 import string
+import base64
 import datetime
 from pprint import pprint
 import re
@@ -79,39 +81,48 @@ class TestCatalogService(unittest.TestCase):
         apply_config_set('configs/.config-set.xml', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
                                         stop_port=stop_port, port=repose_port,
-                                        wait_on_start=True)
+                                        wait_on_start=True,insecure=True)
         time.sleep(startup_wait_time)
 
 
     def get_auth_token(self):
         #authentication key
-        url = 'http://50.57.189.15:8080/keystone/tokens'
-        request_body = '<auth xmlns="http://docs.openstack.org/identity/api/v2.0"><passwordCredentials username="impersonated" password="pass1"/></auth>'
+        url = 'https://staging.identity.api.rackspacecloud.com/v2.0/tokens'
+        request_body = '<auth xmlns="http://docs.openstack.org/identity/api/v2.0"><passwordCredentials username="repose" password="PY3VI3d3rVkqtwCj"/></auth>'
         mc = self.deproxy.make_request(method='POST',url=url,headers={'Accept':'application/xml','Content-Type':'application/xml'},request_body=request_body)
         try:
-            logger.debug(mc.received_response.body)
-            tree = ET.fromstring(mc.received_response.body)
-            
+            body = zlib.decompress(bytes(mc.received_response.body),15+32)
+            print body
+            tree = ET.fromstring(body)
+            token = None
+            catalog = None
+           # print ET.tostringlist(tree.find("{http://docs.openstack.org/identity/api/v2.0}serviceCatalog").getchildren(), encoding='utf-8', method='xml')
             for child_of_root in tree:
                 if child_of_root.tag == "{http://docs.openstack.org/identity/api/v2.0}token":
-                    return child_of_root.attrib["id"]
+                    token = child_of_root.attrib["id"]
+                if child_of_root.tag == "{http://docs.openstack.org/identity/api/v2.0}serviceCatalog":
+                    print child_of_root.tag
+                    print child_of_root.text
+                    catalog = child_of_root.text
+            return (token, catalog)
         except ExpatError:
             logger.debug( 'Unable to parse response body for the authenticated call')
 
     def test_catalog_exists(self):
         logger.debug('test_catalog_exists')
-        auth_token = self.get_auth_token()
-        url = 'http://localhost:%i/v1/impersonated' % repose_port
+        (auth_token, catalog) = self.get_auth_token()
+        url = 'http://localhost:%i/' % repose_port
         logger.debug('url = %s' % url)
-        headers = {'X-Auth-Token': auth_token,'Accept':'application/xml'}
+        logger.debug(auth_token)
+        headers = {'X-Auth-Token': auth_token}
 
         time.sleep(1)
 
         logger.debug('make request')
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        logger.debug(mc)
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
+        self.assertIsNotNone(mc.handlings[0].request.headers['x-catalog'])
 
     def tearDown(self):
         logger.debug('tearDown')
