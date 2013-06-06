@@ -21,7 +21,7 @@ public class EndpointsConfiguration {
     }
 
     public String getFormat() {
-        if (format == null) {
+        if (format == null || format != "xml") {
             return "json";
         } else {
             return format;

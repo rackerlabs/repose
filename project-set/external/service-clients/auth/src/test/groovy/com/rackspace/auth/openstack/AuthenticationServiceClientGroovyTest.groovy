@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 class AuthenticationServiceClientGroovyTest extends Specification {
 
-    def "testing the private convertStreamToBase64String method"() {
+    def "when converting a stream, it should return a base 64 encoded string"() {
         given:
         def AuthenticationServiceClient asc = new AuthenticationServiceClient(null, null, null, null, null, null, null)
         def InputStream inputStream = new ByteArrayInputStream("test".getBytes())

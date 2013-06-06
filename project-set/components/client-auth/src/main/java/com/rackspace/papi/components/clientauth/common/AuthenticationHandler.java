@@ -135,10 +135,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          }
       }
 
-      List<AuthGroup> groups = getAuthGroups(token); // copy this pattern
+       List<AuthGroup> groups = getAuthGroups(token);
 
-      //getting the encoded endpoints to pass into the header
-      String endpointsInBase64 = getEndpointsInBase64(token);
+       //getting the encoded endpoints to pass into the header, if the endpoints config is not null
+       String endpointsInBase64 = null;
+       if (endpointsConfiguration != null){
+           endpointsInBase64 = getEndpointsInBase64(token);
+       }
 
       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
               groups, endpointsInBase64);
@@ -338,8 +341,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    }
 
    //get the ttl but prevent bad integers
-   private int safeEndpointsTtl() {
-      final Long endpointsTtl = this.endpointsCacheTtl;
+    private Integer safeEndpointsTtl() {
+        final Long endpointsTtl;
+
+        if (endpointsConfiguration != null) {
+            endpointsTtl = endpointsConfiguration.getCacheTimeout();
+        } else {
+            return null;
+        }
 
       if (endpointsTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;

@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.common;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class EndpointsCache implements DeleteableCache{
+
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
     private final Datastore store;
     private final String cachePrefix;
@@ -31,15 +34,15 @@ public class EndpointsCache implements DeleteableCache{
         return candidate;
     }
 
-    public void storeEndpoints(String token, String endpoints, int ttl) throws IOException {
-        if (endpoints == null || token == null || ttl < 0) {
-            // TODO Should we throw an exception here?
+    public void storeEndpoints(String tokenId, String endpoints, int ttl) throws IOException {
+        if (endpoints == null || tokenId == null || ttl < 0) {
+            LOG.warn("Null values passed into cache when attempting to store endpoints.");
             return;
         }
 
         byte[] data = ObjectSerializer.instance().writeObject(endpoints);
 
-        store.put(cachePrefix + "." + token, data, ttl, TimeUnit.MILLISECONDS);
+        store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
     }
 
    @Override

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
+              xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+              code="404">
+  <message>Invalid Token, not found.</message>
+</itemNotFound>

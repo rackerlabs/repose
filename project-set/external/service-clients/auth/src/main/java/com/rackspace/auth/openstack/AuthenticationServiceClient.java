@@ -162,7 +162,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             break;
          case UNAUTHORIZED:
-            LOG.warn("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
+            LOG.warn("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. " +
+                             "Retrieving new admin token and retrying endpoints retrieval...");
 
             headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
             endpointListResponse = serviceClient.get(targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
