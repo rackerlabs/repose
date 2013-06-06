@@ -23,7 +23,7 @@ public class AuthTokenCache {
    }
    
    public AuthToken getUserToken(String userId, String token) {
-      AuthToken candidate = getElementAsType(store.get(cachePrefix + "." + userId));
+      AuthToken candidate = getElementAsType(store.get(cachePrefix + "." + userId));//Looking into the datastore for this token.
       return validateToken(candidate, token)? candidate: null;
    }
    

@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.EndpointsHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -34,9 +35,11 @@ public class OpenStackAuthenticationHeaderManager {
     private static final String QUALITY = ";q=1.0";
     private final String wwwAuthHeaderContents;
     private static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
+    private final String endpointsBase64;
 
+    //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
-            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents) {
+            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents, String endpointsBase64) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -45,10 +48,11 @@ public class OpenStackAuthenticationHeaderManager {
         this.validToken = token != null && token.getTokenId() != null;
         this.groups = groups;
         this.wwwAuthHeaderContents = wwwAuthHeaderContents;
+        this.endpointsBase64 = endpointsBase64;
     }
 
+    //set header with base64 string here
     public void setFilterDirectorValues() {
-
         if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
             setExtendedAuthorization();
@@ -57,6 +61,7 @@ public class OpenStackAuthenticationHeaderManager {
             setGroups();
             setTenant();
             setImpersonator();
+            setEndpoints();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -146,6 +151,16 @@ public class OpenStackAuthenticationHeaderManager {
     private void setGroups() {
         for (AuthGroup group : groups) {
             filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
+        }
+    }
+
+    /**
+     * ENDPOINTS
+     * The base 64 encoded list of endpoints in an x-catalog header.
+     */
+    private void setEndpoints() {
+        if (endpointsBase64 != null && !endpointsBase64.isEmpty()) {
+            filterDirector.requestHeaderManager().putHeader(EndpointsHeader.X_CATALOG.toString(), endpointsBase64);
         }
     }
 }
