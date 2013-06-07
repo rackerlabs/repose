@@ -21,7 +21,10 @@
 
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+
+
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -33,6 +36,11 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        set to true will match validators to header 'x-roles' and all matches are
+                        validated until one of them is valid. In the event that all matches are invalid, the response
+                        returned will be that of the last matched validator. Set to false or not set will match
+                        validators
+                        to header 'x-roles' and only first match is validated.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -66,7 +74,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Set to use this validator if no 'x-roles' header is passed
+                        Set to use this validator if no 'x-roles' header is passed.
+                        If the api-validator config 'multi-match' is set to true then teh default validator
+                        will be the first validator to process the incoming request.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
