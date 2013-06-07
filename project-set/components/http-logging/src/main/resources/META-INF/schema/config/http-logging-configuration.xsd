@@ -3,7 +3,10 @@
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.rackspacecloud.com/repose/http-logging/v1.0"
            xmlns:htlog="http://docs.rackspacecloud.com/repose/http-logging/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:html="http://www.w3.org/1999/xhtml"           
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:element name="http-logging" type="htlog:http-logging-config" />
@@ -11,13 +14,28 @@
     <xs:complexType name="http-logging-config">
         <xs:annotation>
             <xs:documentation>
-                <html:p>This is the type definition for http logging configuration</html:p>
+                <html:p>Repose's HTTP Logging Component allows logging of information in HTTP 
+                    requests that are sent to Repose and responses from Repose. It is based on 
+                    the Apache HTTPD Logging Standard, described at: 
+                    <html:a href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">
+                        Apache HTTPD Logging Standard</html:a></html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
             <xs:element name="http-log" type="htlog:http-log" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+        
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(htlog:*/@id)) = count(htlog:*/@id)"
+            xerces:message="http-log must have ids unique within their containing list"
+            saxon:message="http-log must have ids unique within their containing list">
+        </xs:assert>
+
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(http-log/targets/file/@location)) = count(http-log/targets/file/@location)"
+            xerces:message="file must have locations unique within their containing list"
+            saxon:message="file must have locations unique within their containing list" xpathDefaultNamespace="##targetNamespace">
+        </xs:assert>
+ 
     </xs:complexType>
 
     <xs:complexType name="http-log">
@@ -43,7 +61,152 @@
         <xs:attribute name="format" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats</html:p>
+                    <html:p>The format includes what will be logged.  The arguments with % are 
+                        a subset of the apache mod_log_config found at 
+                        <html:a href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats">
+                            Apache HTTPD Logging Standard Formats</html:a></html:p>
+                    <html:p>Repose only supports this subset of the Apache logging described in the table below:</html:p>
+                    <table xmlns="http://www.w3.org/1999/xhtml">                        
+                        <tbody>
+                            <tr>
+                                <th rowspan="1" colspan="1">Format String</th>
+                                <th rowspan="1" colspan="1">Description</th>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">\t</td>
+                                <td rowspan="1" colspan="1">Tab</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">\n</td>
+                                <td rowspan="1" colspan="1">Newline</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%%</td>
+                                <td rowspan="1" colspan="1">The percent sign</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%a</td>
+                                <td rowspan="1" colspan="1">Remote IP-address</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%A</td>
+                                <td rowspan="1" colspan="1">Local IP-address</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%b</td>
+                                <td rowspan="1" colspan="1">Size of response in bytes, excluding HTTP headers. In CLF
+                                    format, i.e. a '-' rather than a 0 when no bytes are sent. </td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" rowspan="1">%B</td>
+                                <td colspan="1" rowspan="1">
+                                    <span>Size of response in bytes, excluding HTTP headers. 0 is logged when no bytes
+                                        are sent.</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" rowspan="1">%D</td>
+                                <td colspan="1" rowspan="1">The time taken to serve the request, in microseconds.
+                                    <strong>[As of release 2.3.6]</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%h</td>
+                                <td rowspan="1" colspan="1">Remote host</td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" rowspan="1">
+                                    <p>
+                                        <span>%{header}i</span>
+                                    </p>
+                                    <p>
+                                        <span>
+                                            <span>%{header type out-format}i</span>
+                                        </span>
+                                    </p>
+                                    <p>%{header type out-format in-format}i</p>
+                                </td>
+                                <td colspan="1" rowspan="1">
+                                        <p>Request header. Parameters <em>type</em>, <em>out-format</em> and
+                                        <em>in-format</em> are optional. If not specified, then the header value is
+                                        output as is. </p>
+                                        <p>Currently, the only type supported is DATE. Out and in date formats supported are
+                                        RFC_1123 (HTTP-Date) and ISO_8601. </p>
+                                        <p>If type is specified, then out-format is required. in-format is optional and
+                                        defaults to RFC_1123 for DATE types if not specified. </p>
+                                        <p>Note: Headers are treated in a case insensitive manner. For example,
+                                        %{X-Auth-Token}i is equivalent to %{x-auth-token}i. </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">
+                                    <p>%m</p>
+                                </td>
+                                <td rowspan="1" colspan="1">The request method.</td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" rowspan="1">
+                                    <p>
+                                        <span>%{header}o</span>
+                                        </p>
+                                    <p>
+                                        <span>
+                                            <span>%{header type out-format}o</span>
+                                        </span>
+                                        </p>
+                                    <p>%{header type out-format in-format}o</p>
+                                </td>
+                                <td colspan="1" rowspan="1">
+                                    <p>Response header. Parameters <em>type</em>, <em>out-format</em> and
+                                        <em>in-format</em> are optional. If not specified, then the header value is
+                                        output as is. </p>
+                                    <p>Currently, the only type supported is DATE. Out and in date formats supported are
+                                        RFC_1123 (HTTP-Date) and ISO_8601. </p>
+                                    <p>If type is specified, then out-format is required. in-format is optional and
+                                        defaults to RFC_1123 for DATE types if not specified. </p>
+                                    <p>An example to output the retry-after header using the ISO_8601 format would be
+                                        <strong>%{retry-after DATE ISO_8601}o</strong>
+                                    </p>
+                                    <p>Note: Headers are treated in a case insensitive manner. For example, %{LOCATION}o
+                                        is equivalent to %{location}o. </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%p</td>
+                                <td rowspan="1" colspan="1">The canonical port of the server serving the request. </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%q</td>
+                                <td rowspan="1" colspan="1">The query string (prepended with a ? if a query string
+                                    exists, otherwise an empty string). </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%s</td>
+                                <td rowspan="1" colspan="1">Status. For requests that got internally redirected, this is
+                                    the status of the \*original\* request \--\- %&gt;s for the last. </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%t</td>
+                                <td rowspan="1" colspan="1">Time the request was received (standard english 24 hour
+                                    format) </td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" rowspan="1">%T</td>
+                                <td colspan="1" rowspan="1">The time taken to serve the request, in seconds. <strong>[As
+                                    of release 2.3.6]</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%u</td>
+                                <td rowspan="1" colspan="1">Remote user (from auth; may be bogus if return status (%s)
+                                    is 401) </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1" colspan="1">%U</td>
+                                <td rowspan="1" colspan="1">The URL path requested, not including any query string. </td>
+                            </tr>
+                        </tbody>
+                    </table>                    
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -52,25 +215,26 @@
     <xs:complexType name="targets">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>List of file elements which contain the paths to the generated logs.</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
-            <xs:element name="file" type="htlog:file-target" minOccurs="1" maxOccurs="unbounded" />
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="file" type="htlog:file-target" />
             <!-- The syslog support is future functionality -->
             <!--<xs:element name="syslog" type="htlog:syslog-target" minOccurs="1" maxOccurs="1" />-->
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="file-target">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>The file element can be used to specify the location(s) on the file 
+                    system of where the log information should be saved. </html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="location">
+        <xs:attribute name="location" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The actual location of the log file.</html:p>
@@ -82,14 +246,14 @@
     <xs:complexType name="syslog-target">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Not yet implemented.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:attribute name="host" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>Not yet implemented.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -97,7 +261,7 @@
         <xs:attribute name="port" type="xs:int" use="optional" default="514">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>Not yet implemented.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
