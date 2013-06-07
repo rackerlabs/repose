@@ -117,6 +117,7 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
+      ca.getContext( MetricsServiceContext.class ).contextInitialized( sce );
 
       // Start management server
       if (isManagementServerEnabled()) {
