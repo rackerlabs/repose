@@ -3,7 +3,6 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.EndpointsHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -159,8 +158,8 @@ public class OpenStackAuthenticationHeaderManager {
      * The base 64 encoded list of endpoints in an x-catalog header.
      */
     private void setEndpoints() {
-        if (endpointsBase64 != null && !endpointsBase64.isEmpty()) {
-            filterDirector.requestHeaderManager().putHeader(EndpointsHeader.X_CATALOG.toString(), endpointsBase64);
+        if (!StringUtilities.isBlank(endpointsBase64)) {
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_CATALOG.toString(), endpointsBase64);
         }
     }
 }

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * This class manages the caching of endpoints.
  */
 
-public class EndpointsCache {
+public class EndpointsCache implements DeleteableCache{
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
@@ -44,4 +44,9 @@ public class EndpointsCache {
 
         store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
     }
+
+   @Override
+   public boolean deleteCacheItem(String userId) {
+      return store.remove(userId);
+   }
 }
