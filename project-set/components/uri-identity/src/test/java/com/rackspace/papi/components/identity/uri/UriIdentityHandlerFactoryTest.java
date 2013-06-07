@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
  */
 public class UriIdentityHandlerFactoryTest {
 
-    private static String QUALITY = "0.5";
+    private static Double QUALITY = 0.5;
     private static String QUALITY_VALUE = ";q=0.5";
     private static String URI1 = "/someuri/1234/morestuff";
     private static String REGEX1 = ".*/[^\\d]*/(\\d*)/.*";
@@ -69,7 +69,7 @@ public class UriIdentityHandlerFactoryTest {
         
         config = new UriIdentityConfig();
         IdentificationMappingList identificationMappingList = new IdentificationMappingList();
-        
+
         IdentificationMapping mapping = new IdentificationMapping();
         mapping.setId("Mapping 1");
         mapping.setIdentificationRegex(REGEX1);
@@ -80,7 +80,7 @@ public class UriIdentityHandlerFactoryTest {
         factory.configurationUpdated(config);
 
         handler = factory.buildHandler();
-        
+
         when(request.getRequestURI()).thenReturn(URI1);
 
         FilterDirector result = handler.handleRequest(request, response);
@@ -98,7 +98,6 @@ public class UriIdentityHandlerFactoryTest {
     public void shouldSetDefaultQualityIfConfigIsBlank(){
         
         config = new UriIdentityConfig();
-        config.setQuality("");
         IdentificationMappingList identificationMappingList = new IdentificationMappingList();
         
         IdentificationMapping mapping = new IdentificationMapping();
