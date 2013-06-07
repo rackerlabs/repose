@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
 import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
@@ -26,8 +27,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
 
-   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
-      super(cfg, cache, grpCache, endpointsCache, uriMatcher);
+   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
+      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
    }

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 
-public class AuthGroupCache {
+public class AuthGroupCache implements DeleteableCache{
 
     private final Datastore store;
     private final String cachePrefix;
@@ -38,6 +38,11 @@ public class AuthGroupCache {
         byte[] data = ObjectSerializer.instance().writeObject(groups);
 
         store.put(cachePrefix + "." + tenantId, data, ttl, TimeUnit.MILLISECONDS);
+    }
+    
+    @Override
+    public boolean deleteCacheItem(String tenantId){
+       return store.remove(cachePrefix + tenantId);
     }
 
     public boolean validateGroup(AuthGroups cachedValue) {

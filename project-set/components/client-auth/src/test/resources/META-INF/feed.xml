@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/" rel="current"/>
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/" rel="self"/>
+  <id>urn:uuid:8f287c63-e473-4f9d-96ab-ce82613efb06</id>
+  <title type="text">some/identity/feed</title>
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&amp;limit=25&amp;search=&amp;direction=forward" rel="previous"/>
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:85d56953-ad62-adda-25d9-99048137a935&amp;limit=25&amp;search=&amp;direction=backward" rel="next"/>
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward" rel="last"/>
+  <updated>2013-05-22T22:12:05.435Z</updated>
+  <atom:entry xmlns:atom="http://www.w3.org/2005/Atom" xmlns="http://docs.rackspace.com/core/event" xmlns:id="http://docs.rackspace.com/event/identity/token">
+    <atom:id>urn:uuid:caa5caf0-efba-4abb-b3db-1ba58a26ee22</atom:id>
+    <atom:category term="rgn:IDK"/>
+    <atom:category term="dc:IDK1"/>
+    <atom:category term="rid:cbd7453b-770a-49cf-9da5-1adfe74f3bd4"/>
+    <atom:category term="cloudidentity.token.token.delete"/>
+    <atom:title type="text">Identity Token Event</atom:title>
+    <atom:author>
+      <atom:name>JUNIT Test Team</atom:name>
+    </atom:author>
+    <atom:content type="application/xml">
+      <event dataCenter="IDK" environment="JUNIT" eventTime="2012-09-19T11:11:11Z" id="e3cb4606-7b2e-4a8d-82ce-288bc89c2b54" region="IDK" resourceId="834d3be1-c479-11e2-8b8b-0800200c9a66" type="DELETE" version="1">
+        <id:product resourceType="TOKEN" serviceCode="CloudIdentity" tenants="1234 tenant2 3882" version="1"/>
+      </event>
+    </atom:content>
+    <atom:link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/entries/urn:uuid:4fa194dc-5148-a465-254d-b8ccab3766bc" rel="self"/>
+    <atom:updated>2013-05-16T20:11:48.132Z</atom:updated>
+    <atom:published>2013-05-16T20:11:48.132Z</atom:published>
+  </atom:entry>
+  <atom:entry xmlns:atom="http://www.w3.org/2005/Atom">
+    <atom:id>urn:uuid:59a7a77a-03aa-4323-abeb-98b3734e63a4</atom:id>
+    <atom:category term="rgn:IDK"/>
+    <atom:category term="dc:IDK1"/>
+    <atom:category term="rid:224277258"/>
+    <atom:category term="cloudidentity.user.user.delete"/>
+    <atom:title type="text">Identity Event</atom:title>
+    <atom:author>
+      <atom:name>JUNIT Test Team</atom:name>
+    </atom:author>
+    <atom:content type="application/xml">
+      <event xmlns="http://docs.rackspace.com/core/event" xmlns:id="http://docs.rackspace.com/event/identity/user" dataCenter="IDK" environment="JUNIT" eventTime="2012-09-15T11:51:11Z" id="75c152d2-b7b7-4e0a-86b6-3a5e235af0da" region="IDK" resourceId="224277258" resourceName="junituser3820" type="DELETE" version="1">
+        <id:product displayName="unitestUser1" migrated="true" resourceType="USER" serviceCode="CloudIdentity" version="1"/>
+      </event>
+    </atom:content>
+    <atom:link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/entries/urn:uuid:4fa194dc-5148-a465-254d-53a0661f6236" rel="self"/>
+    <atom:updated>2013-05-16T20:11:48.050Z</atom:updated>
+    <atom:published>2013-05-16T20:11:48.050Z</atom:published>
+  </atom:entry>
+</feed>
