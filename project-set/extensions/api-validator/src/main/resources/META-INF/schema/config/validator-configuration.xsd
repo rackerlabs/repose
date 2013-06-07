@@ -57,7 +57,7 @@
         <xs:attribute name="role" type="scr:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of roles that are applied on single validator.
+                    <html:p>List of roles that are applied on single validator. Triggers off of 'x-roles' header
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -66,6 +66,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Set to use this validator if no 'x-roles' header is passed
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -74,6 +75,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Location of wadl to associate with configured validator. This attribute is optional.
+                        If not specified, then the wadl needs to be embedded within the validator element.
+                        Can be located within the file system or pointed to a remote file.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -82,6 +86,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        dot output file for this validator
+                        DOT is a plain text graph description language.
+                        It is a simple way of describing graphs that both humans and computer programs can use.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -90,6 +97,11 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        XPath version used in the WADL.
+                        Can be 1 or 2.
+                        If 1 is set the Xalan implementation will be used, if 2 then Saxon will be used
+                        Note that XPath 2 with schema awareness requires a Saxon license.
+
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -98,6 +110,17 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Check Well-Formed XML and JSON
+
+                        The XML Syntax rules for Well-Formed XML are:
+                        All XML elements must have a closing tag.
+                        XML tags are case-sensitive.
+                        All XML elements must be properly nested.
+                        All XML documents must have a root element.
+                        Attribute values must always be quoted.
+                        With XML, white space is preserved.
+
+                        TODO: Restricitons for a well formed JSON
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -106,6 +129,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Check all XML against XSD Grammars
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -114,6 +138,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Ensure elements are correct
+                        <!-- What does that mean??? -->
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -122,6 +148,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Use SAXON-EE for XSD validation: This means that in cases where XSD validation needs to be done
+                        use the Saxon XSD validator instead of the default Xerces validator.
+                        Note that the Saxon validator requires a license.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -131,6 +160,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Check plain parameters
+                        <!-- What does that mean??? -->
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -139,6 +170,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Allow XSD grammar transform. Transform the XML after validation, to fill in things like default
+                        values etc
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -147,6 +180,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Enable preprocess extension
+                        <!-- What does that mean??? -->
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -155,6 +190,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Don't allow duplicate nodes in the state machine
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -172,6 +208,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        The XSL 1.0 engine to use. Possible choices are Xalan, XalanC, and Saxon
+                        Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -180,6 +218,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        This is an optimization where the well formed check and multiple XPath checks can be merged into
+                        a single check.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -188,6 +228,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Check that required headers are set.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -197,6 +238,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations
+                        from validation against the XSD. Default values is true if not specified
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -206,29 +249,32 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Sets the name for this validator item. The name is used as the MBean name
+                        when connecting to Repose via JMX.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-        <xs:assert vc:minVersion="1.1" test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
-            xerces:message="Roles list must contain unique roles"
-            saxon:message="Roles list must contain unique roles"/>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
+                   xerces:message="Roles list must contain unique roles"
+                   saxon:message="Roles list must contain unique roles"/>
 
         <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
                    xerces:message="Cannot define wadl file and embedded wadl"
                    saxon:message="Cannot define wadl file and embedded wadl"/>
-        
+
         <xs:assert vc:minVersion="1.1" test="if (@wadl) then not (count(./*)>0) else true()"
-            xerces:message="Cannot define wadl file and embedded wadl"
-            saxon:message="Cannot define wadl file and embedded wadl"/>
-        
+                   xerces:message="Cannot define wadl file and embedded wadl"
+                   saxon:message="Cannot define wadl file and embedded wadl"/>
+
         <xs:assert vc:minVersion="1.1" test="if (not(@wadl)) then (count(./*)>0) else true()"
-            xerces:message="Must define a wadl file OR an embedded wadl"
-            saxon:message="Must define a wadl file OR an embedded wadl"/>
-        
+                   xerces:message="Must define a wadl file OR an embedded wadl"
+                   saxon:message="Must define a wadl file OR an embedded wadl"/>
+
         <xs:assert vc:minVersion="1.1" test="if (not(count(./*)>0)) then (@wadl) else true()"
-            xerces:message="Must define a wadl file OR an embedded wadl"
-            saxon:message="Must define a wadl file OR an embedded wadl"/>
+                   xerces:message="Must define a wadl file OR an embedded wadl"
+                   saxon:message="Must define a wadl file OR an embedded wadl"/>
     </xs:complexType>
 </xs:schema>
