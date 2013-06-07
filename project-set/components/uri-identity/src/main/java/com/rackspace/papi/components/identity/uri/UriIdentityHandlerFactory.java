@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriIdentityHandler> {
 
+    public static final Double DEFAULT_QUALITY = 0.5;
     private static final String DEFAULT_GROUP = "User_Standard";
     private List<Pattern> patterns = new ArrayList<Pattern>();
     private UriIdentityConfig config;
@@ -47,7 +48,7 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 patterns.add(Pattern.compile(identificationMapping.getIdentificationRegex()));
             }
 
-            quality = config.getQuality();
+            quality = determineQuality();
             group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
 
             isInitialized = true;
@@ -65,5 +66,19 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
             return null;
         }
         return new UriIdentityHandler(patterns, group, quality);
+    }
+
+    private Double determineQuality() {
+        Double q = DEFAULT_QUALITY;
+        Double configQuality;
+
+        if (config != null) {
+            configQuality = config.getQuality();
+            if (configQuality != null) {
+                q = configQuality;
+            }
+        }
+
+        return q;
     }
 }
