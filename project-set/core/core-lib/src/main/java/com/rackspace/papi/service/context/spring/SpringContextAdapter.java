@@ -16,6 +16,7 @@ import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
@@ -95,6 +96,11 @@ public class SpringContextAdapter implements ContextAdapter {
    @Override
    public LoggingService loggingService() {
       return getService(ServiceContextName.LOGGING_SERVICE_CONTEXT);
+   }
+
+   @Override
+   public MetricsService metricsService() {
+      return getService( ServiceContextName.METRICS_SERVICE_CONTEXT );
    }
 
    @Override
