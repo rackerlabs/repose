@@ -60,11 +60,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>cli-utils</artifactId>
-<<<<<<< HEAD
-            <version>2.8.1-SNAPSHOT</version>
-=======
             <version>${project.version}</version>
->>>>>>> d9dac42613dc5fdf230f7441c6f732d91d3c3424
         </dependency>
 
         <dependency>
