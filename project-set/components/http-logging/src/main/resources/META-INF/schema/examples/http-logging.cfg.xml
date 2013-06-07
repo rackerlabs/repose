@@ -8,7 +8,6 @@
             <targets>
                 <!-- The actual log file -->
                 <file location="/usr/local/logs/repose.log"/>
-                <file location="/usr/local/logs/repose2.log"/>
             </targets>
         </http-log>
 
