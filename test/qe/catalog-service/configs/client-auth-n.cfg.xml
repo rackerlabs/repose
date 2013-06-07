@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <openstack-auth tenanted="false" delegable="false" xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
+        <identity-service username="repose" password="PY3VI3d3rVkqtwCj" uri="https://staging.identity.api.rackspacecloud.com/v2.0" />
+	<endpoints-in-header format="xml" cache-timeout="5000000" identity-contract-version="2"/>
+    </openstack-auth>
+</client-auth>
+
