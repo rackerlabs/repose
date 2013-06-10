@@ -47,7 +47,7 @@ public class UserAuthTokenCacheTest {
          infoCache = new AuthTokenCache(mockedDatastore, "prefix") {
 
             @Override
-            public boolean validateToken(AuthToken cachedValue, String passedValue) {
+            public boolean validateToken(AuthToken cachedValue) {
                return true;
             }
          };
@@ -55,7 +55,7 @@ public class UserAuthTokenCacheTest {
 
       @Test
       public void shouldCorrectlyRetrieveValidCachedUserInfo() {
-         final AuthToken user = infoCache.getUserToken(VALID_USER, VALID_AUTH_TOKEN);
+         final AuthToken user = infoCache.getUserToken(VALID_USER);
 
          assertEquals("UserId must match original", originalUser.getUserId(), user.getUserId());
          assertEquals("Username must match original", originalUser.getUsername(), user.getUsername());

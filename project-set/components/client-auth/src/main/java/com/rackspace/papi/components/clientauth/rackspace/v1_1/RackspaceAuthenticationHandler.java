@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
 import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
@@ -25,9 +26,9 @@ public class RackspaceAuthenticationHandler extends AuthenticationHandler {
    private final AuthenticationService authenticationService;
    private static final String WWW_AUTH_HEADER_CONTENTS = "RackAuth Realm=\"API Realm\"";
 
-    public RackspaceAuthenticationHandler(Configurables cfg, AuthenticationService authenticationService,
-            AuthTokenCache cache, AuthGroupCache grpCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
-        super(cfg, cache, grpCache, endpointsCache, uriMatcher);
+   public RackspaceAuthenticationHandler(Configurables cfg, AuthenticationService authenticationService, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache,
+           EndpointsCache endpointsCache, UriMatcher uriMatcher) {
+      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = authenticationService;
    }
 

@@ -13,6 +13,6 @@
     </openstack-auth>
     <!-- Atom feeds for cache invalidation -->
     <atom-feeds check-interval="10000">
-        <rs-identity-feed uri="http://localhost:${atom_port}/feed"/>
+        <rs-identity-feed id="feed-id1" uri="http://localhost:${atom_port}/feed"/>
     </atom-feeds>
 </client-auth>

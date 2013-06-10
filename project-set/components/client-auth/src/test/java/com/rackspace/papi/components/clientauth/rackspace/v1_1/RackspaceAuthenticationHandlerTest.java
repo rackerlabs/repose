@@ -50,6 +50,7 @@ public class RackspaceAuthenticationHandlerTest {
     public static abstract class TestParent {
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
+        protected static final long AUTH_USER_CACHE_TTL = 5000;
 
         protected static String xAuthProxy = "Proxy";
         protected HttpServletRequest request;
@@ -108,13 +109,12 @@ public class RackspaceAuthenticationHandlerTest {
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
             endpointsConfiguration = new EndpointsConfiguration(null, null, null);
-
-            Configurables configurables =
-                    new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true,
-                                      AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL, requestGroups(),
-                                      endpointsConfiguration);
-
-            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, null,
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,
+                    AUTH_USER_CACHE_TTL, requestGroups(), endpointsConfiguration);
+            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
+            endpointsConfiguration = new EndpointsConfiguration(null, null, null);
+            
+            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, null, null,
                                                          new UriMatcher(whiteListRegexPatterns));
         }
 
