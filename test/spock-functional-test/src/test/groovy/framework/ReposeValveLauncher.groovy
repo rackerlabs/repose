@@ -85,7 +85,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
-        waitForCondition(clock, '15s', '1s', {
+        waitForCondition(clock, '60s', '1s', {
             !isUp()
         })
     }
@@ -122,6 +122,11 @@ class ReposeValveLauncher implements ReposeLauncher {
         return runningJvms.in.text
     }
 
+    /**
+     * TODO: Determine a more foolproof way to verify that the instance of repose is still up and running.
+     * This method prevents us from having more than 1 instance of Repose running in a local environment.
+     * @return
+     */
     private boolean isUp() {
         return getJvmProcesses().contains("repose-valve.jar")
     }
@@ -132,14 +137,13 @@ class ReposeValveLauncher implements ReposeLauncher {
         def matcher = ( processes =~ regex )
 
         if (matcher.size() > 0 && matcher[0].size() > 0) {
-            matcher[0][1].each {pid ->
-                println("Killing running repose-valve process: " + pid)
-                Runtime rt = Runtime.getRuntime();
-                if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                    rt.exec("taskkill " + pid.toInteger());
-                else
-                    rt.exec("kill -9 " + pid.toInteger());
-            }
+            def pid = matcher[0][1]
+            println("Killing running repose-valve process: " + pid)
+            Runtime rt = Runtime.getRuntime();
+            if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                rt.exec("taskkill " + pid.toInteger());
+            else
+                rt.exec("kill -9 " + pid.toInteger());
         }
     }
 

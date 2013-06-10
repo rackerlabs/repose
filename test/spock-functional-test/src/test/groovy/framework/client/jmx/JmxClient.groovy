@@ -37,7 +37,7 @@ class JmxClient {
         println("looking up mbeans")
 
         try {
-            waitForCondition(clock, '25s', '1s', {
+            waitForCondition(clock, '30s', '1s', {
                 def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
                 mbeans = beansInDomain.findAll { it.className == expectedClassName }
                 mbeans.size() == expectedCount
