@@ -13,6 +13,8 @@
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
 
+    <endpoints-in-header format="some-format" cache-timeout="600000" identity-contract-version="2"/>
+
     <white-list>
         <uri-pattern uri-regex="/application\.wadl$" />
     </white-list>

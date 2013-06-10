@@ -131,14 +131,20 @@
          <artifactId>jetty-servlet</artifactId>
          <version>8.0.1.v20110908</version>
       </dependency>
-      
-      <dependency>
-         <groupId>com.yammer.metrics</groupId>
-         <artifactId>metrics-core</artifactId>
-         <version>2.2.0</version>
-      </dependency>
-      
-      <dependency>
+
+       <dependency>
+           <groupId>com.yammer.metrics</groupId>
+           <artifactId>metrics-core</artifactId>
+           <version>2.2.0</version>
+       </dependency>
+
+       <dependency>
+           <groupId>com.yammer.metrics</groupId>
+           <artifactId>metrics-graphite</artifactId>
+           <version>2.2.0</version>
+       </dependency>
+
+       <dependency>
          <groupId>com.yammer.metrics</groupId>
          <artifactId>metrics-ehcache</artifactId>
          <version>2.2.0</version>
@@ -174,11 +180,16 @@
                      <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
                      <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
                   </transformationSet>
-                  <transformationSet>
-                     <dir>src/main/resources/META-INF/schema/distributed-datastore</dir>
-                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/distributed-datastore</outputDir>
-                  </transformationSet>
+                   <transformationSet>
+                       <dir>src/main/resources/META-INF/schema/distributed-datastore</dir>
+                       <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                       <outputDir>${project.build.directory}/generated-resources/xml/xslt/distributed-datastore</outputDir>
+                   </transformationSet>
+                   <transformationSet>
+                       <dir>src/main/resources/META-INF/schema/metrics</dir>
+                       <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                       <outputDir>${project.build.directory}/generated-resources/xml/xslt/metrics</outputDir>
+                   </transformationSet>
                </transformationSets>
             </configuration>
          </plugin>

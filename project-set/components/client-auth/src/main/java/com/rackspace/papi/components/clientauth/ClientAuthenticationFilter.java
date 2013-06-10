@@ -31,6 +31,7 @@ public class ClientAuthenticationFilter implements Filter {
 
     @Override
     public void destroy() {
+        handlerFactory.stopFeeds();
         configurationManager.unsubscribeFrom(config, handlerFactory);
     }
 

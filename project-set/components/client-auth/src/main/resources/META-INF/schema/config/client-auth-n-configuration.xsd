@@ -7,26 +7,29 @@
            xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
            xmlns:auth-http-basic="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/">
     
-    <!-- Rackspace Cloud Auth v1.1 -->
-    <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
+   <!-- Rackspace Cloud Auth v1.1 -->
+   <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
 
-    <!-- OpenStack Identity Service Auth -->
-    <xs:import namespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" schemaLocation="./openstack-ids-auth/openstack-ids-auth.xsd" />
+   <!-- OpenStack Identity Service Auth -->
+   <xs:import namespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" schemaLocation="./openstack-ids-auth/openstack-ids-auth.xsd" />
     
-    <!-- HTTP Basic Authentication -->
-    <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />    
+   <!-- HTTP Basic Authentication -->
+   <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />    
     
-    <!-- Configuration -->
-    <xs:element name="client-auth" type="auth:clientAuthConfig" />
+   <!-- Configuration -->
+   <xs:element name="client-auth" type="auth:clientAuthConfig" />
 
-    <xs:complexType name="URIPattern">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>A uri pattern to which a user has access.</html:p>
-            </xs:documentation>
-        </xs:annotation>
+   <xs:complexType name="URIPattern">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>A uri pattern to which a user has access.</html:p>
+         </xs:documentation>
+      </xs:annotation>
 
       <xs:attribute name="uri-regex" type="xs:string" use="required">
          <xs:annotation>
@@ -36,36 +39,156 @@
          </xs:annotation>
       </xs:attribute>
         
-    </xs:complexType>
+   </xs:complexType>
 
-    <xs:complexType name="WhiteList">
-        <xs:annotation>
+   <xs:complexType name="WhiteList">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>A list of uri patterns all users can access.</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="uri-pattern" type="auth:URIPattern" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+    
+   <xs:complexType name="AtomFeeds">
+      
+      <xs:sequence>
+         <xs:element name="rs-identity-feed" type="auth:Rackspace-Identity-Feed" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+      
+      <xs:attribute name="check-interval" type="auth:longMinTenThou" use="optional" default="60000">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>A list of uri patterns all users can access.</html:p>
+               <html:p>Interval between requesting atom feeds to purge cache. Default is one minute</html:p>
             </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="uri-pattern" type="auth:URIPattern" minOccurs="1" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="clientAuthConfig">
-        <xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:assert vc:minVersion="1.1" test="count(distinct-values(auth:*/@id)) = count(auth:*/@id)"
+                 xerces:message="Each Atom Feed must have a unique id"
+                 saxon:message="Each Atom Feed must have a unique id">
+      </xs:assert>
+   </xs:complexType>
+    
+   <xs:complexType name="AtomFeed">
+   
+      <xs:attribute name="uri" type="xs:anyURI" use="required">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes a collection of filter modules that should be loaded and configured at runtime start-up.</html:p>
+               <html:p>Atom Feed URI</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="id" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Unique id of Atom Feed</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+         
+   </xs:complexType>
+   
+   <xs:complexType name="Rackspace-Identity-Feed">
+      
+      <xs:complexContent>
+         <xs:extension base="auth:AtomFeed">
+            
+            <xs:attribute name="auth-uri" type="xs:anyURI" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>URL to auth against if different from client-auth url</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            
+            <xs:attribute name="user" type="xs:string" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Auth Admin username</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            
+            <xs:attribute name="password" type="xs:string" use="optional">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Auth Admin password</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+            
+            <xs:attribute name="isAuthed" type="xs:boolean" use="optional" default="false"> 
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Configure whether or not this feed requires auth credentials</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute> 
+            
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (xs:boolean(@isAuthed)) else true()"
+                       xerces:message="isAuthed must be configured true to configure an auth url for the rs atom feed"
+                       saxon:message="isAuthed must be configured true to configure an auth url for the rs atom feed"/>
+         
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@user) else true()"
+                       xerces:message="If auth-url is configured then user and password must be supplied"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
+         
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@password) else true()"
+                       xerces:message="If auth-url is configured then user and password must be supplied"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
+            <xs:assert vc:minVersion="1.1" test="if (@user) then (@auth-url) else true()"
+                       xerces:message="If user is configured then auth-url must be configured"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
+            <xs:assert vc:minVersion="1.1" test="if (@password) then (@auth-url) else true()"
+                       xerces:message="If user is configured then auth-url must be configured"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
+            
+         </xs:extension>
+         
+      </xs:complexContent>
+      
+      
+      
+      
+      <!-- TODO: add check that if auth-url is configured then user and password must be configured -->
+   </xs:complexType>
+
+   <xs:complexType name="clientAuthConfig">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes a collection of filter modules that should be loaded and configured at runtime start-up.</html:p>
+         </xs:documentation>
+      </xs:annotation>
                 
-        <xs:sequence>
-            <xs:choice>
-                <xs:element ref="auth-1.1:rackspace-auth" />
-                <xs:element ref="os-ids-auth:openstack-auth" />
-                <xs:element ref="auth-http-basic:http-basic-auth" />
-            </xs:choice>
+      <xs:sequence>
+         <xs:choice>
+            <xs:element ref="auth-1.1:rackspace-auth" />
+            <xs:element ref="os-ids-auth:openstack-auth" />
+            <xs:element ref="auth-http-basic:http-basic-auth" />
+         </xs:choice>
 
-            <xs:element name="white-list" type="auth:WhiteList" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
+         <xs:element name="white-list" type="auth:WhiteList" minOccurs="0" maxOccurs="1"/>
+         
+         <xs:element name="atom-feeds" type="auth:AtomFeeds" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      
+      <xs:assert  vc:minVersion="1.1" test="if (auth:atom-feeds/auth:rs-identity-feed) then (os-ids-auth:openstack-auth) else true()"
+                  xerces:message="the rs-identity-feed can only be configured for openstack-auth"
+                  saxon:message="the rs-identity-feed can only be configured for openstack-auth"/>
 
-    </xs:complexType>
+   </xs:complexType>
+   
+   <xs:simpleType name="longMinTenThou">
+      <xs:restriction base="xs:long">
+         <xs:minInclusive value="0"/>
+      </xs:restriction>
+   </xs:simpleType>
 </xs:schema>

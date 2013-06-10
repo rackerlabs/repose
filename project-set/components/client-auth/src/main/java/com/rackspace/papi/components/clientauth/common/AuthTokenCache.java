@@ -8,7 +8,7 @@ import com.rackspace.papi.service.datastore.StoredElement;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class AuthTokenCache {
+public class AuthTokenCache implements DeleteableCache{
 
    private final Datastore store;
    private final String cachePrefix;
@@ -22,23 +22,28 @@ public class AuthTokenCache {
       return element == null || element.elementIsNull() ? null : element.elementAs(AuthToken.class);
    }
    
-   public AuthToken getUserToken(String userId, String token) {
-      AuthToken candidate = getElementAsType(store.get(cachePrefix + "." + userId));
-      return validateToken(candidate, token)? candidate: null;
+   public AuthToken getUserToken(String tokenId) {
+      AuthToken candidate = getElementAsType(store.get(cachePrefix + "." + tokenId));//Looking into the datastore for this token.
+      return validateToken(candidate)? candidate: null;
    }
    
-   public void storeToken(String userId, AuthToken token, int ttl) throws IOException {
-      if (userId == null || token == null || ttl < 0) {
+   public void storeToken(String tokenId, AuthToken token, int ttl) throws IOException {
+      if (tokenId == null || token == null || ttl < 0) {
          // TODO Should we throw an exception here?
          return;
       }
       
       byte[] data = ObjectSerializer.instance().writeObject(token);
       
-      store.put(cachePrefix + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
+      store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
+   }
+   
+   @Override
+   public boolean deleteCacheItem(String userId){
+      return store.remove(cachePrefix + "." + userId);
    }
 
-   public boolean validateToken(AuthToken cachedValue, String passedValue) {
-      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.safeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
+   public boolean validateToken(AuthToken cachedValue) {
+      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.safeTokenTtl() > 0;
    }
 }

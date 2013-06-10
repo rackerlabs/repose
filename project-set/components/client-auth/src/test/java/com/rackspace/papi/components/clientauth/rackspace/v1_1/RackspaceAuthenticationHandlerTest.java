@@ -12,6 +12,7 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.Configurables;
+import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountType;
@@ -31,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -47,6 +50,7 @@ public class RackspaceAuthenticationHandlerTest {
     public static abstract class TestParent {
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
+        protected static final long AUTH_USER_CACHE_TTL = 5000;
 
         protected static String xAuthProxy = "Proxy";
         protected HttpServletRequest request;
@@ -58,6 +62,7 @@ public class RackspaceAuthenticationHandlerTest {
         protected AuthGroups authGroups;
         protected KeyedRegexExtractor keyedRegexExtractor;
         protected List<Pattern> whiteListRegexPatterns;
+        protected EndpointsConfiguration endpointsConfiguration;
 
         @Before
         public void beforeAny() {
@@ -103,12 +108,18 @@ public class RackspaceAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
-            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, new UriMatcher(whiteListRegexPatterns));
+            endpointsConfiguration = new EndpointsConfiguration(null, null, null);
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,
+                    AUTH_USER_CACHE_TTL, requestGroups(), endpointsConfiguration);
+            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
+            endpointsConfiguration = new EndpointsConfiguration(null, null, null);
+            
+            handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, null, null,
+                                                         new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();
-        
+
         protected abstract boolean requestGroups();
 
     }
@@ -119,8 +130,8 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
-       @Override
+
+        @Override
         protected boolean requestGroups() {
             return true;
         }
@@ -131,9 +142,14 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("Auth component must set X Authorization header when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy));
-            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next().equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
-            assertEquals("Auth component must pass requests with null or blank credentials when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertTrue("Auth component must set X Authorization header when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next()
+                               .equalsIgnoreCase(xAuthProxy));
+            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next()
+                               .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
+            assertEquals("Auth component must pass requests with null or blank credentials when in delegated mode",
+                         FilterAction.PASS, requestDirector.getFilterAction());
         }
 
         @Test
@@ -142,9 +158,14 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("Auth component must set X Authorization header when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy + " accountId"));
-            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next().equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
-            assertEquals("Auth component must pass requests with null or blank auth token when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertTrue("Auth component must set X Authorization header when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next()
+                               .equalsIgnoreCase(xAuthProxy + " accountId"));
+            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next()
+                               .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
+            assertEquals("Auth component must pass requests with null or blank auth token when in delegated mode",
+                         FilterAction.PASS, requestDirector.getFilterAction());
         }
 
         @Test
@@ -154,9 +175,14 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("Auth component must set X Authorization header when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy));
-            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next().equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
-            assertEquals("Auth component must pass requests with null or blank account id when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertTrue("Auth component must set X Authorization header when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next()
+                               .equalsIgnoreCase(xAuthProxy));
+            assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next()
+                               .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
+            assertEquals("Auth component must pass requests with null or blank account id when in delegated mode",
+                         FilterAction.PASS, requestDirector.getFilterAction());
         }
 
         @Test
@@ -167,7 +193,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("Auth component must reject invalid credentials with a 401 when in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
+            assertEquals("Auth component must reject invalid credentials with a 401 when in delegated mode",
+                         HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
 
         @Test
@@ -185,11 +212,19 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id;q=1"));
-            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
-            assertTrue("Auth component must set X Authorization header when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy + " accountId"));
-            assertTrue("Auth component must set X Identity Status to Confirmed when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next().equalsIgnoreCase(IdentityStatus.Confirmed.name()));
-            assertEquals("Auth component must pass valid credentials when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertTrue("When groups exist, handler must add X-PP-Groups header",
+                       requestDirector.requestHeaderManager().headersToAdd()
+                               .get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id;q=1"));
+            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd()
+                    .get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
+            assertTrue("Auth component must set X Authorization header when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next()
+                               .equalsIgnoreCase(xAuthProxy + " accountId"));
+            assertTrue("Auth component must set X Identity Status to Confirmed when in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next()
+                               .equalsIgnoreCase(IdentityStatus.Confirmed.name()));
+            assertEquals("Auth component must pass valid credentials when in delegated mode", FilterAction.PASS,
+                         requestDirector.getFilterAction());
         }
     }
 
@@ -199,7 +234,7 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -216,11 +251,13 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldHandleAuthenticationServiceFailures() {
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenThrow(new RuntimeException());
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString()))
+                    .thenThrow(new RuntimeException());
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("When auth service fails, repose should return a 500", HttpStatusCode.INTERNAL_SERVER_ERROR, requestDirector.getResponseStatus());
+            assertEquals("When auth service fails, repose should return a 500", HttpStatusCode.INTERNAL_SERVER_ERROR,
+                         requestDirector.getResponseStatus());
         }
 
         @Test
@@ -229,7 +266,9 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("Auth component must reject requests with null or blank credentials when not in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
+            assertEquals(
+                    "Auth component must reject requests with null or blank credentials when not in delegated mode",
+                    HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
 
         @Test
@@ -238,7 +277,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("Auth component must reject requests with null or blank auth token when not in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
+            assertEquals("Auth component must reject requests with null or blank auth token when not in delegated mode",
+                         HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
 
         @Test
@@ -248,7 +288,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("Auth component must reject requests with null or blank account id when not in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
+            assertEquals("Auth component must reject requests with null or blank account id when not in delegated mode",
+                         HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
 
         @Test
@@ -259,7 +300,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertEquals("Auth component must reject invalid credentials with a 401 when in not in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
+            assertEquals("Auth component must reject invalid credentials with a 401 when in not in delegated mode",
+                         HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
 
         @Test
@@ -277,10 +319,16 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id;q=1"));
-            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
-            assertTrue("Auth component must set X Authorization header when not in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy + " accountId"));
-            assertEquals("Auth component must pass valid credentials when not in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertTrue("When groups exist, handler must add X-PP-Groups header",
+                       requestDirector.requestHeaderManager().headersToAdd()
+                               .get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id;q=1"));
+            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd()
+                    .get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
+            assertTrue("Auth component must set X Authorization header when not in delegated mode",
+                       requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next()
+                               .equalsIgnoreCase(xAuthProxy + " accountId"));
+            assertEquals("Auth component must pass valid credentials when not in delegated mode", FilterAction.PASS,
+                         requestDirector.getFilterAction());
         }
     }
 
@@ -290,7 +338,7 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -304,8 +352,12 @@ public class RackspaceAuthenticationHandlerTest {
             final FilterDirector responseDirector = handler.handleResponse(request, response);
             final String expected = "RackAuth Realm=\"API Realm\"";
 
-            assertEquals("Auth component must return a 401 when Delegable origin service returns a 401", HttpStatusCode.UNAUTHORIZED, responseDirector.getResponseStatus());
-            assertEquals("Auth component must modify WWW-Authenticate header when Delegable origin service returns a 401", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+            assertEquals("Auth component must return a 401 when Delegable origin service returns a 401",
+                         HttpStatusCode.UNAUTHORIZED, responseDirector.getResponseStatus());
+            assertEquals(
+                    "Auth component must modify WWW-Authenticate header when Delegable origin service returns a 401",
+                    expected, responseDirector.responseHeaderManager().headersToAdd()
+                    .get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
         }
 
         @Test
@@ -316,8 +368,12 @@ public class RackspaceAuthenticationHandlerTest {
             final FilterDirector responseDirector = handler.handleResponse(request, response);
             final String expected = "RackAuth Realm=\"API Realm\"";
 
-            assertEquals("Auth component must return a 403 when Delegable origin service returns a 403", HttpStatusCode.FORBIDDEN, responseDirector.getResponseStatus());
-            assertEquals("Auth component must modify WWW-Authenticate header when Delegable origin service returns a 403", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+            assertEquals("Auth component must return a 403 when Delegable origin service returns a 403",
+                         HttpStatusCode.FORBIDDEN, responseDirector.getResponseStatus());
+            assertEquals(
+                    "Auth component must modify WWW-Authenticate header when Delegable origin service returns a 403",
+                    expected, responseDirector.responseHeaderManager().headersToAdd()
+                    .get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
         }
 
         @Test
@@ -327,7 +383,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must return a 500 when Delegable origin service returns a 501", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must return a 500 when Delegable origin service returns a 501",
+                         HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
         }
     }
 
@@ -337,8 +394,8 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
-       @Override
+
+        @Override
         protected boolean requestGroups() {
             return false;
         }
@@ -350,7 +407,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 401", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 401",
+                         HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
         }
 
         @Test
@@ -359,7 +417,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 403", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 403",
+                         HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
         }
 
         @Test
@@ -369,7 +428,8 @@ public class RackspaceAuthenticationHandlerTest {
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-            assertEquals("Auth component must return a 501 when un-Delegable origin service returns a 501", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
+            assertEquals("Auth component must return a 501 when un-Delegable origin service returns a 501",
+                         HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
         }
     }
 
@@ -379,7 +439,7 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -389,14 +449,16 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldPassUriOnWhiteList() {
             when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS,
+                         requestDirector.getFilterAction());
         }
 
         @Test
         public void shouldReturnForUriNotOnWhiteList() {
             when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must return requests with uri not on white list", FilterAction.RETURN, requestDirector.getFilterAction());
+            assertEquals("Auth component must return requests with uri not on white list", FilterAction.RETURN,
+                         requestDirector.getFilterAction());
         }
     }
 
@@ -406,7 +468,7 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
-        
+
         @Override
         protected boolean requestGroups() {
             return true;
@@ -416,14 +478,16 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldPassUriOnWhiteList() {
             when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS,
+                         requestDirector.getFilterAction());
         }
 
         @Test
         public void shouldPassUriNotOnWhiteListAsNonAuthedRequest() {
             when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass requests with uri not on white list when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
+            assertEquals("Auth component must pass requests with uri not on white list when in delegated mode",
+                         FilterAction.PASS, requestDirector.getFilterAction());
         }
     }
 

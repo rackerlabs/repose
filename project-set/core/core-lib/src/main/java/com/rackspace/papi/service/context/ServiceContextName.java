@@ -9,6 +9,7 @@ public enum ServiceContextName {
     EVENT_MANAGER_SERVICE_CONTEXT("eventManagerServiceContext"),
     FILTER_CHAIN_GC_SERVICE_CONTEXT("filterChainGCServiceContext"),
     LOGGING_SERVICE_CONTEXT("loggingServiceContext"),
+    METRICS_SERVICE_CONTEXT( "metricsServiceContext" ),
     RESPONSE_MESSAGE_SERVICE_CONTEXT("responseMessageServiceContext"),
     ROUTING_SERVICE_CONTEXT("routingServiceContext"),
     THREADING_SERVICE_CONTEXT("threadingServiceContext"),
