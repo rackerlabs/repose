@@ -78,6 +78,13 @@ public class RateLimitingServiceImplTest {
          rateLimitingService = new RateLimitingServiceImpl(cache, config);
       }
 
+      @Test(expected = IllegalArgumentException.class)
+      public void shouldReturnExceptionOnNullConfiguration() {
+          RateLimitingService invalidService = null;
+
+          invalidService = new RateLimitingServiceImpl(cache, null);
+      }
+
       @Test
       public void shouldReturnLimitsOnQuery() {
 

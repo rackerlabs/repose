@@ -83,15 +83,15 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
 
-         if (configurationObject.getDeploymentConfig() != null) {
+          if (configurationObject.getDeploymentConfig() != null) {
 
-            synchronized (jmxResetTimeKey) {
-               jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
-            }
+              synchronized (jmxResetTimeKey) {
+                  jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
+              }
 
-            reportingService.updateConfiguration(destinationIds, jmxResetTime);
-         }
-         isInitialized = true;
+              reportingService.updateConfiguration(destinationIds, jmxResetTime);
+          }
+          isInitialized = true;
 
       }
 
