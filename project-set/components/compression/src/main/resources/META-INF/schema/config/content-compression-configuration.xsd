@@ -67,7 +67,7 @@
         <xs:attribute name="include-content-types" type="content-compression:StringList" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>if specified, this is treated as a comma-separated list of content types (e.g.
+                    <html:p>if specified, this is treated as a space seperated list of content types (e.g.
                         text/html,text/xml). The filter will attempt to only compress responses which specify one of
                         these values as its content type, for example via ServletResponse.setContentType(String). Note
                         that the filter does not know the response content type at the time it is applied, and so must
