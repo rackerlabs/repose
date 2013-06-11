@@ -67,7 +67,8 @@ def always(code):
 
 
 class FakeIdentityService(object):
-    def __init__(self, code=200):
+    def __init__(self, port, code=200):
+        self.port = port
         self.code = code
 
         with open('identity-success.xml', 'r') as f:
@@ -78,6 +79,8 @@ class FakeIdentityService(object):
             self.identity_failure_xml_template = string.Template(f.read())
         with open('identity-failure.xml', 'r') as f:
             self.identity_failure_json_template = string.Template(f.read())
+        with open('identity-endpoints.json', 'r') as f:
+            self.identity_endpoints_json_template = string.Template(f.read())
 
         self.groups_json_template = string.Template('''{
             "RAX-KSGRP:groups": [
@@ -131,6 +134,14 @@ class FakeIdentityService(object):
             else:
                 template = self.groups_json_template
             params = {}
+            code = 200
+            message = 'OK'
+        elif request.method == 'GET' and 'endpoints' in request.path:
+            template = self.identity_endpoints_json_template
+            params = {
+                'identity_port': self.port,
+                'token': client_token,
+            }
             code = 200
             message = 'OK'
         else:
@@ -219,7 +230,7 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
             klass.deproxy.add_endpoint(deproxy_port, 'origin service',
                                        default_handler=always(606)))
 
-        klass.identity = FakeIdentityService()
+        klass.identity = FakeIdentityService(port=identity_port)
         klass.identity_endpoint = (
             klass.deproxy.add_endpoint(identity_port, 'identity service',
                                        default_handler=klass.identity.handler))
@@ -329,7 +340,7 @@ class TestAuthenticationServiceErrors(unittest.TestCase):
             klass.deproxy.add_endpoint(deproxy_port, 'origin service',
                                        default_handler=always(606)))
 
-        klass.identity = FakeIdentityService()
+        klass.identity = FakeIdentityService(port=identity_port)
         klass.identity_endpoint = (
             klass.deproxy.add_endpoint(identity_port, 'identity service',
                                        default_handler=klass.identity.handler))
