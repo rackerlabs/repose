@@ -23,7 +23,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
     private static final String SEPARATOR = "-";
     private final ReposeInstanceInfo reposeId;
-    private final String defaultDomainPrefix = UUID.randomUUID().toString();
+    private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
 
     @Autowired
     public ReposeJmxNamingStrategy(@Qualifier("jmxAttributeSource") AnnotationJmxAttributeSource attributeSource, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeId) {
@@ -33,7 +33,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
         LOG.info("Configuring JMX naming strategy for " + reposeId);
     }
 
-    private String getDomainPrefix() {
+    public String getDomainPrefix() {
         if (reposeId == null) {
             return defaultDomainPrefix;
         }
@@ -50,12 +50,12 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
             sb.append(reposeId.getNodeId());
         }
 
-        return sb.length() > 0? sb.toString(): defaultDomainPrefix;
+        return sb.length() > 0? sb.append(SEPARATOR).toString(): defaultDomainPrefix;
     }
 
     @Override
     public ObjectName getObjectName(Object managedBean, String beanKey) throws MalformedObjectNameException {
         ObjectName name = super.getObjectName(managedBean, beanKey);
-        return new ObjectName(getDomainPrefix() + SEPARATOR + name.getDomain(), name.getKeyPropertyList());
+        return new ObjectName(getDomainPrefix() +  name.getDomain(), name.getKeyPropertyList());
     }
 }

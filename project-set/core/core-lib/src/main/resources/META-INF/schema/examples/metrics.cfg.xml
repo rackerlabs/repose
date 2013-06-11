@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<metrics xmlns='http://docs.rackspacecloud.com/repose/metrics/v1.0'>
+    <graphite host="host1.rackspace.com"
+              port="2013"
+              period="10"
+              prefix="test/metrics"/>
+</metrics>

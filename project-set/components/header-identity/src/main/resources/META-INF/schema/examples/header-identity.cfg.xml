@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<header-identity  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0 ../config/header-identity-configuration.xsd'>
+<header-identity xmlns='http://docs.api.rackspacecloud.com/repose/header-identity/v1.0'>
 
    <source-headers>
+      <header id="X-Auth-Token" />
       <header id="X-Forwarded-For" quality="0.2"/>
    </source-headers>
       

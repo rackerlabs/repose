@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/" rel="current"/>
+  <link href="https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&amp;limit=25&amp;search=&amp;direction=forward" rel="self"/>
+</feed>

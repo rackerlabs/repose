@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.common;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +12,9 @@ import java.util.concurrent.TimeUnit;
  * This class manages the caching of endpoints.
  */
 
-public class EndpointsCache {
+public class EndpointsCache implements DeleteableCache{
+
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
     private final Datastore store;
     private final String cachePrefix;
@@ -33,7 +36,7 @@ public class EndpointsCache {
 
     public void storeEndpoints(String tokenId, String endpoints, int ttl) throws IOException {
         if (endpoints == null || tokenId == null || ttl < 0) {
-            // TODO Should we throw an exception here?
+            LOG.warn("Null values passed into cache when attempting to store endpoints.");
             return;
         }
 
@@ -41,4 +44,9 @@ public class EndpointsCache {
 
         store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
     }
+
+   @Override
+   public boolean deleteCacheItem(String userId) {
+      return store.remove(userId);
+   }
 }

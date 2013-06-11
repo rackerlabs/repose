@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.any
 
 class EndpointsCacheTest extends Specification {
 
-    def "when getting endpoints, the element should match what was passed in"() { //and be a string
+    def "when getting endpoints, the returned element should match what was passed in"() { //and be a string
         given:
         String tokenId = "tokenId"
         String endpointsData = "endpointsData"
