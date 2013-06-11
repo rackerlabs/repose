@@ -41,7 +41,10 @@
         <xs:attribute name="overLimit-429-responseCode" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>
+                    <html:p>Set to true will send 429 response code instead of default 413 response code which in 
+                        conjunction with Response Messaging Service Configuration for 429 status code will provide 
+                        custom over limit message . As 429 response code is proposed HTTP standard code and servlet 
+                        containers return 429 as response message.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -50,7 +53,14 @@
         <xs:attribute name="datastore" type="xs:string" use="optional" default="distributed/hash-ring">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>
+                    <html:p>Name of datastore to use for storing rate limiting information.  
+                        If not specified, rate limiting will use the first distributed datastore available.  
+                        If no distributed data stores are available, then it'll revert to using a local data stores.  
+                        Valid values are:
+                        
+                        local/default
+                        distributed/hash-ring (requires dist-datastore filter)
+                        distributed/replicated (required replicated-datastore filter)
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -61,7 +71,12 @@
                 <xs:documentation>
                     <html:p>
                         Determines whether or not capture groups will be used to evalute limits
-                        from uri-regex
+                        from uri-regex. Set to false will count all the requests with the uri-regex that has 
+                        the capture group towards the limit count specified. By default it is set to true.
+                        For example, suppose the configuration specifies a regex of /v1/(.*) with value set to 100. 
+                        With use-capture-groups set to false, some requests come in with a URI of /v1/pan and other 
+                        requests come in with a URI of /v1/cake. Each user would be allowed 50 hits if the hits 
+                        are evenly divided among the two URIs: 50 hits for URI /v1/pan and 50 hits for URI /v1/cake.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -96,7 +111,7 @@
         <xs:attribute name="uri-regex" type="xs:string" use="optional" default="\/limits\/(\d*)\/">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines a regex to match the mapping against</html:p>
+                    <html:p>A regular expression (regex) for the URI at which the user can query their limits. </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -126,7 +141,10 @@
                 <xs:documentation>
                     <html:p>
                         Determines whether or not this list of rate limits should
-                        be considered the default when role matching fails
+                        be considered the default when role matching fails.  This limit group will be applied if a user is passed in either of these conditions:
+                        
+                        no group is specified
+                        no group in the rate limiting configuration matches the group or groups specified
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -159,7 +177,15 @@
         <xs:attribute name="uri-regex" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Regex matcher used to map requests to this rate limit</html:p>
+                    <html:p>The regex used to match a passing request to current limit group.  
+                        Within the regex, each capture group is allowed the number of hits specified in the value attribute of the limit element.
+                        
+                        For example, suppose the configuration specifies a regex of /v1/(.*) and with value set to 100, 
+                        make sure "use-capture-groups" attribute is set to true or not set. With this configuration, 
+                        some requests come in with a URI of /v1/pan and other requests come in with a URI of /v1/cake. 
+                        Each user would be allowed 200 hits if the hits are evenly divided among the two URIs: 
+                        100 hits for URI /v1/pan and 100 hits for URI /v1/cake.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -167,7 +193,10 @@
         <xs:attribute name="http-methods" type="rl:HttpMethodList" use="optional" default="ALL">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of HTTP Methods this rate limit will match on</html:p>
+                    <html:p>List of HTTP Methods this rate limit will match on.
+                        Valid values include:
+                        GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, ALL   
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -175,7 +204,9 @@
         <xs:attribute name="value" type="xs:int" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Number of requests that this rate limit will allow</html:p>
+                    <html:p>Number of requests allowed within the configured unit of time
+              
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -183,7 +214,10 @@
         <xs:attribute name="unit" type="live-limits:TimeUnit" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Unit of time that limit enforcement should use</html:p>
+                    <html:p>Unit of time that limit enforcement should use.
+                        Valid values include:
+                        
+                        SECOND, MINUTE, HOUR, DAY</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
