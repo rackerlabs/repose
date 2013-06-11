@@ -23,8 +23,8 @@ public class EndpointsConfiguration {
     public String getFormat() {
         String json = "JSON";
 
-        if (format == null || format.equalsIgnoreCase(json)) {
-            return "json";
+        if (format == null) {
+            return json;
         } else {
             return format;
         }
