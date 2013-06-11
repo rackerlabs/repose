@@ -55,9 +55,9 @@
     <bean name="log4jLoggingService" class="com.rackspace.papi.service.logging.LoggingServiceImpl">
         <constructor-arg index="0" value="LOG4J"/>
     </bean>
-    
+
     <bean name="distributedDatastoreServiceContext" class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
-    
+
     <bean name="distributedDatastoreServiceClusterContext" class="com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
-        
+
 </beans>
