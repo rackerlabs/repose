@@ -35,13 +35,31 @@
 
     <build>
         <plugins>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/config</dir>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
 
-                    <specVersion>2.1</specVersion>
+                    <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
@@ -49,12 +67,11 @@
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
-
                     <strict>true</strict>
                     <verbose>false</verbose>
 
                 </configuration>
-            </plugin>           
+            </plugin>
         </plugins>
     </build>
 </project>
