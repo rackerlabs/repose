@@ -15,11 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UriIdentityHandler extends AbstractFilterLogicHandler {
    
-   private final String quality;
+   private final Double quality;
    private final String group;
    private final List<Pattern> patterns;
 
-   public UriIdentityHandler(List<Pattern> patterns, String group, String quality) {
+   public UriIdentityHandler(List<Pattern> patterns, String group, Double quality) {
       this.quality = quality;
       this.group = group;
       this.patterns = patterns;
@@ -47,8 +47,8 @@ public class UriIdentityHandler extends AbstractFilterLogicHandler {
       String user = findPattern(request.getRequestURI());
       
       if (user != null) {
-         headerManager.appendHeader(PowerApiHeader.USER.toString(), user + quality);
-         headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group + quality);
+         headerManager.appendHeader(PowerApiHeader.USER.toString(), user, quality);
+         headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group, quality);
       }
 
       return filterDirector;

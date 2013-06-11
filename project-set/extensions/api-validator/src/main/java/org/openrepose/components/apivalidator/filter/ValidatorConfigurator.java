@@ -65,7 +65,8 @@ public class ValidatorConfigurator {
         Config config = new Config();
 
         config.setResultHandler(getHandlers(validatorItem));
-        config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
+        //config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
+
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());

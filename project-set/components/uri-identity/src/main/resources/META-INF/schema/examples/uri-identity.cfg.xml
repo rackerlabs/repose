@@ -5,8 +5,8 @@
    xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0 ../config/uri-identity-configuration.xsd'>
    
    <identification-mappings>
-      <mapping identification-regex=".*/servers/(\w*)/.*"/>
-      <mapping identification-regex=".*/servers/(\w*)/.*"/>
+      <mapping id="main" identification-regex=".*/servers/(\w*)/.*"/>
+      <mapping id="backup" identification-regex=".*/servers2/(\w*)/.*"/>
    </identification-mappings>
    
    <group>User_Standard</group>

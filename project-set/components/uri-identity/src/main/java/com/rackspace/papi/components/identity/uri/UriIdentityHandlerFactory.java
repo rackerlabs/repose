@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +14,12 @@ import java.util.regex.Pattern;
 
 public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriIdentityHandler> {
 
-    public static final String DEFAULT_QUALITY = "0.5";
+    public static final Double DEFAULT_QUALITY = 0.5;
     private static final String DEFAULT_GROUP = "User_Standard";
     private List<Pattern> patterns = new ArrayList<Pattern>();
     private UriIdentityConfig config;
-    private String quality, group;
+    private Double quality;
+    private String group;
 
     public UriIdentityHandlerFactory() {
     }
@@ -66,13 +68,17 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
         return new UriIdentityHandler(patterns, group, quality);
     }
 
-    private String determineQuality() {
-        String q = DEFAULT_QUALITY;
+    private Double determineQuality() {
+        Double q = DEFAULT_QUALITY;
+        Double configQuality;
 
         if (config != null) {
-            q = StringUtilities.getNonBlankValue(config.getQuality(), DEFAULT_QUALITY);
+            configQuality = config.getQuality();
+            if (configQuality != null) {
+                q = configQuality;
+            }
         }
 
-        return ";q=" + q;
+        return q;
     }
 }

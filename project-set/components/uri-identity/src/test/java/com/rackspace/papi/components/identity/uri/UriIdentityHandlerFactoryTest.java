@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
  */
 public class UriIdentityHandlerFactoryTest {
 
-    private static String QUALITY = "0.5";
+    private static Double QUALITY = 0.5;
     private static String QUALITY_VALUE = ";q=0.5";
     private static String URI1 = "/someuri/1234/morestuff";
     private static String REGEX1 = ".*/[^\\d]*/(\\d*)/.*";
@@ -69,7 +69,7 @@ public class UriIdentityHandlerFactoryTest {
         
         config = new UriIdentityConfig();
         IdentificationMappingList identificationMappingList = new IdentificationMappingList();
-        
+
         IdentificationMapping mapping = new IdentificationMapping();
         mapping.setId("Mapping 1");
         mapping.setIdentificationRegex(REGEX1);
@@ -80,38 +80,7 @@ public class UriIdentityHandlerFactoryTest {
         factory.configurationUpdated(config);
 
         handler = factory.buildHandler();
-        
-        when(request.getRequestURI()).thenReturn(URI1);
 
-        FilterDirector result = handler.handleRequest(request, response);
-
-        Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
-        assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
-
-        String userName = values.iterator().next();
-
-        assertEquals("Should find user name in header", USER1 + QUALITY_VALUE, userName);
-        
-    }
-    
-    @Test
-    public void shouldSetDefaultQualityIfConfigIsBlank(){
-        
-        config = new UriIdentityConfig();
-        config.setQuality("");
-        IdentificationMappingList identificationMappingList = new IdentificationMappingList();
-        
-        IdentificationMapping mapping = new IdentificationMapping();
-        mapping.setId("Mapping 1");
-        mapping.setIdentificationRegex(REGEX1);
-        identificationMappingList.getMapping().add(mapping);
-        
-        config.setIdentificationMappings(identificationMappingList);
-        
-        factory.configurationUpdated(config);
-
-        handler = factory.buildHandler();
-        
         when(request.getRequestURI()).thenReturn(URI1);
 
         FilterDirector result = handler.handleRequest(request, response);
