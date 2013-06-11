@@ -79,7 +79,7 @@ public class ClientWrapperTest {
             wrapper.resource(url, true);
             verify(client).resource(eq(url));
 
-            Thread.sleep(5000);
+            Thread.sleep(10000);
             wrapper.resource(url, true);
             // Should still have resource in cache
             verify(client, times(1)).resource(eq(url));

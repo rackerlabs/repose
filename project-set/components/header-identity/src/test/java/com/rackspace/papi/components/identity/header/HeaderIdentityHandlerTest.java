@@ -51,7 +51,7 @@ public class HeaderIdentityHandlerTest {
 
             HttpHeader header = new HttpHeader();
             header.setId(IP_HEADER_NAME_1);
-            header.setQuality(QUALITY);
+            header.setQuality(new Double(QUALITY));
             headerList.getHeader().add(header);
             header = new HttpHeader();
             header.setId(IP_HEADER_NAME_2);
