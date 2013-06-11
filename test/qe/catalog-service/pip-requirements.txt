@@ -1,0 +1,5 @@
+argparse==1.2.1
+deproxy==0.8
+narwhal==0.6
+requests==1.2.0
+unittest-xml-reporting==1.4.3

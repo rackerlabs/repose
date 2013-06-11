@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/repose/metrics/v1.0"
+           xmlns:m="http://docs.rackspacecloud.com/repose/metrics/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="metrics" type="m:MetricsConfiguration"/>
+
+    <xs:complexType name="MetricsConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>All metrics-related configuration</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="graphite" type="m:Graphite" minOccurs="0" maxOccurs="1"/>
+<!--            <xs:element name="properties" type="m:Properties" minOccurs="0" maxOccurs="1"/> -->
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="Graphite">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The Graphite server information.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="host" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The Graphite server hostname.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="port" type="xs:integer" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The Graphite server port.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="period" type="xs:long" use="optional" default="10">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The reporting period for Repose to report to the Graphite server in seconds.  Default value is 10.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="prefix" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Prefix used for all metrics in Graphite.  Default value is "".</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+</xs:schema>

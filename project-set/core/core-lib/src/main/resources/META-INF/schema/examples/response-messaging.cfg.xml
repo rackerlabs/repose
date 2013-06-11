@@ -2,7 +2,7 @@
 
 <response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
 
-    <status-code id="413" code-regex="413">
+    <status-code id="1" code-regex="413">
         <message media-type="*/*" content-type="application/json">
 {
     "overLimit" : {
@@ -25,6 +25,9 @@
 </overLimit>
 ]]>
         </message>
+    </status-code>
+    <status-code id="2" code-regex="404" overwrite="ALWAYS">
+        <message media-type="application/json" href="link_to_message.json"></message>
     </status-code>
     
 </response-messaging>
