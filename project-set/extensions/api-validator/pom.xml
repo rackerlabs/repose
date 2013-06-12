@@ -60,7 +60,7 @@
 
                 <configuration>
 
-                    <specVersion>2.1</specVersion>
+                    <specVersion>2.2</specVersion>
                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
