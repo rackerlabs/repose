@@ -22,14 +22,16 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-
-
+                    The validator.cfg.xml will contain a list of validator elements.  
+                    A validator element will specify the WADL to be used in order to 
+                    validate a request for a user of a given role/group
+                    <!-- Definitions of node and machine -->
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
@@ -38,13 +40,27 @@
                     <html:p>
                         set to true will match validators to header 'x-roles' and all matches are
                         validated until one of them is valid. In the event that all matches are invalid, the response
-                        returned will be that of the last matched validator. Set to false or not set will match
-                        validators
-                        to header 'x-roles' and only first match is validated.
+                        returned will be that of the last matched validator. If set to false, or not set at all, the 
+                        filter will use the first validator which matches the 'x-roles' header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+        <xs:assert vc:minVersion="1.1"
+            test="count(scr:validator/@dot-output) = count(distinct-values(scr:validator/@dot-output))"
+            xerces:message="Dot output files must be unique"
+            saxon:message="Dot output files must be unique"/>
+        
+        <xs:assert vc:minVersion="1.1"
+            test="count(scr:validator/@validator-name) = count(distinct-values(scr:validator/@validator-name))"
+            xerces:message="Validator names must be unique"
+            saxon:message="Validator names must be unique"/>
+        
+        <xs:assert vc:minVersion="1.1"
+            test="count(scr:validator[xs:boolean(@default)=true()]) &lt;= 1"
+            xerces:message="Only one default validator may be defined"
+            saxon:message="Only one default validator may be defined"/>
 
 
     </xs:complexType>
@@ -54,6 +70,13 @@
             <xs:enumeration value="XalanC"/>
             <xs:enumeration value="Xalan"/>
             <xs:enumeration value="Saxon"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="XpathVersion">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="2"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -75,8 +98,10 @@
                 <xs:documentation>
                     <html:p>
                         Set to use this validator if no 'x-roles' header is passed.
-                        If the api-validator config 'multi-match' is set to true then teh default validator
-                        will be the first validator to process the incoming request.
+                        If the api-validator config 'multi-match' is set to true then the default validator
+                        will be the first validator to process the incoming request. If multi-match is 
+                        set to false and if no validator is matched
+                        to the users roles, then the filter will use the default validator.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -88,6 +113,7 @@
                         Location of wadl to associate with configured validator. This attribute is optional.
                         If not specified, then the wadl needs to be embedded within the validator element.
                         Can be located within the file system or pointed to a remote file.
+                        Can use absolute or relative path.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -103,7 +129,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="xpath-version" type="xs:int" use="optional" default="1">
+        <xs:attribute name="xpath-version" type="scr:XpathVersion" use="optional" default="1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -120,17 +146,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Check Well-Formed XML and JSON
-
-                        The XML Syntax rules for Well-Formed XML are:
-                        All XML elements must have a closing tag.
-                        XML tags are case-sensitive.
-                        All XML elements must be properly nested.
-                        All XML documents must have a root element.
-                        Attribute values must always be quoted.
-                        With XML, white space is preserved.
-
-                        TODO: Restricitons for a well formed JSON
+                        Checks that the request body is Well-Formed XML or JSON as in that 
+                        the request body conforms to the xml or json syntax rules.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -139,7 +156,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Check all XML against XSD Grammars
+                        If set to true and the wadl references an xsd grammer the incoming xml
+                        request body is validated against the xsd grammer.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -148,8 +166,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Ensure elements are correct
-                        <!-- What does that mean??? -->
+                        If set to true and the wadl request representation 
+                        contains an element the filter will check the root 
+                        element of a request
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -170,8 +189,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Check plain parameters
-                        <!-- What does that mean??? -->
+                        Plain parameter: Assertion about the content of the message.
+                        If set to true and the WADL has a plain parameters defined the filter will
+                        check the plain parameters.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -180,7 +200,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Allow XSD grammar transform. Transform the XML after validation, to fill in things like default
+                        Allow XSD grammar transform. Transforms the XML after validation to fill in things like default
                         values etc
                     </html:p>
                 </xs:documentation>
@@ -190,25 +210,39 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Enable preprocess extension
-                        <!-- What does that mean??? -->
+                        If set to true allows the filter to perform a transform before xsd validation takes place.
+                        The transformation rules can be defined in the WADL via the Rackspace WADL rax:preprocess extension.
+                        
+                        <html:code>
+                            <![CDATA[
+     <method id="addAtomHopperEntry" name="POST">
+         <request>
+            <representation mediaType="application/atom+xml" element="atom:entry">
+             <rax:preprocess href="atom_hopper_pre.xsl"/>
+            </representation>
+        </request>
+</method>]]>
+                        </html:code>
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Don't allow duplicate nodes in the state machine
+                        Analyzes the state machine generated from the WADL and makes sure that there aren't
+                        any duplicate nodes in the machine.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        If set to true checks the validity of the generated state machine (e.g. no dead-end 
+                        paths, there is a single start state, no none connected nodes, etc.)
                         Deprecated: This attribute is deprecated and will always be considered true.
                     </html:p>
                 </xs:documentation>
@@ -218,13 +252,25 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The XSL 1.0 engine to use. Possible choices are Xalan, XalanC, and Saxon
-                        Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.
+                        The XSL engine to use. Possible choices are Xalan, XalanC, and Saxon
+                        Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.       
                     </html:p>
+                    <html:ul>
+                        <html:li>
+                            Xalan - Standard Java XSL engine
+                        </html:li>
+                        <html:li>
+                            XalanC - compiles XSL into byte code and is a very efficient 1.0 engine
+                        </html:li>
+                        <html:li>
+                            Saxon - Implements v2.0 of the XSL language.
+                        </html:li>
+                    </html:ul>
+                    
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -238,7 +284,8 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Check that required headers are set.
+                        If set to true and the WADL defines required headers then the filter will check
+                        that those required headers are present.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -250,6 +297,14 @@
                     <html:p>
                         Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations
                         from validation against the XSD. Default values is true if not specified
+                        <html:code>
+                            <![CDATA[
+                            <request rax:ignoreXSD="true">
+                                <representation mediaType="application/xml"/>
+                                <representation mediaType="application/atom+xml"/>
+                            </request>
+                            ]]>
+                        </html:code>
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -259,7 +314,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Sets the name for this validator item. The name is used as the MBean name
+                        Sets the name for this validator item. The name is used the MBean name
                         when connecting to Repose via JMX.
                     </html:p>
                 </xs:documentation>
