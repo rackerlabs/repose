@@ -4,77 +4,122 @@
            targetNamespace="http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0"
            xmlns:header-identity="http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:atom="http://www.w3.org/2005/Atom"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
 
     <!-- Client IP Identity Configuration -->
-    <xs:element name="header-id-mapping" type="header-identity:HeaderIdMappingConfig" />
+    <xs:element name="header-id-mapping" type="header-identity:HeaderIdMappingConfig"/>
 
     <xs:complexType name="HeaderIdMappingConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    With the Header Identity Mapping Filter, Repose can introspect a configured Header and set the
+                    X-PP-User and X-PP-Groups headers accordingly.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:all>
-            <xs:element name="source-headers" type="header-identity:HttpHeaderList" minOccurs="1" maxOccurs="1" />
+            <xs:element name="source-headers" type="header-identity:HttpHeaderList" minOccurs="1" maxOccurs="1"/>
         </xs:all>
     </xs:complexType>
 
     <xs:complexType name="HttpHeaderList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    List of headers to identify the incoming user.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
-            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
-        
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(header-identity:header/@id)) = count(header-identity:header/@id)"
+                   xerces:message="Filters must have ids unique within their containing filter list"
+                   saxon:message="Filters must have ids unique within their containing filter list"/>
+
     </xs:complexType>
-    
-    
+
+
     <xs:complexType name="HttpHeader">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    Header to identify incoming user and groups.
+                </html:p>
+                <html:ul>
+                    <html:li>
+                        If the specified user header contains no value, then neither x-pp-user nor x-pp-groups
+                        will be set based on that header entry.
+                    </html:li>
+                    <html:li>
+                        If the specified user header contains a value, but the specified groups header does not,
+                        then x-pp-user will be set, but x-pp-groups will not based on that header entry.
+                    </html:li>
+                </html:ul>
+
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        This uniquely identifies the header mapping.
+                    </html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
-        
+
         <xs:attribute name="user-header" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        The header value associated with this key is applied to the x-pp-user header.
+                    </html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
-        
+
         <xs:attribute name="group-header" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        The header value associated with this key is applied to the x-pp-groups header.
+                    </html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
-        
-        <xs:attribute name="quality" type="header-identity:doubleBetweenZeroandOne">
+
+        <xs:attribute name="quality" type="header-identity:doubleBetweenZeroandOne" use="optional" default="0.1">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        Quality assigned to users found in the request headers.
+                        If no quality is set, Repose will default this value to 0.1.
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC -
+                            Section-3.9
+                        </html:a>
+                        (for usage examples, see<html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">
+                        HTTP RFC - Section 14.1</html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
     <xs:simpleType name="doubleBetweenZeroandOne">
         <xs:restriction base="xs:double">
             <xs:minInclusive value="0.0"/>

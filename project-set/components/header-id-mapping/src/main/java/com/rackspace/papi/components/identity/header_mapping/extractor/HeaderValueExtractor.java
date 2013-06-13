@@ -51,12 +51,6 @@ public class HeaderValueExtractor {
    }
 
    private String determineQuality(HttpHeader header) {
-      String q = DEFAULT_QUALITY;
-
-      if (header.getQuality() != null) {
-         q = header.getQuality().toString();
-      }
-
-      return ";q=" + q;
+       return ";q=" + header.getQuality();
    }
 }
