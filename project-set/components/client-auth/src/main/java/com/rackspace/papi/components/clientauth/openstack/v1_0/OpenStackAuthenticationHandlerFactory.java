@@ -36,7 +36,7 @@ public final class OpenStackAuthenticationHandlerFactory {
 
         //null check to prevent NPE when accessing config element attributes
         if (authConfig.getEndpointsInHeader() != null) {
-            endpointsConfiguration = new EndpointsConfiguration(authConfig.getEndpointsInHeader().getFormat(),
+            endpointsConfiguration = new EndpointsConfiguration(authConfig.getEndpointsInHeader().getFormat().toString(),
                                                                 authConfig.getEndpointsInHeader().getCacheTimeout(),
                                                                 authConfig.getEndpointsInHeader()
                                                                         .getIdentityContractVersion().intValue());
