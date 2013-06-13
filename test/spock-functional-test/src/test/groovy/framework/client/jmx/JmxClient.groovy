@@ -24,6 +24,32 @@ class JmxClient {
     }
 
     /**
+     * Looks for a particular mbean & attribute by JMX name and returns it.
+     *
+     *
+     * @param name - complete MBean name, to be passed into ObjectName
+     * @return
+     */
+    def getMBeanAttribute( name, attr ) {
+
+        def obj
+        println( "looking up mbean attribute" )
+
+        try {
+            waitForCondition( clock, '25s', '1s', {
+                obj = server.getAttribute( new ObjectName( name ), attr )
+                obj != null
+            })
+        } catch (TimeoutException) {
+            // ignore this and simply return the total mbeans found
+            println( "failed to find expected mbean attribute" )
+        }
+
+        println( "found mbean attribute" )
+
+        obj
+    }
+    /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
      *
      * Conditional wait allows for some latency between time of request and MBeans being available in JMX

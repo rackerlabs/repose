@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.metrics.impl;
 
+import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.*;
@@ -11,44 +12,49 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
- * MetricServiceImpl
- *
  * This factory class generates Yammer Metrics objects & exposes them through JMX & Graphite.  Any metric classes which
  * might be used by multiple components should have a factory method off this class.
- *
- * To ensure no namespace collisions between clusters & nodes, the reposeJmxNamingStrategy object is used.  This object
+ * <p>
+ * To ensure no namespace collisions between clusters & nodes, the {@link com.rackspace.papi.spring.ReposeJmxNamingStrategy} object is used.  This object
  * also provides the ObjectName for any Spring-managed MBeans.
+ * <p>
+ * <h1>Custom MXBeans </h1>
  *
- * Custom MXBeans
- * --------------
  * If you need to register a MXBean, please follow the example of the ConfigurationInformation class.  While its not an
  * MXBean (its an MBean) much of its construction is usable for MXBeans.  It contains the following aspects:
- *
- *   - Declares itself as a @ManagedResource.  Use the same objectName format.
- *   - Implements a MBean interface (MXBeans are named *MXBean).
- *   - Declares JMX viewable methods with @ManagedOperation.
- *
+ * <ul>
+ *   <li> Declares itself as a @ManagedResource.  Use the same objectName format.
+ *   <li> Implements a MBean interface (MXBeans are named *MXBean).
+ *   <li> Declares JMX viewable methods with @ManagedOperation.
+ * </ul>
  * Additionally, this can also be helpful:
+ * <ul>
+ *  <li><a href="http://docs.oracle.com/javase/tutorial/jmx/mbeans/mxbeans.html">http://docs.oracle.com/javase/tutorial/jmx/mbeans/mxbeans.html</a>  In particular the part about the @ConstructorProperites
+ * annotations I believe prevents you from having to mess with CompositeData when returning custom objects through
+ * a MXBean.
+ * </ul>
+ * <p>
+ * <h1>Functional Tests for instrumented filters</h1>
+ * The functional tests contained in
+ * repose/test/spock-functional-test/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
  *
- *   - http://docs.oracle.com/javase/tutorial/jmx/mbeans/mxbeans.html  In particular the part about the @ConstructorProperites
- *     annotations I believe prevents you from having to mess with CompositeData when returning custom objects through
- *     a MXBean.
- *
- **/
-@Component("metricsService")
+ * Provide an example on how you might verify your instrumentation.
+ */
+@Component( "metricsService" )
 public class MetricsServiceImpl implements MetricsService {
 
     private MetricsRegistry metrics;
     private JmxReporter jmx;
-    private GraphiteReporter graphite;
+    private List<GraphiteReporter> listGraphite = new ArrayList<GraphiteReporter>();
     private ReposeJmxNamingStrategy reposeStrat;
 
     @Autowired
-    public MetricsServiceImpl( @Qualifier( "reposeJmxNamingStrategy" ) ReposeJmxNamingStrategy reposeStratP ){
+    public MetricsServiceImpl( @Qualifier( "reposeJmxNamingStrategy" ) ReposeJmxNamingStrategy reposeStratP ) {
 
         metrics = new MetricsRegistry();
 
@@ -58,51 +64,70 @@ public class MetricsServiceImpl implements MetricsService {
         reposeStrat = reposeStratP;
     }
 
-    public synchronized void updateConfiguration( String host, int port, long period, String prefix ) throws IOException {
-       shutdownGraphite();
+    public void addGraphiteServer( String host, int port, long period, String prefix )
+          throws IOException {
 
-
-       graphite = new GraphiteReporter( metrics,
-                prefix,
-                MetricPredicate.ALL,
-                new GraphiteReporter.DefaultSocketProvider(host, port),
-                Clock.defaultClock() );
+        GraphiteReporter graphite = new GraphiteReporter( metrics,
+                                                          prefix,
+                                                          MetricPredicate.ALL,
+                                                          new GraphiteReporter.DefaultSocketProvider( host, port ),
+                                                          Clock.defaultClock() );
 
         graphite.start( period, TimeUnit.SECONDS );
+
+        synchronized ( listGraphite ) {
+            listGraphite.add( graphite );
+        }
     }
 
-   public synchronized void shutdownGraphite() {
+    public void shutdownGraphite() {
 
-      if ( graphite != null ) {
+        synchronized ( listGraphite ) {
+            for( GraphiteReporter graphite : listGraphite ) {
 
-         graphite.shutdown();
-         graphite = null;
-      }
-   }
+                graphite.shutdown();
+            }
+        }
+    }
 
     @Override
-    public Meter newMeter(Class klass, String name, String scope, String eventType, TimeUnit unit ) {
+    public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit ) {
 
         return metrics.newMeter( makeMetricName( klass, name, scope ), eventType, unit );
     }
 
     @Override
-    public Counter newCounter(Class klass, String name, String scope ) {
+    public Counter newCounter( Class klass, String name, String scope ) {
 
         return metrics.newCounter( makeMetricName( klass, name, scope ) );
     }
 
+
     @Override
-   public void destroy() {
+    public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit ) {
 
-      metrics.shutdown();
-      jmx.shutdown();
-
-       shutdownGraphite();
+        return new MeterByCategoryImpl( this, klass, scope, eventType, unit );
     }
 
-   private MetricName makeMetricName( Class klass, String name, String scope ) {
+    @Override
+    public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
 
-       return new MetricName( reposeStrat.getDomainPrefix() + klass.getPackage().getName(), klass.getSimpleName(), name, scope);
-   }
+        return new MeterByCategorySum( this, klass, scope, eventType, unit );
+    }
+
+    @Override
+    public void destroy() {
+
+        metrics.shutdown();
+        jmx.shutdown();
+
+        shutdownGraphite();
+    }
+
+    private MetricName makeMetricName( Class klass, String name, String scope ) {
+
+        return new MetricName( reposeStrat.getDomainPrefix() + klass.getPackage().getName(),
+                               klass.getSimpleName(),
+                               name, scope );
+    }
 }
