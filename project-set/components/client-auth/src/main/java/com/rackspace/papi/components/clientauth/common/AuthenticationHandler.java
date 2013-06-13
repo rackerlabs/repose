@@ -50,7 +50,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final UriMatcher uriMatcher;
    private final boolean tenanted;
    private final long groupCacheTtl;
-   private final long endpointsCacheTtl;
    private final long tokenCacheTtl;
    private final long userCacheTtl;
    private final boolean requestGroups;
@@ -71,7 +70,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.requestGroups = configurables.isRequestGroups();
       this.usrCache = usrCache;
       this.endpointsConfiguration = configurables.getEndpointsConfiguration();
-      this.endpointsCacheTtl = configurables.getEndpointsConfiguration().getCacheTimeout();
    }
 
    @Override
@@ -221,7 +219,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    /*
     * New caching strategy:
     * If running in tenanted mode we will look into the user cache for list of tokens, if passed token is present we will look to the token cache and return the Auth
-    * token object. If running in non-tenanted mode we 
+    * token object. If running in non-tenanted mode we
     */
    private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
 
@@ -276,7 +274,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
       }
-      //TODO: Search cache for user object. 
+      //TODO: Search cache for user object.
       // Present: Add token to user token list
       // Not Present: Add token to new user token list and add new user token list to cache
    }

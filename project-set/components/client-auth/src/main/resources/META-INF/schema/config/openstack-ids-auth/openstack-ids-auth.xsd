@@ -156,7 +156,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="format" type="xs:string" use="optional" default="json">
+        <xs:attribute name="format" type="os-ids-auth:format-enumeration" use="optional" default="JSON">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Determines endpoint header format.</html:p>
@@ -180,6 +180,21 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="format-enumeration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This enumeration defines the allowable values for the format.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="JSON" />
+            <xs:enumeration value="XML" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="longGTEZero">
         <xs:restriction base="xs:long">
