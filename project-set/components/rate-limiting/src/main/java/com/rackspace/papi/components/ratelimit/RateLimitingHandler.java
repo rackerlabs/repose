@@ -30,12 +30,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
   private final Pattern describeLimitsUriPattern;
   private final RateLimitingServiceHelper rateLimitingServiceHelper;
   private boolean overLimit429ResponseCode;
+  private int datastoreWarnLimit;
 
-  public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern, boolean overLimit429ResponseCode) {
+  public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern, boolean overLimit429ResponseCode, int datastoreWarnLimit) {
     this.includeAbsoluteLimits = includeAbsoluteLimits;
     this.describeLimitsUriPattern = describeLimitsUriPattern;
     this.rateLimitingServiceHelper = rateLimitingServiceHelper;
     this.overLimit429ResponseCode = overLimit429ResponseCode;
+    this.datastoreWarnLimit=datastoreWarnLimit;
   }
 
   @Override
@@ -118,7 +120,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     boolean pass = true;
 
     try {
-      rateLimitingServiceHelper.trackLimits(request);
+      rateLimitingServiceHelper.trackLimits(request,datastoreWarnLimit);
     } catch (OverLimitException e) {
       new LimitLogger(e.getUser(), request).log(e.getConfiguredLimit(), Integer.toString(e.getCurrentLimitAmount()));
       final HttpDate nextAvailableTime = new HttpDate(e.getNextAvailableTime());

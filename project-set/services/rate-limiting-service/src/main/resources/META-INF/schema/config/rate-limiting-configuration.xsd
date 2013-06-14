@@ -56,6 +56,17 @@
             </xs:annotation>
         </xs:attribute>
         
+         <xs:attribute name="datastore-warn-limit" type="xs:positiveInteger" use="optional" default="1000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines limit to log a warning on size when an object is stored in to the datastore over this limit. when this limit is reached, Repose will issue a warning message in the logs. 
+                        The limit default is 1000 count of cache keys per user (hash map as part of user key in dist datastore).                         
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
         <xs:attribute name="use-capture-groups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>

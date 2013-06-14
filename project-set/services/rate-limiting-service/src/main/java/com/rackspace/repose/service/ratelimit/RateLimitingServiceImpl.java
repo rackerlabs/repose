@@ -51,7 +51,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
    }
 
    @Override
-   public void trackLimits(String user, List<String> groups, String uri, String httpMethod) throws OverLimitException {
+   public void trackLimits(String user, List<String> groups, String uri, String httpMethod,int datastoreWarnLimit) throws OverLimitException {
 
       if (StringUtilities.isBlank(user)) {
          throw new IllegalArgumentException("User required when tracking rate limits.");
@@ -72,7 +72,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
          
          // Did we find a limit that matches the incoming uri and http method?
          if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod)) {
-              rateLimiter.handleRateLimit(user, new LimitKey().getLimitKey(uri, uriMatcher, useCaptureGroups), rateLimit);
+              rateLimiter.handleRateLimit(user, new LimitKey().getLimitKey(uri, uriMatcher, useCaptureGroups), rateLimit, datastoreWarnLimit);
            
             return;
          }
