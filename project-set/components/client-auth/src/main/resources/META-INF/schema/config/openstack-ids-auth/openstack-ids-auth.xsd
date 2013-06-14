@@ -9,15 +9,14 @@
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">    
 
-    <!-- Configuration -->
-    <xs:element name="openstack-auth">
-        <xs:complexType>
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
-                </xs:documentation>
-            </xs:annotation>
-
+   <!-- Configuration -->
+   <xs:element name="openstack-auth">
+      <xs:complexType>
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
+            </xs:documentation>
+         </xs:annotation>
             <xs:all vc:minVersion="1.1">
                 <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
@@ -31,67 +30,75 @@
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
 
-            <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Tells the service whether or not to support auth delegation.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
+         <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Tells the service whether or not to support auth delegation.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         
+         <xs:attribute name="user-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="60000">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth token.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
 
-            <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Time in milliseconds to cache auth token.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
+         <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth token.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
 
-            <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Time in milliseconds to cache auth groups.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
+         <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth groups.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
             
-            <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Option to include the query strings to find extract the client id</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
+         <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Option to include the query strings to find extract the client id</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
             
                       
-            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
-                <xs:annotation>
-                    <xs:documentation>
-                     c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <!-- Review assertion -->
-            <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
-                       xerces:message="If tenanted = true then there should be at least one client mapping."
-                       saxon:message="If tenanted = true then there should be at least one client mapping."/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:complexType name="OpenStackIdentityService">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Describes an OpenStack Identity Service endpoint</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="username" type="xs:string" use="required">
+         <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
-                <xs:documentation>
-                    <html:p>Username to use</html:p>
-                </xs:documentation>
+               <xs:documentation>
+                  c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
+               </xs:documentation>
             </xs:annotation>
-        </xs:attribute>
+         </xs:attribute>
+         <!-- Review assertion -->
+         <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
+                    xerces:message="If tenanted = true then there should be at least one client mapping."
+                    saxon:message="If tenanted = true then there should be at least one client mapping."/>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:complexType name="OpenStackIdentityService">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes an OpenStack Identity Service endpoint</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="username" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Username to use</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
 
         <xs:attribute name="password" type="xs:string" use="required">
             <xs:annotation>
@@ -121,9 +128,16 @@
     <xs:complexType name="ClientMapping">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes how to extract the client id from a given URI</html:p>
+               <html:p>Target URI for authentication requests</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      <xs:attribute name="tenantId" type="xs:string" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
 
         <xs:attribute name="id-regex" type="xs:string" use="required">
             <xs:annotation>
@@ -142,7 +156,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="format" type="xs:string" use="optional" default="json">
+        <xs:attribute name="format" type="os-ids-auth:format-enumeration" use="optional" default="JSON">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Determines endpoint header format.</html:p>
@@ -166,6 +180,21 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="format-enumeration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This enumeration defines the allowable values for the format.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="JSON" />
+            <xs:enumeration value="XML" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="longGTEZero">
         <xs:restriction base="xs:long">

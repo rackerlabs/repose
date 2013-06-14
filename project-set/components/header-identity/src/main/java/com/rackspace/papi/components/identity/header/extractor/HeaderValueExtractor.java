@@ -10,7 +10,6 @@ import java.util.List;
 public class HeaderValueExtractor {
 
    private HttpServletRequest request;
-   public static final String DEFAULT_QUALITY = "0.1";
 
    public HeaderValueExtractor(HttpServletRequest request) {
       this.request = request;
@@ -42,12 +41,6 @@ public class HeaderValueExtractor {
    }
 
    private String determineQuality(HttpHeader header) {
-      String q = DEFAULT_QUALITY;
-
-      if (header.getQuality() != null && !header.getQuality().trim().isEmpty()) {
-         q = header.getQuality().trim();
-      }
-
-      return ";q=" + q;
+      return ";q=" + header.getQuality();
    }
 }

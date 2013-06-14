@@ -4,6 +4,9 @@
            targetNamespace="http://docs.rackspacecloud.com/repose/response-messaging/v1.0"
            xmlns:rms="http://docs.rackspacecloud.com/repose/response-messaging/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:element name="response-messaging" type="rms:ResponseMessagingConfiguration" />
@@ -12,43 +15,81 @@
     <xs:simpleType name="overwrite-type">
         <xs:annotation>
             <xs:documentation>
-                <html:p>The types that control overwriting of the response body</html:p>
+                <html:p>
+                    Overwrite type specifies if RMS should always overwrite the response body or only 
+                    if the body is empty.  Possible values are: ALWAYS, IF_EMPTY.  
+                    The overwrite attribute is optional and defaults to "IF_EMPTY" if not specified.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:restriction base="xs:string">
-            <xs:enumeration value="ALWAYS" />
-            <xs:enumeration value="IF_EMPTY" />
+            <xs:enumeration value="ALWAYS">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this is specified, response body will always be overwritten by response messaging
+                            filter.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="IF_EMPTY" >
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this is specified, response body will be overwritten by response messaging
+                            filter only if response body is empty.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:complexType name="ResponseMessagingConfiguration">
         <xs:annotation>
             <xs:documentation>
-                <html:p>List of status-code</html:p>
+                <html:p>
+                    List of status codes, which allow Repose to intercept the response and return 
+                    a pre-configured message body.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
             <xs:element name="status-code" type="rms:StatusCodeMatcher" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(rms:status-code/@id)) = count(rms:status-code/@id)"
+            xerces:message="Status code ids must be unique"
+            saxon:message="Status code ids must be unique"/>
     </xs:complexType>
 
     <xs:complexType name="StatusCodeMatcher">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes a status code that will be handled</html:p>
+                <html:p>
+                    Describes a status code that will be handled.  The actual status code will be captured in
+                    code-regex attribute (can be specified as a regular expression).  Please refer to 
+                    <html:a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java 
+                        Regular Expression Api</html:a> for more information on regular expression syntax.
+                    Id attribute must be unique.  
+                </html:p>
             </xs:documentation>
         </xs:annotation>
+        
 
         <xs:sequence>
             <xs:element name="message" type="rms:Message" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
 
+
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>ID of the status code rewrite</html:p>
+                    <html:p>
+                        ID of the status code rewrite.  Must be unique.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -56,7 +97,12 @@
         <xs:attribute name="code-regex" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines a regular expression that will be used to match status codes against this declaration</html:p>
+                    <html:p>
+                        Defines a regular expression that will be used to match status codes 
+                        against this declaration. Please refer to 
+                        <html:a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java 
+                            Regular Expression Api</html:a> for more information on regular expression syntax.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -73,12 +119,24 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        
     </xs:complexType>
 
     <xs:complexType name="Message">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a message that will be used when matching the parent status code</html:p>
+                <html:p>
+                    Defines a message that will be used when matching the parent status code.
+                    Can either be linked via href attribute or defined in the message element.
+                    XML messages should be included in CDATA inline.
+                    
+                    The message body can contain template parameters that will be replaced by 
+                    request/response or other server values when a status code is matched.  
+                    
+                    The template parameters available for use in the message body are the same 
+                    as the parameters used by the Repose HTTP Logging Filter.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -89,8 +147,9 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                Media Type to match against what the client originally requested when
-                                performing status code message decision logic
+                                Matches the content type of the message coming from the origin service.
+                                Allows different message formats for different response types.
+                                Configuring a media-type of */* will configure that message object as a catch-all.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
@@ -100,7 +159,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                Content Type of the response message returned to the client.
+                                Defines the content type on the response message returned to the client.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
@@ -110,12 +169,25 @@
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                                Specifies a location for getting the message instead
-                                of reading it directly from the config file
+                                Specifies a location to an external file which contains the message to be sent. 
+                                If the message element has a value and the href attribute is configured, 
+                                Response Messaging Service will use what is configured with href to send the message.
+                                If the file to which an href attribute of a message element is pointed is modified, 
+                                Response Messaging Service will need to reload the configurations to 
+                                guarantee that the changes will appear in the responses. 
+                                Any changes to the config file itself will cause a configuration reload.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+
+                <!-- Commenting out asserts as they are breaking our Jmeter regression tests -->
+                <!--<xs:assert vc:minVersion="1.1" test="if (text()) then not (@href) else true()"-->
+                    <!--xerces:message="Cannot define message inline and reference to external message file"-->
+                    <!--saxon:message="Cannot define message inline and reference to external message file"/>-->
+                <!--<xs:assert vc:minVersion="1.1" test="if (@href) then not (text()) else true()"-->
+                    <!--xerces:message="Cannot define message inline and reference to external message file"-->
+                    <!--saxon:message="Cannot define message inline and reference to external message file"/>-->
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

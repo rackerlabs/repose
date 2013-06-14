@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators multi-role-match="true" 
-            xmlns='http://openrepose.org/repose/validator/v1.0'
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-            xsi:schemaLocation="http://openrepose.org/repose/validator/v1.0 https://raw.github.com/rackspace/repose/master/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd" >
-   <validator 
+<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true">
+   <validator
       role="default"
       default="true"
       wadl="file://my/wadl/file.wadl" 
@@ -21,7 +18,8 @@
       use-saxon="false"
       enable-ignore-xsd-extension="false"
       join-xpath-checks="false"
-      validator-name="testName"/>
+      validator-name="testName"
+      check-headers="true"/>
    <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
    <validator
       role="embedded"
