@@ -5,21 +5,28 @@
            targetNamespace="http://openrepose.org/repose/validator/v1.0"
            xmlns:scr="http://openrepose.org/repose/validator/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
-           version="1.1">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           version="2.0">
     
     <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="StringList">
         <xs:list itemType="xs:string"/>
     </xs:simpleType>
     
-    <xs:simpleType name="Version">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="1.0"/>
-            <xs:enumeration value="1.1"/>
+    <xs:simpleType name="SchemaVersion">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="XPathVersion">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="2"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -40,45 +47,99 @@
     </xs:simpleType>
 
     <!-- Configuration Schema Definitions -->
-    <xs:element name="validators" type="scr:ValidatorConfiguration"/>
+    <xs:element name="validators" vc:minVersion="1.0" vc:maxVersion="1.1" type="scr:ValidatorConfiguration2"/>
+    <xs:element name="validators" vc:minVersion="1.1" type="scr:BaseValidatorConfiguration">
+        <xs:alternative test="@schema-version='1'" type="scr:ValidatorConfiguration1"/>
+        <xs:alternative test="@schema-version='2'" type="scr:ValidatorConfiguration2"/>
+        <!-- <xs:alternative type="scr:ValidatorConfiguration2"/> -->
+    </xs:element>
 
-    <xs:complexType name="ValidatorConfiguration">
+    <!-- Base Version and Error -->
+    <xs:complexType name="BaseValidatorConfiguration">
        <xs:annotation>
          <xs:documentation>
-            <html:p></html:p>
+             <html:p>
+                 The validator.cfg.xml will contain a list of validator elements. 
+                 A validator element will specify the WADL to be used in order to 
+                 validate a request for a user of a given role/group.
+             </html:p>
          </xs:documentation>
-      </xs:annotation>
-      
-       <xs:sequence>
-           <xs:element name="validator" vc:minVersion="1.0" vc:maxVersion="1.1" type="scr:ValidatorItem1.1" minOccurs="0" maxOccurs="unbounded"/>
-           <xs:element name="validator" vc:minVersion="1.1" type="scr:BaseValidatorItem" minOccurs="0" maxOccurs="unbounded">
-                <xs:alternative test="@schema-version='1.0'" type="scr:ValidatorItem1.0"/>
-                <xs:alternative test="@schema-version='1.1'" type="scr:ValidatorItem1.1"/>
-                <!-- <xs:alternative type="scr:BaseValidatorItemError" /> -->
-            </xs:element>
-       </xs:sequence>
+       </xs:annotation>
       
        <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        set to true will match validators to header 'x-roles' and all matches are
+                        validated until one of them is valid. In the event that all matches are invalid, the response
+                        returned will be that of the last matched validator. If set to false, or not set at all, the filer 
+                        will use the first validator which matches the 'x-roles' header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="schema-version" type="scr:Version" use="required">
+        <xs:attribute name="schema-version" type="scr:SchemaVersion" use="optional" default="1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Records the version of the schema used to write the XML instance.
+                        Records the version of the schema (XSD) used to write the XML instance. Extends string through the
+                        Version enumeration which contains all valid version numbers.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
 
-    <!-- Base Version and Error -->
+    <!--
+    <xs:complexType name="BaseValidatorConfigurationError">
+        <xs:complexContent>
+            <xs:extension base="scr:BaseValidatorConfiguration">
+                <xs:openContent mode="interleave">
+                    <xs:any processContents="skip"/>
+                </xs:openContent>
+                <xs:anyAttribute processContents="skip"/>
+                <xs:assert vc:minVersion="1.1" test="false()"
+                    xerces:message="For this type of message, only  versions ( 1, 2 ) are supported."
+                    saxon:message="For this type of message, only  versions ( 1, 2 ) are supported."/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    -->
+    
+    <!-- Version 1 -->
+    <xs:complexType name="ValidatorConfiguration1">
+        <xs:complexContent>
+            <xs:extension base="scr:BaseValidatorConfiguration">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Describe version 1 of the validator XSD here.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:sequence>
+                    <xs:element name="validator" type="scr:ValidatorItem1" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <!-- Version 2 -->
+    <xs:complexType name="ValidatorConfiguration2">
+        <xs:complexContent>
+            <xs:extension base="scr:BaseValidatorConfiguration">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Describe version 2 of the validator XSD here.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:sequence>
+                    <xs:element name="validator" type="scr:ValidatorItem2" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <!-- Base Version -->
     <xs:complexType name="BaseValidatorItem">
         <xs:sequence>
             <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
@@ -87,191 +148,271 @@
         <xs:attribute name="role" type="scr:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of roles that are applied on single validator.
+                    <html:p>List of roles that are applied on single validator. Triggers off of 'x-roles' header.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to use this validator if no 'x-roles' header is passed.
+                        If the api-validator config 'multi-match' is set to true then thh default validator
+                        will be the first validator to process the incoming request. If multimatch is set to
+                        false and if no validator is matched to the users' roles, then the filter will use 
+                        the default validator. 
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+        <xs:attribute name="wadl" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Location of wadl to associate with configured validator. This attribute is optional.
+                        If not specified, then the wadl needs to be embedded within the validator element.
+                        Can be located within the file system or pointed to a remote file.
+                        Can use absolute or relative path.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="dot-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        dot output file for this validator
+                        DOT is a plain text graph description language.
+                        It is a simple way of describing graphs that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="xpath-version" type="scr:XPathVersion" use="optional" default="1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        XPath version used in the WADL.
+                        Can be 1 or 2.
+                        If 1 is set the Xalan implementation will be used, if 2 then Saxon will be used
+                        Note that XPath 2 with schema awareness requires a Saxon license.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Check that the request body is well-formed XML or JSON that conforms to
+                        the XML or JSON syntax rules.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl references an XSD grammer, checks that the
+                        incoming request body is validated against the XSD grammer.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl request representation 
+                        contains an element the filter will check the root 
+                        element of a request
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Plain parameter: Assertion about the content of the message.
+                        If set to true and the WADL has a plain parameters defined the filter will
+                        check the plain parameters.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Allow XSD grammar transform. Transform the XML after validation, to fill in things like default
+                        values etc
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="enable-pre-process-extension" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true allows the filter to perform a transform before xsd validation takes place.
+                        The transformation rules can be defined in the WADL via the Rackspace WADL rax:preprocess extension.
+                        <html:code>
+                            <![CDATA[
+                                 <method id="addAtomHopperEntry" name="POST">
+                                     <request>
+                                        <representation mediaType="application/atom+xml" element="atom:entry">
+                                         <rax:preprocess href="atom_hopper_pre.xsl"/>
+                                        </representation>
+                                    </request>
+                            </method>]]>
+                        </html:code>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Analyzes the state machine generated from the WADL and makes sure that there aren't
+                        any duplicate nodes in the machine.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true checks the validity of the generated state machine (e.g. no dead-end 
+                        paths, there is a single start state, no none connected nodes, etc.)
+                        Deprecated: This attribute is deprecated and will always be considered true.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The XSL engine to use. Possible choices are Xalan, XalanC, and Saxon
+                        Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.       
+                    </html:p>
+                    <html:ul>
+                        <html:li>
+                            Xalan - Standard Java XSL engine
+                        </html:li>
+                        <html:li>
+                            XalanC - compiles XSL into byte code and is a very efficient 1.0 engine
+                        </html:li>
+                        <html:li>
+                            Saxon - Implements v2.0 of the XSL language.
+                        </html:li>
+                    </html:ul>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is an optimization where the well formed check and multiple XPath checks can be merged into
+                        a single check.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="check-headers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the WADL defines required headers then the filter will check
+                        that those required headers are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations
+                        from validation against the XSD. Default values is true if not specified
+                        <html:code>
+                            <![CDATA[
+                            <request rax:ignoreXSD="true">
+                                <representation mediaType="application/xml"/>
+                                <representation mediaType="application/atom+xml"/>
+                            </request>
+                            ]]>
+                        </html:code>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="validator-name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the name for this validator item. The name is used as the MBean name
+                        when connecting to Repose via JMX.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:assert vc:minVersion="1.1"
+            test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
+            xerces:message="Roles list must contain unique roles"
+            saxon:message="Roles list must contain unique roles"/>
+        
+        <xs:assert vc:minVersion="1.1" test="if (count(./*)>0) then not (@wadl) else true()"
+            xerces:message="Cannot define wadl file and embedded wadl"
+            saxon:message="Cannot define wadl file and embedded wadl"/>
+        
+        <xs:assert vc:minVersion="1.1" test="if (@wadl) then not (count(./*)>0) else true()"
+            xerces:message="Cannot define wadl file and embedded wadl"
+            saxon:message="Cannot define wadl file and embedded wadl"/>
+        
+        <xs:assert vc:minVersion="1.1" test="if (not(@wadl)) then (count(./*)>0) else true()"
+            xerces:message="Must define a wadl file OR an embedded wadl"
+            saxon:message="Must define a wadl file OR an embedded wadl"/>
+        
+        <xs:assert vc:minVersion="1.1" test="if (not(count(./*)>0)) then (@wadl) else true()"
+            xerces:message="Must define a wadl file OR an embedded wadl"
+            saxon:message="Must define a wadl file OR an embedded wadl"/>
     </xs:complexType>
     
-    <!--
-    <xs:complexType name="BaseValidatorItemError">
+    <!-- Version 1 -->
+    <xs:complexType name="ValidatorItem1">
         <xs:complexContent>
             <xs:extension base="scr:BaseValidatorItem">
-                <xs:openContent mode="interleave">
-                    <xs:any processContents="skip"/>
-                </xs:openContent>
-                <xs:anyAttribute processContents="skip"/>
-                <xs:assert vc:minVersion="1.1" test="false()"
-                    xerces:message="For this type of message, only  versions ( 1.0, 1.1 ) are supported."
-                    saxon:message="For this type of message, only  versions ( 1.0, 1.1 ) are supported."/>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    -->
-
-    <!-- Version 1.0 -->
-    <xs:complexType name="ValidatorItem1.0">
-        <xs:complexContent>
-            <xs:extension base="scr:BaseValidatorItem">
-                <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="wadl" type="xs:anyURI" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="dot-output" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="xpath-version" type="xs:int" use="optional" default="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
                 <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Deprecated: This attribute is deprecated and will always be considered true.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="enable-pre-process-extension" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-headers" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="validator-name" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
+                                Use SAXON-EE for XSD validation: This means that in cases where XSD validation needs to be done
+                                use the Saxon XSD validator instead of the default Xerces validator.
+                                Note that the Saxon validator requires a license.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
@@ -280,168 +421,16 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <!-- Version 1.1 -->
-    <xs:complexType name="ValidatorItem1.1">
+    <!-- Version 2 -->
+    <xs:complexType name="ValidatorItem2">
         <xs:complexContent>
             <xs:extension base="scr:BaseValidatorItem">
-                <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="wadl" type="xs:anyURI" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="dot-output" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="xpath-version" type="xs:int" use="optional" default="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
                 <xs:attribute name="xsd-engine" type="scr:XSDEngine" use="optional" default="Xerces">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Deprecated: This attribute is deprecated and will always be considered true.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="enable-pre-process-extension" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="check-headers" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                
-                <xs:attribute name="validator-name" type="xs:string" use="optional">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
+                                The XSD engine to use for validation. Possible choices are Xerces and SaxonEE.
+                                Note that the SaxonEE validator requires a license.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
