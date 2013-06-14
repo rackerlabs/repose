@@ -47,15 +47,15 @@
     </xs:simpleType>
 
     <!-- Configuration Schema Definitions -->
-    <xs:element name="validators" vc:minVersion="1.0" vc:maxVersion="1.1" type="scr:ValidatorConfiguration2"/>
+    <xs:element name="validators" vc:minVersion="1.0" vc:maxVersion="1.1" type="scr:ValidatorConfiguration1"/>
     <xs:element name="validators" vc:minVersion="1.1" type="scr:BaseValidatorConfiguration">
         <xs:alternative test="@schema-version='1'" type="scr:ValidatorConfiguration1"/>
         <xs:alternative test="@schema-version='2'" type="scr:ValidatorConfiguration2"/>
-        <!-- <xs:alternative type="scr:ValidatorConfiguration2"/> -->
+        <!-- <xs:alternative type="scr:BaseValidatorConfigurationError"/> -->
     </xs:element>
 
     <!-- Base Version and Error -->
-    <xs:complexType name="BaseValidatorConfiguration">
+    <xs:complexType name="BaseValidatorConfiguration" abstract="true">
        <xs:annotation>
          <xs:documentation>
              <html:p>
@@ -140,7 +140,7 @@
     </xs:complexType>
     
     <!-- Base Version -->
-    <xs:complexType name="BaseValidatorItem">
+    <xs:complexType name="BaseValidatorItem" abstract="true">
         <xs:sequence>
             <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
         </xs:sequence>

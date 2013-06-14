@@ -6,7 +6,9 @@ import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem1;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +20,11 @@ import java.util.List;
 public class ValidatorConfigurator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidatorConfigurator.class);
-    private final ValidatorItem validatorItem;
+    private final BaseValidatorItem validatorItem;
     private final boolean multiRoleMatch;
     private final String configRoot;
 
-    public ValidatorConfigurator(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
+    public ValidatorConfigurator(BaseValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
         this.validatorItem = validatorItem;
         this.multiRoleMatch = multiRoleMatch;
         this.configRoot = configRoot;
@@ -38,7 +40,7 @@ public class ValidatorConfigurator {
        return file.getAbsolutePath();
     }
 
-    private DispatchHandler getHandlers(ValidatorItem validatorItem) {
+    private DispatchHandler getHandlers(BaseValidatorItem validatorItem) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
         if (!multiRoleMatch) {
@@ -65,8 +67,6 @@ public class ValidatorConfigurator {
         Config config = new Config();
 
         config.setResultHandler(getHandlers(validatorItem));
-        //config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
-
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());
@@ -80,6 +80,14 @@ public class ValidatorConfigurator {
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
+
+        if (validatorItem instanceof ValidatorItem1) {
+            config.setUseSaxonEEValidation(((ValidatorItem1)validatorItem).isUseSaxon());
+        } else if (validatorItem instanceof ValidatorItem2) {
+            //config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine().value());
+        } else {
+            // Error -- How is validator not null and not a valid version?
+        }
 
         return config;
     }

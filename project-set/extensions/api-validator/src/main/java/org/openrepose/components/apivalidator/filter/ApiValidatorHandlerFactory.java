@@ -7,8 +7,10 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -25,7 +27,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     
   
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
-    private ValidatorConfiguration validatorConfiguration;
+    private BaseValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
     private List<ValidatorInfo> validators;
     private boolean initialized = false;
@@ -148,11 +150,25 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 return;
             }
 
-            validators = new ArrayList<ValidatorInfo>(validatorConfiguration.getValidator().size());
+            List<? extends BaseValidatorItem> validatorItems = null;
+            if (validatorConfiguration instanceof ValidatorConfiguration1) {
+                ValidatorConfiguration1 validatorConfiguration1 = (ValidatorConfiguration1)validatorConfiguration;
+
+                validatorItems = validatorConfiguration1.getValidator();
+                validators = new ArrayList<ValidatorInfo>(validatorItems.size());
+            } else if (validatorConfiguration instanceof ValidatorConfiguration2) {
+                ValidatorConfiguration2 validatorConfiguration2 = (ValidatorConfiguration2)validatorConfiguration;
+
+                validatorItems = validatorConfiguration2.getValidator();
+                validators = new ArrayList<ValidatorInfo>(validatorItems.size());
+            } else {
+                // Error -- How is validator not null and not a valid version?
+            }
+
             defaultValidator = null;
             multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
 
-            for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
+            for (BaseValidatorItem validatorItem : validatorItems) {
                 Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator =
                         validatorItem.getAny() != null
@@ -175,13 +191,13 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
     }
 
-    private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
+    private class ApiValidationConfigurationListener implements UpdateListener<BaseValidatorConfiguration> {
 
        private boolean isInitialized = false;
        
         
         @Override
-        public void configurationUpdated(ValidatorConfiguration configurationObject) {
+        public void configurationUpdated(BaseValidatorConfiguration configurationObject) {
             validatorConfiguration = configurationObject;
             unsubscribeAll();
             initialize();
@@ -196,7 +212,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
       
     }
 
-    void setValidatorCOnfiguration(ValidatorConfiguration configurationObject) {
+    void setValidatorConfiguration(BaseValidatorConfiguration configurationObject) {
         validatorConfiguration = configurationObject;
     }
     
@@ -213,7 +229,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        updateListeners.put(ValidatorConfiguration.class, new ApiValidationConfigurationListener());
+        updateListeners.put(BaseValidatorConfiguration.class, new ApiValidationConfigurationListener());
         return updateListeners;
     }
 }
