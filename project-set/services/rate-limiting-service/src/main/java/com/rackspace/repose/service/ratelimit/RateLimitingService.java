@@ -9,5 +9,5 @@ public interface RateLimitingService {
 
    RateLimitList queryLimits(String user, List<String> groups);
 
-   void trackLimits(String user, List<String> groups, String uri, String httpMethod) throws OverLimitException;
+   void trackLimits(String user, List<String> groups, String uri, String httpMethod,int datastoreWarnLimit) throws OverLimitException;
 }

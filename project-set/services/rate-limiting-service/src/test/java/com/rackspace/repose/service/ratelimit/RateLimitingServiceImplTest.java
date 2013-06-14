@@ -38,6 +38,7 @@ public class RateLimitingServiceImplTest {
       ConfiguredRatelimit rl1;
       private Map<String, CachedRateLimit> cacheMap;
       private ConfiguredLimitGroup configuredLimitGroup;
+      private int datastoreWarnLimit= 1000;
 
       @Before
       public final void beforeAll() {
@@ -113,9 +114,9 @@ public class RateLimitingServiceImplTest {
            groups.add("configure-limit-group");
 
               when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                      any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+                      any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
 
-              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
+              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
          }
       
       
@@ -128,10 +129,10 @@ public class RateLimitingServiceImplTest {
          Date nextAvail = new Date();
 
          when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, nextAvail, 0));
+                 any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, nextAvail, 0));
          
          try{
-            rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
+            rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
          }catch(OverLimitException e){
             assertEquals("User should be returned",e.getUser(), "user");
             assertTrue("Next available time should be returned",e.getNextAvailableTime().compareTo(nextAvail)==0);
@@ -146,9 +147,9 @@ public class RateLimitingServiceImplTest {
          groups.add("configure-limit-group");
 
          when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, new Date(), 10));
+                 any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
          
-         rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET");
+         rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
       }
       
       
@@ -159,9 +160,9 @@ public class RateLimitingServiceImplTest {
            groups.add("configure-limit-group");
 
               when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                      any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+                      any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
 
-              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET");
+              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);
          } 
    }
 }
