@@ -16,6 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+/**
+ * Given a destination object which defines an endpoint from the system-model.cfg.xml, creates a
+ * {@link com.rackspace.papi.filter.routing.DestinationLocation} which contains the full URI to the endpoint with all
+ * necessary query parameters from the request.
+ */
 @Component("domainLocationBuilder")
 public class DomainLocationBuilder implements LocationBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);
@@ -33,7 +38,7 @@ public class DomainLocationBuilder implements LocationBuilder {
             throw new IllegalArgumentException("Destination must be of type DestinationCluster");
         }
         DestinationCluster domain = (DestinationCluster) destination;
-        Node node = routingService.getRoutableNode(domain.getId());
+        Node node = routingService.getRoutableNode( domain.getCluster().getId() );
         if (node == null) {
            LOG.warn("No routable node for domain: " + domain.getId());
            return null;
