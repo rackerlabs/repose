@@ -79,9 +79,7 @@
     </status-code>
 
     <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
-        <message media-type="*/*" href="file:///etc/repose/node3/responsefor5xx" >
-            You are not authorized... Did you drop your ID?
-        </message>
+        <message media-type="*/*" href="file:///etc/repose/node3/responsefor5xx"/>
 
     </status-code>
 

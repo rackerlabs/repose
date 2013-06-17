@@ -1,28 +1,32 @@
 package com.rackspace.papi.service.reporting.metrics;
 
 import com.rackspace.papi.commons.util.Destroyable;
+import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricsRegistry;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Service to pass around service registry
+ * Service to pass around service registry.
+ * <p>
+ * This service creates all necessary classes to track repose performance through JMX & Graphite.
  */
 public interface MetricsService extends Destroyable{
 
-   public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
+    public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
 
-   public Counter newCounter( Class klass, String name, String scope );
+    public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit );
 
-   public void updateConfiguration( String host, int port, long period, String prefix ) throws IOException;
+    public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit );
 
-   public void shutdownGraphite();
+    public Counter newCounter( Class klass, String name, String scope );
 
-   // TODO:  add additional Repose-specific metrics as required
+    public void addGraphiteServer( String host, int port, long period, String prefix ) throws IOException;
 
-   public void destroy();
+    public void shutdownGraphite();
+
+    public void destroy();
 
 }

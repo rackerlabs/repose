@@ -23,6 +23,12 @@
     </xs:complexType>
 
     <xs:complexType name="Graphite">
+        <xs:sequence>
+            <xs:element name="server" type="m:GraphiteServer" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="GraphiteServer">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The Graphite server information.</html:p>
