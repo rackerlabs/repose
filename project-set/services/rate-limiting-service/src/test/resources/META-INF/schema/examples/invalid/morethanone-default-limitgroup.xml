@@ -36,7 +36,7 @@
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
-    <limit-group id="test-limits" groups="user">
+    <limit-group id="test-limits" groups="user" default="true">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
