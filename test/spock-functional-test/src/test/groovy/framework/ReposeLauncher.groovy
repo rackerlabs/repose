@@ -6,7 +6,7 @@ interface ReposeLauncher {
 
     void stop();
 
-    void enableJmx(boolean isEnabled)
+    void enableJmx()
 
     void applyConfigs(String[] configLocations)
 
