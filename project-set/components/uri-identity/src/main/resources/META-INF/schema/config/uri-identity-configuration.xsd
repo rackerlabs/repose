@@ -17,12 +17,12 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                   With the URI Identity Filter, Repose can introspect a requests URI and set the X-PP-User and
-                   X-PP-Group headers accordingly. These headers get consumed by the Repose Rate Limiting Filter.
+                    With the URI Identity Filter, Repose can introspect a requests URI and set the X-PP-User and
+                    X-PP-Group headers accordingly. These headers get consumed by the Repose Rate Limiting Filter.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:all>
             <xs:element name="identification-mappings" type="uri-identity:IdentificationMappingList" minOccurs="1" maxOccurs="1" />
             <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="User_Standard" >
@@ -53,21 +53,21 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                  A list of mapping elements which are regular expressions used to extract the identification
-                  information from the request URI. The first regular expression in the list that finds a match
-                  in the URI is what is used to extract the data.
+                    A list of mapping elements which are regular expressions used to extract the identification
+                    information from the request URI. The first regular expression in the list that finds a match
+                    in the URI is what is used to extract the data.
                 </html:p>
                 <html:p>X-PP-User will be set to the identification data retrieved from the first matching regular expression.</html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
             <xs:element name="mapping" type="uri-identity:IdentificationMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(uri-identity:*/@id)) = count(uri-identity:*/@id)"
-            xerces:message="Mappings ids must be unique if specified"
-            saxon:message="Mappings ids must be unique if specified">
+                   xerces:message="Mappings ids must be unique if specified"
+                   saxon:message="Mappings ids must be unique if specified">
         </xs:assert>
     </xs:complexType>
 
@@ -83,7 +83,7 @@
                 <xs:documentation>
                     <html:p>Unique identifier of the mapping</html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
 
         <xs:attribute name="identification-regex" type="xs:string" use="required">
@@ -94,7 +94,7 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
     <xs:simpleType name="doubleBetweenZeroandOne">
         <xs:restriction base="xs:double">
             <xs:minInclusive value="0.0"/>
