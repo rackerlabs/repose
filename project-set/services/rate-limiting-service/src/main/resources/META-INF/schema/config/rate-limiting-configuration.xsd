@@ -18,7 +18,7 @@
         <xs:list itemType="xs:string"/>
     </xs:simpleType>
     
-    <xs:simpleType name="Datastore">
+    <xs:simpleType name="DatastoreType">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
@@ -77,7 +77,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="datastore" type="rl:Datastore" use="optional" default="distributed/hash-ring">
+        <xs:attribute name="datastore" type="rl:DatastoreType" use="optional" default="distributed/hash-ring">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Name of datastore to use for storing rate limiting information.  
