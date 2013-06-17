@@ -152,6 +152,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             List<? extends BaseValidatorItem> validatorItems = null;
             if (validatorConfiguration instanceof ValidatorConfiguration1) {
+                LOG.warn("Deprecation Warning: validator-configuration version 1 is deprecated");
                 ValidatorConfiguration1 validatorConfiguration1 = (ValidatorConfiguration1)validatorConfiguration;
 
                 validatorItems = validatorConfiguration1.getValidator();
