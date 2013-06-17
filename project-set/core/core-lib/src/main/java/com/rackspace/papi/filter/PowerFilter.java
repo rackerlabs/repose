@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.ResponseCode;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
@@ -26,9 +27,21 @@ import javax.servlet.http.HttpServletResponse;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * This class implements the Filter API and is managed by the servlet container.  This filter then loads
+ * and runs the FilterChain which contains the individual filter instances listed in the system-model.cfg.xml.
+ * <p>
+ * This class current instruments the response codes coming from Repose.
+ *
+ */
 public class PowerFilter extends ApplicationContextAwareFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
@@ -44,6 +57,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
+    private MeterByCategory mbcReponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
 
@@ -156,6 +170,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         reportingService = papiContext.reportingService();
         responseHeaderService = papiContext.responseHeaderService();
+        mbcReponseCodes = papiContext.metricsService().newMeterByCategory( ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS );
     }
 
     @Override
@@ -218,7 +233,35 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 LOG.error("Error committing output stream", ex);
             }
             final long stopTime = System.currentTimeMillis();
+
+            markResponseCodeHelper( mbcReponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null );
+
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
+        }
+    }
+
+    public static void markResponseCodeHelper( MeterByCategory mbc, int responseCode, Logger log, String logPrefix ) {
+        int code =  responseCode / 100;
+
+        if ( code == 2 ) {
+
+            mbc.mark( "2XX" );
+        }
+        else if ( code == 3 ) {
+
+            mbc.mark( "3XX" );
+        }
+        else if ( code == 4 ) {
+
+            mbc.mark( "4XX" );
+        }
+        else if ( code == 5 ) {
+
+            mbc.mark( "5XX" );
+        }
+        else {
+
+            log.error( ( logPrefix != null ? logPrefix + ":  " : ""  )+ "Encountered invalid response code: " + responseCode );
         }
     }
 }
