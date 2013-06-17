@@ -13,7 +13,6 @@
     <!-- Import shared types with live limits -->
     <xs:import namespace="http://docs.openstack.org/common/api/v1.0" schemaLocation="../limits/limits.xsd"/>
 
-
     <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="StringList">
         <xs:list itemType="xs:string"/>
@@ -220,9 +219,17 @@
         </xs:attribute>
          
         <xs:assert vc:minVersion="1.1"
-            test="count(for $f in rl:limit return concat($f/@uri, string-join(tokenize($f/@http-methods, ' '), ' '), $f/@uri-regex)) = count(distinct-values(for $f in rl:limit return concat($f/@uri, string-join(tokenize($f/@http-methods, ' '), ' '), $f/@uri-regex)))"
-            xerces:message="Unique uri, http-methods, and uri-regexes within a limit group"
-            saxon:message="Unique uri, http-methods, and uri-regexes within a limit group"/>
+            test="
+            count(for $first-pass in rl:limit,
+            $second-pass in rl:limit[ @uri = $first-pass/@uri  and (: ids are the same :)
+            @uri-regex = $first-pass/@uri-regex and (: hrefs are the same :)
+                count(tokenize(@http-methods, ' ')) = count(tokenize($first-pass/@http-methods, ' ')) and (: methods have the same count :)
+                empty( for $t in tokenize(@http-methods, ' ') return if ($t = tokenize($first-pass/@http-methods, ' '))
+                then () else $t) (: removing the methods in one list from another should result in the empty sequence :)
+                ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)                    
+                = count(rl:limit)"
+                xerces:message="Unique http-methods, and uri-regexes within a limit group"
+                saxon:message="Unique http-methods, and uri-regexes within a limit group"/>
         
     </xs:complexType>
 
