@@ -70,6 +70,12 @@ public class SchemaTest {
         }
 
         @Test
+        public void shouldNotFailWhenDuplicateHttpMethodAndDifferentUriRegex() throws Exception {
+            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/valid/unique-uriregex-httpmethod.xml"));
+            assertNotNull("Expected element should not be null", jaxbUnmarshaller.unmarshal(sampleSource, RateLimitingConfiguration.class).getValue().getLimitGroup());
+        }
+
+        @Test
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
             assertInvalidConfig("/META-INF/schema/examples/invalid/nonunique-limitgroup-ids.xml", "Limit groups must have unique ids");
         }
