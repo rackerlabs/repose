@@ -7,6 +7,8 @@
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:version="2.1"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:element name="versioning" type="vers-config:ServiceVersionMappingList" />
@@ -22,6 +24,11 @@
             <xs:element name="service-root" type="vers-config:ServiceRootContext" />
             <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+     
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(vers-config:version-mapping/@id)) = count(vers-config:version-mapping/@id)"
+            xerces:message="Version mapping must have ids unique within their containing filter list"
+            saxon:message="Version mapping must have ids unique within their containing filter list" xpathDefaultNamespace="##targetNamespace"/> 
+     
     </xs:complexType>
 
     <xs:complexType name="ServiceRootContext">
@@ -55,6 +62,7 @@
         <xs:sequence>
             <xs:element name="media-types" type="vers-config:MediaTypeList" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
+  
 
         <xs:attribute name="id" type="xs:string"> <!--does this needs to required and unique -->
             <xs:annotation>
@@ -68,7 +76,10 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="pp-dest-id" type="xs:string"><!--does this needs to required and unique -->
+      
+
+        <xs:attribute name="pp-dest-id" type="xs:string" use="required">
+
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The Repose destination ID is used to identify which Repose host will answer to versioned requests 
@@ -94,6 +105,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+     
     </xs:complexType>
 
     <!-- Types -->
