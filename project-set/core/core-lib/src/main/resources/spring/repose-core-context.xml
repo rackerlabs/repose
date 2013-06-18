@@ -61,5 +61,3 @@
     <bean name="distributedDatastoreServiceClusterContext" class="com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
 
 </beans>
-
-</beans>
