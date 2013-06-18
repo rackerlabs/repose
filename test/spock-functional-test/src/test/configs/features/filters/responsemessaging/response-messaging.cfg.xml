@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
+
+    <status-code id="413" code-regex="413">
+        <message media-type="*/*">
+{
+    "overLimit" : {
+        "code" : 413,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details..."
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<![CDATA[
+<overLimit
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="413">
+  <message>OverLimit Retry...</message>
+  <details>Error Details...</details>
+</overLimit>
+]]>
+        </message>
+    </status-code>
+
+<status-code id="345" code-regex="345" overwrite="IF_EMPTY">
+        <message media-type="*/*">
+{
+    "response" : {
+        "code" : 345
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<![CDATA[
+<response
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="345">
+  <message>Woohooo!  You got a 345!</message>
+</response>
+]]>
+        </message>
+    </status-code>
+
+<status-code id="346" code-regex="346" overwrite="IF_EMPTY">
+        <message media-type="*/*">
+{
+    "response" : {
+        "code" : 346
+    }
+}
+        </message>
+    </status-code>
+
+    <status-code id="333" code-regex="333" overwrite="ALWAYS">
+        <message media-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
+        </message>
+        <message media-type="application/json"><![CDATA[{ "groups": "%{X-PP-Groups}i", "mydate": "%{MYDATE DATE ISO_8601 RFC_1123}i" }]]>
+        </message>
+        <message media-type="*/*">
+	    X-PP-Groups: %{X-PP-Groups}i
+	    MY-DATE: %{MYDATE DATE ISO_8601}i
+        </message>
+    </status-code>
+
+    <status-code id="4xx" code-regex="4\d\d" overwrite="ALWAYS">
+        <message media-type="application/xml">
+            XML Not Authorized... Syntax highlighting is magical.
+        </message>
+        <message media-type="application/json">
+            JSON Not Authorized... The brackets are too confusing.
+        </message>
+        <message media-type="*/*">
+            You are not authorized... Did you drop your ID?
+        </message>
+    </status-code>
+
+    <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
+        <message media-type="*/*" href="bar"></message>
+    </status-code>
+
+</response-messaging>
