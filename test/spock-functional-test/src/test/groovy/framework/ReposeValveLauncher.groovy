@@ -3,6 +3,8 @@ package framework
 import deproxy.GDeproxy
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
+import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.HeaderCollection
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -12,7 +14,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     def String reposeJar
     def String configDir
 
-    def GDeproxy reposeClient
+    def Deproxy reposeClient
     def clock = new SystemClock()
 
     def reposeEndpoint
@@ -61,7 +63,7 @@ class ReposeValveLauncher implements ReposeLauncher {
             jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
         }
 
-        def cmd = "java ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
+        def cmd = "java ${debugProps} ${jmxprops} ${saxonprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({cmd.execute()});
@@ -70,7 +72,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         th.join()
 
         print("Waiting for repose to start")
-        waitForCondition(clock, '30s', '1s', {
+        waitForCondition(clock, '60s', '1s', {
             isAvailable()
         })
 
@@ -103,12 +105,13 @@ class ReposeValveLauncher implements ReposeLauncher {
     private boolean isAvailable() {
 
         if (reposeClient == null) {
-            reposeClient = new GDeproxy(reposeEndpoint)
+            reposeClient = new Deproxy(reposeEndpoint)
         }
 
         try {
-            def response = reposeClient.doGet("/")
-            return response.getHeader("Via").contains("Repose")
+            def response = reposeClient.makeRequest("/")
+            HeaderCollection headers = response.getReceivedResponse().getHeaders()
+            return headers.getFirstValue("Via").contains("Repose")
         } catch (Exception e) {
         }
         print('.')
