@@ -87,7 +87,7 @@
               </propertiesUser>
               <reportConfig>
                 <enable>true</enable> 
-                <xsltFile>functional-report.xsl</xsltFile>
+                <xsltFile>../functional-report.xsl</xsltFile>
               </reportConfig>
             </configuration>
           </plugin>
