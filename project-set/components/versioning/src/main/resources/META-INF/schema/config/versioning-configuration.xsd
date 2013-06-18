@@ -71,8 +71,8 @@
         </xs:attribute>
 
 
-
         <xs:attribute name="pp-dest-id" type="xs:string" use="required">
+
             <xs:annotation>
                 <xs:documentation>
                     <html:p></html:p>
