@@ -217,7 +217,7 @@ class TestUseAllRolesWithSameHighQValue(unittest.TestCase):
 
         If more than one role has the highest qvalue, use all of them.
         """
-        headers = {'X-Roles': 'role-3; q=0.9, role-2; q=0.1; role-1; q=0.9'}
+        headers = {'X-Roles': 'role-3; q=0.9, role-2; q=0.1, role-1; q=0.9'}
         mc = deproxy_object.make_request(url=self.url, headers=headers)
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
