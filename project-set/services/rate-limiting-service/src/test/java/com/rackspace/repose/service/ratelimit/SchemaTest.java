@@ -1,47 +1,29 @@
 package com.rackspace.repose.service.ratelimit;
 
-import com.rackspace.papi.commons.validate.xsd.JAXBValidator;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(Enclosed.class)
 public class SchemaTest {
 
-    public static class WhenValidating {
+    public static class WhenValidatingRateLimitConfiguration {
 
-        private JAXBContext jaxbContext;
-        private Unmarshaller jaxbUnmarshaller;
         private Validator validator;
 
         @Before
         public void standUp() throws Exception {
-            jaxbContext = JAXBContext.newInstance(
-                    com.rackspace.repose.service.ratelimit.config.ObjectFactory.class,
-                    com.rackspace.repose.service.limits.schema.ObjectFactory.class);
-
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-
             SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
             factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
 
@@ -52,35 +34,64 @@ public class SchemaTest {
                     });
 
             validator = schema.newValidator();
-
-            jaxbUnmarshaller.setSchema(schema);
-
-            jaxbUnmarshaller.setEventHandler(new JAXBValidator());
         }
 
         @Test
-        public void shouldValidateAgainstStaticExample() throws Exception {
+        public void shouldValidateExampleConfig() throws Exception {
             final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/rate-limiting.cfg.xml"));
-            assertNotNull("Expected element should not be null", jaxbUnmarshaller.unmarshal(sampleSource, RateLimitingConfiguration.class).getValue().getLimitGroup());
+            validator.validate(sampleSource);
         }
 
         @Test
         public void shouldFailWhenConfigHasNonUniqueUriAndMethods() throws Exception {
-            assertInvalidConfig("/META-INF/schema/examples/invalid/nonunique-uriregex-httpmethod.xml", "Unique http-methods, and uri-regexes");
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                    "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
+                    "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
+                    "    </limit-group>" +
+                    "    <limit-group id='customer-limits' groups='user'/> " +
+                    "</rate-limiting>";
+
+            assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
+        }
+
+        @Test
+        public void shouldValidateWhenDuplicateHttpMethodAndDifferentUriRegex() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                    "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "    </limit-group>" +
+                    "    <limit-group id='customer-limits' groups='user'/> " +
+                    "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
 
         @Test
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
-            assertInvalidConfig("/META-INF/schema/examples/invalid/nonunique-limitgroup-ids.xml", "Limit groups must have unique ids");
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "    <limit-group id='test-limits' groups='customer foo' default='true'/> " +
+                    "    <limit-group id='test-limits' groups='user'/> " +
+                    "</rate-limiting>";
+            assertInvalidConfig(xml, "Limit groups must have unique ids");
         }
 
         @Test
         public void shouldFailIfMoreThanOneDefaultLimitGroup() throws Exception {
-            assertInvalidConfig("/META-INF/schema/examples/invalid/morethanone-default-limitgroup.xml", "Only one default limit group may be defined");
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "    <limit-group id='customer-limits' groups='customer foo' default='true'/> " +
+                    "    <limit-group id='test-limits' groups='user' default='true'/> " +
+                    "</rate-limiting>";
+            assertInvalidConfig(xml, "Only one default limit group may be defined");
         }
 
-        private void assertInvalidConfig(String resource, String errorMessage) {
-            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream(resource));
+        private void assertInvalidConfig(String xml, String errorMessage) {
+            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
             Exception caught = null;
             try {
                 validator.validate(sampleSource);
@@ -90,7 +101,8 @@ public class SchemaTest {
 
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
-            assertTrue(caught.getLocalizedMessage().contains(errorMessage));
+
+            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
         }
 
     }

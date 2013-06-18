@@ -216,15 +216,15 @@
                     <html:p>The groups that the rate limits are associated with</html:p>
                 </xs:documentation>
             </xs:annotation>
-        </xs:attribute>
+        </xs:attribute>             
          
         <xs:assert vc:minVersion="1.1"
             test="
             count(for $first-pass in rl:limit,
             $second-pass in rl:limit[ @uri = $first-pass/@uri  and (: ids are the same :)
             @uri-regex = $first-pass/@uri-regex and (: hrefs are the same :)
-                count(tokenize(@http-methods, ' ')) = count(tokenize($first-pass/@http-methods, ' ')) and (: methods have the same count :)
-                empty( for $t in tokenize(@http-methods, ' ') return if ($t = tokenize($first-pass/@http-methods, ' '))
+                count(tokenize((string-join(@http-methods, ' ')), ' ')) = count(tokenize((string-join($first-pass/@http-methods, ' ')), ' ')) and (: methods have the same count :)
+                empty( for $t in tokenize((string-join(@http-methods, ' ')), ' ') return if ($t = tokenize((string-join($first-pass/@http-methods, ' ')), ' '))
                 then () else $t) (: removing the methods in one list from another should result in the empty sequence :)
                 ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)                    
                 = count(rl:limit)"
