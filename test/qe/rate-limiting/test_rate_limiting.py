@@ -81,8 +81,6 @@ class TestSimpleLimitGroup(unittest.TestCase):
         url = 'http://localhost:%i/' % repose_port
         logger.debug('url = %s' % url)
 
-        time.sleep(1)
-
         for i in xrange(5):
             logger.debug('%i\'th request, should pass' % i)
             mc = self.deproxy.make_request(method='GET', url=url,
@@ -136,8 +134,6 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
 
     def test_different_methods(self):
         url = 'http://localhost:%i/' % repose_port
-
-        time.sleep(1)
 
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
         self.assertEqual(mc.received_response.code, '200')
@@ -209,8 +205,6 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         url = 'http://localhost:%i/' % repose_port
         logger.debug('url = %s' % url)
 
-        time.sleep(1)
-
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
@@ -221,7 +215,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         self.assertEqual(mc.received_response.code, '413')
         self.assertEqual(len(mc.handlings), 0)
 
-        time.sleep(1)
+        #sleep for one minute to allow counts to reset
+        time.sleep(60)
 
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url,
@@ -281,8 +276,6 @@ class TestMultipleNodes(unittest.TestCase):
         url2 = 'http://localhost:%i/' % (repose_port + 1)
         logger.debug('url1 = %s' % url1)
         logger.debug('url2 = %s' % url2)
-
-        time.sleep(1)
 
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url1,
