@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rackspace.papi.tests</groupId>
+    <artifactId>TestPrep</artifactId>
+    <version>1.0</version>
+    <name>TestPrep</name>
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Rackspace Cloud Research</name>
+        <url>http://research.rackspace.com/</url>
+    </organization>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.license>apache20</project.license>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/rackerlabs/repose.git</connection>
+    </scm>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>public.maven.research.rackspace.com</id>
+            <name>Rackspace Research</name>
+            <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>jmeter</artifactId>
+            <version>2.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+          <plugin>
+            <groupId>com.lazerycode.jmeter</groupId>
+            <artifactId>jmeter-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <executions>
+              <execution>
+                <id>jmeter-tests</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jmeter</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>   
+              <propertiesUser>
+                  <curDir>${basedir}</curDir>
+              </propertiesUser>
+              <reportConfig>
+                <enable>true</enable> 
+                <xsltFile>../functional-report.xsl</xsltFile>
+              </reportConfig>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+        <profiles>
+
+    <profile>
+      <id>custom-suffix</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.lazerycode.jmeter</groupId>
+            <artifactId>jmeter-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <configuration>   
+              <reportConfig>
+                <enable>true</enable> 
+                <xsltFile>functional-report.xsl</xsltFile>
+                <postfix>-${suffix}-report.html</postfix>
+              </reportConfig>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+</project>
+
