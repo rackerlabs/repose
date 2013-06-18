@@ -8,7 +8,7 @@ qvalue tests
 
 Description:
     "Take into account qvalue. So don't match against all X-Roles values but
-    only those with highest qvalue. if the highest qvalue is 0.9, and two
+    only those with highest qvalue. If the highest qvalue is 0.9, and two
     values have that qvalue, use those two to compare against @role, and no
     others."
 
@@ -96,7 +96,7 @@ def setUpModule():
         deproxy_object.add_endpoint(('localhost', deproxy_port))
 
 
-class TestSingleMatchQvalueAndAllGoodRoles(unittest.TestCase):
+class TestSingleMatchQvalue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('setting up')
@@ -131,13 +131,6 @@ class TestSingleMatchQvalueAndAllGoodRoles(unittest.TestCase):
         mc = deproxy_object.make_request(url=self.url, headers=headers)
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
-
-    def test_use_all_good_roles(self):
-        r""" f4f5p\3q0.9,2q0.1,1q0.9 -> f4 """
-        headers = {'X-Roles': 'role-3; q=0.9, role-2; q=0.1; role-1; q=0.9'}
-        mc = deproxy_object.make_request(url=self.url, headers=headers)
-        self.assertEqual(mc.received_response.code, '404')
-        self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
@@ -178,6 +171,53 @@ class TestMultiMatchQvalue(unittest.TestCase):
     def test_multi_match_qvalue(self):
         r""" mf4p\1q0.9,2q0.1 -> f4 """
         headers = {'X-Roles': 'role-1; q=0.9, role-2; q=0.1'}
+        mc = deproxy_object.make_request(url=self.url, headers=headers)
+        self.assertEqual(mc.received_response.code, '404')
+        self.assertEqual(len(mc.handlings), 0)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestUseAllRolesWithSameHighQValue(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('setting up')
+
+        repose_port = get_next_open_port()
+        stop_port = get_next_open_port()
+
+        params = {
+            'target_hostname': 'localhost',
+            'target_port': deproxy_port,
+            'port': repose_port,
+            'repose_port': repose_port,
+        }
+
+        cls.url = 'http://localhost:{0}/resource'.format(repose_port)
+
+        # set the common config files, like system model and container
+        conf.process_folder_contents(folder='configs/common',
+                                     dest_path='etc/repose', params=params)
+
+        # set the specific config files, i.e. validator.cfg.xml
+        conf.process_folder_contents(folder='configs/f4f5p',
+                                     dest_path='etc/repose', params=params)
+
+        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+                                        stop_port=stop_port,
+                                        wait_on_start=True, port=repose_port)
+
+    def test_use_all_roles_with_the_same_high_qvalue(self):
+        r"""
+        f4f5p\3q0.9,2q0.1,1q0.9 -> f4
+
+        If more than one role has the highest qvalue, use all of them.
+        """
+        headers = {'X-Roles': 'role-3; q=0.9, role-2; q=0.1; role-1; q=0.9'}
         mc = deproxy_object.make_request(url=self.url, headers=headers)
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
