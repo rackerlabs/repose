@@ -86,7 +86,8 @@ public class SchemaTest {
         }
 
 
-        @Ignore
+
+        @Ignore // This config should cause an XSD 1.1 assert failure but doesn't with the current assert logic
         @Test
         public void shouldFailWhenConfigHasNonUniqueUriAndMatchingMethods() throws Exception {
             String xml =
