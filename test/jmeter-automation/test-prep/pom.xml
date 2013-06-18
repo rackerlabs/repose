@@ -44,20 +44,6 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <distributionManagement>
-        <repository>
-            <id>releases.maven.research.rackspace.com</id>
-            <name>Rackspace Research Releases</name>
-            <url>http://maven.research.rackspacecloud.com/content/repositories/releases</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>snapshots.maven.research.rackspace.com</id>
-            <name>Rackspace Research Snapshots</name>
-            <url>http://maven.research.rackspacecloud.com/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.jmeter</groupId>
