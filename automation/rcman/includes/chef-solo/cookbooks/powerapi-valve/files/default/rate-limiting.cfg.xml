@@ -1,12 +1,12 @@
 <rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
   <request-endpoint include-absolute-limits="true" uri-regex="/v\d/[^/]+/limits/?"/>
-  <limit-group default="true" id="admin-limits" roles="Admin">
+  <limit-group default="true" id="admin-limits" groups="Admin">
     <limit uri="/v*" http-methods="GET" unit="MINUTE" value="6" uri-regex="/(v\d/[^/]+).*"/>
   </limit-group>
-  <limit-group id="customer-limits" roles="customer">
+  <limit-group id="customer-limits" groups="customer">
     <limit uri="/service/*" http-methods="GET" unit="MINUTE" value="3" uri-regex="/service/([^/]*).*"/>
   </limit-group>
-  <limit-group id="testing-limits" roles="test">
+  <limit-group id="testing-limits" groups="test">
     <limit uri="/service/*" http-methods="GET" unit="MINUTE" value="10" uri-regex="/service/([^/]*).*"/>
   </limit-group>
 </rate-limiting>
