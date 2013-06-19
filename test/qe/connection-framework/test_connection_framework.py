@@ -237,6 +237,7 @@ class TestApache(unittest.TestCase):
         self.assertNotIn('Accept', mc.handlings[0].request.headers)
         self.assertNotIn('accept', mc.handlings[0].request.headers)
 
+    @unittest.expectedFailure
     def test_empty_accept_header(self):
         url = 'http://localhost:{0}/'.format(self.repose_port)
         host_header = 'localhost:{0}'.format(self.repose_port)

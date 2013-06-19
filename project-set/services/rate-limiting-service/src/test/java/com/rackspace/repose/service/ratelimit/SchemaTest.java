@@ -1,6 +1,7 @@
 package com.rackspace.repose.service.ratelimit;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -43,20 +44,6 @@ public class SchemaTest {
         }
 
         @Test
-        public void shouldFailWhenConfigHasNonUniqueUriAndMethods() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                    "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
-                    "    </limit-group>" +
-                    "    <limit-group id='customer-limits' groups='user'/> " +
-                    "</rate-limiting>";
-
-            assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
-        }
-
-        @Test
         public void shouldValidateWhenDuplicateHttpMethodAndDifferentUriRegex() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
@@ -69,6 +56,53 @@ public class SchemaTest {
 
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
+
+        @Test
+        public void shouldFailWhenConfigHasNonUniqueUriAndMethods() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
+        }
+
+        @Test
+        public void shouldFailWhenConfigHasNonUniqueUriAndListOfMethods() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT GET' value='1' unit='HOUR'/>" +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
+        }
+
+
+
+        @Ignore // This config should cause an XSD 1.1 assert failure but doesn't with the current assert logic
+        @Test
+        public void shouldFailWhenConfigHasNonUniqueUriAndMatchingMethods() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT GET' value='1' unit='HOUR'/>" +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT POST' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
+        }
+
+
 
         @Test
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
