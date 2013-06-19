@@ -59,16 +59,20 @@ def get_next_open_port(start=None):
 
 def always(code):
     def handler(request):
-        message = deproxy.messages_by_response_code[int(code)]
+        if int(code) in deproxy.messages_by_response_code:
+            message = deproxy.messages_by_response_code[int(code)]
+        else:
+            message = 'Something'
+        logger.debug('Returning {0}'.format(code))
         return deproxy.Response(code=code, message=message)
     handler.__doc__ = 'Always return a {0} status code.'.format(code)
     return handler
 
 
-
 class FakeIdentityService(object):
-    def __init__(self, port, code=200):
+    def __init__(self, port, origin_service_port, code=200):
         self.port = port
+        self.origin_service_port = origin_service_port
         self.code = code
 
         with open('identity-success.xml', 'r') as f:
@@ -81,6 +85,8 @@ class FakeIdentityService(object):
             self.identity_failure_json_template = string.Template(f.read())
         with open('identity-endpoints.json', 'r') as f:
             self.identity_endpoints_json_template = string.Template(f.read())
+        with open('identity-endpoints.xml', 'r') as f:
+            self.identity_endpoints_xml_template = string.Template(f.read())
 
         self.groups_json_template = string.Template('''{
             "RAX-KSGRP:groups": [
@@ -137,10 +143,19 @@ class FakeIdentityService(object):
             code = 200
             message = 'OK'
         elif request.method == 'GET' and 'endpoints' in request.path:
-            template = self.identity_endpoints_json_template
+            if xml:
+                template = self.identity_endpoints_xml_template
+            else:
+                template = self.identity_endpoints_json_template
             params = {
                 'identity_port': self.port,
                 'token': client_token,
+                'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                'userid': client_userid,
+                'username': client_username,
+                'tenant': client_tenant,
+                'token': client_token,
+                'origin_service_port': self.origin_service_port,
             }
             code = 200
             message = 'OK'
@@ -167,7 +182,7 @@ class FakeIdentityService(object):
                 else:
                     template = self.identity_failure_json_template
 
-        print '%s %s -> %s' % (request.method, request.path, code)
+        #print '%s %s -> %s' % (request.method, request.path, code)
 
         body = template.safe_substitute(params)
         headers = {
@@ -209,6 +224,29 @@ def setUpModule():
                        snapshot=snapshot)
 
 
+def todict(obj, classkey=None):
+    if isinstance(obj, dict):
+        for k in obj.keys():
+            obj[k] = todict(obj[k], classkey)
+        return obj
+    elif isinstance(obj, deproxy.HeaderCollection):
+        return [(todict(k, classkey), todict(v, classkey))
+                    for k,v in obj.iteritems()]
+    elif isinstance(obj, tuple):
+        return tuple([todict(v, classkey) for v in obj])
+    elif hasattr(obj, "__iter__"):
+        return [todict(v, classkey) for v in obj]
+    elif hasattr(obj, "__dict__"):
+        data = dict([(key, todict(value, classkey))
+            for key, value in obj.__dict__.iteritems()
+            if not callable(value) and not key.startswith('_')])
+        if classkey is not None and hasattr(obj, "__class__"):
+            data[classkey] = obj.__class__.__name__
+        return data
+    else:
+        return obj
+
+
 class TestAuthorizationServiceErrors(unittest.TestCase):
     @classmethod
     def setUpClass(klass):
@@ -230,7 +268,8 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
             klass.deproxy.add_endpoint(deproxy_port, 'origin service',
                                        default_handler=always(606)))
 
-        klass.identity = FakeIdentityService(port=identity_port)
+        klass.identity = FakeIdentityService(port=identity_port,
+                                            origin_service_port=deproxy_port)
         klass.identity_endpoint = (
             klass.deproxy.add_endpoint(identity_port, 'identity service',
                                        default_handler=klass.identity.handler))
@@ -260,7 +299,7 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
         self.identity.code = 200
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
-        logger.debug(repr(mc))
+        #pprint(todict(mc), width=200)
         self.assertEqual(mc.received_response.code, '606')
 
     def test_400(self):
@@ -402,7 +441,7 @@ class TestAuthenticationServiceErrors(unittest.TestCase):
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-    
+
     def test_502(self):
         self.identity.code = 502
         mc = self.deproxy.make_request(url=self.url,

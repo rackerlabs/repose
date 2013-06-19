@@ -7,24 +7,24 @@
     ],
     "endpoints": [
         {
-            "internalURL": "http://localhost:8080/v1/AUTH_1",
+            "internalURL": "http://localhost:${origin_service_port}/v1/AUTH_1",
             "name": "swift",
-            "adminURL": "http://swift.example.com:8080/",
+            "adminURL": "http://localhost:${origin_service_port}/",
             "region": "RegionOne",
             "tenantId": 1,
             "type": "object-store",
             "id": 1,
-            "publicURL": "http://swift.example.com/v1/AUTH_1"
+            "publicURL": "http://localhost:${origin_service_port}/"
         },
         {
-            "internalURL": "http://localhost:8774/v1.0",
+            "internalURL": "http://localhost:${origin_service_port}/",
             "name": "nova_compat",
-            "adminURL": "http://localhost:8774/v1.0",
+            "adminURL": "http://localhost:${origin_service_port}/",
             "region": "RegionOne",
             "tenantId": 1,
             "type": "compute",
             "id": 2,
-            "publicURL": "http://nova.example.com/v1.0/"
+            "publicURL": "http://localhost:${origin_service_port}/"
         }
     ]
 }

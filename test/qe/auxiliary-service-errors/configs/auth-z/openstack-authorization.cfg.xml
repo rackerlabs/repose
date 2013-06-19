@@ -5,5 +5,5 @@
                           password="admin_password"
                           href="http://localhost:${identity_port}/"
                           endpoint-list-ttl="300" />
-   <service-endpoint href="http://localhost:${target_port}/v1.0/" />
+   <service-endpoint href="http://localhost:${target_port}/" />
 </rackspace-authorization>
