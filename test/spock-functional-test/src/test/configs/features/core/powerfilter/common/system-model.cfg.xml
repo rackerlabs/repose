@@ -14,7 +14,7 @@
 
     <destinations>
         <endpoint id="endpoint" protocol="http" hostname="${target_hostname}" root-path="/root_path" port="${target_port}" default="true"/>
-        <target id="cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster" default="false"/>
+        <target id="mocks-cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster" default="false"/>
     </destinations>
 
   </repose-cluster>
