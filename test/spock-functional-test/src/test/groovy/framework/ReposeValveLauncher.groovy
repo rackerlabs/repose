@@ -14,6 +14,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     def reposeEndpoint
     def int shutdownPort
+    def int reposePort
 
     def JmxClient jmx
     def static int jmxPort = 9001
@@ -21,7 +22,12 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     def ReposeConfigurationProvider configurationProvider
 
-    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider, String reposeJar, String reposeEndpoint, String configDir, int shutdownPort) {
+    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
+                        String reposeJar,
+                        String reposeEndpoint,
+                        String configDir,
+                        int reposePort,
+                        int shutdownPort) {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
@@ -50,6 +56,10 @@ class ReposeValveLauncher implements ReposeLauncher {
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
+        if (debugEnabled) {
+            debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+        }
+
         jmxPort++
         jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
@@ -71,6 +81,10 @@ class ReposeValveLauncher implements ReposeLauncher {
         waitForCondition(clock, '60s', '1s', {
             isFilterChainInitialized()
         })
+
+        // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
+        // ready to receive requests without actually sending a request through (skews the metrics if we do)
+        sleep(10000)
     }
 
     def connectViaJmxRemote(jmxUrl) {
@@ -89,7 +103,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
-        waitForCondition(clock, '15s', '1s', {
+        waitForCondition(clock, '60s', '1s', {
             !isFilterChainInitialized()
         })
     }
@@ -99,6 +113,11 @@ class ReposeValveLauncher implements ReposeLauncher {
         this.debugEnabled = true
     }
 
+    /**
+     * TODO: introspect the system model for expected filters in filter chain and validate that they
+     * are all present and accounted for
+     * @return
+     */
     private boolean isFilterChainInitialized() {
         print('.')
 
@@ -108,10 +127,16 @@ class ReposeValveLauncher implements ReposeLauncher {
             return false
         }
 
-        def ArrayList filterchain = jmx.getMBeanAttribute(cfgBean.iterator().next().name.toString(), "FilterChain")
+        def String beanName = cfgBean.iterator().next().name.toString()
 
-        if (filterchain == null || filterchain.isEmpty()) {
+        def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
+
+        if (filterchain == null && !beanName.contains("nofilters")) {
             return false
+        }
+
+        if (beanName.contains("nofilters")) {
+            return true
         }
 
         def initialized = true
