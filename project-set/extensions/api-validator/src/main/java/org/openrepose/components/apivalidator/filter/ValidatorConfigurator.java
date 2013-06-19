@@ -70,7 +70,7 @@ public class ValidatorConfigurator {
             config.setUseSaxonEEValidation(((ValidatorItem1)validatorItem).isUseSaxon());
             config.setXSLEngine(((ValidatorItem1)validatorItem).getXslEngine().value());
         } else if (validatorItem instanceof ValidatorItem2) {
-            //TODO config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine());
+            config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine().value());
             config.setXSLEngine(((ValidatorItem2)validatorItem).getXslEngine().value());
         } else {
             // Error. Have all of the schema versions been incorporated above?

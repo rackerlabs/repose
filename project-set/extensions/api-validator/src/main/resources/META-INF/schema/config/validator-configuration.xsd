@@ -127,6 +127,20 @@
                 <xs:sequence>
                     <xs:element name="validator" type="scr:ValidatorItem1" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:assert vc:minVersion="1.1"
+                        test="count(scr:validator/@dot-output) = count(distinct-values(scr:validator/@dot-output))"
+                        xerces:message="Dot output files must be unique"
+                        saxon:message="Dot output files must be unique"/>
+                
+                <xs:assert vc:minVersion="1.1"
+                        test="count(scr:validator/@validator-name) = count(distinct-values(scr:validator/@validator-name))"
+                        xerces:message="Validator names must be unique"
+                        saxon:message="Validator names must be unique"/>
+                
+                <xs:assert vc:minVersion="1.1"
+                        test="count(scr:validator[xs:boolean(@default)=true()]) &lt;= 1"
+                        xerces:message="Only one default validator may be defined"
+                        saxon:message="Only one default validator may be defined"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -143,6 +157,20 @@
                 <xs:sequence>
                     <xs:element name="validator" type="scr:ValidatorItem2" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
+                <xs:assert vc:minVersion="1.1"
+                    test="count(scr:validator/@dot-output) = count(distinct-values(scr:validator/@dot-output))"
+                    xerces:message="Dot output files must be unique"
+                    saxon:message="Dot output files must be unique"/>
+                
+                <xs:assert vc:minVersion="1.1"
+                    test="count(scr:validator/@validator-name) = count(distinct-values(scr:validator/@validator-name))"
+                    xerces:message="Validator names must be unique"
+                    saxon:message="Validator names must be unique"/>
+                
+                <xs:assert vc:minVersion="1.1"
+                    test="count(scr:validator[xs:boolean(@default)=true()]) &lt;= 1"
+                    xerces:message="Only one default validator may be defined"
+                    saxon:message="Only one default validator may be defined"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -314,7 +342,7 @@
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
