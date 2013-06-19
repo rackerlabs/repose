@@ -26,6 +26,7 @@ public class UriIdentityHandlerTest {
         private List<Pattern> patterns;
         private static String GROUP = "DEFAULT_GROUP";
 
+        private static Double QUALITY = 0.5;
         private static String QUALITY_VALUE = ";q=0.5";
         private static String URI1 = "/someuri/1234/morestuff";
         private static String REGEX1 = ".*/[^\\d]*/(\\d*)/.*";
@@ -44,8 +45,8 @@ public class UriIdentityHandlerTest {
             patterns = new ArrayList<Pattern>();
             patterns.add(Pattern.compile(REGEX1));
             patterns.add(Pattern.compile(REGEX2));
-            
-            handler = new UriIdentityHandler(patterns,GROUP, QUALITY_VALUE);
+
+            handler = new UriIdentityHandler(patterns, GROUP, QUALITY);
             request = mock(HttpServletRequest.class);
             response = mock(ReadableHttpServletResponse.class);
 
