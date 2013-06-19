@@ -6,8 +6,6 @@ interface ReposeLauncher {
 
     void stop();
 
-    void enableJmx()
-
     void enableDebug()
 
     void applyConfigs(String[] configLocations)

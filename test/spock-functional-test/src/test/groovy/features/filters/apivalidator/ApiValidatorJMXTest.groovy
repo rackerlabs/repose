@@ -10,7 +10,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.applyConfigs(
                 "features/filters/apivalidator/common",
                 "features/filters/apivalidator/jmx")
-        repose.enableJmx()
         repose.start()
     }
 

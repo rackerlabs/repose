@@ -46,6 +46,12 @@
                 <module>documentation/docbook</module>
             </modules>
         </profile>
+        <profile>
+            <id>spock-regression-tests</id>
+            <modules>
+                <module>test/spock-functional-test</module>
+            </modules>
+        </profile>
     </profiles>
     
     

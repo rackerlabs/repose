@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rate-limiting delegation="false" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
     <!--
         Defines an endpoint with a matching regex to bind GET requests for
         returning live rate limiting information.
     -->
-    <request-endpoint uri-regex="\/servers\/limits\/"/>
+    <request-endpoint include-absolute-limits="true" uri-regex="\/limits\/(\d*)\/"/>
     
     <!--
         Defining a limit group.
 
-        The following headers can be found in the class
-        com.rackspace.cloud.powerapi.http.PowerApiHeader in the Power API
-        Filterlet library, maven group id com.rackspace.cloud.powerapi, artifact
-        id filterlet.
-
         Groups are matched on the HTTP header: X-PP-Groups
         User information is matched on the HTTP header: X-PP-User
     -->
-    <limit-group id="customer-limits" groups="user customer" default="true">
+    <limit-group id="customer-limits" groups="customer foo" default="true">
         <!--
             The importance of the uri-regex.
 
@@ -41,7 +36,7 @@
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
-    <limit-group id="test-limits" groups="test">
+    <limit-group id="test-limits" groups="user">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
@@ -51,7 +46,10 @@
     <limit-group id="standard-ip-limits" groups="IP_Standard">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
 
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="DAY" value="10"/>
+        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="HOUR" value="5" />
     </limit-group>
+    
+    <limit-group id="super-user-limits" groups="IP_Super"/>
+    
 </rate-limiting>

@@ -8,6 +8,9 @@ JAVA=/usr/bin/java
 PID_FILE=/var/run/repose-valve
 JMX="-Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
+if [[ -n "$3" ]]; then
+  export SAXON_HOME="$3"
+fi
 
 startRepose()
 {

@@ -5,6 +5,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
 
 import javax.servlet.ServletContextEvent;
@@ -18,6 +19,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Manages the {@link com.rackspace.papi.service.reporting.metrics.MetricsService} instance and subscribes to the
+ * metrics.cfg.xml configuration file.
+ */
 @Component("metricsServiceContext")
 public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
@@ -81,24 +86,24 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
       @Override
       public void configurationUpdated( MetricsConfiguration metricsC ) {
 
-         if ( metricsC.getGraphite() != null ) {
+          // we are reinitializing the graphite servers
+          metricsService.shutdownGraphite();
+
+          if ( metricsC.getGraphite() != null ) {
 
             try {
 
-               metricsService.updateConfiguration( metricsC.getGraphite().getHost(),
-                     metricsC.getGraphite().getPort().intValue(),
-                     metricsC.getGraphite().getPeriod(),
-                     metricsC.getGraphite().getPrefix() );
+               for( GraphiteServer gs : metricsC.getGraphite().getServer() )  {
 
+                   metricsService.addGraphiteServer( gs.getHost(),
+                                                     gs.getPort().intValue(),
+                                                     gs.getPeriod(),
+                                                     gs.getPrefix() );
+               }
             } catch (IOException e ) {
 
                LOG.debug( prefix, e );
             }
-         }
-         else {
-
-            // might have removed graphite node from conifg
-            metricsService.shutdownGraphite();
          }
 
          initialized = true;

@@ -5,20 +5,45 @@
            xmlns:rl="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"
            xmlns:live-limits="http://docs.openstack.org/common/api/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Import shared types with live limits -->
     <xs:import namespace="http://docs.openstack.org/common/api/v1.0" schemaLocation="../limits/limits.xsd"/>
 
-
     <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="StringList">
         <xs:list itemType="xs:string"/>
     </xs:simpleType>
-
+    
+    <xs:simpleType name="DatastoreType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Datastore used for storing rate limiting information.  
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="local/default" />
+            <xs:enumeration value="distributed/hash-ring" />
+            <xs:enumeration value="distributed/replicated" />
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:simpleType name="HttpMethodList">
         <xs:list itemType="live-limits:HttpMethod"/>
     </xs:simpleType>
+
+    <xs:simpleType name="PositiveInt">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
 
     <!-- Configuration Schema Definitions -->
     <xs:element name="rate-limiting" type="rl:RateLimitingConfiguration"/>
@@ -27,31 +52,44 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    Outlines a collection of rate limits as well as the descriptor
-                    for configuring an endpoint for rate limits introspection GET requests
+                    A collection of rate limits.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="0" maxOccurs="1"/>
             <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         
         <xs:attribute name="overLimit-429-responseCode" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
+                    <html:p>If set to true, will respond with a 429 status code.  Otherwise, defaults to
+                        a response of 413 status code.  
+                    </html:p>
                     <html:p>
+                        The 429 status code was proposed in 
+                        <html:a href="http://tools.ietf.org/html/rfc6585">RFC-6585</html:a> and indicates that the user has sent too many
+                        requests in a given amount of time ("rate limiting"). 
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="datastore" type="xs:string" use="optional" default="distributed/hash-ring">
+        <xs:attribute name="datastore" type="rl:DatastoreType" use="optional" default="distributed/hash-ring">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>
+                    <html:p>Name of datastore to use for storing rate limiting information.  
+                        If not specified, rate limiting will use the first distributed datastore available.  
+                        If no distributed data stores are available, rate limiting will revert to using a local datastore.  
+                        Valid values are:
                     </html:p>
+                    <html:ul>
+                        <html:li>local/default</html:li>
+                        <html:li>distributed/hash-ring (requires dist-datastore filter)</html:li>
+                        <html:li>distributed/replicated (required replicated-datastore filter)</html:li>                       
+                    </html:ul>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -61,11 +99,33 @@
                 <xs:documentation>
                     <html:p>
                         Determines whether or not capture groups will be used to evalute limits
-                        from uri-regex
+                        from uri-regex. Set to false will count all the requests with the uri-regex that has 
+                        the capture group towards the limit count specified. By default it is set to true.
+                    </html:p>
+                    <html:p>
+                        For example, suppose the configuration specifies a regex of /v1/(.*) with value set to 100. 
+                        With use-capture-groups set to false, some requests come in with a URI of /v1/pan and other 
+                        requests come in with a URI of /v1/cake. Each user would be allowed 50 hits if the hits 
+                        are evenly divided among the two URIs: 50 hits for URI /v1/pan and 50 hits for URI /v1/cake.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+       
+       
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(limit-group/@id)) = count(limit-group/@id)"
+            xerces:message="Limit groups must have unique ids"
+            saxon:message="Limit groups must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
+
+        <xs:assert vc:minVersion="1.1" 
+            test="count(tokenize(string-join(limit-group/@groups,' '), ' ')) = count(distinct-values(tokenize(string-join(limit-group/@groups,' '), ' ')))"
+            xerces:message="The same group cannot be specified by multiple limit groups"
+            saxon:message="The same group cannot be specified by multiple limit groups" xpathDefaultNamespace="##targetNamespace"/>
+          
+        <xs:assert vc:minVersion="1.1"
+            test="count(rl:limit-group[xs:boolean(@default)=true()]) &lt;=1"
+            xerces:message="Only one default limit group may be defined"
+            saxon:message="Only one default limit group may be defined"/>
         
     </xs:complexType>
 
@@ -73,8 +133,8 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    Defines an endpoint with a matching regex to bind GET
-                    requests for returning rate limit information
+                    Defines an endpoint with a matching regex to bind GET requests for
+                    returning live rate limiting information.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -83,11 +143,12 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Informs the rate limiting component that the origin
-                        service will return absolute limits. If this is set to
-                        true then the request will be passed to the origin service
-                        and the response marshalled to include the returned absolute
-                        limits from the origin service.
+                        If set to true, the rate limiting component 
+                        marks incoming requests that match the limit request endpoint's uri-regex 
+                        and then passes them down to the origin service. After the origin service 
+                        responds with the client's absolute limits, the rate limiting component 
+                        enhances the response with the combined absolute and current rate limits. 
+                        It then sends the response to the client.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -96,7 +157,13 @@
         <xs:attribute name="uri-regex" type="xs:string" use="optional" default="\/limits\/(\d*)\/">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines a regex to match the mapping against</html:p>
+                    <html:p>A regular expression (regex) for the URI at which the user can query their limits. </html:p>
+                    <html:p>
+                        Please refer to 
+                        <html:a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java 
+                            Regular Expression Api</html:a> for more information on regular expression syntax.
+                    </html:p>
+                
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -106,6 +173,11 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>Defines a list of rate limits and the groups they are associated with</html:p>
+                
+                <html:p>
+                    Groups are matched on the HTTP header: X-PP-Groups
+                User information is matched on the HTTP header: X-PP-User
+                </html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -116,7 +188,7 @@
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Unique id to identify the group of rate limits</html:p>
+                    <html:p>Unique id to identify the limit group</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -126,8 +198,14 @@
                 <xs:documentation>
                     <html:p>
                         Determines whether or not this list of rate limits should
-                        be considered the default when role matching fails
+                        be considered the default when group matching fails.  This limit group 
+                        will be applied in either of these conditions:
                     </html:p>
+                    <html:ul>
+                        <html:li>no group is specified</html:li>
+                        <html:li>no group matches the group or groups specified</html:li>
+                    </html:ul>
+                        
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -135,10 +213,24 @@
         <xs:attribute name="groups" type="rl:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of groups that the list of rate limits is associated with</html:p>
+                    <html:p>The groups that the rate limits are associated with</html:p>
                 </xs:documentation>
             </xs:annotation>
-        </xs:attribute>
+        </xs:attribute>             
+         
+        <xs:assert vc:minVersion="1.1"
+            test="
+            count(for $first-pass in rl:limit,
+            $second-pass in rl:limit[ @uri = $first-pass/@uri  and (: ids are the same :)
+            @uri-regex = $first-pass/@uri-regex and (: hrefs are the same :)
+                count(tokenize((string-join(@http-methods, ' ')), ' ')) = count(tokenize((string-join($first-pass/@http-methods, ' ')), ' ')) and (: methods have the same count :)
+                empty( for $t in tokenize((string-join(@http-methods, ' ')), ' ') return if ($t = tokenize((string-join($first-pass/@http-methods, ' ')), ' '))
+                then () else $t) (: removing the methods in one list from another should result in the empty sequence :)
+                ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)                    
+                = count(rl:limit)"
+                xerces:message="Unique http-methods, and uri-regexes within a limit group"
+                saxon:message="Unique http-methods, and uri-regexes within a limit group"/>
+        
     </xs:complexType>
 
     <xs:complexType name="ConfiguredRatelimit">
@@ -159,7 +251,10 @@
         <xs:attribute name="uri-regex" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Regex matcher used to map requests to this rate limit</html:p>
+                    <html:p>The regex used to match a passing request to current limit group.  
+                        Within the regex, each capture group is allowed the number of hits specified 
+                        in the value attribute of the limit element.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -167,15 +262,19 @@
         <xs:attribute name="http-methods" type="rl:HttpMethodList" use="optional" default="ALL">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of HTTP Methods this rate limit will match on</html:p>
+                    <html:p>List of HTTP Methods this rate limit will match on.
+                        Valid values include:
+                        GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, ALL   
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="value" type="xs:int" use="required">
+        <xs:attribute name="value" type="rl:PositiveInt" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Number of requests that this rate limit will allow</html:p>
+                    <html:p>Number of requests allowed within the configured unit of time
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -183,9 +282,12 @@
         <xs:attribute name="unit" type="live-limits:TimeUnit" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Unit of time that limit enforcement should use</html:p>
+                    <html:p>Unit of time that limit enforcement should use.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    
+    
+    
 </xs:schema>

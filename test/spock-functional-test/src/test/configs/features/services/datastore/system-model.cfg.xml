@@ -3,11 +3,10 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+      <node id="nofilters" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
 
     <filters>
-        <!-- <filter name="rate-limiting" /> -->
     </filters>
 
    <services>

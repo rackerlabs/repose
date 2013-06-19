@@ -10,12 +10,12 @@
     </filters>
 
     <destinations>
-      <target id="mocks" cluster="mocks" protocol="http" root-path="/mocks" default="true"/>
+      <target id="mocks" cluster="mocks-cluster" protocol="http" root-path="/mocks" default="true"/>
     </destinations>
 
   </repose-cluster>
 
-  <service-cluster id="mocks">
+  <service-cluster id="mocks-cluster">
 
     <nodes>
       <node id="endpoint1" hostname="<%= node[:fqdn]%>" http-port="8080"/>
