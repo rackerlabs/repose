@@ -15,25 +15,25 @@ abstract class ReposeValveTest extends Specification {
 
     @Shared def Properties properties
 
+    @Shared def reposeEndpoint
+
     def setupSpec() {
         properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
 
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
+        reposeEndpoint = properties.getProperty("repose.endpoint")
+
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getProperty("repose.jar"),
-                properties.getProperty("repose.endpoint"),
+                reposeEndpoint,
                 configDirectory,
-                properties.getProperty("repose.shutdown.port").toInteger(),
-                properties.getProperty("repose.jmx.url"),
-                properties.getProperty("repose.jmx.port").toInteger()
+                properties.getProperty("repose.shutdown.port").toInteger()
         )
-
-        deproxy = new Deproxy(properties.getProperty("repose.endpoint"))
     }
 
     def teardownSpec() {

@@ -102,8 +102,6 @@ public class SchemaTest {
             assertInvalidConfig(xml, "Unique http-methods, and uri-regexes");
         }
 
-
-
         @Test
         public void shouldFailWhenConfigHasNonUniqueLimitGroupIds() throws Exception {
             String xml =
