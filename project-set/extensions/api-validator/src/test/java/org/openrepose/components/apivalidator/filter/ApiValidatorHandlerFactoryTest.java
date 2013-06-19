@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,14 +36,14 @@ public class ApiValidatorHandlerFactoryTest {
         
         @Before
         public void setup() {
-            ValidatorConfiguration config = new ValidatorConfiguration();
-            ValidatorItem item = new ValidatorItem();
+            ValidatorConfiguration2 config = new ValidatorConfiguration2();
+            ValidatorItem2 item = new ValidatorItem2();
             item.setWadl(wadl);
             List<String> role1=item.getRole();
             role1.add(role);
             config.getValidator().add(item);
 
-            ValidatorItem defaultItem = new ValidatorItem();
+            ValidatorItem2 defaultItem = new ValidatorItem2();
             defaultItem.setWadl(wadl);
             List<String> role2=defaultItem.getRole();
             role2.add(defaultRole);
@@ -65,9 +65,6 @@ public class ApiValidatorHandlerFactoryTest {
         
        @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
-              
-             
-         
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
 
@@ -78,8 +75,6 @@ public class ApiValidatorHandlerFactoryTest {
              assertEquals("Should get validator for role", role, validatorForRole.getRoles().get(0));
             }
             verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
-
-
         }
 
         @Test
@@ -100,12 +95,11 @@ public class ApiValidatorHandlerFactoryTest {
         private final String wadl2 = "default2.wadl";
         private final String role2 = "role2";
         private ApiValidatorHandlerFactory instance;
-        private ValidatorInfo info2;
         private ValidatorInfo info1;
+        private ValidatorInfo info2;
         
         @Before
         public void setup() {
-            
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
@@ -120,8 +114,7 @@ public class ApiValidatorHandlerFactoryTest {
             when(info2.getUri()).thenReturn(instance.getWadlPath(wadl2));
             when(info2.getRoles()).thenReturn(Arrays.asList(role2));
             validators.add(info2);
-            
-            
+
             instance.setValidators(validators);
         }
         
