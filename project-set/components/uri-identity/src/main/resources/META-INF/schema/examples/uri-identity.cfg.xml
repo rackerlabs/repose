@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <uri-identity  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0 ../config/uri-identity-configuration.xsd'>
-   
-   <identification-mappings>
-      <mapping identification-regex=".*/servers/(\w*)/.*"/>
-      <mapping identification-regex=".*/servers/(\w*)/.*"/>
-   </identification-mappings>
-   
-   <group>User_Standard</group>
-   <quality>0.5</quality>
-   
+               xmlns='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0'
+               xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0 ../config/uri-identity-configuration.xsd'>
+
+    <identification-mappings>
+        <mapping id="main" identification-regex=".*/servers/(\w*)/.*"/>
+        <mapping id="backup" identification-regex=".*/servers2/(\w*)/.*"/>
+    </identification-mappings>
+
+    <group>User_Standard</group>
+    <quality>0.5</quality>
+
 </uri-identity>
