@@ -15,7 +15,8 @@ class ApiValidatorXSDVersioningTest extends Specification {
 
     def setup() {
         // TODO fix path
-        StreamSource schemaSource = new StreamSource(getClass().getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"))
+        //StreamSource schemaSource = new StreamSource(getClass().getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"))
+        StreamSource schemaSource = new StreamSource(new FileInputStream("/Users/dami6356/my_repose/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd"))
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
         Schema schema = schemaFactory.newSchema(schemaSource)
         validator = schema.newValidator()
