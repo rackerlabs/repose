@@ -33,7 +33,6 @@ class JmxClient {
     def getMBeanAttribute( name, attr ) {
 
         def obj
-        println( "looking up mbean attribute" )
 
         try {
             waitForCondition( clock, '25s', '1s', {
@@ -42,13 +41,11 @@ class JmxClient {
             })
         } catch (TimeoutException) {
             // ignore this and simply return the total mbeans found
-            println( "failed to find expected mbean attribute" )
         }
-
-        println( "found mbean attribute" )
 
         obj
     }
+
     /**
      * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
      *
@@ -60,7 +57,6 @@ class JmxClient {
     def getMBeans(domain, expectedClassName, expectedCount) {
 
         def mbeans
-        println("looking up mbeans")
 
         try {
             waitForCondition(clock, '25s', '1s', {
@@ -70,9 +66,30 @@ class JmxClient {
             })
         } catch (TimeoutException) {
             // ignore this and simply return the total mbeans found
-            println("failed to find total expected mbeans")
         }
-        println("found " + mbeans.size() + " mbeans")
+
+        mbeans
+    }
+    /**
+     * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
+     *
+     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
+     *
+     * @param beanName
+     * @return
+     */
+    def getMBeans(domain) {
+
+        def mbeans
+
+        try {
+            waitForCondition(clock, '25s', '1s', {
+                mbeans = server.queryMBeans(new ObjectName(domain), null)
+                mbeans != null && mbeans.size() >= 1
+            })
+        } catch (TimeoutException) {
+            // ignore this and simply return the total mbeans found
+        }
 
         mbeans
     }
