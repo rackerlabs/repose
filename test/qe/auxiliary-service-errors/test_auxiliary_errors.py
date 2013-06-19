@@ -70,10 +70,15 @@ def always(code):
 
 
 class FakeIdentityService(object):
-    def __init__(self, port, origin_service_port, code=200):
+    def __init__(self, port, origin_service_port):
         self.port = port
         self.origin_service_port = origin_service_port
-        self.code = code
+        self.error_code = 500
+        self.error_message = None
+        self.get_admin_token_broken = False
+        self.get_groups_broken = False
+        self.get_endpoints_broken = False
+        self.validate_client_token_broken = False
 
         with open('identity-success.xml', 'r') as f:
             self.identity_success_xml_template = string.Template(f.read())
@@ -119,6 +124,9 @@ class FakeIdentityService(object):
 
         if request.method == 'POST':
             # get admin token
+            if self.get_admin_token_broken:
+                return deproxy.Response(self.error_code, self.error_message)
+
             params = {
                 'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
                 'userid': admin_userid,
@@ -134,6 +142,9 @@ class FakeIdentityService(object):
                 template = self.identity_success_json_template
             pass
         elif request.method == 'GET' and 'tokens' not in request.path:
+            if self.get_groups_broken:
+                return deproxy.Response(self.error_code, self.error_message)
+
             # getting groups
             if xml:
                 template = self.groups_xml_template
@@ -143,6 +154,9 @@ class FakeIdentityService(object):
             code = 200
             message = 'OK'
         elif request.method == 'GET' and 'endpoints' in request.path:
+            if self.get_endpoints_broken:
+                return deproxy.Response(self.error_code, self.error_message)
+
             if xml:
                 template = self.identity_endpoints_xml_template
             else:
@@ -160,6 +174,9 @@ class FakeIdentityService(object):
             code = 200
             message = 'OK'
         else:
+            if self.validate_client_token_broken:
+                return deproxy.Response(self.error_code, self.error_message)
+
             # validating a client token
             params = {
                 'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
@@ -169,7 +186,7 @@ class FakeIdentityService(object):
                 'token': client_token,
             }
 
-            code = int(self.code)
+            code = 200
             message = deproxy.messages_by_response_code[code]
             if code == 200:
                 if xml:
@@ -248,8 +265,7 @@ def todict(obj, classkey=None):
 
 
 class TestAuthorizationServiceErrors(unittest.TestCase):
-    @classmethod
-    def setUpClass(klass):
+    def setUp(self):
         logger.debug('setting up')
 
         repose_port = get_next_open_port()
@@ -262,17 +278,17 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
         logger.info('identity port: {0}'.format(identity_port))
         logger.info('origin port: {0}'.format(deproxy_port))
 
-        klass.deproxy = deproxy.Deproxy()
+        self.deproxy = deproxy.Deproxy()
 
-        klass.origin_endpoint = (
-            klass.deproxy.add_endpoint(deproxy_port, 'origin service',
+        self.origin_endpoint = (
+            self.deproxy.add_endpoint(deproxy_port, 'origin service',
                                        default_handler=always(606)))
 
-        klass.identity = FakeIdentityService(port=identity_port,
+        self.identity = FakeIdentityService(port=identity_port,
                                             origin_service_port=deproxy_port)
-        klass.identity_endpoint = (
-            klass.deproxy.add_endpoint(identity_port, 'identity service',
-                                       default_handler=klass.identity.handler))
+        self.identity_endpoint = (
+            self.deproxy.add_endpoint(identity_port, 'identity service',
+                                       default_handler=self.identity.handler))
 
         params = {
             'target_hostname': 'localhost',
@@ -282,7 +298,7 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
             'identity_port': identity_port,
         }
 
-        klass.url = 'http://localhost:{0}/resource'.format(repose_port)
+        self.url = 'http://localhost:{0}/resource'.format(repose_port)
 
         # configure Repose
         conf.process_folder_contents(folder='configs/common',
@@ -291,181 +307,53 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
                                      dest_path='etc/repose', params=params)
 
         # start Valve
-        klass.valve = valve.Valve(config_dir='etc/repose', stop_port=stop_port,
+        self.valve = valve.Valve(config_dir='etc/repose', stop_port=stop_port,
                                   wait_on_start=True, port=repose_port,
                                   insecure=True)
 
     def test_200(self):
-        self.identity.code = 200
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         #pprint(todict(mc), width=200)
         self.assertEqual(mc.received_response.code, '606')
 
-    def test_400(self):
-        self.identity.code = 400
+    def test_rate_limited_on_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 413
+        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
 
-    def test_404(self):
-        self.identity.code = 404
+    def test_rate_limited_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 413
+        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
 
-    def test_405(self):
-        self.identity.code = 405
+    def test_rate_limited_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 413
+        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
 
-    def test_500(self):
-        self.identity.code = 500
+    def test_rate_limited_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 413
+        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
         self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
 
-    def test_501(self):
-        self.identity.code = 501
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_502(self):
-        self.identity.code = 502
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_503(self):
-        self.identity.code = 503
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_504(self):
-        self.identity.code = 504
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    @classmethod
-    def tearDownClass(klass):
-        if klass.valve is not None:
-            klass.valve.stop()
-        if klass.deproxy is not None:
-            klass.deproxy.shutdown_all_endpoints()
-
-
-class TestAuthenticationServiceErrors(unittest.TestCase):
-    @classmethod
-    def setUpClass(klass):
-        logger.debug('setting up')
-
-        repose_port = get_next_open_port()
-        stop_port = get_next_open_port()
-        identity_port = get_next_open_port()
-        deproxy_port = get_next_open_port()
-
-        logger.info('repose port: {0}'.format(repose_port))
-        logger.info('stop port: {0}'.format(stop_port))
-        logger.info('identity port: {0}'.format(identity_port))
-        logger.info('origin port: {0}'.format(deproxy_port))
-
-        klass.deproxy = deproxy.Deproxy()
-
-        klass.origin_endpoint = (
-            klass.deproxy.add_endpoint(deproxy_port, 'origin service',
-                                       default_handler=always(606)))
-
-        klass.identity = FakeIdentityService(port=identity_port)
-        klass.identity_endpoint = (
-            klass.deproxy.add_endpoint(identity_port, 'identity service',
-                                       default_handler=klass.identity.handler))
-
-        params = {
-            'target_hostname': 'localhost',
-            'target_port': deproxy_port,
-            'port': repose_port,
-            'repose_port': repose_port,
-            'identity_port': identity_port,
-        }
-
-        klass.url = 'http://localhost:{0}/resource'.format(repose_port)
-
-        # configure Repose
-        conf.process_folder_contents(folder='configs/common',
-                                     dest_path='etc/repose', params=params)
-        conf.process_folder_contents(folder='configs/auth-n',
-                                     dest_path='etc/repose', params=params)
-
-        # start Valve
-        klass.valve = valve.Valve(config_dir='etc/repose', stop_port=stop_port,
-                                  wait_on_start=True, port=repose_port,
-                                  insecure=True)
-
-    def test_200(self):
-        self.identity.code = 200
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        logger.debug(repr(mc))
-        self.assertEqual(mc.received_response.code, '606')
-
-    def test_400(self):
-        self.identity.code = 400
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_404(self):
-        self.identity.code = 404
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_405(self):
-        self.identity.code = 405
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_500(self):
-        self.identity.code = 500
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_501(self):
-        self.identity.code = 501
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_502(self):
-        self.identity.code = 502
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_503(self):
-        self.identity.code = 503
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_504(self):
-        self.identity.code = 504
-        mc = self.deproxy.make_request(url=self.url,
-                                       headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    @classmethod
-    def tearDownClass(klass):
-        if klass.valve is not None:
-            klass.valve.stop()
-        if klass.deproxy is not None:
-            klass.deproxy.shutdown_all_endpoints()
+    def tearDown(self):
+        if self.valve is not None:
+            self.valve.stop()
+        if self.deproxy is not None:
+            self.deproxy.shutdown_all_endpoints()
 
 
 def tearDownModule():
