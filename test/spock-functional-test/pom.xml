@@ -189,9 +189,6 @@
             <id>public.maven.research.rackspace.com</id>
             <name>Rackspace Research</name>
             <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
-            <snapshots>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
         </repository>
     </repositories>
 </project>
