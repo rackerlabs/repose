@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:validators xmlns:scr="http://openrepose.org/repose/validator/v1.0"
+ xmlns:html="http://www.w3.org/1999/xhtml"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://openrepose.org/repose/validator/v1.0 file:/Users/kush5342/forked_Repose/repose/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd" multi-role-match="false">
+    
+    
+    <scr:validator role="role0"
+        default="false"
+        wadl="http://www.oxygenxml.com/"
+        dot-output="dot-output0"
+        xpath-version="1"
+        check-well-formed="false"
+        check-xsd-grammar="false"
+        check-elements="false"
+        use-saxon="false"
+         check-plain-params="false"
+        do-xsd-grammar-transform="false"
+        enable-pre-process-extension="true"
+         remove-dups="false"
+        validate-checker="false"
+        xsl-engine="XalanC"
+        join-xpath-checks="false"
+        check-headers="false"
+         enable-ignore-xsd-extension="true" validator-name="validator-name0">
+    </scr:validator>
+    
+    <scr:validator role="role1" default="false" wadl="http://www.oxygenxml.com/" dot-output="dot-output1" xpath-version="1"
+         check-well-formed="false" check-xsd-grammar="false" check-elements="false" use-saxon="false"
+         check-plain-params="false" do-xsd-grammar-transform="false" enable-pre-process-extension="true"
+         remove-dups="false" validate-checker="false" xsl-engine="XalanC" join-xpath-checks="false" check-headers="false"
+         enable-ignore-xsd-extension="true" validator-name="validator-name1">
+    </scr:validator>
+</scr:validators>
