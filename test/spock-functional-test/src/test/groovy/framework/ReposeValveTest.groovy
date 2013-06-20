@@ -32,6 +32,7 @@ abstract class ReposeValveTest extends Specification {
                 properties.getProperty("repose.jar"),
                 reposeEndpoint,
                 configDirectory,
+                properties.getProperty("repose.port").toInteger(),
                 properties.getProperty("repose.shutdown.port").toInteger()
         )
     }
