@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<versioning xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://docs.rackspacecloud.com/repose/versioning/v2.0 ../config/versioning-configuration.xsd"
-    xmlns="http://docs.rackspacecloud.com/repose/versioning/v2.0">
+<versioning xmlns="http://docs.rackspacecloud.com/repose/versioning/v2.0">
     <service-root href="http://localhost:8080/"/>
 
     <version-mapping id="v0" pp-dest-id="service-v0" status="DEPRECATED"/>
@@ -25,7 +23,7 @@
         </media-types>
     </version-mapping>
 
-    <version-mapping id="v1" pp-dest-id="service-v2" status="BETA">
+    <version-mapping id="v2" pp-dest-id="service-v2" status="BETA">
         <media-types>
             <media-type base="application/xml" type="application/vnd.vendor.service-v2+xml"/>
             <media-type base="application/json" type="application/vnd.vendor.service-v2+json"/>

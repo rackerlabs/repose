@@ -137,6 +137,20 @@
         <xs:sequence>
             <xs:element name="media-type" type="vers-config:MediaType" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:assert vc:minVersion="1.1"
+            test="count(for $first-pass in media-type,
+                            $second-pass in media-type[ @base = $first-pass/@base  and (: base are the same :)
+                                                        count(tokenize(string-join(tokenize(@type, ' '),''),';')) =
+                                                        count(tokenize(string-join(tokenize($first-pass/@type, ' '),''),';')) and (: types have the same count :)
+                                                        empty( for $t in  tokenize(string-join(tokenize(@type, ' '),''),';')
+                                                               return if ($t = tokenize(string-join(tokenize($first-pass/@type, ' '),''),';'))
+                                                               then () else $t) (: removing the types in one list from another should result in the empty sequence :)
+                                                      ] return $second-pass) (: The result of this mess should equal the number of elements because every
+                                                                                element in the for expression should match itself and only itself :)                     
+            = count(media-type)"
+            xerces:message="MediaTypes should be unique within a version-mapping."
+            saxon:message="MediaTypes should be unique within a version-mapping."
+            xpathDefaultNamespace="##targetNamespace"/>
     </xs:complexType>
 
     <xs:complexType name="MediaType">
