@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 
 """
+In order to determine if a client is authorized to make a prticular call to the
+origin serivce, the Client Authorization Filter makes a number of calls to an
+Identity service. If the Identity service returns an unexpected error, then
+Repose should return a 500 error to the client, indicating that it cannot
+process the original request due to a server-side error. The exception is if
+the Identity service returns a 404 error in response to a client token
+validation request from Repose, which is a correct and normal operation, in
+which case Repose will return a 400-level client response to the client.
 
+Identity Response       400   401   402   403   404   405   413   429   500   501   502   503
+-----------------       ---   ---   ---   ---   ---   ---   ---   ---   ---   ---   ---   ---
+Get Admin Token         500   500   500   500   500   500   500   500   500   500   500   500
+Validate Client Token   500   500   500   500   401   500   500   500   500   500   500   500
+Get Groups              500   500   500   500   500   500   500   500   500   500   500   500
+Get Endpoints           500   500   500   500   500   500   500   500   500   500   500   500
 
 """
 
@@ -69,6 +83,18 @@ def always(code):
     return handler
 
 
+def make_response(code, message=None, headers=None, body=None):
+    """ Kludge to get around a bug in deproxy caused by a typo. """
+    if message is None:
+        if code in deproxy.messages_by_response_code:
+            message = deproxy.messages_by_response_code[code]
+        elif int(code) in deproxy.messages_by_response_code:
+            message = deproxy.messages_by_response_code[int(code)]
+        else:
+            message = ''
+    return deproxy.Response(code, message, headers, body)
+
+
 class FakeIdentityService(object):
     def __init__(self, port, origin_service_port):
         self.port = port
@@ -122,10 +148,12 @@ class FakeIdentityService(object):
 
         t = datetime.datetime.now() + datetime.timedelta(days=1)
 
+        message = None
+
         if request.method == 'POST':
             # get admin token
             if self.get_admin_token_broken:
-                return deproxy.Response(self.error_code, self.error_message)
+                return make_response(self.error_code, self.error_message)
 
             params = {
                 'expires': t.strftime('%Y-%m-%dT%H:%M:%S%z'),
@@ -135,7 +163,6 @@ class FakeIdentityService(object):
                 'token': admin_token
             }
             code = 200
-            message = 'OK'
             if xml:
                 template = self.identity_success_xml_template
             else:
@@ -143,7 +170,7 @@ class FakeIdentityService(object):
             pass
         elif request.method == 'GET' and 'tokens' not in request.path:
             if self.get_groups_broken:
-                return deproxy.Response(self.error_code, self.error_message)
+                return make_response(self.error_code, self.error_message)
 
             # getting groups
             if xml:
@@ -152,10 +179,9 @@ class FakeIdentityService(object):
                 template = self.groups_json_template
             params = {}
             code = 200
-            message = 'OK'
         elif request.method == 'GET' and 'endpoints' in request.path:
             if self.get_endpoints_broken:
-                return deproxy.Response(self.error_code, self.error_message)
+                return make_response(self.error_code, self.error_message)
 
             if xml:
                 template = self.identity_endpoints_xml_template
@@ -172,10 +198,9 @@ class FakeIdentityService(object):
                 'origin_service_port': self.origin_service_port,
             }
             code = 200
-            message = 'OK'
         else:
             if self.validate_client_token_broken:
-                return deproxy.Response(self.error_code, self.error_message)
+                return make_response(self.error_code, self.error_message)
 
             # validating a client token
             params = {
@@ -187,7 +212,6 @@ class FakeIdentityService(object):
             }
 
             code = 200
-            message = deproxy.messages_by_response_code[code]
             if code == 200:
                 if xml:
                     template = self.identity_success_xml_template
@@ -209,7 +233,7 @@ class FakeIdentityService(object):
             headers['Content-type'] = 'application/xml'
         else:
             headers['Content-type'] = 'application/json'
-        return deproxy.Response(code=code, message=message, headers=headers,
+        return make_response(code=code, message=message, headers=headers,
                                 body=body)
 
 
@@ -317,37 +341,342 @@ class TestAuthorizationServiceErrors(unittest.TestCase):
         #pprint(todict(mc), width=200)
         self.assertEqual(mc.received_response.code, '606')
 
-    def test_rate_limited_on_admin_token(self):
+    def test_400_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 400
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+
+    def test_400_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 400
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_400_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 400
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_400_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 400
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_401_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 401
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_401_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 401
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_401_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 401
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_401_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 401
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_402_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 402
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_402_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 402
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_402_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 402
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_402_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 402
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_403_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 403
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_403_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 403
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_403_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 403
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_403_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 403
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_404_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 404
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_404_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 404
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_404_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 404
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_404_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 404
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(401, mc.received_response.code)
+    
+    def test_405_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 405
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_405_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 405
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_405_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 405
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_405_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 405
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_413_on_get_admin_token(self):
         self.identity.get_admin_token_broken = True
         self.identity.error_code = 413
-        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_rate_limited_on_get_groups(self):
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_413_on_get_groups(self):
         self.identity.get_groups_broken = True
         self.identity.error_code = 413
-        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_rate_limited_on_get_endpoints(self):
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_413_on_get_endpoints(self):
         self.identity.get_endpoints_broken = True
         self.identity.error_code = 413
-        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
-
-    def test_rate_limited_on_validate_client_token(self):
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_413_on_validate_client_token(self):
         self.identity.validate_client_token_broken = True
         self.identity.error_code = 413
-        self.identity.error_message = 'Rate Limit'
         mc = self.deproxy.make_request(url=self.url,
                                        headers={'X-Auth-Token': client_token})
-        self.assertRegexpMatches(mc.received_response.code, r'5\d\d')
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_429_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 429
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_429_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 429
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_429_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 429
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_429_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 429
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_500_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 500
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_500_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 500
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_500_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 500
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_500_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 500
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_501_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 501
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_501_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 501
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_501_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 501
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_501_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 501
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_502_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 502
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_502_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 502
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_502_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 502
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_502_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 502
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_503_on_get_admin_token(self):
+        self.identity.get_admin_token_broken = True
+        self.identity.error_code = 503
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_503_on_get_groups(self):
+        self.identity.get_groups_broken = True
+        self.identity.error_code = 503
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_503_on_get_endpoints(self):
+        self.identity.get_endpoints_broken = True
+        self.identity.error_code = 503
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+    
+    def test_503_on_validate_client_token(self):
+        self.identity.validate_client_token_broken = True
+        self.identity.error_code = 503
+        mc = self.deproxy.make_request(url=self.url,
+                                       headers={'X-Auth-Token': client_token})
+        self.assertEqual(500, mc.received_response.code)
+
 
     def tearDown(self):
         if self.valve is not None:
