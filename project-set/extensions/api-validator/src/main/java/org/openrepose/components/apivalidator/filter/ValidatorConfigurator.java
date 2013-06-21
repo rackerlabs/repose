@@ -67,11 +67,10 @@ public class ValidatorConfigurator {
         Config config = new Config();
 
         if (validatorItem instanceof ValidatorItem1) {
-            //config.setXSDEngine(((ValidatorItem1)validatorItem).isUseSaxon() ? "Saxon" : "Xerces");
-            //TODO  ^ Would Greg prefer SaxonEE to be passed, or the legacy Saxon?
+            config.setXSDEngine(((ValidatorItem1)validatorItem).isUseSaxon() ? "SaxonEE" : "Xerces");
             config.setXSLEngine(((ValidatorItem1)validatorItem).getXslEngine().value());
         } else if (validatorItem instanceof ValidatorItem2) {
-            //config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine().value());
+            config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine().value());
             config.setXSLEngine(((ValidatorItem2)validatorItem).getXslEngine().value());
         } else {
             // Error. Have all of the schema versions been incorporated above?
