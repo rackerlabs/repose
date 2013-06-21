@@ -1,4 +1,5 @@
-package deproxy.http
+package framework.client.http
+
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.*
 import org.apache.http.entity.StringEntity
@@ -6,7 +7,7 @@ import org.apache.http.impl.client.DefaultHttpClient
 
 import java.nio.charset.Charset
 
-abstract class SimpleHttpClient {
+class SimpleHttpClient {
 
     List<RequestState> previousRequests = new ArrayList()
 
@@ -116,34 +117,34 @@ abstract class SimpleHttpClient {
             return
         }
 
-        println("   ------- " + name + " state -------\n")
+        println(" ------- " + name + " state -------\n")
 
         def counter = 0
         previousRequests.each { it ->
             counter++
-            printf("   ==============================================\n")
-            printf("   REQUEST #" + counter + "\n")
-            printf("   ==============================================\n")
-            printf("   %18s: %s\n", "Request URL", it.requestPath)
+            printf(" ==============================================\n")
+            printf(" REQUEST #" + counter + "\n")
+            printf(" ==============================================\n")
+            printf(" %18s: %s\n", "Request URL", it.requestPath)
             it.requestHeaders.each() { key, value ->
-                printf("   %18s: %s\n", key, value)
+                printf(" %18s: %s\n", key, value)
             }
 
             if (it.response != null) {
-                printf("   %18s: %s\n", "Response code", it.response.statusCode)
+                printf(" %18s: %s\n", "Response code", it.response.statusCode)
                 if (it.response.responseHeaders != null && it.response.responseHeaders.size() > 0) {
-                    printf("   %18s: %s\n", "Response headers", it.response.responseHeaders.toString())
+                    printf(" %18s: %s\n", "Response headers", it.response.responseHeaders.toString())
                 }
 
                 if (it.response.responseBody != null) {
-                    printf("   %18s:\n", "Response body")
-                    printf("   %s", it.response.responseBody)
+                    printf(" %18s:\n", "Response body")
+                    printf(" %s", it.response.responseBody)
                 }
             }
             println("\n")
         }
 
-        println("   ------- " + name + " state -------\n")
+        println(" ------- " + name + " state -------\n")
     }
 }
 

@@ -1,4 +1,4 @@
-package deproxy.http
+package framework.client.http
 
 import org.apache.http.Header
 

@@ -5,7 +5,10 @@
            xmlns:uri-identity="http://docs.api.rackspacecloud.com/repose/uri-identity/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:atom="http://www.w3.org/2005/Atom"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning">
 
     <!-- Client User Identity Configuration -->
     <xs:element name="uri-identity" type="uri-identity:UriIdentityConfig" />
@@ -13,28 +16,59 @@
     <xs:complexType name="UriIdentityConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    With the URI Identity Filter, Repose can introspect a requests URI and set the X-PP-User and
+                    X-PP-Group headers accordingly. These headers get consumed by the Repose Rate Limiting Filter.
+                </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:all>
             <xs:element name="identification-mappings" type="uri-identity:IdentificationMappingList" minOccurs="1" maxOccurs="1" />
-            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="User_Standard" />
-            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.5" />
+            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="User_Standard" >
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The rate limiting group associated with the extracted identification data.</html:p>
+                        <html:p>X-PP-Group will be set to whatever is configured in the group element of the uri-identity.cfg.xml file.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="quality" type="uri-identity:doubleBetweenZeroandOne" minOccurs="0" maxOccurs="1" default="0.5">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Quality assigned to user using the incoming identification data.</html:p>
+                        <html:p>
+                            Quality factors are defined in the <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC - Section-3.9</html:a>
+                            (for usage examples, see <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section 14.1</html:a>)
+                            as a mechanism for weighting values in multi-value headers.
+                            Possible values for quality are 0 to 1.0.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:all>
     </xs:complexType>
 
     <xs:complexType name="IdentificationMappingList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>
+                    A list of mapping elements which are regular expressions used to extract the identification
+                    information from the request URI. The first regular expression in the list that finds a match
+                    in the URI is what is used to extract the data.
+                </html:p>
+                <html:p>X-PP-User will be set to the identification data retrieved from the first matching regular expression.</html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
-            <xs:element name="mapping" type="uri-identity:IdentificationMapping" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="mapping" type="uri-identity:IdentificationMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
 
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(uri-identity:*/@id)) = count(uri-identity:*/@id)"
+                   xerces:message="Mappings ids must be unique if specified"
+                   saxon:message="Mappings ids must be unique if specified">
+        </xs:assert>
     </xs:complexType>
 
     <xs:complexType name="IdentificationMapping">
@@ -47,9 +81,9 @@
         <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>Unique identifier of the mapping</html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
 
         <xs:attribute name="identification-regex" type="xs:string" use="required">
@@ -60,4 +94,11 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
