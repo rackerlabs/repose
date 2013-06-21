@@ -20,10 +20,20 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     def "when loading validators on startup, should register validator MXBeans"() {
 
         when:
-        def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
+
+        def validatorBeans = repose.jmx.getMBeans(mydomain, myname, mycount)
 
         then:
-        validatorBeans.size() == 3
+        validation
+
+        where:
+        [ mydomain, myname, mycount, validation ] <<
+           [
+                ["foo", "bar", 3]
+                ["jawsome", "wizard", 0, { validatorBeans.size() == mycount}]
+                        []
+        ]
+
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {

@@ -4,16 +4,15 @@ import framework.ReposeValveTest
 
 class DistDataShutdownTest extends ReposeValveTest {
 
-
     def "when configured with dist datastore as a service, should shutdown nicely when asked" () {
-        given:
+        given: "repose is configured with dist datastore"
         repose.applyConfigs("features/services/datastore/")
         repose.start()
 
-        when:
+        when: "i ask repose to stop"
         repose.stop()
 
-        then:
+        then: "the process should not be running"
         repose.isUp() == false
     }
 
