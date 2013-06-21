@@ -139,6 +139,10 @@ class ReposeValveLauncher implements ReposeLauncher {
             return true
         }
 
+        if(filterchain.size() == 0){
+            return false
+        }
+
         def initialized = true
 
         filterchain.each { data ->
