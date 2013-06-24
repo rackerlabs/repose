@@ -59,7 +59,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint", handler5XX)
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
         deproxy.makeRequest(reposeEndpoint + "/cluster")
 
         then:
