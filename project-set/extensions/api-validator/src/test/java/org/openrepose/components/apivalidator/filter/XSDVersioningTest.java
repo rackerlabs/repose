@@ -23,10 +23,8 @@ public class XSDVersioningTest {
 
         @Before
         public void setup() throws Exception {
-            String userDir = System.getProperty("user.dir");
-            FileInputStream xsdFIS = new FileInputStream(userDir + "/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd");
+            final StreamSource schemaSource = new StreamSource(XSDVersioningTest.class.getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"));
 
-            StreamSource schemaSource = new StreamSource(xsdFIS);
             SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
             Schema schema = schemaFactory.newSchema(schemaSource);
             validator = schema.newValidator();
