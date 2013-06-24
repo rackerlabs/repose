@@ -1,5 +1,6 @@
 package features.filters.apivalidator
 import framework.ReposeValveTest
+import org.rackspace.gdeproxy.Deproxy
 
 class ApiValidatorJMXTest extends ReposeValveTest {
 
@@ -11,6 +12,11 @@ class ApiValidatorJMXTest extends ReposeValveTest {
                 "features/filters/apivalidator/common",
                 "features/filters/apivalidator/jmx")
         repose.start()
+
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
+        deproxy.makeRequest(reposeEndpoint + "/")
     }
 
     def cleanup() {
@@ -24,6 +30,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         validatorBeans.size() == 3
+
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
@@ -31,11 +38,13 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         given:
         def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
 
-        when:
+        when: "I update the Repose API Validator filter with 2 new validators"
         repose.updateConfigs("features/filters/apivalidator/jmxupdate")
+
+        and: "I send a request to Repose to ensure that the filter registers the new validator MBeans"
         def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)
 
-        then:
+        then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
         afterUpdateBeans.size() == 2
         afterUpdateBeans.each { updatedBean ->
             beforeUpdateBeans.each {

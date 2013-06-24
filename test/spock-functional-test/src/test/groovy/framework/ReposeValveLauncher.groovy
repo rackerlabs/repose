@@ -1,4 +1,5 @@
 package framework
+
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 
@@ -17,7 +18,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
-    def static int jmxPort = 9001
+    def static int jmxPort = 25001
     def int debugPort = 8005
 
     def ReposeConfigurationProvider configurationProvider
@@ -66,14 +67,14 @@ class ReposeValveLauncher implements ReposeLauncher {
         def cmd = "java ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({cmd.execute()});
+        def th = new Thread({ cmd.execute() });
 
         th.run()
         th.join()
 
         def jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:${jmxPort}/jmxrmi"
 
-        waitForCondition(clock, '15s', '1s') {
+        waitForCondition(clock, '60s', '1s') {
             connectViaJmxRemote(jmxUrl)
         }
 
@@ -84,7 +85,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
-        sleep(10000)
+        //sleep(10000)
     }
 
     def connectViaJmxRemote(jmxUrl) {
@@ -103,8 +104,8 @@ class ReposeValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
-        waitForCondition(clock, '60s', '1s', {
-            !isFilterChainInitialized()
+        waitForCondition(clock, '25s', '1s', {
+            !isUp()
         })
     }
 
@@ -131,23 +132,21 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
 
-        if (filterchain == null && !beanName.contains("nofilters")) {
-            return false
-        }
 
-        if (beanName.contains("nofilters")) {
-            return true
+        if (filterchain == null || filterchain.size() == 0) {
+            return beanName.contains("nofilters")
         }
 
         def initialized = true
 
         filterchain.each { data ->
             if (data."successfully initialized" == false) {
-                initialized=false
+                initialized = false
             }
         }
 
         return initialized
+
     }
 
     private String getJvmProcesses() {
@@ -157,14 +156,14 @@ class ReposeValveLauncher implements ReposeLauncher {
         return runningJvms.in.text
     }
 
-    private boolean isUp() {
+    public boolean isUp() {
         return getJvmProcesses().contains("repose-valve.jar")
     }
 
     private void killIfUp() {
         String processes = getJvmProcesses()
         def regex = /(\d*) repose-valve.jar/
-        def matcher = ( processes =~ regex )
+        def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
             String pid = matcher[0][1]
 
@@ -178,6 +177,4 @@ class ReposeValveLauncher implements ReposeLauncher {
             }
         }
     }
-
-
 }
