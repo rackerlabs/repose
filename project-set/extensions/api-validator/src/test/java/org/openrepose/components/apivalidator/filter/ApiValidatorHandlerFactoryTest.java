@@ -9,7 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
 
 import java.net.MalformedURLException;
@@ -51,7 +53,7 @@ public class ApiValidatorHandlerFactoryTest {
             defaultItem.setDefault(Boolean.TRUE);
             defaultItem.setDotOutput(dot);
             config.getValidator().add(defaultItem);
-            
+
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");

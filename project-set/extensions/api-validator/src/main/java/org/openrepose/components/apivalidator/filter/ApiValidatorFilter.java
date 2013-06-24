@@ -51,8 +51,11 @@ public class ApiValidatorFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new ApiValidatorHandlerFactory(configurationManager, configurationRoot, config);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/validator-configuration.xsd");
-        //TODO check this
         configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
-                                         BaseValidatorConfiguration.class);
+                                        BaseValidatorConfiguration.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
+                                        ValidatorConfiguration1.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
+                                        ValidatorConfiguration2.class);
     }
 }

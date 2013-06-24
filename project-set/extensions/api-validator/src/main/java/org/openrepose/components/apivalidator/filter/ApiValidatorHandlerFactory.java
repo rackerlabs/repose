@@ -194,8 +194,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     private class ApiValidationConfigurationListener implements UpdateListener<BaseValidatorConfiguration> {
-
-       private boolean isInitialized = false;
+        private boolean isInitialized = false;
        
         
         @Override
@@ -210,14 +209,11 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         public boolean isInitialized(){
             return isInitialized;
         }
-
-      
     }
 
     void setValidatorConfiguration(BaseValidatorConfiguration configurationObject) {
         validatorConfiguration = configurationObject;
     }
-    
 
     @Override
     protected ApiValidatorHandler buildHandler() {
@@ -231,8 +227,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        //TODO check this
-        updateListeners.put(BaseValidatorConfiguration.class, new ApiValidationConfigurationListener());
+        ApiValidationConfigurationListener avcl = new ApiValidationConfigurationListener();
+        updateListeners.put(BaseValidatorConfiguration.class, avcl);
+        updateListeners.put(ValidatorConfiguration1.class, avcl);
+        updateListeners.put(ValidatorConfiguration2.class, avcl);
         return updateListeners;
     }
 }
