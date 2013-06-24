@@ -14,15 +14,16 @@ class ApiValidatorXSDVersioningTest extends Specification {
     private Validator validator
 
     def setup() {
-        // TODO fix path
-        //StreamSource schemaSource = new StreamSource(getClass().getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"))
-        StreamSource schemaSource = new StreamSource(new FileInputStream("/Users/dami6356/my_repose/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd"))
+        String userDir = System.getProperty("user.dir")
+        FileInputStream xsdFIS = new FileInputStream(userDir + "/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd")
+
+        StreamSource schemaSource = new StreamSource(xsdFIS)
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
         Schema schema = schemaFactory.newSchema(schemaSource)
         validator = schema.newValidator()
     }
 
-    def "should default to version 1 api-validator config and validate against validator-configuration.xsd"() {
+    def "when version not set, should default to version 1 and validate against validator-configuration.xsd"() {
         given:
         String xml =
             """<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true">
@@ -54,7 +55,7 @@ class ApiValidatorXSDVersioningTest extends Specification {
         notThrown(SAXException)
     }
 
-    def "version 1 api-validator config should validate against validator-configuration.xsd"() {
+    def "when version 1 is used, should validate against validator-configuration.xsd"() {
         given:
         String xml =
             """<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true" version="1">
@@ -86,7 +87,7 @@ class ApiValidatorXSDVersioningTest extends Specification {
         notThrown(SAXException)
     }
 
-    def "version 2 api-validator config should validate against validator-configuration.xsd"() {
+    def "when version 2 is used, should validate against validator-configuration.xsd"() {
         given:
         String xml =
             """<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true" version="2">

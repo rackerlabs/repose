@@ -161,6 +161,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
                 validatorItems = validatorConfiguration1.getValidator();
                 validators = new ArrayList<ValidatorInfo>(validatorItems.size());
+                LOG.warn("Version 1 of the api validator configuration is deprecated");
             } else if (validatorConfiguration instanceof ValidatorConfiguration2) {
                 validatorConfiguration2 = (ValidatorConfiguration2)validatorConfiguration;
 
