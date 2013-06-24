@@ -38,7 +38,8 @@ abstract class ReposeValveTest extends Specification {
     }
 
     def teardownSpec() {
-        repose.stop()
+        if (repose.isUp())
+            repose.stop()
     }
 
 }
