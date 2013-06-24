@@ -319,7 +319,7 @@
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -330,7 +330,7 @@
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
