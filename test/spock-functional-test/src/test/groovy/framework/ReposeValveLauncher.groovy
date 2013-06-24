@@ -104,8 +104,8 @@ class ReposeValveLauncher implements ReposeLauncher {
         println("Stopping repose: ${cmd}")
 
         cmd.execute();
-        waitForCondition(clock, '15s', '1s', {
-            !isFilterChainInitialized()
+        waitForCondition(clock, '25s', '1s', {
+            !isUp()
         })
     }
 
@@ -132,12 +132,10 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
 
-        if (filterchain == null) {
+
+        if (filterchain == null || filterchain.size() == 0) {
             return beanName.contains("nofilters")
         }
-
-        if (filterchain.size() == 0)
-            return false
 
         def initialized = true
 
@@ -158,7 +156,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         return runningJvms.in.text
     }
 
-    private boolean isUp() {
+    public boolean isUp() {
         return getJvmProcesses().contains("repose-valve.jar")
     }
 

@@ -10,6 +10,7 @@ class DistDataShutdownTest extends ReposeValveTest {
         repose.start()
 
         when: "i ask repose to stop"
+        sleep(5000)  // sleeping here as repose may not have been up
         repose.stop()
 
         then: "the process should not be running"
@@ -22,6 +23,7 @@ class DistDataShutdownTest extends ReposeValveTest {
         repose.start()
 
         when:
+        sleep(5000)  // sleeping here as repose may not have been up
         repose.stop()
 
         then:
