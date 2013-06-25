@@ -48,24 +48,29 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
     def "when translating responses"() {
 
-        given:
+        given: "Repose is configured to translate responses using multimatch"
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 
-        when:
+        when: "The origin service sends back a response of type " + respHeaders
         def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, "something", xmlResp)
 
-        then:
+        then: "Response body received should contain"
         for (String st : shouldContain) {
             resp.receivedResponse.body.contains(st)
         }
+
+        and: "Response body received should not contain"
         for (String st : shouldNotContain) {
             !resp.receivedResponse.body.contains(st)
         }
 
+        and: "Response headers should contain"
         for (String st : shouldContainHeaders) {
             resp.receivedResponse.getHeaders().getNames().contains(st)
         }
+
+        and: "Response code returned should be"
         resp.receivedResponse.code.equalsIgnoreCase(respCode.toString())
 
         where:
@@ -77,20 +82,22 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
     def "when translating request headers"() {
 
-        given:
+        given: "Repose is configured to translate requests using multimatch"
         def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
 
 
-        when:
+        when: "The user sends a request of type " + reqHeaders
         def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
-        then:
+        then: "Request body from repose to the origin service should contain"
 
         for (String st : shouldContain) {
             ((Handling) sentRequest).request.body.contains(st)
 
         }
+
+        and: "Request headers sent from repose to the origin service should contain"
         for (String st : shouldNotContainHeaders) {
             !((Handling) sentRequest).request.getHeaders().contains(st)
         }

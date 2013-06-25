@@ -54,20 +54,24 @@ class TranslateResponseTest extends ReposeValveTest {
 
     def "when translating responses"() {
 
-        given:
+        given: "Origin service returns body of type " + respHeaders
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 
-        when:
+        when: "User sends requests through repose"
         def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
 
-        then:
+        then: "Response body should contain"
         for (String st : shouldContain) {
             resp.receivedResponse.body.contains(st)
         }
+
+        and: "Response body should not contain"
         for (String st : shouldNotContain) {
             !resp.receivedResponse.body.contains(st)
         }
+
+        and: "Response code should be"
         resp.receivedResponse.code.equalsIgnoreCase(respCode.toString())
 
         where:
@@ -84,31 +88,33 @@ class TranslateResponseTest extends ReposeValveTest {
 
     def "when translating application/rss+xml response with header translations"() {
 
-        given:
-        def reqHeaders = ["accept": "application/rss+xml"]
-        def respHeaders = ["content-type": "application/xml"]
+        given: "Repose is configured to translate response headers"
+        def reqHeaders = ["accept": "application/xml"]
+        def respHeaders = ["content-type": "application/rss+xml"]
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, xmlRssResponse) }
 
 
-        when:
+        when: "User sends a request through repose"
         def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
 
-        then:
+        then: "Response body should not be touched"
         resp.receivedResponse.body.contains(xmlRssResponse)
-        !resp.receivedResponse.getHeaders().names.contains("translation-header")
+
+        and: "Response headers should contain added header from translation"
+        resp.receivedResponse.getHeaders().names.contains("translation-header")
 
     }
 
     def "when attempting to translate an invalid xml/json response"() {
 
-        given:
+        given: "Origin serivce returns invalid json/xml"
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 
-        when:
+        when: "User sends a request through repose"
         def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
 
-        then:
+        then: "Repose should return a 500 as the response is invalid"
         resp.receivedResponse.code.equals(respCode)
 
         where:
