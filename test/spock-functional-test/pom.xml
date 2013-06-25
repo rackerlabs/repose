@@ -104,13 +104,43 @@
                 <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
         </profile>
+
+        <profile>
+            <id>saxonEE</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <saxon_home>${env.SAXON_HOME}</saxon_home>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>saxonEE</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>${project.build.directory}/src/test/groovy/features/filters/translation/saxonEE</include>
+                                    </includes>
+                                </configuration>
+                        </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 
     <build>
         <testResources>
-
-
             <testResource>
                 <directory>${project.basedir}/src/test/resources</directory>
                 <filtering>true</filtering>
@@ -187,7 +217,23 @@
                     </execution>
                 </executions>
             </plugin>
-
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>saxonEE</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>${project.build.directory}/src/test/groovy/features/filters/translation/saxonEE</include>
+                                </includes>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
         </plugins>
     </build>
 
