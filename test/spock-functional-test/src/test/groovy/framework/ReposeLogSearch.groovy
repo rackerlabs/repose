@@ -1,6 +1,9 @@
 package framework
 
 
+/**
+* Responsible for searching log file for an instance of Repose
+*/
 class ReposeLogSearch {
 
     String logFileLocation;
@@ -9,6 +12,10 @@ class ReposeLogSearch {
         this.logFileLocation = logFileLocation
     }
 
+    /**
+     * Search the repose log file using the properties log locations specified
+     * @param searchString is used to search log file for matches
+     */
     public List<String> searchByString(String searchString) {
         File logFile=new File(logFileLocation);
 

@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 
+
+/* Responsible for updating and querying ratelimits in cache */
 public class ManagedRateLimitCache implements RateLimitCache {
     
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ManagedRateLimitCache.class);

@@ -4,6 +4,8 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
+/* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
+
 class DatastoreWarnLimitTest extends ReposeValveTest{
     static int WARN_LIMIT = 2
 
