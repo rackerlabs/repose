@@ -10,6 +10,7 @@ import org.rackspace.gdeproxy.Response
  */
 class IdentityServiceResponseSimulator {
 
+    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     boolean ok = true
     int validateTokenCount = 0
 
@@ -23,6 +24,7 @@ class IdentityServiceResponseSimulator {
     def admin_userid = 67890
 
     def templateEngine = new SimpleTemplateEngine()
+
 
     def handler = { Request request ->
         def xml = false
@@ -58,7 +60,7 @@ class IdentityServiceResponseSimulator {
                     validateTokenCount += 1
 
                     params = [
-                            expires: nowPlusOneDay.toString('%Y-%m-%dT%H:%M:%S%z'),
+                            expires: nowPlusOneDay.toString(DATE_FORMAT),
                             userid: client_userid,
                             username: client_username,
                             tenant: client_tenant,
@@ -82,7 +84,7 @@ class IdentityServiceResponseSimulator {
                 break
             case "POST":
                 params = [
-                        expires: nowPlusOneDay.toString('%Y-%m-%dT%H:%M:%S%z'),
+                        expires: nowPlusOneDay.toString(DATE_FORMAT),
                         userid: admin_userid,
                         username: admin_username,
                         tenant: admin_tenant,
@@ -100,8 +102,7 @@ class IdentityServiceResponseSimulator {
     }
 
     def groupsJsonTemplate =
-"""
-{
+"""{
   "RAX-KSGRP:groups": [
     {
         "id": "0",
@@ -113,8 +114,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def groupsXmlTemplate =
-"""
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
         <description>Default Limits</description>
@@ -123,8 +123,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureJsonTemplate =
-"""
-{
+"""{
    "itemNotFound" : {
       "message" : "Invalid Token, not found.",
       "code" : 404
@@ -133,8 +132,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureXmlTemplate =
-"""
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
               xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
               code="404">
@@ -143,8 +141,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessJsonTemplate =
-"""
-{
+"""{
    "access" : {
       "serviceCatalog" : [
          {
@@ -213,8 +210,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessXmlTemplate =
-"""
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"

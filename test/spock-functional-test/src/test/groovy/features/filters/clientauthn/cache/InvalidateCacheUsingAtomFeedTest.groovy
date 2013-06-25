@@ -1,11 +1,9 @@
 package features.filters.clientauthn.cache
-
 import features.filters.clientauthn.AtomFeedResponseSimulator
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
-
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -91,10 +89,14 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     AtomFeedResponseSimulator fakeAtomFeed
 
     def setup() {
+        deproxy = new Deproxy()
+
+        int atomPort = properties.getProperty("atom.port").toInteger()
+        fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
+        atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
+
         repose.applyConfigs("features/filters/clientauthn/common")
         repose.start()
-
-        deproxy = new Deproxy()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
 
@@ -102,9 +104,6 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
-        int atomPort = properties.getProperty("atom.port").toInteger()
-        fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
-        atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
     }
 
     def cleanup() {
@@ -116,29 +115,29 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def "when token is cached then invalidated by atom feed, should attempt to revalidate token with identity endpoint"() {
 
-        when: "request 1 - request is made with an X-Auth-Token header"
+        when: "I send a GET request to REPOSE with an X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
         MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "Repose should validate the token and then pass the request to the origin service"
+        then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
-        mc.handlings.length == 1
+        mc.handlings.size() == 1
 
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
-        mc.orphanedHandlings.length == 1
+        mc.orphanedHandlings.size() > 0
         fakeIdentityService.validateTokenCount == 1
         mc.handlings[0].endpoint == originEndpoint
 
 
-        when: "request 2 - request is made with same X-Auth-Token header"
+        when:"I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
         mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
-        mc.handlings.length == 1
+        mc.handlings.size() == 1
         fakeIdentityService.validateTokenCount == 0
         mc.handlings[0].endpoint == originEndpoint
 
@@ -148,16 +147,23 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.ok = false
         fakeIdentityService.validateTokenCount = 0
         fakeAtomFeed.hasEntry = true
+        atomEndpoint._defaultHandler = fakeAtomFeed.handler
 
         and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(11000)
+        sleep(15000)
 
-        and: "request 3 - request is made with same X-Auth-Token header"
-        mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        and: "I send a GET request to REPOSE with the same X-Auth-Token header"
+        mc = deproxy.makeRequest(
+                [
+                        url:reposeEndpoint,
+                        method:'GET',
+                        headers:['X-Auth-Token': fakeIdentityService.client_token],
+                        defaultHandler:fakeIdentityService.handler
+                ])
 
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
-        mc.handlings.length == 0
+        mc.handlings.size() == 0
         fakeIdentityService.validateTokenCount == 1
     }
 

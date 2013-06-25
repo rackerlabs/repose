@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.rackspace</groupId>
             <artifactId>gdeproxy</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>0.9.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -196,7 +196,9 @@
             <id>public.maven.research.rackspace.com</id>
             <name>Rackspace Research</name>
             <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
-            <snapshots><updatePolicy>never</updatePolicy></snapshots>
+            <snapshots>
+                 <updatePolicy>never</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 </project>

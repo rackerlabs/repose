@@ -8,6 +8,7 @@ import org.rackspace.gdeproxy.Response
  * Simulates responses from an Identity Atom Feed
  */
 class AtomFeedResponseSimulator {
+    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
     def templateEngine = new SimpleTemplateEngine()
     boolean hasEntry = false
@@ -33,7 +34,7 @@ class AtomFeedResponseSimulator {
 
         def params = [
                 'atom_port': atomPort,
-                'time': now.toString('%Y-%m-%dT%H:%M:%SZ'),
+                'time': now.toString(DATE_FORMAT),
                 'token': client_token,
                 'tenant': client_tenant,
         ]
@@ -50,8 +51,7 @@ class AtomFeedResponseSimulator {
 
 
     def String atomEmptyXml =
-        """
-<?xml version="1.0"?>
+"""<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atom_port}/feed/"
         rel="current"/>
@@ -66,8 +66,7 @@ class AtomFeedResponseSimulator {
 """
 
     def String atomWithEntryXml =
-        """
-<?xml version="1.0"?>
+"""<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <link href="http://localhost:\${atom_port}/feed/"
         rel="current"/>
