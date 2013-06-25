@@ -31,6 +31,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     def cleanup() {
         if (deproxy)
             deproxy.shutdown()
+
+        sleep(3000) //TODO: add a clean way to ensure deproxy has really shutdown all endpoints
+
         repose.stop()
     }
 
