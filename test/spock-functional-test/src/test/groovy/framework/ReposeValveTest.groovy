@@ -38,6 +38,9 @@ abstract class ReposeValveTest extends Specification {
     }
 
     def teardownSpec() {
+        if (deproxy)
+            deproxy.shutdown()
+
         if (repose.isUp())
             repose.stop()
     }
