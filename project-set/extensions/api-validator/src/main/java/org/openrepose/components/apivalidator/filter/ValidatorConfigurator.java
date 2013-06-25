@@ -68,6 +68,16 @@ public abstract class ValidatorConfigurator {
         return validators;
     }
 
+    public static List< Class<? extends BaseValidatorConfiguration> > getConfigurationClasses() {
+        List< Class<? extends BaseValidatorConfiguration> > r = new ArrayList< Class<? extends BaseValidatorConfiguration> >();
+
+        r.add(BaseValidatorConfiguration.class);
+        r.add(ValidatorConfiguration1.class);
+        r.add(ValidatorConfiguration2.class);
+
+        return r;
+    }
+
     public void processConfiguration( BaseValidatorConfiguration validatorConfiguration, String configRoot, String config ) {
 
         defaultvalidator = null;

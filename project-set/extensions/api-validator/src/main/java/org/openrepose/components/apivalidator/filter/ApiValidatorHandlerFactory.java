@@ -17,6 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class uses the <a href="http://en.wikipedia.org/wiki/Factory_method_pattern">factory pattern</a> to construct
+ * a handler from the configuration files.
+ *
+ * ApiValidatorWadlListener and ApiValidationConfigurationListener are classes which re-initialize the handler factory
+ * when the wadl or configuration files are changed.
+ *
+ */
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
     
   
@@ -198,9 +206,11 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
         ApiValidationConfigurationListener avcl = new ApiValidationConfigurationListener();
-        updateListeners.put(BaseValidatorConfiguration.class, avcl);
-        updateListeners.put(ValidatorConfiguration1.class, avcl);
-        updateListeners.put(ValidatorConfiguration2.class, avcl);
+
+        for (Class<? extends BaseValidatorConfiguration> c : ValidatorConfigurator.getConfigurationClasses()) {
+            updateListeners.put(c, avcl);
+        }
+
         return updateListeners;
     }
 }
