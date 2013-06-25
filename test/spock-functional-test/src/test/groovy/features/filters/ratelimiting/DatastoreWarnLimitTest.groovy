@@ -7,7 +7,7 @@ import org.rackspace.gdeproxy.MessageChain
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 
 class DatastoreWarnLimitTest extends ReposeValveTest{
-    static int WARN_LIMIT = 2
+    static int WARN_LIMIT = 1
 
     def setupSpec() {
         repose.applyConfigs(
@@ -44,7 +44,8 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         where:
 
         totalRequests  | expectedWarnings
-        WARN_LIMIT + 3 | 3
+        WARN_LIMIT + 1 | 1
+        WARN_LIMIT + 2 | 2
 
     }
 
