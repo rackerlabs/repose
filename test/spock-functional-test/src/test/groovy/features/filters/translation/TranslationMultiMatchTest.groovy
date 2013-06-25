@@ -53,7 +53,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
 
         when: "The origin service sends back a response of type " + respHeaders
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, respBody, xmlResp)
 
         then: "Response body received should contain"
         for (String st : shouldContain) {
@@ -98,8 +98,13 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         }
 
         and: "Request headers sent from repose to the origin service should contain"
+        for (String st : shouldContainHeaders) {
+            ((Handling) sentRequest).request.getHeaders().getNames().contains(st)
+        }
+
+        and: "Request headers sent from repose to the origin service should not contain "
         for (String st : shouldNotContainHeaders) {
-            !((Handling) sentRequest).request.getHeaders().contains(st)
+            !((Handling) sentRequest).request.getHeaders().getNames().contains(st)
         }
 
         where:
