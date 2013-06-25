@@ -1,24 +1,18 @@
 package org.openrepose.components.apivalidator.filter;
 
-import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,41 +144,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 return;
             }
 
-            defaultValidator = null;
-            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
+            ValidatorConfigurator validatorConfigurator = ValidatorConfigurator.createValidatorConfigurator(
+                  validatorConfiguration );
 
-            ValidatorConfiguration1 validatorConfiguration1 = null;
-            ValidatorConfiguration2 validatorConfiguration2 = null;
-            List<? extends BaseValidatorItem> validatorItems = null;
-            if (validatorConfiguration instanceof ValidatorConfiguration1) {
-                validatorConfiguration1 = (ValidatorConfiguration1)validatorConfiguration;
+            validatorConfigurator.processConfiguration( validatorConfiguration,
+                                               configRoot,
+                                               config );
 
-                validatorItems = validatorConfiguration1.getValidator();
-                validators = new ArrayList<ValidatorInfo>(validatorItems.size());
-                LOG.warn("Version 1 of the api validator configuration is deprecated");
-            } else if (validatorConfiguration instanceof ValidatorConfiguration2) {
-                validatorConfiguration2 = (ValidatorConfiguration2)validatorConfiguration;
-
-                validatorItems = validatorConfiguration2.getValidator();
-                validators = new ArrayList<ValidatorInfo>(validatorItems.size());
-            } else {
-                // Error. Have all of the schema versions been incorporated above?
-            }
-
-            for (BaseValidatorItem validatorItem : validatorItems) {
-                Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
-                ValidatorInfo validator =
-                        validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration,
-                                validatorItem.getValidatorName())
-                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration,
-                                validatorItem.getValidatorName());
-
-                validators.add(validator);
-                if (validatorItem.isDefault() && defaultValidator == null) {
-                    defaultValidator = validator;
-                }
-            }
+            defaultValidator = validatorConfigurator.getDefaultValidator() ;
+            validators = validatorConfigurator.getValidators();
 
             for (ValidatorInfo validator : validators) {
                 addListener(validator.getUri());
@@ -193,6 +161,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             initialized = true;
         }
     }
+
 
     private class ApiValidationConfigurationListener implements UpdateListener<BaseValidatorConfiguration> {
         private boolean isInitialized = false;
