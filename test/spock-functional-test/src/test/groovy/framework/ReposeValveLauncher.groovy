@@ -3,6 +3,7 @@ package framework
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 
+import static org.junit.Assert.fail
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeValveLauncher implements ReposeLauncher {
@@ -18,7 +19,6 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
-    def static int jmxPort = 25001
     def int debugPort = 8005
 
     def ReposeConfigurationProvider configurationProvider
@@ -48,7 +48,11 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void start() {
-        killIfUp()
+
+        waitForCondition(clock, '5s', '1s', {
+            killIfUp()
+            !isUp()
+        })
 
         def jmxprops = ""
         def debugProps = ""
@@ -57,11 +61,7 @@ class ReposeValveLauncher implements ReposeLauncher {
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
-        if (debugEnabled) {
-            debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
-        }
-
-        jmxPort++
+        int jmxPort = nextAvailablePort()
         jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         def cmd = "java ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
@@ -86,6 +86,23 @@ class ReposeValveLauncher implements ReposeLauncher {
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
         //sleep(10000)
+    }
+
+    def nextAvailablePort() {
+
+        def socket
+        int port
+        try {
+            socket = new ServerSocket(0);
+            port = socket.getLocalPort()
+        } catch (IOException e) {
+            fail("Failed to find an open port")
+        } finally {
+            if (socket != null && !socket.isClosed()) {
+                socket.close()
+            }
+        }
+        return port
     }
 
     def connectViaJmxRemote(jmxUrl) {
