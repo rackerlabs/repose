@@ -45,8 +45,8 @@ public class RateLimitingServiceHelper {
       return getReposeMimeType(mediaType);
    }
 
-   public void trackLimits(HttpServletRequest request) throws OverLimitException {
-      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getMethod());
+   public void trackLimits(HttpServletRequest request,int datastoreWarnLimit) throws OverLimitException {
+      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getMethod(),datastoreWarnLimit);
    }
 
    public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {

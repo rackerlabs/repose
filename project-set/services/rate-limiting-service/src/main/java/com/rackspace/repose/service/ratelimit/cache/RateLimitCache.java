@@ -14,5 +14,5 @@ public interface RateLimitCache {
 
     Map<String, CachedRateLimit> getUserRateLimits(String key);
 
-    NextAvailableResponse updateLimit(HttpMethod method, String account, String limitKey, ConfiguredRatelimit rateCfg) throws IOException;
+    NextAvailableResponse updateLimit(HttpMethod method, String account, String limitKey, ConfiguredRatelimit rateCfg, int datastoreWarnLimit) throws IOException;
 }
