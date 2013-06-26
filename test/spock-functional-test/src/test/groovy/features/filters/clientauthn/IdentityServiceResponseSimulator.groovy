@@ -10,27 +10,29 @@ import org.rackspace.gdeproxy.Response
  */
 class IdentityServiceResponseSimulator {
 
-    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    boolean ok = true
-    int validateTokenCount = 0
-    int groupsCount = 0
-    int adminTokenCount = 0
+    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    boolean ok = true;
+    int validateTokenCount = 0;
+    int groupsCount = 0;
+    int adminTokenCount = 0;
+    int endpointsCount = 0;
 
     int errorCode;
     boolean isGetAdminTokenBroken = false;
     boolean isGetGroupsBroken = false;
     boolean isValidateClientTokenBroken = false;
+    boolean isGetEndpointsBroken = false;
 
-    def client_token = 'this-is-the-token'
-    def client_tenant = 'this-is-the-tenant'
-    def client_username = 'username'
-    def client_userid = 12345
-    def admin_token = 'this-is-the-admin-token'
-    def admin_tenant = 'this-is-the-admin-tenant'
-    def admin_username = 'admin_username'
-    def admin_userid = 67890
+    def client_token = 'this-is-the-token';
+    def client_tenant = 'this-is-the-tenant';
+    def client_username = 'username';
+    def client_userid = 12345;
+    def admin_token = 'this-is-the-admin-token';
+    def admin_tenant = 'this-is-the-admin-tenant';
+    def admin_username = 'admin_username';
+    def admin_userid = 67890;
 
-    def templateEngine = new SimpleTemplateEngine()
+    def templateEngine = new SimpleTemplateEngine();
 
 
     def handler = { Request request ->
@@ -64,6 +66,8 @@ class IdentityServiceResponseSimulator {
             return handleGetAdminTokenCall(request);
         } else if (request.method == "GET" && request.path.contains("tokens")) {
             return handleValidateTokenCall(request);
+        } else if (request.method == "GET" && request.path.contains("endpoints")) {
+            return handleEndpointsCall(request);
         } else if (request.method == "GET") {
             return handleGroupsCall(request);
         } else {
@@ -200,7 +204,50 @@ class IdentityServiceResponseSimulator {
         return handleTokenCallBase(request, params);
     }
 
+    Response handleEndpointsCall(Request request) {
+        endpointsCount += 1;
 
+        if (this.isGetEndpointsBroken) {
+            return new Response(this.errorCode);
+        }
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def code;
+        def template;
+        def headers = ['Connection': 'close'];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+            template = this.identityEndpointXmlTemplate;
+        } else {
+            headers.put('Content-type', 'application/json')
+            template = this.identityEndpointJsonTemplate;
+        }
+
+        def now = new DateTime()
+        def nowPlusOneDay = now.plusDays(1)
+
+        def params = [
+            'identity_port': this.port,
+            'token': this.client_token,
+            'expires': nowPlusOneDay.strftime('%Y-%m-%dT%H:%M:%S%z'),
+            'userid': this.client_userid,
+            'username': this.client_username,
+            'tenant': this.client_tenant,
+            'token': this.client_token,
+            'origin_service_port': this.origin_service_port,
+        ];
+
+        def body = templateEngine.createTemplate(template).make(params);
+        return new Response(200, null, headers, body);
+    }
 
     def groupsJsonTemplate =
 """{
@@ -363,4 +410,64 @@ class IdentityServiceResponseSimulator {
     </serviceCatalog>
 </access>
 """
+
+    def identityEndpointsJsonTemplate =
+"""{
+    "endpoints_links": [
+        {
+            "href": "http://localhost:\${identity_port}/tokens/\${token}/endpoints?'marker=5&limit=10'",
+            "rel": "next"
+        }
+    ],
+    "endpoints": [
+        {
+            "internalURL": "http://localhost:\${origin_service_port}/v1/AUTH_1",
+            "name": "swift",
+            "adminURL": "http://localhost:\${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "object-store",
+            "id": 1,
+            "publicURL": "http://localhost:\${origin_service_port}/"
+        },
+        {
+            "internalURL": "http://localhost:\${origin_service_port}/",
+            "name": "nova_compat",
+            "adminURL": "http://localhost:\${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "compute",
+            "id": 2,
+            "publicURL": "http://localhost:\${origin_service_port}/"
+        }
+    ]
+}"""
+
+    def identityEndpointXmlTemplate =
+"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
+           xmlns:ns2="http://www.w3.org/2005/Atom"
+           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+  <endpoint id="1"
+            type="object-store"
+            name="swift"
+            region="RegionOne"
+            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
+            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
+            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            tenantId="\${tenant}"/>
+  <endpoint id="2"
+            type="compute"
+            name="nova_compat"
+            region="RegionOne"
+            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
+            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
+            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            tenantId="\${tenant}"/>
+</endpoints>"""
+
 }
