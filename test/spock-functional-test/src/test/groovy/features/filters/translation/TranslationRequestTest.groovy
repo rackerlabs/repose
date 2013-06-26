@@ -120,9 +120,9 @@ class TranslationRequestTest extends ReposeValveTest {
         resp.receivedResponse.code.equals(respCode)
 
         where:
-        reqHeaders              | respHeaders | respBody    | respCode | shouldContain | shouldNotContain
-        acceptXML + contentJSON | contentXML  | invalidXml  | "400"    | []            | []
-        acceptXML + contentJSON | contentXML  | invalidJson | "400"    | []            | []
+        reqHeaders              | respHeaders | respBody    | respCode
+        acceptXML + contentJSON | contentXML  | invalidXml  | "400"
+        acceptXML + contentJSON | contentXML  | invalidJson | "400"
 
 
     }
