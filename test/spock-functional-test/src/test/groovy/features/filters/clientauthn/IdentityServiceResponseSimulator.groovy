@@ -14,6 +14,7 @@ class IdentityServiceResponseSimulator {
     boolean ok = true
     int validateTokenCount = 0
     int groupsCount = 0
+    int adminTokenCount = 0
 
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
@@ -64,13 +65,7 @@ class IdentityServiceResponseSimulator {
                 }
                 break
             case "POST":
-                params = [
-                    expires: nowPlusOneDay.toString(DATE_FORMAT),
-                    userid: admin_userid,
-                    username: admin_username,
-                    tenant: admin_tenant,
-                    token: admin_token
-                ]
+                return handleGetAdminTokenCall(request);
                 break
             default:
                 throw new UnsupportedOperationException('Unknown request: %r' % request)
@@ -85,14 +80,6 @@ class IdentityServiceResponseSimulator {
     Response handleValidateTokenCall(Request request) {
         validateTokenCount += 1
 
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
-
         def now = new DateTime()
         def nowPlusOneDay = now.plusDays(1)
 
@@ -102,7 +89,20 @@ class IdentityServiceResponseSimulator {
             username: client_username,
             tenant: client_tenant,
             token: client_token
-        ]
+        ];
+
+        return handleTokenCallBase(request, params);
+    }
+
+    Response handleTokenCallBase(Request request, params) {
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
 
         def code;
         def template;
@@ -176,6 +176,24 @@ class IdentityServiceResponseSimulator {
 
         return new Response(200, null, headers, body)
     }
+
+    Response handleGetAdminTokenCall(Request request) {
+        adminTokenCount += 1
+
+        def now = new DateTime()
+        def nowPlusOneDay = now.plusDays(1)
+
+        def params = [
+            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            userid: admin_userid,
+            username: admin_username,
+            tenant: admin_tenant,
+            token: admin_token
+        ];
+
+        return handleTokenCallBase(request, params);
+    }
+
 
 
     def groupsJsonTemplate =
