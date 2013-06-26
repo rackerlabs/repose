@@ -57,38 +57,22 @@ class IdentityServiceResponseSimulator {
 
             case "GET":
                 if (request.path.contains("tokens")) {
-                    validateTokenCount += 1
-
-                    params = [
-                            expires: nowPlusOneDay.toString(DATE_FORMAT),
-                            userid: client_userid,
-                            username: client_username,
-                            tenant: client_tenant,
-                            token: client_token
-                    ]
-
-                    if (!ok) {
-                        code = 404
-                        message = 'Not Found'
-                        if (xml)
-                            template = identityFailureXmlTemplate
-                        else
-                            template = identityFailureJsonTemplate
-                    }
+                    return handleValidateTokenCall(request);
                 } else {
-                    if (xml)
+                    if (xml) {
                         template = groupsXmlTemplate
-                    else
+                    } else {
                         template = groupsJsonTemplate
+                    }
                 }
                 break
             case "POST":
                 params = [
-                        expires: nowPlusOneDay.toString(DATE_FORMAT),
-                        userid: admin_userid,
-                        username: admin_username,
-                        tenant: admin_tenant,
-                        token: admin_token
+                    expires: nowPlusOneDay.toString(DATE_FORMAT),
+                    userid: admin_userid,
+                    username: admin_username,
+                    tenant: admin_tenant,
+                    token: admin_token
                 ]
                 break
             default:
@@ -99,6 +83,59 @@ class IdentityServiceResponseSimulator {
 
         return new Response(code, message, headers, body)
 
+    }
+
+    Response handleValidateTokenCall(Request request) {
+        validateTokenCount += 1
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def now = new DateTime()
+        def nowPlusOneDay = now.plusDays(1)
+
+        def params = [
+            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            userid: client_userid,
+            username: client_username,
+            tenant: client_tenant,
+            token: client_token
+        ]
+
+        def code;
+        def template;
+        def headers = ['Connection': 'close'];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
+        }
+
+        if (ok) {
+            code = 200;
+            if (xml) {
+                template = identitySuccessXmlTemplate
+            } else {
+                template = identitySuccessJsonTemplate
+            }
+        } else {
+            code = 404
+            if (xml) {
+                template = identityFailureXmlTemplate
+            } else {
+                template = identityFailureJsonTemplate
+            }
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(code, null, headers, body)
     }
 
     def groupsJsonTemplate =
