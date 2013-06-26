@@ -341,7 +341,7 @@ class IdentityServiceResponseSimulator {
                "description" : "Admin Role."
             }
          ],
-         "RAX-AUTH:defaultRegion" : "",
+         "RAX-AUTH:defaultRegion" : "the-default-region",
          "name" : "\${username}",
          "id" : "\${userid}"
       },
@@ -372,7 +372,7 @@ class IdentityServiceResponseSimulator {
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
           name="\${username}"
-          rax-auth:defaultRegion="">
+          rax-auth:defaultRegion="the-default-region">
         <roles>
             <role id="684"
                   name="compute:default"
