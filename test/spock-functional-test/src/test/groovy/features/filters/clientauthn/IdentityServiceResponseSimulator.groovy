@@ -55,26 +55,15 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        switch (request.method) {
-
-            case "GET":
-                if (request.path.contains("tokens")) {
-                    return handleValidateTokenCall(request);
-                } else {
-                    return handleGroupsCall(request);
-                }
-                break
-            case "POST":
-                return handleGetAdminTokenCall(request);
-                break
-            default:
-                throw new UnsupportedOperationException('Unknown request: %r' % request)
+        if (request.method == "POST") {
+            return handleGetAdminTokenCall(request);
+        } else if (request.method == "GET" && request.path.contains("tokens")) {
+            return handleValidateTokenCall(request);
+        } else if (request.method == "GET") {
+            return handleGroupsCall(request);
+        } else {
+            throw new UnsupportedOperationException('Unknown request: %r' % request)
         }
-
-        def body = templateEngine.createTemplate(template).make(params)
-
-        return new Response(code, message, headers, body)
-
     }
 
     Response handleValidateTokenCall(Request request) {
