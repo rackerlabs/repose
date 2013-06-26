@@ -5,6 +5,7 @@
 package com.rackspace.papi.components.versioning;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -67,7 +68,8 @@ public class VersioningSchemaTest {
             assertInvalidConfig(xml, "Version mapping must have ids unique within their containing filter list");
         }
         
-             
+
+        @Ignore
         @Test
         public void shouldFailIfMediatypeNotUniqueInOneVersionMapping() throws Exception {
             String xml =

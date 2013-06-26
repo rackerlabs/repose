@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *
- * @author zinic
+ *Responsible for calling the specific file logic based on filter actions
+ * 
  */
 public class FilterLogicHandlerDelegate {
 
@@ -42,7 +42,7 @@ public class FilterLogicHandlerDelegate {
 
       if (handler == null) {
          mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain, check your configuration files.");
-         LOG.warn("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
+         LOG.error("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
          
       } else {
          final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);

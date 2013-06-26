@@ -17,6 +17,8 @@ abstract class ReposeValveTest extends Specification {
 
     @Shared def reposeEndpoint
 
+    @Shared def ReposeLogSearch reposeLogSearch
+
     def setupSpec() {
         properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
@@ -35,10 +37,16 @@ abstract class ReposeValveTest extends Specification {
                 properties.getProperty("repose.port").toInteger(),
                 properties.getProperty("repose.shutdown.port").toInteger()
         )
+        repose.enableDebug()
+        reposeLogSearch = new ReposeLogSearch(properties.getProperty("repose.log"));
     }
 
     def teardownSpec() {
-        repose.stop()
+        if (deproxy)
+            deproxy.shutdown()
+
+        if (repose.isUp())
+            repose.stop()
     }
 
 }

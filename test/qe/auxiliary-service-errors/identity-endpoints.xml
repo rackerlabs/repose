@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
+           xmlns:ns2="http://www.w3.org/2005/Atom"
+           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+  <endpoint id="1"
+            type="object-store"
+            name="swift"
+            region="RegionOne"
+            publicURL="http://localhost:${origin_service_port}/${tenant}"
+            internalURL="http://localhost:${origin_service_port}/${tenant}"
+            adminURL="http://localhost:${origin_service_port}/${tenant}"
+            tenantId="${tenant}"/>
+  <endpoint id="2"
+            type="compute"
+            name="nova_compat"
+            region="RegionOne"
+            publicURL="http://localhost:${origin_service_port}/${tenant}"
+            internalURL="http://localhost:${origin_service_port}/${tenant}"
+            adminURL="http://localhost:${origin_service_port}/${tenant}"
+            tenantId="${tenant}"/>
+</endpoints>

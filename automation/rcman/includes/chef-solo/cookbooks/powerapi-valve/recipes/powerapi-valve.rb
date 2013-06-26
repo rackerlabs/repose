@@ -97,7 +97,7 @@ for valveGroup in 1..3
   case valveGroup
     when 1
 
-      ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
+      ["versioning.cfg.xml", "system-model.cfg.xml","versioning-2.cfg.xml"].each do |config|
         template "/etc/repose/valveGroup1/#{config}" do
           source "valveGroup1/#{config}.erb"
           mode 0644

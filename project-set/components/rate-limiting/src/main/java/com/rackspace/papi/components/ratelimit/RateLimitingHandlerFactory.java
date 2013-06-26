@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 
+/* Responsible for creating rate limit handlers that provide datastoreservice and listener to rate limit configuration */
 public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);

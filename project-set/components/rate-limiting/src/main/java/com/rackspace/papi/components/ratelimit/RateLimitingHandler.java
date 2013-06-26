@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 
+
+/* Responsible for handling requests and responses to ratelimiting, also tracks and provides limits */
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);

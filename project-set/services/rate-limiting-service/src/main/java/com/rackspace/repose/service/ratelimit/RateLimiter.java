@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
+/* Responsible for uodating user ratlimits and flagging if they are over limits*/
 public class RateLimiter {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimiter.class);
