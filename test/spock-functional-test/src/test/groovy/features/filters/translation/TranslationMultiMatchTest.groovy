@@ -42,7 +42,6 @@ class TranslationMultiMatchTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
         repose.stop()
     }
 

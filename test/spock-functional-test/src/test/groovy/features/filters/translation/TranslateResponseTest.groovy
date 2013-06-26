@@ -48,7 +48,6 @@ class TranslateResponseTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
         repose.stop()
     }
 
@@ -118,9 +117,9 @@ class TranslateResponseTest extends ReposeValveTest {
         resp.receivedResponse.code.equals(respCode)
 
         where:
-        reqHeaders | respHeaders | respBody            | respCode | shouldContain | shouldNotContain
-        acceptXML  | contentXML  | invalidXmlResponse  | "500"    | []            | []
-        acceptXML  | contentJSON | invalidJsonResponse | "500"    | []            | []
+        reqHeaders | respHeaders | respBody            | respCode
+        acceptXML  | contentXML  | invalidXmlResponse  | "500"
+        acceptXML  | contentJSON | invalidJsonResponse | "500"
 
     }
 

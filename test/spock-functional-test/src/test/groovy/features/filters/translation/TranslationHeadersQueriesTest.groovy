@@ -48,18 +48,14 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
         repose.stop()
     }
 
     def "when translating request headers"() {
 
-        given: "Repose is configured to translate request headers"
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
-
-
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
+        //def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
+        def resp = deproxy.makeRequest([url: (String) reposeEndpoint, method: method, headers: reqHeaders, requestBody: reqBody])
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request headers sent from repose to the origin service should contain"
@@ -78,11 +74,12 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
     def "when translating request query parameters"() {
 
         given: "Repose is configured to translate request query params"
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
+        def xmlResp = { request ->  new Response(200, "OK", respHeaders) }
 
 
         when: "User passes a request through repose"
         def resp = deproxy.makeRequest((String) reposeEndpoint + "/path/to/resource/", method, reqHeaders, reqBody, xmlResp)
+        //def resp = deproxy.makeRequest([url: (String) reposeEndpoint + "/path/to/resource/", method: method, headers: reqHeaders, requestBody: reqBody])
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request url sent from repose to the origin service should contain"

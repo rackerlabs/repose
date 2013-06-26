@@ -48,7 +48,6 @@ class TranslationRequestTest extends ReposeValveTest {
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
         repose.stop()
     }
 
@@ -114,7 +113,7 @@ class TranslationRequestTest extends ReposeValveTest {
 
 
         when: "User passes invalid json/xml through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, reqBody, xmlResp)
 
         then: "Repose will send back 400s as the requests are invalid"
         resp.receivedResponse.code.equals(respCode)
@@ -123,8 +122,6 @@ class TranslationRequestTest extends ReposeValveTest {
         reqHeaders              | respHeaders | respBody    | respCode
         acceptXML + contentJSON | contentXML  | invalidXml  | "400"
         acceptXML + contentJSON | contentXML  | invalidJson | "400"
-
-
     }
 
 
