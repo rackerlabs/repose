@@ -16,6 +16,11 @@ class IdentityServiceResponseSimulator {
     int groupsCount = 0
     int adminTokenCount = 0
 
+    int errorCode;
+    boolean isGetAdminTokenBroken = false;
+    boolean isGetGroupsBroken = false;
+    boolean isValidateClientTokenBroken = false;
+
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
     def client_username = 'username'
@@ -68,6 +73,10 @@ class IdentityServiceResponseSimulator {
 
     Response handleValidateTokenCall(Request request) {
         validateTokenCount += 1
+
+        if (this.isValidateClientTokenBroken) {
+            return new Response(this.errorCode);
+        }
 
         def now = new DateTime()
         def nowPlusOneDay = now.plusDays(1)
@@ -127,6 +136,10 @@ class IdentityServiceResponseSimulator {
     Response handleGroupsCall(Request request) {
         groupsCount += 1
 
+        if (this.isGetGroupsBroken) {
+            return new Response(this.errorCode);
+        }
+
         def xml = false
 
         request.headers.findAll('Accept').each { values ->
@@ -168,6 +181,10 @@ class IdentityServiceResponseSimulator {
 
     Response handleGetAdminTokenCall(Request request) {
         adminTokenCount += 1
+
+        if (this.isGetAdmintokenBroken) {
+            return new Response(this.errorCode);
+        }
 
         def now = new DateTime()
         def nowPlusOneDay = now.plusDays(1)
