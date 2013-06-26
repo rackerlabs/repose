@@ -32,12 +32,18 @@ abstract class ReposeValveTest extends Specification {
                 properties.getProperty("repose.jar"),
                 reposeEndpoint,
                 configDirectory,
+                properties.getProperty("repose.port").toInteger(),
                 properties.getProperty("repose.shutdown.port").toInteger()
         )
+        repose.enableDebug()
     }
 
     def teardownSpec() {
-        repose.stop()
+        if (deproxy)
+            deproxy.shutdown()
+
+        if (repose.isUp())
+            repose.stop()
     }
 
 }

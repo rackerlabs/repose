@@ -29,7 +29,11 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        deproxy.shutdown()
+        if (deproxy)
+            deproxy.shutdown()
+
+        sleep(3000) //TODO: add a clean way to ensure deproxy has really shutdown all endpoints
+
         repose.stop()
     }
 
@@ -58,7 +62,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint", handler5XX)
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
         deproxy.makeRequest(reposeEndpoint + "/cluster")
 
         then:
