@@ -108,19 +108,15 @@ class TranslationRequestTest extends ReposeValveTest {
 
     def "when attempting to translate an invalid xml/json request"() {
 
-        given: "Repose is configured to translate requests"
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders, invalidXml) }
-
-
         when: "User passes invalid json/xml through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, reqBody, xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, reqBody, "")
 
         then: "Repose will send back 400s as the requests are invalid"
         resp.receivedResponse.code.equals(respCode)
 
         where:
-        reqHeaders              | respHeaders | respBody    | respCode
-        acceptXML + contentJSON | contentXML  | invalidXml  | "400"
+        reqHeaders              | respHeaders | reqBody     | respCode
+        acceptXML + contentXML  | contentXML  | invalidXml  | "400"
         acceptXML + contentJSON | contentXML  | invalidJson | "400"
     }
 
