@@ -36,26 +36,24 @@ class FilterChainUnstableTest extends ReposeValveTest{
     def "when sending requests on failure to startup repose due to bad configurations"() {
 
         given:
-
-        def user= UUID.randomUUID().toString();
+        def List<String> logMatches = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
+        def existingWarningNumber=  logMatches.size()
 
         when:
         for (int i = 0; i < totalRequests; i++) {
-            def path= UUID.randomUUID().toString();
-
-            deproxy.makeRequest(  [url: reposeEndpoint + "/limits", defaultHandler: handler5XX] )
+             deproxy.makeRequest(  [url: reposeEndpoint + "/limits", defaultHandler: handler5XX] )
         }
 
         then:
 
-        def List<String> logMatches = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
-        logMatches.size() >= expectedWarnings
+        def List<String> logMatchesAfterRequests = reposeLogSearch.searchByString("Failed to startup Repose with your configuration. Please check your configuration files and your artifacts directory. Unable to create filter chain.");
+        logMatchesAfterRequests.size() == (expectedWarnings+existingWarningNumber)
 
         where:
 
-        totalRequests  | expectedWarnings
-        requestCount   | 1
-        requestCount  + 2 | 5
+       totalRequests   | expectedWarnings
+       requestCount    | 1
+       requestCount+ 2 | 3
 
     }
 
