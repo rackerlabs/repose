@@ -13,6 +13,7 @@ class IdentityServiceResponseSimulator {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     boolean ok = true
     int validateTokenCount = 0
+    int groupsCount = 0
 
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
@@ -59,11 +60,7 @@ class IdentityServiceResponseSimulator {
                 if (request.path.contains("tokens")) {
                     return handleValidateTokenCall(request);
                 } else {
-                    if (xml) {
-                        template = groupsXmlTemplate
-                    } else {
-                        template = groupsJsonTemplate
-                    }
+                    return handleGroupsCall(request);
                 }
                 break
             case "POST":
@@ -137,6 +134,49 @@ class IdentityServiceResponseSimulator {
 
         return new Response(code, null, headers, body)
     }
+
+    Response handleGroupsCall(Request request) {
+        groupsCount += 1
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def now = new DateTime()
+        def nowPlusOneDay = now.plusDays(1)
+
+        def params = [
+            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            userid: client_userid,
+            username: client_username,
+            tenant: client_tenant,
+            token: client_token
+        ]
+
+        def template;
+        def headers = ['Connection': 'close'];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
+        }
+
+        if (xml) {
+            template = groupsXmlTemplate
+        } else {
+            template = groupsJsonTemplate
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(200, null, headers, body)
+    }
+
 
     def groupsJsonTemplate =
 """{
