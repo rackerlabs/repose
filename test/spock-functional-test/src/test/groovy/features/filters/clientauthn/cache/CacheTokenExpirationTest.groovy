@@ -50,7 +50,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         mc.handlings.size() == 1
         fakeIdentityService.validateTokenCount == 1
 
-        when:"I send a GET request to REPOSE with the same X-Auth-Token header"
+        when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
         mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
@@ -59,8 +59,13 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         fakeIdentityService.validateTokenCount == 0
-        def foundLogs = reposeLogSearcher.searchByString("Token TTL (" + client_token + ") exceeds max expiration, setting to default max expiration")
+
+        when: "I troubleshoot the REPOSE logs"
+        def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")
+
+        then: "I should have a WARN log message"
         foundLogs.size() == 1
+        foundLogs[0].contains("WARN")
     }
 
 }
