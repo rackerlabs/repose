@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.rackspacecloud.com/repose/versioning/v2.0"
            xmlns:vers-config="http://docs.rackspacecloud.com/repose/versioning/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:version="2.1"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:element name="versioning" type="vers-config:ServiceVersionMappingList" />
@@ -11,7 +17,8 @@
     <xs:complexType name="ServiceVersionMappingList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Versioning contains a list of version mappings and service root context.
+                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -19,16 +26,23 @@
             <xs:element name="service-root" type="vers-config:ServiceRootContext" />
             <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+     
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(vers-config:version-mapping/@id)) = count(vers-config:version-mapping/@id)"
+            xerces:message="Version mapping must have ids unique within their containing filter list"
+            saxon:message="Version mapping must have ids unique within their containing filter list" xpathDefaultNamespace="##targetNamespace"/>
+     
     </xs:complexType>
 
     <xs:complexType name="ServiceRootContext">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>The configuration's service root describes the base URL of the
+                    origin service without any versioning informationin the URI variant.
+                    </html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="href" type="xs:anyURI">
+        <xs:attribute name="href" type="xs:anyURI" use="required" >
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -43,41 +57,54 @@
     <xs:complexType name="ServiceVersionMapping">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Version mappings describe the versions available to the requester.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
             <xs:element name="media-types" type="vers-config:MediaTypeList" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
+  
 
-        <xs:attribute name="id" type="xs:string">
+        <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The ID is responsible for two things. First, a service version's ID
+                            must uniquely identify the version mapping within the configuration:
+                            no two service versions may share the same ID. In addition, the ID must
+                            be the resource variant that follows the service root which identifies this version.
+                            For example, in "http://service.api.vendor.com/root/[v1.0/]path/to/resource",
+                            the version variant is within square brackets.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="pp-dest-id" type="xs:string">
+       
+
+        <xs:attribute name="pp-dest-id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The Repose destination ID is used to identify which destination in
+                            system model will answer to versioned requests that match this version mapping.
+                            </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="status" type="vers-config:VersionStatus" use="required">
+        <xs:attribute name="status" type="vers-config:VersionStatus" use="optional" default="CURRENT">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
                         A status describes the current operational state of
-                        the given service version. The operational status is captured in a
-                        simple type enumeration called VersionStatus.
+                        the given service version. The status described here
+                        will be reflected in the service version list response.
                     </html:p>
+                  
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+     
     </xs:complexType>
 
     <!-- Types -->
@@ -85,7 +112,7 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    The VersionStatus type describes a service's operational status.
+                    The VersionStatus type describes the list of valid version status.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -102,8 +129,8 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    A MediaTypeList outlines a collection of valid media types for a given
-                    service version.
+                    A MediaTypeList outlines a collection of valid media types supported
+                    by a given service version.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -111,6 +138,20 @@
         <xs:sequence>
             <xs:element name="media-type" type="vers-config:MediaType" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+        <!--<xs:assert vc:minVersion="1.1"-->
+            <!--test="count(for $first-pass in media-type,-->
+                    <!--$second-pass in media-type[ @base = $first-pass/@base and (: base are the same :)-->
+                    <!--count(tokenize(string-join(tokenize(@type, ' '),''),';')) =-->
+                    <!--count(tokenize(string-join(tokenize($first-pass/@type, ' '),''),';')) and (: types have the same count :)-->
+                    <!--empty( for $t in tokenize(string-join(tokenize(@type, ' '),''),';')-->
+                    <!--return if ($t = tokenize(string-join(tokenize($first-pass/@type, ' '),''),';'))-->
+                    <!--then () else $t) (: removing the types in one list from another should result in the empty sequence :)-->
+                    <!--] return $second-pass) (: The result of this mess should equal the number of elements because every-->
+                    <!--element in the for expression should match itself and only itself :)-->
+                    <!--= count(media-type)"-->
+            <!--xerces:message="MediaTypes should be unique within a version-mapping."-->
+            <!--saxon:message="MediaTypes should be unique within a version-mapping."-->
+            <!--xpathDefaultNamespace="##targetNamespace"/>-->
     </xs:complexType>
 
     <xs:complexType name="MediaType">
@@ -122,15 +163,12 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="base" type="xs:string" use="optional" default="">
+        <xs:attribute name="base" type="xs:string" use="required" >
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
                         The base of a given media type describes the simple MIME type
-                        that then a more complicated media type can be derived from. These
-                        types are basic and provide no namespace or version specific
-                        data and are only provided as a convenience. Because of this the
-                        base attribute is declared as optional.
+                        that will be passed to the origin in the Accept header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -141,10 +179,15 @@
                 <xs:documentation>
                     <html:p>
                         The type attribute of a MediaType describes the MIME specific
-                        identifier of the media type in question. This identifier should include
-                        a vendor namespace (
+                        identifier for a media type of this specific version.
+                        This identifier can include a vendor namespace (
                         <html:a href="http://tools.ietf.org/html/rfc2048">See RFC 2048</html:a>)
                         as well as a version suffix.
+                      
+                    </html:p>
+                    <html:p>
+                        When the filter receives this media type in accept header, it will send
+                        base media type to the origin service.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

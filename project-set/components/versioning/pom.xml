@@ -67,38 +67,45 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>xml-maven-plugin</artifactId>-->
-                <!--<version>1.0-beta-3</version>-->
-
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>transform</goal>-->
-                        <!--</goals>-->
-                        
-                        <!--<phase>generate-sources</phase>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-
-                <!--<configuration>-->
-                    <!--<transformationSets>-->
-                        <!--<transformationSet>-->
-                            <!--<dir>${basedir}/src/main/resources/META-INF/schema</dir>-->
-                            <!--<stylesheet>${basedir}/src/main/resources/META-INF/transform/xslt/s1.0p.xsl</stylesheet>-->
-                        <!--</transformationSet>-->
-                    <!--</transformationSets>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-
+            
+            <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+             <configuration>
+               <transformationSets>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/versioning</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/versioning</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/config</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
+                  </transformationSet>
+                    <transformationSet>
+                      <dir>src/main/resources/META-INF/schema/atom</dir>
+                      <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                      <outputDir>${project.build.directory}/generated-resources/xml/xslt/atom</outputDir>
+                  </transformationSet>
+                   <transformationSet>
+                      <dir>src/main/resources/META-INF/schema/xml</dir>
+                      <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                      <outputDir>${project.build.directory}/generated-resources/xml/xslt/xml</outputDir>
+                  </transformationSet>
+               </transformationSets>
+             </configuration>
+           </plugin>
+           
+           
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
 
-                    <specVersion>2.1</specVersion>
+                      <specVersion>2.2</specVersion>
+                     <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
