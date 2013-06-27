@@ -70,4 +70,9 @@ public class RackspaceToken extends AuthToken implements Serializable {
     public String getImpersonatorUsername() {
         return "";
     }
+    
+    @Override
+    public String getDefaultRegion(){
+       return "";
+    }
 }

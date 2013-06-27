@@ -61,6 +61,7 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
             setEndpoints();
+            setDefualtRegion();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -161,5 +162,16 @@ public class OpenStackAuthenticationHeaderManager {
         if (!StringUtilities.isBlank(endpointsBase64)) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_CATALOG.toString(), endpointsBase64);
         }
+    }
+    
+    /**
+     * Default Region
+     * Default region of user
+     */
+    private void setDefualtRegion(){
+       String region = cachableToken.getDefaultRegion();
+       if(!StringUtilities.isBlank(region)){
+          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
+       }
     }
 }

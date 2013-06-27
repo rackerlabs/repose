@@ -6,10 +6,12 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 
 import java.io.Serializable;
+import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.xml.namespace.QName;
 
 /**
  * @author fran
@@ -25,12 +27,13 @@ public class OpenStackToken extends AuthToken implements Serializable {
    private final String username;
    private final String impersonatorTenantId;
    private final String impersonatorUsername;
+   private final String defaultRegion;
    private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
+   private static final QName regionQname = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
 
    public OpenStackToken(AuthenticateResponse response) {
       
       checkTokenInfo(response);
-
       this.tenantId = response.getToken().getTenant().getId();
       this.tenantName = response.getToken().getTenant().getName();
       this.expires = response.getToken().getExpires().toGregorianCalendar().getTimeInMillis();
@@ -39,6 +42,8 @@ public class OpenStackToken extends AuthToken implements Serializable {
       this.userId = response.getUser().getId();
       this.username = response.getUser().getName();
       UserForAuthenticateResponse impersonator = getImpersonator(response);
+      
+      this.defaultRegion = getDefaultRegion(response);
       if (impersonator != null) {
          this.impersonatorTenantId = impersonator.getId();
          this.impersonatorUsername = impersonator.getName();
@@ -66,7 +71,11 @@ public class OpenStackToken extends AuthToken implements Serializable {
       }
       
    }
-
+   
+   private String getDefaultRegion(AuthenticateResponse response){
+      return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(regionQname), "");
+   }
+   
    @Override
    public String getTenantId() {
       return tenantId;
@@ -147,5 +156,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
       }
 
       return formattedRoles;
+   }
+
+   @Override
+   public String getDefaultRegion() {
+      return defaultRegion;
    }
 }

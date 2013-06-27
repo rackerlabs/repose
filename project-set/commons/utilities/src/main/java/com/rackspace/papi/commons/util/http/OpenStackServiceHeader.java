@@ -42,7 +42,9 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     ROLES("X-Roles"),
     
     IMPERSONATOR_ID("X-Impersonator-Id"),
-    IMPERSONATOR_NAME("X-Impersonator-Name");
+    IMPERSONATOR_NAME("X-Impersonator-Name"),
+    
+    DEFAULT_REGION("X-Default-Region");
 
     
     private final String headerKey;
