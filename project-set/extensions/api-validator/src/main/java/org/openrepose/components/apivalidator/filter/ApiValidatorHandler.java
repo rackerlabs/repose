@@ -13,6 +13,8 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
@@ -30,13 +33,18 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private final ValidatorInfo defaultValidator;
    private FilterChain chain;
    private boolean multiRoleMatch = false;
+   private MetricsService metricsService;
+   private MeterByCategorySum mbcsInvalidRequests;
 
-   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch) {
+   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch
+           , MetricsService metricsService) {
       this.validators = new ArrayList<ValidatorInfo>(validators.size());
       this.validators.addAll(validators);
       this.multiRoleMatch = multiRoleMatch;
       this.defaultValidator = defaultValidator;
+      this.metricsService = metricsService;
 
+      mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "<filter ID or name-number in sys-model>", "InvalidRequest", TimeUnit.SECONDS);
    }
 
    public void setFilterChain(FilterChain chain) {
@@ -138,8 +146,12 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                }
             }
 
-            if (!isValid && multiRoleMatch) {
-               sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+            if (!isValid) {
+                // TODO metrics mark
+                mbcsInvalidRequests.mark("<role>");
+                if (multiRoleMatch) {
+                    sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+                }
             }
          } else {
             myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
