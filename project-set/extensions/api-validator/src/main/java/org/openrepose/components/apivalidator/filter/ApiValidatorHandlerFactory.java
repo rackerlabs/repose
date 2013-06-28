@@ -40,7 +40,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final String configRoot;
     private boolean multiRoleMatch = false;
     private final String config;
-    private MetricsService metricsService;
+
+    private final MetricsService metricsService;
 
     public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config
             , MetricsService metricsService) {
