@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.RequestTimeout;
 import com.rackspace.papi.ResponseCode;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -58,6 +59,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private FilterConfig filterConfig;
     private ReportingService reportingService;
     private MeterByCategory mbcReponseCodes;
+    private MeterByCategory mbcRequestTimeouts;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
 
@@ -171,6 +173,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         reportingService = papiContext.reportingService();
         responseHeaderService = papiContext.responseHeaderService();
         mbcReponseCodes = papiContext.metricsService().newMeterByCategory( ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS );
+        mbcRequestTimeouts = papiContext.metricsService().newMeterByCategory( RequestTimeout.class, "Repose", "TimeoutToOrigin", TimeUnit.SECONDS );
     }
 
     @Override
@@ -235,6 +238,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             final long stopTime = System.currentTimeMillis();
 
             markResponseCodeHelper( mbcReponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null );
+            markRequestTimeoutHelper( mbcRequestTimeouts, ((HttpServletResponse) response).getStatus(), LOG, null );
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
@@ -262,6 +266,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         else {
 
             log.error( ( logPrefix != null ? logPrefix + ":  " : ""  )+ "Encountered invalid response code: " + responseCode );
+        }
+    }
+
+    public static void markRequestTimeoutHelper( MeterByCategory mbc, int responseCode, Logger log, String logPrefix ) {
+        if ( responseCode == 408 ) {
+            mbc.mark( "openrepose" );
         }
     }
 }

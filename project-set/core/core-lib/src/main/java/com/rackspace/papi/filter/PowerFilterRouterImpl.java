@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.RequestTimeout;
 import com.rackspace.papi.ResponseCode;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -60,7 +61,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private String defaultDst;
     private final DestinationLocationBuilder locationBuilder;
     private Map<String, MeterByCategory> mapResponseCodes = new HashMap<String, MeterByCategory>();
+    private Map<String, MeterByCategory> mapRequestTimeouts = new HashMap<String, MeterByCategory>();
     private MeterByCategory mbcAllResponse;
+    private MeterByCategory mbcAllTimeouts;
 
     private MetricsService metricsService;
 
@@ -102,6 +105,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                                             "All Endpoints",
                                                             "Response Codes",
                                                             TimeUnit.SECONDS );
+        mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
+                                                             "All Endpoints",
+                                                             "TimeoutToOrigin",
+                                                             TimeUnit.SECONDS );
     }
 
     private void addDestinations(List<? extends Destination> destList) {
@@ -166,9 +173,12 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         // track response code for endpoint & across all endpoints
                         String endpoint = getEndpoint( configDestinationElement, location );
                         MeterByCategory mbc = verifyGet( endpoint );
+                        MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
 
                         PowerFilter.markResponseCodeHelper( mbc, servletResponse.getStatus(), LOG, endpoint );
                         PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
+                        PowerFilter.markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), LOG, endpoint );
+                        PowerFilter.markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
@@ -226,5 +236,20 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
 
         return mapResponseCodes.get( endpoint );
+    }
+
+    private MeterByCategory getTimeoutMeter( String endpoint ) {
+        if( !mapRequestTimeouts.containsKey( endpoint ) ) {
+            synchronized ( mapRequestTimeouts ) {
+                if( !mapRequestTimeouts.containsKey( endpoint ) ) {
+                    mapRequestTimeouts.put( endpoint, metricsService.newMeterByCategory( RequestTimeout.class,
+                            endpoint,
+                            "TimeoutToOrigin",
+                            TimeUnit.SECONDS ) );
+                }
+            }
+        }
+
+        return mapRequestTimeouts.get( endpoint );
     }
 }
