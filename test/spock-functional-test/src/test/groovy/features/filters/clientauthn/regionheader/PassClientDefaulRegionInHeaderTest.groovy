@@ -94,9 +94,9 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 0
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
-        request = mc.handlings[0].request
-        request.headers.contains("X-Default-Region")
-        request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        def request2 = mc.handlings[0].request
+        request2.headers.contains("X-Default-Region")
+        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
 
     }
 }
