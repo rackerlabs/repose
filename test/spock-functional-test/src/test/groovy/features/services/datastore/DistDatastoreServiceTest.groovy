@@ -92,21 +92,67 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.applyConfigs("features/filters/datastore")
         repose.start()
         sleep(15000)
+        def user= UUID.randomUUID().toString();
 
         when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
+        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
 
         then:
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
+        def List<String> logMatches = reposeLogSearch.searchByString(
+                "Large amount of limits recorded.  Repose Rate Limited may be misconfigured, " +
+                        "keeping track of rate limits for user: "+ user +". " +
+                        "Please review capture groups in your rate limit configuration.  " +
+                        "If using clustered datastore, you may experience network latency.");
+        logMatches.size() == 1
+
 
     }
 
     def "when configured with DD filter and adding a service, repose should log a warning and continue running with previous config" () {
+        given:
+        repose.applyConfigs("features/filters/datastore")
+        repose.start()
+        sleep(15000)
+        repose.applyConfigs("features/badconfig/datastore/servicefilter")
+        sleep(15000)
+        def user= UUID.randomUUID().toString();
 
+        when:
+        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.handlings.size() == 1
+        def List<String> logMatches = reposeLogSearch.searchByString(
+                "Large amount of limits recorded.  Repose Rate Limited may be misconfigured, " +
+                        "keeping track of rate limits for user: "+ user +". " +
+                        "Please review capture groups in your rate limit configuration.  " +
+                        "If using clustered datastore, you may experience network latency.");
+        logMatches.size() == 1
     }
 
     def "when configured with DD service and adding a filter, repose should log a warning and continue running with previous config" () {
+        given:
+        repose.applyConfigs("features/services/datastore")
+        repose.start()
+        sleep(15000)
+        repose.applyConfigs("features/badconfig/datastore/servicefilter")
+        sleep(15000)
+        def user= UUID.randomUUID().toString();
 
+        when:
+        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
+
+        then:
+        mc.receivedResponse.code == '200'
+        mc.handlings.size() == 1
+        def List<String> logMatches = reposeLogSearch.searchByString(
+                "Large amount of limits recorded.  Repose Rate Limited may be misconfigured, " +
+                        "keeping track of rate limits for user: "+ user +". " +
+                        "Please review capture groups in your rate limit configuration.  " +
+                        "If using clustered datastore, you may experience network latency.");
+        logMatches.size() == 0
     }
 }
