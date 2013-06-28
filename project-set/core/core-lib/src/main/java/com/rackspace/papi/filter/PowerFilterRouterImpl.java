@@ -106,8 +106,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                                             "Response Codes",
                                                             TimeUnit.SECONDS );
         mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
-                                                             "All Endpoints",
                                                              "TimeoutToOrigin",
+                                                             "Request Timeout",
                                                              TimeUnit.SECONDS );
     }
 
@@ -172,13 +172,14 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
                         // track response code for endpoint & across all endpoints
                         String endpoint = getEndpoint( configDestinationElement, location );
+                        String endpointID = configDestinationElement.getId();
                         MeterByCategory mbc = verifyGet( endpoint );
                         MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
 
                         PowerFilter.markResponseCodeHelper( mbc, servletResponse.getStatus(), LOG, endpoint );
                         PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
-                        PowerFilter.markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), LOG, endpoint );
-                        PowerFilter.markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
+                        markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), endpointID );
+                        markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
@@ -243,13 +244,22 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             synchronized ( mapRequestTimeouts ) {
                 if( !mapRequestTimeouts.containsKey( endpoint ) ) {
                     mapRequestTimeouts.put( endpoint, metricsService.newMeterByCategory( RequestTimeout.class,
-                            endpoint,
                             "TimeoutToOrigin",
+                            "Request Timeout",
                             TimeUnit.SECONDS ) );
                 }
             }
         }
 
         return mapRequestTimeouts.get( endpoint );
+    }
+
+    public void markRequestTimeoutHelper( MeterByCategory mbc, int responseCode, String endpoint ) {
+        assert mbc != null;
+        assert endpoint != null;
+
+        if ( responseCode == 408 ) {
+            mbc.mark( endpoint );
+        }
     }
 }
