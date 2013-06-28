@@ -186,7 +186,7 @@ class IdentityServiceResponseSimulator {
     Response handleGetAdminTokenCall(Request request) {
         adminTokenCount += 1
 
-        if (this.isGetAdmintokenBroken) {
+        if (this.isGetAdminTokenBroken) {
             return new Response(this.errorCode);
         }
 
