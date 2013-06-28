@@ -1,0 +1,30 @@
+{
+    "endpoints_links": [
+        {
+            "href": "http://localhost:${identity_port}/tokens/${token}/endpoints?'marker=5&limit=10'",
+            "rel": "next"
+        }
+    ],
+    "endpoints": [
+        {
+            "internalURL": "http://localhost:${origin_service_port}/v1/AUTH_1",
+            "name": "swift",
+            "adminURL": "http://localhost:${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "object-store",
+            "id": 1,
+            "publicURL": "http://localhost:${origin_service_port}/"
+        },
+        {
+            "internalURL": "http://localhost:${origin_service_port}/",
+            "name": "nova_compat",
+            "adminURL": "http://localhost:${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "compute",
+            "id": 2,
+            "publicURL": "http://localhost:${origin_service_port}/"
+        }
+    ]
+}

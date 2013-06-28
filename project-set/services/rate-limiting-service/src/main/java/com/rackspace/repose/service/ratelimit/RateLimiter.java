@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
+/* Responsible for uodating user ratlimits and flagging if they are over limits*/
 public class RateLimiter {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimiter.class);
@@ -21,14 +22,14 @@ public class RateLimiter {
       this.cache = cache;
    }
 
-   public void handleRateLimit(String user, String limitKey, ConfiguredRatelimit rateLimit) throws OverLimitException {
+   public void handleRateLimit(String user, String limitKey, ConfiguredRatelimit rateLimit,int datastoreWarnLimit) throws OverLimitException {
 
       // Get the next, shortest available time that a user has to wait for
       try {
          // update the cache for each method in single rate limit
          NextAvailableResponse nextAvailable = null;
          for (HttpMethod configuredMethod : rateLimit.getHttpMethods()) {
-            nextAvailable = cache.updateLimit(configuredMethod, user, limitKey, rateLimit);
+            nextAvailable = cache.updateLimit(configuredMethod, user, limitKey, rateLimit, datastoreWarnLimit);
          }
 
          if (nextAvailable != null && !nextAvailable.hasRequestsRemaining()) {
