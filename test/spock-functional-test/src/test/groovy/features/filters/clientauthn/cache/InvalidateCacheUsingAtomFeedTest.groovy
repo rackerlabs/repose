@@ -95,7 +95,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
-        repose.applyConfigs("features/filters/clientauthn/common")
+        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
@@ -126,7 +126,6 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
-        mc.orphanedHandlings.size() > 0
         fakeIdentityService.validateTokenCount == 1
         mc.handlings[0].endpoint == originEndpoint
 
