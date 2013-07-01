@@ -5,7 +5,9 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,10 @@ public class ApiValidatorFilter implements Filter {
         handlerFactory = new ApiValidatorHandlerFactory(configurationManager, configurationRoot, config);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/validator-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
-                                         ValidatorConfiguration.class);
-
+                                        BaseValidatorConfiguration.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
+                                        ValidatorConfiguration1.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory,
+                                        ValidatorConfiguration2.class);
     }
 }
