@@ -49,13 +49,24 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       try {
          mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "<filter ID or name-number in sys-model>", "InvalidRequest", TimeUnit.SECONDS);
       } catch (Exception e) {
-         LOG.error("Metrics service unavailable");
+         LOG.error("Error with metrics service", e);
          useMetrics = false;
       }
    }
 
    public void setFilterChain(FilterChain chain) {
       this.chain = chain;
+   }
+
+   private String getRolesAsString(List<? extends HeaderValue> listRoles) {
+      String roles = "";
+
+      for (HeaderValue role : listRoles) {
+         roles += role.getValue() + " ";
+      }
+      roles = roles.trim();
+
+      return roles;
    }
 
    private Set<String> getRolesAsSet(List<? extends HeaderValue> listRoles) {
@@ -154,9 +165,8 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
             }
 
             if (!isValid) {
-               // TODO metrics mark
                if (useMetrics) {
-                   mbcsInvalidRequests.mark("<role>");
+                   mbcsInvalidRequests.mark(getRolesAsString(roles));
                }
                if (multiRoleMatch) {
                    sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
