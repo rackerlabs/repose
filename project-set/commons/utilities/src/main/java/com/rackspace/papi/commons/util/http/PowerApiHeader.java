@@ -9,7 +9,8 @@ public enum PowerApiHeader implements HeaderConstant {
    NEXT_ROUTE("X-PP-Next-Route"),
    USER("X-PP-User"),
    GROUPS("X-PP-Groups"),
-   X_CATALOG("x-catalog");
+   X_CATALOG("x-catalog"),
+   X_EXPIRATION("x-token-expires");
    
    private final String headerKey;
 

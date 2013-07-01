@@ -3,18 +3,21 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import java.util.Date;
 import org.slf4j.Logger;
 
 import java.util.List;
 
 /**
- * @author fran
+ * Responsible for adding Authentication headers from validating token response
  */
 public class OpenStackAuthenticationHeaderManager {
 
@@ -61,6 +64,7 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
             setEndpoints();
+            setExpirationDate();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -162,4 +166,18 @@ public class OpenStackAuthenticationHeaderManager {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_CATALOG.toString(), endpointsBase64);
         }
     }
+    
+    /**
+     * ExpirationDate
+     * token expiration date in x-token-expires header that follows http spec rfc1123 GMT time format
+     */
+    
+    private void setExpirationDate() {
+        if (cachableToken.getExpires()>0) {
+            HttpDate date = new HttpDate(new Date(cachableToken.getExpires()));
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_EXPIRATION.toString(), date.toRFC1123());
+        }
+    }
+    
+    
 }
