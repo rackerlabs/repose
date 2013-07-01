@@ -7,6 +7,19 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
+    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ApiValidator\",scope=\""
+
+    String NAME_ROLE_1 = "\",name=\"role-1\""
+    String NAME_ROLE_2 = "\",name=\"role-2\""
+    String NAME_ROLE_3 = "\",name=\"role-3\""
+    String NAME_ROLE_ALL = "\",name=\"All\""
+
+    String API_VALIDATOR_1 = PREFIX + "api-validator" + NAME_ROLE_1
+    String API_VALIDATOR_2 = PREFIX + "api-validator" + NAME_ROLE_2
+    String API_VALIDATOR_3 = PREFIX + "api-validator" + NAME_ROLE_3
+    String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
+
+
     def setup() {
         repose.applyConfigs(
                 "features/filters/apivalidator/common",
@@ -54,6 +67,50 @@ class ApiValidatorJMXTest extends ReposeValveTest {
                 updatedBean.name != it.name
             }
         }
+    }
+
+    def "when request is for role-1, should increment ApiValidator mbeans for role 1"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 0
+    }
+
+    def "when request is for role-2, should increment ApiValidator mbeans for role 2"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-2']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 0
+    }
+
+    def "when request is for role-3, should increment ApiValidator mbeans for role 3"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-3']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 0
+    }
+
+    def "when request is for api validator, should increment ApiValidator mbeans for all"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-3']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 3
     }
 
 }
