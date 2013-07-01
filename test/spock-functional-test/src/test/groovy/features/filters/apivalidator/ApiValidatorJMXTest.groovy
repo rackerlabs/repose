@@ -12,7 +12,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String NAME_ROLE_1 = "\",name=\"role-1\""
     String NAME_ROLE_2 = "\",name=\"role-2\""
     String NAME_ROLE_3 = "\",name=\"role-3\""
-    String NAME_ROLE_ALL = "\",name=\"All\""
+    String NAME_ROLE_ALL = "\",name=\"ACROSS ALL\""
 
     String API_VALIDATOR_1 = PREFIX + "api-validator" + NAME_ROLE_1
     String API_VALIDATOR_2 = PREFIX + "api-validator" + NAME_ROLE_2
