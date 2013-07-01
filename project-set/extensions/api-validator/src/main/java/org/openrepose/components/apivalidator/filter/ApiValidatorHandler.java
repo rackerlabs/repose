@@ -33,6 +33,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private final ValidatorInfo defaultValidator;
    private FilterChain chain;
    private boolean multiRoleMatch = false;
+   private boolean useMetrics = true;
    private MetricsService metricsService;
    private MeterByCategorySum mbcsInvalidRequests;
 
@@ -44,7 +45,13 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       this.defaultValidator = defaultValidator;
       this.metricsService = metricsService;
 
-      mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "<filter ID or name-number in sys-model>", "InvalidRequest", TimeUnit.SECONDS);
+      // TODO
+      try {
+         mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "<filter ID or name-number in sys-model>", "InvalidRequest", TimeUnit.SECONDS);
+      } catch (Exception e) {
+         LOG.error("Metrics service unavailable");
+         useMetrics = false;
+      }
    }
 
    public void setFilterChain(FilterChain chain) {
@@ -147,11 +154,13 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
             }
 
             if (!isValid) {
-                // TODO metrics mark
-                mbcsInvalidRequests.mark("<role>");
-                if (multiRoleMatch) {
-                    sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
-                }
+               // TODO metrics mark
+               if (useMetrics) {
+                   mbcsInvalidRequests.mark("<role>");
+               }
+               if (multiRoleMatch) {
+                   sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+               }
             }
          } else {
             myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
