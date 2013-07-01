@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -56,7 +57,7 @@ public class ApiValidatorHandlerFactoryTest {
 
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "", null);
 
             instance.configurationUpdated(config);
             
@@ -104,7 +105,7 @@ public class ApiValidatorHandlerFactoryTest {
         public void setup() {
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "", null);
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);

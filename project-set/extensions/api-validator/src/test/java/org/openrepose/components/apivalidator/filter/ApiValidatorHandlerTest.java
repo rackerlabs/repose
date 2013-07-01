@@ -73,7 +73,7 @@ public class ApiValidatorHandlerTest {
             validators.add(nullValidatorInfo);
             validators.add(blowupValidatorInfo);
             
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
             instance.setFilterChain(chain);
 
         }
@@ -127,7 +127,7 @@ public class ApiValidatorHandlerTest {
             validators.add(role1ValidatorInfo);
             validators.add(role2ValidatorInfo);
 
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
 
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
 
@@ -147,7 +147,7 @@ public class ApiValidatorHandlerTest {
             validators.add(defaultValidatorInfo);
             validators.add(role2ValidatorInfo);
 
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
 
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
 
