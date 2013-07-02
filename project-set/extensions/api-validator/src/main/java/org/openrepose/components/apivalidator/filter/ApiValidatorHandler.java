@@ -33,8 +33,8 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private final ValidatorInfo defaultValidator;
    private FilterChain chain;
    private boolean multiRoleMatch = false;
-   private boolean useMetrics = true;
-   private MetricsService metricsService;
+   private boolean useMetrics = false;
+   private final MetricsService metricsService;
    private MeterByCategorySum mbcsInvalidRequests;
 
    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch
@@ -45,12 +45,12 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       this.defaultValidator = defaultValidator;
       this.metricsService = metricsService;
 
-      // TODO
+      // TODO replace "api-validator" with filter-id or name-number in sys-model
       try {
-         mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "<filter ID or name-number in sys-model>", "InvalidRequest", TimeUnit.SECONDS);
+         mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "api-validator", "InvalidRequest", TimeUnit.SECONDS);
+         useMetrics = true;
       } catch (Exception e) {
          LOG.error("Error with metrics service", e);
-         useMetrics = false;
       }
    }
 
@@ -97,7 +97,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
       for (ValidatorInfo validator : validators) {
           
-        for (String validatorRoles : validator.getRoles()) { 
+        for (String validatorRoles : validator.getRoles()) {
          if (roles.contains(validatorRoles)) {
             validatorList.add(validator);
          }
