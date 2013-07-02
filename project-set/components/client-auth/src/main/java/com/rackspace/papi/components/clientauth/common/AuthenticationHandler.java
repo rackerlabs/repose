@@ -258,7 +258,15 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
       //Adds auth token object to cache.
       try {
-         long ttl = tokenCacheTtl > 0 ? Math.min(tokenCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+
+         long userTokenTtl = user.tokenTtl().intValue();
+          if (userTokenTtl > Integer.MAX_VALUE || userTokenTtl < 0) {
+              LOG.warn("Token TTL (" + user.getTokenId() + ") exceeds max expiration, setting to default max expiration");
+              userTokenTtl = Integer.MAX_VALUE;
+          }
+
+         long ttl = tokenCacheTtl > 0 ? Math.min(tokenCacheTtl, userTokenTtl) : userTokenTtl;
+
          cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
