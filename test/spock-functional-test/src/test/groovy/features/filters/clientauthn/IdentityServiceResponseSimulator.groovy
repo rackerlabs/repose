@@ -17,6 +17,15 @@ class IdentityServiceResponseSimulator {
     int adminTokenCount = 0;
     int endpointsCount = 0;
 
+    /*
+     * The tokenExpiresAt field determines when the token expires. Consumers of
+     * this class should set to a particular DateTime (for example, to test
+     * some aspect of expiration dates), or leave it null to default to now
+     * plus one day.
+     *
+     */
+    def tokenExpiresAt = null;
+
     int errorCode;
     boolean isGetAdminTokenBroken = false;
     boolean isGetGroupsBroken = false;
@@ -43,9 +52,6 @@ class IdentityServiceResponseSimulator {
                 xml = true
             }
         }
-
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
 
         def params = [:]
 
@@ -82,11 +88,17 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def expires;
+        if (this.tokenExpiresAt) {
+            expires = this.tokenExpiresAt;
+        } else {
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            expires = nowPlusOneDay;
+        }
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            expires: expires.toString(DATE_FORMAT),
             userid: client_userid,
             username: client_username,
             tenant: client_tenant,
@@ -152,11 +164,17 @@ class IdentityServiceResponseSimulator {
             }
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def expires;
+        if (this.tokenExpiresAt) {
+            expires = this.tokenExpiresAt;
+        } else {
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            expires = nowPlusOneDay;
+        }
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            expires: expires.toString(DATE_FORMAT),
             userid: client_userid,
             username: client_username,
             tenant: client_tenant,
@@ -190,11 +208,17 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def expires;
+        if (this.tokenExpiresAt) {
+            expires = this.tokenExpiresAt;
+        } else {
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            expires = nowPlusOneDay;
+        }
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
+            expires: expires.toString(DATE_FORMAT),
             userid: admin_userid,
             username: admin_username,
             tenant: admin_tenant,
@@ -231,13 +255,19 @@ class IdentityServiceResponseSimulator {
             template = this.identityEndpointJsonTemplate;
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def expires;
+        if (this.tokenExpiresAt) {
+            expires = this.tokenExpiresAt;
+        } else {
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            expires = nowPlusOneDay;
+        }
 
         def params = [
             'identity_port': this.port,
             'token': this.client_token,
-            'expires': nowPlusOneDay.strftime('%Y-%m-%dT%H:%M:%S%z'),
+            'expires': expires.toString(DATE_FORMAT),
             'userid': this.client_userid,
             'username': this.client_username,
             'tenant': this.client_tenant,
