@@ -6,7 +6,7 @@ import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 
-class TranslationSaxonEEFunctionalityTests extends ReposeValveTest {
+class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a>test</a>"
     def static String jsonPayload = "{\"a\":\"1\",\"b\":\"2\"}"
