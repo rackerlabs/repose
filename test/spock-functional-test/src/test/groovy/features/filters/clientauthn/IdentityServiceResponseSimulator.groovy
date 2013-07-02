@@ -4,6 +4,9 @@ import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTimeZone;
 
 /**
  * Simulates responses from an Identity Service
@@ -81,6 +84,30 @@ class IdentityServiceResponseSimulator {
         }
     }
 
+    String getExpires() {
+
+
+        if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
+
+            return this.tokenExpiresAt;
+
+        } else if (this.tokenExpiresAt instanceof DateTime) {
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC);
+            return fmt.print(tokenExpiresAt)
+
+        } else if (this.tokenExpiresAt) {
+
+            return this.tokenExpiresAt.toString();
+
+        } else {
+
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            expires = nowPlusOneDay;
+        }
+    }
+
     Response handleValidateTokenCall(Request request) {
         validateTokenCount += 1
 
@@ -88,17 +115,8 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def expires;
-        if (this.tokenExpiresAt) {
-            expires = this.tokenExpiresAt;
-        } else {
-            def now = new DateTime()
-            def nowPlusOneDay = now.plusDays(1)
-            expires = nowPlusOneDay;
-        }
-
         def params = [
-            expires: expires.toString(DATE_FORMAT),
+            expires: getExpires(),
             userid: client_userid,
             username: client_username,
             tenant: client_tenant,
@@ -164,17 +182,8 @@ class IdentityServiceResponseSimulator {
             }
         }
 
-        def expires;
-        if (this.tokenExpiresAt) {
-            expires = this.tokenExpiresAt;
-        } else {
-            def now = new DateTime()
-            def nowPlusOneDay = now.plusDays(1)
-            expires = nowPlusOneDay;
-        }
-
         def params = [
-            expires: expires.toString(DATE_FORMAT),
+            expires: getExpires(),
             userid: client_userid,
             username: client_username,
             tenant: client_tenant,
@@ -208,17 +217,8 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def expires;
-        if (this.tokenExpiresAt) {
-            expires = this.tokenExpiresAt;
-        } else {
-            def now = new DateTime()
-            def nowPlusOneDay = now.plusDays(1)
-            expires = nowPlusOneDay;
-        }
-
         def params = [
-            expires: expires.toString(DATE_FORMAT),
+            expires: getExpires(),
             userid: admin_userid,
             username: admin_username,
             tenant: admin_tenant,
@@ -255,19 +255,10 @@ class IdentityServiceResponseSimulator {
             template = this.identityEndpointJsonTemplate;
         }
 
-        def expires;
-        if (this.tokenExpiresAt) {
-            expires = this.tokenExpiresAt;
-        } else {
-            def now = new DateTime()
-            def nowPlusOneDay = now.plusDays(1)
-            expires = nowPlusOneDay;
-        }
-
         def params = [
             'identity_port': this.port,
             'token': this.client_token,
-            'expires': expires.toString(DATE_FORMAT),
+            'expires': getExpires(),
             'userid': this.client_userid,
             'username': this.client_username,
             'tenant': this.client_tenant,
