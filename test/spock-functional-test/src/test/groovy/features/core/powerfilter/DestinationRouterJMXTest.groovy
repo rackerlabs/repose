@@ -13,7 +13,7 @@ class DestinationRouterJMXTest extends ReposeValveTest{
     String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"DestinationRouter\",scope=\""
 
     String NAME_TARGET = "\",name=\"service\""
-    String NAME_TARGET_ALL = "\",name=\"All\""
+    String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""
 
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
     String DESTINATION_ROUTER_ALL = PREFIX + "destination-router" + NAME_TARGET_ALL
