@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class XmlTestHelper {
     private static final Logger LOG = LoggerFactory.getLogger(XmlTestHelper.class);
-    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
 
     public static Schema getVersioningSchemaInfo() {
         Schema schema = null;

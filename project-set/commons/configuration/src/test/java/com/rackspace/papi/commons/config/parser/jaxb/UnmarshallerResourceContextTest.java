@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import org.junit.After;
@@ -43,14 +44,14 @@ public class UnmarshallerResourceContextTest {
     public static class WhenUsingUnmarshallerResourceContextTest {
 
         @Test
-        public void shouldPerformUnmarshall() throws IOException, JAXBException {
+        public void shouldPerformUnmarshall() throws IOException, JAXBException, ParserConfigurationException {
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            UnmarshallerValidator unmarshaller = new UnmarshallerValidator( jaxbContext );
             
-            ResourceContext<Unmarshaller, Object> resourceContext = new UnmarshallerResourceContext(cfgResource);
+            ResourceContext<UnmarshallerValidator, Object> resourceContext = new UnmarshallerResourceContext(cfgResource);
 
             Element element = (Element) resourceContext.perform(unmarshaller);
 
@@ -58,14 +59,15 @@ public class UnmarshallerResourceContextTest {
         }
 
         @Test(expected= ResourceContextException.class)
-        public void testPerform() throws IOException, JAXBException, NoSuchAlgorithmException {
+        public void testPerform()
+              throws IOException, JAXBException, NoSuchAlgorithmException, ParserConfigurationException {
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/nonexistent_resource"));
 
             JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            UnmarshallerValidator unmarshaller = new UnmarshallerValidator( jaxbContext );
 
-            ResourceContext<Unmarshaller, Object> resourceContext = new UnmarshallerResourceContext(cfgResource);
+            ResourceContext<UnmarshallerValidator, Object> resourceContext = new UnmarshallerResourceContext(cfgResource);
 
             resourceContext.perform(unmarshaller);
         }

@@ -6,9 +6,13 @@ import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller, Object> {
+public class UnmarshallerResourceContext implements ResourceContext<UnmarshallerValidator, Object> {
 
    private final ConfigurationResource cfgResource;
 
@@ -19,9 +23,10 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
    //Suppressing the warning as the new exception is using the jaxbe error code and message to pass on to the ResourceContextExcepiton
    @SuppressWarnings("PMD.PreserveStackTrace")
    @Override
-   public Object perform(Unmarshaller resource) {
+   public Object perform(UnmarshallerValidator resource) {
       try {
-         return resource.unmarshal(cfgResource.newInputStream());
+
+          return resource.validateUnmarshal( cfgResource.newInputStream() );
       } catch (JAXBException jaxbe) {
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()+ " - "+jaxbe.getCause()
                  + " - Error code: "
@@ -30,7 +35,11 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
                  + jaxbe.getMessage(), jaxbe.getLinkedException());
       } catch (IOException ioe) {
          throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + " - Reason: " + ioe.getMessage(), ioe);
-      } catch (Exception ex) {
+      } catch (SAXException se ) {
+
+          throw new ResourceContextException( "Validation error on resource " + cfgResource.name() + " - " + se.getMessage(), se );
+      }
+        catch (Exception ex) {
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + " - Reason: " + ex.getMessage(), ex);
       }
    }

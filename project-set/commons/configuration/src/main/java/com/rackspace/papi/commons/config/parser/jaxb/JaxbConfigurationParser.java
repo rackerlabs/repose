@@ -12,11 +12,11 @@ import javax.xml.bind.Unmarshaller;
 
 public class JaxbConfigurationParser <T> extends AbstractConfigurationObjectParser<T> {
 
-    private final Pool<Unmarshaller> marshallerPool;
+    private final Pool<UnmarshallerValidator> marshallerPool;
 
     public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
-        marshallerPool = new GenericBlockingResourcePool<Unmarshaller>(
+        marshallerPool = new GenericBlockingResourcePool<UnmarshallerValidator>(
                 new UnmarshallerConstructionStrategy(jaxbContext,xsdStreamSource));
     }
     

@@ -7,13 +7,14 @@ import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-public class UnmarshallerConstructionStrategy implements ConstructionStrategy<Unmarshaller> {
+public class UnmarshallerConstructionStrategy implements ConstructionStrategy<UnmarshallerValidator> {
 
     private final JAXBContext context;
     
@@ -33,36 +34,33 @@ public class UnmarshallerConstructionStrategy implements ConstructionStrategy<Un
     
     
     @Override
-    public Unmarshaller construct() {
-        try {
-            
+    public UnmarshallerValidator construct() {
 
-            Unmarshaller unMarshaller=context.createUnmarshaller();
-             
+        try {
+
+            UnmarshallerValidator uv = new UnmarshallerValidator( context );
+
             if(xsdStreamSource!=null){
-               
-               SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
-               factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
-                
+
+                SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+                factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+
                 Schema schema = factory.newSchema(xsdStreamSource);
-                if(schema!=null){
-                    unMarshaller.setSchema(schema);
-                    unMarshaller.setEventHandler(new JAXBValidator());
-                }
-                
-                           
+
+                uv.addValidator( schema.newValidator() );
+
             }
-            
-           return unMarshaller;
+
+           return uv;
            
+        } catch( ParserConfigurationException pce ) {
+
+            throw new ResourceConstructionException("Failed to configure DOM parser. Reason: " + pce.getMessage(), pce );
         } catch(JAXBException jaxbe) {
             throw new ResourceConstructionException("Failed to construct JAXB unmarshaller. Reason: " + jaxbe.getMessage(), jaxbe);
-        }catch(SAXException ex){
+        } catch(SAXException ex){
             LOG.error("Error validating XML file", ex);
         }
         return null;
-        
-      
-          
     }
 }
