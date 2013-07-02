@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true">
+<validators  xmlns="http://openrepose.org/repose/validator/v1.0" multi-role-match="true" version="2">
    <validator
       role="default"
       default="true"
@@ -15,7 +15,7 @@
       remove-dups="true"
       xpath-version="2"
       xsl-engine="XalanC"
-      use-saxon="false"
+      xsd-engine="Xerces"
       enable-ignore-xsd-extension="false"
       join-xpath-checks="false"
       validator-name="testName"
@@ -27,8 +27,7 @@
       check-well-formed="false"
       check-xsd-grammar="true"
       check-elements="true"
-      check-headers="true"
-      use-saxon="false">
+      check-headers="true">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns="http://wadl.dev.java.net/2009/02"

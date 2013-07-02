@@ -13,6 +13,7 @@ class IdentityServiceResponseSimulator {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     boolean ok = true
     int validateTokenCount = 0
+    int ttlDurationInDays = 1
 
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
@@ -36,7 +37,7 @@ class IdentityServiceResponseSimulator {
         }
 
         def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def nowPlusTTL = now.plusDays(ttlDurationInDays)
 
         def params = [:]
 
@@ -60,7 +61,7 @@ class IdentityServiceResponseSimulator {
                     validateTokenCount += 1
 
                     params = [
-                            expires: nowPlusOneDay.toString(DATE_FORMAT),
+                            expires: nowPlusTTL.toString(DATE_FORMAT),
                             userid: client_userid,
                             username: client_username,
                             tenant: client_tenant,
@@ -84,7 +85,7 @@ class IdentityServiceResponseSimulator {
                 break
             case "POST":
                 params = [
-                        expires: nowPlusOneDay.toString(DATE_FORMAT),
+                        expires: nowPlusTTL.toString(DATE_FORMAT),
                         userid: admin_userid,
                         username: admin_username,
                         tenant: admin_tenant,
@@ -97,6 +98,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
+        println body
         return new Response(code, message, headers, body)
 
     }

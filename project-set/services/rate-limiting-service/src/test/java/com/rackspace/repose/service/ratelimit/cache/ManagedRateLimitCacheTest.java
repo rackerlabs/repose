@@ -26,6 +26,7 @@ import static org.mockito.Mockito.*;
 public class ManagedRateLimitCacheTest {
 
     public static final String ACCOUNT = "12345";
+    public static final int datastoreWarnLimit= 1000;
 
 
     public static class WhenRetrievingAccountLimitKeys {
@@ -71,7 +72,7 @@ public class ManagedRateLimitCacheTest {
             
             cache = new ManagedRateLimitCache(cacheMock);
 
-            cache.updateLimit(HttpMethod.GET, user, key, rate);
+            cache.updateLimit(HttpMethod.GET, user, key, rate, datastoreWarnLimit);
             
             verify(cacheMock).put(eq(user), any(byte[].class), eq(1), eq(java.util.concurrent.TimeUnit.HOURS));
         }
@@ -83,7 +84,7 @@ public class ManagedRateLimitCacheTest {
             rate.setUriRegex(".*");
             rate.setValue(2);
             rate.setUnit(TimeUnit.HOUR);
-
+         
             final HashMap<String, CachedRateLimit> liveLimitMap = new HashMap<String, CachedRateLimit>();
             liveLimitMap.put(key, new CachedRateLimit(".*"));
 
@@ -92,9 +93,9 @@ public class ManagedRateLimitCacheTest {
             
             cache = new ManagedRateLimitCache(cacheMock);
 
-            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate).hasRequestsRemaining());
-            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate).hasRequestsRemaining());
-            assertFalse(cache.updateLimit(HttpMethod.GET, account, key, rate).hasRequestsRemaining());
+            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
+            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
+            assertFalse(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
         }
     }
 }
