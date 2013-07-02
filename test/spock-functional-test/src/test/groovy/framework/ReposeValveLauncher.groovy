@@ -19,7 +19,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
-    def int debugPort = 8005
+    def int debugPort = 8011
 
     def ReposeConfigurationProvider configurationProvider
 
