@@ -86,6 +86,10 @@
                                 </mapping>
 
                             </mappings>
+			   
+                            <obsoletes>
+				<obsolete>cli-utils</obsolete>
+		            </obsoletes>		
 
                             <requires>
                                 <require>java &gt;= 1.6.0</require>
