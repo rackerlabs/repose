@@ -154,6 +154,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <includes>
+                                <include>**/*.class</include>
                                 <include>**/saxonEE/*.class</include>
                             </includes>
                         </configuration>
