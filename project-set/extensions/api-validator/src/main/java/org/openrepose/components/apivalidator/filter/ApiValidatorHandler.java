@@ -35,7 +35,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private FilterChain chain;
    private boolean multiRoleMatch = false;
    private boolean useMetrics = false;
-   private MetricsService metricsService;
+   private final MetricsService metricsService;
    private MeterByCategorySum mbcsInvalidRequests;
 
    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch
