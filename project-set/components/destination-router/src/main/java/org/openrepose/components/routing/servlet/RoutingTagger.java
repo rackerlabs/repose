@@ -20,19 +20,19 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
     private double quality;
     private boolean useMetrics = false;
     private MetricsService metricsService;
-    private MeterByCategorySum mbcs;
+    private MeterByCategorySum mbcsRoutedReponse;
 
     public RoutingTagger(String id, double quality, MetricsService metricsService) {
         this.quality = quality;
         this.id = id;
         this.metricsService = metricsService;
 
-        // TODO
         try {
-            mbcs = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router", "Routed Response", TimeUnit.SECONDS);
+            mbcsRoutedReponse = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router", "Routed Response"
+                    , TimeUnit.SECONDS);
             useMetrics = true;
         } catch (Exception e) {
-            LOG.error("blahblahblah", e);
+            LOG.error("Error with metrics service", e);
         }
     }
 
@@ -45,6 +45,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             LOG.warn("No Destination configured for Destination Router");
         } else {
             myDirector.addDestination(id, request.getRequestURI(), quality);
+            mbcsRoutedReponse.mark(id);
         }
 
         return myDirector;
