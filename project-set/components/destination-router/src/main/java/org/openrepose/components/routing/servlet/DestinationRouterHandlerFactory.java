@@ -29,7 +29,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
         @Override
         public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
-
             contextRouterConfiguration = configurationObject;
 
             if (contextRouterConfiguration == null || configurationObject.getTarget() == null) {
@@ -39,7 +38,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
                 determineQuality();
             }
-
             isInitialized = true;
         }
 

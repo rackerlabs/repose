@@ -10,9 +10,9 @@ import org.rackspace.gdeproxy.Response
  * Time: 10:14 AM
  */
 class DestinationRouterJMXTest extends ReposeValveTest{
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"DestinationRouter\",scope=\""
+    String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
 
-    String NAME_TARGET = "\",name=\"service\""
+    String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""
 
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
@@ -35,7 +35,7 @@ class DestinationRouterJMXTest extends ReposeValveTest{
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for specific endpoint"() {
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint"])
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint/1"])
         deproxy.makeRequest([url: reposeEndpoint + "/cluster"])
 
         then:
@@ -46,8 +46,8 @@ class DestinationRouterJMXTest extends ReposeValveTest{
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for all endpoints"() {
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint"])
-        deproxy.makeRequest([url: reposeEndpoint + "/cluster"])
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint2/2"])
+        deproxy.makeRequest([url: reposeEndpoint + "/endpoint/2"])
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == 2
@@ -60,6 +60,6 @@ class DestinationRouterJMXTest extends ReposeValveTest{
         deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
 
         then:
-        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == 0
+        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == null
     }
 }

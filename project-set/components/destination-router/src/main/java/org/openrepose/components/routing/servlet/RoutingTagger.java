@@ -6,6 +6,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.filters.DestinationRouter;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
@@ -28,8 +29,8 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
         this.metricsService = metricsService;
 
         try {
-            mbcsRoutedReponse = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router", "Routed Response"
-                    , TimeUnit.SECONDS);
+            mbcsRoutedReponse = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router",
+                    "Routed Response", TimeUnit.SECONDS);
             useMetrics = true;
         } catch (Exception e) {
             LOG.error("Error with metrics service", e);
@@ -45,7 +46,9 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             LOG.warn("No Destination configured for Destination Router");
         } else {
             myDirector.addDestination(id, request.getRequestURI(), quality);
-            mbcsRoutedReponse.mark(id);
+            if (useMetrics) {
+                mbcsRoutedReponse.mark(id);
+            }
         }
 
         return myDirector;
