@@ -12,6 +12,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+/**
+ * Uses {@link com.rackspace.papi.commons.config.parser.jaxb.UnmarshallerValidator UnmarshallerValidator} to validate
+ * and then unmarshall the given {@link com.rackspace.papi.commons.config.resource.ConfigurationResource ConfigurationResource}.
+ */
 public class UnmarshallerResourceContext implements ResourceContext<UnmarshallerValidator, Object> {
 
    private final ConfigurationResource cfgResource;

@@ -10,6 +10,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * Contains a {@link com.rackspace.papi.commons.util.pooling.Pool Pool} of {@link com.rackspace.papi.commons.config.parser.jaxb.UnmarshallerValidator
+ * UnmarshallerValidator} which can be used to unmmarshal JAXB XML for a given type T.
+ *
+ * @param <T> The configuration class which is unmarshalled
+ */
 public class JaxbConfigurationParser <T> extends AbstractConfigurationObjectParser<T> {
 
     private final Pool<UnmarshallerValidator> marshallerPool;
