@@ -20,15 +20,14 @@ import java.io.InputStream;
 import java.net.URL;
 
 /**
- * Created with IntelliJ IDEA.
- * User: rona6028
- * Date: 7/2/13
- * Time: 9:05 AM
- * To change this template use File | Settings | File Templates.
+ * This object executes Schema 1.1 validation (if schema provided) & JAXB unmarshalling for a JAXBContext & XML Schema.
+ *
+ * This object was created because JAXB unmarshalling was throwing invalid errors when initialized with certain 1.1
+ * schemas.
  */
 public class UnmarshallerValidator {
 
-    private Validator validator;
+    private Schema schema;
     private Unmarshaller unmarshaller;
     private DocumentBuilder db;
 
@@ -42,18 +41,27 @@ public class UnmarshallerValidator {
         unmarshaller = context.createUnmarshaller();
     }
 
-    public void addValidator( Validator validator ) {
+    public void setSchema( Schema schema ) {
 
-        this.validator = validator;
+        this.schema = schema;
     }
 
     public Object validateUnmarshal( InputStream inputstream ) throws JAXBException, IOException, SAXException {
 
-        Document doc = db.parse( inputstream );
+        Document doc;
 
-        if (validator != null ) {
+        try {
 
-            validator.validate( new DOMSource( doc ) );
+            doc = db.parse( inputstream );
+
+        } finally {
+
+            db.reset();
+        }
+
+        if (schema != null ) {
+
+            schema.newValidator().validate( new DOMSource( doc ) );
         }
 
         return unmarshaller.unmarshal( doc );
