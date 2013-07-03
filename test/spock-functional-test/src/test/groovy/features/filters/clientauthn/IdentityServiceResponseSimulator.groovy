@@ -16,6 +16,7 @@ class IdentityServiceResponseSimulator {
     int groupsCount = 0;
     int adminTokenCount = 0;
     int endpointsCount = 0;
+    int ttlDurationInDays = 1;
 
     int errorCode;
     boolean isGetAdminTokenBroken = false;
@@ -45,7 +46,7 @@ class IdentityServiceResponseSimulator {
         }
 
         def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
 
         def params = [:]
 
@@ -83,14 +84,14 @@ class IdentityServiceResponseSimulator {
         }
 
         def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
-            userid: client_userid,
-            username: client_username,
-            tenant: client_tenant,
-            token: client_token
+                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                userid: client_userid,
+                username: client_username,
+                tenant: client_tenant,
+                token: client_token
         ];
 
         return handleTokenCallBase(request, params);
@@ -156,11 +157,11 @@ class IdentityServiceResponseSimulator {
         def nowPlusOneDay = now.plusDays(1)
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
-            userid: client_userid,
-            username: client_username,
-            tenant: client_tenant,
-            token: client_token
+                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                userid: client_userid,
+                username: client_username,
+                tenant: client_tenant,
+                token: client_token
         ]
 
         def template;
@@ -194,11 +195,11 @@ class IdentityServiceResponseSimulator {
         def nowPlusOneDay = now.plusDays(1)
 
         def params = [
-            expires: nowPlusOneDay.toString(DATE_FORMAT),
-            userid: admin_userid,
-            username: admin_username,
-            tenant: admin_tenant,
-            token: admin_token
+                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                userid: admin_userid,
+                username: admin_username,
+                tenant: admin_tenant,
+                token: admin_token
         ];
 
         return handleTokenCallBase(request, params);
@@ -232,17 +233,17 @@ class IdentityServiceResponseSimulator {
         }
 
         def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
+        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
 
         def params = [
-            'identity_port': this.port,
-            'token': this.client_token,
-            'expires': nowPlusOneDay.strftime('%Y-%m-%dT%H:%M:%S%z'),
-            'userid': this.client_userid,
-            'username': this.client_username,
-            'tenant': this.client_tenant,
-            'token': this.client_token,
-            'origin_service_port': this.origin_service_port,
+                'identity_port': this.port,
+                'token': this.client_token,
+                'expires': nowPlusOneDay.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                'userid': this.client_userid,
+                'username': this.client_username,
+                'tenant': this.client_tenant,
+                'token': this.client_token,
+                'origin_service_port': this.origin_service_port,
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
@@ -250,7 +251,7 @@ class IdentityServiceResponseSimulator {
     }
 
     def groupsJsonTemplate =
-"""{
+        """{
   "RAX-KSGRP:groups": [
     {
         "id": "0",
@@ -262,7 +263,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def groupsXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
         <description>Default Limits</description>
@@ -271,7 +272,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureJsonTemplate =
-"""{
+        """{
    "itemNotFound" : {
       "message" : "Invalid Token, not found.",
       "code" : 404
@@ -280,7 +281,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
               xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
               code="404">
@@ -289,7 +290,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessJsonTemplate =
-"""{
+        """{
    "access" : {
       "serviceCatalog" : [
          {
@@ -358,7 +359,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
@@ -412,7 +413,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityEndpointsJsonTemplate =
-"""{
+        """{
     "endpoints_links": [
         {
             "href": "http://localhost:\${identity_port}/tokens/\${token}/endpoints?'marker=5&limit=10'",
@@ -444,7 +445,7 @@ class IdentityServiceResponseSimulator {
 }"""
 
     def identityEndpointXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
            xmlns:ns2="http://www.w3.org/2005/Atom"
            xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
