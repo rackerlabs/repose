@@ -82,7 +82,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 if(!uniqueArtifactList.contains(artifactName)){  
                  uniqueArtifactList.add(artifactName);  
                 } else{
-                     LOG.warn("Please review your artifacts directory, multiple versions of same artifact exists."); 
+                     LOG.error("Please review your artifacts directory, multiple versions of same artifact exists."); 
                 } 
             } 
 
