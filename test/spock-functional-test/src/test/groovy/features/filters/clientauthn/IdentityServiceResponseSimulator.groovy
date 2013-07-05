@@ -104,7 +104,7 @@ class IdentityServiceResponseSimulator {
 
             def now = new DateTime()
             def nowPlusOneDay = now.plusDays(1)
-            expires = nowPlusOneDay;
+            return nowPlusOneDay;
         }
     }
 
@@ -164,6 +164,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
+        //println body
         return new Response(code, null, headers, body)
     }
 
