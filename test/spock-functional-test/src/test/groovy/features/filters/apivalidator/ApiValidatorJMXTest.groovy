@@ -3,11 +3,10 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 
 class ApiValidatorJMXTest extends ReposeValveTest {
-
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
 
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ApiValidator\",scope=\""
+    String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"ApiValidator\",scope=\""
 
     String NAME_ROLE_1 = "\",name=\"role-1\""
     String NAME_ROLE_2 = "\",name=\"role-2\""
