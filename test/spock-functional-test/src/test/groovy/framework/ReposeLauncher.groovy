@@ -11,4 +11,6 @@ interface ReposeLauncher {
     void applyConfigs(String[] configLocations)
 
     void updateConfigs(String[] configLocations)
+
+    void addToClassPath(String path)
 }
