@@ -30,7 +30,7 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +75,16 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         @Override
         public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
+            
+            List<String> uniqueArtifactList = new ArrayList<String>();  
+           
+            for(String artifactName: e.payload()){  
+                if(!uniqueArtifactList.contains(artifactName)){  
+                 uniqueArtifactList.add(artifactName);  
+                } else{
+                     LOG.error("Please review your artifacts directory, multiple versions of same artifact exists."); 
+                } 
+            } 
 
             if (currentSystemModel != null) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
