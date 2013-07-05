@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author fran
+ * This class is responsible for interactions with an Openstack Identity Serivce endpoint.
+ *
  */
 public class AuthenticationServiceClient implements AuthenticationService {
 

@@ -1,7 +1,7 @@
 package com.rackspace.papi.commons.util.http;
 
 /**
- * @author fran
+ * Enum for Headers added by the Client Authentication componenet
  */
 public enum OpenStackServiceHeader implements HeaderConstant {
     /**

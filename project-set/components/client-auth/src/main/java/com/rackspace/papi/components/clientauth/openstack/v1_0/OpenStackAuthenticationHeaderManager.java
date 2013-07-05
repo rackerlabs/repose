@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import java.util.List;
 
 /**
- * @author fran
+ * Class which takes information from the Openstack Identity service endpoint and applies them to specific headers
+ * on the serviced request.
+ *
  */
 public class OpenStackAuthenticationHeaderManager {
 
