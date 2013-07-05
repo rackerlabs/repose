@@ -20,6 +20,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     def JmxClient jmx
     def int debugPort = 8005
+    def classPaths =[]
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -56,6 +57,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         def jmxprops = ""
         def debugProps = ""
+        def classPath = ""
 
         if (debugEnabled) {
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
@@ -64,7 +66,12 @@ class ReposeValveLauncher implements ReposeLauncher {
         int jmxPort = nextAvailablePort()
         jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
-        def cmd = "java ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
+        if(!classPaths.isEmpty()){
+            classPath = "-cp " + (classPaths as Set).join(";")
+
+        }
+
+        def cmd = "java ${classPath} ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} start"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({ cmd.execute() });
@@ -129,6 +136,11 @@ class ReposeValveLauncher implements ReposeLauncher {
     @Override
     void enableDebug() {
         this.debugEnabled = true
+    }
+
+    @Override
+    void addToClassPath(String path){
+        classPaths.add(path)
     }
 
     /**
