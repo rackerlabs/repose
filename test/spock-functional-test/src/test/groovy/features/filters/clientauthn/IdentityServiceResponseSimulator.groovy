@@ -24,6 +24,10 @@ class IdentityServiceResponseSimulator {
     def admin_username = 'admin_username'
     def admin_userid = 67890
 
+    def validateCode = 200
+    def groupCode = 200
+    def adminCode = 200
+
     def templateEngine = new SimpleTemplateEngine()
 
 
@@ -40,71 +44,108 @@ class IdentityServiceResponseSimulator {
         def nowPlusTTL = now.plusDays(ttlDurationInDays)
 
         def params = [:]
-
+        def message
         // default response code and message
         def template
         def headers = ['Connection': 'close']
-        def code = 200
-        def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
+
+
+        if (validateCode != 200) {
+            switch (validateCode) {
+
+                case 503:
+                    message = "Service Unavailable"
+                    template = ""
+                    break
+                case 500:
+                    message = "Internal Server Error"
+                    template = ""
+                    break
+                case 413:
+                    message = "Request Entity Too Large"
+                    teamplate = ""
+                    break
+                case 404:
+                    message = "Not Found"
+                    template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
+                    break
+                case 401:
+                    message = "Unauthorized"
+                    template = xml ? identityUnauthorizedXmlTemplate : identityUnauthorizedJsonTemplate
+                    break
+            }
         } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
-        }
+            message = 'OK'
+            if (xml) {
+                template = identitySuccessXmlTemplate
+                headers.put('Content-type', 'application/xml')
+            } else {
+                template = identitySuccessJsonTemplate
+                headers.put('Content-type', 'application/json')
+            }
 
-        switch (request.method) {
+            switch (request.method) {
 
-            case "GET":
-                if (request.path.contains("tokens")) {
-                    validateTokenCount += 1
+                case "GET":
+                    if (request.path.contains("tokens")) {
+                        code = validateCode
+                        validateTokenCount += 1
 
+                        params = [
+                                expires: nowPlusTTL.toString(DATE_FORMAT),
+                                userid: client_userid,
+                                username: client_username,
+                                tenant: client_tenant,
+                                token: client_token
+                        ]
+                    } else {
+                        if (xml)
+                            template = groupsXmlTemplate
+                        else
+                            template = groupsJsonTemplate
+                    }
+                    break
+                case "POST":
                     params = [
                             expires: nowPlusTTL.toString(DATE_FORMAT),
-                            userid: client_userid,
-                            username: client_username,
-                            tenant: client_tenant,
-                            token: client_token
+                            userid: admin_userid,
+                            username: admin_username,
+                            tenant: admin_tenant,
+                            token: admin_token
                     ]
+                    break
+                default:
+                    throw new UnsupportedOperationException('Unknown request: %r' % request)
 
-                    if (!ok) {
-                        code = 404
-                        message = 'Not Found'
-                        if (xml)
-                            template = identityFailureXmlTemplate
-                        else
-                            template = identityFailureJsonTemplate
-                    }
-                } else {
-                    if (xml)
-                        template = groupsXmlTemplate
-                    else
-                        template = groupsJsonTemplate
-                }
-                break
-            case "POST":
-                params = [
-                        expires: nowPlusTTL.toString(DATE_FORMAT),
-                        userid: admin_userid,
-                        username: admin_username,
-                        tenant: admin_tenant,
-                        token: admin_token
-                ]
-                break
-            default:
-                throw new UnsupportedOperationException('Unknown request: %r' % request)
+            }
         }
+
 
         def body = templateEngine.createTemplate(template).make(params)
 
         println body
-        return new Response(code, message, headers, body)
+        return new Response(validateCode, message, headers, body)
 
     }
 
+    def identityUnauthorizedJsonTemplate =
+        """{
+    "unauthorized": {
+        "code": 401,
+        "message": "No valid token provided. Please use the 'X-Auth-Token' header with a valid token."
+    }
+}
+"""
+
+    def identityUnauthorizedXmlTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<unauthorized xmlns="http://docs.openstack.org/identity/api/v2.0" xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0" code="401">
+  <message>No valid token provided. Please use the 'X-Auth-Token' header with a valid token.</message>
+</unauthorized>
+"""
+
     def groupsJsonTemplate =
-"""{
+        """{
   "RAX-KSGRP:groups": [
     {
         "id": "0",
@@ -116,7 +157,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def groupsXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
         <description>Default Limits</description>
@@ -125,7 +166,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureJsonTemplate =
-"""{
+        """{
    "itemNotFound" : {
       "message" : "Invalid Token, not found.",
       "code" : 404
@@ -134,7 +175,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identityFailureXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
               xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
               code="404">
@@ -143,7 +184,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessJsonTemplate =
-"""{
+        """{
    "access" : {
       "serviceCatalog" : [
          {
@@ -212,7 +253,7 @@ class IdentityServiceResponseSimulator {
 """
 
     def identitySuccessXmlTemplate =
-"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
