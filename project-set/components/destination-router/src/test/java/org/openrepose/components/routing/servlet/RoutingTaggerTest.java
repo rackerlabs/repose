@@ -43,7 +43,7 @@ public class RoutingTaggerTest {
         public void setUp() {
             
             destinationRouterConfig = new DestinationRouterConfiguration();
-            factory = new DestinationRouterHandlerFactory();
+            factory = new DestinationRouterHandlerFactory(null);
             
             powerProxy = new SystemModel();
             serviceDomain = new ReposeCluster();
