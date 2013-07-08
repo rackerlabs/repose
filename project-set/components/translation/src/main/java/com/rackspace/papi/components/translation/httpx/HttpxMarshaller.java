@@ -199,11 +199,13 @@ public class HttpxMarshaller {
     return new ByteArrayInputStream(out.toByteArray());
   }
 
-  private void marshall(Object o, OutputStream out) {
+  private synchronized void marshall(Object o, OutputStream out) {
     try {
       getMarshaller().marshal(o, out);
     } catch (JAXBException ex) {
       throw new HttpxException("Error marshalling HTTPX object", ex);
+    } catch (Exception ex) {
+        throw new HttpxException("Error marshalling HTTPX object", ex);
     }
   }
 }
