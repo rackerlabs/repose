@@ -63,7 +63,7 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
             setEndpoints();
-            setDefualtRegion();
+            setDefaultRegion();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -170,7 +170,7 @@ public class OpenStackAuthenticationHeaderManager {
      * Default Region
      * Default region of user
      */
-    private void setDefualtRegion(){
+    private void setDefaultRegion(){
        String region = cachableToken.getDefaultRegion();
        if(!StringUtilities.isBlank(region)){
           filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
