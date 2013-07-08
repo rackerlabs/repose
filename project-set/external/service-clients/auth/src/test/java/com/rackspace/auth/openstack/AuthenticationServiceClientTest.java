@@ -1,5 +1,6 @@
 package com.rackspace.auth.openstack;
 
+import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
@@ -59,7 +60,7 @@ public class AuthenticationServiceClientTest {
             AppenderForTesting.clear();
         }
 
-        @Test
+        @Test(expected = AuthServiceException.class)
         public void shouldErrorWithCorrectMessageForInternalServerErrorCase() {
             when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString()))
                     .thenReturn(serviceClientResponseGet);
@@ -74,7 +75,7 @@ public class AuthenticationServiceClientTest {
                                .startsWith("Authentication Service returned internal server error:"));
         }
 
-        @Test
+        @Test(expected = AuthServiceException.class)
         public void shouldErrorWithCorrectMessageForDefaultErrorCase() {
             when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString()))
                     .thenReturn(serviceClientResponseGet);
