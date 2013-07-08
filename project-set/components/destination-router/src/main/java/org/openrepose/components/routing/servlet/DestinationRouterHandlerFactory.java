@@ -2,6 +2,7 @@ package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import org.openrepose.components.routing.servlet.config.Target;
 import org.slf4j.Logger;
@@ -16,8 +17,10 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
     private double quality;
     private Target target;
     private static final String DEFAULT_QUALITY = "0.5";
+    private MetricsService metricsService;
 
-    public DestinationRouterHandlerFactory() {
+    public DestinationRouterHandlerFactory(MetricsService metricsService) {
+        this.metricsService = metricsService;
     }
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
@@ -26,7 +29,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
         @Override
         public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
-
             contextRouterConfiguration = configurationObject;
 
             if (contextRouterConfiguration == null || configurationObject.getTarget() == null) {
@@ -36,7 +38,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
                 determineQuality();
             }
-
             isInitialized = true;
         }
 
@@ -61,7 +62,7 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
         if (!this.isInitialized()) {
             return null;
         }
-        return new RoutingTagger(target.getId(), quality);
+        return new RoutingTagger(target.getId(), quality, metricsService);
     }
 
     @Override
