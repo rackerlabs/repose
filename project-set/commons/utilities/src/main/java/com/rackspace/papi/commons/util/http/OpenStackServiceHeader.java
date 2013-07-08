@@ -1,7 +1,7 @@
 package com.rackspace.papi.commons.util.http;
 
 /**
- * @author fran
+ * Enum for Headers added by the Client Authentication componenet
  */
 public enum OpenStackServiceHeader implements HeaderConstant {
     /**
@@ -42,7 +42,9 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     ROLES("X-Roles"),
     
     IMPERSONATOR_ID("X-Impersonator-Id"),
-    IMPERSONATOR_NAME("X-Impersonator-Name");
+    IMPERSONATOR_NAME("X-Impersonator-Name"),
+    
+    DEFAULT_REGION("X-Default-Region");
 
     
     private final String headerKey;

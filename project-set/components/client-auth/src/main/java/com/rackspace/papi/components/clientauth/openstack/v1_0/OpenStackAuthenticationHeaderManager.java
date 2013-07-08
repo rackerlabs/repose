@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import java.util.List;
 
 /**
- * @author fran
+ * Class which takes information from the Openstack Identity service endpoint and applies them to specific headers
+ * on the serviced request.
+ *
  */
 public class OpenStackAuthenticationHeaderManager {
 
@@ -61,6 +63,7 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
             setEndpoints();
+            setDefaultRegion();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -161,5 +164,16 @@ public class OpenStackAuthenticationHeaderManager {
         if (!StringUtilities.isBlank(endpointsBase64)) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_CATALOG.toString(), endpointsBase64);
         }
+    }
+    
+    /**
+     * Default Region
+     * Default region of user
+     */
+    private void setDefaultRegion(){
+       String region = cachableToken.getDefaultRegion();
+       if(!StringUtilities.isBlank(region)){
+          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
+       }
     }
 }

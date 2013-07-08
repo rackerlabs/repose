@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 /**
- * @author fran
+ * Abstract class to encapsulate information from the validatetoken calls from the  Authentication Service client {@link com.rackspace.auth.openstack.AuthenticationService}
+ *
  */
 public abstract class AuthToken implements Serializable {
 
@@ -17,6 +18,7 @@ public abstract class AuthToken implements Serializable {
     public abstract String getImpersonatorTenantId();
     public abstract String getImpersonatorUsername();
     public abstract String getTenantName();
+    public abstract String getDefaultRegion();
    
 
     
