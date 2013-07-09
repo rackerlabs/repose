@@ -3,15 +3,12 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Date;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -65,6 +62,7 @@ public class OpenStackAuthenticationHeaderManager {
             setImpersonator();
             setEndpoints();
             setExpirationDate();
+            setDefaultRegion();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -180,4 +178,15 @@ public class OpenStackAuthenticationHeaderManager {
     }
     
     
+    
+    /**
+     * Default Region
+     * Default region of user
+     */
+    private void setDefaultRegion(){
+       String region = cachableToken.getDefaultRegion();
+       if(!StringUtilities.isBlank(region)){
+          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
+       }
+    }
 }
