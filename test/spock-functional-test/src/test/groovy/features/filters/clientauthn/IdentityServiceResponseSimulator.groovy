@@ -4,6 +4,9 @@ import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTimeZone;
 
 /**
  * Simulates responses from an Identity Service
@@ -16,7 +19,15 @@ class IdentityServiceResponseSimulator {
     int groupsCount = 0;
     int adminTokenCount = 0;
     int endpointsCount = 0;
-    int ttlDurationInDays = 1;
+
+    /*
+     * The tokenExpiresAt field determines when the token expires. Consumers of
+     * this class should set to a particular DateTime (for example, to test
+     * some aspect of expiration dates), or leave it null to default to now
+     * plus one day.
+     *
+     */
+    def tokenExpiresAt = null;
 
     int errorCode;
     boolean isGetAdminTokenBroken = false;
@@ -44,9 +55,6 @@ class IdentityServiceResponseSimulator {
                 xml = true
             }
         }
-
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
 
         def params = [:]
 
@@ -76,6 +84,30 @@ class IdentityServiceResponseSimulator {
         }
     }
 
+    String getExpires() {
+
+
+        if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
+
+            return this.tokenExpiresAt;
+
+        } else if (this.tokenExpiresAt instanceof DateTime) {
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC);
+            return fmt.print(tokenExpiresAt)
+
+        } else if (this.tokenExpiresAt) {
+
+            return this.tokenExpiresAt.toString();
+
+        } else {
+
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            return nowPlusOneDay;
+        }
+    }
+
     Response handleValidateTokenCall(Request request) {
         validateTokenCount += 1
 
@@ -83,11 +115,8 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
-
         def params = [
-                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
@@ -135,6 +164,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
+        //println body
         return new Response(code, null, headers, body)
     }
 
@@ -153,11 +183,8 @@ class IdentityServiceResponseSimulator {
             }
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
-
         def params = [
-                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
@@ -191,11 +218,8 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(1)
-
         def params = [
-                expires: nowPlusOneDay.toString(DATE_FORMAT),
+                expires: getExpires(),
                 userid: admin_userid,
                 username: admin_username,
                 tenant: admin_tenant,
@@ -232,13 +256,10 @@ class IdentityServiceResponseSimulator {
             template = this.identityEndpointJsonTemplate;
         }
 
-        def now = new DateTime()
-        def nowPlusOneDay = now.plusDays(ttlDurationInDays)
-
         def params = [
                 'identity_port': this.port,
                 'token': this.client_token,
-                'expires': nowPlusOneDay.strftime('%Y-%m-%dT%H:%M:%S%z'),
+                'expires': getExpires(),
                 'userid': this.client_userid,
                 'username': this.client_username,
                 'tenant': this.client_tenant,
