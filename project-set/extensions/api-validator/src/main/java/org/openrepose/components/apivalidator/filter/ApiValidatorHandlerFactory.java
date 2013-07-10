@@ -159,6 +159,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                                                configRoot,
                                                config );
 
+            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
+
             defaultValidator = validatorConfigurator.getDefaultValidator() ;
             validators = validatorConfigurator.getValidators();
 
