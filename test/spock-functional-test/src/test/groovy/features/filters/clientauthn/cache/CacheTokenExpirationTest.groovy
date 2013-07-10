@@ -4,6 +4,7 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
+import org.joda.time.DateTime
 
 class CacheTokenExpirationTest extends ReposeValveTest {
 
@@ -37,7 +38,8 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService = new IdentityServiceResponseSimulator()
         fakeIdentityService.client_token = clientToken
-        fakeIdentityService.ttlDurationInDays = 40
+        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
+
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
