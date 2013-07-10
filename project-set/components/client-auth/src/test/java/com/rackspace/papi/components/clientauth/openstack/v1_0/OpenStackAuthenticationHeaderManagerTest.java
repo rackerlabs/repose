@@ -145,7 +145,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_NAME.toString()));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_ID.toString()));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(PowerApiHeader.GROUPS.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(PowerApiHeader.X_EXPIRATION.toString()));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.X_EXPIRATION.toString()));
         }
     }
 }
