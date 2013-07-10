@@ -44,7 +44,9 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     IMPERSONATOR_ID("X-Impersonator-Id"),
     IMPERSONATOR_NAME("X-Impersonator-Name"),
     
-    DEFAULT_REGION("X-Default-Region");
+    DEFAULT_REGION("X-Default-Region"),
+    
+    X_EXPIRATION("x-token-expires");
 
     
     private final String headerKey;
