@@ -9,14 +9,16 @@ import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import org.slf4j.Logger;
+import java.util.Date;
+import com.rackspace.papi.commons.util.http.HttpDate;
+
 
 import java.util.List;
 
 /**
- * Class which takes information from the Openstack Identity service endpoint and applies them to specific headers
- * on the serviced request.
- *
+ * Responsible for adding Authentication headers from validating token response
  */
 public class OpenStackAuthenticationHeaderManager {
 
@@ -63,7 +65,8 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
             setEndpoints();
-            setDefualtRegion();
+            setExpirationDate();
+            setDefaultRegion();
 
             if (isDelagable) {
                 setIdentityStatus();
@@ -167,10 +170,24 @@ public class OpenStackAuthenticationHeaderManager {
     }
     
     /**
+     * ExpirationDate
+     * token expiration date in x-token-expires header that follows http spec rfc1123 GMT time format
+     */
+    
+    private void setExpirationDate() {
+        if (cachableToken.getExpires()>0) {
+            HttpDate date = new HttpDate(new Date(cachableToken.getExpires()));
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_EXPIRATION.toString(), date.toRFC1123());
+        }
+    }
+    
+    
+    
+    /**
      * Default Region
      * Default region of user
      */
-    private void setDefualtRegion(){
+    private void setDefaultRegion(){
        String region = cachableToken.getDefaultRegion();
        if(!StringUtilities.isBlank(region)){
           filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.DEFAULT_REGION.toString(), region);
