@@ -35,11 +35,11 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private FilterChain chain;
    private boolean multiRoleMatch = false;
    private boolean useMetrics = false;
-   private MetricsService metricsService;
+   private final MetricsService metricsService;
    private MeterByCategorySum mbcsInvalidRequests;
 
-   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch
-           , MetricsService metricsService) {
+   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
+           MetricsService metricsService) {
       this.validators = new ArrayList<ValidatorInfo>(validators.size());
       this.validators.addAll(validators);
       this.multiRoleMatch = multiRoleMatch;

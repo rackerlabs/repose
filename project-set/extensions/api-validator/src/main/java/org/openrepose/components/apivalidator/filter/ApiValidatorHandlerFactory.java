@@ -42,8 +42,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final String config;
     private final MetricsService metricsService;
 
-    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config
-            , MetricsService metricsService) {
+    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config,
+            MetricsService metricsService) {
         this.manager = manager;
         wadlListener = new ApiValidatorWadlListener();
         lock = new Object();

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.URL;
 
 public class ApiValidatorFilter implements Filter {
-
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorFilter.class);
     private static final String DEFAULT_CONFIG = "validator.cfg.xml";
     private String config;
@@ -43,7 +42,6 @@ public class ApiValidatorFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
         final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
         final ServletContext ctx = filterConfig.getServletContext();
         final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
