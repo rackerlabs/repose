@@ -179,17 +179,19 @@ Future, outside-the-box considerations
 
 """
 
-from narwhal import repose
 import unittest2 as unittest
-from narwhal import conf
-from narwhal import pathutil
-import xmlrunner as xmlrunner
+import xmlrunner
 import logging
 import time
 import argparse
 import os
 import deproxy
 import itertools
+import narwhal
+from narwhal import valve
+from narwhal import conf
+from narwhal import pathutil
+from narwhal import get_next_open_port
 
 logger = logging.getLogger(__name__)
 
@@ -198,17 +200,8 @@ config_dir = pathutil.join(os.getcwd(), 'etc/repose')
 deployment_dir = pathutil.join(os.getcwd(), 'var/repose')
 artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
 log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
-repose_port = 5555
-stop_port = 7777
-deproxy_port = 10101
 d = None
-url = None
-params = {
-    'target_hostname': 'localhost',
-    'target_port': deproxy_port,
-    'port': repose_port,
-    'repose_port': repose_port,
-}
+deproxy_port = get_next_open_port()
 
 
 def setUpModule():
@@ -222,9 +215,6 @@ def setUpModule():
         d = deproxy.Deproxy()
         d.add_endpoint(('localhost', deproxy_port))
 
-    global url
-    url = 'http://localhost:%i/resource' % repose_port
-
 
 def tearDownModule():
     logger.debug('')
@@ -234,32 +224,41 @@ def tearDownModule():
         logger.debug('deproxy shut down')
 
 
-def apply_configs(folder):
+def apply_configs(folder, repose_port):
+    params = {
+        'target_hostname': 'localhost',
+        'target_port': deproxy_port,
+        'port': repose_port,
+        'repose_port': repose_port,
+    }
     conf.process_folder_contents(folder=folder, dest_path='etc/repose',
                                  params=params)
 
 
-def start_repose():
-    return repose.ReposeValve(config_dir='etc/repose', stop_port=stop_port,
+def start_repose(repose_port):
+    return valve.Valve(config_dir='etc/repose', stop_port=get_next_open_port(),
                               wait_on_start=True, port=repose_port)
 
 
-def configure_and_start_repose(folder):
+def configure_and_start_repose(folder, repose_port):
     # set the common config files, like system model and container
-    apply_configs(folder='configs/common')
+    apply_configs(folder='configs/common', repose_port=repose_port)
     # set the pattern-specific config files, i.e. validator.cfg.xml
-    apply_configs(folder=folder)
-    return start_repose()
+    apply_configs(folder=folder, repose_port=repose_port)
+    return start_repose(repose_port=repose_port)
 
 
 class TestSspnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/f4f4pf5f5')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/f4f4pf5f5',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_sspnn(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
@@ -267,29 +266,29 @@ class TestSspnn(unittest.TestCase):
     # different orders
 
     def test_pass_first_of_two(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-4'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-4'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_pass_second_of_two(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-4,role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4,role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_fail_first_of_two(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-2,role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2,role-3'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_fail_second_of_two(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-2'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-2'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -297,22 +296,25 @@ class TestPAndS(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/p')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/p',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_s(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
         self.assertEqual(mc.received_response.code, '403')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -320,17 +322,20 @@ class TestF(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/f4')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/f4',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_f(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -338,17 +343,20 @@ class TestSfn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/pf4f5')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/pf4f5',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_sfn(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -356,22 +364,25 @@ class TestSingleMatchDefaults(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/s-default')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/s-default',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_normal(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_activate_default(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
         self.assertEqual(mc.received_response.code, '405')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -379,35 +390,38 @@ class TestMssfsffpnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/'
-                                                'mf4f4f5f4f5f5pf4f4')
+        repose_port = get_next_open_port()
+        folder = 'configs/mf4f4f5f4f5f5pf4f4'
+        cls.valve = configure_and_start_repose(folder=folder,
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_mssfsffpnn(self):
-        mc = d.make_request(url=url, headers={'X-Roles':
+        mc = d.make_request(url=self.url, headers={'X-Roles':
                                               'role-3,role-5,role-6,role-7'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_mssfsffsss(self):
-        mc = d.make_request(url=url, headers={'X-Roles':
+        mc = d.make_request(url=self.url, headers={'X-Roles':
                                               'role-3,role-5,role-6'})
         self.assertEqual(mc.received_response.code, '405')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_msssssspnn(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-7,role-8'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-8'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_mssfssspnn_order(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-7,role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -415,22 +429,25 @@ class TestMpAndMs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/mp')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/mp',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_s(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
         self.assertEqual(mc.received_response.code, '403')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -438,17 +455,20 @@ class TestMf(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/mf4')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/mf4',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_f(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -456,17 +476,20 @@ class TestMsp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/mf4p')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/mf4p',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_msp(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -475,17 +498,20 @@ class TestMultimatchMatchDefaults1(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/m-default-1')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/m-default-1',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_ssf_default_p(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -494,17 +520,20 @@ class TestMultimatchMatchDefaults2(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/m-default-2')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/m-default-2',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_ssp_default_f(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -513,17 +542,20 @@ class TestMultimatchMatchDefaults3(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/m-default-3')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/m-default-3',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_ssf_default_f(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
         self.assertEqual(mc.received_response.code, '405')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
@@ -534,38 +566,31 @@ class TestMultimatchMatchDefaults4(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/m-default-4')
+        repose_port = get_next_open_port()
+        cls.valve = configure_and_start_repose(folder='configs/m-default-4',
+                                               repose_port=repose_port)
+        cls.url = 'http://localhost:%i/resource' % repose_port
 
     def test_sss_default_f(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
         self.assertEqual(mc.received_response.code, '404')
         self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
         logger.debug('stopping repose')
-        cls.repose.stop()
+        cls.valve.stop()
         logger.debug('repose stopped')
 
 
 def run():
-    global deproxy_port
-    global stop_port
-    global repose_port
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--repose-port', help='The port Repose will listen on '
-                        'for requests. The default is %i.' % repose_port,
-                        default=repose_port, type=int)
-    parser.add_argument('--stop-port', help='The port Repose will listen on '
-                        'for the stop command. The default is %i.' % stop_port,
-                        default=stop_port, type=int)
-    parser.add_argument('--deproxy-port', help='The port Deproxy will listen '
-                        'on for requests forwarded from Repose. The default '
-                        'is %i.' % deproxy_port, default=deproxy_port,
-                        type=int)
     parser.add_argument('--print-log', action='store_true',
                         help='Print the log.')
+    parser.add_argument('--port-base', help='The port number to start looking '
+                        'for open ports. The default is %i.' % narwhal.port_base,
+                        default=narwhal.port_base, type=int)
     args = parser.parse_args()
 
     if args.print_log:
@@ -575,9 +600,7 @@ def run():
                                     '%(filename)s(%(lineno)d):'
                                     '%(threadName)s(%(thread)d):%(message)s'))
 
-    deproxy_port = args.deproxy_port
-    repose_port = args.repose_port
-    stop_port = args.stop_port
+    narwhal.port_base = args.port_base
 
     test_runner = xmlrunner.XMLTestRunner(output='test-reports')
 
