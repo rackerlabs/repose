@@ -48,10 +48,56 @@ class IdentityServiceResponseSimulator {
         // default response code and message
         def template
         def headers = ['Connection': 'close']
+        def code
 
+        message = "OK"
+        if (xml) {
+            template = identitySuccessXmlTemplate
+            headers.put('Content-type', 'application/xml')
+        } else {
+            template = identitySuccessJsonTemplate
+            headers.put('Content-type', 'application/json')
+        }
 
-        if (validateCode != 200) {
-            switch (validateCode) {
+        switch (request.method) {
+
+            case "GET":
+                if (request.path.contains("tokens")) {   // validate token
+
+                    validateTokenCount += 1
+                    code = validateCode
+                    params = [
+                            expires: nowPlusTTL.toString(DATE_FORMAT),
+                            userid: client_userid,
+                            username: client_username,
+                            tenant: client_tenant,
+                            token: client_token
+                    ]
+                } else { //get groups
+                    code = groupCode
+                    if (xml)
+                        template = groupsXmlTemplate
+                    else
+                        template = groupsJsonTemplate
+                }
+                break
+            case "POST":             //get token
+                code = adminCode
+                params = [
+                        expires: nowPlusTTL.toString(DATE_FORMAT),
+                        userid: admin_userid,
+                        username: admin_username,
+                        tenant: admin_tenant,
+                        token: admin_token
+                ]
+                break
+            default:
+                throw new UnsupportedOperationException('Unknown request: %r' % request)
+
+        }
+
+        if (code != 200) {
+            switch (code) {
 
                 case 503:
                     message = "Service Unavailable"
@@ -63,7 +109,7 @@ class IdentityServiceResponseSimulator {
                     break
                 case 413:
                     message = "Request Entity Too Large"
-                    teamplate = ""
+                    template = ""
                     break
                 case 404:
                     message = "Not Found"
@@ -73,60 +119,97 @@ class IdentityServiceResponseSimulator {
                     message = "Unauthorized"
                     template = xml ? identityUnauthorizedXmlTemplate : identityUnauthorizedJsonTemplate
                     break
-            }
-        } else {
-            message = 'OK'
-            if (xml) {
-                template = identitySuccessXmlTemplate
-                headers.put('Content-type', 'application/xml')
-            } else {
-                template = identitySuccessJsonTemplate
-                headers.put('Content-type', 'application/json')
-            }
-
-            switch (request.method) {
-
-                case "GET":
-                    if (request.path.contains("tokens")) {
-                        code = validateCode
-                        validateTokenCount += 1
-
-                        params = [
-                                expires: nowPlusTTL.toString(DATE_FORMAT),
-                                userid: client_userid,
-                                username: client_username,
-                                tenant: client_tenant,
-                                token: client_token
-                        ]
-                    } else {
-                        if (xml)
-                            template = groupsXmlTemplate
-                        else
-                            template = groupsJsonTemplate
-                    }
-                    break
-                case "POST":
-                    params = [
-                            expires: nowPlusTTL.toString(DATE_FORMAT),
-                            userid: admin_userid,
-                            username: admin_username,
-                            tenant: admin_tenant,
-                            token: admin_token
-                    ]
+                case 400:
+                    message = "Bad Request"
+                    template = ""
                     break
                 default:
-                    throw new UnsupportedOperationException('Unknown request: %r' % request)
-
+                    message= ""
+                    template = ""
             }
         }
+
 
 
         def body = templateEngine.createTemplate(template).make(params)
 
         println body
-        return new Response(validateCode, message, headers, body)
+        return new Response(code, message, headers, body)
 
     }
+
+//        if (request.method == "GET" && request.path.contains("tokens")) {
+//            validateTokenCount += 1
+//        }
+//
+//        if (validateCode != 200) {
+//            switch (validateCode) {
+//
+//                case 503:
+//                    message = "Service Unavailable"
+//                    template = ""
+//                    break
+//                case 500:
+//                    message = "Internal Server Error"
+//                    template = ""
+//                    break
+//                case 413:
+//                    message = "Request Entity Too Large"
+//                    teamplate = ""
+//                    break
+//                case 404:
+//                    message = "Not Found"
+//                    template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
+//                    break
+//                case 401:
+//                    message = "Unauthorized"
+//                    template = xml ? identityUnauthorizedXmlTemplate : identityUnauthorizedJsonTemplate
+//                    break
+//            }
+//        } else {
+//            message = 'OK'
+//            if (xml) {
+//                template = identitySuccessXmlTemplate
+//                headers.put('Content-type', 'application/xml')
+//            } else {
+//                template = identitySuccessJsonTemplate
+//                headers.put('Content-type', 'application/json')
+//            }
+//
+//            switch (request.method) {
+//
+//                case "GET":
+//                    if (request.path.contains("tokens")) {
+//
+//                        params = [
+//                                expires: nowPlusTTL.toString(DATE_FORMAT),
+//                                userid: client_userid,
+//                                username: client_username,
+//                                tenant: client_tenant,
+//                                token: client_token
+//                        ]
+//                    } else {
+//                        if (xml)
+//                            template = groupsXmlTemplate
+//                        else
+//                            template = groupsJsonTemplate
+//                    }
+//                    break
+//                case "POST":
+//                    params = [
+//                            expires: nowPlusTTL.toString(DATE_FORMAT),
+//                            userid: admin_userid,
+//                            username: admin_username,
+//                            tenant: admin_tenant,
+//                            token: admin_token
+//                    ]
+//                    break
+//                default:
+//                    throw new UnsupportedOperationException('Unknown request: %r' % request)
+//
+//            }
+//        }
+
 
     def identityUnauthorizedJsonTemplate =
         """{
