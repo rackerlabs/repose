@@ -12,6 +12,11 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Handles the client request & origin response for the service-authentication filter.  On request this adds the basic
+ * authentication header, on response, it looks for NOT_IMPLEMENTED or FORBIDDEN status codes related to basic authentication
+ * and returns 500.
+ */
 public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 
     public static final String AUTH_HEADER = "Authorization";
@@ -67,10 +72,6 @@ public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 
                 }
 
-                break;
-                
-            default:
-                LOG.warn("Unexpected response status code: " + response.getStatus());
                 break;
         }
 
