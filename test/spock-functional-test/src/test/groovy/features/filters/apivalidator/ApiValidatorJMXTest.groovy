@@ -121,7 +121,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == null
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 2
     }
 
     def "when request is for role-3 and role-1, should increment invalid request for ApiValidator mbeans for role 3 and role 1"() {
@@ -134,7 +134,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == null
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 2
     }
 
     def "when request is for role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 1 and role 2"() {
@@ -147,7 +147,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == null
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 2
     }
 
     def "when request is for role-3, role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 3, role 1, and role 2"() {
@@ -160,7 +160,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
         repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
-        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 3
     }
 
     def "when request is for api validator, should increment ApiValidator mbeans for all"() {
