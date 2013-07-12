@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from narwhal import repose
+from narwhal import valve
 import requests
 import unittest2 as unittest
 from narwhal import conf
@@ -69,14 +69,14 @@ class TestMultiClusterMultiNode(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('container-no-port', params=self.params)
         apply_config_set('two-clusters-two-nodes-each', params=self.params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
+        self.valve = valve.Valve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(45)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -128,14 +128,14 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('single-node-with-proto', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
+        self.valve = valve.Valve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -275,14 +275,14 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('one-node', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
+        self.valve = valve.Valve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -336,14 +336,14 @@ class TestStartWithZeroNodes(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('zero-nodes', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
+        self.valve = valve.Valve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -400,13 +400,13 @@ class TestPortsOnCommandLineBase:
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.repose = self.start_repose()
+        self.valve = self.start_repose()
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def runTest(self):
@@ -430,7 +430,7 @@ class TestPortsOnCommandLineBase:
 class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
                                      unittest.TestCase):
     def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+        return valve.Valve(config_dir=config_dir,
                                   port=self.cmd_line_port,
                                   stop_port=stop_port)
 
@@ -443,7 +443,7 @@ class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
 class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
                                       unittest.TestCase):
     def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+        return valve.Valve(config_dir=config_dir,
                                   https_port=self.cmd_line_port,
                                   stop_port=stop_port)
 
@@ -456,7 +456,7 @@ class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
 class TestPortsOnCommandLineHttpDiff(TestPortsOnCommandLineBase,
                                      unittest.TestCase):
     def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+        return valve.Valve(config_dir=config_dir,
                                   port=self.cmd_line_port,
                                   stop_port=stop_port)
 
@@ -485,7 +485,7 @@ class TestPortsOnCommandLineHttpDiff(TestPortsOnCommandLineBase,
 class TestPortsOnCommandLineNone(TestPortsOnCommandLineBase,
                                  unittest.TestCase):
     def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+        return valve.Valve(config_dir=config_dir,
                                   stop_port=stop_port)
 
     def init_params(self):
@@ -530,14 +530,14 @@ class TestPortsInContainerBase:
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set(self.main_config_set_name, params=self.params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
+        self.valve = valve.Valve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def runTest(self):
