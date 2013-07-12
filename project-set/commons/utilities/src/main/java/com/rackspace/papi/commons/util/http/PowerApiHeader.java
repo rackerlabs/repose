@@ -10,6 +10,7 @@ public enum PowerApiHeader implements HeaderConstant {
    USER("X-PP-User"),
    GROUPS("X-PP-Groups"),
    X_CATALOG("x-catalog");
+ 
    
    private final String headerKey;
 
