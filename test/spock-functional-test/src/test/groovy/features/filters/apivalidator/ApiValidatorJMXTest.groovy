@@ -111,6 +111,58 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
     }
 
+    def "when request is for role-3 and role-2, should increment invalid request for ApiValidator mbeans for role 3 and role 2"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-2']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == null
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+    }
+
+    def "when request is for role-3 and role-1, should increment invalid request for ApiValidator mbeans for role 3 and role 1"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-1']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == null
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+    }
+
+    def "when request is for role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 1 and role 2"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1, role-2']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-1, role-2']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == null
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+    }
+
+    def "when request is for role-3, role-1 and role-2, should increment invalid request for ApiValidator mbeans for role 3, role 1, and role 2"() {
+
+        when:
+        deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-3, role-2, role-1']])
+        deproxy.makeRequest([url: reposeEndpoint + "/non-resource", method: "get",headers:['X-Roles':'role-3, role-2, role-1']])
+
+        then:
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_3, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_2, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_1, "Count") == 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR_ALL, "Count") == 1
+    }
+
     def "when request is for api validator, should increment ApiValidator mbeans for all"() {
 
         when:
