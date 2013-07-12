@@ -86,7 +86,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     }
 
     def "when request is for role-2, should increment invalid request for ApiValidator mbeans for role 2"() {
-
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "post",headers:['X-Roles':'role-2']])
         deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-2']])
