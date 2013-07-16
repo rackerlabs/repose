@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-from narwhal import repose
 import requests
 import unittest2 as unittest
-from narwhal import conf
-from narwhal import pathutil
-import xmlrunner as _xmlrunner
+import xmlrunner
 import logging
 import time
 import argparse
 import os
+from narwhal import conf
+from narwhal import pathutil
+from narwhal import valve
+from narwhal import get_next_open_port
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ config_dir = pathutil.join(os.getcwd(), 'etc/repose')
 deploy_dir = pathutil.join(os.getcwd(), 'var/repose')
 artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
 log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
-stop_port = 7777
+
 
 
 def setUpModule():
@@ -48,10 +49,11 @@ class TestMultiClusterMultiNode(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.port11 = 18888
-        self.port12 = 18889
-        self.port21 = 18890
-        self.port22 = 18891
+        self.port11 = get_next_open_port()
+        self.port12 = get_next_open_port()
+        self.port21 = get_next_open_port()
+        self.port22 = get_next_open_port()
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -69,14 +71,14 @@ class TestMultiClusterMultiNode(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('container-no-port', params=self.params)
         apply_config_set('two-clusters-two-nodes-each', params=self.params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                 stop_port=self.stop_port)
         time.sleep(45)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -111,9 +113,10 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.port1 = 11111
-        self.port2 = 22222
-        self.port3 = 33333
+        self.port1 = get_next_open_port()
+        self.port2 = get_next_open_port()
+        self.port3 = get_next_open_port()
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         params = {
@@ -128,14 +131,14 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('single-node-with-proto', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -260,7 +263,8 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.port = 11111
+        self.port = get_next_open_port()
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         params = {
@@ -275,14 +279,14 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('one-node', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -323,7 +327,8 @@ class TestStartWithZeroNodes(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.port = 11111
+        self.port = get_next_open_port()
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         params = {
@@ -336,14 +341,14 @@ class TestStartWithZeroNodes(unittest.TestCase):
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
         apply_config_set('zero-nodes', params=params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def make_request_and_assert_status_code(self, url, expected_status_code):
@@ -400,13 +405,13 @@ class TestPortsOnCommandLineBase:
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.repose = self.start_repose()
+        self.valve = self.start_valve()
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def runTest(self):
@@ -429,41 +434,45 @@ class TestPortsOnCommandLineBase:
 
 class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
                                      unittest.TestCase):
-    def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+    def start_valve(self):
+        return valve.Valve(config_dir=config_dir,
                                   port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                  stop_port=self.stop_port)
 
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.cmd_line_port = 8888
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
 
 
 class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
                                       unittest.TestCase):
-    def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+    def start_valve(self):
+        return valve.Valve(config_dir=config_dir,
                                   https_port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                  stop_port=self.stop_port)
 
     def init_params(self):
         self.proto = 'https'
-        self.sysmod_port = 8888
-        self.cmd_line_port = 8888
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
 
 
 class TestPortsOnCommandLineHttpDiff(TestPortsOnCommandLineBase,
                                      unittest.TestCase):
-    def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
+    def start_valve(self):
+        return valve.Valve(config_dir=config_dir,
                                   port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                  stop_port=self.stop_port)
 
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.cmd_line_port = 8889
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = get_next_open_port()
+        # self.cmd_line_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
 
     def runTest(self):
         logger.debug('runTest')
@@ -484,14 +493,16 @@ class TestPortsOnCommandLineHttpDiff(TestPortsOnCommandLineBase,
 
 class TestPortsOnCommandLineNone(TestPortsOnCommandLineBase,
                                  unittest.TestCase):
-    def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
-                                  stop_port=stop_port)
+    def start_valve(self):
+        return valve.Valve(config_dir=config_dir,
+                                  stop_port=self.stop_port)
 
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.cmd_line_port = 8889
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = get_next_open_port()
+        # self.cmd_line_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
 
     def runTest(self):
         logger.debug('runTest')
@@ -530,14 +541,14 @@ class TestPortsInContainerBase:
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set(self.main_config_set_name, params=self.params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
         time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
-        if self.repose is not None:
-            self.repose.stop()
+        if self.valve is not None:
+            self.valve.stop()
             time.sleep(5)
 
     def runTest(self):
@@ -562,8 +573,9 @@ class TestPortsInContainerHttpSame(TestPortsInContainerBase,
                                    unittest.TestCase):
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.con_port = 8888
+        self.sysmod_port = get_next_open_port()
+        self.con_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-with-port'
 
 
@@ -571,8 +583,9 @@ class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
                                     unittest.TestCase):
     def init_params(self):
         self.proto = 'https'
-        self.sysmod_port = 8888
-        self.con_port = 8888
+        self.sysmod_port = get_next_open_port()
+        self.con_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-with-port'
 
 
@@ -580,8 +593,10 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
                                    unittest.TestCase):
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.con_port = 8889
+        self.sysmod_port = get_next_open_port()
+        self.con_port = get_next_open_port()
+        # self.con_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-with-port'
 
     def runTest(self):
@@ -604,8 +619,10 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
 class TestPortsInContainerNone(TestPortsInContainerBase, unittest.TestCase):
     def init_params(self):
         self.proto = 'http'
-        self.sysmod_port = 8888
-        self.con_port = 8889
+        self.sysmod_port = get_next_open_port()
+        self.con_port = get_next_open_port()
+        # self.con_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-no-port'
 
     def runTest(self):
@@ -639,7 +656,7 @@ def run():
                                     '%(filename)s(%(lineno)d):'
                                     '%(threadName)s(%(thread)d):%(message)s'))
 
-    test_runner = _xmlrunner.XMLTestRunner(output='test-reports')
+    test_runner = xmlrunner.XMLTestRunner(output='test-reports')
 
     unittest.main(argv=[''], testRunner=test_runner)
 
