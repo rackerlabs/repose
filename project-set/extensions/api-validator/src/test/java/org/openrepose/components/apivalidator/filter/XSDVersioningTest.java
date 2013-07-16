@@ -126,10 +126,14 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
+            try{
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                validated = false;
+            }
 
-            fail("Erroneously passed validation");
+            assertFalse(validated);
         }
 
         @Test
@@ -158,10 +162,14 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
+            try{
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                validated = false;
+            }
 
-            fail("Erroneously passed validation");
+            assertFalse(validated);
         }
 
         @Test
