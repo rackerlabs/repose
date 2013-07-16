@@ -11,6 +11,8 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -94,7 +96,10 @@ public class OpenStackAuthenticationHeaderManagerTest {
 
          Token token = new Token();
          token.setId("518f323d-505a-4475-9cba-bc43cd1790-A");
-         token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
+         
+         Calendar expires = getCalendarWithOffset(1000);
+         token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar((GregorianCalendar) expires));
+         
          TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
          tenant.setId("tenantId");
          tenant.setName("tenantName");
@@ -135,7 +140,19 @@ public class OpenStackAuthenticationHeaderManagerTest {
              openStackAuthenticationHeaderManager.setFilterDirectorValues();
       
         }
+        
+        private Calendar getCalendarWithOffset(int millis) {
+            return getCalendarWithOffset(Calendar.MILLISECOND, millis);
+         }
 
+        private Calendar getCalendarWithOffset(int field, int millis) {
+            Calendar cal = GregorianCalendar.getInstance();
+
+            cal.add(field, millis);
+
+            return cal;
+         }
+      
           
        @Test
         public void shouldAddHeaders() {
@@ -145,7 +162,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_NAME.toString()));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_ID.toString()));
            assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(PowerApiHeader.GROUPS.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(PowerApiHeader.X_EXPIRATION.toString()));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.X_EXPIRATION.toString()));
         }
     }
 }

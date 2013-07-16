@@ -177,7 +177,7 @@ public class OpenStackAuthenticationHeaderManager {
     private void setExpirationDate() {
         if (cachableToken.getExpires()>0) {
             HttpDate date = new HttpDate(new Date(cachableToken.getExpires()));
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_EXPIRATION.toString(), date.toRFC1123());
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.X_EXPIRATION.toString(), date.toRFC1123());
         }
     }
     
