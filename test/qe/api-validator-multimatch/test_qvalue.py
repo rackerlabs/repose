@@ -44,7 +44,7 @@ uses both role-1 and role-3, then it will result in an f4.
 
 import unittest2 as unittest
 import xmlrunner
-from narwhal import repose
+from narwhal import valve
 from narwhal import conf
 from narwhal import pathutil
 import deproxy
@@ -121,7 +121,7 @@ class TestSingleMatchQvalue(unittest.TestCase):
         conf.process_folder_contents(folder='configs/f4f5p',
                                      dest_path='etc/repose', params=params)
 
-        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+        cls.repose = valve.Valve(config_dir='etc/repose',
                                         stop_port=stop_port,
                                         wait_on_start=True, port=repose_port)
 
@@ -164,7 +164,7 @@ class TestMultiMatchQvalue(unittest.TestCase):
         conf.process_folder_contents(folder='configs/mf4p',
                                      dest_path='etc/repose', params=params)
 
-        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+        cls.repose = valve.Valve(config_dir='etc/repose',
                                         stop_port=stop_port,
                                         wait_on_start=True, port=repose_port)
 
@@ -207,7 +207,7 @@ class TestUseAllRolesWithSameHighQValue(unittest.TestCase):
         conf.process_folder_contents(folder='configs/f4f5p',
                                      dest_path='etc/repose', params=params)
 
-        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+        cls.repose = valve.Valve(config_dir='etc/repose',
                                         stop_port=stop_port,
                                         wait_on_start=True, port=repose_port)
 

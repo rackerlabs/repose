@@ -87,7 +87,7 @@ the f4, when the 1 should match the p.
 
 import unittest2 as unittest
 import xmlrunner
-from narwhal import repose
+from narwhal import valve
 from narwhal import conf
 from narwhal import pathutil
 import deproxy
@@ -164,7 +164,7 @@ class TestMultipleRoles(unittest.TestCase):
         conf.process_folder_contents(folder='configs/p{1,2}',
                                      dest_path='etc/repose', params=params)
 
-        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+        cls.repose = valve.Valve(config_dir='etc/repose',
                                         stop_port=stop_port,
                                         wait_on_start=True, port=repose_port)
 
@@ -228,7 +228,7 @@ class TestRoleOrder(unittest.TestCase):
         conf.process_folder_contents(folder='configs/p{2}f4{1,2}',
                                      dest_path='etc/repose', params=params)
 
-        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+        cls.repose = valve.Valve(config_dir='etc/repose',
                                         stop_port=stop_port,
                                         wait_on_start=True, port=repose_port)
 
