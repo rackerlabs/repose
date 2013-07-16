@@ -101,7 +101,7 @@ public class XSDVersioningTest {
         }
 
         @Test
-        public void shouldNotValidateVersion1WithXsdEngine() throws IOException {
+        public void shouldNotValidateVersion1WithXsdEngine() throws SAXException, IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
@@ -126,16 +126,14 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            try {
-                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-                validated = true;
-            } catch (SAXException se) {
-                fail("Failed to validate XML");
-            }
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+            validated = true;
+
+            fail("Erroneously passed validation");
         }
 
         @Test
-        public void shouldNotValidateVersion2WithUseSaxon() throws IOException {
+        public void shouldNotValidateVersion2WithUseSaxon() throws SAXException, IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
@@ -160,12 +158,10 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            try {
-                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-                validated = true;
-            } catch (SAXException se) {
-                fail("Failed to validate XML");
-            }
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+            validated = true;
+
+            fail("Erroneously passed validation");
         }
 
         @Test
