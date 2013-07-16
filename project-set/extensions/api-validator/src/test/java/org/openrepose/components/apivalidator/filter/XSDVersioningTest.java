@@ -33,7 +33,7 @@ public class XSDVersioningTest {
         }
 
         @Test
-        public void shouldDefaultToVersion1() throws SAXException, IOException {
+        public void shouldDefaultToVersion1() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
@@ -58,14 +58,16 @@ public class XSDVersioningTest {
                     "        check-headers=\"true\"/>" +
                     "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
-
-            assertTrue(validated);
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldValidateVersion1() throws SAXException, IOException {
+        public void shouldValidateVersion1() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
@@ -90,14 +92,16 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
-
-            assertTrue(validated);
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldNotValidateVersion1WithXsdEngine() throws SAXException, IOException {
+        public void shouldNotValidateVersion1WithXsdEngine() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
@@ -122,14 +126,16 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
-
-            assertFalse(validated);
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldNotValidateVersion2WithUseSaxon() throws SAXException, IOException {
+        public void shouldNotValidateVersion2WithUseSaxon() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
@@ -154,14 +160,16 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
-
-            assertFalse(validated);
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldValidateVersion2() throws SAXException, IOException {
+        public void shouldValidateVersion2() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
@@ -186,10 +194,12 @@ public class XSDVersioningTest {
                             "        check-headers=\"true\"/>" +
                             "</validators>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            validated = true;
-
-            assertTrue(validated);
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
     }
 }
