@@ -51,8 +51,8 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
 
         then: "User should receive a " + expectedCode + "response"
-        mc.receivedResponse.code == "500"
-        mc.sentRequest.he
+        mc.receivedResponse.code == expectedCode
+        //mc.sentRequest.he
 
         where:
         adminCode | validateCode | groupCode | expectedCode
@@ -66,8 +66,31 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         500       | 401          | 401       | "500"
         501       | 401          | 401       | "500"
         502       | 401          | 401       | "500"
-//        503       | 401          | 401       | "500"
+        503       | 401          | 401       | "500"
 
+        200       | 400          | 200       | "500"
+        200       | 401          | 200       | "500"
+        200       | 402          | 200       | "500"
+        200       | 403          | 200       | "500"
+        200       | 404          | 200       | "401"
+        200       | 413          | 200       | "500"
+        200       | 429          | 200       | "500"
+        200       | 500          | 200       | "500"
+        200       | 501          | 200       | "500"
+        200       | 502          | 200       | "500"
+        200       | 503          | 200       | "500"
+
+        200       | 200          | 400       | "500"
+        200       | 200          | 401       | "500"
+        200       | 200          | 402       | "500"
+        200       | 200          | 403       | "500"
+        200       | 200          | 404       | "500"
+        200       | 200          | 413       | "500"
+        200       | 200          | 429       | "500"
+        200       | 200          | 500       | "500"
+        200       | 200          | 501       | "500"
+        200       | 200          | 502       | "500"
+        200       | 200          | 503       | "500"
 
 
     }
