@@ -60,7 +60,7 @@ public class SystemModelConfigTest {
                             "            <filter name=\"dist-datastore\"/>\n" +
                             "        </filters>\n" +
                             "        <services>\n" +
-                            "            <service name=\"distributed-datastore\"/>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
                             "        </services>\n" +
                             "        <destinations>\n" +
                             "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"\n" +
