@@ -56,7 +56,7 @@ public class ApiValidatorHandlerFactoryTest {
 
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "", null);
 
             instance.configurationUpdated(config);
             
@@ -104,7 +104,7 @@ public class ApiValidatorHandlerFactoryTest {
         public void setup() {
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "", null);
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);
