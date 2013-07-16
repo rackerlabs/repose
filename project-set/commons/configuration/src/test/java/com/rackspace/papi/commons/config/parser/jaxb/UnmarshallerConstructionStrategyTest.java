@@ -43,7 +43,7 @@ public class UnmarshallerConstructionStrategyTest {
             JAXBContext jaxbContext = mock(JAXBContext.class);
             when(jaxbContext.createUnmarshaller()).thenThrow(new JAXBException("mock jaxb exception"));
                         
-            ConstructionStrategy<Unmarshaller> constructionStrategy = new UnmarshallerConstructionStrategy(jaxbContext);
+            ConstructionStrategy<UnmarshallerValidator> constructionStrategy = new UnmarshallerConstructionStrategy(jaxbContext);
 
             constructionStrategy.construct();
         }

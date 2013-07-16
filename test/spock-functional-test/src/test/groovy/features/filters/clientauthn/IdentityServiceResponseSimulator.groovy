@@ -4,31 +4,47 @@ import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTimeZone;
 
 /**
  * Simulates responses from an Identity Service
  */
 class IdentityServiceResponseSimulator {
 
-    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    boolean ok = true
-    int validateTokenCount = 0
-    int ttlDurationInDays = 1
+    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    boolean ok = true;
+    int validateTokenCount = 0;
+    int groupsCount = 0;
+    int adminTokenCount = 0;
+    int endpointsCount = 0;
 
-    def client_token = 'this-is-the-token'
-    def client_tenant = 'this-is-the-tenant'
-    def client_username = 'username'
-    def client_userid = 12345
-    def admin_token = 'this-is-the-admin-token'
-    def admin_tenant = 'this-is-the-admin-tenant'
-    def admin_username = 'admin_username'
-    def admin_userid = 67890
+    /*
+     * The tokenExpiresAt field determines when the token expires. Consumers of
+     * this class should set to a particular DateTime (for example, to test
+     * some aspect of expiration dates), or leave it null to default to now
+     * plus one day.
+     *
+     */
+    def tokenExpiresAt = null;
 
-    def validateCode = 200
-    def groupCode = 200
-    def adminCode = 200
+    int errorCode;
+    boolean isGetAdminTokenBroken = false;
+    boolean isGetGroupsBroken = false;
+    boolean isValidateClientTokenBroken = false;
+    boolean isGetEndpointsBroken = false;
 
-    def templateEngine = new SimpleTemplateEngine()
+    def client_token = 'this-is-the-token';
+    def client_tenant = 'this-is-the-tenant';
+    def client_username = 'username';
+    def client_userid = 12345;
+    def admin_token = 'this-is-the-admin-token';
+    def admin_tenant = 'this-is-the-admin-tenant';
+    def admin_username = 'admin_username';
+    def admin_userid = 67890;
+
+    def templateEngine = new SimpleTemplateEngine();
 
 
     def handler = { Request request ->
@@ -40,17 +56,13 @@ class IdentityServiceResponseSimulator {
             }
         }
 
-        def now = new DateTime()
-        def nowPlusTTL = now.plusDays(ttlDurationInDays)
-
         def params = [:]
-        def message
+
         // default response code and message
         def template
         def headers = ['Connection': 'close']
-        def code
-
-        message = "OK"
+        def code = 200
+        def message = 'OK'
         if (xml) {
             template = identitySuccessXmlTemplate
             headers.put('Content-type', 'application/xml')
@@ -59,102 +71,207 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        switch (request.method) {
+        if (request.method == "POST") {
+            return handleGetAdminTokenCall(request);
+        } else if (request.method == "GET" && request.path.contains("tokens")) {
+            return handleValidateTokenCall(request);
+        } else if (request.method == "GET" && request.path.contains("endpoints")) {
+            return handleEndpointsCall(request);
+        } else if (request.method == "GET") {
+            return handleGroupsCall(request);
+        } else {
+            throw new UnsupportedOperationException('Unknown request: %r' % request)
+        }
+    }
 
-            case "GET":
-                if (request.path.contains("tokens")) {   // validate token
+    String getExpires() {
 
-                    validateTokenCount += 1
-                    code = validateCode
-                    params = [
-                            expires: nowPlusTTL.toString(DATE_FORMAT),
-                            userid: client_userid,
-                            username: client_username,
-                            tenant: client_tenant,
-                            token: client_token
-                    ]
-                } else { //get groups
-                    code = groupCode
-                    if (xml)
-                        template = groupsXmlTemplate
-                    else
-                        template = groupsJsonTemplate
-                }
-                break
-            case "POST":             //get token
-                code = adminCode
-                params = [
-                        expires: nowPlusTTL.toString(DATE_FORMAT),
-                        userid: admin_userid,
-                        username: admin_username,
-                        tenant: admin_tenant,
-                        token: admin_token
-                ]
-                break
-            default:
-                throw new UnsupportedOperationException('Unknown request: %r' % request)
 
+        if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
+
+            return this.tokenExpiresAt;
+
+        } else if (this.tokenExpiresAt instanceof DateTime) {
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC);
+            return fmt.print(tokenExpiresAt)
+
+        } else if (this.tokenExpiresAt) {
+
+            return this.tokenExpiresAt.toString();
+
+        } else {
+
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            return nowPlusOneDay;
+        }
+    }
+
+    Response handleValidateTokenCall(Request request) {
+        validateTokenCount += 1
+
+        if (this.isValidateClientTokenBroken) {
+            return new Response(this.errorCode);
         }
 
-        if (code != 200) {
-            switch (code) {
+        def params = [
+                expires: getExpires(),
+                userid: client_userid,
+                username: client_username,
+                tenant: client_tenant,
+                token: client_token
+        ];
 
-                case 503:
-                    message = "Service Unavailable"
-                    template = ""
-                    break
-                case 500:
-                    message = "Internal Server Error"
-                    template = ""
-                    break
-                case 413:
-                    message = "Request Entity Too Large"
-                    template = ""
-                    break
-                case 404:
-                    message = "Not Found"
-                    template = xml ? identityFailureXmlTemplate : identityFailureJsonTemplate
-                    break
-                case 401:
-                    message = "Unauthorized"
-                    template = xml ? identityUnauthorizedXmlTemplate : identityUnauthorizedJsonTemplate
-                    break
-                case 400:
-                    message = "Bad Request"
-                    template = ""
-                    break
-                default:
-                    message= ""
-                    template = ""
+        return handleTokenCallBase(request, params);
+    }
+
+    Response handleTokenCallBase(Request request, params) {
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
             }
         }
 
+        def code;
+        def template;
+        def headers = ['Connection': 'close'];
 
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
+        }
+
+        if (ok) {
+            code = 200;
+            if (xml) {
+                template = identitySuccessXmlTemplate
+            } else {
+                template = identitySuccessJsonTemplate
+            }
+        } else {
+            code = 404
+            if (xml) {
+                template = identityFailureXmlTemplate
+            } else {
+                template = identityFailureJsonTemplate
+            }
+        }
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        println body
-        return new Response(code, message, headers, body)
+        //println body
+        return new Response(code, null, headers, body)
+    }
 
+    Response handleGroupsCall(Request request) {
+        groupsCount += 1
+
+        if (this.isGetGroupsBroken) {
+            return new Response(this.errorCode);
+        }
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def params = [
+                expires: getExpires(),
+                userid: client_userid,
+                username: client_username,
+                tenant: client_tenant,
+                token: client_token
+        ]
+
+        def template;
+        def headers = ['Connection': 'close'];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
+        }
+
+        if (xml) {
+            template = groupsXmlTemplate
+        } else {
+            template = groupsJsonTemplate
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(200, null, headers, body)
+    }
+
+    Response handleGetAdminTokenCall(Request request) {
+        adminTokenCount += 1
+
+        if (this.isGetAdminTokenBroken) {
+            return new Response(this.errorCode);
+        }
+
+        def params = [
+                expires: getExpires(),
+                userid: admin_userid,
+                username: admin_username,
+                tenant: admin_tenant,
+                token: admin_token
+        ];
+
+        return handleTokenCallBase(request, params);
+    }
+
+    Response handleEndpointsCall(Request request) {
+        endpointsCount += 1;
+
+        if (this.isGetEndpointsBroken) {
+            return new Response(this.errorCode);
+        }
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def code;
+        def template;
+        def headers = ['Connection': 'close'];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+            template = this.identityEndpointXmlTemplate;
+        } else {
+            headers.put('Content-type', 'application/json')
+            template = this.identityEndpointJsonTemplate;
+        }
+
+        def params = [
+                'identity_port': this.port,
+                'token': this.client_token,
+                'expires': getExpires(),
+                'userid': this.client_userid,
+                'username': this.client_username,
+                'tenant': this.client_tenant,
+                'token': this.client_token,
+                'origin_service_port': this.origin_service_port,
+        ];
+
+        def body = templateEngine.createTemplate(template).make(params);
+        return new Response(200, null, headers, body);
     }
 
 
-
-    def identityUnauthorizedJsonTemplate =
-        """{
-    "unauthorized": {
-        "code": 401,
-        "message": "No valid token provided. Please use the 'X-Auth-Token' header with a valid token."
-    }
-}
-"""
-
-    def identityUnauthorizedXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<unauthorized xmlns="http://docs.openstack.org/identity/api/v2.0" xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0" code="401">
-  <message>No valid token provided. Please use the 'X-Auth-Token' header with a valid token.</message>
-</unauthorized>
-"""
 
     def groupsJsonTemplate =
         """{
@@ -248,7 +365,7 @@ class IdentityServiceResponseSimulator {
                "description" : "Admin Role."
             }
          ],
-         "RAX-AUTH:defaultRegion" : "",
+         "RAX-AUTH:defaultRegion" : "the-default-region",
          "name" : "\${username}",
          "id" : "\${userid}"
       },
@@ -279,7 +396,7 @@ class IdentityServiceResponseSimulator {
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
           name="\${username}"
-          rax-auth:defaultRegion="">
+          rax-auth:defaultRegion="the-default-region">
         <roles>
             <role id="684"
                   name="compute:default"
@@ -317,4 +434,64 @@ class IdentityServiceResponseSimulator {
     </serviceCatalog>
 </access>
 """
+
+    def identityEndpointsJsonTemplate =
+        """{
+    "endpoints_links": [
+        {
+            "href": "http://localhost:\${identity_port}/tokens/\${token}/endpoints?'marker=5&limit=10'",
+            "rel": "next"
+        }
+    ],
+    "endpoints": [
+        {
+            "internalURL": "http://localhost:\${origin_service_port}/v1/AUTH_1",
+            "name": "swift",
+            "adminURL": "http://localhost:\${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "object-store",
+            "id": 1,
+            "publicURL": "http://localhost:\${origin_service_port}/"
+        },
+        {
+            "internalURL": "http://localhost:\${origin_service_port}/",
+            "name": "nova_compat",
+            "adminURL": "http://localhost:\${origin_service_port}/",
+            "region": "RegionOne",
+            "tenantId": 1,
+            "type": "compute",
+            "id": 2,
+            "publicURL": "http://localhost:\${origin_service_port}/"
+        }
+    ]
+}"""
+
+    def identityEndpointXmlTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
+           xmlns:ns2="http://www.w3.org/2005/Atom"
+           xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+           xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+           xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+           xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+           xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+  <endpoint id="1"
+            type="object-store"
+            name="swift"
+            region="RegionOne"
+            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
+            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
+            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            tenantId="\${tenant}"/>
+  <endpoint id="2"
+            type="compute"
+            name="nova_compat"
+            region="RegionOne"
+            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
+            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
+            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            tenantId="\${tenant}"/>
+</endpoints>"""
+
 }

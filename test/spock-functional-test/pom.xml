@@ -103,14 +103,70 @@
                 <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
                 <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/saxonEE/*.class</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+            </plugins>
+        </build>
+        </profile>
+        <profile>
+            <id>saxonEE</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <saxon_home>${env.SAXON_HOME}</saxon_home>
+                <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
+
+                <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+                <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
+                <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
+                </filter.extensions.dir>
+
+                <repose.valve.jar>repose-valve.jar</repose.valve.jar>
+                <filter.ear>filter-bundle-*.ear</filter.ear>
+                <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
+
+                <repose_port>8888</repose_port>
+                <repose_jmx_port>9001</repose_jmx_port>
+                <repose_shutdown_port>9999</repose_shutdown_port>
+                <target_hostname>localhost</target_hostname>
+                <target_port>10001</target_port>
+                <identity_port>12200</identity_port>
+                <atom_port>12201</atom_port>
+
+                <repose.home>${project.build.directory}/repose_home</repose.home>
+                <repose.config.directory>${repose.home}/configs</repose.config.directory>
+                <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
+                <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/*.class</include>
+                                <include>**/saxonEE/*.class</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
 
     <build>
         <testResources>
-
-
             <testResource>
                 <directory>${project.basedir}/src/test/resources</directory>
                 <filtering>true</filtering>
@@ -187,7 +243,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

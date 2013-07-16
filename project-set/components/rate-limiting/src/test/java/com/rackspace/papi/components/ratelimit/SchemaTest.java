@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Enclosed.class)
 public class SchemaTest {
 
-    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    public static final SchemaFactory SCHEMA_FACTORY = SchemaFactory.newInstance( "http://www.w3.org/XML/XMLSchema/v1.1" );
 
     public static class WhenValidating {
 

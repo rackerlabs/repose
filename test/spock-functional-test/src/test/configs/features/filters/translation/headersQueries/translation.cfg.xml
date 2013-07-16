@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-doctype-decl="true">
+    <request-translations>
+        <request-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+            <style-sheets headers="true">
+                <style id="ss1" href="headers.xsl" />
+            </style-sheets>
+        </request-translation>
+        <request-translation content-type="application/json" accept="application/xml" translated-content-type="application/xml">
+            <style-sheets query-params="true">
+                <style id="ss2" href="queries.xsl" />
+            </style-sheets>
+        </request-translation>
+    </request-translations>
+</translation>
