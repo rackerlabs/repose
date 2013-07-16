@@ -99,6 +99,74 @@ public class XSDVersioningTest {
         }
 
         @Test
+        public void shouldNotValidateVersion1WithXsdEngine() {
+            boolean validated = false;
+            String xml =
+                    "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
+                            "    <validator" +
+                            "        role=\"default\"" +
+                            "        default=\"true\"" +
+                            "        wadl=\"file://my/wadl/file.wadl\"" +
+                            "        dot-output=\"/tmp/default.dot\"" +
+                            "        check-well-formed=\"false\"" +
+                            "        check-xsd-grammar=\"true\"" +
+                            "        check-elements=\"true\"" +
+                            "        check-plain-params=\"true\"" +
+                            "        do-xsd-grammar-transform=\"true\"" +
+                            "        enable-pre-process-extension=\"true\"" +
+                            "        remove-dups=\"true\"" +
+                            "        xpath-version=\"2\"" +
+                            "        xsl-engine=\"XalanC\"" +
+                            "        xsd-engine=\"Xerces\"" +
+                            "        enable-ignore-xsd-extension=\"false\"" +
+                            "        join-xpath-checks=\"false\"" +
+                            "        validator-name=\"testName\"" +
+                            "        check-headers=\"true\"/>" +
+                            "</validators>";
+
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (Exception e) {}
+
+            assertFalse(validated);
+        }
+
+        @Test
+        public void shouldNotValidateVersion2WithUseSaxon() {
+            boolean validated = false;
+            String xml =
+                    "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
+                            "    <validator" +
+                            "        role=\"default\"" +
+                            "        default=\"true\"" +
+                            "        wadl=\"file://my/wadl/file.wadl\"" +
+                            "        dot-output=\"/tmp/default.dot\"" +
+                            "        check-well-formed=\"false\"" +
+                            "        check-xsd-grammar=\"true\"" +
+                            "        check-elements=\"true\"" +
+                            "        check-plain-params=\"true\"" +
+                            "        do-xsd-grammar-transform=\"true\"" +
+                            "        enable-pre-process-extension=\"true\"" +
+                            "        remove-dups=\"true\"" +
+                            "        xpath-version=\"2\"" +
+                            "        xsl-engine=\"XalanC\"" +
+                            "        use-saxon=\"false\"" +
+                            "        enable-ignore-xsd-extension=\"false\"" +
+                            "        join-xpath-checks=\"false\"" +
+                            "        validator-name=\"testName\"" +
+                            "        check-headers=\"true\"/>" +
+                            "</validators>";
+
+            try {
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (Exception e) {}
+
+            assertFalse(validated);
+        }
+
+        @Test
         public void shouldValidateVersion2() {
             boolean validated = false;
             String xml =
