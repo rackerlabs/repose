@@ -21,6 +21,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class uses configuration info to subscribe and unsubscribe from filters.
+ */
+
 @Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
 
@@ -115,10 +119,8 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                 }else{
                        getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
                 }
-            //Don't only log an error for illegal arguments, also throw an exception to prevent future requests.
-            } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException(ex.getMessage());
-            } catch (Exception ex) {
+
+                } catch (Exception ex) {
                     if(filterName!=null && !filterName.isEmpty()){
                      getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource, ex.getMessage()); 
                     }
