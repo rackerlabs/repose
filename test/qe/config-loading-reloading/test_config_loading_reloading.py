@@ -259,24 +259,6 @@ config_params = {'port': str(repose_port),
 sleep_time = 35
 request_timeout = 30
 
-
-def create_mock():
-    # create a simple HTTP server that returns a 200 response to all requests
-    logger.debug('create_mock')
-    global mock_service
-    if mock_service is not None:
-        return
-
-    mock_service = deproxy.Deproxy()
-    mock_service.add_endpoint(('localhost', mock_port))
-
-
-def destroy_mock():
-    if mock_service is None:
-        return
-    mock_service.shutdown_all_endpoints()
-
-
 def setUpModule():
     logger.debug('setUpModule')
     repose_conf_folder = 'etc/repose'
@@ -288,12 +270,18 @@ def setUpModule():
     # the valve jar should be 'usr/share/repose/repose-valve.jar'
     # the filter ears should be in 'usr/share/repose/filters/'
 
-    create_mock()
+    global mock_service
+    if mock_service is not None:
+        return
+
+    mock_service = deproxy.Deproxy()
+    mock_service.add_endpoint(mock_port)
     logger.debug('setUpModule complete')
 
 
 def tearDownModule():
-    destroy_mock()
+    if mock_service:
+        mock_service.shutdown_all_endpoints()
 
 
 def clear_folder(folder_name):
