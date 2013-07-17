@@ -49,11 +49,9 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       this.metricsService = metricsService;
 
       // TODO replace "api-validator" with filter-id or name-number in sys-model
-      try {
+      if (metricsService != null) {
          mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "api-validator", "InvalidRequest", TimeUnit.SECONDS);
          useMetrics = true;
-      } catch (Exception e) {
-         LOG.error("Error with metrics service", e);
       }
    }
 
