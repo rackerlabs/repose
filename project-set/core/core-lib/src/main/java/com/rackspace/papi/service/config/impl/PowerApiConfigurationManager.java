@@ -21,6 +21,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class uses configuration info to subscribe and unsubscribe from filters.
+ */
+
 @Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
 
