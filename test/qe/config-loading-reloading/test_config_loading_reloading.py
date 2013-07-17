@@ -232,7 +232,7 @@ import requests
 import time
 import sys
 import unittest2 as unittest
-import xmlrunner as _xmlrunner
+import xmlrunner
 import logging
 import SocketServer
 import BaseHTTPServer
@@ -574,7 +574,7 @@ def run():
                                     '%(filename)s(%(lineno)d):'
                                     '%(threadName)s(%(thread)d):%(message)s'))
 
-    test_runner = _xmlrunner.XMLTestRunner(output='test-reports')
+    test_runner = xmlrunner.XMLTestRunner(output='test-reports')
 
     try:
         setUpModule()
