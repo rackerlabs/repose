@@ -16,7 +16,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/common")
+        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/zerocachetime")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
@@ -37,62 +37,59 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("Identity Service Admin Code: #adminCode Validate Code: #validateCode Group Code: #groupCode")
+    @Unroll("Identity Service Broken Admin Call: #adminBroken Broken Token Validation Call: #validateBroken Broken Groups Call: #groupsBroken Error Code: #errorCode")
     def "When the identity service endpoint returns failed or unexpected responses"() {
 
-        given: "When retrieving and admin token is broken"
-        fakeIdentityService.adminCode = adminCode
-        fakeIdentityService.validateCode = validateCode
-        fakeIdentityService.groupCode = groupCode
+        given: "When Calls to Auth Return bad responses"
 
+        fakeIdentityService.isGetAdminTokenBroken = adminBroken
+        fakeIdentityService.isValidateClientTokenBroken = validateBroken
+        fakeIdentityService.isGetGroupsBroken = groupsBroken
+        fakeIdentityService.errorCode = errorCode
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
-
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
-        //mc.sentRequest.he
 
         where:
-        adminCode | validateCode | groupCode | expectedCode
-        400       | 401          | 401       | "500"
-        401       | 401          | 401       | "500"
-        402       | 401          | 401       | "500"
-        403       | 401          | 401       | "500"
-        404       | 401          | 401       | "500"
-        413       | 401          | 401       | "500"
-        429       | 401          | 401       | "500"
-        500       | 401          | 401       | "500"
-        501       | 401          | 401       | "500"
-        502       | 401          | 401       | "500"
-        503       | 401          | 401       | "500"
+        adminBroken | validateBroken | groupsBroken | errorCode | expectedCode
+        true        | false          | false        | 400       | "500"
+        true        | false          | false        | 401       | "500"
+        true        | false          | false        | 402       | "500"
+        true        | false          | false        | 403       | "500"
+        true        | false          | false        | 404       | "500"
+        true        | false          | false        | 413       | "500"
+        true        | false          | false        | 429       | "500"
+        true        | false          | false        | 500       | "500"
+        true        | false          | false        | 501       | "500"
+        true        | false          | false        | 502       | "500"
+        true        | false          | false        | 503       | "500"
 
-        200       | 400          | 200       | "500"
-        200       | 401          | 200       | "500"
-        200       | 402          | 200       | "500"
-        200       | 403          | 200       | "500"
-        200       | 404          | 200       | "401"
-        200       | 413          | 200       | "500"
-        200       | 429          | 200       | "500"
-        200       | 500          | 200       | "500"
-        200       | 501          | 200       | "500"
-        200       | 502          | 200       | "500"
-        200       | 503          | 200       | "500"
+        false       | true           | false        | 400       | "500"
+        false       | true           | false        | 401       | "500"
+        false       | true           | false        | 402       | "500"
+        false       | true           | false        | 403       | "500"
+        false       | true           | false        | 404       | "401"
+        false       | true           | false        | 413       | "500"
+        false       | true           | false        | 429       | "500"
+        false       | true           | false        | 500       | "500"
+        false       | true           | false        | 501       | "500"
+        false       | true           | false        | 502       | "500"
+        false       | true           | false        | 503       | "500"
 
-        200       | 200          | 400       | "500"
-        200       | 200          | 401       | "500"
-        200       | 200          | 402       | "500"
-        200       | 200          | 403       | "500"
-        200       | 200          | 404       | "500"
-        200       | 200          | 413       | "500"
-        200       | 200          | 429       | "500"
-        200       | 200          | 500       | "500"
-        200       | 200          | 501       | "500"
-        200       | 200          | 502       | "500"
-        200       | 200          | 503       | "500"
-
-
+        false       | false          | true         | 400       | "500"
+        false       | false          | true         | 401       | "500"
+        false       | false          | true         | 402       | "500"
+        false       | false          | true         | 403       | "500"
+        false       | false          | true         | 404       | "500"
+        false       | false          | true         | 413       | "500"
+        false       | false          | true         | 429       | "500"
+        false       | false          | true         | 500       | "500"
+        false       | false          | true         | 501       | "500"
+        false       | false          | true         | 502       | "500"
+        false       | false          | true         | 503       | "500"
     }
 
 }
