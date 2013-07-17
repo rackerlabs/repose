@@ -1,5 +1,5 @@
-requests
-argparse
+requests==1.2.3
+argparse==1.2.1
 unittest-xml-reporting
-narwhal==0.4
+narwhal==0.7
 unittest2==0.5.1

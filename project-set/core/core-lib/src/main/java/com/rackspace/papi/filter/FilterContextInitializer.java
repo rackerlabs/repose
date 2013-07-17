@@ -16,6 +16,8 @@ import java.util.List;
 
 /**
  * @author fran
+ *
+ * Takes info from config file to initialize a filter context.
  */
 public class FilterContextInitializer {
 

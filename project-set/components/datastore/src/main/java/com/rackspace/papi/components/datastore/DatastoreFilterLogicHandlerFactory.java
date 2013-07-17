@@ -5,7 +5,9 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.*;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
@@ -16,7 +18,15 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * This class configures and updates listeners for the DD and the DD filter.
+ */
 
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 
@@ -66,7 +76,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       return null;
    }
 
-   protected void updateClusterMembers(SystemModel configuration) {// this config will have all the info from the system model cfg
+   protected void updateClusterMembers(SystemModel configuration) {
       try {
          final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
 
@@ -74,11 +84,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
          //Adding all members of the current Repose Cluster to clusterView
          if (cluster != null) {
-
-             //Make sure the DD service and filter are not running at the same time.
-             checkForDDFilterAndService(cluster);
-
-             for (Node node : cluster.getNodes().getNode()) {
+            for (Node node : cluster.getNodes().getNode()) {
 
                final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
                final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, node.getHttpPort());
@@ -92,37 +98,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
-    private void checkForDDFilterAndService(ReposeCluster cluster) {
-
-        //Check for both dd filter and dd service.
-        Boolean ddFilterPresent = false;
-        Boolean ddServicePresent = false;
-
-        if (cluster.getFilters() != null && cluster.getFilters().getFilter() != null) {
-            for (Filter filter : cluster.getFilters().getFilter()) {
-                if (filter.getName() != null && filter.getName().equals("dist-datastore")) {
-                    ddFilterPresent = true;
-                }
-            }
-        }
-
-        if (cluster.getServices() != null && cluster.getServices().getService() != null) {
-            for (Service service : cluster.getServices().getService()) {
-                if (service.getName() != null && service.getName().equals("distributed-datastore")) {
-                    ddServicePresent = true;
-                }
-            }
-        }
-
-        //If both are present throw a clear error.
-        if (ddFilterPresent == true && ddServicePresent == true) {
-            throw new IllegalArgumentException(
-                    "The distributed datastore filter and service can not be used at the same time, " +
-                            "within the same cluster. Please check your configuration.");
-        }
-    }
-
-    private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
+   private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
 
       private boolean isInitialized = false;
 
