@@ -147,13 +147,13 @@ Test cases for B-29898
     +---------------------------------+----------------+-------------------------+
     | client-auth-n.cfg.xml           | Bad to Good    | 200                     |
     +---------------------------------+----------------+-------------------------+
-    | openstack-authorization.cfg.xml | Start Good     | 200                     |
+    | openstack-authorization.cfg.xml | Start Good     | 401                     |
     +---------------------------------+----------------+-------------------------+
     | openstack-authorization.cfg.xml | Start Bad      | 503                     |
     +---------------------------------+----------------+-------------------------+
-    | openstack-authorization.cfg.xml | Good to Bad    | 200                     |
+    | openstack-authorization.cfg.xml | Good to Bad    | 401                     |
     +---------------------------------+----------------+-------------------------+
-    | openstack-authorization.cfg.xml | Bad to Good    | 200                     |
+    | openstack-authorization.cfg.xml | Bad to Good    | 401                     |
     +---------------------------------+----------------+-------------------------+
     | dist-datastore.cfg.xml          | Start Good     | 200                     |
     +---------------------------------+----------------+-------------------------+
@@ -228,6 +228,7 @@ These tests do not cover the following components' configuration files:
 
 from narwhal import valve
 from narwhal import conf
+from narwhal import get_next_open_port
 import requests
 import time
 import sys
