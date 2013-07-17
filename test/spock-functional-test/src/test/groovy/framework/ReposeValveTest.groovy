@@ -1,13 +1,18 @@
 package framework
 
+import org.apache.commons.io.FileUtils
+import org.linkedin.util.clock.SystemClock
 import org.rackspace.gdeproxy.Deproxy
 import spock.lang.Shared
 import spock.lang.Specification
 
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+import org.rackspace.gdeproxy.MessageChain
 
 abstract class ReposeValveTest extends Specification {
 
     @Shared def configDirectory
+    @Shared def logFile
     @Shared def configSamples
 
     @Shared def ReposeValveLauncher repose
@@ -26,6 +31,7 @@ abstract class ReposeValveTest extends Specification {
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
         reposeEndpoint = properties.getProperty("repose.endpoint")
+        logFile = properties.getProperty("repose.log")
 
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
@@ -38,7 +44,7 @@ abstract class ReposeValveTest extends Specification {
                 properties.getProperty("repose.shutdown.port").toInteger()
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getProperty("repose.log"));
+        reposeLogSearch = new ReposeLogSearch(logFile);
     }
 
     def teardownSpec() {
@@ -49,4 +55,23 @@ abstract class ReposeValveTest extends Specification {
             repose.stop()
     }
 
+    def cleanLogDirectory() {
+        FileUtils.deleteQuietly(new File(logFile))
+    }
+
+    def waitUntilReadyToServiceRequests() {
+        def clock = new SystemClock()
+        def innerDeproxy = new Deproxy()
+        MessageChain mc
+        waitForCondition(clock, '15s', '1s', {
+            try {
+            mc = innerDeproxy.makeRequest([url:reposeEndpoint])
+            } catch (Exception e) {}
+            if (mc != null) {
+                return mc.receivedResponse.code.equals("200")
+            } else {
+                return false
+            }
+        })
+    }
 }
