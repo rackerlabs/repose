@@ -226,7 +226,7 @@ These tests do not cover the following components' configuration files:
 """
 
 
-from narwhal import repose
+from narwhal import valve
 from narwhal import conf
 import requests
 import time
@@ -331,7 +331,7 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         params=params,
                                         destination_path=config_folder,
                                         verbose=False)
-            r = repose.ReposeValve(config_folder,
+            r = valve.Valve(config_folder,
                                    stop_port=repose_stop_port,
                                    port=repose_port,
                                    wait_on_start=self.wait_on_start)
@@ -363,7 +363,7 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         params=config_params,
                                         destination_path=repose_config_folder,
                                         verbose=False)
-            r = repose.ReposeValve(repose_config_folder,
+            r = valve.Valve(repose_config_folder,
                                    stop_port=repose_stop_port,
                                    port=repose_port,
                                    wait_on_start=self.wait_on_start)
@@ -512,7 +512,7 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading):
                                     destination_path=repose_config_folder,
                                     verbose=False)
 
-            r = repose.ReposeValve(repose_config_folder,
+            r = valve.Valve(repose_config_folder,
                                    stop_port=repose_stop_port,
                                    port=repose_port,
                                    wait_on_start=self.wait_on_start)
