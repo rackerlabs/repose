@@ -21,7 +21,7 @@ class SystemModelSpockTest extends ReposeValveTest {
             repose.start()
         } catch (Exception e) {}
 
-        stringList = reposeLogSearch.searchByString("The distributed datastore filter and service can not")\
+        stringList = reposeLogSearch.searchByString("The distributed datastore filter and service can not")
 
         then:
         stringList.size() > 0
