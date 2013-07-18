@@ -10,7 +10,7 @@
         </filters>
 
         <services>
-            <service name="distributed-datastore"/>
+            <service name="dist-datastore"/>
         </services>
 
         <destinations>
