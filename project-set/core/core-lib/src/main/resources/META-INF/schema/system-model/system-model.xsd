@@ -36,7 +36,7 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-     
+
         <xs:sequence>
             <xs:element name="nodes" type="mod:NodeList" minOccurs="1" maxOccurs="1" />
         </xs:sequence>
@@ -60,7 +60,7 @@
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-     
+
         <xs:complexContent>
             <xs:extension base="mod:Cluster">
                 <xs:sequence>
@@ -72,17 +72,27 @@
                 <xs:attribute name="rewrite-host-header" type="xs:boolean" use="optional" default="true">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Determines whether or not repose nodes in this cluster rewrite the HOST header to contain 
+                            <html:p>Determines whether or not repose nodes in this cluster rewrite the HOST header to contain
                               the host and port of the origin service.  If true, repose will rewrite the HOST header.  If false, repose
                               will pass whatever value is received on as the value for the HOST header.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+
+                <xs:assert vc:minVersion="1.1" test="if(mod:filters/mod:filter[@name='dist-datastore']) then not(mod:services/mod:service[@name='dist-datastore']) else true()"
+                           xerces:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration."
+                           saxon:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.">
+                </xs:assert>
+
+                <xs:assert vc:minVersion="1.1" test="if(mod:services/mod:service[@name='dist-datastore']) then not(mod:filters/mod:filter[@name='dist-datastore']) else true()"
+                           xerces:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration."
+                           saxon:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.">
+                </xs:assert>
+
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-
 
     <xs:complexType name="NodeList">
         <xs:annotation>
@@ -90,7 +100,7 @@
                 <html:p>Defines a list of nodes within a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
-      
+
         <xs:sequence>
             <xs:element name="node" type="mod:Node" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
@@ -209,7 +219,7 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
      <xs:complexType name="ServicesList">
         <xs:annotation>
             <xs:documentation>
@@ -220,21 +230,21 @@
         <xs:sequence>
             <xs:element name="service" type="mod:Service" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
-        
+
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:service/@name)) = count(mod:service/@name)"
             xerces:message="Services must have name unique within their containing service list"
             saxon:message="Services must have name unique within their containing service list">
         </xs:assert>
-    
+
     </xs:complexType>
-      
+
     <xs:complexType name="Service">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Defines a filter that can be used to process and route requests</html:p>
                 </xs:documentation>
             </xs:annotation>
-        
+
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -242,7 +252,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-    </xs:complexType>    
+    </xs:complexType>
 
     <xs:complexType name="DestinationList">
         <xs:annotation>
@@ -250,7 +260,7 @@
                 <html:p>Defines a list of target destinations reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
-      
+
         <xs:all vc:minVersion="1.1">
             <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
@@ -294,7 +304,7 @@
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
-         
+
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="http"/>
@@ -312,7 +322,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-      
+
         <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
         </xs:attribute>
     </xs:complexType>
@@ -350,7 +360,7 @@
                 <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
-      
+
         <xs:complexContent>
             <xs:extension base="mod:Destination">
                 <xs:attribute name="cluster" type="xs:IDREF" use="required">

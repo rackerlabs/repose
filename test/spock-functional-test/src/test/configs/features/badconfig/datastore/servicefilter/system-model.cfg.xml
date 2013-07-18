@@ -10,6 +10,10 @@
             <filter name="dist-datastore"/>
         </filters>
 
+        <services>
+            <service name="dist-datastore"/>
+        </services>
+
         <destinations>
             <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}"
                       default="true"/>

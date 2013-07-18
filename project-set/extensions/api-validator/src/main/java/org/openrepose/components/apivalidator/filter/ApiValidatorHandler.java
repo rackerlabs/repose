@@ -13,6 +13,9 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.filters.ApiValidator;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,21 +25,34 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
    private final List<ValidatorInfo> validators;
    private final ValidatorInfo defaultValidator;
+   private final MetricsService metricsService;
+   private Set<String> matchedRoles;
    private FilterChain chain;
    private boolean multiRoleMatch = false;
+   private boolean useMetrics = false;
+   private MeterByCategorySum mbcsInvalidRequests;
 
-   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch) {
+   public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
+           MetricsService metricsService) {
       this.validators = new ArrayList<ValidatorInfo>(validators.size());
+      this.matchedRoles = new HashSet<String>();
       this.validators.addAll(validators);
       this.multiRoleMatch = multiRoleMatch;
       this.defaultValidator = defaultValidator;
+      this.metricsService = metricsService;
 
+      // TODO replace "api-validator" with filter-id or name-number in sys-model
+      if (metricsService != null) {
+         mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class, "api-validator", "InvalidRequest", TimeUnit.SECONDS);
+         useMetrics = true;
+      }
    }
 
    public void setFilterChain(FilterChain chain) {
@@ -53,7 +69,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       return roles;
    }
 
-   private void appendDefaultValidator(List<ValidatorInfo> validatorList) {
+   private boolean appendDefaultValidator(List<ValidatorInfo> validatorList) {
       if (defaultValidator != null) {
          if (!multiRoleMatch) {
             validatorList.add(defaultValidator);
@@ -62,7 +78,10 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
          if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
             validatorList.add(0, defaultValidator);
          }
+
+         return true;
       }
+      return false;
    }
 
    protected List<ValidatorInfo> getValidatorsForRole(List<? extends HeaderValue> listRoles) {
@@ -70,15 +89,17 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       Set<String> roles = getRolesAsSet(listRoles);
 
       for (ValidatorInfo validator : validators) {
-          
-        for (String validatorRoles : validator.getRoles()) { 
-         if (roles.contains(validatorRoles)) {
-            validatorList.add(validator);
-         }
-        }
+          for (String validatorRoles : validator.getRoles()) {
+              if (roles.contains(validatorRoles)) {
+                  validatorList.add(validator); // TODO Can the same validator be added multiple times?
+                  matchedRoles.add(validatorRoles);
+              }
+          }
       }
 
-      appendDefaultValidator(validatorList);
+      if (appendDefaultValidator(validatorList)) {
+          matchedRoles.addAll(roles);
+      }
 
       return !multiRoleMatch && !validatorList.isEmpty() ? validatorList.subList(0, 1) : validatorList;
    }
@@ -120,6 +141,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       myDirector.setFilterAction(FilterAction.RETURN);
 
       try {
+         matchedRoles.clear();
          List<ValidatorInfo> matchedValidators = getValidatorsForRole(roles);
          if (!matchedValidators.isEmpty()) {
             for (ValidatorInfo validatorInfo : matchedValidators) {
@@ -138,8 +160,15 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                }
             }
 
-            if (!isValid && multiRoleMatch) {
-               sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+            if (!isValid) {
+               if (useMetrics) {
+                   for (String s : matchedRoles) {
+                       mbcsInvalidRequests.mark(s);
+                   }
+               }
+               if (multiRoleMatch) {
+                   sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+               }
             }
          } else {
             myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
