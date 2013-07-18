@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.openrepose.components.apivalidator.servlet.config.*;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,16 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final String configRoot;
     private boolean multiRoleMatch = false;
     private final String config;
+    private final MetricsService metricsService;
 
-    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config) {
+    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config,
+            MetricsService metricsService) {
         this.manager = manager;
         wadlListener = new ApiValidatorWadlListener();
         lock = new Object();
         this.configRoot = configurationRoot;
         this.config = config;
+        this.metricsService = metricsService;
     }
 
     private void unsubscribeAll() {
@@ -201,7 +205,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         if (!initialized || !this.isInitialized()) {
             return null;
         }
-        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch);
+        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, metricsService);
     }
 
     @Override
