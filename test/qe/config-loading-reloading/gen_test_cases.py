@@ -18,6 +18,7 @@ components_by_config = {
     'validator.cfg.xml': 'API Validator',
 }
 
+### config file, transition, expected result
 cases = """system-model.cfg.xml,Start Good,200
 system-model.cfg.xml,Start Bad,Can't connect to Repose
 system-model.cfg.xml,Good to Bad,200
