@@ -41,8 +41,9 @@ def get_status_code_from_url(url, timeout=None):
 def apply_config_set(config_set_name, params=None):
     if params is None:
         params = {}
-    conf.process_folder_contents(folder='configs/%s' % config_set_name, verbose=False,
-                                 dest_path=config_dir, params=params)
+    conf.process_folder_contents(folder='configs/%s' % config_set_name,
+                                 verbose=False, dest_path=config_dir,
+                                 params=params)
 
 
 class TestMultiClusterMultiNode(unittest.TestCase):
@@ -63,10 +64,10 @@ class TestMultiClusterMultiNode(unittest.TestCase):
             'deploy_dir': deploy_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file,
-            'port11' : self.port11,
-            'port12' : self.port12,
-            'port21' : self.port21,
-            'port22' : self.port22,
+            'port11': self.port11,
+            'port12': self.port12,
+            'port21': self.port21,
+            'port22': self.port22,
         }
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('container-no-port', params=self.params)
@@ -123,7 +124,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'proto': 'http',
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'sysmod_port' : self.port1,
+            'sysmod_port': self.port1,
             'deploy_dir': deploy_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file,
@@ -132,7 +133,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         apply_config_set('container-no-port', params=params)
         apply_config_set('single-node-with-proto', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                         stop_port=self.stop_port)
+                                 stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -172,10 +173,10 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'node1host' : 'localhost',
-            'node2host' : 'localhost',
-            'node1port' : self.port1,
-            'node2port' : self.port2,
+            'node1host': 'localhost',
+            'node2host': 'localhost',
+            'node1port': self.port1,
+            'node2port': self.port2,
         }
         apply_config_set('two-nodes', params=params)
         time.sleep(sleep_duration)
@@ -190,12 +191,12 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         url = 'http://localhost:%i/' % (self.port3)
         self.make_request_and_assert_connection_fails(url)
 
-        # change the configs 
+        # change the configs
         params = {
             'proto': 'http',
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'sysmod_port' : self.port2,
+            'sysmod_port': self.port2,
         }
         apply_config_set('single-node-with-proto', params=params)
         time.sleep(sleep_duration)
@@ -210,16 +211,16 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         url = 'http://localhost:%i/' % (self.port3)
         self.make_request_and_assert_connection_fails(url)
 
-        # change the configs 
+        # change the configs
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'node1host' : 'localhost',
-            'node2host' : 'localhost',
-            'node3host' : 'example.com',
-            'node1port' : self.port1,
-            'node2port' : self.port2,
-            'node3port' : self.port3,
+            'node1host': 'localhost',
+            'node2host': 'localhost',
+            'node3host': 'example.com',
+            'node1port': self.port1,
+            'node2port': self.port2,
+            'node3port': self.port3,
         }
         apply_config_set('three-nodes', params=params)
         time.sleep(sleep_duration)
@@ -238,12 +239,12 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'node1host' : 'example.com',
-            'node2host' : 'localhost',
-            'node3host' : 'localhost',
-            'node1port' : self.port1,
-            'node2port' : self.port2,
-            'node3port' : self.port3,
+            'node1host': 'example.com',
+            'node2host': 'localhost',
+            'node3host': 'localhost',
+            'node1port': self.port1,
+            'node2port': self.port2,
+            'node3port': self.port3,
         }
         apply_config_set('three-nodes', params=params)
         time.sleep(sleep_duration)
@@ -270,8 +271,8 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'host' : 'example.com',
-            'port' : self.port,
+            'host': 'example.com',
+            'port': self.port,
             'deploy_dir': deploy_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file,
@@ -280,7 +281,7 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         apply_config_set('container-no-port', params=params)
         apply_config_set('one-node', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                         stop_port=self.stop_port)
+                                 stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -313,8 +314,8 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'host' : 'localhost',
-            'port' : self.port,
+            'host': 'localhost',
+            'port': self.port,
         }
         apply_config_set('one-node', params=params)
         time.sleep(sleep_duration)
@@ -342,7 +343,7 @@ class TestStartWithZeroNodes(unittest.TestCase):
         apply_config_set('container-no-port', params=params)
         apply_config_set('zero-nodes', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                         stop_port=self.stop_port)
+                                 stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -375,16 +376,14 @@ class TestStartWithZeroNodes(unittest.TestCase):
         params = {
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'host' : 'localhost',
-            'port' : self.port,
+            'host': 'localhost',
+            'port': self.port,
         }
         apply_config_set('one-node', params=params)
         time.sleep(sleep_duration)
 
         url = 'http://localhost:%i/' % (self.port)
         self.make_request_and_assert_status_code(url, 200)
-
-
 
 
 class TestPortsOnCommandLineHttpSame(unittest.TestCase):
@@ -410,8 +409,8 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         apply_config_set('single-node-with-proto', params=params)
         apply_config_set('container-no-port', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                  port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                 port=self.cmd_line_port,
+                                 stop_port=stop_port)
         time.sleep(sleep_duration)
 
     def test_ports_on_command_line_http_same(self):
@@ -461,8 +460,8 @@ class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
         apply_config_set('single-node-with-proto', params=params)
         apply_config_set('container-no-port', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                  https_port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                 https_port=self.cmd_line_port,
+                                 stop_port=stop_port)
         time.sleep(sleep_duration)
 
     def test_ports_on_command_line_https_same(self):
@@ -513,8 +512,8 @@ class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
         apply_config_set('single-node-with-proto', params=params)
         apply_config_set('container-no-port', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                  port=self.cmd_line_port,
-                                  stop_port=stop_port)
+                                 port=self.cmd_line_port,
+                                 stop_port=stop_port)
         time.sleep(sleep_duration)
 
     def test_ports_on_command_line_http_diff(self):
@@ -564,7 +563,7 @@ class TestPortsOnCommandLineNone(unittest.TestCase):
         apply_config_set('single-node-with-proto', params=params)
         apply_config_set('container-no-port', params=params)
         self.valve = valve.Valve(config_dir=config_dir,
-                                  stop_port=stop_port)
+                                 stop_port=stop_port)
         time.sleep(sleep_duration)
 
     def test_ports_on_command_line_none(self):
@@ -805,7 +804,6 @@ def run():
     test_runner = xmlrunner.XMLTestRunner(output='test-reports')
 
     unittest.main(argv=[''], testRunner=test_runner)
-
 
 
 if __name__ == '__main__':
