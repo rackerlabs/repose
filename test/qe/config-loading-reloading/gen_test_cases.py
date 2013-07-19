@@ -15,6 +15,7 @@ components_by_config = {
     'uri-identity.cfg.xml': 'Uri Identity',
     'header-identity.cfg.xml': 'Header Identity',
     'ip-identity.cfg.xml': 'Ip Identity',
+    'validator.cfg.xml': 'API Validator',
 }
 
 cases = """system-model.cfg.xml,Start Good,200
@@ -69,7 +70,12 @@ ip-identity.cfg.xml,Start Good,200
 ip-identity.cfg.xml,Start Bad,503
 ip-identity.cfg.xml,Good to Bad,200
 ip-identity.cfg.xml,Bad to Good,200
-response-messaging.cfg.xml,Start Missing,200""".splitlines()
+response-messaging.cfg.xml,Start Missing,200
+validator.cfg.xml,Start Good,200
+validator.cfg.xml,Start Bad,503
+validator.cfg.xml,Good to Bad,200
+validator.cfg.xml,Bad to Good,200
+validator.cfg.xml,Start v2-use-saxon,503""".splitlines()
 
 for case in cases:
     (config, transition, result) = case.split(',')
@@ -77,11 +83,11 @@ for case in cases:
     transition = transition.replace(' to ', ' To ')
 
     classname = ('Test' + components_by_config[config].replace(' ', '') +
-                 transition.replace(' ',''))
+                 transition.replace(' ','').replace('-', '_'))
 
     transition = transition.lower()
 
-    test_method_name = 'test_' + transition.replace(' ', '_')
+    test_method_name = 'test_' + transition.replace(' ', '_').replace('-', '_')
 
     config_folder_base = re.sub('\\..*', '', config)
 
@@ -122,7 +128,7 @@ for case in cases:
     print ''
     print '        self.valve = valve.Valve(repose_config_folder,'
     print '                                 stop_port=self.stop_port,'
-    print '                                 port=repose_port,'
+    print '                                 port=self.repose_port,'
     print '                                 wait_timeout=30,'
     print '                                 wait_on_start={0})'.format(wait_on_start)
     if not wait_on_start:
