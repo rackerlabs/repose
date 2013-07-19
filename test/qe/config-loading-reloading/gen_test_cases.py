@@ -29,7 +29,7 @@ response-messaging.cfg.xml,Start Good,200
 response-messaging.cfg.xml,Start Bad,503
 response-messaging.cfg.xml,Good to Bad,200
 response-messaging.cfg.xml,Bad to Good,200
-rate-limiting.cfg.xml,Start Good,200 
+rate-limiting.cfg.xml,Start Good,200
 rate-limiting.cfg.xml,Start Bad,503
 rate-limiting.cfg.xml,Good to Bad,200
 rate-limiting.cfg.xml,Bad to Good,200
@@ -98,6 +98,8 @@ for case in cases:
                                          'container.cfg.xml' ])
     wait_on_start = not is_sysmod_or_container
 
+    print ''
+    print ''
     print 'class {0}(unittest.TestCase):'.format(classname)
     print '    def setUp(self):'
     print '        self.repose_port = get_next_open_port()'
@@ -155,8 +157,4 @@ for case in cases:
     print '    def tearDown(self):'
     print '        if self.valve:'
     print '            self.valve.stop()'
-    print ''
-    print ''
-
-
 

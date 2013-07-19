@@ -1,3 +1,5 @@
+
+
 class TestSystemModelStartGood(unittest.TestCase):
     def setUp(self):
         self.repose_port = get_next_open_port()
@@ -487,7 +489,7 @@ class TestRateLimitingStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200 , get_status_code_from_url(self.url))
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -2009,5 +2011,3 @@ class TestResponseMessagingServiceStartMissing(unittest.TestCase):
     def tearDown(self):
         if self.valve:
             self.valve.stop()
-
-
