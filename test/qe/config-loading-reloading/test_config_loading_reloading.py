@@ -317,37 +317,6 @@ execfile('test_config_loading_reloading_gen.py')
 ##############################################################
 
 
-class TestResponseMessagingStartMissing(unittest.TestCase):
-    def setUp(self):
-        self.repose_port = get_next_open_port()
-        self.stop_port = get_next_open_port()
-        self.url = 'http://localhost:{0}/'.format(self.repose_port)
-        params = {
-            'port': self.repose_port,
-            'target_hostname': 'localhost',
-            'target_port': mock_port,
-        }
-        clear_folder(repose_config_folder)
-        conf.process_folder_contents(
-            folder='configs/response-messaging-common',
-            dest_path=repose_config_folder, params=params)
-
-        self.valve = valve.Valve(repose_config_folder,
-                                 stop_port=self.stop_port,
-                                 port=repose_port,
-                                 wait_timeout=30,
-                                 wait_on_start=True)
-
-    def test_start_good(self):
-        self.assertEquals(200, get_status_code_from_url(self.url))
-
-    def tearDown(self):
-        if self.valve:
-            self.valve.stop()
-    def get_name(self):
-        return 'response-messaging'
-
-
 
 def run():
     parser = argparse.ArgumentParser()

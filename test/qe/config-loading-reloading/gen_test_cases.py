@@ -68,7 +68,8 @@ header-identity.cfg.xml,Bad to Good,200
 ip-identity.cfg.xml,Start Good,200
 ip-identity.cfg.xml,Start Bad,503
 ip-identity.cfg.xml,Good to Bad,200
-ip-identity.cfg.xml,Bad to Good,200""".splitlines()
+ip-identity.cfg.xml,Bad to Good,200
+response-messaging.cfg.xml,Start Missing,200""".splitlines()
 
 for case in cases:
     (config, transition, result) = case.split(',')
@@ -84,7 +85,7 @@ for case in cases:
 
     config_folder_base = re.sub('\\..*', '', config)
 
-    expects_good = transition in ['start good', 'bad to good']
+    starts_bad = transition in ['start bad', 'bad to good']
 
     is_start = transition.startswith('start')
     if is_start:
@@ -111,10 +112,11 @@ for case in cases:
     print '        conf.process_folder_contents('
     print '            folder=\'configs/{0}-common\','.format(config_folder_base)
     print '            dest_path=repose_config_folder, params=params)'
-    print '        conf.process_folder_contents('
-    print '            folder=\'configs/{0}-{1}\','.format(config_folder_base,
-                                                   config_folder_start)
-    print '            dest_path=repose_config_folder, params=params)'
+    if transition != 'start missing':
+        print '        conf.process_folder_contents('
+        print '            folder=\'configs/{0}-{1}\','.format(config_folder_base,
+                                                       config_folder_start)
+        print '            dest_path=repose_config_folder, params=params)'
     print ''
     print '        self.valve = valve.Valve(repose_config_folder,'
     print '                                 stop_port=self.stop_port,'
@@ -127,9 +129,9 @@ for case in cases:
 
     print '    def {0}(self):'.format(test_method_name)
 
-    if is_sysmod_or_container and transition in ['start bad', 'bad to good']:
+    if is_sysmod_or_container and starts_bad:
         print '        self.assertRaises(requests.ConnectionError, requests.get, self.url)'
-    elif transition in ['start bad', 'bad to good']:
+    elif starts_bad:
         print '        self.assertEquals(503, get_status_code_from_url(self.url))'
     else:
         print '        self.assertEquals({0}, get_status_code_from_url(self.url))'.format(result)
