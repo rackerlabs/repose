@@ -6,6 +6,7 @@ Stories
 -------
   - B-39898 "Behavior loading and reloading of configs"
   - B-43371 "Allow Missing RMS Config"
+  - D-14108 "Api Validator Filter Returns 200s After Loading a Bad Config"
 
 Specification
 -------------
@@ -35,6 +36,12 @@ Additionally, for the RMS config file:
      is added later and throw validation error if there added missing
      configuration has any mal-formed XML.
 
+Additionally, for the API Validation filter:
+
+  1. When the <validators> element has a @version attribute with the value "2",
+     and a <validator> element has a @use-saxon attribute with any value, then
+     Repose should return 503's.
+
 For the purposes of this test, "bad" or "invalid" refers to mal-formed XML.
 Future tests will need to be created to check configs against the XSD schemas
 defined for them. The "good" versions of the configs will all include the
@@ -56,6 +63,7 @@ The configuration files to be tested are:
   - uri-identity.cfg.xml
   - header-identity.cfg.xml
   - ip-identity.cfg.xml
+  - validator.cfg.xml
 
 For each of these, there will be one good version and one bad version. The bad
 versions will be copies of the good versions with missing closing tags.
@@ -205,6 +213,22 @@ Test cases for B-43371
     +---------------------------------+----------------+-----------------+
 
 
+Test cases for D-14108
+    +------------------------+--------------------+-----------------+
+    | Component              | Transition         | Expected Result |
+    +========================+====================+=================+
+    | validator.cfg.xml      | Start Good         | 200             |
+    +------------------------+--------------------+-----------------+
+    | validator.cfg.xml      | Start Bad          | 503             |
+    +------------------------+--------------------+-----------------+
+    | validator.cfg.xml      | Good to Bad        | 200             |
+    +------------------------+--------------------+-----------------+
+    | validator.cfg.xml      | Bad to Good        | 200             |
+    +------------------------+--------------------+-----------------+
+    | validator.cfg.xml      | Start v2-use-saxon | 503             |
+    +------------------------+--------------------+-----------------+
+
+
 Items not tested
 ----------------
 As mentioned before, this test will not test whether or or how Repose handles
@@ -212,7 +236,6 @@ config files that fail XSD validation.
 
 These tests do not cover the following components' configuration files:
 
-  - API Validation filter
   - Content Normalization filter
   - Destination Router
   - Header Identity Mapping filter
