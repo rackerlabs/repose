@@ -73,20 +73,25 @@ ip-identity.cfg.xml,Bad to Good,200""".splitlines()
 for case in cases:
     (config, transition, result) = case.split(',')
 
+    transition = transition.replace(' to ', ' To ')
+
     classname = ('Test' + components_by_config[config].replace(' ', '') +
                  transition.replace(' ',''))
 
-    test_method_name = 'test_' + transition.lower().replace(' ', '_')
+    transition = transition.lower()
+    
+    test_method_name = 'test_' + transition.replace(' ', '_')
 
     config_folder_base = re.sub('\\..*', '', config)
-    is_start = transition.startswith('Start')
+
+    expects_good = transition in ['start good', 'bad to good']
+
+    is_start = transition.startswith('start')
     if is_start:
-        config_folder_start = transition[6:].lower()
-        is_good_to_bad = False
+        config_folder_start = transition[6:]
     else:
-        config_folder_start = transition.split()[0].lower()
-        config_folder_end = transition.split()[2].lower()
-        is_good_to_bad = (config_folder_start == 'good')
+        config_folder_start = transition.split()[0]
+        config_folder_end = transition.split()[2]
 
     is_sysmod_or_container = (config in ['system-model.cfg.xml',
                                          'container.cfg.xml' ])
@@ -103,15 +108,16 @@ for case in cases:
     print '            \'target_port\': mock_port,'
     print '        }'
     print '        conf.process_folder_contents('
-    print '            folder=\'{0}-common\','.format(config_folder_base)
+    print '            folder=\'configs/{0}-common\','.format(config_folder_base)
     print '            dest_path=repose_config_folder, params=params)'
     print '        conf.process_folder_contents('
-    print '            folder=\'{0}-{1}\','.format(config_folder_base,
+    print '            folder=\'configs/{0}-{1}\','.format(config_folder_base,
                                                    config_folder_start)
     print '            dest_path=repose_config_folder, params=params)'
     print ''
     print '        self.valve = valve.Valve(repose_config_folder,'
     print '                                 stop_port=self.stop_port,'
+    print '                                 port=repose_port,'
     print '                                 wait_timeout=30,'
     print '                                 wait_on_start={0})'.format(wait_on_start)
     if not wait_on_start:
@@ -119,32 +125,32 @@ for case in cases:
     print ''
 
     print '    def {0}(self):'.format(test_method_name)
-    
-    if result.lower() == "can't connect to repose":
+
+    if is_sysmod_or_container and transition in ['start bad', 'bad to good']:
         print '        self.assertRaises(requests.ConnectionError, requests.get, self.url)'
     else:
-        if is_start:
-            print '        self.assertEquals({0}'.format(result)
-        elif is_good_to_bad:
-            print '        self.assertEquals({0}'.format(result)
+        if transition in ['start bad', 'bad to good']:
+            print '        self.assertEquals(503,'
         else:
-            if is_sysmod_or_container:
-                print '        self.assertRaises(requests.ConnectionError, requests.get, self.url)'
-            else:
-                print '        self.assertEquals(503'
-        print '                          requests.get(url,'
+            print '        self.assertEquals({0},'.format(result)
+        print '                          requests.get(self.url,'
         print '                                       timeout=request_timeout).status_code)'
 
     if not is_start:
         print ''
+        print '        params = {'
+        print '            \'port\': self.repose_port,'
+        print '            \'target_hostname\': \'localhost\','
+        print '            \'target_port\': mock_port,'
+        print '        }'
         print '        conf.process_folder_contents('
-        print '            folder=\'{0}-{1}\','.format(config_folder_base,
+        print '            folder=\'configs/{0}-{1}\','.format(config_folder_base,
                                                        config_folder_end)
         print '            dest_path=repose_config_folder, params=params)'
         print '        time.sleep(sleep_time)'
         print ''
-        print '        self.assertEquals({0}'.format(result)
-        print '                          requests.get(url,'
+        print '        self.assertEquals({0},'.format(result)
+        print '                          requests.get(self.url,'
         print '                                       timeout=request_timeout).status_code)'
     print ''
 
