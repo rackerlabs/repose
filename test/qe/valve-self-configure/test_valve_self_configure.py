@@ -521,11 +521,16 @@ class TestPortsOnCommandLineNone(TestPortsOnCommandLineBase,
                           url)
 
 
-class TestPortsInContainerBase:
+class TestPortsInContainerHttpSame(unittest.TestCase):
+
     def setUp(self):
         logger.debug('setUp')
 
-        self.init_params()
+        self.proto = 'http'
+        self.sysmod_port = get_next_open_port()
+        self.con_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
+        self.main_config_set_name = 'container-with-port'
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -551,7 +556,7 @@ class TestPortsInContainerBase:
             self.valve.stop()
             time.sleep(5)
 
-    def runTest(self):
+    def test_ports_in_container_http_same(self):
         logger.debug('runTest')
 
         # test port in the system model
@@ -559,39 +564,73 @@ class TestPortsInContainerBase:
         logger.debug('runTest: sysmod url = %s' % url)
         status_code = get_status_code_from_url(url)
         logger.debug('runTest: sysmod status_code = %i' % status_code)
-        self.assertEqual(status_code, 200)
+        self.assertEqual(200, status_code)
 
         # test port in the container
         url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
         logger.debug('runTest: con url = %s' % url)
         status_code = get_status_code_from_url(url)
         logger.debug('runTest: con status_code = %i' % status_code)
-        self.assertEqual(status_code, 200)
+        self.assertEqual(200, status_code)
 
 
-class TestPortsInContainerHttpSame(TestPortsInContainerBase,
-                                   unittest.TestCase):
-    def init_params(self):
-        self.proto = 'http'
-        self.sysmod_port = get_next_open_port()
-        self.con_port = self.sysmod_port
-        self.stop_port = get_next_open_port()
-        self.main_config_set_name = 'container-with-port'
+class TestPortsInContainerHttpsSame(unittest.TestCase):
 
+    def setUp(self):
+        logger.debug('setUp')
 
-class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
-                                    unittest.TestCase):
-    def init_params(self):
         self.proto = 'https'
         self.sysmod_port = get_next_open_port()
         self.con_port = self.sysmod_port
         self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-with-port'
 
+        pathutil.clear_folder(config_dir)
+        self.params = {
+            'proto': self.proto,
+            'sysmod_port': self.sysmod_port,
+            'target_hostname': target_hostname,
+            'target_port': target_port,
+            'con_port': self.con_port,
+            'deploy_dir': deploy_dir,
+            'artifact_dir': artifact_dir,
+            'log_file': log_file
+        }
+        apply_config_set('valve-self-common', params=self.params)
+        apply_config_set('single-node-with-proto', params=self.params)
+        apply_config_set(self.main_config_set_name, params=self.params)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
+        time.sleep(25)
 
-class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
-                                   unittest.TestCase):
-    def init_params(self):
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
+
+    def test_ports_in_container_https_same(self):
+        logger.debug('runTest')
+
+        # test port in the system model
+        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
+        logger.debug('runTest: sysmod url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('runTest: sysmod status_code = %i' % status_code)
+        self.assertEqual(200, status_code)
+
+        # test port in the container
+        url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
+        logger.debug('runTest: con url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('runTest: con status_code = %i' % status_code)
+        self.assertEqual(200, status_code)
+
+
+class TestPortsInContainerHttpDiff(unittest.TestCase):
+    def setUp(self):
+        logger.debug('setUp')
+
         self.proto = 'http'
         self.sysmod_port = get_next_open_port()
         self.con_port = get_next_open_port()
@@ -599,7 +638,25 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
         self.stop_port = get_next_open_port()
         self.main_config_set_name = 'container-with-port'
 
-    def runTest(self):
+        pathutil.clear_folder(config_dir)
+        self.params = {
+            'proto': self.proto,
+            'sysmod_port': self.sysmod_port,
+            'target_hostname': target_hostname,
+            'target_port': target_port,
+            'con_port': self.con_port,
+            'deploy_dir': deploy_dir,
+            'artifact_dir': artifact_dir,
+            'log_file': log_file
+        }
+        apply_config_set('valve-self-common', params=self.params)
+        apply_config_set('single-node-with-proto', params=self.params)
+        apply_config_set(self.main_config_set_name, params=self.params)
+        self.valve = valve.Valve(config_dir=config_dir,
+                                         stop_port=self.stop_port)
+        time.sleep(25)
+
+    def test_ports_in_container_http_diff(self):
         logger.debug('runTest')
 
         # test port in the system model
@@ -607,7 +664,7 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
         logger.debug('runTest: sysmod url = %s' % url)
         status_code = get_status_code_from_url(url)
         logger.debug('runTest: sysmod status_code = %i' % status_code)
-        self.assertEqual(status_code, 200)
+        self.assertEqual(200, status_code)
 
         # test port in the container
         url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
@@ -615,31 +672,60 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
         self.assertRaises(requests.ConnectionError, get_status_code_from_url,
                           url)
 
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
 
-class TestPortsInContainerNone(TestPortsInContainerBase, unittest.TestCase):
-    def init_params(self):
-        self.proto = 'http'
+
+class TestPortsInContainerNone(unittest.TestCase):
+    def setUp(self):
+        logger.debug('setUp')
+
         self.sysmod_port = get_next_open_port()
         self.con_port = get_next_open_port()
         # self.con_port will be different from self.sysmod_port
-        self.stop_port = get_next_open_port()
-        self.main_config_set_name = 'container-no-port'
+        stop_port = get_next_open_port()
 
-    def runTest(self):
+        pathutil.clear_folder(config_dir)
+        params = {
+            'proto': 'http',
+            'sysmod_port': self.sysmod_port,
+            'target_hostname': target_hostname,
+            'target_port': target_port,
+            'con_port': self.con_port,
+            'deploy_dir': deploy_dir,
+            'artifact_dir': artifact_dir,
+            'log_file': log_file
+        }
+        apply_config_set('valve-self-common', params=params)
+        apply_config_set('single-node-with-proto', params=params)
+        apply_config_set('container-no-port', params=params)
+        self.valve = valve.Valve(config_dir=config_dir, stop_port=stop_port)
+        time.sleep(25)
+
+    def test_ports_in_container_none(self):
         logger.debug('runTest')
 
         # test port in the system model
-        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
+        url = 'http://localhost:%i/' % self.sysmod_port
         logger.debug('runTest: sysmod url = %s' % url)
         status_code = get_status_code_from_url(url)
         logger.debug('runTest: sysmod status_code = %i' % status_code)
-        self.assertEqual(status_code, 200)
+        self.assertEqual(200, status_code)
 
         # test port in the container
-        url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
+        url = 'http://localhost:%i/' % self.con_port
         logger.debug('runTest: con url = %s' % url)
         self.assertRaises(requests.ConnectionError, get_status_code_from_url,
                           url)
+
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
 
 
 def run():
