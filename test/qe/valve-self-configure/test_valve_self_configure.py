@@ -21,6 +21,10 @@ config_dir = pathutil.join(os.getcwd(), 'etc/repose')
 deploy_dir = pathutil.join(os.getcwd(), 'var/repose')
 artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
 log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
+
+# we sleep after starting repose because this isn't the normal kind of start up
+# scenario. for example, if we start repose with a different port in the system
+# model than on the command line, it is unclear which should be waited on.
 sleep_duration = 35
 
 
