@@ -79,7 +79,7 @@ for case in cases:
                  transition.replace(' ',''))
 
     transition = transition.lower()
-    
+
     test_method_name = 'test_' + transition.replace(' ', '_')
 
     config_folder_base = re.sub('\\..*', '', config)
@@ -107,6 +107,7 @@ for case in cases:
     print '            \'target_hostname\': \'localhost\','
     print '            \'target_port\': mock_port,'
     print '        }'
+    print '        clear_folder(repose_config_folder)'
     print '        conf.process_folder_contents('
     print '            folder=\'configs/{0}-common\','.format(config_folder_base)
     print '            dest_path=repose_config_folder, params=params)'
@@ -128,13 +129,10 @@ for case in cases:
 
     if is_sysmod_or_container and transition in ['start bad', 'bad to good']:
         print '        self.assertRaises(requests.ConnectionError, requests.get, self.url)'
+    elif transition in ['start bad', 'bad to good']:
+        print '        self.assertEquals(503, get_status_code_from_url(self.url))'
     else:
-        if transition in ['start bad', 'bad to good']:
-            print '        self.assertEquals(503,'
-        else:
-            print '        self.assertEquals({0},'.format(result)
-        print '                          requests.get(self.url,'
-        print '                                       timeout=request_timeout).status_code)'
+        print '        self.assertEquals({0}, get_status_code_from_url(self.url))'.format(result)
 
     if not is_start:
         print ''
@@ -149,9 +147,7 @@ for case in cases:
         print '            dest_path=repose_config_folder, params=params)'
         print '        time.sleep(sleep_time)'
         print ''
-        print '        self.assertEquals({0},'.format(result)
-        print '                          requests.get(self.url,'
-        print '                                       timeout=request_timeout).status_code)'
+        print '        self.assertEquals({0}, get_status_code_from_url(self.url))'.format(result)
     print ''
 
     print '    def tearDown(self):'

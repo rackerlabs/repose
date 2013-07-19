@@ -289,7 +289,8 @@ def clear_folder(folder_name):
     for _name in os.listdir(folder_name):
         name = os.path.join(folder_name, _name)
         if os.path.isdir(name):
-            delete_folder(name)
+            clear_folder(name)
+            os.rmdir(name)
         else:
             os.remove(name)
 
@@ -299,11 +300,16 @@ def create_folder(folder_name):
         os.makedirs(folder_name)
 
 
+def get_status_code_from_url(url):
+    return requests.get(url, timeout=request_timeout).status_code
+
 
 ##############################################################
 
 
 
+# use execfile on an external generated file, so that we can easily generate
+# tests cases without having to worry about non-test-case code.
 execfile('test_config_loading_reloading_gen.py')
 
 
@@ -311,33 +317,35 @@ execfile('test_config_loading_reloading_gen.py')
 ##############################################################
 
 
-#class TestResponseMessagingConfig(TestConfigLoadingReloading):
-#    def test_start_missing(self):
-#        logger.debug('test_start_missing')
-#        r = None
-#        try:
-#            create_folder(repose_config_folder)
-#            clear_folder(repose_config_folder)
-#            conf.process_config_set(self.config_common,
-#                                    params=config_params,
-#                                    destination_path=repose_config_folder,
-#                                    verbose=False)
-#
-#            r = valve.Valve(repose_config_folder,
-#                                   stop_port=repose_stop_port,
-#                                   port=repose_port,
-#                                   wait_on_start=self.wait_on_start)
-#            if not self.wait_on_start:
-#                time.sleep(sleep_time)
-#
-#            self.assertEquals(self.get_status_code_from_url(repose_url),
-#                              self.get_good_response())
-#        finally:
-#            if r:
-#                r.stop()
-#
-#    def get_name(self):
-#        return 'response-messaging'
+class TestResponseMessagingStartMissing(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/response-messaging-common',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_start_good(self):
+        self.assertEquals(200, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+    def get_name(self):
+        return 'response-messaging'
 
 
 
