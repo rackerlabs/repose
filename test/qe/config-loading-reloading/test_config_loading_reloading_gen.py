@@ -20,7 +20,7 @@ class TestSystemModelStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -53,7 +53,7 @@ class TestSystemModelStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -86,7 +86,7 @@ class TestSystemModelGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -131,7 +131,7 @@ class TestSystemModelBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -176,7 +176,7 @@ class TestContainerStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -209,7 +209,7 @@ class TestContainerStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -242,7 +242,7 @@ class TestContainerGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -287,7 +287,7 @@ class TestContainerBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=False)
         time.sleep(sleep_time)
@@ -332,7 +332,7 @@ class TestResponseMessagingServiceStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -364,7 +364,7 @@ class TestResponseMessagingServiceStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -396,7 +396,7 @@ class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -440,7 +440,7 @@ class TestResponseMessagingServiceBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -484,7 +484,7 @@ class TestRateLimitingStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -516,7 +516,7 @@ class TestRateLimitingStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -548,7 +548,7 @@ class TestRateLimitingGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -592,7 +592,7 @@ class TestRateLimitingBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -636,7 +636,7 @@ class TestVersioningStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -668,7 +668,7 @@ class TestVersioningStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -700,7 +700,7 @@ class TestVersioningGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -744,7 +744,7 @@ class TestVersioningBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -788,7 +788,7 @@ class TestTranslationStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -820,7 +820,7 @@ class TestTranslationStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -852,7 +852,7 @@ class TestTranslationGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -896,7 +896,7 @@ class TestTranslationBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -940,7 +940,7 @@ class TestClientAuthenticationStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -972,7 +972,7 @@ class TestClientAuthenticationStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1004,7 +1004,7 @@ class TestClientAuthenticationGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1048,7 +1048,7 @@ class TestClientAuthenticationBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1092,7 +1092,7 @@ class TestClientAuthorizationStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1124,7 +1124,7 @@ class TestClientAuthorizationStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1156,7 +1156,7 @@ class TestClientAuthorizationGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1200,7 +1200,7 @@ class TestClientAuthorizationBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1244,7 +1244,7 @@ class TestDistributedDatastoreStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1276,7 +1276,7 @@ class TestDistributedDatastoreStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1308,7 +1308,7 @@ class TestDistributedDatastoreGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1352,7 +1352,7 @@ class TestDistributedDatastoreBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1396,7 +1396,7 @@ class TestHttpLoggingStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1428,7 +1428,7 @@ class TestHttpLoggingStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1460,7 +1460,7 @@ class TestHttpLoggingGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1504,7 +1504,7 @@ class TestHttpLoggingBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1548,7 +1548,7 @@ class TestUriIdentityStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1580,7 +1580,7 @@ class TestUriIdentityStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1612,7 +1612,7 @@ class TestUriIdentityGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1656,7 +1656,7 @@ class TestUriIdentityBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1700,7 +1700,7 @@ class TestHeaderIdentityStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1732,7 +1732,7 @@ class TestHeaderIdentityStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1764,7 +1764,7 @@ class TestHeaderIdentityGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1808,7 +1808,7 @@ class TestHeaderIdentityBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1852,7 +1852,7 @@ class TestIpIdentityStartGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1884,7 +1884,7 @@ class TestIpIdentityStartBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1916,7 +1916,7 @@ class TestIpIdentityGoodToBad(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -1960,7 +1960,7 @@ class TestIpIdentityBadToGood(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
@@ -2001,12 +2001,196 @@ class TestResponseMessagingServiceStartMissing(unittest.TestCase):
 
         self.valve = valve.Valve(repose_config_folder,
                                  stop_port=self.stop_port,
-                                 port=repose_port,
+                                 port=self.repose_port,
                                  wait_timeout=30,
                                  wait_on_start=True)
 
     def test_start_missing(self):
         self.assertEquals(200, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+
+
+class TestAPIValidatorStartGood(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/validator-common',
+            dest_path=repose_config_folder, params=params)
+        conf.process_folder_contents(
+            folder='configs/validator-good',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=self.repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_start_good(self):
+        self.assertEquals(200, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+
+
+class TestAPIValidatorStartBad(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/validator-common',
+            dest_path=repose_config_folder, params=params)
+        conf.process_folder_contents(
+            folder='configs/validator-bad',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=self.repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_start_bad(self):
+        self.assertEquals(503, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+
+
+class TestAPIValidatorGoodToBad(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/validator-common',
+            dest_path=repose_config_folder, params=params)
+        conf.process_folder_contents(
+            folder='configs/validator-good',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=self.repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_good_to_bad(self):
+        self.assertEquals(200, get_status_code_from_url(self.url))
+
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        conf.process_folder_contents(
+            folder='configs/validator-bad',
+            dest_path=repose_config_folder, params=params)
+        time.sleep(sleep_time)
+
+        self.assertEquals(200, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+
+
+class TestAPIValidatorBadToGood(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/validator-common',
+            dest_path=repose_config_folder, params=params)
+        conf.process_folder_contents(
+            folder='configs/validator-bad',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=self.repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_bad_to_good(self):
+        self.assertEquals(503, get_status_code_from_url(self.url))
+
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        conf.process_folder_contents(
+            folder='configs/validator-good',
+            dest_path=repose_config_folder, params=params)
+        time.sleep(sleep_time)
+
+        self.assertEquals(200, get_status_code_from_url(self.url))
+
+    def tearDown(self):
+        if self.valve:
+            self.valve.stop()
+
+
+class TestAPIValidatorStartv2_use_saxon(unittest.TestCase):
+    def setUp(self):
+        self.repose_port = get_next_open_port()
+        self.stop_port = get_next_open_port()
+        self.url = 'http://localhost:{0}/'.format(self.repose_port)
+        params = {
+            'port': self.repose_port,
+            'target_hostname': 'localhost',
+            'target_port': mock_port,
+        }
+        clear_folder(repose_config_folder)
+        conf.process_folder_contents(
+            folder='configs/validator-common',
+            dest_path=repose_config_folder, params=params)
+        conf.process_folder_contents(
+            folder='configs/validator-v2-use-saxon',
+            dest_path=repose_config_folder, params=params)
+
+        self.valve = valve.Valve(repose_config_folder,
+                                 stop_port=self.stop_port,
+                                 port=self.repose_port,
+                                 wait_timeout=30,
+                                 wait_on_start=True)
+
+    def test_start_v2_use_saxon(self):
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
