@@ -269,26 +269,19 @@ import deproxy
 
 logger = logging.getLogger(__name__)
 
-mock_port = 8894
+mock_port = get_next_open_port()
 mock_service = None
 mock_url = 'http://localhost:%i/' % mock_port
 
 repose_config_folder = 'etc/repose'
-repose_port = 8893
-repose_stop_port = 9893
-repose_url = 'http://localhost:%s' % repose_port
-config_params = {'port': str(repose_port),
-                 'target_hostname': 'localhost',
-                 'target_port': mock_port}
 sleep_time = 35
 request_timeout = 30
 
 
 def setUpModule():
     logger.debug('setUpModule')
-    repose_conf_folder = 'etc/repose'
-    create_folder(repose_conf_folder)
-    clear_folder(repose_conf_folder)
+    create_folder(repose_config_folder)
+    clear_folder(repose_config_folder)
     create_folder('var/log/repose')
     create_folder('var/repose')
 
