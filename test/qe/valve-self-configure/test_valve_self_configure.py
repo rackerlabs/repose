@@ -415,13 +415,7 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
                                   stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
-    def tearDown(self):
-        logger.debug('tearDown')
-        if self.valve is not None:
-            self.valve.stop()
-            time.sleep(5)
-
-    def runTest(self):
+    def test_ports_on_command_line_http_same(self):
         logger.debug('runTest')
 
         # test port in the system model
@@ -438,9 +432,14 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         logger.debug('runTest: con status_code = %i' % status_code)
         self.assertEqual(status_code, 200)
 
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
+
 
 class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
-
     def setUp(self):
         logger.debug('setUp')
 
@@ -468,13 +467,7 @@ class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
                                   stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
-    def tearDown(self):
-        logger.debug('tearDown')
-        if self.valve is not None:
-            self.valve.stop()
-            time.sleep(5)
-
-    def runTest(self):
+    def test_ports_on_command_line_https_same(self):
         logger.debug('runTest')
 
         # test port in the system model
@@ -491,24 +484,14 @@ class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
         logger.debug('runTest: con status_code = %i' % status_code)
         self.assertEqual(status_code, 200)
 
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
+
 
 class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
-
-    def runTest(self):
-        logger.debug('runTest')
-
-        # test port in the system model
-        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
-        logger.debug('runTest: sysmod url = %s' % url)
-        status_code = get_status_code_from_url(url)
-        logger.debug('runTest: sysmod status_code = %i' % status_code)
-        self.assertEqual(status_code, 200)
-
-        # test port specified at the command line
-        url = '%s://localhost:%i/' % (self.params['proto'], self.cmd_line_port)
-        logger.debug('runTest: con url = %s' % url)
-        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
-                          url)
     def setUp(self):
         logger.debug('setUp')
 
@@ -537,16 +520,7 @@ class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
                                   stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
-    def tearDown(self):
-        logger.debug('tearDown')
-        if self.valve is not None:
-            self.valve.stop()
-            time.sleep(5)
-
-
-class TestPortsOnCommandLineNone(unittest.TestCase):
-
-    def runTest(self):
+    def test_ports_on_command_line_http_diff(self):
         logger.debug('runTest')
 
         # test port in the system model
@@ -561,6 +535,15 @@ class TestPortsOnCommandLineNone(unittest.TestCase):
         logger.debug('runTest: con url = %s' % url)
         self.assertRaises(requests.ConnectionError, get_status_code_from_url,
                           url)
+
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+            time.sleep(5)
+
+
+class TestPortsOnCommandLineNone(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
@@ -587,6 +570,22 @@ class TestPortsOnCommandLineNone(unittest.TestCase):
         self.valve = valve.Valve(config_dir=config_dir,
                                   stop_port=self.stop_port)
         time.sleep(sleep_duration)
+
+    def test_ports_on_command_line_none(self):
+        logger.debug('runTest')
+
+        # test port in the system model
+        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
+        logger.debug('runTest: sysmod url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('runTest: sysmod status_code = %i' % status_code)
+        self.assertEqual(status_code, 200)
+
+        # test port specified at the command line
+        url = '%s://localhost:%i/' % (self.params['proto'], self.cmd_line_port)
+        logger.debug('runTest: con url = %s' % url)
+        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
+                          url)
 
     def tearDown(self):
         logger.debug('tearDown')
