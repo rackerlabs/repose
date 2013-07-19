@@ -388,21 +388,13 @@ class TestStartWithZeroNodes(unittest.TestCase):
 
 
 class TestPortsOnCommandLineHttpSame(unittest.TestCase):
-    def start_valve(self):
-        return valve.Valve(config_dir=config_dir,
-                                  port=self.cmd_line_port,
-                                  stop_port=self.stop_port)
+    def setUp(self):
+        logger.debug('setUp')
 
-    def init_params(self):
         self.proto = 'http'
         self.sysmod_port = get_next_open_port()
         self.cmd_line_port = self.sysmod_port
         self.stop_port = get_next_open_port()
-
-    def setUp(self):
-        logger.debug('setUp')
-
-        self.init_params()
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -418,7 +410,9 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.valve = self.start_valve()
+        self.valve = valve.Valve(config_dir=config_dir,
+                                  port=self.cmd_line_port,
+                                  stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -446,21 +440,14 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
 
 
 class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
-    def start_valve(self):
-        return valve.Valve(config_dir=config_dir,
-                                  https_port=self.cmd_line_port,
-                                  stop_port=self.stop_port)
-
-    def init_params(self):
-        self.proto = 'https'
-        self.sysmod_port = get_next_open_port()
-        self.cmd_line_port = self.sysmod_port
-        self.stop_port = get_next_open_port()
 
     def setUp(self):
         logger.debug('setUp')
 
-        self.init_params()
+        self.proto = 'https'
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = self.sysmod_port
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -476,7 +463,9 @@ class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.valve = self.start_valve()
+        self.valve = valve.Valve(config_dir=config_dir,
+                                  https_port=self.cmd_line_port,
+                                  stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -504,17 +493,6 @@ class TestPortsOnCommandLineHttpsSame(unittest.TestCase):
 
 
 class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
-    def start_valve(self):
-        return valve.Valve(config_dir=config_dir,
-                                  port=self.cmd_line_port,
-                                  stop_port=self.stop_port)
-
-    def init_params(self):
-        self.proto = 'http'
-        self.sysmod_port = get_next_open_port()
-        self.cmd_line_port = get_next_open_port()
-        # self.cmd_line_port will be different from self.sysmod_port
-        self.stop_port = get_next_open_port()
 
     def runTest(self):
         logger.debug('runTest')
@@ -534,7 +512,11 @@ class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.init_params()
+        self.proto = 'http'
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = get_next_open_port()
+        # self.cmd_line_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -550,7 +532,9 @@ class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.valve = self.start_valve()
+        self.valve = valve.Valve(config_dir=config_dir,
+                                  port=self.cmd_line_port,
+                                  stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
@@ -561,16 +545,6 @@ class TestPortsOnCommandLineHttpDiff(unittest.TestCase):
 
 
 class TestPortsOnCommandLineNone(unittest.TestCase):
-    def start_valve(self):
-        return valve.Valve(config_dir=config_dir,
-                                  stop_port=self.stop_port)
-
-    def init_params(self):
-        self.proto = 'http'
-        self.sysmod_port = get_next_open_port()
-        self.cmd_line_port = get_next_open_port()
-        # self.cmd_line_port will be different from self.sysmod_port
-        self.stop_port = get_next_open_port()
 
     def runTest(self):
         logger.debug('runTest')
@@ -590,7 +564,11 @@ class TestPortsOnCommandLineNone(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
-        self.init_params()
+        self.proto = 'http'
+        self.sysmod_port = get_next_open_port()
+        self.cmd_line_port = get_next_open_port()
+        # self.cmd_line_port will be different from self.sysmod_port
+        self.stop_port = get_next_open_port()
 
         pathutil.clear_folder(config_dir)
         self.params = {
@@ -606,7 +584,8 @@ class TestPortsOnCommandLineNone(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
-        self.valve = self.start_valve()
+        self.valve = valve.Valve(config_dir=config_dir,
+                                  stop_port=self.stop_port)
         time.sleep(sleep_duration)
 
     def tearDown(self):
