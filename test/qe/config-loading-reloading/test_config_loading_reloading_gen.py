@@ -1,6 +1,5 @@
 class TestSystemModelStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -9,6 +8,7 @@ class TestSystemModelStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/system-model-common',
             dest_path=repose_config_folder, params=params)
@@ -24,9 +24,7 @@ class TestSystemModelStartGood(unittest.TestCase):
         time.sleep(sleep_time)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -35,7 +33,6 @@ class TestSystemModelStartGood(unittest.TestCase):
 
 class TestSystemModelStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -44,6 +41,7 @@ class TestSystemModelStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/system-model-common',
             dest_path=repose_config_folder, params=params)
@@ -68,7 +66,6 @@ class TestSystemModelStartBad(unittest.TestCase):
 
 class TestSystemModelGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -77,6 +74,7 @@ class TestSystemModelGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/system-model-common',
             dest_path=repose_config_folder, params=params)
@@ -92,9 +90,7 @@ class TestSystemModelGoodToBad(unittest.TestCase):
         time.sleep(sleep_time)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -106,9 +102,7 @@ class TestSystemModelGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -117,7 +111,6 @@ class TestSystemModelGoodToBad(unittest.TestCase):
 
 class TestSystemModelBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -126,6 +119,7 @@ class TestSystemModelBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/system-model-common',
             dest_path=repose_config_folder, params=params)
@@ -153,9 +147,7 @@ class TestSystemModelBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -164,7 +156,6 @@ class TestSystemModelBadToGood(unittest.TestCase):
 
 class TestContainerStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -173,6 +164,7 @@ class TestContainerStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/container-common',
             dest_path=repose_config_folder, params=params)
@@ -188,9 +180,7 @@ class TestContainerStartGood(unittest.TestCase):
         time.sleep(sleep_time)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -199,7 +189,6 @@ class TestContainerStartGood(unittest.TestCase):
 
 class TestContainerStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -208,6 +197,7 @@ class TestContainerStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/container-common',
             dest_path=repose_config_folder, params=params)
@@ -232,7 +222,6 @@ class TestContainerStartBad(unittest.TestCase):
 
 class TestContainerGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -241,6 +230,7 @@ class TestContainerGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/container-common',
             dest_path=repose_config_folder, params=params)
@@ -256,9 +246,7 @@ class TestContainerGoodToBad(unittest.TestCase):
         time.sleep(sleep_time)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -270,9 +258,7 @@ class TestContainerGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -281,7 +267,6 @@ class TestContainerGoodToBad(unittest.TestCase):
 
 class TestContainerBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -290,6 +275,7 @@ class TestContainerBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/container-common',
             dest_path=repose_config_folder, params=params)
@@ -317,9 +303,7 @@ class TestContainerBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -328,7 +312,6 @@ class TestContainerBadToGood(unittest.TestCase):
 
 class TestResponseMessagingServiceStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -337,6 +320,7 @@ class TestResponseMessagingServiceStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/response-messaging-common',
             dest_path=repose_config_folder, params=params)
@@ -351,9 +335,7 @@ class TestResponseMessagingServiceStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -362,7 +344,6 @@ class TestResponseMessagingServiceStartGood(unittest.TestCase):
 
 class TestResponseMessagingServiceStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -371,6 +352,7 @@ class TestResponseMessagingServiceStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/response-messaging-common',
             dest_path=repose_config_folder, params=params)
@@ -385,9 +367,7 @@ class TestResponseMessagingServiceStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -396,7 +376,6 @@ class TestResponseMessagingServiceStartBad(unittest.TestCase):
 
 class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -405,6 +384,7 @@ class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/response-messaging-common',
             dest_path=repose_config_folder, params=params)
@@ -419,9 +399,7 @@ class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -433,9 +411,7 @@ class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -444,7 +420,6 @@ class TestResponseMessagingServiceGoodToBad(unittest.TestCase):
 
 class TestResponseMessagingServiceBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -453,6 +428,7 @@ class TestResponseMessagingServiceBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/response-messaging-common',
             dest_path=repose_config_folder, params=params)
@@ -467,9 +443,7 @@ class TestResponseMessagingServiceBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -481,9 +455,7 @@ class TestResponseMessagingServiceBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -492,7 +464,6 @@ class TestResponseMessagingServiceBadToGood(unittest.TestCase):
 
 class TestRateLimitingStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -501,6 +472,7 @@ class TestRateLimitingStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/rate-limiting-common',
             dest_path=repose_config_folder, params=params)
@@ -515,9 +487,7 @@ class TestRateLimitingStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200 ,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200 , get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -526,7 +496,6 @@ class TestRateLimitingStartGood(unittest.TestCase):
 
 class TestRateLimitingStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -535,6 +504,7 @@ class TestRateLimitingStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/rate-limiting-common',
             dest_path=repose_config_folder, params=params)
@@ -549,9 +519,7 @@ class TestRateLimitingStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -560,7 +528,6 @@ class TestRateLimitingStartBad(unittest.TestCase):
 
 class TestRateLimitingGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -569,6 +536,7 @@ class TestRateLimitingGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/rate-limiting-common',
             dest_path=repose_config_folder, params=params)
@@ -583,9 +551,7 @@ class TestRateLimitingGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -597,9 +563,7 @@ class TestRateLimitingGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -608,7 +572,6 @@ class TestRateLimitingGoodToBad(unittest.TestCase):
 
 class TestRateLimitingBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -617,6 +580,7 @@ class TestRateLimitingBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/rate-limiting-common',
             dest_path=repose_config_folder, params=params)
@@ -631,9 +595,7 @@ class TestRateLimitingBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -645,9 +607,7 @@ class TestRateLimitingBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -656,7 +616,6 @@ class TestRateLimitingBadToGood(unittest.TestCase):
 
 class TestVersioningStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -665,6 +624,7 @@ class TestVersioningStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/versioning-common',
             dest_path=repose_config_folder, params=params)
@@ -679,9 +639,7 @@ class TestVersioningStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -690,7 +648,6 @@ class TestVersioningStartGood(unittest.TestCase):
 
 class TestVersioningStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -699,6 +656,7 @@ class TestVersioningStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/versioning-common',
             dest_path=repose_config_folder, params=params)
@@ -713,9 +671,7 @@ class TestVersioningStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -724,7 +680,6 @@ class TestVersioningStartBad(unittest.TestCase):
 
 class TestVersioningGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -733,6 +688,7 @@ class TestVersioningGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/versioning-common',
             dest_path=repose_config_folder, params=params)
@@ -747,9 +703,7 @@ class TestVersioningGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -761,9 +715,7 @@ class TestVersioningGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -772,7 +724,6 @@ class TestVersioningGoodToBad(unittest.TestCase):
 
 class TestVersioningBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -781,6 +732,7 @@ class TestVersioningBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/versioning-common',
             dest_path=repose_config_folder, params=params)
@@ -795,9 +747,7 @@ class TestVersioningBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -809,9 +759,7 @@ class TestVersioningBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -820,7 +768,6 @@ class TestVersioningBadToGood(unittest.TestCase):
 
 class TestTranslationStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -829,6 +776,7 @@ class TestTranslationStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/translation-common',
             dest_path=repose_config_folder, params=params)
@@ -843,9 +791,7 @@ class TestTranslationStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -854,7 +800,6 @@ class TestTranslationStartGood(unittest.TestCase):
 
 class TestTranslationStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -863,6 +808,7 @@ class TestTranslationStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/translation-common',
             dest_path=repose_config_folder, params=params)
@@ -877,9 +823,7 @@ class TestTranslationStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -888,7 +832,6 @@ class TestTranslationStartBad(unittest.TestCase):
 
 class TestTranslationGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -897,6 +840,7 @@ class TestTranslationGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/translation-common',
             dest_path=repose_config_folder, params=params)
@@ -911,9 +855,7 @@ class TestTranslationGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -925,9 +867,7 @@ class TestTranslationGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -936,7 +876,6 @@ class TestTranslationGoodToBad(unittest.TestCase):
 
 class TestTranslationBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -945,6 +884,7 @@ class TestTranslationBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/translation-common',
             dest_path=repose_config_folder, params=params)
@@ -959,9 +899,7 @@ class TestTranslationBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -973,9 +911,7 @@ class TestTranslationBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -984,7 +920,6 @@ class TestTranslationBadToGood(unittest.TestCase):
 
 class TestClientAuthenticationStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -993,6 +928,7 @@ class TestClientAuthenticationStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/client-auth-n-common',
             dest_path=repose_config_folder, params=params)
@@ -1007,9 +943,7 @@ class TestClientAuthenticationStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1018,7 +952,6 @@ class TestClientAuthenticationStartGood(unittest.TestCase):
 
 class TestClientAuthenticationStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1027,6 +960,7 @@ class TestClientAuthenticationStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/client-auth-n-common',
             dest_path=repose_config_folder, params=params)
@@ -1041,9 +975,7 @@ class TestClientAuthenticationStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1052,7 +984,6 @@ class TestClientAuthenticationStartBad(unittest.TestCase):
 
 class TestClientAuthenticationGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1061,6 +992,7 @@ class TestClientAuthenticationGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/client-auth-n-common',
             dest_path=repose_config_folder, params=params)
@@ -1075,9 +1007,7 @@ class TestClientAuthenticationGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1089,9 +1019,7 @@ class TestClientAuthenticationGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1100,7 +1028,6 @@ class TestClientAuthenticationGoodToBad(unittest.TestCase):
 
 class TestClientAuthenticationBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1109,6 +1036,7 @@ class TestClientAuthenticationBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/client-auth-n-common',
             dest_path=repose_config_folder, params=params)
@@ -1123,9 +1051,7 @@ class TestClientAuthenticationBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1137,9 +1063,7 @@ class TestClientAuthenticationBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1148,7 +1072,6 @@ class TestClientAuthenticationBadToGood(unittest.TestCase):
 
 class TestClientAuthorizationStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1157,6 +1080,7 @@ class TestClientAuthorizationStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/openstack-authorization-common',
             dest_path=repose_config_folder, params=params)
@@ -1171,9 +1095,7 @@ class TestClientAuthorizationStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(401,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(401, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1182,7 +1104,6 @@ class TestClientAuthorizationStartGood(unittest.TestCase):
 
 class TestClientAuthorizationStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1191,6 +1112,7 @@ class TestClientAuthorizationStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/openstack-authorization-common',
             dest_path=repose_config_folder, params=params)
@@ -1205,9 +1127,7 @@ class TestClientAuthorizationStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1216,7 +1136,6 @@ class TestClientAuthorizationStartBad(unittest.TestCase):
 
 class TestClientAuthorizationGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1225,6 +1144,7 @@ class TestClientAuthorizationGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/openstack-authorization-common',
             dest_path=repose_config_folder, params=params)
@@ -1239,9 +1159,7 @@ class TestClientAuthorizationGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(401,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(401, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1253,9 +1171,7 @@ class TestClientAuthorizationGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(401,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(401, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1264,7 +1180,6 @@ class TestClientAuthorizationGoodToBad(unittest.TestCase):
 
 class TestClientAuthorizationBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1273,6 +1188,7 @@ class TestClientAuthorizationBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/openstack-authorization-common',
             dest_path=repose_config_folder, params=params)
@@ -1287,9 +1203,7 @@ class TestClientAuthorizationBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1301,9 +1215,7 @@ class TestClientAuthorizationBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(401,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(401, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1312,7 +1224,6 @@ class TestClientAuthorizationBadToGood(unittest.TestCase):
 
 class TestDistributedDatastoreStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1321,6 +1232,7 @@ class TestDistributedDatastoreStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/dist-datastore-common',
             dest_path=repose_config_folder, params=params)
@@ -1335,9 +1247,7 @@ class TestDistributedDatastoreStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1346,7 +1256,6 @@ class TestDistributedDatastoreStartGood(unittest.TestCase):
 
 class TestDistributedDatastoreStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1355,6 +1264,7 @@ class TestDistributedDatastoreStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/dist-datastore-common',
             dest_path=repose_config_folder, params=params)
@@ -1369,9 +1279,7 @@ class TestDistributedDatastoreStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1380,7 +1288,6 @@ class TestDistributedDatastoreStartBad(unittest.TestCase):
 
 class TestDistributedDatastoreGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1389,6 +1296,7 @@ class TestDistributedDatastoreGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/dist-datastore-common',
             dest_path=repose_config_folder, params=params)
@@ -1403,9 +1311,7 @@ class TestDistributedDatastoreGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1417,9 +1323,7 @@ class TestDistributedDatastoreGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1428,7 +1332,6 @@ class TestDistributedDatastoreGoodToBad(unittest.TestCase):
 
 class TestDistributedDatastoreBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1437,6 +1340,7 @@ class TestDistributedDatastoreBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/dist-datastore-common',
             dest_path=repose_config_folder, params=params)
@@ -1451,9 +1355,7 @@ class TestDistributedDatastoreBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1465,9 +1367,7 @@ class TestDistributedDatastoreBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1476,7 +1376,6 @@ class TestDistributedDatastoreBadToGood(unittest.TestCase):
 
 class TestHttpLoggingStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1485,6 +1384,7 @@ class TestHttpLoggingStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/http-logging-common',
             dest_path=repose_config_folder, params=params)
@@ -1499,9 +1399,7 @@ class TestHttpLoggingStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1510,7 +1408,6 @@ class TestHttpLoggingStartGood(unittest.TestCase):
 
 class TestHttpLoggingStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1519,6 +1416,7 @@ class TestHttpLoggingStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/http-logging-common',
             dest_path=repose_config_folder, params=params)
@@ -1533,9 +1431,7 @@ class TestHttpLoggingStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1544,7 +1440,6 @@ class TestHttpLoggingStartBad(unittest.TestCase):
 
 class TestHttpLoggingGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1553,6 +1448,7 @@ class TestHttpLoggingGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/http-logging-common',
             dest_path=repose_config_folder, params=params)
@@ -1567,9 +1463,7 @@ class TestHttpLoggingGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1581,9 +1475,7 @@ class TestHttpLoggingGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1592,7 +1484,6 @@ class TestHttpLoggingGoodToBad(unittest.TestCase):
 
 class TestHttpLoggingBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1601,6 +1492,7 @@ class TestHttpLoggingBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/http-logging-common',
             dest_path=repose_config_folder, params=params)
@@ -1615,9 +1507,7 @@ class TestHttpLoggingBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1629,9 +1519,7 @@ class TestHttpLoggingBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1640,7 +1528,6 @@ class TestHttpLoggingBadToGood(unittest.TestCase):
 
 class TestUriIdentityStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1649,6 +1536,7 @@ class TestUriIdentityStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/uri-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1663,9 +1551,7 @@ class TestUriIdentityStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1674,7 +1560,6 @@ class TestUriIdentityStartGood(unittest.TestCase):
 
 class TestUriIdentityStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1683,6 +1568,7 @@ class TestUriIdentityStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/uri-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1697,9 +1583,7 @@ class TestUriIdentityStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1708,7 +1592,6 @@ class TestUriIdentityStartBad(unittest.TestCase):
 
 class TestUriIdentityGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1717,6 +1600,7 @@ class TestUriIdentityGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/uri-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1731,9 +1615,7 @@ class TestUriIdentityGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1745,9 +1627,7 @@ class TestUriIdentityGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1756,7 +1636,6 @@ class TestUriIdentityGoodToBad(unittest.TestCase):
 
 class TestUriIdentityBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1765,6 +1644,7 @@ class TestUriIdentityBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/uri-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1779,9 +1659,7 @@ class TestUriIdentityBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1793,9 +1671,7 @@ class TestUriIdentityBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1804,7 +1680,6 @@ class TestUriIdentityBadToGood(unittest.TestCase):
 
 class TestHeaderIdentityStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1813,6 +1688,7 @@ class TestHeaderIdentityStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/header-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1827,9 +1703,7 @@ class TestHeaderIdentityStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1838,7 +1712,6 @@ class TestHeaderIdentityStartGood(unittest.TestCase):
 
 class TestHeaderIdentityStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1847,6 +1720,7 @@ class TestHeaderIdentityStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/header-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1861,9 +1735,7 @@ class TestHeaderIdentityStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1872,7 +1744,6 @@ class TestHeaderIdentityStartBad(unittest.TestCase):
 
 class TestHeaderIdentityGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1881,6 +1752,7 @@ class TestHeaderIdentityGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/header-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1895,9 +1767,7 @@ class TestHeaderIdentityGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1909,9 +1779,7 @@ class TestHeaderIdentityGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1920,7 +1788,6 @@ class TestHeaderIdentityGoodToBad(unittest.TestCase):
 
 class TestHeaderIdentityBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1929,6 +1796,7 @@ class TestHeaderIdentityBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/header-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1943,9 +1811,7 @@ class TestHeaderIdentityBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -1957,9 +1823,7 @@ class TestHeaderIdentityBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -1968,7 +1832,6 @@ class TestHeaderIdentityBadToGood(unittest.TestCase):
 
 class TestIpIdentityStartGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -1977,6 +1840,7 @@ class TestIpIdentityStartGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/ip-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -1991,9 +1855,7 @@ class TestIpIdentityStartGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_good(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -2002,7 +1864,6 @@ class TestIpIdentityStartGood(unittest.TestCase):
 
 class TestIpIdentityStartBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -2011,6 +1872,7 @@ class TestIpIdentityStartBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/ip-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -2025,9 +1887,7 @@ class TestIpIdentityStartBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_start_bad(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -2036,7 +1896,6 @@ class TestIpIdentityStartBad(unittest.TestCase):
 
 class TestIpIdentityGoodToBad(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -2045,6 +1904,7 @@ class TestIpIdentityGoodToBad(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/ip-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -2059,9 +1919,7 @@ class TestIpIdentityGoodToBad(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_good_to_bad(self):
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -2073,9 +1931,7 @@ class TestIpIdentityGoodToBad(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
@@ -2084,7 +1940,6 @@ class TestIpIdentityGoodToBad(unittest.TestCase):
 
 class TestIpIdentityBadToGood(unittest.TestCase):
     def setUp(self):
-        print self.__class__
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.url = 'http://localhost:{0}/'.format(self.repose_port)
@@ -2093,6 +1948,7 @@ class TestIpIdentityBadToGood(unittest.TestCase):
             'target_hostname': 'localhost',
             'target_port': mock_port,
         }
+        clear_folder(repose_config_folder)
         conf.process_folder_contents(
             folder='configs/ip-identity-common',
             dest_path=repose_config_folder, params=params)
@@ -2107,9 +1963,7 @@ class TestIpIdentityBadToGood(unittest.TestCase):
                                  wait_on_start=True)
 
     def test_bad_to_good(self):
-        self.assertEquals(503,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(503, get_status_code_from_url(self.url))
 
         params = {
             'port': self.repose_port,
@@ -2121,9 +1975,7 @@ class TestIpIdentityBadToGood(unittest.TestCase):
             dest_path=repose_config_folder, params=params)
         time.sleep(sleep_time)
 
-        self.assertEquals(200,
-                          requests.get(self.url,
-                                       timeout=request_timeout).status_code)
+        self.assertEquals(200, get_status_code_from_url(self.url))
 
     def tearDown(self):
         if self.valve:
