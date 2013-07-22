@@ -30,6 +30,8 @@ public class ApiValidatorFilter implements Filter {
         ApiValidatorHandler handler = handlerFactory.newHandler();
         if (handler != null) {
             handler.setFilterChain(chain);
+        } else {
+            LOG.error("Unable to build API validator handler");
         }
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
     }
