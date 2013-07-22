@@ -28,10 +28,9 @@ public class ApiValidatorFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         ApiValidatorHandler handler = handlerFactory.newHandler();
-        if (handler == null) {
-            throw new ServletException("Unable to build validator handler");
+        if (handler != null) {
+            handler.setFilterChain(chain);
         }
-        handler.setFilterChain(chain);
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
     }
 
