@@ -271,6 +271,8 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body);
     }
 
+
+
     def groupsJsonTemplate =
         """{
   "RAX-KSGRP:groups": [
