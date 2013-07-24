@@ -220,7 +220,11 @@ public final class CompressingFilter implements Filter {
 
       if (chainRequest == null) {
          chainRequest = request;
-      }
+      } /*else {
+          // Remove 'Content-Encoding' header
+          chainRequest = MutableHttpServletRequest.wrap((HttpServletRequest) chainRequest);
+          ((MutableHttpServletRequest)chainRequest).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+      } */
       if (chainResponse == null) {
          chainResponse = response;
       }
@@ -239,8 +243,12 @@ public final class CompressingFilter implements Filter {
       
       //Causing this filter to write out input stream so as we can catch exceptions earlier.
       if(isForRepose){
-         MutableHttpServletRequest mutableHttpServletRequest = MutableHttpServletRequest.wrap((HttpServletRequest)chainRequest);
-         mutableHttpServletRequest.setInputStream(chainRequest.getInputStream());
+          MutableHttpServletRequest mutableHttpServletRequest = MutableHttpServletRequest.wrap((HttpServletRequest)chainRequest);
+          // Remove 'Content-Encoding' header
+          mutableHttpServletRequest.removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+          chainRequest = mutableHttpServletRequest;
+          //
+          mutableHttpServletRequest.setInputStream(chainRequest.getInputStream());
       }
       chain.doFilter(chainRequest, chainResponse);
 
