@@ -50,6 +50,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             authorizeRequest(myDirector, request);
         }
 
+
         return myDirector;
     }
 
