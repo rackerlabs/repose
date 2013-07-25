@@ -41,7 +41,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.RETURN);
-        myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+        myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
 
         if (authenticationWasDelegated(request)) {
             // We do not support delegation
@@ -49,6 +49,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         } else {
             authorizeRequest(myDirector, request);
         }
+
 
         return myDirector;
     }
@@ -115,7 +116,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private List<CachedEndpoint> getEndpointsForToken(String userToken) {
         List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
-        if (cachedEndpoints == null) {
+        if (cachedEndpoints == null || cachedEndpoints.isEmpty()) {
             cachedEndpoints = requestEndpointsForTokenFromAuthService(userToken);
 
             try {

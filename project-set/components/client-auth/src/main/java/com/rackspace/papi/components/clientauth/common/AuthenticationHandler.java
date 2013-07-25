@@ -133,16 +133,32 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          }
       }
 
-       List<AuthGroup> groups = getAuthGroups(token);
+       try{
+           List<AuthGroup> groups = getAuthGroups(token);
 
-       //getting the encoded endpoints to pass into the header, if the endpoints config is not null
-       String endpointsInBase64 = null;
-       if (endpointsConfiguration != null){
-           endpointsInBase64 = getEndpointsInBase64(token);
-       }
+           //getting the encoded endpoints to pass into the header, if the endpoints config is not null
+           String endpointsInBase64 = null;
+           if (endpointsConfiguration != null){
+               endpointsInBase64 = getEndpointsInBase64(token);
+            }
 
-      setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-              groups, endpointsInBase64);
+
+            setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                  groups, endpointsInBase64);
+
+        } catch (ClientHandlerException ex) {
+            LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
+            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (AuthServiceException ex) {
+            LOG.error("Failure in Auth-N: " + ex.getMessage());
+            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException ex) {
+            LOG.error("Failure in Auth-N: " + ex.getMessage());
+            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            LOG.error("Failure in auth: " + ex.getMessage(), ex);
+            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
 
       return filterDirector;
    }
@@ -181,17 +197,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          AuthGroups authGroups = checkGroupCache(token);
 
          if (authGroups == null) {
-            try {
+
                authGroups = getGroups(token.getUserId());
                cacheGroupInfo(token, authGroups);
-            } catch (ClientHandlerException ex) {
-               LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
-               LOG.error("X-PP-Groups will not be set.");
-            } catch (Exception ex) {
-               LOG.error("Failure in auth when retrieving groups: " + ex.getMessage(), ex);
-               LOG.error("X-PP-Groups will not be set.");
-            }
-         }
+           }
 
          if (authGroups != null && authGroups.getGroups() != null) {
             return authGroups.getGroups();
