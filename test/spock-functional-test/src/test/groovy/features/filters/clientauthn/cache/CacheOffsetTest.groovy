@@ -27,7 +27,7 @@ class CacheOffsetTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "should cache tokens for full duration of cache timeout when no cache offset is set"() {
+    def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
         IdentityServiceResponseSimulator fauxIdentityService
@@ -83,8 +83,8 @@ class CacheOffsetTest extends ReposeValveTest {
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
         fauxIdentityService.validateTokenCount = 0
 
-        Period cacheExpiration = new Period().withSeconds(30)
-        DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(30)
+        Period cacheExpiration = new Period().withSeconds(20)
+        DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(20)
         clientThreads = new ArrayList<Thread>()
 
         for (int x in 1..uniqueUsers) {
@@ -105,16 +105,20 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        while (DateTime.now().isBefore(initialBurstLastValidationCall.plusSeconds(30))) {
-            sleep(1000)
-        }
+        fauxIdentityService.validateTokenCount = 0
+        clientThreads = new ArrayList<Thread>()
+
         for (int x in 1..uniqueUsers) {
             def token = userTokens.get(x-1)
             def Map<String, MessageChain> roundTwo = [:]
 
+            DateTime maxTokenExpiration = initialBurstLastValidationCall.plusSeconds(40)
+
             def thread = Thread.start {
+            while (DateTime.now().isBefore(maxTokenExpiration)) {
                     MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': token])
-                    roundTwo.put("RoundTwo-" + x + "-" , mc)
+                    roundTwo.put("RoundThree-" + x + "-" , mc)
+            }
             }
             clientThreads.add(thread)
         }
@@ -125,7 +129,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         where:
         uniqueUsers | initialCallsPerUser
-        20          | 5
+        50          | 1
 
     }
 
