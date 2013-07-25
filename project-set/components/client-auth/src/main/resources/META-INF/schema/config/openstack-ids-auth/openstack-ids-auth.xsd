@@ -63,7 +63,7 @@
                 default="0">
                 <xs:annotation>
                     <xs:documentation>
-                        <html:p>Cache timout offset for token and group cache. A random value
+                        <html:p>Cache timeout offset (in milliseconds) for token and group cache. A random value
                             between -cache-offset and +cache-offset will be applied to the existing
                             token and group timeout values</html:p>
                     </xs:documentation>
