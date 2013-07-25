@@ -1,31 +1,28 @@
 package features.filters.compression
 
 import framework.ReposeValveTest
-import framework.PortFinder
 import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Response
-import spock.lang.Shared
+import org.rackspace.gdeproxy.MessageChain
 
 import java.util.zip.GZIPOutputStream
 
 class CompressionTest extends ReposeValveTest {
-    @Shared def port
-
-    def setupSpec() {
-        def portFinder = new PortFinder()
-
-        port = portFinder.getNextOpenPort()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint( port, "compliantOrigin", "localhost", { request -> new Response(200) } )
-
-        repose.applyConfigs( "features/filters/compression", "common/" )
+    def setup() {
+        repose.applyConfigs("features/filters/compression")
         repose.start()
+
+        sleep(4000)
+
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanupSpec() {
+    def cleanup() {
         if (deproxy) {
             deproxy.shutdown()
         }
+
+        sleep(4000)
 
         if (repose) {
             repose.stop()
@@ -33,23 +30,21 @@ class CompressionTest extends ReposeValveTest {
     }
 
     def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression"() {
-        given:
-        // Generate zipped content
-        def content = "This is a test string"
-        def compressedContent = ""
-        def out = new ByteArrayOutputStream()
-        def gzipOut = new GZIPOutputStream(out)
+        given: "gzip compressed content"
+        def String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac malesuada." +
+                " Integer nec est turpis duis."
+        def String compressedContent = ""
+        def OutputStream out = new ByteArrayOutputStream()
+        def OutputStream gzipOut = new GZIPOutputStream(out)
         gzipOut.write(content.getBytes())
         gzipOut.close();
         compressedContent = out.toString()
 
-        when:
-        // Send zipped content through Repose
-        def mc = deproxy.makeRequest("http://localhost:${port}", "POST", ["Content-Encoding": "gzip"], compressedContent)
+        when: "the compressed content is sent to the origin service through Repose"
+        def MessageChain mc = deproxy.makeRequest( [url : reposeEndpoint + "/", method : "POST",
+                headers : ["Content-Encoding" : "gzip"], requestBody : compressedContent] )
 
-        then:
-        // Content is received by the origin service unzipped
-        // The request received by the origin service does not have a Content-Encoding header
+        then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
         mc.handlings.size == 1
         !mc.handlings[0].request.headers.contains("Content-Encoding")
