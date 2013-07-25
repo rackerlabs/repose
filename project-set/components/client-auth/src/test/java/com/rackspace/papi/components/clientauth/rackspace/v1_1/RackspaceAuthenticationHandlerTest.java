@@ -103,7 +103,7 @@ public class RackspaceAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,0,requestGroups());
             handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, new UriMatcher(whiteListRegexPatterns));
         }
 

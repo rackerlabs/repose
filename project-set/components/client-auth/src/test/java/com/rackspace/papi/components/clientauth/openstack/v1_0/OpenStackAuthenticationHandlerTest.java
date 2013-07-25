@@ -60,6 +60,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";        
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
+        protected static final int CACHE_OFFSET = 0;
 
         protected HttpServletRequest request;
         protected ReadableHttpServletResponse response;
@@ -102,7 +103,7 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,getCacheOffset(),requestGroups());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -117,6 +118,10 @@ public class OpenStackAuthenticationHandlerTest {
         protected abstract boolean delegable();
         
         protected abstract boolean requestGroups();
+
+        protected int getCacheOffset(){
+            return 0;
+        }
 
         protected boolean isTenanted() {
             return true;
@@ -672,5 +677,30 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertFalse(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
         }
+    }
+
+    public static class WhenSettingCacheOffSet extends TestParent {
+
+        @Override
+        protected boolean delegable(){
+            return false;
+        }
+
+        @Override
+        protected  boolean requestGroups(){
+            return false;
+        }
+
+
+        protected int getCacheOffset() {
+            return 600;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Test
+        public void shouldReturnCacheTTLWithOffset(){
+            assertTrue(handler.getCacheOffset() != AUTH_TOKEN_CACHE_TTL);
+        }
+
+
     }
 }

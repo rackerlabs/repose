@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author fran
@@ -45,6 +46,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final boolean tenanted;
    private final long groupCacheTtl;
    private final long userCacheTtl;
+    private final Random offsetGenerator;
+    private int cacheOffset;
    private final boolean requestGroups;
 
    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
@@ -57,6 +60,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.groupCacheTtl = configurables.getGroupCacheTtl();
       this.userCacheTtl = configurables.getUserCacheTtl();
       this.requestGroups= configurables.isRequestGroups();
+      this.offsetGenerator = new Random();
+      this.cacheOffset = configurables.getCacheOffset();
    }
 
    @Override
@@ -86,6 +91,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       final FilterDirector filterDirector = new FilterDirectorImpl();
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
       filterDirector.setFilterAction(FilterAction.RETURN);
+      int offset = getCacheOffset();
 
       final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
       ExtractorResult<String> account = null;
@@ -104,7 +110,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          if (token == null) {
             try {
                token = validateToken(account, StringUriUtilities.encodeUri(authToken));
-               cacheUserInfo(token);
+
+               cacheUserInfo(token,offset);
             } catch (ClientHandlerException ex) {
                LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -123,14 +130,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       }
           
          
-      List<AuthGroup> groups = getAuthGroups(token);
+      List<AuthGroup> groups = getAuthGroups(token,offset);
 
       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
       return filterDirector;
    }
 
-   private List<AuthGroup> getAuthGroups(AuthToken token) {
+   private List<AuthGroup> getAuthGroups(AuthToken token, int offset) {
       if (token != null && requestGroups) {
 
          AuthGroups authGroups = checkGroupCache(token);
@@ -138,7 +145,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          if (authGroups == null) {
             try {
                authGroups = getGroups(token.getUserId());
-               cacheGroupInfo(token, authGroups);
+               cacheGroupInfo(token, authGroups, offset);
             } catch (ClientHandlerException ex) {
                LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
                LOG.error("X-PP-Groups will not be set.");
@@ -194,7 +201,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       return cache.getUserToken(key, token);
    }
 
-   private void cacheUserInfo(AuthToken user) {
+   private void cacheUserInfo(AuthToken user,long offset) {
       if (user == null || cache == null) {
          return;
       }
@@ -206,7 +213,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       }
 
       try {
-         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl+offset, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+          LOG.debug("Caching token for " + user.getTenantId() + " with a TTL of " + ttl);
          cache.storeToken(key, user, Long.valueOf(ttl).intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
@@ -225,20 +233,20 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       return grpCache.getUserGroup(getGroupCacheKey(token));
    }
 
-   private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
+   private void cacheGroupInfo(AuthToken token, AuthGroups groups, long offset) {
       if (groups == null || grpCache == null) {
          return;
       }
 
       try {
-         grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
+         grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl(offset));
       } catch (IOException ex) {
          LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
       }
    }
 
-   private int safeGroupTtl() {
-      final Long grpTtl = this.groupCacheTtl;
+   private int safeGroupTtl(long offset) {
+      final Long grpTtl = this.groupCacheTtl + offset;
 
       if (grpTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
@@ -246,4 +254,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
       return grpTtl.intValue();
    }
+
+    public int getCacheOffset(){
+        return cacheOffset == 0 ? 0 : offsetGenerator.nextInt(cacheOffset*2) - cacheOffset;
+
+    }
 }

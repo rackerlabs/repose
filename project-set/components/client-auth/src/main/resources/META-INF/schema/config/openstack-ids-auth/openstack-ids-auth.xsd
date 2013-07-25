@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
-           xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">    
+    targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
+    xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
+    xmlns:html="http://www.w3.org/1999/xhtml" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    xmlns:xerces="http://xerces.apache.org" xmlns:saxon="http://saxon.sf.net/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration -->
     <xs:element name="openstack-auth">
         <xs:complexType>
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
+                    <html:p>Defines an OpenStack Identity Service authentication
+                        configuration</html:p>
                 </xs:documentation>
             </xs:annotation>
 
             <xs:all vc:minVersion="1.1">
-                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService"
+                    minOccurs="1" maxOccurs="1"/>
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0"
+                    maxOccurs="unbounded"/>
             </xs:all>
-            
+
             <!-- Order matters in 1.0 land :-( -->
             <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
-                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService"
+                    minOccurs="1" maxOccurs="1"/>
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0"
+                    maxOccurs="unbounded"/>
             </xs:sequence>
 
             <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
-                        <html:p>Tells the service whether or not to support auth delegation.</html:p>
+                        <html:p>Tells the service whether or not to support auth
+                            delegation.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
+            <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional"
+                default="0">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Time in milliseconds to cache auth token.</html:p>
@@ -45,34 +50,55 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
+            <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional"
+                default="600000">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Time in milliseconds to cache auth groups.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
-            
-            <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
+
+            <xs:attribute name="cache-offset" type="os-ids-auth:intGTEZero" use="optional"
+                default="0">
                 <xs:annotation>
                     <xs:documentation>
-                        <html:p>Option to include the query strings to find extract the client id</html:p>
+                        <html:p>Cache timout offset for token and group cache. A random value
+                            between -cache-offset and +cache-offset will be applied to the existing
+                            token and group timeout values</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
             
-                      
-            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+
+            <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
                 <xs:annotation>
                     <xs:documentation>
-                     c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
+                        <html:p>Option to include the query strings to find extract the client
+                            id</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+
+
+            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+                <xs:annotation>
+                    <xs:documentation> c <html:p>Tells the service whether or not to make get Groups
+                            call to Auth</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
             <!-- Review assertion -->
-            <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
-                       xerces:message="If tenanted = true then there should be at least one client mapping."
-                       saxon:message="If tenanted = true then there should be at least one client mapping."/>
+            <xs:assert vc:minVersion="1.1"
+                test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
+                xerces:message="If tenanted = true then there should be at least one client mapping."
+                saxon:message="If tenanted = true then there should be at least one client mapping."/>
+
+            <!--xs:assert vc:minVersion="1.1"
+                test="@user-cache-timeout >= @cache-offset and @group-cache-timeout >= @cache-offset"
+                xerces:message="Cache offset must be set lower than group and user cache timeout values"
+                saxon:message="Cache offset must be set lower than group and user cache timeout values"
+            /-->
         </xs:complexType>
     </xs:element>
 
@@ -98,8 +124,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-  
+
+
 
         <xs:attribute name="uri" type="xs:anyURI" use="required">
             <xs:annotation>
@@ -111,7 +137,8 @@
         <xs:attribute name="tenantId" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
+                    <html:p>The tenantId with admin permission used by the Keystone implementation
+                        perform admin tasks.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -132,9 +159,15 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
     <xs:simpleType name="longGTEZero">
         <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="intGTEZero">
+        <xs:restriction base="xs:int">
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
