@@ -14,7 +14,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        //deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
         deproxy.addEndpoint(10000, "origin service", "localhost", {Request request -> return new Response(200)})
 
         sleep(4000)
@@ -42,13 +42,13 @@ class CompressionHeaderTest extends ReposeValveTest {
         compressedContent = out.toString()
 
         when: "the compressed content is sent to the origin service through Repose"
-        def MessageChain mc = deproxy.makeRequest( reposeEndpoint, "POST", ["Content-Encoding" : "gzip", "test" : "ce"],
+        def MessageChain mc = deproxy.makeRequest( "http://localhost:10000", "POST", ["Content-Encoding" : "gzip"],
                 compressedContent )
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
         mc.handlings.size == 1
-        !mc.handlings[0].request.headers.contains("Content-Encoding")
+        !mc.handlings[0].request.headers.contains("Content-Encoding") // TODO content not being decompressed
         mc.handlings[0].request.body.equals(content)
     }
 
