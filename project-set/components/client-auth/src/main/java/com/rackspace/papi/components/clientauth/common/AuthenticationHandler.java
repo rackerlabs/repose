@@ -140,7 +140,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
 
         try {
-            List<AuthGroup> groups = getAuthGroups(token);
+            List<AuthGroup> groups = getAuthGroups(token, offset);
 
             //getting the encoded endpoints to pass into the header, if the endpoints config is not null
             String endpointsInBase64 = null;
@@ -197,7 +197,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsCache.getEndpoints(token);
     }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token) {
+    private List<AuthGroup> getAuthGroups(AuthToken token, int offset) {
         if (token != null && requestGroups) {
 
             AuthGroups authGroups = checkGroupCache(token);
@@ -205,7 +205,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             if (authGroups == null) {
 
                 authGroups = getGroups(token.getUserId());
-                cacheGroupInfo(token, authGroups);
+                cacheGroupInfo(token, authGroups, offset);
             }
 
             if (authGroups != null && authGroups.getGroups() != null) {
@@ -280,8 +280,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 userTokenTtl = Integer.MAX_VALUE;
             }
 
-            long ttl = tokenCacheTtl > 0 ? Math.min(tokenCacheTtl, userTokenTtl) : userTokenTtl;
-
+            long ttl = tokenCacheTtl > 0 ? Math.min(getMaxTTL(tokenCacheTtl+offset), userTokenTtl) : userTokenTtl;
+            LOG.debug("Caching token for " + user.getTenantId() + " with a TTL of " + ttl);
             cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
         } catch (IOException ex) {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
@@ -326,13 +326,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return grpCache.getUserGroup(getGroupCacheKey(token));
     }
 
-    private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
+    private void cacheGroupInfo(AuthToken token, AuthGroups groups, int offset) {
         if (groups == null || grpCache == null) {
             return;
         }
 
         try {
-            grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
+            grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl(offset));
         } catch (IOException ex) {
             LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
         }
@@ -351,8 +351,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    private int safeGroupTtl() {
-        final Long grpTtl = this.groupCacheTtl;
+    private int safeGroupTtl(int offset) {
+        final Long grpTtl = this.groupCacheTtl+offset;
 
         if (grpTtl >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -381,5 +381,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     public int getCacheOffset(){
         return cacheOffset == 0 ? 0 : offsetGenerator.nextInt(cacheOffset*2) - cacheOffset;
 
+    }
+
+    public long getMaxTTL(long ttl){
+        return Math.min(ttl,Integer.MAX_VALUE);
     }
 }
