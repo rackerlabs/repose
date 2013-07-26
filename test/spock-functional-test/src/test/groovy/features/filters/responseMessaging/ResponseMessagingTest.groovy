@@ -14,6 +14,7 @@ class ResponseMessagingTest extends ReposeValveTest {
 
         repose.applyConfigs("features/filters/responsemessaging")
         repose.start()
+        waitUntilReadyToServiceRequests()
     }
 
     def cleanupSpec() {
@@ -26,14 +27,9 @@ class ResponseMessagingTest extends ReposeValveTest {
         }
     }
 
-
-    def "when starting repose with the response messaging service, it should start"() {
-        repose.isUp()
-    }
-
     def "when endpoint returns a 413 response code, then repose should return the expected response body"() {
+
         when:
-        sleep(10000)
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, defaultHandler: handler413])
 
         then:
