@@ -115,12 +115,15 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
+        def path = request.getPath()
+        def request_token = path.substring(path.lastIndexOf("/")+1)
+
         def params = [
                 expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request_token
         ];
 
         return handleTokenCallBase(request, params);
@@ -164,7 +167,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        //println body
+        println body
         return new Response(code, null, headers, body)
     }
 
@@ -188,7 +191,8 @@ class IdentityServiceResponseSimulator {
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request.getHeaders().getFirstValue("X-Auth-Token")
+
         ]
 
         def template;
@@ -258,12 +262,11 @@ class IdentityServiceResponseSimulator {
 
         def params = [
                 'identity_port': this.port,
-                'token': this.client_token,
+                token: request.getHeaders().getFirstValue("X-Auth-Token"),
                 'expires': getExpires(),
                 'userid': this.client_userid,
                 'username': this.client_username,
                 'tenant': this.client_tenant,
-                'token': this.client_token,
                 'origin_service_port': this.origin_service_port,
         ];
 
