@@ -6,7 +6,7 @@ import org.rackspace.gdeproxy.MessageChain
 
 import java.util.zip.GZIPOutputStream
 
-class CompressionTest extends ReposeValveTest {
+class CompressionHeaderTest extends ReposeValveTest {
     def setup() {
         repose.applyConfigs("features/filters/compression")
         repose.start()
