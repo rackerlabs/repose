@@ -62,7 +62,7 @@ public class LockedConfigurationUpdaterTest {
             assertEquals("prop1", configProperties.get(0));
         }
 
-        @Test
+        @Test @Ignore
         public void shouldNotLockWhenUsingSharedKeys() throws InterruptedException {
             final SampleConfigObject config = new SampleConfigObject(configProperties);
             final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 10);
