@@ -143,7 +143,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
         // change identity atom feed
-        fakeIdentityService.ok = false
+        fakeIdentityService.errorCode = 404
+        fakeIdentityService.isValidateClientTokenBroken= true
         fakeIdentityService.validateTokenCount = 0
         fakeAtomFeed.hasEntry = true
         atomEndpoint._defaultHandler = fakeAtomFeed.handler
