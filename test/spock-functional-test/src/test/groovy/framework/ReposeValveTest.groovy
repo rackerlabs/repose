@@ -63,7 +63,7 @@ abstract class ReposeValveTest extends Specification {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
         MessageChain mc
-        waitForCondition(clock, '15s', '1s', {
+        waitForCondition(clock, '35s', '1s', {
             try {
             mc = innerDeproxy.makeRequest([url:reposeEndpoint])
             } catch (Exception e) {}
