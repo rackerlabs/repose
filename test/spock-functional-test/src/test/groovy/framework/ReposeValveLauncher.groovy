@@ -64,7 +64,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         }
 
         int jmxPort = nextAvailablePort()
-        jmxprops = "-Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if(!classPaths.isEmpty()){
             classPath = "-cp " + (classPaths as Set).join(";")
@@ -179,7 +179,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
 
     private String getJvmProcesses() {
-        def runningJvms = "jps".execute()
+        def runningJvms = "jps -v".execute()
         runningJvms.waitFor()
 
         return runningJvms.in.text
@@ -191,18 +191,21 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     private void killIfUp() {
         String processes = getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar/
+        def regex = /(\d*) repose-valve.jar .*spocktest .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
-            String pid = matcher[0][1]
 
-            if (!pid.isEmpty()) {
-                println("Killing running repose-valve process: " + pid)
-                Runtime rt = Runtime.getRuntime();
-                if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                    rt.exec("taskkill " + pid.toInteger());
-                else
-                    rt.exec("kill -9 " + pid.toInteger());
+            for (int i=1;i<=matcher.size();i++){
+            String pid = matcher[0][i]
+
+                if (pid!=null && !pid.isEmpty()) {
+                    println("Killing running repose-valve process: " + pid)
+                    Runtime rt = Runtime.getRuntime();
+                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                        rt.exec("taskkill " + pid.toInteger());
+                    else
+                        rt.exec("kill -9 " + pid.toInteger());
+                }
             }
         }
     }
