@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.3">
+<jmeterTestPlan version="1.2" properties="2.4" jmeter="2.9 r1437961">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -103,7 +103,7 @@
               <intProp name="Assertion.test_type">1</intProp>
             </ResponseAssertion>
             <hashTree/>
-            <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+            <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="false">
               <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
               <stringProp name="SizeAssertion.size">0</stringProp>
               <intProp name="SizeAssertion.operator">3</intProp>
