@@ -35,20 +35,23 @@ class CompressionHeaderTest extends ReposeValveTest {
         def String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
                 "malesuada. Integer nec est turpis duis."
         def String compressedContent = ""
-        def OutputStream out = new ByteArrayOutputStream()
-        def OutputStream gzipOut = new GZIPOutputStream(out)
+        def ByteArrayOutputStream out = new ByteArrayOutputStream()
+        def GZIPOutputStream gzipOut = new GZIPOutputStream(out)
         gzipOut.write(content.getBytes())
-        gzipOut.close();
-        compressedContent = out.toString()
+        gzipOut.close()
+        for (byte b : out.toByteArray()){
+            compressedContent += String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0')
+        }
 
         when: "the compressed content is sent to the origin service through Repose"
-        def MessageChain mc = deproxy.makeRequest( "http://localhost:10000", "POST", ["Content-Encoding" : "gzip"],
-                compressedContent )
+        def MessageChain mc = deproxy.makeRequest("http://localhost:10000", "POST", ["Content-Encoding" : "gzip"],
+                compressedContent)
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
         mc.handlings.size == 1
-        !mc.handlings[0].request.headers.contains("Content-Encoding") // TODO content not being decompressed
+        mc.sentRequest.body != mc.handlings[0].request.body
+        !mc.handlings[0].request.headers.contains("Content-Encoding")
         mc.handlings[0].request.body.equals(content)
     }
 
