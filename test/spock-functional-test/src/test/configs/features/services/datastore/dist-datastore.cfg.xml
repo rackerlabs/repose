@@ -3,6 +3,6 @@
     <allowed-hosts allow-all="true"/>
     <port-config>
         <port port="4999" cluster="repose"/>
-        <port port="3999" cluster="repose"/>
+        <port port="3999" cluster="repose" node="nofilters2" />
     </port-config>
 </distributed-datastore>
