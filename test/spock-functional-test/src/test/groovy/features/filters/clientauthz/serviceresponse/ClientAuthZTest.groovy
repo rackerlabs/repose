@@ -49,15 +49,19 @@ class ClientAuthZTest extends ReposeValveTest {
     def "When user is not authorized should receive a 403 FORBIDDEN response"(){
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
+        def token = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = token
         fakeIdentityService.origin_service_port = 99999
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': token])
+        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
+                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 
         then: "User should receive a 403 FORBIDDEN response"
-        mc.receivedResponse.code == "403"
+        foundLogs.size() == 1
         mc.handlings.size() == 0
-
+        mc.receivedResponse.code == "403"
     }
 
 }
