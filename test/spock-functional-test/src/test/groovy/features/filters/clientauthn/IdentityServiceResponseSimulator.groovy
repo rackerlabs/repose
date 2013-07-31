@@ -35,6 +35,9 @@ class IdentityServiceResponseSimulator {
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
 
+    def port = 12200
+    def origin_service_port = 10001
+
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
     def client_username = 'username';
@@ -73,10 +76,10 @@ class IdentityServiceResponseSimulator {
 
         if (request.method == "POST") {
             return handleGetAdminTokenCall(request);
+        } else if (request.method == "GET" && request.path.endsWith("endpoints")) {
+            return handleEndpointsCall(request);
         } else if (request.method == "GET" && request.path.contains("tokens")) {
             return handleValidateTokenCall(request);
-        } else if (request.method == "GET" && request.path.contains("endpoints")) {
-            return handleEndpointsCall(request);
         } else if (request.method == "GET") {
             return handleGroupsCall(request);
         } else {
