@@ -11,9 +11,15 @@
             e.g: /servers/reposeuser/action => x-pp-user=reposeuser
             -->
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
+        
+        <endpoints-in-header format="XML" cache-timeout="600000" identity-contract-version="2"/>
+        
+        <admin-roles>
+            <role name="role-1" />
+            <role name="role-2" />
+            <role name="role-3" />
+        </admin-roles>
     </openstack-auth>
-
-    <endpoints-in-header format="some-format" cache-timeout="600000" identity-contract-version="2"/>
 
     <white-list>
         <uri-pattern uri-regex="/application\.wadl$" />

@@ -132,7 +132,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers);
         } else {
             serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers, "belongsTo", tenant);
-
+            // TODO Here?!
         }
 
         return serviceResponse;
