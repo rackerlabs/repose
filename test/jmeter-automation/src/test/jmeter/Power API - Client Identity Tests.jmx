@@ -2852,7 +2852,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
               </hashTree>
             </hashTree>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="IP Identity" enabled="true"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="IP Identity" enabled="false"/>
           <hashTree>
             <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Source IP" enabled="true">
               <stringProp name="TestPlan.comments">This pings whatismyip.com to get the external IP address of the JMeter box so we can validate this is the IP the client IP filter sets.</stringProp>
