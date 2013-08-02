@@ -80,6 +80,12 @@ class ContentIdentityTest extends ReposeValveTest {
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-user").equals(expectedUser + ";q=0.75")
 
+        and: "Repose will send a single value for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+
+        and: "Repose will send 'My Group' for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups").equals("My Group;q=0.75")
+
         where:
         requestBody               | contentType | expectedUser
         jsonPasswordCred          | contentJson | "test-user"
@@ -105,6 +111,10 @@ class ContentIdentityTest extends ReposeValveTest {
 
         then: "Repose will not send x-pp-user"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+
+        and: "Repose will not send x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+
 
 
         where:
