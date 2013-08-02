@@ -24,7 +24,7 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
     private final MediaTypeNormalizer mediaTypeNormalizer;
     private final MetricsService metricsService;
     private MeterByCategorySum mbcsUriNormalizations;
-    private boolean useMetrics;
+    private boolean useMetrics = false;
 
     public UriNormalizationHandler(Collection<QueryParameterNormalizer> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer, MetricsService metricsService) {
         this.queryStringNormalizers = queryStringNormalizers;
