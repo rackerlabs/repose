@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-normalization xmlns='http://docs.api.rackspacecloud.com/repose/uri-normalization/v1.0'>
+   <media-variants>
+      <media-type name="application/json" variant-extension="json" preferred="true"/>
+      <media-type name="application/xml" variant-extension="xml"/>
+      <media-type name="application/atom+xml" variant-extension="atom"/>
+   </media-variants>
+</uri-normalization>

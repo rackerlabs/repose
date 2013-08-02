@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose1">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+    </nodes>
+    <filters>
+        <filter name="uri-normalization" />
+        <filter name="uri-normalization" uri-regex='/only_media_variant/.*' configuration='only-media-variant-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/uri_normalization_with_media/.*' configuration='uri-normalization-w-media.xml'/>
+        <filter name="uri-normalization" uri-regex='/empty_uri_target_with_media/.*' configuration='empty-uri-target-w-media-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/no_http_methods_with_media/.*' configuration='no-http-methods-w-media-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/no_regex_with_media/.*' configuration='no-regex-w-media-uri-normalization.xml'/>
+    </filters>
+
+      <destinations>
+          <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true"/>
+      </destinations>
+
+  </repose-cluster>
+</system-model>
