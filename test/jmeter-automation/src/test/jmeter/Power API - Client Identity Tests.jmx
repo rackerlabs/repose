@@ -641,7 +641,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
               </hashTree>
             </hashTree>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="URI Identity" enabled="true"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="URI Identity" enabled="false"/>
           <hashTree>
             <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
