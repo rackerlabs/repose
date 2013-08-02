@@ -36,6 +36,10 @@ class UriIdentityTest extends ReposeValveTest {
         then: "Repose will send x-pp-user with a single value"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("reposeuser1;q=0.5")
 
+        and: "Repose will send x-pp-groups with value of User_Standard"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("User_Standard;q=0.5")
+
+
     }
 
     def "when identifying requests on uri without user"(){
@@ -45,6 +49,9 @@ class UriIdentityTest extends ReposeValveTest {
 
         then: "Repose will not send a x-pp-user header"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+
+        and: "Repose will not send a value for x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
 
 
     }
