@@ -40,8 +40,6 @@ class IpIdentityTest extends ReposeValveTest {
         and: "Repose will send x-pp-user based on requestor ip"
         user == "127.0.0.1;q=0.4" || user == "0:0:0:0:0:0:0:1;q=0.4" | user == "::1;q=0.4"
 
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("127.0.0.1;q=0.4")
-
         and: "Repose will send x-pp-groups with the value IP_Standard"
         ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("IP_Standard;q=0.4")
 
