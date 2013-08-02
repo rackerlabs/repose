@@ -33,16 +33,23 @@ class HeaderIdMappingTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("Sent headers: #incomingHeaders")
+    @Unroll("When mapping header: #incomingHeaders to x-pp-user Should use first user in the list: #expectedUser")
     def "when identifying requests by header"() {
 
-        when: "Request contains a single value of the target header"
+        when: "Request contains value(s) of the target header"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: incomingHeaders])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser+";q=0.2")
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
+
+        and: "Repose will send the first value of 'x-rax-user'"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser+";q=0.2")
+
+        and: "Repose will send x-pp-groups with a single value"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
+
+        and: "Repose will send the first value of 'x-rax-groups'"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("reposegroup1;q=0.2")
 
         where:
