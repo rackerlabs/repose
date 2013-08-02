@@ -17,6 +17,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +32,12 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    private static final double VERSIONING_DEFAULT_QUALITY = 0.5;
    private final ConfigurationData configurationData;
    private final ContentTransformer transformer;
+   private final MetricsService metricsService;
 
-   public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer) {
+   public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer, MetricsService metricsService) {
       this.configurationData = configurationData;
       this.transformer = transformer;
+      this.metricsService = metricsService;
    }
 
    @Override
