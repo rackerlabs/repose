@@ -46,7 +46,7 @@ class HeaderIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser+";q=0.2")
 
         and: "Repose will send x-pp-groups with the value of the targeted identity header"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains(identityHeader+";q=0.2")
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("X-Header-User"+";q=0.2")
 
 
         where:
