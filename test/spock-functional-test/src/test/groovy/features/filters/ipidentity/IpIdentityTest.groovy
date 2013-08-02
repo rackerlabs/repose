@@ -8,11 +8,6 @@ import spock.lang.Unroll
 
 class IpIdentityTest extends ReposeValveTest {
 
-    def static String user1 = "reposeuser1"
-    def static String user2 = "reposeuser2"
-    def static Map headersIdSingle = ["x-header-user": user1, "some-other-header": "value"]
-    def static Map headersIdMulti = ["x-header-user": user2 + "," + user1]
-
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
