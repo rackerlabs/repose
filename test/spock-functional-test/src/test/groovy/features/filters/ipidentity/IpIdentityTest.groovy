@@ -34,7 +34,7 @@ class IpIdentityTest extends ReposeValveTest {
 
     def "when identifying requests by ip"() {
 
-        when: "Request contains value(s) of the target header"
+        when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
         def user = ((Handling) sentRequest).request.headers.getFirstValue("x-pp-user");
@@ -42,12 +42,12 @@ class IpIdentityTest extends ReposeValveTest {
         then: "Repose will send x-pp-user with a single value"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
-        and: "Repose will send x-pp-user based on incoming identity header"
+        and: "Repose will send x-pp-user based on requestor ip"
         user == "127.0.0.1;q=0.4" || user == "0:0:0:0:0:0:0:1;q=0.4" | user == "::1;q=0.4"
 
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("127.0.0.1;q=0.4")
 
-        and: "Repose will send x-pp-groups with the value of the targeted identity header"
+        and: "Repose will send x-pp-groups with the value IP_Standard"
         ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("IP_Standard;q=0.4")
 
     }
@@ -61,10 +61,10 @@ class IpIdentityTest extends ReposeValveTest {
         then: "Repose will send x-pp-user with a single value"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
-        and: "Repose will send x-pp-user based on incoming identity header"
+        and: "Repose will send x-pp-user based on x-forwarded-for"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("10.6.51.192;q=0.4")
 
-        and: "Repose will send x-pp-groups with the value of the targeted identity header"
+        and: "Repose will send x-pp-groups with the value IP_Standard"
         ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("IP_Standard;q=0.4")
     }
 }
