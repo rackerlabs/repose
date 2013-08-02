@@ -37,4 +37,15 @@ class UriIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains("reposeuser1;q=0.5")
 
     }
-}
+
+    def "when identifying requests on uri without user"(){
+        when: "Request does not contain the user within the uri"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint+"/resource/reposeuser1/something"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will not send a x-pp-user header"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+
+
+    }
+ }
