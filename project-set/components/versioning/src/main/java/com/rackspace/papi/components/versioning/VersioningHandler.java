@@ -38,7 +38,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    private final ContentTransformer transformer;
    private final MetricsService metricsService;
    private MeterByCategory mbcVersionedRequests;
-   private boolean useMetrics;
+   private boolean useMetrics = false;
 
    public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer, MetricsService metricsService) {
       this.configurationData = configurationData;
