@@ -7,6 +7,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -16,13 +17,14 @@ import java.util.Collection;
  * @author Dan Daley
  */
 public class UriNormalizationHandler extends AbstractFilterLogicHandler {
-
     private final Collection<QueryParameterNormalizer> queryStringNormalizers;
     private final MediaTypeNormalizer mediaTypeNormalizer;
+    private final MetricsService metricsService;
 
-    public UriNormalizationHandler(Collection<QueryParameterNormalizer> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer) {
+    public UriNormalizationHandler(Collection<QueryParameterNormalizer> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer, MetricsService metricsService) {
         this.queryStringNormalizers = queryStringNormalizers;
         this.mediaTypeNormalizer = mediaTypeNormalizer;
+        this.metricsService = metricsService;
     }
 
     @Override
