@@ -42,7 +42,7 @@ class HeaderIdentityTest extends ReposeValveTest {
         then: "Repose will send x-pp-user with a single value"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
-        and: "Repose will send x-pp-user based on incoming header"
+        and: "Repose will send x-pp-user based on incoming identity header"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expecteduser+";q=0.2")
 
         and: "Repose will send x-pp-groups with the value of the targeted identity header"
