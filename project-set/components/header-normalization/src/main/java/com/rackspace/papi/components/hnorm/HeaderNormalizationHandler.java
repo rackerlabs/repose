@@ -7,17 +7,19 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
-
+    private final MetricsService metricsService;
     private List<CompiledRegexAndList> compiledTargets;
 
-    HeaderNormalizationHandler(List<CompiledRegexAndList> compiledTargets) {
+    HeaderNormalizationHandler(List<CompiledRegexAndList> compiledTargets, MetricsService metricsService) {
         this.compiledTargets = compiledTargets;
+        this.metricsService = metricsService;
     }
 
     @Override
