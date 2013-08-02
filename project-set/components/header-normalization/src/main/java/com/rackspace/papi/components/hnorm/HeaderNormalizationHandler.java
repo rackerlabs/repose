@@ -20,7 +20,7 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
     private final MetricsService metricsService;
     private List<CompiledRegexAndList> compiledTargets;
     private MeterByCategorySum mbcsNormalizations;
-    private boolean useMetrics;
+    private boolean useMetrics = false;
 
     HeaderNormalizationHandler(List<CompiledRegexAndList> compiledTargets, MetricsService metricsService) {
         this.compiledTargets = compiledTargets;
