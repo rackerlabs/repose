@@ -27,7 +27,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters should #behaviorExpected")
     def "query parameter normalization"() {
         given:
-        def path = "/v1/12345/" + matchingUriRegex + "/?" + qpBeforeRepose;
+        def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
         MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
@@ -51,7 +51,6 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         "POST"   | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
         "PUT"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
         "DELETE" | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
-        "GET"    | "only_media_variant" | "filter_me=true&a=1&N=test"         | "filter_me=true&a=1&N=test" | "should not filter QPs when no whitelist present"
     }
 
 }
