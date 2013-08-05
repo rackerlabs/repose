@@ -17,7 +17,6 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- Enumeration and SimpleType definitions -->
     <xs:simpleType name="NegativeOneAndAllPositiveInt">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="-1"/>
