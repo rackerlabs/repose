@@ -45,6 +45,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
         if (authenticationWasDelegated(request)) {
             // We do not support delegation
+            myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
             LOG.debug("Authentication delegation is not supported by the rackspace authorization filter. Rejecting request.");
         } else {
             authorizeRequest(myDirector, request);
@@ -77,6 +78,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 LOG.info("User token: " + userToken + ": The user's service catalog does not contain an endpoint that matches " +
                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
                         myEndpoint.getHref() + "\".  User not authorized to access service.");
+                director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
         } catch (ClientHandlerException ex) {
             LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
