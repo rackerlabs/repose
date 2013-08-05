@@ -27,7 +27,16 @@
     <xs:element name="http-connection-pools" type="cp:HttpConnectionPoolConfig"/>
 
     <xs:complexType name="HttpConnectionPoolConfig">
-
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Connection Pool Management settings.</html:p>  
+                <html:p>    
+                    Please refer to 
+                    <html:a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html">Apache HttpComponents Connection Management</html:a>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
         <xs:sequence>
             <xs:element type="cp:poolType" name="pool" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
