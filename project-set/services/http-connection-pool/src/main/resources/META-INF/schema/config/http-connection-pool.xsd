@@ -35,8 +35,8 @@
         </xs:annotation>
 
         <xs:restriction base="xs:string">
-            <xs:enumeration value="1.0" />
-            <xs:enumeration value="1.1" />
+            <xs:enumeration value="1.0"/>
+            <xs:enumeration value="1.1"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -56,22 +56,21 @@
     </xs:complexType>
 
     <xs:complexType name="poolsType">
-          <xs:sequence>
-              <xs:element type="cp:poolType" name="pool" minOccurs="1" maxOccurs="unbounded"/>
-          </xs:sequence>
+        <xs:sequence>
+            <xs:element type="cp:poolType" name="pool" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
 
-          <xs:assert vc:minVersion="1.1"
-                     test="count(distinct-values(pool/@id)) = count(pool/@id)"
-                     xerces:message="Pools must have unique ids"
-                     saxon:message="Pools must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(pool/@id)) = count(pool/@id)"
+                   xerces:message="Pools must have unique ids"
+                   saxon:message="Pools must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
 
-          <xs:assert vc:minVersion="1.1"
-                     test="count(cp:pool[xs:boolean(@default)=true()]) &lt;=1"
-                     xerces:message="Only one default pool may be defined"
-                     saxon:message="Only one default pool may be defined"/>
+        <xs:assert vc:minVersion="1.1"
+                   test="count(cp:pool[xs:boolean(@default)=true()]) &lt;=1"
+                   xerces:message="Only one default pool may be defined"
+                   saxon:message="Only one default pool may be defined"/>
 
-      </xs:complexType>
-
+    </xs:complexType>
 
 
     <xs:complexType name="poolType">
@@ -149,7 +148,8 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="http.connection.max-status-line-garbage" type="cp:PositiveInt" minOccurs="0" maxOccurs="1">
+            <xs:element name="http.connection.max-status-line-garbage" type="cp:PositiveInt" minOccurs="0"
+                        maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>Defines the maximum number of ignorable lines before we expect a HTTP response's
                         status line. With HTTP/1.1 persistent connections, the problem arises that broken scripts could
@@ -174,7 +174,13 @@
             </xs:element>
         </xs:all>
 
-        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    Unique pool identifier.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
