@@ -1,104 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<http-connection-pools xmlns="http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0">
 
-<http-connection-pool xmlns="http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0">
+    <!-- Configuration for the default pool.  Any users of the service will by default, retrieve HTTP connections
+        using this default pool configuration.
+    -->
+    <pool id="default"
+          default="true"
+          http.conn-manager.max-total="200"
+          http.conn-manager.max-per-route="20"
+          http.socket.timeout="30000"
+          http.socket.buffer-size="8192"
+          http.connection.timeout="30000"
+          http.connection.max-line-length="8192"
+          http.connection.max-header-count="100"
+          http.connection.max-status-line-garbage="100"
+          http.tcp.nodelay="true"/>
 
-    <pools>
-        <!-- Configuration for the default pool.  Any users of the service will retrieve HTTP connections
-            using these default pool configuration.
-        -->
-        <pool id="default" default="true"/>
+    <!-- Configuration for a custom pool that overrides specific default settings -->
+    <pool id="myservicepool" default="false" http.tcp.nodelay="false"/>
 
-        <!-- Configuration for a custom pool with custom settings -->
-        <pool id="myservicepool" default="false">
-            <!--
+    <!-- Configuration for a custom pool that uses all default values -->
+    <pool id="alldefaultspool" default="false"/>
 
-            -->
-            <http.protocol.version>1.1</http.protocol.version>
-
-            <!--
-               Connection Pool Management setting: max total concurrent connections that will be created by
-               a connection pool manager
-            -->
-            <http.conn-manager.max-total>200</http.conn-manager.max-total>
-
-            <!--
-               Connection Pool Management setting: max total concurrent connections that will be created by
-               a connection pool manager
-            -->
-            <http.conn-manager.max-per-route>10</http.conn-manager.max-per-route>
-
-            <!--
-               Defines the socket timeout (SO_TIMEOUT) in milliseconds, which is the timeout for waiting for data or,
-               put differently, a maximum period inactivity between two consecutive data packets). A timeout value of
-               zero is interpreted as an infinite timeout. This parameter expects a value of type java.lang.Integer.
-               If this parameter is not set, read operations will not time out (infinite timeout).
-            -->
-            <http.socket.timeout>60000</http.socket.timeout>
-
-            <!--
-               Sets SO_LINGER with the specified linger time in seconds. The maximum timeout value is platform specific.
-               Value 0 implies that the option is disabled. Value -1 implies that the JRE default is used. The setting
-               only affects the socket close operation.
-
-               If this parameter is not set, the value -1 (JRE default) will be assumed.
-            -->
-            <http.socket.linger>-1</http.socket.linger>
-
-            <!--
-               Determines the size of the internal socket buffer used to buffer data while receiving / transmitting
-               HTTP messages. This parameter expects a value of type java.lang.Integer. If this parameter is not set,
-               HttpClient will allocate 8192 byte socket buffers.
-            -->
-            <http.socket.buffer-size>8192</http.socket.buffer-size>
-
-
-            <!--
-               Determines the timeout in milliseconds until a connection is established. A timeout value of zero is
-               interpreted as an infinite timeout. This parameter expects a value of type java.lang.Integer. If this
-               parameter is not set, connect operations will not time out (infinite timeout).
-            -->
-            <http.connection.timeout>30000</http.connection.timeout>
-
-            <!--
-               Determines the maximum line length limit. If set to a positive value, any HTTP line exceeding this limit
-               will cause an java.io.IOException. A negative or zero value will effectively disable the check.
-               This parameter expects a value of type java.lang.Integer. If this parameter is not set,
-               no limit will be enforced.
-            -->
-            <http.connection.max-line-length>0</http.connection.max-line-length>
-
-            <!--
-               Determines the maximum HTTP header count allowed. If set to a positive value, the number of HTTP headers
-               received from the data stream exceeding this limit will cause an java.io.IOException. A negative or zero
-               value will effectively disable the check.
-               If this parameter is not set, no limit will be enforced.
-            -->
-            <http.connection.max-header-count>0</http.connection.max-header-count>
-
-            <!--
-               Defines the maximum number of ignorable lines before we expect a HTTP response's status line. With
-               HTTP/1.1 persistent connections, the problem arises that broken scripts could return a wrong
-               Content-Length (there are more bytes sent than specified). Unfortunately, in some cases, this cannot
-               be detected after the bad response, but only before the next one. So HttpClient must be able to skip
-               those surplus lines this way. This parameter expects a value of type java.lang.Integer. 0 disallows
-               all garbage/empty lines before the status line. Use java.lang.Integer#MAX_VALUE for unlimited number.
-               If this parameter is not set, unlimited number will be assumed.
-            -->
-            <http.connection.max-status-line-garbage>0</http.connection.max-status-line-garbage>
-
-            <!--
-               Determines whether Nagle's algorithm is to be used. Nagle's algorithm tries to conserve bandwidth by
-               minimizing the number of segments that are sent. When applications wish to decrease network latency
-               and increase performance, they can disable Nagle's algorithm (that is enable TCP_NODELAY. Data will
-               be sent earlier, at the cost of an increase in bandwidth consumption. This parameter expects a value
-               of type java.lang.Boolean. If this parameter is not set, TCP_NODELAY will be enabled (no delay).
-            -->
-            <http.tcp.nodelay>true</http.tcp.nodelay>
-
-        </pool>
-
-    </pools>
-
-
-</http-connection-pool>
+</http-connection-pools>

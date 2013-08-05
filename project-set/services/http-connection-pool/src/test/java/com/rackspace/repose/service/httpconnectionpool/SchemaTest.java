@@ -45,26 +45,54 @@ public class SchemaTest {
         @Test
         public void shouldFailWhenConfigHasNonUniquePoolIds() throws Exception {
             String xml =
-                    "<http-connection-pool xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
-                    "  <pools>" +
-                    "    <pool id='default' default='true'/> " +
-                    "    <pool id='default' default='false'/> " +
-                    "  </pools>" +
-                    "</http-connection-pool>";
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                            "    <pool id='default' default='true'/> " +
+                            "    <pool id='default' default='false'/> " +
+                            "</http-connection-pools>";
             assertInvalidConfig(xml, "Pools must have unique ids");
         }
 
         @Test
         public void shouldFailIfMoreThanOneDefaultPool() throws Exception {
             String xml =
-                    "<http-connection-pool xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
-                     "  <pools>" +
-                     "    <pool id='default' default='true'/> " +
-                     "    <pool id='default2' default='true'/> " +
-                     "  </pools>" +
-                     "</http-connection-pool>";
-            assertInvalidConfig(xml, "Only one default pool may be defined");
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                            "    <pool id='default' default='true'/> " +
+                            "    <pool id='default2' default='true'/> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "One and only one default pool must be defined");
         }
+
+
+        @Test
+        public void shouldFailINoDefaultPool() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                            "    <pool id='default' default='false'/> " +
+                            "    <pool id='default2' default='false'/> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "One and only one default pool must be defined");
+        }
+
+
+        @Test
+        public void shouldFailIfMaxPerRouteGreaterThanMaxTotal() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                    "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
+                    "</http-connection-pools>";
+            assertInvalidConfig(xml, "Max connections per route must be less than or equal to total max connections");
+        }
+
+        @Test
+        public void shouldPassIfMaxPerRouteEqualsMaxTotal() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                            "<pool id='default' default='true' http.conn-manager.max-per-route='200' http.conn-manager.max-total='200' /> " +
+                            "</http-connection-pools>";
+            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
+            validator.validate(sampleSource);
+        }
+
 
         private void assertInvalidConfig(String xml, String errorMessage) {
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
