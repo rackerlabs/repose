@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,10 +130,6 @@ public class PowerFilterChain implements FilterChain {
         try {
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
         } catch (Exception ex) {
-            if (ex.getMessage().contains("Remote request failed with: 401")) {
-                ((HttpServletResponse) servletResponse).setStatus(503);
-                throw new DatastoreOperationException("Unable to communicate with dist-datastore.", ex);
-            }
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
         } finally {
