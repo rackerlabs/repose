@@ -56,7 +56,9 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
     private void normalizeUriQuery(HttpServletRequest request, FilterDirector myDirector) {
         for (QueryParameterNormalizer queryParameterNormalizer : queryStringNormalizers) {
             if (queryParameterNormalizer.normalize(request, myDirector)) {
-                mbcsUriNormalizations.mark(queryParameterNormalizer.getLastMatch().toString() + "_" + request.getMethod());
+                if (useMetrics) {
+                    mbcsUriNormalizations.mark(queryParameterNormalizer.getLastMatch().toString() + "_" + request.getMethod());
+                }
                 break;
             }
         }
