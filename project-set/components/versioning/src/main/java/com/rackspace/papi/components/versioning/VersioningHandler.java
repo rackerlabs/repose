@@ -63,10 +63,14 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          if (targetOriginService != null) {
             final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
             handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
-            mbcVersionedRequests.mark(targetOriginService.getMapping().getId());
+            if (useMetrics) {
+                mbcVersionedRequests.mark(targetOriginService.getMapping().getId());
+            }
          } else {
             handleUnversionedRequest(httpRequestInfo, filterDirector);
-            mbcVersionedRequests.mark("Unversioned");
+            if (useMetrics) {
+                mbcVersionedRequests.mark("Unversioned");
+            }
          }
          filterDirector.responseHeaderManager().appendHeader("Content-Type", httpRequestInfo.getPreferedMediaRange().getMimeType().getMimeType());
       } catch (VersionedHostNotFoundException vhnfe) {
