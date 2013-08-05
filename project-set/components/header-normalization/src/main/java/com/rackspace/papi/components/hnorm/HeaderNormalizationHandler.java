@@ -44,7 +44,9 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
         for (CompiledRegexAndList target : compiledTargets) {
             if (target.getPattern().matcher(uri).matches() && (target.getMethodList().contains(method) || target.getMethodList().contains(HttpMethod.ALL))) {
                 myDirector.requestHeaderManager().headersToRemove().addAll(HeaderNormalizer.getHeadersToRemove(request, target));
-                mbcsNormalizations.mark(target.getPattern().toString() + "_" + method.value());
+                if (useMetrics) {
+                    mbcsNormalizations.mark(target.getPattern().toString() + "_" + method.value());
+                }
                 break;
             }
         }
