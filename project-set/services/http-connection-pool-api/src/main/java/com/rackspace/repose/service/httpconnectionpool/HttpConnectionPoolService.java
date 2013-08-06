@@ -1,6 +1,7 @@
 package com.rackspace.repose.service.httpconnectionpool;
 
-import sun.net.www.http.HttpClient;
+
+import org.apache.http.client.HttpClient;
 
 import java.util.Set;
 
