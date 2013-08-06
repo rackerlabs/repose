@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
 
 /**
  * @author fran
@@ -17,11 +18,11 @@ public class Configurables {
     private final long tokenCacheTtl;
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
-
+    private final AdminRoles adminRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
-            boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
-            EndpointsConfiguration endpointsConfiguration) {
+                         boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
+                         EndpointsConfiguration endpointsConfiguration) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -31,6 +32,22 @@ public class Configurables {
         this.tokenCacheTtl = tokenCacheTtl;
         this.requestGroups=requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
+        this.adminRoles = null;
+    }
+
+    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
+            boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
+            EndpointsConfiguration endpointsConfiguration, AdminRoles adminRoles) {
+        this.delegable = delegable;
+        this.authServiceUri = authServiceUri;
+        this.keyedRegexExtractor = keyedRegexExtractor;
+        this.tenanted = tenanted;
+        this.groupCacheTtl = groupCacheTtl;
+        this.userCacheTtl = usrCacheTtl;
+        this.tokenCacheTtl = tokenCacheTtl;
+        this.requestGroups=requestGroups;
+        this.endpointsConfiguration = endpointsConfiguration;
+        this.adminRoles = adminRoles;
     }
 
     public boolean isDelegable() {
@@ -60,12 +77,16 @@ public class Configurables {
     public long getUserCacheTtl() {
         return userCacheTtl;
     }
-    
+
     public boolean isRequestGroups() {
         return requestGroups;
     }
 
     public EndpointsConfiguration getEndpointsConfiguration() {
         return endpointsConfiguration;
+    }
+
+    public AdminRoles getAdminRoles() {
+        return adminRoles;
     }
 }

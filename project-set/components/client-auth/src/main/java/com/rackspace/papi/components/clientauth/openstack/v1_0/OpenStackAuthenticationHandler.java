@@ -14,8 +14,13 @@ import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
+import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openstack.docs.identity.api.v2.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,19 +28,47 @@ import java.util.List;
  */
 public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
+   private static final Logger LOG = LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
    private static final String WWW_AUTH_PREFIX = "Keystone uri=";
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
+   private final AdminRoles adminRoles;
 
    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
       super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
+      this.adminRoles = cfg.getAdminRoles();
+   }
+
+   private boolean roleIsServiceAdmin(AuthToken authToken) {
+       for (String role : Arrays.asList(authToken.getRoles().split(","))) {
+           if (adminRoles.getRole().contains(role)) {
+               return true;
+           }
+       }
+
+       return false;
+   }
+
+   private AuthToken validateTenant(AuthToken authToken, String tenant) {
+       if (authToken == null || !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenant)) {
+           LOG.error("Unable to validate token for tenant.  Invalid token.");
+           return null;
+       } else {
+           return authToken;
+       }
    }
 
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      return account != null ? authenticationService.validateToken(account.getResult(), token) : authenticationService.validateToken(null, token);
+      if (account != null) {
+          AuthToken authToken = authenticationService.validateToken(account.getResult(), token);
+
+          return validateTenant(authToken, account.getResult());
+      } else {
+          return authenticationService.validateToken(null, token);
+      }
    }
 
    @Override

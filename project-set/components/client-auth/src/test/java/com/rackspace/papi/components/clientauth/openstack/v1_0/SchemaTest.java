@@ -13,10 +13,6 @@ import javax.xml.validation.SchemaFactory;
 
 import static org.junit.Assert.assertNotNull;
 
-/**
- *
- * @author jhopper
- */
 @RunWith(Enclosed.class)
 public class SchemaTest {
 
