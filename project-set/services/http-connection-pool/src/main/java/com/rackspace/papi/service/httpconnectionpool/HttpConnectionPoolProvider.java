@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.httpconnectionpool;
 
-import com.rackspace.papi.commons.util.proxy.ProxyUtilities;
 import org.apache.http.*;
 import com.rackspace.papi.service.httpconnectionpool.config.*;
 import org.apache.http.client.HttpClient;
@@ -13,6 +12,7 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.params.CoreConnectionPNames;
 
 import javax.net.ssl.SSLContext;
+import java.security.KeyStore;
 
 public final class HttpConnectionPoolProvider {
 
@@ -29,11 +29,11 @@ public final class HttpConnectionPoolProvider {
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
         cm.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
         HttpClient client = new DefaultHttpClient(cm);
-        SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
-        SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        SchemeRegistry registry = cm.getSchemeRegistry();
-        Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
-        registry.register(scheme);
+//        SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
+//        SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+//        SchemeRegistry registry = cm.getSchemeRegistry();
+//        Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
+//        registry.register(scheme);
         client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
         client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, poolConf.getHttpSocketTimeout());
         client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, poolConf.getHttpConnectionTimeout());
