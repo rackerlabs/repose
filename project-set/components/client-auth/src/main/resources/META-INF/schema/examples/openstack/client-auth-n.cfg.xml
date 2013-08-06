@@ -15,9 +15,9 @@
         <endpoints-in-header format="XML" cache-timeout="600000" identity-contract-version="2"/>
         
         <admin-roles>
-            <role name="role-1" />
-            <role name="role-2" />
-            <role name="role-3" />
+            <role>role-1</role>
+            <role>role-2</role>
+            <role>role-3</role>
         </admin-roles>
     </openstack-auth>
 

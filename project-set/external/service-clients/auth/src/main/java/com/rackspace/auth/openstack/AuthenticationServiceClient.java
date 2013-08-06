@@ -13,13 +13,7 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.AuthenticationRequest;
-import org.openstack.docs.identity.api.v2.Endpoint;
-import org.openstack.docs.identity.api.v2.EndpointList;
-import org.openstack.docs.identity.api.v2.ObjectFactory;
-import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
-import org.openstack.docs.identity.api.v2.Token;
+import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +79,13 @@ public class AuthenticationServiceClient implements AuthenticationService {
         OpenStackToken token = null;
 
         ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
-
+        for (Role role : serviceResponse.getEntity().getUser().getRoles().getRole()) {
+            if (/*adminRoles.contains(role.getName())*/role.getName().equals("")) {
+                // TODO admin role, do not validate with belongsTo
+            } else {
+                // TODO validate with belongsTo
+            }
+        }
 
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:
@@ -132,7 +132,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers);
         } else {
             serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers, "belongsTo", tenant);
-            // TODO Here?!
+            // TODO Here?! What's the difference?
         }
 
         return serviceResponse;

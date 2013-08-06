@@ -183,10 +183,6 @@
         </xs:attribute>
     </xs:complexType>
     
-    <xs:complexType name="Role">
-        <xs:attribute name="name" type="xs:string" use="required"/>
-    </xs:complexType>
-    
     <xs:complexType name="AdminRoles">
         <xs:annotation>
             <xs:documentation>
@@ -195,7 +191,7 @@
         </xs:annotation>
         
         <xs:sequence>
-            <xs:element name="role" type="os-ids-auth:Role" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
