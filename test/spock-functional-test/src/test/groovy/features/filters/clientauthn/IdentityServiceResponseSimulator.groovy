@@ -35,6 +35,9 @@ class IdentityServiceResponseSimulator {
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
 
+    def port = 12200
+    def origin_service_port = 10001
+
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
     def client_username = 'username';
@@ -73,10 +76,10 @@ class IdentityServiceResponseSimulator {
 
         if (request.method == "POST") {
             return handleGetAdminTokenCall(request);
+        } else if (request.method == "GET" && request.path.endsWith("endpoints")) {
+            return handleEndpointsCall(request);
         } else if (request.method == "GET" && request.path.contains("tokens")) {
             return handleValidateTokenCall(request);
-        } else if (request.method == "GET" && request.path.contains("endpoints")) {
-            return handleEndpointsCall(request);
         } else if (request.method == "GET") {
             return handleGroupsCall(request);
         } else {
@@ -115,12 +118,15 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
+        def path = request.getPath()
+        def request_token = path.substring(path.lastIndexOf("/")+1)
+
         def params = [
                 expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request_token
         ];
 
         return handleTokenCallBase(request, params);
@@ -164,7 +170,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        //println body
+        println body
         return new Response(code, null, headers, body)
     }
 
@@ -188,7 +194,8 @@ class IdentityServiceResponseSimulator {
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request.getHeaders().getFirstValue("X-Auth-Token")
+
         ]
 
         def template;
@@ -258,12 +265,11 @@ class IdentityServiceResponseSimulator {
 
         def params = [
                 'identity_port': this.port,
-                'token': this.client_token,
+                token: request.getHeaders().getFirstValue("X-Auth-Token"),
                 'expires': getExpires(),
                 'userid': this.client_userid,
                 'username': this.client_username,
                 'tenant': this.client_tenant,
-                'token': this.client_token,
                 'origin_service_port': this.origin_service_port,
         ];
 
