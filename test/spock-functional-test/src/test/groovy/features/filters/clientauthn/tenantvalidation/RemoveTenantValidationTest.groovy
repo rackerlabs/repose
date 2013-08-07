@@ -86,7 +86,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
 
         when: "User passes a request through repose"
         fakeIdentityService.validateTokenCount = 0
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
