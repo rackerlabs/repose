@@ -5,6 +5,8 @@ import com.rackspace.papi.service.httpconnectionpool.config.PoolType
 import org.apache.http.client.HttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
+import org.junit.Test
+
 import static org.junit.Assert.*;
 
 class HttpConnectionPoolServiceImplTest {
@@ -71,20 +73,22 @@ class HttpConnectionPoolServiceImplTest {
 
     }
 
+    @Test
     void testGetDefaultClient() {
 
         HttpClient client = srv.defaultClient;
-        assertEquals("Should retrive default client", client.getParams(CoreConnectionPNames.TCP_NODELAY), true);
+
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
     }
 
+    @Test
     void testGetClient() {
 
         HttpClient client = srv.getClient("pool");
-        assertEquals("Should retrive default client", client.getParams(CoreConnectionPNames.TCP_NODELAY), false);
-
-
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), false);
     }
 
+    @Test
     void testGetAvailablePools() {
 
         assertEquals("Pool Service should have two client pools available",srv.availablePools.size(),2);
