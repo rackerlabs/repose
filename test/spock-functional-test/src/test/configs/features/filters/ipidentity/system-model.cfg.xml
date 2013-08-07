@@ -7,7 +7,7 @@
         </nodes>
 
         <filters>
-            <filter name="ip-identity"/>
+            <filter name="ip-identity"/>     <!-- had to use a simple filter as we have issues when no filter is present-->
         </filters>
 
         <destinations>
