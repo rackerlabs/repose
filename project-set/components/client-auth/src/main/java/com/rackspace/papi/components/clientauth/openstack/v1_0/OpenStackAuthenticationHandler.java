@@ -16,11 +16,9 @@ import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,7 +40,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    }
 
    private boolean roleIsServiceAdmin(AuthToken authToken) {
-       for (String role : Arrays.asList(authToken.getRoles().split(","))) {
+       for (String role : authToken.getRoles().split(",")) {
            if (adminRoles.getRole().contains(role)) {
                return true;
            }
@@ -51,8 +49,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
        return false;
    }
 
-   private AuthToken validateTenant(AuthToken authToken, String tenant) {
-       if (authToken == null || !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenant)) {
+   private AuthToken validateTenant(AuthToken authToken, String tenantID) {
+       if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
            LOG.error("Unable to validate token for tenant.  Invalid token.");
            return null;
        } else {
@@ -62,13 +60,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      if (account != null) {
-          AuthToken authToken = authenticationService.validateToken(account.getResult(), token);
-
-          return validateTenant(authToken, account.getResult());
-      } else {
-          return authenticationService.validateToken(null, token);
-      }
+      return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
+              : authenticationService.validateToken(null, token);
    }
 
    @Override

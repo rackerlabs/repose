@@ -96,7 +96,7 @@ public class OpenStackAuthenticationHandlerTest {
             keyedRegexExtractor = new KeyedRegexExtractor();
 
             final ClientMapping mapping = new ClientMapping();
-            mapping.setIdRegex("/start/(.*)/");
+            mapping.setIdRegex("/start/([^/]*)/");
 
             final ClientMapping mapping2 = new ClientMapping();
             mapping2.setIdRegex(".*\\?.*username=(.+)");
