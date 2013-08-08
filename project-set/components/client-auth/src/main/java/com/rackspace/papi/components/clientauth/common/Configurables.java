@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 
 /**
  * @author fran
@@ -18,7 +18,7 @@ public class Configurables {
     private final long tokenCacheTtl;
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
-    private final AdminRoles adminRoles;
+    private final ServiceAdminRoles serviceAdminRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
@@ -32,12 +32,12 @@ public class Configurables {
         this.tokenCacheTtl = tokenCacheTtl;
         this.requestGroups=requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
-        this.adminRoles = null;
+        this.serviceAdminRoles = null;
     }
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
             boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
-            EndpointsConfiguration endpointsConfiguration, AdminRoles adminRoles) {
+            EndpointsConfiguration endpointsConfiguration, ServiceAdminRoles serviceAdminRoles) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -47,7 +47,7 @@ public class Configurables {
         this.tokenCacheTtl = tokenCacheTtl;
         this.requestGroups=requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
-        this.adminRoles = adminRoles;
+        this.serviceAdminRoles = serviceAdminRoles;
     }
 
     public boolean isDelegable() {
@@ -86,7 +86,7 @@ public class Configurables {
         return endpointsConfiguration;
     }
 
-    public AdminRoles getAdminRoles() {
-        return adminRoles;
+    public ServiceAdminRoles getServiceAdminRoles() {
+        return serviceAdminRoles;
     }
 }

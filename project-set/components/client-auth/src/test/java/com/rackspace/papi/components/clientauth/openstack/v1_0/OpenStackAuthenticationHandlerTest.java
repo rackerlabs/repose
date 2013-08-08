@@ -20,7 +20,7 @@ import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
-import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
@@ -116,12 +116,12 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            final AdminRoles adminRoles = new AdminRoles();
-            adminRoles.getRole().add("12345");
+            final ServiceAdminRoles serviceAdminRoles = new ServiceAdminRoles();
+            serviceAdminRoles.getRole().add("12345");
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,requestGroups(), endpointsConfiguration, adminRoles);
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,requestGroups(), endpointsConfiguration, serviceAdminRoles);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -342,7 +342,7 @@ public class OpenStackAuthenticationHandlerTest {
             Token token = new Token();
             token.setId("tokenId");
             TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-            tenant.setId("tenantId");
+            tenant.setId("104772");
             tenant.setName("tenantName");
             token.setTenant(tenant);
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -440,7 +440,7 @@ public class OpenStackAuthenticationHandlerTest {
         Token token = new Token();
         token.setId("tokenId");
         TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-        tenant.setId("tenantId");
+        tenant.setId("104772");
         tenant.setName("tenantName");
         token.setTenant(tenant);
         token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));

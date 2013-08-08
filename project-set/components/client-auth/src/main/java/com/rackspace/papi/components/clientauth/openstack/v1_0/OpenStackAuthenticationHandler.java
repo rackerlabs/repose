@@ -14,7 +14,7 @@ import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
-import com.rackspace.papi.components.clientauth.openstack.config.AdminRoles;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +30,20 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private static final String WWW_AUTH_PREFIX = "Keystone uri=";
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
-   private final AdminRoles adminRoles;
+   private final ServiceAdminRoles serviceAdminRoles;
 
    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
       super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
-      this.adminRoles = cfg.getAdminRoles();
+      this.serviceAdminRoles = cfg.getServiceAdminRoles();
    }
 
    private boolean roleIsServiceAdmin(AuthToken authToken) {
+       if (authToken.getRoles() == null) return false;
+
        for (String role : authToken.getRoles().split(",")) {
-           if (adminRoles.getRole().contains(role)) {
+           if (serviceAdminRoles.getRole().contains(role)) {
                return true;
            }
        }
