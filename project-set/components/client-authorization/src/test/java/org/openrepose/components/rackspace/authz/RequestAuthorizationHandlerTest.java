@@ -93,7 +93,7 @@ public class RequestAuthorizationHandlerTest {
             final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
             assertEquals("Authorization component must return requests that have had authentication delegated", FilterAction.RETURN, director.getFilterAction());
-            assertEquals("Authorization component must reject delegated authentication with a 403", HttpStatusCode.INTERNAL_SERVER_ERROR, director.getResponseStatus());
+            assertEquals("Authorization component must reject delegated authentication with a 403", HttpStatusCode.FORBIDDEN, director.getResponseStatus());
         }
 
         @Test
@@ -111,7 +111,7 @@ public class RequestAuthorizationHandlerTest {
             final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
             assertEquals("Authorization component must return unauthorized requests", FilterAction.RETURN, director.getFilterAction());
-            assertEquals("Authorization component must reject unauthorized requests with a 403", HttpStatusCode.INTERNAL_SERVER_ERROR, director.getResponseStatus());
+            assertEquals("Authorization component must reject unauthorized requests with a 403", HttpStatusCode.FORBIDDEN, director.getResponseStatus());
         }
 
         @Test

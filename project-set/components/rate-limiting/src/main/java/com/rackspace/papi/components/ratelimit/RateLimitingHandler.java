@@ -14,12 +14,15 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
+import org.slf4j.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
 
 
 /* Responsible for handling requests and responses to ratelimiting, also tracks and provides limits */
@@ -61,8 +64,15 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       // request now considered valid with user.
       director.setFilterAction(FilterAction.PASS);
 
-      // Record limits
-      final boolean pass = recordLimitedRequest(request, director);
+        boolean pass = false;
+
+        try {
+            // Record limits
+            pass = recordLimitedRequest(request, director);
+        } catch (DatastoreOperationException doe) {
+            LOG.error("Unable to communicate with dist-datastore.", doe.getMessage());
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        }
 
       // Does the request match the configured getCurrentLimits API call endpoint?
       if (pass && describeLimitsUriPattern.matcher(requestUri).matches()) {

@@ -71,6 +71,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
         protected static final long AUTH_USER_CACHE_TTL = 5000;
+        protected static final int AUTH_CACHE_OFFSET = 0;
         protected static final String ENDPOINTS_CACHE_PREFIX = "openstack.endpoints.cache";
 
         protected HttpServletRequest request;
@@ -117,7 +118,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,requestGroups(), endpointsConfiguration);
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
