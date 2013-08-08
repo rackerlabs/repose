@@ -49,4 +49,9 @@ public class HttpConnectionPoolServiceImpl implements HttpConnectionPoolService<
     public Set<String> getAvailablePools() {
         return poolMap.keySet();
     }
+
+    @Override
+    public void shutdown() {
+        throw new UnsupportedOperationException("implement me");
+    }
 }

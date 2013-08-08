@@ -22,4 +22,6 @@ public interface HttpConnectionPoolService<I> {
     public boolean isAvailable(String poolName);
 
     public Set<String> getAvailablePools();
+
+    public void shutdown();
 }
