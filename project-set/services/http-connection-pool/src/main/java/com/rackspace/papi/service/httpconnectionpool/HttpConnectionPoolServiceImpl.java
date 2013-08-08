@@ -2,13 +2,14 @@ package com.rackspace.papi.service.httpconnectionpool;
 
 import com.rackspace.papi.service.httpconnectionpool.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpconnectionpool.config.PoolType;
+import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService;
 import org.apache.http.client.HttpClient;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class HttpConnectionPoolServiceImpl implements HttpConnectionPoolService {
+public class HttpConnectionPoolServiceImpl implements HttpConnectionPoolService<HttpConnectionPoolConfig> {
 
     Map<String, HttpClient> poolMap;
     String defaultClientId;
@@ -26,13 +27,22 @@ public class HttpConnectionPoolServiceImpl implements HttpConnectionPoolService 
     }
 
     @Override
-    public HttpClient getDefaultClient() {
-        return poolMap.get(defaultClientId);
+    public HttpClient getClient(String id) {
+        if (id == null || id.isEmpty()) {
+            return poolMap.get(defaultClientId);
+        } else {
+            return poolMap.get(id);
+        }
     }
 
     @Override
-    public HttpClient getClient(String id) {
-        return poolMap.get(id);
+    public void configure(HttpConnectionPoolConfig config) {
+        throw new UnsupportedOperationException("implement me");
+    }
+
+    @Override
+    public boolean isAvailable(String poolName) {
+        return poolMap.containsKey(poolName);
     }
 
     @Override

@@ -27,6 +27,8 @@
     <modules>
         <module>external</module>
         <module>commons</module>
+        <module>services/http-connection-pool-api</module>
+        <module>services/http-connection-pool</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>
