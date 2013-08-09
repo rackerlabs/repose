@@ -1,4 +1,4 @@
-package com.rackspace.repose.service.httpconnectionpool;
+package com.rackspace.papi.service.httpclient.impl;
 
 import org.junit.Before;
 import org.junit.Test;

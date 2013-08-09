@@ -1,7 +1,8 @@
-package httpconnectionpool
+package com.rackspace.papi.service.httpclient.impl
 
-import httpconnectionpool.config.HttpConnectionPoolConfig
-import httpconnectionpool.config.PoolType
+import com.rackspace.papi.service.httpclient.HttpClientService
+import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
+import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
@@ -25,7 +26,7 @@ class HttpConnectionPoolServiceImplTest {
 
     HttpConnectionPoolConfig poolCfg;
 
-    HttpConnectionPoolService srv;
+    HttpClientService srv;
 
     @Before
     void setUp() {
