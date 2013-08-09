@@ -2,20 +2,50 @@ package features.filters.compression
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+import spock.lang.Unroll
 
 import java.util.zip.GZIPOutputStream
+import java.util.zip.DeflaterOutputStream
 
 class CompressionHeaderTest extends ReposeValveTest {
+    def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
+            "malesuada. Integer nec est turpis duis."
+    def static byte[] gzipCompressedContent = compressGzipContent(content)
+    def static String deflateCompressedContent = compressDeflateContent(content)
+    def static byte[] falseZip = content.getBytes()
+
+    def static compressGzipContent(String content)   {
+        def ByteArrayOutputStream out = new ByteArrayOutputStream(content.length())
+        def GZIPOutputStream gzipOut = new GZIPOutputStream(out)
+        gzipOut.write(content.getBytes())
+        gzipOut.close()
+        byte[] compressedContent = out.toByteArray();
+        out.close()
+        return compressedContent
+    }
+
+    def static compressDeflateContent(String content)   {
+        def ByteArrayOutputStream out = new ByteArrayOutputStream(content.length())
+        def DeflaterOutputStream zipOut = new DeflaterOutputStream(out)
+        zipOut.write(content.getBytes())
+        zipOut.close()
+        byte[] compressedContent = out.toByteArray();
+        out.close()
+        return compressedContent
+    }
+
+
+
     def setup() {
         repose.applyConfigs("features/filters/compression")
         repose.start()
 
         deproxy = new Deproxy()
-        //deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        deproxy.addEndpoint(10000, "origin service", "localhost", {Request request -> return new Response(200)})
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
         sleep(4000)
     }
@@ -31,21 +61,10 @@ class CompressionHeaderTest extends ReposeValveTest {
     }
 
     def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression"() {
-        given: "generated gzip compressed content"
-        def String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
-                "malesuada. Integer nec est turpis duis."
-        def String compressedContent = ""
-        def ByteArrayOutputStream out = new ByteArrayOutputStream()
-        def GZIPOutputStream gzipOut = new GZIPOutputStream(out)
-        gzipOut.write(content.getBytes())
-        gzipOut.close()
-        for (byte b : out.toByteArray()){
-            compressedContent += String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0')
-        }
+        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
+                zippedContent)
 
-        when: "the compressed content is sent to the origin service through Repose"
-        def MessageChain mc = deproxy.makeRequest("http://localhost:10000", "POST", ["Content-Encoding" : "gzip"],
-                compressedContent)
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
@@ -53,15 +72,60 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.sentRequest.body != mc.handlings[0].request.body
         !mc.handlings[0].request.headers.contains("Content-Encoding")
         mc.handlings[0].request.body.equals(content)
+
+        where:
+        encoding    | unzippedContent | zippedContent
+        "gzip"      | content         | gzipCompressedContent
+        "x-gzip"    | content         | gzipCompressedContent
+        "deflate"   | content         | deflateCompressedContent
+        "x-deflate" | content         | deflateCompressedContent
+        "identity"  | content         | content
+
     }
 
     def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails"() {
+        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
+                zippedContent)
 
+
+        then: "the compressed content should be decompressed and the content-encoding header should be absent"
+        mc.sentRequest.headers.contains("Content-Encoding")
+        mc.handlings.size == 1
+        mc.sentRequest.body != mc.handlings[0].request.body
+        mc.handlings[0].request.headers.contains("Content-Encoding")
+        mc.handlings[0].request.body.equals(content)
+        mc.receivedResponse.code == '400'
+
+        where:
+        encoding    | unzippedContent | zippedContent
+        "gzip"      | content         | falseZip
+        "x-gzip"    | content         | falseZip
+        "deflate"   | content         | falseZip
+        "x-deflate" | content         | falseZip
+        "identity"  | content         | falseZip
     }
 
     def "when an uncompressed request is sent to Repose, Content-Encoding header is never present"() {
+        when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
+        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
+                zippedContent)
 
+
+        then: "the compressed content should be decompressed and the content-encoding header should be absent"
+        mc.sentRequest.headers.contains("Content-Encoding")
+        mc.handlings.size == 1
+        mc.sentRequest.body != mc.handlings[0].request.body
+        mc.handlings[0].request.headers.contains("Content-Encoding")
+        mc.handlings[0].request.body.equals(content)
+        mc.receivedResponse.code == '400'
+
+        where:
+        encoding    | unzippedContent | zippedContent
+        "gzip"      | content         | content
+        "x-gzip"    | content         | content
+        "deflate"   | content         | content
+        "x-deflate" | content         | content
+        "identity"  | content         | content
     }
-
-    // TODO Write tests for responses returned to Repose from the origin service
 }
