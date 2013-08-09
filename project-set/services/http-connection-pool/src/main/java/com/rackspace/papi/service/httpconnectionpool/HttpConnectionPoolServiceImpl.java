@@ -31,13 +31,25 @@ public class HttpConnectionPoolServiceImpl implements HttpConnectionPoolService<
         if (id == null || id.isEmpty()) {
             return poolMap.get(defaultClientId);
         } else {
-            return poolMap.get(id);
+            if (isAvailable(id))
+                return poolMap.get(id);
+            else
+                throw new HttpConnectionPoolException("Pool " + id + "not available");
         }
     }
 
     @Override
     public void configure(HttpConnectionPoolConfig config) {
-        throw new UnsupportedOperationException("implement me");
+        poolMap = new HashMap<String, HttpClient>();
+
+        for (PoolType poolType : config.getPool()) {
+            if (poolType.isDefault()) {
+                defaultClientId = poolType.getId();
+            }
+            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
+        }
+
+        //TODO: Decommission logic
     }
 
     @Override
