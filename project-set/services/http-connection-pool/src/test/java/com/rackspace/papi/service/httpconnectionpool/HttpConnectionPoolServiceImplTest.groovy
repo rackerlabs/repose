@@ -70,16 +70,8 @@ class HttpConnectionPoolServiceImplTest {
         srv = new HttpConnectionPoolServiceImpl(poolCfg);
 
 
-
     }
 
-    @Test
-    void testGetDefaultClient() {
-
-        HttpClient client = srv.defaultClient;
-
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
-    }
 
     @Test
     void testGetClient() {
@@ -91,7 +83,29 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void testGetAvailablePools() {
 
-        assertEquals("Pool Service should have two client pools available",srv.availablePools.size(),2);
+        assertEquals("Pool Service should have two client pools available", srv.availablePools.size(), 2);
 
+    }
+
+    @Test(expected = HttpConnectionPoolException.class)
+    void testHttpConnectionPoolExeption() {
+
+        HttpClient client = srv.getClient("nonexistent client");
+    }
+
+    @Test
+    void getDefaultClientPoolByPassingNull() {
+
+        HttpClient client = srv.getClient(null);
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
+
+
+    }
+
+    @Test
+    void shouldReturnIfClientIsOrIsntAvailable() {
+
+        assertTrue("Should return true if client is available", srv.isAvailable("pool"));
+        assertFalse("Should return false if client is not available", srv.isAvailable("nonexistent pool"));
     }
 }
