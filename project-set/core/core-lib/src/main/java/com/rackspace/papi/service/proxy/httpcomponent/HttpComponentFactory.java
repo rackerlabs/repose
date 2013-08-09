@@ -16,7 +16,9 @@ public enum HttpComponentFactory {
   POST("POST", HttpPost.class, EntityEnclosingMethodWrapper.class),
   DELETE("DELETE", EntityEnclosingDelete.class, EntityEnclosingMethodWrapper.class),
   HEAD("HEAD", HttpHead.class),
-  OPTIONS("OPTIONS", HttpOptions.class);
+  OPTIONS("OPTIONS", HttpOptions.class),
+  PATCH("PATCH", HttpPatch.class),
+  TRACE("TRACE", HttpTrace.class);
   private static final Logger LOG = LoggerFactory.getLogger(HttpComponentFactory.class);
   private static final String CONSTRUCTION_ERROR = "Unable to construct HttpMethod";
   private final String method;
