@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.2">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -121,7 +121,7 @@
         <hashTree/>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="For Uri Normalization" enabled="true">
           <stringProp name="TestPlan.comments">media variants are included</stringProp>
-          <stringProp name="IfController.condition">&quot;${host_type}&quot; == &quot;URI Normalization&quot;</stringProp>
+          <stringProp name="IfController.condition">&quot;${host_type}&quot; == &quot;Continue to ignore these for now.&quot;</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
         </IfController>
         <hashTree>
