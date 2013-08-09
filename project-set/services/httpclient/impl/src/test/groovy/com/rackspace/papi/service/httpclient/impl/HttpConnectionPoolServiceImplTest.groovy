@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.httpclient.impl
 
+import com.rackspace.papi.service.httpclient.HttpClientNotFoundException
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
@@ -76,36 +77,28 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void testGetClient() {
-
-        HttpClient client = srv.getClient("pool");
+        HttpClient client = srv.getClient("pool").getHttpClient();
         assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), false);
     }
 
     @Test
     void testGetAvailablePools() {
-
-        assertEquals("Pool Service should have two client pools available", srv.getAvailableClients.size(), 2);
-
+        assertEquals("Pool Service should have two client pools available", srv.getAvailableClients().size(), 2);
     }
 
     @Test(expected = HttpClientNotFoundException.class)
     void testHttpConnectionPoolExeption() {
-
         HttpClient client = srv.getClient("nonexistent client");
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
-
-        HttpClient client = srv.getClient(null);
+        HttpClient client = srv.getClient(null).getHttpClient();
         assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
-
-
     }
 
     @Test
     void shouldReturnIfClientIsOrIsntAvailable() {
-
         assertTrue("Should return true if client is available", srv.isAvailable("pool"));
         assertFalse("Should return false if client is not available", srv.isAvailable("nonexistent pool"));
     }
