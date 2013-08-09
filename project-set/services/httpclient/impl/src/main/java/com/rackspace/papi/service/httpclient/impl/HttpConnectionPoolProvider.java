@@ -22,7 +22,7 @@ public final class HttpConnectionPoolProvider {
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
         cm.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
-        HttpClient client = new DefaultHttpClient(cm);
+        DefaultHttpClient client = new DefaultHttpClient(cm);
 //        SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
 //        SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 //        SchemeRegistry registry = cm.getSchemeRegistry();
@@ -35,6 +35,8 @@ public final class HttpConnectionPoolProvider {
         client.getParams().setParameter(CoreConnectionPNames.MAX_HEADER_COUNT, poolConf.getHttpConnectionMaxHeaderCount());
         client.getParams().setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
         client.getParams().setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
+
+        client.setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
 
 //TODO: maxstatusline
         return client;

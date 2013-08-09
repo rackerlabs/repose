@@ -2,6 +2,7 @@ package com.rackspace.papi.service.httpclient.impl
 
 import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
+import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
@@ -34,6 +35,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setHttpSocketBufferSize(SOC_BUFF_SZ);
         poolType.setHttpSocketTimeout(SOC_TIMEOUT);
         poolType.setHttpTcpNodelay(TCP_NODELAY);
+        poolType.setKeepaliveTimeout(6000);
         poolType.setId("testPool");
 
     }
@@ -42,7 +44,7 @@ class HttpConnectionPoolProviderTest {
     @Test
     public void shouldCreateClientWithPassedConfigurationObject() {
 
-        HttpClient client = HttpConnectionPoolProvider.genClient(poolType);
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient(poolType);
 
         Map props = client.connectionManager.properties;
         assertEquals(client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH), MAX_LINE);
@@ -53,6 +55,7 @@ class HttpConnectionPoolProviderTest {
         assertEquals(client.getParams().getParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE), SOC_BUFF_SZ);
         assertEquals(props.get("defaultMaxPerRoute"), MAX_PER_ROUTE);
         assertEquals(props.get("maxTotal"), MAX_TOTAL);
+        assertEquals(client.getConnectionKeepAliveStrategy().timeout, 6000);
 
     }
 
