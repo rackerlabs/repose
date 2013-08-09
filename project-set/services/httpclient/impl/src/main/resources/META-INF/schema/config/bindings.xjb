@@ -6,6 +6,6 @@
         schemaLocation="http-connection-pool.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.service.httpconnectionpool.config" />
+        <package name="com.rackspace.papi.service.httpclient.config" />
     </schemaBindings>
 </bindings>

@@ -1,6 +1,6 @@
-package com.rackspace.papi.service.httpconnectionpool;
+package com.rackspace.papi.service.httpclient.impl;
 
-import com.rackspace.papi.service.httpconnectionpool.config.PoolType;
+import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;

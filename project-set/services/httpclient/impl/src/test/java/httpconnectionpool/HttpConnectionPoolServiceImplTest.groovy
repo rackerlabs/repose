@@ -83,11 +83,11 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void testGetAvailablePools() {
 
-        assertEquals("Pool Service should have two client pools available", srv.availablePools.size(), 2);
+        assertEquals("Pool Service should have two client pools available", srv.getAvailableClients.size(), 2);
 
     }
 
-    @Test(expected = HttpConnectionPoolException.class)
+    @Test(expected = HttpClientNotFoundException.class)
     void testHttpConnectionPoolExeption() {
 
         HttpClient client = srv.getClient("nonexistent client");
