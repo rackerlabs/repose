@@ -31,7 +31,7 @@ class ReposeValveLauncher implements ReposeLauncher {
                         String configDir,
                         int reposePort,
                         int shutdownPort,
-                        String connFramework) {
+                        String connFramework="jersey") {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
