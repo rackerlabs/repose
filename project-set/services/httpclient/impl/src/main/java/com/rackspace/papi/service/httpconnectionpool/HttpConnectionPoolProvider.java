@@ -1,18 +1,11 @@
 package com.rackspace.papi.service.httpconnectionpool;
 
-import org.apache.http.*;
-import com.rackspace.papi.service.httpconnectionpool.config.*;
+import com.rackspace.papi.service.httpconnectionpool.config.PoolType;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.params.CoreConnectionPNames;
-
-import javax.net.ssl.SSLContext;
-import java.security.KeyStore;
 
 public final class HttpConnectionPoolProvider {
 

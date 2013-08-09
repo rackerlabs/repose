@@ -2,7 +2,6 @@ package com.rackspace.papi.service.httpconnectionpool;
 
 import com.rackspace.papi.service.httpconnectionpool.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpconnectionpool.config.PoolType;
-import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService;
 import org.apache.http.client.HttpClient;
 
 import java.util.HashMap;

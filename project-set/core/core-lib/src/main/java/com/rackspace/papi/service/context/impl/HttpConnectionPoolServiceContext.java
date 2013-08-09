@@ -5,17 +5,16 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 
-import com.rackspace.papi.service.httpconnectionpool.config.HttpConnectionPoolConfig;
-import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService;
+import httpconnectionpool.config.HttpConnectionPoolConfig;
+import httpconnectionpool.HttpConnectionPoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
 import java.net.URL;
 
 /**
- * Manages the {@link com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService} instance and
+ * Manages the {@link httpconnectionpool.HttpConnectionPoolService} instance and
  * subscribes to the http-connection-pool.cfg.xml configuration file.
  */
 //@Component("httpConnectionPoolServiceContext")

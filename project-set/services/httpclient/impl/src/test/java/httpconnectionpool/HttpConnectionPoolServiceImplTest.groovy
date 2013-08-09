@@ -1,7 +1,7 @@
-package com.rackspace.papi.service.httpconnectionpool
+package httpconnectionpool
 
-import com.rackspace.papi.service.httpconnectionpool.config.HttpConnectionPoolConfig
-import com.rackspace.papi.service.httpconnectionpool.config.PoolType
+import httpconnectionpool.config.HttpConnectionPoolConfig
+import httpconnectionpool.config.PoolType
 import org.apache.http.client.HttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before

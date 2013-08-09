@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.http.proxy.HttpException;
-import com.rackspace.papi.commons.util.proxy.ProxyUtilities;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 
 import java.io.ByteArrayInputStream;
@@ -16,10 +15,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import httpconnectionpool.HttpConnectionPoolService;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -29,20 +28,14 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import com.rackspace.papi.service.httpconnectionpool.*;
 
 @Component("apacheRequestProxyService")
 public class RequestProxyServiceImpl implements RequestProxyService {
@@ -69,7 +62,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private HttpClient getClient() {
-        return connectionPoolService.getDefaultClient();
+        return connectionPoolService.getClient("FIXME");
     }
 
     @Override
