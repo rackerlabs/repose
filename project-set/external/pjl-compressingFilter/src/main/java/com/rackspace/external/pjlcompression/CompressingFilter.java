@@ -220,6 +220,10 @@ public final class CompressingFilter implements Filter {
 
       if (chainRequest == null) {
          chainRequest = request;
+      } else if(isForRepose) {
+          // Remove 'Content-Encoding' header after decompression
+          chainRequest = MutableHttpServletRequest.wrap((HttpServletRequest)chainRequest);
+          ((MutableHttpServletRequest)chainRequest).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
       }
       if (chainResponse == null) {
          chainResponse = response;
