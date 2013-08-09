@@ -42,11 +42,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     }
 
     @Override
-    public void releaseClient(HttpClientResponse httpClientResponse) {
-        throw new UnsupportedOperationException("implement me");
-    }
-
-    @Override
     public void configure(HttpConnectionPoolConfig config) {
         poolMap = new HashMap<String, HttpClient>();
 

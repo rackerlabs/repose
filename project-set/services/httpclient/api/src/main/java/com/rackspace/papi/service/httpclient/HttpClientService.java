@@ -26,13 +26,6 @@ public interface HttpClientService<I> {
      */
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException;
 
-
-    /**
-     * Indicates to the service that the user that requested this client has released it back to the
-     * service.
-     */
-    public void releaseClient(HttpClientResponse httpClientResponse);
-
     /**
      * Configure the available clients that can be used via getClient()
      *

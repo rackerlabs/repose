@@ -18,7 +18,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import httpconnectionpool.HttpConnectionPoolService;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -35,6 +35,7 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("apacheRequestProxyService")
@@ -49,7 +50,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private DefaultHttpClient client;
     private Integer proxyThreadPool;
     private boolean rewriteHostHeader = false;
-    private HttpConnectionPoolService connectionPoolService;
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
         try {
@@ -62,7 +62,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private HttpClient getClient() {
-        return connectionPoolService.getClient("FIXME");
+        throw new UnsupportedOperationException("implement me");
     }
 
     @Override

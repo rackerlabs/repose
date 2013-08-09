@@ -5,8 +5,8 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 
-import httpconnectionpool.config.HttpConnectionPoolConfig;
-import httpconnectionpool.HttpConnectionPoolService;
+import com.rackspace.papi.service.httpclient.HttpClientService;
+import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -14,16 +14,16 @@ import javax.servlet.ServletContextEvent;
 import java.net.URL;
 
 /**
- * Manages the {@link httpconnectionpool.HttpConnectionPoolService} instance and
+ * Manages the {@link com.rackspace.papi.service.httpclient.HttpClientService} instance and
  * subscribes to the http-connection-pool.cfg.xml configuration file.
  */
 //@Component("httpConnectionPoolServiceContext")
-public class HttpConnectionPoolServiceContext implements ServiceContext<HttpConnectionPoolService> {
+public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClientService> {
 
     public static final String SERVICE_NAME = "HttpConnectionPoolService";
     public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
 
-    private final HttpConnectionPoolService connectionPoolService;
+    private final HttpClientService connectionPoolService;
     private final ServiceRegistry registry;
     private final ConfigurationService configurationService;
     private final ConfigurationListener configurationListener;
@@ -31,7 +31,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpConn
     @Autowired
     public HttpConnectionPoolServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                  @Qualifier("configurationManager") ConfigurationService configurationService,
-                                 @Qualifier("httpConnectionPoolService") HttpConnectionPoolService connectionPoolService) {
+                                 @Qualifier("httpConnectionPoolService") HttpClientService connectionPoolService) {
 
         this.registry = registry;
         this.configurationService = configurationService;
@@ -51,7 +51,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpConn
     }
 
     @Override
-    public HttpConnectionPoolService getService() {
+    public HttpClientService getService() {
         return connectionPoolService;
     }
 
