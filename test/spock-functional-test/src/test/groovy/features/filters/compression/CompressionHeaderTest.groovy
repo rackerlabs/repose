@@ -6,16 +6,20 @@ import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
+import java.util.zip.Deflater
 import java.util.zip.GZIPOutputStream
 import java.util.zip.DeflaterOutputStream
+import java.util.zip.Inflater
+import java.util.zip.InflaterOutputStream
 
 class CompressionHeaderTest extends ReposeValveTest {
     def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
             "malesuada. Integer nec est turpis duis."
     def static byte[] gzipCompressedContent = compressGzipContent(content)
-    def static String deflateCompressedContent = compressDeflateContent(content)
+    def static byte[] deflateCompressedContent = compressDeflateContent(content)
     def static byte[] falseZip = content.getBytes()
 
     def static compressGzipContent(String content)   {
@@ -29,13 +33,24 @@ class CompressionHeaderTest extends ReposeValveTest {
     }
 
     def static compressDeflateContent(String content)   {
-        def ByteArrayOutputStream out = new ByteArrayOutputStream(content.length())
-        def DeflaterOutputStream zipOut = new DeflaterOutputStream(out)
-        zipOut.write(content.getBytes())
-        zipOut.close()
-        byte[] compressedContent = out.toByteArray();
-        out.close()
-        return compressedContent
+        Deflater deflater = new Deflater();
+        deflater.setInput(content.getBytes());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(content.getBytes().length);
+
+        deflater.finish();
+        byte[] buffer = new byte[1024];
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer); // returns the generated code... index
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+        byte[] output = outputStream.toByteArray();
+        return output;
+    }
+
+    def String convertStreamToString(byte[] input){
+        return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
     }
 
 
@@ -71,15 +86,18 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings.size == 1
         mc.sentRequest.body != mc.handlings[0].request.body
         !mc.handlings[0].request.headers.contains("Content-Encoding")
-        mc.handlings[0].request.body.equals(content)
+        if(!encoding.equals("identity")) {
+            convertStreamToString(mc.handlings[0].request.body).equals(unzippedContent)
+        } else {
+            mc.handlings[0].request.body.equals(unzippedContent)
+        }
 
         where:
         encoding    | unzippedContent | zippedContent
         "gzip"      | content         | gzipCompressedContent
         "x-gzip"    | content         | gzipCompressedContent
         "deflate"   | content         | deflateCompressedContent
-        "x-deflate" | content         | deflateCompressedContent
-        "identity"  | content         | content
+        "identity"  | content         | gzipCompressedContent
 
     }
 
@@ -91,19 +109,15 @@ class CompressionHeaderTest extends ReposeValveTest {
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
-        mc.handlings.size == 1
-        mc.sentRequest.body != mc.handlings[0].request.body
-        mc.handlings[0].request.headers.contains("Content-Encoding")
-        mc.handlings[0].request.body.equals(content)
-        mc.receivedResponse.code == '400'
+        mc.handlings.size == handlings
+        mc.receivedResponse.code == responseCode
 
         where:
-        encoding    | unzippedContent | zippedContent
-        "gzip"      | content         | falseZip
-        "x-gzip"    | content         | falseZip
-        "deflate"   | content         | falseZip
-        "x-deflate" | content         | falseZip
-        "identity"  | content         | falseZip
+        encoding    | unzippedContent | zippedContent | responseCode | handlings
+        "gzip"      | content         | falseZip       | '400'        | 0
+        "x-gzip"    | content         | falseZip       | '400'        | 0
+        "deflate"   | content         | falseZip       | '500'        | 0
+        "identity"  | content         | falseZip       | '200'        | 1
     }
 
     def "when an uncompressed request is sent to Repose, Content-Encoding header is never present"() {
@@ -114,18 +128,14 @@ class CompressionHeaderTest extends ReposeValveTest {
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
-        mc.handlings.size == 1
-        mc.sentRequest.body != mc.handlings[0].request.body
-        mc.handlings[0].request.headers.contains("Content-Encoding")
-        mc.handlings[0].request.body.equals(content)
-        mc.receivedResponse.code == '400'
+        mc.handlings.size == handlings
+        mc.receivedResponse.code == responseCode
 
         where:
-        encoding    | unzippedContent | zippedContent
-        "gzip"      | content         | content
-        "x-gzip"    | content         | content
-        "deflate"   | content         | content
-        "x-deflate" | content         | content
-        "identity"  | content         | content
+        encoding    | unzippedContent | zippedContent | responseCode | handlings
+        "gzip"      | content         | content       | '400'        | 0
+        "x-gzip"    | content         | content       | '400'        | 0
+        "deflate"   | content         | content       | '500'        | 0
+        "identity"  | content         | content       | '200'        | 1
     }
 }

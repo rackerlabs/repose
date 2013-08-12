@@ -312,6 +312,12 @@ public final class CompressingFilter implements Filter {
          return null;
       }
 
+       if(isForRepose) {
+          // Remove 'Content-Encoding' header after decompression
+          httpRequest = MutableHttpServletRequest.wrap(httpRequest);
+          ((MutableHttpServletRequest)httpRequest).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+       }
+
       return new CompressedHttpServletRequest(httpRequest,
               CompressingStreamFactory.getFactoryForContentEncoding(contentEncoding),
               context);
