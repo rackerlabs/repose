@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component("jerseyRequestProxyService")
-public class RequestProxyServiceImpl implements RequestProxyService {
+public class    RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
