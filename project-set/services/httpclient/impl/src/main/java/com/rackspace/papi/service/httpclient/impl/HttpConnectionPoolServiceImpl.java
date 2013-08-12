@@ -17,17 +17,21 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     Map<String, HttpClient> poolMap;
     String defaultClientId;
 
-    public HttpConnectionPoolServiceImpl(HttpConnectionPoolConfig conf) {
-
+    public HttpConnectionPoolServiceImpl() {
         poolMap = new HashMap<String, HttpClient>();
-
-        for (PoolType poolType : conf.getPool()) {
-            if (poolType.isDefault()) {
-                defaultClientId = poolType.getId();
-            }
-            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
-        }
     }
+//
+//    public HttpConnectionPoolServiceImpl(HttpConnectionPoolConfig conf) {
+//
+//        poolMap = new HashMap<String, HttpClient>();
+//
+//        for (PoolType poolType : conf.getPool()) {
+//            if (poolType.isDefault()) {
+//                defaultClientId = poolType.getId();
+//            }
+//            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
+//        }
+//    }
 
     @Override
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {

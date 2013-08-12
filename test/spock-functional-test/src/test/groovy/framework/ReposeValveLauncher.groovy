@@ -73,7 +73,11 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         }
 
-        def cmd = "java ${classPath} ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir} -cf ${connFramework} start"
+        def cmd = "java ${classPath} ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir}"
+        if (!connFramework.isEmpty()) {
+            cmd = cmd + " -cf ${connFramework}"
+        }
+        cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({ cmd.execute() });

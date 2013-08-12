@@ -8,6 +8,9 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
+    <!-- Import Repose Services -->
+    <import resource="repose-service-context.xml"/>
+
     <context:component-scan base-package="com.rackspace"/>
     <context:annotation-config/>
     <!-- <context:mbean-export/> -->
@@ -30,6 +33,7 @@
     <bean name="reposeVersion" class="java.lang.String">
         <constructor-arg type="java.lang.String" value="${reposeVersion}"/>
     </bean>
+
 
     <!-- Service Contexts -->
     <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
@@ -59,5 +63,9 @@
     <bean name="distributedDatastoreServiceContext" class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
 
     <bean name="distributedDatastoreServiceClusterContext" class="com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
+
+    <bean name="httpConnectionPoolService"
+          class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
+
 
 </beans>

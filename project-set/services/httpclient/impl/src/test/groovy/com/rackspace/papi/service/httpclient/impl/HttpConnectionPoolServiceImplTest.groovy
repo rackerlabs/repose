@@ -69,7 +69,8 @@ class HttpConnectionPoolServiceImplTest {
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
 
-        srv = new HttpConnectionPoolServiceImpl(poolCfg);
+        srv = new HttpConnectionPoolServiceImpl();
+        srv.configure(poolCfg);
 
 
     }
