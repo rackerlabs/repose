@@ -53,7 +53,8 @@ public final class OpenStackAuthenticationHandlerFactory {
                 authConfig.getUserCacheTimeout(),
                 authConfig.getCacheOffset(),
                 authConfig.isRequestGroups(),
-                endpointsConfiguration);
+                endpointsConfiguration,
+                authConfig.getServiceAdminRoles());
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
     }
