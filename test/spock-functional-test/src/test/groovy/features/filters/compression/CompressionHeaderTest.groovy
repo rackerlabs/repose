@@ -84,12 +84,14 @@ class CompressionHeaderTest extends ReposeValveTest {
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
         mc.sentRequest.headers.contains("Content-Encoding")
         mc.handlings.size == 1
-        mc.sentRequest.body != mc.handlings[0].request.body
-        !mc.handlings[0].request.headers.contains("Content-Encoding")
         if(!encoding.equals("identity")) {
+            mc.sentRequest.body != mc.handlings[0].request.body
+            !mc.handlings[0].request.headers.contains("Content-Encoding")
             convertStreamToString(mc.handlings[0].request.body).equals(unzippedContent)
         } else {
-            mc.handlings[0].request.body.equals(unzippedContent)
+            mc.handlings[0].request.headers.contains("Content-Encoding")
+            mc.sentRequest.body == mc.handlings[0].request.body
+            mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
         }
 
         where:
@@ -97,7 +99,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         "gzip"      | content         | gzipCompressedContent
         "x-gzip"    | content         | gzipCompressedContent
         "deflate"   | content         | deflateCompressedContent
-        "identity"  | content         | gzipCompressedContent
+        "identity"  | content         | content
 
     }
 
