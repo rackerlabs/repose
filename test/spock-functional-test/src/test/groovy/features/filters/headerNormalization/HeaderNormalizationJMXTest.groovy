@@ -33,36 +33,14 @@ class HeaderNormalizationJMXTest extends Specification {
     int reposeStopPort
     int originServicePort
     String urlBase
+
+    Deproxy deproxy
+
+    Properties properties
+    def logFile
     ReposeConfigurationProvider reposeConfigProvider
-
-    @Shared def logFile
-
-    @Shared def ReposeValveLauncher repose
-    @Shared def Deproxy deproxy
-
-    @Shared def Properties properties
-
-    @Shared def ReposeLogSearch reposeLogSearch
-
-    def cleanLogDirectory() {
-        FileUtils.deleteQuietly(new File(logFile))
-    }
-
-    def waitUntilReadyToServiceRequests() {
-        def clock = new SystemClock()
-        def innerDeproxy = new Deproxy()
-        MessageChain mc
-        waitForCondition(clock, '35s', '1s', {
-            try {
-                mc = innerDeproxy.makeRequest(url:urlBase)
-            } catch (Exception ignored) {}
-            if (mc != null) {
-                return mc.receivedResponse.code.equals("200")
-            } else {
-                return false
-            }
-        })
-    }
+    ReposeValveLauncher repose
+    ReposeLogSearch reposeLogSearch
 
     def setup() {
 
