@@ -14,6 +14,7 @@ abstract class ReposeValveTest extends Specification {
     @Shared def configDirectory
     @Shared def logFile
     @Shared def configSamples
+    @Shared def connFramework
 
     @Shared def ReposeValveLauncher repose
     @Shared def Deproxy deproxy
@@ -32,6 +33,7 @@ abstract class ReposeValveTest extends Specification {
         configSamples = properties.getProperty("repose.config.samples")
         reposeEndpoint = properties.getProperty("repose.endpoint")
         logFile = properties.getProperty("repose.log")
+        connFramework = "jersey"
 
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
@@ -41,7 +43,8 @@ abstract class ReposeValveTest extends Specification {
                 reposeEndpoint,
                 configDirectory,
                 properties.getProperty("repose.port").toInteger(),
-                properties.getProperty("repose.shutdown.port").toInteger()
+                properties.getProperty("repose.shutdown.port").toInteger(),
+                connFramework
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);

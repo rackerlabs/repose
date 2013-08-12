@@ -47,7 +47,7 @@ public class HeaderNormalizationHandlerTest {
         @Before
         public void setUp() {
 
-            factory = new HeaderNormalizationHandlerFactory();
+            factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();
             whitelist = new HttpHeaderList();
             header1 = new HttpHeader();
@@ -166,7 +166,7 @@ public class HeaderNormalizationHandlerTest {
         @Before
         public void setUp() {
 
-            factory = new HeaderNormalizationHandlerFactory();
+            factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();
             blacklist = new HttpHeaderList();
             header1 = new HttpHeader();
@@ -285,7 +285,7 @@ public class HeaderNormalizationHandlerTest {
         @Before
         public void setUp() {
 
-            factory = new HeaderNormalizationHandlerFactory();
+            factory = new HeaderNormalizationHandlerFactory(null);
             headerFilterList = new HeaderFilterList();
             whitelist1 = new HttpHeaderList();
             whitelist2 = new HttpHeaderList();

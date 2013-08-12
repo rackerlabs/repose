@@ -4,11 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Response
 
-/**
- * User: dimi5963
- * Date: 6/28/13
- * Time: 10:14 AM
- */
+
 class DestinationRouterJMXTest extends ReposeValveTest{
     String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
 
