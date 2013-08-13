@@ -33,4 +33,12 @@ class HttpClientServiceTest extends ReposeValveTest {
         // TODO: how to verify it is using the conn pool????
     }
 
+    def "repose completes the handling of inflight connections when reconfiguring CP service"() {}
+
+    def "shutting down repose should release all connections"() {}
+
+    def "repose should use http conn pool service for Client Auth-N" () {}
+
+    def "repose should use http conn pool service for DD service" () {}
+
 }
