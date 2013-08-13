@@ -31,12 +31,30 @@ public class HeaderFieldParser {
     }
   }
 
+  public HeaderFieldParser(String rawHeaderString, String headerName) {
+    this();
+
+    if (rawHeaderString != null) {
+        addValue(rawHeaderString, headerName);
+    }
+  }
+
   public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
     this();
 
     if (headerValueEnumeration != null) {
+        while (headerValueEnumeration.hasMoreElements()) {
+            addValue(headerValueEnumeration.nextElement());
+        }
+    }
+  }
+
+  public HeaderFieldParser(Enumeration<String> headerValueEnumeration, String headerName) {
+    this();
+
+    if (headerValueEnumeration != null) {
       while (headerValueEnumeration.hasMoreElements()) {
-        addValue(headerValueEnumeration.nextElement());
+        addValue(headerValueEnumeration.nextElement(), headerName);
       }
     }
   }
@@ -52,6 +70,16 @@ public class HeaderFieldParser {
     }
   }
 
+  public HeaderFieldParser(Collection<String> headers, String headerName) {
+    this();
+
+    if (headers != null) {
+        for (String header : headers) {
+            addValue(header, headerName);
+        }
+    }
+  }
+
   private void addValue(String rawHeaderString) {
     Matcher matcher = date.matcher(rawHeaderString);
     if (matcher.matches()) {
@@ -59,8 +87,30 @@ public class HeaderFieldParser {
       headerValueStrings.add(rawHeaderString);
       return;
     }
-    
+
     final String[] splitHeaderValues = rawHeaderString.split(",");
+
+    for (String splitHeaderValue : splitHeaderValues) {
+      if (!splitHeaderValue.isEmpty()) {
+        headerValueStrings.add(splitHeaderValue.trim());
+      }
+    }
+  }
+
+  private void addValue(String rawHeaderString, String headerName) {
+    Matcher matcher = date.matcher(rawHeaderString);
+    if (matcher.matches()) {
+      // This is an RFC 1123 date string
+      headerValueStrings.add(rawHeaderString);
+      return;
+    }
+
+    final String[] splitHeaderValues;
+    if (headerName != null && headerName.equalsIgnoreCase("location")) {
+      splitHeaderValues = new String[]{rawHeaderString};
+    } else {
+     splitHeaderValues = rawHeaderString.split(",");
+    }
 
     for (String splitHeaderValue : splitHeaderValues) {
       if (!splitHeaderValue.isEmpty()) {
