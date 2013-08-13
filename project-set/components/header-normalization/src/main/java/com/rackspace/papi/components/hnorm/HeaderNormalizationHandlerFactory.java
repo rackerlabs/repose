@@ -3,6 +3,7 @@ package com.rackspace.papi.components.hnorm;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
@@ -14,12 +15,13 @@ import java.util.List;
 import java.util.Map;
 
 public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderNormalizationHandler> {
-
-    private List<CompiledRegexAndList> compiledTargetList;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HeaderNormalizationHandlerFactory.class);
+    private final MetricsService metricsService;
+    private List<CompiledRegexAndList> compiledTargetList;
 
-    public HeaderNormalizationHandlerFactory() {
+    public HeaderNormalizationHandlerFactory(MetricsService metricsService) {
         compiledTargetList = new LinkedList<CompiledRegexAndList>();
+        this.metricsService = metricsService;
     }
 
     @Override
@@ -70,6 +72,6 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
         if (!this.isInitialized()) {
             return null;
         }
-        return new HeaderNormalizationHandler(compiledTargetList);
+        return new HeaderNormalizationHandler(compiledTargetList, metricsService);
     }
 }
