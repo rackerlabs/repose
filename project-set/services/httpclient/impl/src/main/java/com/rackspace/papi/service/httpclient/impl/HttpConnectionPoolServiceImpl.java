@@ -23,6 +23,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         poolMap = new HashMap<String, HttpClient>();
         DEFAULT_POOL = new PoolType();
         decommissionManager = new ClientDecommissionManager();
+        decommissionManager.startThread();
 
     }
 
@@ -80,5 +81,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         for (HttpClient client : poolMap.values()) {
             client.getConnectionManager().shutdown();
         }
+        decommissionManager.stopThread();
     }
 }

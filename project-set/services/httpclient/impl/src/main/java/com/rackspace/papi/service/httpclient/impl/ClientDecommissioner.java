@@ -4,6 +4,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
+import org.slf4j.Logger;
 
 import javax.resource.spi.ConnectionManager;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 public class ClientDecommissioner implements Runnable {
 
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissioner.class);
 
     private static final long DEFAULT_INTERVAL = 5000;
     List<HttpClient> clientList;
@@ -56,15 +58,21 @@ public class ClientDecommissioner implements Runnable {
         while (!done) {
             synchronized (listLock) {
 
+                List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
+
                 for (HttpClient client : clientList) {
 
                     PoolingClientConnectionManager connMan = (PoolingClientConnectionManager) client.getConnectionManager();
                     PoolStats stats = connMan.getTotalStats();
 
                     if (stats.getLeased() == 0) {   // if no active connections we will shutdown this client
+                        LOG.debug("Shutting down client: " + client.hashCode());
                         connMan.shutdown();
-                        clientList.remove(client);
+                        clientsToRemove.add(client);
                     }
+                }
+                for(HttpClient client: clientsToRemove) {
+                    clientList.remove(client);
                 }
             }
 
