@@ -10,6 +10,8 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;
+
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 
 /**
@@ -17,12 +19,12 @@ import org.slf4j.Logger;
  * @author jhopper
  */
 public class VersioningFilter implements Filter {
-
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
     private static final String DEFAULT_CONFIG = "versioning.cfg.xml";
     private String config;
     private VersioningHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
+    private MetricsService metricsService;
 
     @Override
     public void destroy() {
@@ -42,12 +44,12 @@ public class VersioningFilter implements Filter {
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new VersioningHandlerFactory(ports);
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
-       
+        metricsService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
+                .metricsService();
+        handlerFactory = new VersioningHandlerFactory(ports, metricsService);
         configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");
-                
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, ServiceVersionMappingList.class);
     }
 }
