@@ -26,10 +26,6 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
 
     }
 
-    def setup() {
-
-    }
-
     def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
