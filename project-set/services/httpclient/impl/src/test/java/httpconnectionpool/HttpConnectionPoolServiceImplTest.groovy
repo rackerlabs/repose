@@ -1,7 +1,10 @@
 package httpconnectionpool
 
-import httpconnectionpool.config.HttpConnectionPoolConfig
-import httpconnectionpool.config.PoolType
+import com.rackspace.papi.service.httpclient.HttpClientNotFoundException
+import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
+import com.rackspace.papi.service.httpclient.config.PoolType
+import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService
+import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolServiceImpl
 import org.apache.http.client.HttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before

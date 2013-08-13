@@ -16,17 +16,12 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     Map<String, HttpClient> poolMap;
     String defaultClientId;
+    ClientDecommissionManager decommissionManager;
 
     public HttpConnectionPoolServiceImpl(HttpConnectionPoolConfig conf) {
 
+        decommissionManager = new ClientDecommissionManager();
         poolMap = new HashMap<String, HttpClient>();
-
-        for (PoolType poolType : conf.getPool()) {
-            if (poolType.isDefault()) {
-                defaultClientId = poolType.getId();
-            }
-            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
-        }
     }
 
     @Override
@@ -48,16 +43,23 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void configure(HttpConnectionPoolConfig config) {
-        poolMap = new HashMap<String, HttpClient>();
+
+
+        HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
 
         for (PoolType poolType : config.getPool()) {
             if (poolType.isDefault()) {
                 defaultClientId = poolType.getId();
             }
-            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
+            newPoolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
         }
 
-        //TODO: Decommission logic
+        if(!poolMap.isEmpty()){
+            decommissionManager.decommissionClient(poolMap);
+        }
+
+        poolMap = newPoolMap;
+
     }
 
     @Override

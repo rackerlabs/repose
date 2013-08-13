@@ -157,7 +157,7 @@
 
 	  <dependency>
 	  	  <groupId>com.rackspace.papi.service</groupId>
-	  	  <artifactId>http-connection-pool</artifactId>
+	  	  <artifactId>httpclient-api</artifactId>
           <version>${project.version}</version>
 	  </dependency>
    </dependencies>

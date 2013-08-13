@@ -1,9 +1,10 @@
 package httpconnectionpool
 
-import httpconnectionpool.config.PoolType
+import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import static org.junit.Assert.*;
 
