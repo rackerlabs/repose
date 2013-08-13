@@ -33,7 +33,7 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
     @Unroll("DEPRECATED: ability to specify the connection framework of #connFramework via cmdline")
     def "DEPRECATED: ability to specify the connection framework"() {
 
-        given: "Repose is configured with no connection framework specified"
+        given: "Repose is configured with a connection framework specified on cmdline"
         repose.applyConfigs("features/services/httpconnectionpool/common")
         repose.connFramework = connFramework
 

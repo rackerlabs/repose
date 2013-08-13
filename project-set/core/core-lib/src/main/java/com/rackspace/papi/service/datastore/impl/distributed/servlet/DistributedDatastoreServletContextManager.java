@@ -9,7 +9,6 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
@@ -20,21 +19,23 @@ import com.rackspace.papi.service.datastore.impl.distributed.cluster.Distributed
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringConfiguration;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /*
  * Builds servlet context for the distributed datastore servlet
  */
 public class DistributedDatastoreServletContextManager implements ServletContextListener {
+    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServletContextManager.class);
 
    private DatastoreService datastoreService;
    private AnnotationConfigApplicationContext applicationContext;
-   private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
    private ReposeInstanceInfo instanceInfo;
 
    public DistributedDatastoreServletContextManager() {
@@ -47,18 +48,16 @@ public class DistributedDatastoreServletContextManager implements ServletContext
 
       applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
 
-      String connectionFrameworkProp = "CONNECTION_FRAMEWORK";
-      final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
-      final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
-      if (StringUtilities.isNotBlank(beanName) && applicationContext.containsBean(beanName)) {
-         //LOG.info("Using connection framework: " + beanName);
-         applicationContext.registerAlias(beanName, "requestProxyService");
-      } else {
-         //LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-         applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
-      }
+       String connectionFrameworkProp = "CONNECTION_FRAMEWORK";
+       final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
+       if (StringUtilities.isNotBlank(connectionFramework)) {
+           LOG.warn("***DEPRECATED*** The ability to define the connection framework of jersey, ning, or apache has been deprecated!" +
+                   " The default and only available connection framework is Apache HttpClient");
+       } else {
+           LOG.warn("***DEPRECATED*** The default connection framework has changed from Jersey to Apache HttpClient!");
+       }
 
-      ServletContextHelper.configureInstance(
+       ServletContextHelper.configureInstance(
               servletContext,
               applicationContext);
       servletContext.setAttribute("datastoreService", datastoreService);
@@ -126,14 +125,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
       final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
 
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-      if (StringUtilities.isNotBlank(beanName) && context.containsBean(beanName)) {
-         //LOG.info("Using connection framework: " + beanName);
-         context.registerAlias(beanName, "requestProxyService");
-      } else {
-         //LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-         context.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
-      }
-
 
       Thread.currentThread().setName("Dist-Datastore");
       context.getBean("exporter");
