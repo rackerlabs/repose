@@ -16,16 +16,24 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     Map<String, HttpClient> poolMap;
     String defaultClientId;
+    private static PoolType DEFAULT_POOL;
     ClientDecommissionManager decommissionManager;
 
-    public HttpConnectionPoolServiceImpl(HttpConnectionPoolConfig conf) {
-
-        decommissionManager = new ClientDecommissionManager();
+    public HttpConnectionPoolServiceImpl() {
         poolMap = new HashMap<String, HttpClient>();
+        DEFAULT_POOL = new PoolType();
+        decommissionManager = new ClientDecommissionManager();
+
     }
 
     @Override
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
+        if (poolMap.isEmpty()) {
+            defaultClientId = "DEFAULT_POOL";
+            HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
+            poolMap.put(defaultClientId, httpClient);
+        }
+
         if (clientId == null || clientId.isEmpty()) {
             return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId);
         } else {
@@ -34,11 +42,6 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             else
                 throw new HttpClientNotFoundException("Pool " + clientId + "not available");
         }
-    }
-
-    @Override
-    public void releaseClient(HttpClientResponse httpClientResponse) {
-        throw new UnsupportedOperationException("implement me");
     }
 
     @Override
@@ -54,7 +57,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             newPoolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
         }
 
-        if(!poolMap.isEmpty()){
+        if (!poolMap.isEmpty()) {
             decommissionManager.decommissionClient(poolMap);
         }
 
@@ -74,6 +77,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void shutdown() {
-        throw new UnsupportedOperationException("implement me");
+        for (HttpClient client : poolMap.values()) {
+            client.getConnectionManager().shutdown();
+        }
     }
 }

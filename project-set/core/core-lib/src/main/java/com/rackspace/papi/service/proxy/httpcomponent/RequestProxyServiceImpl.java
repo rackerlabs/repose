@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
@@ -18,7 +19,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.rackspace.papi.service.httpconnectionpool.HttpConnectionPoolService;
+import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -30,27 +32,25 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-@Component("apacheRequestProxyService")
+@Component("requestProxyService")
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private static final int DEFAULT_HTTPS_PORT = 443;
-    private final Object clientLock = new Object();
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
-    private PoolingClientConnectionManager manager;
-    private DefaultHttpClient client;
     private Integer proxyThreadPool;
     private boolean rewriteHostHeader = false;
-    private HttpConnectionPoolService connectionPoolService;
+
+    @Autowired
+    @Qualifier("httpConnectionPoolService")
+    private HttpClientService httpClientService;
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
         try {
@@ -62,12 +62,17 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    public RequestProxyServiceImpl( @Qualifier("connectionPoolService") HttpConnectionPoolService connectionPoolService){
-        this.connectionPoolService = connectionPoolService;
+    public RequestProxyServiceImpl(){
     }
 
     private HttpClient getClient() {
-        return connectionPoolService.getClient(null);
+        try {
+            HttpClient httpClient = httpClientService.getClient(null).getHttpClient();
+            return httpClient;
+        } catch (HttpClientNotFoundException e) {
+            LOG.error("Failed to obtain an HTTP default client connection");
+            throw new ProxyRequestException("Failed to obtain an HTTP default client connection", e);
+        }
     }
 
     @Override
@@ -131,13 +136,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         this.readTimeout = readTimeout;
         this.proxyThreadPool = proxyThreadPool;
 
-        // Invalidate client
-        synchronized (clientLock) {
-            if (manager != null) {
-                manager.shutdown();
-            }
-            client = null;
-        }
+        //TODO: what are we doing when this config changes???
     }
 
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {

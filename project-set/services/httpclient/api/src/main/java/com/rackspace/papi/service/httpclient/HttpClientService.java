@@ -3,7 +3,7 @@ package com.rackspace.papi.service.httpclient;
 import java.util.Set;
 
 /**
- * HttpClientService - service that manages the configuration of HttpClients
+ * HttpClientService - service that manages the lifecycle and configuration of HttpClients
  */
 public interface HttpClientService<I> {
 
@@ -25,13 +25,6 @@ public interface HttpClientService<I> {
      * @throws HttpClientNotFoundException if client identified by the provided name is not found.
      */
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException;
-
-
-    /**
-     * Indicates to the service that the user that requested this client has released it back to the
-     * service.
-     */
-    public void releaseClient(HttpClientResponse httpClientResponse);
 
     /**
      * Configure the available clients that can be used via getClient()
