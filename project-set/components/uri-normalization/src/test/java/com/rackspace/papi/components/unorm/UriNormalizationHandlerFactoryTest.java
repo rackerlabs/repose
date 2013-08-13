@@ -14,7 +14,7 @@ public class UriNormalizationHandlerFactoryTest {
     private UriNormalizationHandlerFactory instance;
     @Before
     public void setUp() {
-        instance = new UriNormalizationHandlerFactory();
+        instance = new UriNormalizationHandlerFactory(null);
     }
     
 

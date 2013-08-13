@@ -8,6 +8,8 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;
+
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 
 public class UriNormalizationFilter implements Filter {
@@ -17,6 +19,7 @@ public class UriNormalizationFilter implements Filter {
     private String config;
     private UriNormalizationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
+    private MetricsService metricsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -33,7 +36,9 @@ public class UriNormalizationFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
-        handlerFactory = new UriNormalizationHandlerFactory();
+        metricsService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
+                .metricsService();
+        handlerFactory = new UriNormalizationHandlerFactory(metricsService);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-normalization-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, UriNormalizationConfig.class);
     }
