@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.httpclient.impl
 
-import org.apache.commons.codec.DecoderException
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet

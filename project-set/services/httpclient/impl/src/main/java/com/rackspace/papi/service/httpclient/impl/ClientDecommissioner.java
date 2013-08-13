@@ -79,6 +79,7 @@ public class ClientDecommissioner implements Runnable {
             try {
                 Thread.sleep(DEFAULT_INTERVAL);
             } catch (InterruptedException ex) {
+                LOG.error("Error sleeping...");
                 Thread.currentThread().interrupt();
             }
 

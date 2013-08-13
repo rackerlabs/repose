@@ -2,6 +2,7 @@ package com.rackspace.papi.service.httpclient.impl;
 
 import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
 import org.apache.http.client.HttpClient;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ public class ClientDecommissionManager {
 
     private final Thread decommThread;
     private final ClientDecommissioner decommissioner;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissionManager.class);
 
     public ClientDecommissionManager() {
         this.decommissioner = new ClientDecommissioner();
@@ -24,9 +26,15 @@ public class ClientDecommissionManager {
     }
 
     public void stopThread(){
+        try{
 
+        LOG.info("Shutting down HttpClient Service Decommissioner");
         decommissioner.stop();
         decommThread.interrupt();
+        decommThread.join();
+        }catch (InterruptedException ex){
+            LOG.error("Unable to shutdown HttpClient Service Decommissioner Thread", ex);
+        }
     }
 
     public void decommissionClient(Map<String,HttpClient> clients){
