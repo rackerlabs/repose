@@ -21,13 +21,14 @@ public class ClientDecommissioner implements Runnable {
 
     private static final long DEFAULT_INTERVAL = 5000;
     List<HttpClient> clientList;
-    private boolean done = false;
+    private boolean done;
     private Object listLock;
 
     public ClientDecommissioner() {
 
         clientList = new ArrayList<HttpClient>();
         listLock = new Object();
+        done = false;
     }
 
 
@@ -50,13 +51,15 @@ public class ClientDecommissioner implements Runnable {
     }
 
     public void stop() {
-        done = true;
+        this.done = true;
     }
 
     @Override
     public void run() {
-        while (!done) {
+        while (!this.done) {
             synchronized (listLock) {
+
+                LOG.trace("Iterating through decommissioned clients...");
 
                 List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
 
@@ -79,10 +82,14 @@ public class ClientDecommissioner implements Runnable {
             try {
                 Thread.sleep(DEFAULT_INTERVAL);
             } catch (InterruptedException ex) {
-                LOG.error("Error sleeping...");
-                Thread.currentThread().interrupt();
+               break;
             }
 
         }
+
+        LOG.error("Shutting down decommissioner");
+        Thread.currentThread().interrupt();
+        stop();
+
     }
 }

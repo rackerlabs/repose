@@ -21,33 +21,29 @@ public class ClientDecommissionManager {
 
     }
 
-    public void startThread(){
+    public void startThread() {
+        LOG.debug("Starting HttpClient Decommissioner Thread");
         decommThread.start();
     }
 
-    public void stopThread(){
-        try{
+    public void stopThread() {
 
         LOG.info("Shutting down HttpClient Service Decommissioner");
         decommissioner.stop();
         decommThread.interrupt();
-        decommThread.join();
-        }catch (InterruptedException ex){
-            LOG.error("Unable to shutdown HttpClient Service Decommissioner Thread", ex);
-        }
     }
 
-    public void decommissionClient(Map<String,HttpClient> clients){
+    public void decommissionClient(Map<String, HttpClient> clients) {
 
 
-        Set<Entry<String,HttpClient>> entrySet = clients.entrySet();
+        Set<Entry<String, HttpClient>> entrySet = clients.entrySet();
 
-        for(Map.Entry<String,HttpClient> clientEntry : entrySet){
+        for (Map.Entry<String, HttpClient> clientEntry : entrySet) {
             decommissioner.addClientToBeDecommissioned(clientEntry.getValue());
         }
     }
 
-    public void decommissionClient(HttpClient client){
+    public void decommissionClient(HttpClient client) {
         decommissioner.addClientToBeDecommissioned(client);
     }
 

@@ -7,6 +7,7 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +19,16 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     String defaultClientId;
     private static PoolType DEFAULT_POOL;
     ClientDecommissionManager decommissionManager;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
 
     public HttpConnectionPoolServiceImpl() {
+        LOG.debug("Creating New HTTP Connection Pool Service");
+
         poolMap = new HashMap<String, HttpClient>();
         DEFAULT_POOL = new PoolType();
         decommissionManager = new ClientDecommissionManager();
         decommissionManager.startThread();
+
 
     }
 
