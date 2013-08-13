@@ -17,6 +17,8 @@ class UriNormalizationJMXTest extends Specification {
     String URI_NORMALIZATION_RESOURCE_POST = "${PREFIX},name=\"/resource/.\\*_POST\""
     String URI_NORMALIZATION_SERVERS_GET = "${PREFIX},name=\"/servers/.\\*_GET\""
     String URI_NORMALIZATION_SERVERS_POST = "${PREFIX},name=\"/servers/.\\*_POST\""
+    String URI_NORMALIZATION_SECONDARY_PATH_GET = "${PREFIX},name=\"/secondary/path/.\\*_GET\""
+    String URI_NORMALIZATION_TERTIARY_PATH_GET = "${PREFIX},name=\"/tertiary/path/.\\*_GET\""
     String URI_NORMALIZATION_ACROSS_ALL = "${PREFIX},name=\"ACROSS ALL\""
 
     int reposePort
@@ -134,6 +136,51 @@ class UriNormalizationJMXTest extends Specification {
 
         then:
         repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 7
+
+    }
+
+    def "when multiple filter instances are configured, each should add to the count"() {
+
+        given:
+        reposeConfigProvider.applyConfigsRuntime(
+                "features/filters/uriNormalization/metrics/multiple",
+                [   'reposePort': reposePort.toString(),
+                    'targetPort': originServicePort.toString()])
+        repose.start()
+
+
+
+        when: "client makes a request that matches one filter's uri-regex attribute"
+        def mc = deproxy.makeRequest(url: "${urlBase}?a=1")
+
+        then:
+        mc.receivedResponse.code == "200"
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 1
+        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") ?: 0) == 0
+        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 1
+
+
+        when: "client makes a request that matches two filters' uri-regex attributes (1 & 2)"
+        mc = deproxy.makeRequest(url: "${urlBase}/secondary/path/asdf?a=1")
+
+        then:
+        mc.receivedResponse.code == "200"
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
+        (repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") ?: 0) == 0
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 3
+
+
+        when: "client makes a request that matches two filters' uri-regex attributes (1 & 3)"
+        mc = deproxy.makeRequest(url: "${urlBase}/tertiary/path/asdf?a=1")
+
+        then:
+        mc.receivedResponse.code == "200"
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ROOT_GET, "Count") == 2
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_SECONDARY_PATH_GET, "Count") == 1
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_TERTIARY_PATH_GET, "Count") == 2
+        repose.jmx.getMBeanAttribute(URI_NORMALIZATION_ACROSS_ALL, "Count") == 5
 
     }
 
