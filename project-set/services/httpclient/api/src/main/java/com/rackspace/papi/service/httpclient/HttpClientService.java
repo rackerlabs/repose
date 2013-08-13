@@ -3,7 +3,7 @@ package com.rackspace.papi.service.httpclient;
 import java.util.Set;
 
 /**
- * HttpClientService - service that manages HttpClients
+ * HttpClientService - service that manages the lifecycle and configuration of HttpClients
  */
 public interface HttpClientService<I> {
 

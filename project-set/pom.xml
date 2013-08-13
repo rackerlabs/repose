@@ -27,11 +27,11 @@
     <modules>
         <module>external</module>
         <module>commons</module>
-        <module>services/httpclient</module>
+        <module>services</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>
-        <module>services</module>
+        <module>services/rate-limiting-service</module>
         <module>installation</module>
         <module>management</module>
     </modules>

@@ -16,25 +16,21 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     Map<String, HttpClient> poolMap;
     String defaultClientId;
+    private static PoolType DEFAULT_POOL;
 
     public HttpConnectionPoolServiceImpl() {
         poolMap = new HashMap<String, HttpClient>();
+        DEFAULT_POOL = new PoolType();
     }
-//
-//    public HttpConnectionPoolServiceImpl(HttpConnectionPoolConfig conf) {
-//
-//        poolMap = new HashMap<String, HttpClient>();
-//
-//        for (PoolType poolType : conf.getPool()) {
-//            if (poolType.isDefault()) {
-//                defaultClientId = poolType.getId();
-//            }
-//            poolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
-//        }
-//    }
 
     @Override
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
+        if (poolMap.isEmpty()) {
+            defaultClientId = "DEFAULT_POOL";
+            HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
+            poolMap.put(defaultClientId, httpClient);
+        }
+
         if (clientId == null || clientId.isEmpty()) {
             return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId);
         } else {
@@ -71,6 +67,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void shutdown() {
-        throw new UnsupportedOperationException("implement me");
+        for (HttpClient client : poolMap.values()) {
+            client.getConnectionManager().shutdown();
+        }
     }
 }
