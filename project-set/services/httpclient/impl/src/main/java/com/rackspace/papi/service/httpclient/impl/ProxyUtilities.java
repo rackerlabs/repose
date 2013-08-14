@@ -1,12 +1,13 @@
-package com.rackspace.papi.commons.util.proxy;
+package com.rackspace.papi.service.httpclient.impl;
 
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 
 public final class ProxyUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyUtilities.class);
