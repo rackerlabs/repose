@@ -15,7 +15,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -123,9 +122,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 try {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
-                } catch (ClientHandlerException ex) {
-                    LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } catch (AuthServiceException ex) {
                     LOG.error("Failure in Auth-N: " + ex.getMessage());
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -152,9 +148,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                     groups, endpointsInBase64);
 
-        } catch (ClientHandlerException ex) {
-            LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         } catch (AuthServiceException ex) {
             LOG.error("Failure in Auth-N: " + ex.getMessage());
             filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
