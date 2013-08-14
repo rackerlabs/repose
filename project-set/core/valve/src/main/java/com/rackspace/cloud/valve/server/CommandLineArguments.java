@@ -28,7 +28,7 @@ public class CommandLineArguments {
     private String configDirectory;
 
     @Option(name = "-cf", aliases = {"--connection-framework"},
-            usage = "The http connection framework. Available values are jersey, ning, apache (Example: java -jar repose-valve.jar start -c /etc/repose/config  -cf apache).")
+            usage = "*DEPRECATED*  The default and only connection framework supported is apache.  Prior usage: The http connection framework. Available values are jersey, ning, apache (Example: java -jar repose-valve.jar start -c /etc/repose/config  -cf apache).")
     private String connectionFramework;
 
     @Option(name = "-k", aliases = {"--insecure"},
