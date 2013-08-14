@@ -126,16 +126,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     }
 
-    @Override
-    public void updateConfiguration(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging) {
-        LOG.info("Updating Request Proxy configuration");
-        this.connectionTimeout = connectionTimeout;
-        this.readTimeout = readTimeout;
-        this.proxyThreadPool = proxyThreadPool;
-
-        //TODO: what are we doing when this config changes???
-    }
-
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
 
         final Set<Map.Entry<String, String>> entries = headers.entrySet();

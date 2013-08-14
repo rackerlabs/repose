@@ -68,7 +68,6 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
       Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
       Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
       boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
-      proxyService.updateConfiguration(connectionTimeout, readTimeout, proxyThreadPool, requestLogging);
       isInitialized = true;
     }
 
