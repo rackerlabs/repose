@@ -17,12 +17,17 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.filters.Versioning;
+import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBElement;
 import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 public class VersioningHandler extends AbstractFilterLogicHandler {
 
@@ -31,10 +36,20 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    private static final double VERSIONING_DEFAULT_QUALITY = 0.5;
    private final ConfigurationData configurationData;
    private final ContentTransformer transformer;
+   private final MetricsService metricsService;
+   private MeterByCategory mbcVersionedRequests;
+   private boolean useMetrics = false;
 
-   public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer) {
+   public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer, MetricsService metricsService) {
       this.configurationData = configurationData;
       this.transformer = transformer;
+      this.metricsService = metricsService;
+
+       // TODO replace "versioning" with filter-id or name-number in sys-model
+       if (metricsService != null) {
+           mbcVersionedRequests = metricsService.newMeterByCategory(Versioning.class, "versioning", "VersionedRequest", TimeUnit.SECONDS);
+           useMetrics = true;
+       }
    }
 
    @Override
@@ -48,8 +63,14 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          if (targetOriginService != null) {
             final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
             handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
+            if (useMetrics) {
+                mbcVersionedRequests.mark(targetOriginService.getMapping().getId());
+            }
          } else {
             handleUnversionedRequest(httpRequestInfo, filterDirector);
+            if (useMetrics) {
+                mbcVersionedRequests.mark("Unversioned");
+            }
          }
          filterDirector.responseHeaderManager().appendHeader("Content-Type", httpRequestInfo.getPreferedMediaRange().getMimeType().getMimeType());
       } catch (VersionedHostNotFoundException vhnfe) {
@@ -80,7 +101,6 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
 
          final JAXBElement<VersionChoiceList> versions = VERSIONING_OBJECT_FACTORY.createVersions(configurationData.versionChoicesAsList(httpRequestInfo));
          transformer.transform(versions, httpRequestInfo.getPreferedMediaRange(), filterDirector.getResponseOutputStream());
-
       }
    }
 

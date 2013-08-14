@@ -17,6 +17,10 @@ public class SelectorPattern<K> {
       this.key = key;
    }
 
+    public Pattern getPattern() {
+        return pattern;
+    }
+
    public K getKey() {
       return key;
    }

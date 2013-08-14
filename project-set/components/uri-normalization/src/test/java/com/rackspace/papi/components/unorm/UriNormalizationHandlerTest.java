@@ -49,7 +49,7 @@ public class UriNormalizationHandlerTest {
 
          queryParameterNormalizer.getUriSelector().addPattern(".*", mockedNormalizer);
 
-         handler = new UriNormalizationHandler(normalizers, mock(MediaTypeNormalizer.class));
+         handler = new UriNormalizationHandler(normalizers, mock(MediaTypeNormalizer.class), null);
       }
    }
 
@@ -75,7 +75,7 @@ public class UriNormalizationHandlerTest {
       public void shouldNotFilterOnEmptyNormalizer() {
 
          final List<QueryParameterNormalizer> emptyNormalizers = new LinkedList<QueryParameterNormalizer>();
-         UriNormalizationHandler emptyNormalizer = new UriNormalizationHandler(emptyNormalizers, mock(MediaTypeNormalizer.class));
+         UriNormalizationHandler emptyNormalizer = new UriNormalizationHandler(emptyNormalizers, mock(MediaTypeNormalizer.class), null);
          
          when(mockedRequest.getMethod()).thenReturn("GET");
          

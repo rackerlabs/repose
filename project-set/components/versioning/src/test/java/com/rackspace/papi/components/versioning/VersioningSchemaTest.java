@@ -18,7 +18,7 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  *
