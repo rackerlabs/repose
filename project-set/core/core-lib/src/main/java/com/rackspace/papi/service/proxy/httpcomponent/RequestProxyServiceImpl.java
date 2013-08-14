@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-@Component("requestProxyService")
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
@@ -48,8 +47,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private Integer proxyThreadPool;
     private boolean rewriteHostHeader = false;
 
-    @Autowired
-    @Qualifier("httpConnectionPoolService")
     private HttpClientService httpClientService;
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
@@ -215,4 +212,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         this.rewriteHostHeader = value;
     }
 
+    public void setHttpClientService(HttpClientService httpClientService) {
+        this.httpClientService = httpClientService;
+    }
 }

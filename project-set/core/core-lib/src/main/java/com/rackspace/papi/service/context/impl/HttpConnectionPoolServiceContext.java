@@ -20,7 +20,6 @@ import java.net.URL;
  * Manages the {@link com.rackspace.papi.service.httpclient.HttpClientService} instance and
  * subscribes to the http-connection-pool.cfg.xml configuration file.
  */
-@Component("httpConnectionPoolServiceContext")
 public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClientService> {
     private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolServiceContext.class);
 

@@ -65,7 +65,4 @@
     <bean name="distributedDatastoreServiceClusterContext"
           class="com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
 
-    <bean name="httpConnectionPoolService" scope="singleton"
-          class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
-
 </beans>

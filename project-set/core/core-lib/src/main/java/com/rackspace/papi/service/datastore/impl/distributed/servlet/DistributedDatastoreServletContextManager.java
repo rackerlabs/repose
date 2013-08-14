@@ -66,13 +66,13 @@ public class DistributedDatastoreServletContextManager implements ServletContext
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
 
-      ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
-      for (ServiceContext ctx : registry.getServices()) {
-         ctx.contextDestroyed(sce);
-      }
+//      ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
+//      for (ServiceContext ctx : registry.getServices()) {
+//         ctx.contextDestroyed(sce);
+//      }
 
       //LOG.info("Shutting down Spring application context");
-       ((AnnotationConfigApplicationContext)applicationContext).close();
+       //((AnnotationConfigApplicationContext)applicationContext).close();
    }
 
    public void setDatastoreSystemProperties(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
@@ -85,11 +85,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
-      ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
-      ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
-      ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
-      ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       ca.getContext(DistributedDatastoreServiceClusterContext.class).contextInitialized(sce);
    }
 

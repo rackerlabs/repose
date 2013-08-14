@@ -20,6 +20,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.rackspace.papi.spring.SpringWithServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -49,7 +50,7 @@ public class PowerApiContextManager implements ServletContextListener {
       final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
       final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
 
-      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfiguration.class);
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringWithServices.class);
       if (StringUtilities.isNotBlank(connectionFramework)) {
           LOG.warn("***DEPRECATED*** The ability to define the connection framework of jersey, ning, or apache has been deprecated!" +
                   " The default and only available connection framework is Apache HttpClient");

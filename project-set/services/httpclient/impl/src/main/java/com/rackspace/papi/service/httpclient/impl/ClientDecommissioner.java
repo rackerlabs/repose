@@ -89,7 +89,6 @@ public class ClientDecommissioner implements Runnable {
 
         LOG.error("Shutting down decommissioner");
         Thread.currentThread().interrupt();
-        stop();
 
     }
 }
