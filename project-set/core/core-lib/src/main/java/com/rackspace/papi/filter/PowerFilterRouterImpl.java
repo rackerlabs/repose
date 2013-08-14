@@ -18,7 +18,6 @@ import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
-import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,7 +182,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
-                    } catch (ClientHandlerException e) {
+                    } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
@@ -193,7 +192,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                         }
                     }
-
                 }
             }
         }

@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>rate-limiting-service</module>
+        <module>httpclient</module>
     </modules>
 
 </project>
