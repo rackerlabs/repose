@@ -67,8 +67,8 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
             String via = deployConfig.getVia();
 
             if (doesContainDepricatedConfigs(deployConfig)) {
-                LOG.warn("***DEPRECATED*** The ability to define 'connection-timeout', 'read-timeout', " +
-                        "and 'proxy-thread-pool within the container.cfg.xml file has bee depricated." +
+                LOG.warn("***DEPRECATED*** The ability to define \"connection-timeout\", \"read-timeout\", " +
+                        "and \"proxy-thread-pool\" within the container.cfg.xml file has been deprecated." +
                         "Please define these configurations within an http-connection-pool.cfg.xml file");
             }
 

@@ -26,8 +26,8 @@
 
     <modules>
         <module>external</module>
-        <module>commons</module>
         <module>services</module>
+        <module>commons</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>

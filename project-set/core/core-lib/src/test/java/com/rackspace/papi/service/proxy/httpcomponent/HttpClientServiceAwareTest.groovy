@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import static org.junit.Assert.assertNotNull
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/spring/repose-core-context.xml")
+@ContextConfiguration("/spring/repose-with-services-context.xml")
 class HttpClientServiceAwareTest {
 
     @Autowired

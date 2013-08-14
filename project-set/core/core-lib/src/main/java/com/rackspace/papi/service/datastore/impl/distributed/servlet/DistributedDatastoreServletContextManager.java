@@ -65,14 +65,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
-
-//      ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
-//      for (ServiceContext ctx : registry.getServices()) {
-//         ctx.contextDestroyed(sce);
-//      }
-
-      //LOG.info("Shutting down Spring application context");
-       //((AnnotationConfigApplicationContext)applicationContext).close();
    }
 
    public void setDatastoreSystemProperties(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
