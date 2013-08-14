@@ -28,14 +28,14 @@
                 <emphasis role="bold">Deployment Handbooks</emphasis>:
                 Deployment handbooks are non-procedural collections of
                 key facts designed to be helpful in preparing to use
-                &PRODNAME; or specific components of &PRODNAME;.
+                &PRODNAME; or specific filters of &PRODNAME;.
                 Deployment handbooks are available to assist with: 
                 <itemizedlist>
                     <listitem>
                         <para>&PRODNAME; Deployment </para>
                     </listitem>
                     <listitem>
-                        <para>&PRODNAME; Component Deployments:</para>
+                        <para>&PRODNAME; Filter Deployments:</para>
                         <itemizedlist>
                             <listitem>
                                 <para>Authentication and
@@ -49,6 +49,9 @@
                             </listitem>
                             <listitem>
                                 <para>Translation</para>
+                            </listitem>
+                            <listitem>
+                                <para>Validation</para>
                             </listitem>
                             <listitem>
                                 <para>Versioning</para>
