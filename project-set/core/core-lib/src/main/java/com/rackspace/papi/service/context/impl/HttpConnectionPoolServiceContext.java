@@ -7,6 +7,8 @@ import com.rackspace.papi.service.context.ServiceContext;
 
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import java.net.URL;
  */
 @Component("httpConnectionPoolServiceContext")
 public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClientService> {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolServiceContext.class);
 
     public static final String SERVICE_NAME = "HttpConnectionPoolService";
     public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
@@ -58,7 +61,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-
+        LOG.debug("Initializing context for HTTPConnectionPool");
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, HttpConnectionPoolConfig.class);
 
@@ -67,6 +70,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        LOG.debug("Destroying context for HTTPConnectionPool");
         connectionPoolService.shutdown();
         configurationService.unsubscribeFrom(DEFAULT_CONFIG_NAME, configurationListener);
     }

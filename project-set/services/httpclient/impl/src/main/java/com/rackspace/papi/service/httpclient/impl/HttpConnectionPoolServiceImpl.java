@@ -83,6 +83,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public void shutdown() {
+        LOG.info("Shutting down HTTP connection pools");
         for (HttpClient client : poolMap.values()) {
             client.getConnectionManager().shutdown();
         }
