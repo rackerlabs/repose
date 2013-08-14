@@ -46,4 +46,32 @@ class HeaderParserTest extends ReposeValveTest {
         then: "Repose returns multiple headers after splitting on commas"
         resp.getReceivedResponse().getHeaders().getFirstValue("Multiple-Headers").equals("one")
     }
+
+    def "when client sends a Location header with an un-escaped comma, then Repose should pass it through unchanged"() {
+
+        def locations2 = "/path/to/resource?ids=valueOne,valueTwo"
+
+        when: "Client sends Location header in a request with an un-escaped comma"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: ['Location': locations2])
+
+        then: "Repose should pass the header to the origin service unchanged"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("Location") == 1
+        mc.handlings[0].request.headers["Location"] == locations2
+
+    }
+
+    def "when client sends a Location header with an escaped comma, then Repose should pass it through unchanged"() {
+
+        def locations2 = "/path/to/resource?ids=valueOne%2CvalueTwo"
+
+        when: "Client sends Location header in a request with an un-escaped comma"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: ['Location': locations2])
+
+        then: "Repose should pass the header to the origin service unchanged"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("Location") == 1
+        mc.handlings[0].request.headers["Location"] == locations2
+
+    }
 }
