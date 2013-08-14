@@ -11,7 +11,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.sun.jersey.api.client.ClientHandlerException;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -80,9 +79,6 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                         myEndpoint.getHref() + "\".  User not authorized to access service.");
                 director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
-        } catch (ClientHandlerException ex) {
-            LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         } catch (AuthServiceException ex){
            LOG.error("Failure in authorization component" + ex.getMessage());
            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
