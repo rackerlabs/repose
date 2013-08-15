@@ -106,10 +106,10 @@ public class HeaderFieldParser {
     }
 
     final String[] splitHeaderValues;
-    if (headerName != null && headerName.equalsIgnoreCase("location")) {
+    if (headerName != null && (headerName.equalsIgnoreCase("location") || String.valueOf(headerName.charAt(0)).equalsIgnoreCase("x"))) {
       splitHeaderValues = new String[]{rawHeaderString};
     } else {
-     splitHeaderValues = rawHeaderString.split(",");
+      splitHeaderValues = rawHeaderString.split(",");
     }
 
     for (String splitHeaderValue : splitHeaderValues) {

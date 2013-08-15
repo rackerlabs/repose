@@ -2,6 +2,8 @@ package features.core.powerfilter
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.Header
+import org.rackspace.gdeproxy.HeaderCollection
 import org.rackspace.gdeproxy.Response
 
 
@@ -29,7 +31,7 @@ class HeaderParserTest extends ReposeValveTest {
                 ["Location" : locations], "")}
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["test" : "test"], "", headerResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["x-test" : "test"], "", headerResp)
 
         then: "Repose returns a comma-separated location header"
         resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(locations)
@@ -38,13 +40,14 @@ class HeaderParserTest extends ReposeValveTest {
     def "when expecting a comma-separated header to be split"() {
         given: "Origin service returns a comma-separated header"
         def headerResp = {request -> return new Response(200, "OK",
-                ["Multiple-Headers" : "one,two,three"], "")}
+                ["Allow" : "GET,POST"], "")}
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["test" : "test"], "", headerResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["x-test" : "test"], "", headerResp)
 
         then: "Repose returns multiple headers after splitting on commas"
-        resp.getReceivedResponse().getHeaders().getFirstValue("Multiple-Headers").equals("one")
+        resp.getReceivedResponse().getHeaders().findAll("Allow").get(0).equalsIgnoreCase("GET")
+        resp.getReceivedResponse().getHeaders().findAll("Allow").get(1).equalsIgnoreCase("POST")
     }
 
     def "when client sends a Location header with an un-escaped comma, then Repose should pass it through unchanged"() {
