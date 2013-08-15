@@ -15,6 +15,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     }
 
     def cleanup() {
+        repose.stop()
         deproxy.shutdown()
     }
 
@@ -40,9 +41,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         method | reqHeaders
         "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
-
-        cleanup: "shutdown repose"
-        repose.stop()
     }
 
     def "when translating request headers one-to-one with removal"() {
@@ -66,9 +64,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         method | reqHeaders
         "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
-
-        cleanup: "shutdown repose"
-        repose.stop()
     }
 
     def "when translating request headers one-to-many without removal"() {
@@ -95,9 +90,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         method | reqHeaders
         "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
-
-        cleanup: "shutdown repose"
-        repose.stop()
     }
 
     def "when translating request headers one-to-many with removal"() {
@@ -123,9 +115,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         method | reqHeaders
         "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
-
-        cleanup: "shutdown repose"
-        repose.stop()
     }
 
     def "when translating request headers one-to-none"() {
@@ -147,9 +136,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         method | reqHeaders
         "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
-
-        cleanup: "shutdown repose"
-        repose.stop()
     }
 
 }
