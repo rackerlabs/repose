@@ -18,6 +18,8 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
@@ -164,6 +166,27 @@ public class MetricsServiceImplTest {
             MeterByCategory m = metricsService.newMeterByCategorySum( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
 
             m.mark( MeterByCategorySum.ALL, 2 );
+        }
+
+        @Test
+        public void testServiceDisabled()
+                throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
+
+            metricsService.setEnabled(false);
+            assertFalse(metricsService.isEnabled());
+
+            // Emulate the metrics service being null as a response from the getService() call to MetricsServiceContext
+            // when enabled = false.
+            // This test expands beyond the scope of a unit test since null checks are performed as a part of the
+            // metrics instrumentation pattern. Functional tests should cover the case where enabled = false.
+
+            metricsService.setEnabled(true);
+            assertTrue(metricsService.isEnabled());
         }
     }
 }
