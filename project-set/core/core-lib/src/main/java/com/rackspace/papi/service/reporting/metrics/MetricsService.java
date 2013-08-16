@@ -15,6 +15,10 @@ import java.util.concurrent.TimeUnit;
  */
 public interface MetricsService extends Destroyable{
 
+    public void setEnabled(boolean b);
+
+    public boolean isEnabled();
+
     public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
 
     public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit );

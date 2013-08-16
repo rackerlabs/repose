@@ -106,6 +106,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
             }
          }
 
+         metricsService.setEnabled(metricsC.isEnabled());
          initialized = true;
       }
 
