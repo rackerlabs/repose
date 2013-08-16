@@ -24,7 +24,6 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
     private final MediaTypeNormalizer mediaTypeNormalizer;
     private final MetricsService metricsService;
     private MeterByCategorySum mbcsUriNormalizations;
-    private boolean useMetrics = false;
 
     public UriNormalizationHandler(Collection<QueryParameterNormalizer> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer, MetricsService metricsService) {
         this.queryStringNormalizers = queryStringNormalizers;
@@ -33,8 +32,10 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
 
         // TODO replace "uri-normalization" with filter-id or name-number in sys-model
         if (metricsService != null) {
-            mbcsUriNormalizations = metricsService.newMeterByCategorySum(UriNormalization.class, "uri-normalization", "Normalization", TimeUnit.SECONDS);
-            useMetrics = true;
+            mbcsUriNormalizations = metricsService.newMeterByCategorySum(UriNormalization.class,
+                    "uri-normalization", "Normalization", TimeUnit.SECONDS);
+        } else {
+            mbcsUriNormalizations = null;
         }
     }
 
@@ -56,7 +57,7 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
     private void normalizeUriQuery(HttpServletRequest request, FilterDirector myDirector) {
         for (QueryParameterNormalizer queryParameterNormalizer : queryStringNormalizers) {
             if (queryParameterNormalizer.normalize(request, myDirector)) {
-                if (useMetrics) {
+                if (mbcsUriNormalizations != null) {
                     mbcsUriNormalizations.mark(queryParameterNormalizer.getLastMatch().toString() + "_" + request.getMethod());
                 }
                 break;
