@@ -169,7 +169,7 @@ public class MetricsServiceImplTest {
         }
 
         @Test
-        public void testServiceDisabled()
+        public void testServiceEnabledDisabled()
                 throws
                 MalformedObjectNameException,
                 AttributeNotFoundException,
@@ -179,11 +179,6 @@ public class MetricsServiceImplTest {
 
             metricsService.setEnabled(false);
             assertFalse(metricsService.isEnabled());
-
-            // Emulate the metrics service being null as a response from the getService() call to MetricsServiceContext
-            // when enabled = false.
-            // This test expands beyond the scope of a unit test since null checks are performed as a part of the
-            // metrics instrumentation pattern. Functional tests should cover the case where enabled = false.
 
             metricsService.setEnabled(true);
             assertTrue(metricsService.isEnabled());
