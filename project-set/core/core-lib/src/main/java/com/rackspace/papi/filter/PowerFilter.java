@@ -180,7 +180,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         reportingService = papiContext.reportingService();
         responseHeaderService = papiContext.responseHeaderService();
-        mbcReponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
+        if (papiContext.metricsService() != null) {
+            mbcReponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
+        } else {
+            mbcReponseCodes = null;
+        }
     }
 
     @Override
@@ -251,6 +255,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     }
 
     public static void markResponseCodeHelper(MeterByCategory mbc, int responseCode, Logger log, String logPrefix) {
+        if (mbc == null) {
+            return;
+        }
+
         int code = responseCode / 100;
 
         if (code == 2) {
