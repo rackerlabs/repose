@@ -129,7 +129,7 @@ public class VersioningHandlerTest {
       configurationData = new ConfigurationData(domain, localHost, configuredHosts, configuredMappings);
 
       contentTransformer = mock(ContentTransformer.class);
-      versioningHandler = new VersioningHandler(configurationData, contentTransformer);
+      versioningHandler = new VersioningHandler(configurationData, contentTransformer, null);
       request = mock(HttpServletRequest.class);
    }
 

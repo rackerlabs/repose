@@ -46,6 +46,7 @@
             <version>2.6</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -71,7 +72,7 @@
         <dependency>
             <groupId>org.rackspace</groupId>
             <artifactId>gdeproxy</artifactId>
-            <version>0.9.6</version>
+            <version>0.11</version>
             <scope>test</scope>
         </dependency>
 

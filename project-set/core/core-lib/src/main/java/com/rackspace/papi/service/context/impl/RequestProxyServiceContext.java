@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.ReposeCluster;
@@ -8,12 +9,12 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
 
 @Component("requestProxyServiceContext")
 @Lazy(true)
@@ -67,7 +68,6 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
       Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
       Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
       boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
-      proxyService.updateConfiguration(connectionTimeout, readTimeout, proxyThreadPool, requestLogging);
       isInitialized = true;
     }
 
