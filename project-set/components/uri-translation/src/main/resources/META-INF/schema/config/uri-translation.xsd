@@ -20,17 +20,16 @@
 
         <xs:annotation>
             <xs:documentation>
-                <html:p>List of </html:p>
+                <html:p></html:p>
             </xs:documentation>
         </xs:annotation>
     </xs:complexType>
 
     <xs:complexType name="UriTransform">
 
-        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="id" type="xs:string" use="required"/>
 
-        <xs:attribute name="regex" type="xs:string"/>
+        <xs:attribute name="regex" type="xs:string" use="required"/>
 
-        <!-- assert for capture groups -->
     </xs:complexType>
 </xs:schema>
