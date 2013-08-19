@@ -229,7 +229,6 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().contains("X-Header-C")
         sentRequest.request.getHeaders().contains("X-Header-D")
         sentRequest.request.getHeaders().contains("X-Header-E")
-        sentRequest.request.getHeaders().contains("X-Header-F")
         sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
         sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
         sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
