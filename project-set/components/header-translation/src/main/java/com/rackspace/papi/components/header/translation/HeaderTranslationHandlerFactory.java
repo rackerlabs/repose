@@ -2,21 +2,28 @@ package com.rackspace.papi.components.header.translation;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.header.translation.config.Header;
+import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HeaderTranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderTranslationHandler> {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HeaderTranslationHandlerFactory.class);
     private List<Header> sourceHeaders;
+
+    protected HeaderTranslationHandlerFactory() {
+        sourceHeaders = new ArrayList<Header>();
+    }
 
     @Override
     protected HeaderTranslationHandler buildHandler() {
-        return null;
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderTranslationHandler(sourceHeaders);
     }
 
     @Override
@@ -28,13 +35,13 @@ public class HeaderTranslationHandlerFactory extends AbstractConfiguredFilterHan
         };
     }
 
-    private class HeaderTranslationConfigurationListener implements Override<Override> {
+    private class HeaderTranslationConfigurationListener implements UpdateListener<HeaderTranslationType> {
 
         private boolean isInitialized = false;
 
         @Override
-        public void configurationUpdated(Header header) {
-            sourceHeaders = header.getOriginalName().getHeader();
+        public void configurationUpdated(HeaderTranslationType headerTranslationTypeConfigObject) {
+            sourceHeaders = headerTranslationTypeConfigObject.getHeader();
             isInitialized = true;
         }
 

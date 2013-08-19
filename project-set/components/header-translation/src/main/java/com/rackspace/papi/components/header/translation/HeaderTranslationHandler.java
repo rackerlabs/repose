@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.header.translation;
 
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -9,11 +8,14 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public class HeaderTranslationHandler extends AbstractFilterLogicHandler {
+
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(HeaderTranslationHandler.class);
     private final List<Header> sourceHeaders;
 
     public HeaderTranslationHandler(List<Header> sourceHeaders) {
@@ -24,16 +26,26 @@ public class HeaderTranslationHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
         final FilterDirector filterDirector = new FilterDirectorImpl();
-        HeaderManager headerManager = filterDirector.requestHeaderManager();
+        final HeaderManager headerManager = filterDirector.requestHeaderManager();
         filterDirector.setFilterAction(FilterAction.PASS);
 
-        //change to header name
-        List<ExtractorResult<String>> results = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
+        for (Header sourceHeader : sourceHeaders) {
+            final String originalName = sourceHeader.getOriginalName();
+            final String originalHeaderValue = request.getHeader(originalName);
 
-        for (ExtractorResult<String> result : results) {
-            if(!result.getResult().isEmpty()){
-                headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
-                headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
+            if(StringUtilities.isNotBlank(originalHeaderValue)) {
+
+                for (String newname : sourceHeader.getNewName()) {
+                    headerManager.appendHeader(newname, originalHeaderValue);
+                    LOG.trace("Header added: " + newname);
+                }
+
+                if (sourceHeader.isRemoveOriginal()) {
+                    headerManager.removeHeader(originalName);
+                    LOG.trace("Header removed: " + originalName);
+                }
+            } else {
+                LOG.trace("Header for translation not found: " + originalName);
             }
         }
 

@@ -13,7 +13,10 @@
     <artifactId>header-translation</artifactId>
 
     <name>Repose Components - Header Translation</name>
-    <description>TODO</description>
+    <description>
+        This filter translates headers into one or many separate headers.
+        There is an option to remove the original header.
+    </description>
 
     <packaging>jar</packaging>
 

@@ -10,6 +10,20 @@
 
     <xs:element name="header-translation" type="header-translation:header-translationType"/>
 
+    <xs:complexType name="header-translationType">
+
+        <xs:sequence>
+            <xs:element type="header-translation:header" name="header" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(lower-case(header-translation:header/@original-name)))
+            = count(distinct-values(header-translation:header/@original-name))"
+                   xerces:message="Original names must be unique. Evaluation is case insensitive."
+                   saxon:message="Original names must be unique. Evaluation is case insensitive."/>
+
+    </xs:complexType>
+
     <xs:complexType name="header">
 
         <xs:annotation>
@@ -28,20 +42,6 @@
         <xs:attribute type="header-translation:StringList" name="new-name" use="required"/>
         <xs:attribute type="xs:boolean" name="remove-original" use="optional" default="false"/>
 
-    </xs:complexType>
-
-    <xs:complexType name="header-translationType">
-        
-        <xs:sequence>
-            <xs:element type="header-translation:header" name="header" maxOccurs="unbounded" minOccurs="1"/>
-        </xs:sequence>
-        
-        <xs:assert vc:minVersion="1.1"
-            test="count(distinct-values(lower-case(header-translation:header/@original-name)))
-            = count(distinct-values(header-translation:header/@original-name))"
-            xerces:message="Original names must be unique. Evaluation is case insensitive."
-            saxon:message="Original names must be unique. Evaluation is case insensitive."/>
-        
     </xs:complexType>
 
     <xs:simpleType name="header-string">
