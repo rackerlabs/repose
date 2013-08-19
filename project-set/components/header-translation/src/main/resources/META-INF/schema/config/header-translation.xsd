@@ -17,7 +17,7 @@
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(lower-case(header-translation:header/@original-name)))
+                   test="count(distinct-values(header-translation:header/@original-name))
             = count(distinct-values(header-translation:header/@original-name))"
                    xerces:message="Original names must be unique. Evaluation is case insensitive."
                    saxon:message="Original names must be unique. Evaluation is case insensitive."/>
