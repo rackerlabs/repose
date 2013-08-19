@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/repose/uri-translation/v1.0"
+           xmlns:uri-translation="http://docs.api.rackspacecloud.com/repose/uri-translation/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Client IP Identity Configuration -->
+    <xs:element name="uri-translation" type="uri-translation:UriTranslationConfig"/>
+
+    <xs:complexType name="UriTranslationConfig">
+
+
+        <xs:sequence>
+            <xs:element name="uri-transform" type="uri-translation:UriTransform" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of </html:p>
+            </xs:documentation>
+        </xs:annotation>
+    </xs:complexType>
+
+    <xs:complexType name="UriTransform">
+
+        <xs:attribute name="id" type="xs:string"/>
+
+        <xs:attribute name="regex" type="xs:string"/>
+
+        <!-- assert for capture groups -->
+    </xs:complexType>
+</xs:schema>
