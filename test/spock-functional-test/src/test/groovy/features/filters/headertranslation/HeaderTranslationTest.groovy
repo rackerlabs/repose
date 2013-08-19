@@ -179,13 +179,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
-        sentRequest.request.getHeaders().contains("X-Header-A")
-        sentRequest.request.getHeaders().contains("X-Header-B")
-        sentRequest.request.getHeaders().contains("X-Header-C")
         sentRequest.request.getHeaders().contains("X-Header-D")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
         sentRequest.request.getHeaders().findAll("X-Header-D").contains("a")
         sentRequest.request.getHeaders().findAll("X-Header-D").contains("b")
         sentRequest.request.getHeaders().findAll("X-Header-D").contains("c")
