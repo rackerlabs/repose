@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @RunWith(Enclosed.class)
 public class HeaderTranslationHandlerTest {
 
-    public static class WhenAddingRequestHeaders {
+    public static class WhenAddingRequestRemoveOriginalHeaders {
 
         private HeaderTranslationHandlerFactory factory;
         private HeaderTranslationHandler handler;
@@ -48,8 +48,8 @@ public class HeaderTranslationHandlerTest {
          
             header1=new Header();
             header1.setOriginalName("X-User-Header");
-            header1.getNewName().add("New-Header1");
-            header1.getNewName().add("New-Header2");
+            header1.getNewName().add("new-header1");
+            header1.getNewName().add("new-header2");
             header1.setRemoveOriginal(Boolean.TRUE);
             
             config.getHeader().add(header1);
@@ -73,6 +73,8 @@ public class HeaderTranslationHandlerTest {
                 }
             };
             when(request.getHeaderNames()).thenReturn(e);
+            when(request.getHeader("X-User-Header")).thenReturn("value1");
+        
 
 
         }
@@ -90,13 +92,113 @@ public class HeaderTranslationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertTrue("Filter Director should be set to add headers", 
-                    myDirector.requestHeaderManager().headersToAdd().containsKey("New-Header1"));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey("new-header1"));
             assertTrue("Filter Director should be set to add headers", 
-                    myDirector.requestHeaderManager().headersToAdd().containsKey("New-Header2"));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey("new-header2"));
             
             assertEquals("Filter Director should be set to remove original headers", 
                     myDirector.requestHeaderManager().headersToRemove().size(), 1);
 
+        
+        }
+
+
+    }
+    
+    public static class WhenAddingRequestKeepOriginalHeaders {
+
+        private HeaderTranslationHandlerFactory factory;
+        private HeaderTranslationHandler handler;
+        private HttpServletRequest request;
+        private HeaderTranslationType config;
+        private Header header1;
+        private String requestUri1 = "http://openrepose.org/service/servicection1"; 
+        private String[] requestHeaders = {"X-User-Header", "Accept", "X-Group-Header", "X-Auth-Token"};
+  
+        @Before
+        public void setUp() {
+
+            factory = new HeaderTranslationHandlerFactory();
+           
+            config = new HeaderTranslationType();
+           
+         
+            header1=new Header();
+            header1.setOriginalName("X-User-Header");
+            header1.getNewName().add("new-header1");
+            header1.getNewName().add("new-header2");
+            header1.setRemoveOriginal(Boolean.FALSE);
+            
+            config.getHeader().add(header1);
+            factory.configurationUpdated(config);
+            handler = factory.buildHandler();
+            request = mock(HttpServletRequest.class);
+
+             Enumeration<String> e = new Enumeration<String>() {
+
+                int size = Array.getLength(requestHeaders);
+                int cursor;
+
+                @Override
+                public boolean hasMoreElements() {
+                    return (cursor < size);
+                }
+
+                @Override
+                public String nextElement() {
+                    return (String) Array.get(requestHeaders, cursor++);
+                }
+            };
+            when(request.getHeaderNames()).thenReturn(e);
+            when(request.getHeader("X-User-Header")).thenReturn("value1");
+        
+
+
+        }
+
+        /**
+         * Test of handleRequest method, of class HeaderTranslatioHandler.
+         */
+        @Test
+        public void shouldNotRemoveOriginalHeaderAddNewHeaders() {
+
+            FilterDirector myDirector = new FilterDirectorImpl();
+            when(request.getRequestURI()).thenReturn(requestUri1);
+            when(request.getMethod()).thenReturn("GET");
+
+            myDirector = handler.handleRequest(request, null);
+
+            assertTrue("Filter Director should be set to add headers", 
+                    myDirector.requestHeaderManager().headersToAdd().containsKey("new-header1"));
+            assertTrue("Filter Director should be set to add headers", 
+                    myDirector.requestHeaderManager().headersToAdd().containsKey("new-header2"));
+            
+            assertEquals("Filter Director should be set to remove original headers", 
+                    myDirector.requestHeaderManager().headersToRemove().size(), 0);
+
+        
+        }
+        
+        
+        /**
+         * Test of handleRequest method, of class HeaderTranslatioHandler.
+         */
+        @Test
+        public void shouldNotAddHeadersWhenOriginalNotForund() {
+
+            FilterDirector myDirector = new FilterDirectorImpl();
+    
+            request = mock(HttpServletRequest.class);
+            when(request.getRequestURI()).thenReturn(requestUri1);
+            when(request.getMethod()).thenReturn("GET");
+
+            myDirector = handler.handleRequest(request, null);
+
+            assertFalse("Filter Director should be set to add headers", 
+                    myDirector.requestHeaderManager().headersToAdd().containsKey("new-header1"));
+           
+
+        
         }
 
 
