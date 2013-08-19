@@ -27,7 +27,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
@@ -51,7 +51,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         !sentRequest.request.getHeaders().contains("X-Header-A")
@@ -74,7 +74,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
@@ -100,7 +100,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         !sentRequest.request.getHeaders().contains("X-Header-A")
@@ -125,7 +125,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         !sentRequest.request.getHeaders().contains("X-Header-A")
@@ -146,7 +146,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
@@ -204,7 +204,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
@@ -227,7 +227,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
