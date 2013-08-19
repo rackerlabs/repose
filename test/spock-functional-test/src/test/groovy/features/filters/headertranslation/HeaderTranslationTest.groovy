@@ -242,4 +242,28 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
     }
 
+
+    def "when translating CSL request headers"() {
+        setup: "load the csl configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/csl" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        sentRequest.request.getHeaders().contains("x-rax-username")
+        sentRequest.request.getHeaders().contains("x-rax-tenants")
+        sentRequest.request.getHeaders().contains("x-rax-roles")
+        sentRequest.request.getHeaders().contains("x-pp-user")
+        sentRequest.request.getHeaders().contains("x-tenant-name")
+        sentRequest.request.getHeaders().contains("x-roles")
+
+        where:
+        method | reqHeaders
+        "POST" | ["x-pp-user" : "a", "x-tenant-name" : "b", "x-roles" : "c"]
+        "GET"  | ["x-pp-user" : "a", "x-tenant-name" : "b", "x-roles" : "c"]
+    }
 }
