@@ -22,6 +22,7 @@
                             maxOccurs="1"/>
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
             </xs:all>
 
             <!-- Order matters in 1.0 land :-( -->
@@ -30,6 +31,7 @@
                             maxOccurs="1"/>
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
             </xs:sequence>
 
             <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
@@ -205,6 +207,18 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="ServiceAdminRoles">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of roles to be treated as admins. These roles will not be validated against a tenant.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:simpleType name="format-enumeration">

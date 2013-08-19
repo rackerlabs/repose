@@ -60,9 +60,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
             throw new IllegalArgumentException("Invalid token");
         }
 
-        if (response.getToken().getTenant() == null) {
+        // TODO look at this?
+        /*if (response.getToken().getTenant() == null) {
             throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
-        }
+        }*/
 
         if (response.getUser() == null) {
             throw new IllegalArgumentException("Invalid Response from Auth: Response must have a user object");

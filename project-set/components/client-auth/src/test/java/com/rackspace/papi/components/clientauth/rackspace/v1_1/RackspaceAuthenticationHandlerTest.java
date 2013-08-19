@@ -110,7 +110,7 @@ public class RackspaceAuthenticationHandlerTest {
 
             endpointsConfiguration = new EndpointsConfiguration(null, null, null);
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,
-                    AUTH_USER_CACHE_TTL,0, requestGroups(), endpointsConfiguration);
+                    AUTH_USER_CACHE_TTL,0, requestGroups(), endpointsConfiguration, null);
             handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
             endpointsConfiguration = new EndpointsConfiguration(null, null, null);
             
