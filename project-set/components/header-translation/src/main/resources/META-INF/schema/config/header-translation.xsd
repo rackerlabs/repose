@@ -17,8 +17,9 @@
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(lower-case(header-translation:header/@original-name)))
-            = count(distinct-values(header-translation:header/@original-name))"
+                   test="count(distinct-values(tokenize(lower-case(string-join(
+                   (header-translation:header/@original-name),',')),',')))
+                   = count(distinct-values(header-translation:header/@original-name))"
                    xerces:message="Original names must be unique. Evaluation is case insensitive."
                    saxon:message="Original names must be unique. Evaluation is case insensitive."/>
 
@@ -28,13 +29,15 @@
 
         <xs:annotation>
             <xs:documentation>
-                <html:p>Header translation can be used to change the name of a header and 
-                    optionally remove the original header. </html:p>
+                <html:p>Header translation can be used to change the name of a header and
+                    optionally remove the original header.
+                </html:p>
                 <html:p>To translate a header you provide the old header name and a
                     list of new header names. Original header names are evaluated in a case
-                    insensitive manner. </html:p>
-                <html:p>Optionally you can remove the old header, which is left in by default. </html:p>
-                <html:p>New header names are limited to 64 characters. </html:p>
+                    insensitive manner.
+                </html:p>
+                <html:p>Optionally you can remove the old header, which is left in by default.</html:p>
+                <html:p>New header names are limited to 64 characters.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -55,9 +58,9 @@
 
         <xs:restriction base="xs:string">
             <xs:maxLength value="64"/>
-        </xs:restriction>  
+        </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:simpleType name="StringList">
         <xs:list itemType="header-translation:header-string"/>
     </xs:simpleType>

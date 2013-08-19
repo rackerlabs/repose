@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.header.translation;
 
 
-import com.rackspace.papi.components.header.translation.config.Header;
+import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -32,8 +32,8 @@ public class HeaderTranslationFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         headerTranslationHandlerFactory = new HeaderTranslationHandlerFactory();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/header-identity-configuration.xsd");
-        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, headerTranslationHandlerFactory, Header.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/header-translation.xsd");
+        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, headerTranslationHandlerFactory, HeaderTranslationType.class);
 
     }
 
