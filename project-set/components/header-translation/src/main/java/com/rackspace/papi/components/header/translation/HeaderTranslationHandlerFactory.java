@@ -30,7 +30,7 @@ public class HeaderTranslationHandlerFactory extends AbstractConfiguredFilterHan
     protected Map<Class, UpdateListener<?>> getListeners() {
         return new HashMap<Class, UpdateListener<?>>() {
             {
-                put(Header.class, new HeaderTranslationConfigurationListener());
+                put(HeaderTranslationType.class, new HeaderTranslationConfigurationListener());
             }
         };
     }
