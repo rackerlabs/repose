@@ -132,6 +132,10 @@
             <artifactId>compression</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>header-translation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -242,6 +246,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>compression</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>header-translation</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

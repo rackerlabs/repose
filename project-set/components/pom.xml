@@ -40,6 +40,7 @@
         <module>uri-normalization</module>
         <module>replicated-datastore</module>
         <module>compression</module>
+        <module>header-translation</module>
     </modules>
 
     <dependencyManagement>
@@ -49,6 +50,7 @@
                 <artifactId>rate-limiting-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>echo</artifactId>
@@ -267,6 +269,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>compression</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>header-translation</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
