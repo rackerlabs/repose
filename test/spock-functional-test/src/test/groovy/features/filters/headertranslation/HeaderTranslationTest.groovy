@@ -176,7 +176,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
         sentRequest.request.getHeaders().contains("X-Header-A")
@@ -186,9 +186,9 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
         sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
         sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
-        sentRequest.request.getHeaders().getValues("X-Header-D").contains("a")
-        sentRequest.request.getHeaders().getValues("X-Header-D").contains("b")
-        sentRequest.request.getHeaders().getValues("X-Header-D").contains("c")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("a")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("b")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("c")
 
         where:
         method | reqHeaders
@@ -210,8 +210,8 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().contains("X-Header-A")
         sentRequest.request.getHeaders().contains("X-Header-Existing")
         sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
-        sentRequest.request.getHeaders().getValues("X-Header-Existing").contains("a")
-        sentRequest.request.getHeaders().getValues("X-Header-Existing").contains("b")
+        sentRequest.request.getHeaders().findAll("x-header-existing").contains("a")
+        sentRequest.request.getHeaders().findAll("x-header-existing").contains("b")
 
         where:
         method | reqHeaders
@@ -240,8 +240,8 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
         sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
         sentRequest.request.getHeaders().getFirstValue("X-Header-D").equalsIgnoreCase("a")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-E").contains("b")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-E").contains("c")
+        sentRequest.request.getHeaders().findAll("x-header-e").contains("b")
+        sentRequest.request.getHeaders().findAll("x-header-e").contains("c")
 
         where:
         method | reqHeaders
