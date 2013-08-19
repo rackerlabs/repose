@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-translation>
+    <header original-name="X-Header-A" new-name="X-Header-C" remove-original="true" />
+</header-translation>

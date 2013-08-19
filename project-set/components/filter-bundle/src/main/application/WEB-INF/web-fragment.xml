@@ -118,6 +118,6 @@
 
     <filter>
         <filter-name>header-translation</filter-name>
-        <filter-class>com.rackspace.components.header.translation.HeaderTranslationFilter</filter-class>
+        <filter-class>com.rackspace.papi.components.header.translation.HeaderTranslationFilter</filter-class>
     </filter>
 </web-fragment>
