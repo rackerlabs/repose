@@ -35,9 +35,12 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
   private void setRequestParameters(URIBuilder builder) throws URISyntaxException {
     Enumeration<String> names = sourceRequest.getParameterNames();
 
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            String[] values = sourceRequest.getParameterValues(name);
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      if (name == null || name.equalsIgnoreCase("")) {
+          continue;
+      }
+      String[] values = sourceRequest.getParameterValues(name);
 
       for (String value : values) {
         try {

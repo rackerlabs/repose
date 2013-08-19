@@ -18,7 +18,7 @@ class RequestQueryParamTest extends ReposeValveTest {
 
     def setup() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty(target.port).toInteger())
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
     def cleanup() {
@@ -45,6 +45,12 @@ class RequestQueryParamTest extends ReposeValveTest {
         "/path/to/resource?&"                | "/path/to/resource"                 | "POST"
         "/path/to/resource?=&"               | "/path/to/resource"                 | "GET"
         "/path/to/resource?=&"               | "/path/to/resource"                 | "POST"
+        "/path/to/resource?=&="              | "/path/to/resource"                 | "GET"
+        "/path/to/resource?=&="              | "/path/to/resource"                 | "POST"
+        "/path/to/resource?&=&"              | "/path/to/resource"                 | "GET"
+        "/path/to/resource?&=&"              | "/path/to/resource"                 | "POST"
+        "/path/to/resource?a=12345"          | "/path/to/resource?a=12345"         | "GET"
+        "/path/to/resource?a=12345"          | "/path/to/resource?a=12345"         | "POST"
         "/path/to/resource?&a=12345"         | "/path/to/resource?a=12345"         | "GET"
         "/path/to/resource?&a=12345"         | "/path/to/resource?a=12345"         | "POST"
         "/path/to/resource/?&a=12345"        | "/path/to/resource/?a=12345"        | "GET"
