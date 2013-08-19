@@ -25,6 +25,8 @@ abstract class ReposeValveTest extends Specification {
 
     @Shared def ReposeLogSearch reposeLogSearch
 
+    @Shared def originServiceEndpoint
+
     def setupSpec() {
         properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
@@ -34,6 +36,7 @@ abstract class ReposeValveTest extends Specification {
         reposeEndpoint = properties.getProperty("repose.endpoint")
         logFile = properties.getProperty("repose.log")
         connFramework = "jersey"
+        originServiceEndpoint = "${properties.getProperty("target.hostname")}:${properties.getProperty("target.port")}"
 
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
