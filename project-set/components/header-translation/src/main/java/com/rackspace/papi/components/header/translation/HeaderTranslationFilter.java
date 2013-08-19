@@ -32,7 +32,7 @@ public class HeaderTranslationFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         headerTranslationHandlerFactory = new HeaderTranslationHandlerFactory();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/header-identity-configuration.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/header-translation.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, headerTranslationHandlerFactory, Header.class);
 
     }
