@@ -39,7 +39,7 @@ public class ResponseHeaderContainer implements HeaderContainer {
 
     if (response != null) {
       for (String name : getHeaderNames()) {
-        HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name));
+        HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
         valueMap.put(name, parser.parse());
       }
     }

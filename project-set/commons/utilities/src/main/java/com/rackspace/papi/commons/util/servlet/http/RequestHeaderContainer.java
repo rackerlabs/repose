@@ -41,7 +41,7 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     if (request != null) {
       for (String name : getHeaderNames()) {
-        HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(name));
+        HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(name), name);
         valueMap.put(name, parser.parse());
       }
     }
