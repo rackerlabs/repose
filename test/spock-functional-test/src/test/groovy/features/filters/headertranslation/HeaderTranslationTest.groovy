@@ -138,4 +138,115 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
     }
 
+    def "when translating request headers many-to-many"() {
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/manyToMany" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        sentRequest.request.getHeaders().contains("X-Header-A")
+        sentRequest.request.getHeaders().contains("X-Header-B")
+        sentRequest.request.getHeaders().contains("X-Header-C")
+        sentRequest.request.getHeaders().contains("X-Header-D")
+        sentRequest.request.getHeaders().contains("X-Header-E")
+        sentRequest.request.getHeaders().contains("X-Header-F")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-D").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-E").equalsIgnoreCase("b")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-F").equalsIgnoreCase("c")
+
+        where:
+        method | reqHeaders
+        "POST" | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+        "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+    }
+
+    def "when translating request headers many-to-one"() {
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/manyToOne" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        sentRequest.request.getHeaders().contains("X-Header-A")
+        sentRequest.request.getHeaders().contains("X-Header-B")
+        sentRequest.request.getHeaders().contains("X-Header-C")
+        sentRequest.request.getHeaders().contains("X-Header-D")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
+        sentRequest.request.getHeaders().getValues("X-Header-D").contains("a")
+        sentRequest.request.getHeaders().getValues("X-Header-D").contains("b")
+        sentRequest.request.getHeaders().getValues("X-Header-D").contains("c")
+
+        where:
+        method | reqHeaders
+        "POST" | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+        "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+    }
+
+    def "when translating request headers translating to existing header"() {
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/translatingToExistingHeader" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        sentRequest.request.getHeaders().contains("X-Header-A")
+        sentRequest.request.getHeaders().contains("X-Header-Existing")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getValues("X-Header-Existing").contains("a")
+        sentRequest.request.getHeaders().getValues("X-Header-Existing").contains("b")
+
+        where:
+        method | reqHeaders
+        "POST" | ["X-Header-A" : "a", "X-Header-Existing" : "b"]
+        "GET"  | ["X-Header-A" : "a", "X-Header-Existing" : "b"]
+    }
+
+    def "when translating request headers with mixed case"() {
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/caseSensitivityHeaders" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        sentRequest.request.getHeaders().contains("X-Header-A")
+        sentRequest.request.getHeaders().contains("X-Header-B")
+        sentRequest.request.getHeaders().contains("X-Header-C")
+        sentRequest.request.getHeaders().contains("X-Header-D")
+        sentRequest.request.getHeaders().contains("X-Header-E")
+        sentRequest.request.getHeaders().contains("X-Header-F")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-A").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("c")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-D").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-E").contains("b")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-E").contains("c")
+
+        where:
+        method | reqHeaders
+        "POST" | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+        "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b", "X-Header-C" : "c"]
+    }
+
 }
