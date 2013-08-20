@@ -9,18 +9,22 @@ import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriNormalizationHandler> {
-
+    private final MetricsService metricsService;
     private Collection<QueryParameterNormalizer> queryStringNormalizers;
     private MediaTypeNormalizer mediaTypeNormalizer;
 
-    private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
+    public UriNormalizationHandlerFactory(MetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
 
+    private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
         private boolean isInitialized = false;
 
         @Override
@@ -76,7 +80,7 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
             return null;
         }
 
-        return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer);
+        return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer, metricsService);
 
     }
 }

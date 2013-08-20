@@ -9,10 +9,13 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.impl.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.impl.distributed.config.Port;
+import com.rackspace.papi.service.datastore.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -26,6 +29,11 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
    private DistributedDatastoreConfiguration distributedDatastoreConfiguration;
    private ReposeInstanceInfo instanceInfo;
    private DistributedDatastoreConfigurationListener distributedDatastoreConfigurationListener;
+
+    @Autowired
+    @Qualifier("distributedDatastoreServletContextManager")
+    private DistributedDatastoreServletContextManager manager;
+
    private int datastorePort;
    private final Object configLock = new Object();
    private DatastoreService datastoreService;
@@ -82,7 +90,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
       URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
       configurationManager.subscribeTo("", "dist-datastore.cfg.xml", xsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
       this.datastoreService = datastoreService;
-      builder = new DistributedDatastoreJettyServerBuilder(datastorePort, instanceInfo, configDirectory);
+      builder = new DistributedDatastoreJettyServerBuilder(datastorePort, instanceInfo, configDirectory, manager);
 
 
    }
