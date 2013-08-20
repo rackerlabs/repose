@@ -55,8 +55,8 @@ public final class HeaderValuesImpl implements HeaderValues {
         headers.putAll(headerMap);
     }
 
-    private List<HeaderValue> parseHeaderValues(String value) {
-        HeaderFieldParser parser = new HeaderFieldParser(value);
+    private List<HeaderValue> parseHeaderValues(String value, String headerName) {
+        HeaderFieldParser parser = new HeaderFieldParser(value, headerName);
 
         return parser.parse();
     }
@@ -71,7 +71,7 @@ public final class HeaderValuesImpl implements HeaderValues {
             headerValues = new LinkedList<HeaderValue>();
         }
 
-        headerValues.addAll(parseHeaderValues(value));
+        headerValues.addAll(parseHeaderValues(value, lowerCaseName));
 
         headers.put(lowerCaseName, headerValues);
     }
@@ -80,7 +80,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     public void replaceHeader(String name, String value) {
         final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-        headerValues.addAll(parseHeaderValues(value));
+        headerValues.addAll(parseHeaderValues(value, name));
 
         headers.put(name.toLowerCase(), headerValues);
     }
