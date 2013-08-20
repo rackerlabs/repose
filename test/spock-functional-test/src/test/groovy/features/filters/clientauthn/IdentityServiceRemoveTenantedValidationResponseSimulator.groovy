@@ -34,8 +34,8 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
     boolean isGetGroupsBroken = false;
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
-    boolean isTenantInServiceAdminRole = false;
-    boolean isTenantStatic = false;
+    boolean isTenantMatch = false;
+    boolean doesTenantHaveAdminRoles = false;
 
     def port = 12200
     def origin_service_port = 10001
@@ -150,12 +150,14 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
         if (ok) {
             code = 200;
             if (xml) {
-                if(isTenantInServiceAdminRole)
+                if(doesTenantHaveAdminRoles && isTenantMatch)
                     template = identitySuccessXmlWithServiceAdminTemplate
-                else if(isTenantStatic)
+                else if (!doesTenantHaveAdminRoles && isTenantMatch)
+                    template = identitySuccessXmlWithoutServiceAdminTemplate
+                else if (doesTenantHaveAdminRoles && !isTenantMatch)
                     template = identitySuccessXmlWithServiceAdminDifferentTenantTemplate
                 else
-                    template = identitySuccessXmlWithoutServiceAdminTemplate
+                    template = identitySuccessXmlWithoutServiceAdminDifferentTenantTemplate
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -512,10 +514,10 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
         xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
         xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
-    <token id="\${token}"
+    <token id="9999999"
            expires="\${expires}">
-        <tenant id="\${tenant}"
-                name="\${tenant}"/>
+        <tenant id="9999999"
+                name="9999999"/>
     </token>
     <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
           id="\${userid}"
@@ -536,6 +538,60 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
                   name="service:admin-role2"
                   description="A Role that allows a user to auth without belongsto"
                   serviceId="0000000000000000000000000000000000000003"
+                  tenantId="999999"/>
+            <role id="5"
+                  name="object-store:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="999999"/>
+        </roles>
+    </user>
+    <serviceCatalog>
+        <service type="rax:object-cdn"
+                 name="cloudFilesCDN">
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+        </service>
+        <service type="object-store"
+                 name="cloudFiles">
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+        </service>
+    </serviceCatalog>
+</access>
+"""
+
+    def identitySuccessXmlWithoutServiceAdminDifferentTenantTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
+    <token id="9999999"
+           expires="\${expires}">
+        <tenant id="9999999"
+                name="9999999"/>
+    </token>
+    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+          id="\${userid}"
+          name="\${username}"
+          rax-auth:defaultRegion="the-default-region">
+        <roles>
+            <role id="684"
+                  name="compute:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000001"
                   tenantId="999999"/>
             <role id="5"
                   name="object-store:default"
