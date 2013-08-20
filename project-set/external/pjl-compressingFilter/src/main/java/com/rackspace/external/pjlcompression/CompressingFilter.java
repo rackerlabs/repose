@@ -15,6 +15,7 @@
  */
 package com.rackspace.external.pjlcompression;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import javax.servlet.Filter;
@@ -213,7 +214,7 @@ public final class CompressingFilter implements Filter {
            FilterChain chain) throws IOException, ServletException {
        if (isForRepose) {
            // Remove 'Content-Encoding' header when value is identity
-           if (((HttpServletRequest) request).getHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER).equalsIgnoreCase(CompressingStreamFactory.NO_ENCODING) ) {
+           if(StringUtilities.nullSafeEqualsIgnoreCase(((HttpServletRequest) request).getHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER), CompressingStreamFactory.NO_ENCODING)){
                request = MutableHttpServletRequest.wrap((HttpServletRequest) request);
                ((MutableHttpServletRequest)request).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
            }
