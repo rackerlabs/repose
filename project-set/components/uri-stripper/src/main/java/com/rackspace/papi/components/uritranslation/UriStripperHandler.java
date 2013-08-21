@@ -103,14 +103,10 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
             // now do logic to put back the prev and post tokens
 
-            if (uri.contains(prevToken) && uri.contains(nextToken)) {
+            if (uri.contains(prevToken)) {
 
                 //Case 1 both prev and next are present and they are next to each other
                 //Case 2 both prev and next are present, but they are not next to each other
-                uri.add(uri.indexOf(prevToken) + 1, token);
-            } else if (uri.contains(prevToken)) {
-                //Case 3 prev text is present, next text is not present
-
                 uri.add(uri.indexOf(prevToken) + 1, token);
             } else if (uri.contains(nextToken)) {
                 //Case 4 next text is present, prev text is not present
