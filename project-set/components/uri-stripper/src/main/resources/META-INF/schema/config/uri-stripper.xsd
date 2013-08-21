@@ -20,8 +20,15 @@
         </xs:annotation>
         <xs:attribute name="rewriteLocation" type="xs:boolean" use="required"/>
 
-        <xs:attribute name="position" type="xs:int" use="required"/>
+        <xs:attribute name="position" type="uri-stripper:nonNegativeInt" use="required"/>
 
     </xs:complexType>
+
+    <xs:simpleType name="nonNegativeInt">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
 
 </xs:schema>
