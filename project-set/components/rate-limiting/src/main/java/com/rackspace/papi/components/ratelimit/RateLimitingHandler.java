@@ -70,7 +70,11 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             // Record limits
             pass = recordLimitedRequest(request, director);
         } catch (DatastoreOperationException doe) {
+            // NOTE: The distributed datastore service should handle the case where a remote datastore cannot be reached
+            // by using the local datastore, but the changes below have been made to serve as a hotfix.
             LOG.error("Unable to communicate with dist-datastore.", doe.getMessage());
+            // LOG.info("Attempting to use a local datastore");
+            // TODO use local datastore when DD cannot be reached
             response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
 
