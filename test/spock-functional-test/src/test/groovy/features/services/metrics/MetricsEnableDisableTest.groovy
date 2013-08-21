@@ -68,7 +68,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
     def "when metrics config is missing, reporting should occur"() {
 
-        setup: "load the correct configuration file"
+        setup: "only load the common configuration files"
         repose.applyConfigs( "features/services/metrics/common" )
         repose.start()
 
