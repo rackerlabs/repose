@@ -15,6 +15,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
+    boolean adminOk = true;
     int validateTokenCount = 0;
     int groupsCount = 0;
     int adminTokenCount = 0;
@@ -124,10 +125,10 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
                 token: request_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, ok);
     }
 
-    Response handleTokenCallBase(Request request, params) {
+    Response handleTokenCallBase(Request request, params, isAuthed) {
 
         def xml = false
 
@@ -147,7 +148,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        if (ok) {
+        if (isAuthed) {
             code = 200;
             if (xml) {
                 if(doesTenantHaveAdminRoles && isTenantMatch)
@@ -235,7 +236,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
                 token: admin_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, adminOk);
     }
 
     Response handleEndpointsCall(Request request) {

@@ -85,6 +85,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -125,12 +126,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
             mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
         }
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | true        | false               | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | false       | true                | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | "401"        | 0         | 2                 | 1                       | 0
-        123       | false       | false               | false    | "500"        | 0         | 1                 | 1                       | 0
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "401"        | 0         | 2                 | 1                       | 0
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
 
 
     }
@@ -151,6 +153,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -174,12 +177,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 0
-        123       | true        | false               | true     | "200"        | 1         | 0
-        123       | false       | true                | true     | "200"        | 1         | 0
-        123       | false       | false               | true     | "200"        | 1         | 0
-        123       | false       | false               | false    | "200"        | 1         | 0
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 0
+        123       | true        | false               | true     | true          | "200"        | 1         | 0
+        123       | false       | true                | true     | true          | "200"        | 1         | 0
+        123       | false       | false               | true     | true          | "200"        | 1         | 0
+        123       | false       | false               | false    | true          | "200"        | 1         | 0
+        123       | false       | false               | true     | false         | "200"        | 1         | 0
 
     }
 
@@ -199,6 +203,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -235,12 +240,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | true        | false               | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | false       | true                | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | "401"        | 0         | 2                 | 1                       | 0
-        123       | false       | false               | false    | "500"        | 0         | 1                 | 1                       | 0
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "401"        | 0         | 2                 | 1                       | 0
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
     }
 
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching"() {
@@ -259,6 +265,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -300,12 +307,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | true        | false               | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | false       | true                | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | false    | "200"        | 1         | 1                 | 1                       | 1
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | false    | true          | "200"        | 1         | 2                 | 1                       | 1
+        123       | false       | false               | true     | false         | "200"        | 1         | 1                 | 1                       | 1
     }
 
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching"() {
@@ -324,6 +332,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -363,12 +372,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | true        | false               | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | false       | true                | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | false    | "200"        | 1         | 1                 | 1                       | 1
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | false    | true          | "200"        | 1         | 2                 | 1                       | 1
+        123       | false       | false               | true     | false         | "200"        | 1         | 1                 | 1                       | 1
 
     }
 
@@ -388,6 +398,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
@@ -424,12 +435,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        123       | true        | true                | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | true        | false               | true     | "200"        | 1         | 3                 | 0                       | 1
-        123       | false       | true                | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | false    | "500"        | 0         | 1                 | 1                       | 0
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200" /* non tenanted */        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
 
     }
 }
