@@ -11,6 +11,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
 
     int stripId;
+    boolean rewriteLocation;
 
     protected UriStripperHandlerFactory() {
     }
@@ -20,7 +21,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
         if (!this.isInitialized()) {
             return null;
         }
-        return new UriStripperHandler(stripId);
+        return new UriStripperHandler(stripId,rewriteLocation);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
         public void configurationUpdated(UriStripperConfig config) {
 
             stripId = config.getPosition();
+            rewriteLocation = config.isRewriteLocation();
             isInitialized = true;
 
         }

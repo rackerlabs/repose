@@ -25,15 +25,18 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
 
     int stripId;
+    boolean rewriteLocation;
     String prevToken, nextToken, token;
     public static final String URI_DELIMITER = "/";
     public static final String QUERY_PARAM_INDICATOR = "?";
     StringBuilder preText, postText;
     String locationHeader;
 
-    public UriStripperHandler(int stripId) {
+    public UriStripperHandler(int stripId, boolean rewriteLocation) {
 
+        this.rewriteLocation = rewriteLocation;
         this.stripId = stripId;
+
         this.preText = new StringBuilder();
         this.postText = new StringBuilder();
 
@@ -67,7 +70,9 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             // strip out configured item
 
             token = uriList.remove(stripId);
-            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+            if (rewriteLocation) {
+                filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+            }
         }
 
         filterDirector.setRequestUri(StringUriUtilities.formatUri(StringUtils.join(uriList.iterator(), URI_DELIMITER)));
@@ -116,7 +121,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             //Rebuild location header
             StringBuilder newLoc = new StringBuilder(preText).append(StringUriUtilities.formatUri(StringUtils.join(uri.iterator(), URI_DELIMITER)));
 
-            if(postText.length() != 0 ){
+            if (postText.length() != 0) {
                 newLoc.append("?").append(postText);
             }
             filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.LOCATION.toString(), newLoc.toString());
@@ -157,8 +162,8 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         if (locationHeader.indexOf(QUERY_PARAM_INDICATOR) != -1) { //boo query parameters :(
 
-            postText = new StringBuilder(locationHeader.substring(locationHeader.indexOf('?')+1, locationHeader.length()));
-            locationHeader = locationHeader.substring(0,locationHeader.indexOf(QUERY_PARAM_INDICATOR));
+            postText = new StringBuilder(locationHeader.substring(locationHeader.indexOf('?') + 1, locationHeader.length()));
+            locationHeader = locationHeader.substring(0, locationHeader.indexOf(QUERY_PARAM_INDICATOR));
         }
     }
 

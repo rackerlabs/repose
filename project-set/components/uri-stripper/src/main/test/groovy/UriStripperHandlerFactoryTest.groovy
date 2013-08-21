@@ -2,6 +2,7 @@ package com.rackspace.papi.components.uritranslation
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig
+import com.rackspace.papi.filter.logic.FilterAction
 import com.rackspace.papi.filter.logic.FilterDirector
 import org.junit.Before
 import org.junit.Ignore
@@ -24,7 +25,7 @@ class UriStripperHandlerFactoryTest {
     void setUp() {
 
         conf = new UriStripperConfig()
-        conf.setId("1")
+        conf.setRewriteLocation(true)
         conf.setPosition(1)
 
         factory = new UriStripperHandlerFactory();
@@ -49,6 +50,7 @@ class UriStripperHandlerFactoryTest {
         assert handler.prevToken == "v1"
         assert handler.nextToken == "path"
         assert director.getRequestUri() == "/v1/path/to/resource"
+        assert director.getFilterAction() == FilterAction.PROCESS_RESPONSE
 
 
     }
