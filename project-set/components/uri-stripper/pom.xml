@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>uri-translation</artifactId>
+    <artifactId>uri-stripper</artifactId>
 
     <name>Repose Components - URI Translation</name>
     <description>TODO</description>

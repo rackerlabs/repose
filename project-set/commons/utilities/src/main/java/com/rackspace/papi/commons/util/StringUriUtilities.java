@@ -109,6 +109,17 @@ public final class StringUriUtilities {
         return externalName.toString();
     }
 
+    public static String formatUriNoLead(String uri){
+
+        StringBuilder externalName = new StringBuilder(formatUri(uri));
+
+        if(externalName.charAt(0) == '/'){
+            externalName.deleteCharAt(0);
+        }
+
+        return externalName.toString();
+    }
+
     public static String encodeUri(String uri) {
 
         String encodedUri = "";
