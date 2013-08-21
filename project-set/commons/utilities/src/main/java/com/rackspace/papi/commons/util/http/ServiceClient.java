@@ -2,12 +2,7 @@ package com.rackspace.papi.commons.util.http;
 
 
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -15,12 +10,12 @@ import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 
-import com.sun.jersey.client.urlconnection.HTTPSProperties;
+
 import java.util.Map.Entry;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.http.client.HttpClient;
 /**
  * @author fran
  */
@@ -30,11 +25,7 @@ public class ServiceClient {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
     private static final int TIMEOUT = 30000;
 
-    private final Client client;
-
-    public ServiceClient(Client client) {
-        this.client = client;
-    }
+    private HttpClientService httpClientService;
 
     public ServiceClient(String username, String password) {
         this(new HTTPBasicAuthFilter(username, password));
@@ -59,6 +50,7 @@ public class ServiceClient {
             LOG.error("Error when setting Jersey HTTPS properties", e);
         }
 
+        HttpClient client = httpClientService.getClient(null);
         client = Client.create(cc);
 
         if (httpBasicAuthFilter != null) {
