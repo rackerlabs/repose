@@ -114,7 +114,11 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             }
 
             //Rebuild location header
-            StringBuilder newLoc = new StringBuilder(preText).append(StringUriUtilities.formatUri(StringUtils.join(uri.iterator(), URI_DELIMITER))).append(QUERY_PARAM_INDICATOR).append(postText);
+            StringBuilder newLoc = new StringBuilder(preText).append(StringUriUtilities.formatUri(StringUtils.join(uri.iterator(), URI_DELIMITER)));
+
+            if(postText.length() != 0 ){
+                newLoc.append("?").append(postText);
+            }
             filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.LOCATION.toString(), newLoc.toString());
         }
 
@@ -142,8 +146,10 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             }
 
             postText = new StringBuilder(StringUtilities.getNonBlankValue(url.getQuery(), ""));
-        } catch (MalformedURLException ex) {
 
+
+        } catch (MalformedURLException ex) {
+            LOG.warn("Location header is not a valid url");
         }
     }
 
@@ -151,7 +157,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         if (locationHeader.indexOf(QUERY_PARAM_INDICATOR) != -1) { //boo query parameters :(
 
-            postText = new StringBuilder(locationHeader.substring(locationHeader.indexOf('?'), locationHeader.length()));
+            postText = new StringBuilder(locationHeader.substring(locationHeader.indexOf('?')+1, locationHeader.length()));
             locationHeader = locationHeader.substring(0,locationHeader.indexOf(QUERY_PARAM_INDICATOR));
         }
     }
