@@ -24,7 +24,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(UriStripperHandler.class);
 
 
-    int stripId, prevId, nextId;
+    int stripId;
     boolean rewriteLocation;
     String prevToken, nextToken, token;
     public static final String URI_DELIMITER = "/";
@@ -36,8 +36,6 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         this.rewriteLocation = rewriteLocation;
         this.stripId = stripId;
-        this.prevId = stripId - 1;
-        this.nextId = stripId + 1;
 
         this.preText = new StringBuilder();
         this.postText = new StringBuilder();
@@ -57,21 +55,15 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
 
         if (uriList.size() > stripId) {
-
             //Preserve the tokens before and after the stripped token
-
             if (uriList.size() > stripId + 1) {
                 nextToken = uriList.get(stripId + 1);
             }
-
             // stripId=0 means we're stripping out the first token in the resource path. No need to grab that info
             if (stripId != 0 && 1 < uriList.size()) {
-
                 prevToken = uriList.get(stripId - 1);
             }
-
             // strip out configured item
-
             token = uriList.remove(stripId);
             if (rewriteLocation) {
                 filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
@@ -102,7 +94,6 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
                 LOG.warn("Unable to parse Location header. Location header is malformed URl", ex.getMessage());
                 return filterDirector;
             }
-
 
             List<String> uri = getUriAsDelimitedList(locationHeader);
 
