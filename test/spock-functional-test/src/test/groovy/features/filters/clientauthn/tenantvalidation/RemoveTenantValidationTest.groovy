@@ -84,46 +84,56 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 3
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
-        request2.headers.contains("x-auth-token")
-        request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == "Confirmed"
-        request2.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
+        System.out.println(mc)
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            def request2 = mc.handlings[0].request
+            request2.headers.contains("X-Default-Region")
+            request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+            request2.headers.contains("x-auth-token")
+            request2.headers.contains("x-identity-status")
+            request2.headers.contains("x-authorization")
+            request2.headers.getFirstValue("x-identity-status") == "Confirmed"
+            request2.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
+        }
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
-
+        mc.receivedResponse.code == responseCode
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.handlings.size() == cachedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            mc.handlings[0].request.headers.contains("X-Default-Region")
+            mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "401"        | 0         | 2                 | 1                       | 0
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
+
 
     }
 
@@ -142,20 +152,22 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 0
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("x-auth-token")
@@ -165,10 +177,13 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 0
+        123       | true        | false               | true     | true          | "200"        | 1         | 0
+        123       | false       | true                | true     | true          | "200"        | 1         | 0
+        123       | false       | false               | true     | true          | "200"        | 1         | 0
+        123       | false       | false               | false    | true          | "200"        | 1         | 0
+        123       | false       | false               | true     | false         | "200"        | 1         | 0
 
     }
 
@@ -187,43 +202,51 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
-        when: "User passes a request through repose with tenant in service admin role = " + tenantInServiceAdminRole + " and tenant returned equal = " + tenantStatic
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         fakeIdentityService.client_userid = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 3
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            def request2 = mc.handlings[0].request
+            request2.headers.contains("X-Default-Region")
+            request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.handlings.size() == cachedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            mc.handlings[0].request.headers.contains("X-Default-Region")
+            mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
-
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "401"        | 0         | 2                 | 1                       | 0
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
     }
 
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching"() {
@@ -241,48 +264,56 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
-        when: "User passes a request through repose with tenant in service admin role = " + tenantInServiceAdminRole + " and tenant returned equal = " + tenantStatic
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         fakeIdentityService.client_userid = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 3
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
-        request2.headers.contains("x-auth-token")
-        request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == "Confirmed"
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            def request2 = mc.handlings[0].request
+            request2.headers.contains("X-Default-Region")
+            request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+            request2.headers.contains("x-auth-token")
+            request2.headers.contains("x-identity-status")
+            request2.headers.contains("x-authorization")
+            request2.headers.getFirstValue("x-identity-status") == "Confirmed"
+            request2.headers.getFirstValue("x-authorization") == "Proxy"
+        }
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.handlings.size() == cachedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            mc.handlings[0].request.headers.contains("X-Default-Region")
+            mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
-
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | false    | true          | "200"        | 1         | 2                 | 1                       | 1
+        123       | false       | false               | true     | false         | "200"        | 1         | 1                 | 1                       | 1
     }
 
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching"() {
@@ -300,45 +331,54 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 3
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
-        request2.headers.contains("x-identity-status")
-        request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == "Confirmed"
-        request2.headers.getFirstValue("x-authorization") == "Proxy"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            def request2 = mc.handlings[0].request
+            request2.headers.contains("X-Default-Region")
+            request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+            request2.headers.contains("x-identity-status")
+            request2.headers.contains("x-authorization")
+            request2.headers.getFirstValue("x-identity-status") == "Confirmed"
+            request2.headers.getFirstValue("x-authorization") == "Proxy"
+        }
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.handlings.size() == cachedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            mc.handlings[0].request.headers.contains("X-Default-Region")
+            mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | false    | true          | "200"        | 1         | 2                 | 1                       | 1
+        123       | false       | false               | true     | false         | "200"        | 1         | 1                 | 1                       | 1
 
     }
 
@@ -357,42 +397,51 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
 
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
-        when: "User passes a request through repose with tenant in service admin role = " + tenantInServiceAdminRole + " and tenant returned equal = " + tenantStatic
-        fakeIdentityService.isTenantInServiceAdminRole = tenantInServiceAdminRole
-        fakeIdentityService.isTenantStatic = tenantStatic
+        when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
+        fakeIdentityService.isTenantMatch = tenantMatch
+        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
         fakeIdentityService.client_userid = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 3
-        mc.handlings[0].endpoint == originEndpoint
-        def request2 = mc.handlings[0].request
-        request2.headers.contains("X-Default-Region")
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == handlings
+        mc.orphanedHandlings.size() == orphanedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            def request2 = mc.handlings[0].request
+            request2.headers.contains("X-Default-Region")
+            request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint  + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        mc.receivedResponse.code == responseCode
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.handlings.size() == cachedHandlings
+        if(mc.handlings.size() > 0){
+            mc.handlings[0].endpoint == originEndpoint
+            mc.handlings[0].request.headers.contains("X-Default-Region")
+            mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        }
 
         where:
-        reqTenant | tenantInServiceAdminRole | tenantStatic
-        123       | false                    | false
-        123       | false                    | true
-        123       | true                     | false
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | true          | "200" /* non tenanted */        | 1         | 3                 | 1                       | 1
+        123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
 
     }
 }
