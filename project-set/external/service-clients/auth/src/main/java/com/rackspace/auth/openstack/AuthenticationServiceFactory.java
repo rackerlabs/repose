@@ -30,6 +30,6 @@ public class AuthenticationServiceFactory {
       return new AuthenticationServiceClient(targetHostUri, username, password, tenantId,
               new ResponseUnmarshaller(coreJaxbContext),
               new ResponseUnmarshaller(groupJaxbContext),
-              new ServiceClient());
+              new ServiceClient(targetHostUri, username, password));
    }
 }

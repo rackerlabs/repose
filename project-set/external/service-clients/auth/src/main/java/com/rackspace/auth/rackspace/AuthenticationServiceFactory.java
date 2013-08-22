@@ -28,6 +28,6 @@ public class AuthenticationServiceFactory {
                  + e.getMessage(), e);
       }
 
-      return new AuthenticationServiceClient(targetHostUri, new ResponseUnmarshaller(jaxbContext), new ServiceClient(authFilter));
+      return new AuthenticationServiceClient(targetHostUri, new ResponseUnmarshaller(jaxbContext), new ServiceClient(targetHostUri,username,password));
    }
 }

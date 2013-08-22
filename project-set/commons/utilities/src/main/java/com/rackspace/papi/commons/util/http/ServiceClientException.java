@@ -1,11 +1,11 @@
 package com.rackspace.papi.commons.util.http;
 
+import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
+
 /**
- * Created with IntelliJ IDEA.
- * User: kush5342
- * Date: 8/21/13
- * Time: 3:49 PM
- * To change this template use File | Settings | File Templates.
- */
-public class ServiceClientException {
+ Custom exception to handle apache http client exceptions in Serviceclient
+**/
+public class ServiceClientException extends Throwable {
+    public ServiceClientException(String s, HttpClientNotFoundException e) {
+    }
 }
