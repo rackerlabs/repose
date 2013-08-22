@@ -24,7 +24,6 @@ public class MetricsServiceContextTest {
 
         @Before
         public void setUp() {
-            // TODO Can I mock interface classes?
             serviceRegistry = mock(ServiceRegistry.class);
             configurationService = mock(ConfigurationService.class);
             metricsService = mock(MetricsService.class);
