@@ -58,27 +58,29 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         !((Handling) sentRequest).request.path.contains(tenantId)
 
         where:
-        requestPath                               | locationheader                                                  | containsTenant
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource"           | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource"           | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource"              | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?a=b"       | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource?a=b"       | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource?a=b"          | true
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/////path////to////resource" | true
-        "/v1////${tenantId}/path/to///resource"   | "http://${originServiceEndpoint}/v1/path/to/resource"           | true
+        requestPath                               | locationheader                                                              | containsTenant
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource"                       | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource"                       | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource"                          | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?a=b"                   | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?a=b,c,d,e"             | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource?a=b"                   | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource?a=b"                      | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/////path////to////resource"             | true
+        "/v1////${tenantId}/path/to///resource"   | "http://${originServiceEndpoint}/v1/path/to/resource"                       | true
 
-        "/v1/${tenantId}/path/////to////resource" | "/v1/path/to/resource"                                          | true
-        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource"                                          | true
-        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource"                                          | true
-        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource"                                             | true
-        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?a=b"                                      | true
-        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource?a=b"                                      | true
-        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource?a=b"                                         | true
+        "/v1/${tenantId}/path/////to////resource" | "/v1/path/to/resource"                                                      | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource"                                                      | true
+        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource"                                                      | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource"                                                         | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?a=b"                                                  | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?a=b,c,d,e,f"                                          | true
+        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource?a=b"                                                  | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource?a=b"                                                     | true
 
-        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/no/relation/resource"          | false
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/no/relation/resource"                      | false
 
-        "/v1/${tenantId}/path/to/resource"        | "httdfjklsajfkdsfp://${originServiceEndpoint}/v1/path/to/resource/#\$%^&*("  | false
+        "/v1/${tenantId}/path/to/resource"        | "httdfjklsajfkdsfp://${originServiceEndpoint}/v1/path/to/resource/#\$%^&*(" | false
 
 
     }

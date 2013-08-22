@@ -1,19 +1,16 @@
-package com.rackspace.papi.components.uristripper;
-
+package com.rackspace.papi.components.uristripper
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig
 import com.rackspace.papi.filter.logic.FilterAction
 import com.rackspace.papi.filter.logic.FilterDirector
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 class UriStripperHandlerFactoryTest {
 

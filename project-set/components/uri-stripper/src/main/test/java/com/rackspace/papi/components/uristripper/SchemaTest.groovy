@@ -9,11 +9,8 @@ import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertThat
+import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.containsString
-
 
 class SchemaTest {
 

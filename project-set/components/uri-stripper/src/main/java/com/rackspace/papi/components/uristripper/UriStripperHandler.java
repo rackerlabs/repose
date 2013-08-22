@@ -50,9 +50,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         filterDirector.setFilterAction(FilterAction.PASS);
 
-
         List<String> uriList = getUriAsDelimitedList(request.getRequestURI());
-
 
         if (uriList.size() > stripId) {
             //Preserve the tokens before and after the stripped token
@@ -88,10 +86,15 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
             locationHeader = response.getHeader(CommonHttpHeader.LOCATION.toString());
 
+            if(locationHeader.contains(token)){
+                LOG.debug("Stripped token already present in Location Header");
+                return filterDirector;
+            }
+
             try {
                 extractPreAndPostTexts(locationHeader);
             } catch (URISyntaxException ex) {
-                LOG.warn("Unable to parse Location header. Location header is malformed URl", ex.getMessage());
+                LOG.warn("Unable to parse Location header. Location header is malformed URI", ex.getMessage());
                 return filterDirector;
             }
 
@@ -114,7 +117,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             StringBuilder newLoc = new StringBuilder(preText).append(StringUriUtilities.formatUri(StringUtils.join(uri.iterator(), URI_DELIMITER)));
 
             if (postText.length() != 0) {
-                newLoc.append("?").append(postText);
+                newLoc.append(QUERY_PARAM_INDICATOR).append(postText);
             }
             filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.LOCATION.toString(), newLoc.toString());
         }
@@ -132,6 +135,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
         return uriList;
     }
 
+
     private void extractPreAndPostTexts(String locationUrl) throws URISyntaxException {
 
         URI uri = new URI(locationUrl);
@@ -139,9 +143,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
         if(uri.getScheme() != null){
             extractPreText(uri);
         }
-
         postText = new StringBuilder(StringUtilities.getNonBlankValue(uri.getQuery(), ""));
-
 
     }
 
