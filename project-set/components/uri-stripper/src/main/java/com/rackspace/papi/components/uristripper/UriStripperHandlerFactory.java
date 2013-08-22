@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.uritranslation;
+package com.rackspace.papi.components.uristripper;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig;

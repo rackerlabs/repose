@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.uritranslation
+package com.rackspace.papi.components.uristripper
 
 import org.junit.Before
 import org.junit.Test

@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>uri-stripper</artifactId>
 
-    <name>Repose Components - URI Translation</name>
+    <name>Repose Components - URI Stripper</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
@@ -56,6 +56,19 @@
                 </configuration>
             </plugin>
                         
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>buildGroovies</id>
+                        <goals>
+                            <goal>generateTestStubs</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

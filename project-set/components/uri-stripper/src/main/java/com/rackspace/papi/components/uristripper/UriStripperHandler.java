@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.uritranslation;
+package com.rackspace.papi.components.uristripper;
 
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -13,8 +13,8 @@ import org.jvnet.jaxb2_commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(UriStripperHandler.class);
 
 
-    int stripId;
+    int stripId, prevId, nextId;
     boolean rewriteLocation;
     String prevToken, nextToken, token;
     public static final String URI_DELIMITER = "/";
@@ -36,6 +36,8 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
         this.rewriteLocation = rewriteLocation;
         this.stripId = stripId;
+        this.prevId = stripId - 1;
+        this.nextId = stripId + 1;
 
         this.preText = new StringBuilder();
         this.postText = new StringBuilder();
@@ -52,6 +54,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
 
         List<String> uriList = getUriAsDelimitedList(request.getRequestURI());
+
 
         if (uriList.size() > stripId) {
 
@@ -92,12 +95,14 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
                 || StringUtilities.isNotBlank(nextToken))) {
 
             locationHeader = response.getHeader(CommonHttpHeader.LOCATION.toString());
-            if (StringUtilities.nullSafeStartsWith(locationHeader, "http://") || StringUtilities.nullSafeStartsWith(locationHeader, "https://")) {
 
-                setPreText(locationHeader);
+            try {
+                extractPreAndPostTexts(locationHeader);
+            } catch (URISyntaxException ex) {
+                LOG.warn("Unable to parse Location header. Location header is malformed URl", ex.getMessage());
+                return filterDirector;
             }
 
-            setPostText(locationHeader);
 
             List<String> uri = getUriAsDelimitedList(locationHeader);
 
@@ -136,31 +141,26 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
         return uriList;
     }
 
-    private void setPreText(String locationUrl) {
+    private void extractPreAndPostTexts(String locationUrl) throws URISyntaxException {
 
-        try {
-            URL url = new URL(locationUrl);
-            locationHeader = url.getPath();
-            preText = new StringBuilder(url.getProtocol()).append(":").append("//").append(url.getHost());
-            if (url.getPort() != -1) {
-                preText.append(":").append(url.getPort());
-            }
-
-            postText = new StringBuilder(StringUtilities.getNonBlankValue(url.getQuery(), ""));
-
-
-        } catch (MalformedURLException ex) {
-            LOG.warn("Location header is not a valid url");
+        URI uri = new URI(locationUrl);
+        locationHeader = uri.getPath();
+        if(uri.getScheme() != null){
+            extractPreText(uri);
         }
+
+        postText = new StringBuilder(StringUtilities.getNonBlankValue(uri.getQuery(), ""));
+
+
     }
 
-    private void setPostText(String path) {
+    private void extractPreText(URI uri){
 
-        if (locationHeader.indexOf(QUERY_PARAM_INDICATOR) != -1) { //boo query parameters :(
-
-            postText = new StringBuilder(locationHeader.substring(locationHeader.indexOf('?') + 1, locationHeader.length()));
-            locationHeader = locationHeader.substring(0, locationHeader.indexOf(QUERY_PARAM_INDICATOR));
+        preText = preText.append(uri.getScheme()).append("://").append(uri.getHost());
+        if (uri.getPort() != -1) {
+            preText.append(":").append(uri.getPort());
         }
+
     }
 
 }

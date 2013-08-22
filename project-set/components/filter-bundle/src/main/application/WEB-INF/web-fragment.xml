@@ -123,6 +123,6 @@
     
     <filter>
         <filter-name>uri-stripper</filter-name>
-        <filter-class>com.rackspace.papi.components.uritranslation.UriStripperFilter</filter-class>
+        <filter-class>com.rackspace.papi.components.uristripper.UriStripperFilter</filter-class>
     </filter>
 </web-fragment>
