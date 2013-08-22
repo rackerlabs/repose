@@ -13,16 +13,11 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.AuthenticationRequest;
-import org.openstack.docs.identity.api.v2.Endpoint;
-import org.openstack.docs.identity.api.v2.EndpointList;
-import org.openstack.docs.identity.api.v2.ObjectFactory;
-import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
-import org.openstack.docs.identity.api.v2.Token;
+import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
@@ -86,7 +81,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
 
-
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:
                     token = getOpenStackToken(serviceResponse);
@@ -94,18 +88,18 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
                 case NOT_FOUND:
                     // User's token is bad
-                    LOG.error("Unable to validate token for tenant.  Invalid token. " + serviceResponse.getStatusCode());
+                    LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatusCode());
                     break;
 
                 case UNAUTHORIZED:
-                    LOG.error("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
+                    LOG.error("Unable to validate token: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
 
                     serviceResponse = validateUser(userToken, tenant, true);
 
                     if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                         token = getOpenStackToken(serviceResponse);
                     } else {
-                        LOG.error("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());
+                        LOG.error("Still unable to validate token: " + serviceResponse.getStatusCode());
                         throw new AuthServiceException("Unable to authenticate user with configured Admin credentials");
                     }
                     break;
@@ -114,34 +108,22 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 default:
                     LOG.error("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatusCode());
                     throw new AuthServiceException("Unable to validate token. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
-
         }
-
-
 
         return token;
     }
 
     private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant, boolean force) {
-        ServiceClientResponse<AuthenticateResponse> serviceResponse;
-
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
-        if (StringUtilities.isBlank(tenant) && currentAdminToken!=null) {
-            serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers);
-        } else {
-            serviceResponse = serviceClient.get(targetHostUri + TOKENS + userToken, headers, "belongsTo", tenant);
 
-        }
-
-        return serviceResponse;
+        return serviceClient.get(targetHostUri + TOKENS + userToken, headers);
     }
 
     private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {
         final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
         OpenStackToken token = null;
-
 
         token = new OpenStackToken(authenticateResponse);
         return token;

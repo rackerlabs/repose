@@ -20,6 +20,7 @@ import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
@@ -97,7 +98,7 @@ public class OpenStackAuthenticationHandlerTest {
             keyedRegexExtractor = new KeyedRegexExtractor();
 
             final ClientMapping mapping = new ClientMapping();
-            mapping.setIdRegex("/start/(.*)/");
+            mapping.setIdRegex("/start/([^/]*)/");
 
             final ClientMapping mapping2 = new ClientMapping();
             mapping2.setIdRegex(".*\\?.*username=(.+)");
@@ -116,9 +117,12 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
+            final ServiceAdminRoles serviceAdminRoles = new ServiceAdminRoles();
+            serviceAdminRoles.getRole().add("12345");
+
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration);
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -140,10 +144,6 @@ public class OpenStackAuthenticationHandlerTest {
             return true;
         }
 
-        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username) {
-            return generateCachableTokenInfo(roles, tokenId, username, 10000);
-        }
-
         protected Calendar getCalendarWithOffset(int millis) {
             return getCalendarWithOffset(Calendar.MILLISECOND, millis);
         }
@@ -156,6 +156,14 @@ public class OpenStackAuthenticationHandlerTest {
             return cal;
         }
 
+        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username) {
+            return generateCachableTokenInfo(roles, tokenId, username, 10000);
+        }
+
+        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username, String tenantId) {
+            return generateCachableTokenInfo(roles, tokenId, username, 10000, tenantId);
+        }
+
         public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username, int ttl) {
             Long expires = getCalendarWithOffset(ttl).getTimeInMillis();
 
@@ -166,6 +174,20 @@ public class OpenStackAuthenticationHandlerTest {
             when(cti.getExpires()).thenReturn(expires);
             when(cti.getTenantName()).thenReturn("tenantName");
             when(cti.getTenantId()).thenReturn("tenantId");
+
+            return cti;
+        }
+
+        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username, int ttl, String tenantId) {
+            Long expires = getCalendarWithOffset(ttl).getTimeInMillis();
+
+            final AuthToken cti = mock(AuthToken.class);
+            when(cti.getRoles()).thenReturn(roles);
+            when(cti.getTokenId()).thenReturn(tokenId);
+            when(cti.getUsername()).thenReturn(username);
+            when(cti.getExpires()).thenReturn(expires);
+            when(cti.getTenantName()).thenReturn("tenantName");
+            when(cti.getTenantId()).thenReturn(tenantId);
 
             return cti;
         }
@@ -321,7 +343,7 @@ public class OpenStackAuthenticationHandlerTest {
             Token token = new Token();
             token.setId("tokenId");
             TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-            tenant.setId("tenantId");
+            tenant.setId("104772");
             tenant.setName("tenantName");
             token.setTenant(tenant);
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -419,7 +441,7 @@ public class OpenStackAuthenticationHandlerTest {
         Token token = new Token();
         token.setId("tokenId");
         TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-        tenant.setId("tenantId");
+        tenant.setId("104772");
         tenant.setName("tenantName");
         token.setTenant(tenant);
         token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -502,7 +524,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            final AuthToken token = generateCachableTokenInfo("", "", "");
+            final AuthToken token = generateCachableTokenInfo("", "", "", "12345");
             when(authService.validateToken(anyString(), anyString())).thenReturn(token);
 
             final FilterDirector director = handler.handleRequest(request, response);

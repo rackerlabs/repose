@@ -2,19 +2,20 @@ package features.filters.clientauthn
 
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.DateTimeZone;
 
 /**
  * Simulates responses from an Identity Service
  */
-class IdentityServiceResponseSimulator {
+class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
+    boolean adminOk = true;
     int validateTokenCount = 0;
     int groupsCount = 0;
     int adminTokenCount = 0;
@@ -34,6 +35,8 @@ class IdentityServiceResponseSimulator {
     boolean isGetGroupsBroken = false;
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
+    boolean isTenantMatch = false;
+    boolean doesTenantHaveAdminRoles = false;
 
     def port = 12200
     def origin_service_port = 10001
@@ -66,13 +69,6 @@ class IdentityServiceResponseSimulator {
         def headers = ['Connection': 'close']
         def code = 200
         def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
-        } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
-        }
 
         if (request.method == "POST") {
             return handleGetAdminTokenCall(request);
@@ -129,10 +125,10 @@ class IdentityServiceResponseSimulator {
                 token: request_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, ok);
     }
 
-    Response handleTokenCallBase(Request request, params) {
+    Response handleTokenCallBase(Request request, params, isAuthed) {
 
         def xml = false
 
@@ -152,10 +148,17 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        if (ok) {
+        if (isAuthed) {
             code = 200;
             if (xml) {
-                template = identitySuccessXmlTemplate
+                if(doesTenantHaveAdminRoles && isTenantMatch)
+                    template = identitySuccessXmlWithServiceAdminTemplate
+                else if (!doesTenantHaveAdminRoles && isTenantMatch)
+                    template = identitySuccessXmlWithoutServiceAdminTemplate
+                else if (doesTenantHaveAdminRoles && !isTenantMatch)
+                    template = identitySuccessXmlWithServiceAdminDifferentTenantTemplate
+                else
+                    template = identitySuccessXmlWithoutServiceAdminDifferentTenantTemplate
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -233,7 +236,7 @@ class IdentityServiceResponseSimulator {
                 token: admin_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, adminOk);
     }
 
     Response handleEndpointsCall(Request request) {
@@ -387,7 +390,7 @@ class IdentityServiceResponseSimulator {
 }
 """
 
-    def identitySuccessXmlTemplate =
+    def identitySuccessXmlWithoutServiceAdminTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -462,17 +465,140 @@ class IdentityServiceResponseSimulator {
                   name="compute:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000001"
-                  tenantId="12345"/>
+                  tenantId="\${tenant}"/>
             <role id="6"
-                  name="service:admin"
+                  name="service:admin-role1"
                   description="A Role that allows a user to auth without belongsto"
                   serviceId="0000000000000000000000000000000000000003"
-                  tenantId="12345"/>
+                  tenantId="\${tenant}"/>
+            <role id="67"
+                  name="service:admin-role2"
+                  description="A Role that allows a user to auth without belongsto"
+                  serviceId="0000000000000000000000000000000000000003"
+                  tenantId="\${tenant}"/>
             <role id="5"
                   name="object-store:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000002"
-                  tenantId="12345"/>
+                  tenantId="\${tenant}"/>
+        </roles>
+    </user>
+    <serviceCatalog>
+        <service type="rax:object-cdn"
+                 name="cloudFilesCDN">
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+        </service>
+        <service type="object-store"
+                 name="cloudFiles">
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+        </service>
+    </serviceCatalog>
+</access>
+"""
+
+    def identitySuccessXmlWithServiceAdminDifferentTenantTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
+    <token id="9999999"
+           expires="\${expires}">
+        <tenant id="9999999"
+                name="9999999"/>
+    </token>
+    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+          id="\${userid}"
+          name="\${username}"
+          rax-auth:defaultRegion="the-default-region">
+        <roles>
+            <role id="684"
+                  name="compute:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000001"
+                  tenantId="999999"/>
+            <role id="6"
+                  name="service:admin-role1"
+                  description="A Role that allows a user to auth without belongsto"
+                  serviceId="0000000000000000000000000000000000000003"
+                  tenantId="999999"/>
+            <role id="67"
+                  name="service:admin-role2"
+                  description="A Role that allows a user to auth without belongsto"
+                  serviceId="0000000000000000000000000000000000000003"
+                  tenantId="999999"/>
+            <role id="5"
+                  name="object-store:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="999999"/>
+        </roles>
+    </user>
+    <serviceCatalog>
+        <service type="rax:object-cdn"
+                 name="cloudFilesCDN">
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+        </service>
+        <service type="object-store"
+                 name="cloudFiles">
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+        </service>
+    </serviceCatalog>
+</access>
+"""
+
+    def identitySuccessXmlWithoutServiceAdminDifferentTenantTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
+    <token id="9999999"
+           expires="\${expires}">
+        <tenant id="9999999"
+                name="9999999"/>
+    </token>
+    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+          id="\${userid}"
+          name="\${username}"
+          rax-auth:defaultRegion="the-default-region">
+        <roles>
+            <role id="684"
+                  name="compute:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000001"
+                  tenantId="999999"/>
+            <role id="5"
+                  name="object-store:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="999999"/>
         </roles>
     </user>
     <serviceCatalog>
