@@ -294,7 +294,10 @@
                             <td>
                                 <orderedlist>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Generates an arbitrary
+                                   character string by the
+                                   authentication service in response
+                                   to valid credentials.</para>
                                     </listitem>
                                     <listitem>
                                         <para>Some content here.</para>
@@ -303,10 +306,12 @@
                                         <para>Some content here.</para>
                                     </listitem>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Identifies tenant
+                                   name.</para>
                                     </listitem>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Identifies tenant
+                                   ID.</para>
                                     </listitem>
                                     <listitem>
                                         <para>Identifies user
@@ -316,7 +321,7 @@
                                         <para>Identifies user ID.</para>
                                     </listitem>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Identifies roles.</para>
                                     </listitem>
                                 </orderedlist>
                                 </td>
@@ -386,7 +391,8 @@
                             <td>
                                 <orderedlist>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Identifies when token
+                                   will expire.</para>
                                     </listitem>
                                 </orderedlist>
                             </td>
@@ -432,7 +438,8 @@
                             <td>
                                 <orderedlist>
                                     <listitem>
-                                        <para>Some content here.</para>
+                                        <para>Lists the service
+                                   catalog for the user.</para>
                                     </listitem>
                                 </orderedlist>
                             </td>
@@ -984,12 +991,177 @@ endpoints-in-header format="some-format" cache-timeout="600000"identity-contract
         </section>
         <section xml:id="Authentication_Tests-d1e250">
             <title>Authentication Tests</title>
-            <para> The authentication test suite is summarized in the
-                Repose wiki at <?sbr?>
-                <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
-                    >http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter</link>.
-                You can adapt those tests to work within
-                your own &PRODNAME; configuration. </para>
+            <para> The authentication test suite is first performed
+                    against a mock service that implements the
+                    OpenStack Identity Service contract.</para>
+                <db:para>The authentication test suite is then run
+                    against the actual implementations of the
+                    contracts shown, as in the following
+                    table.</db:para>
+            <table rules="all">
+                <caption>General Authentication Headers</caption>
+                <col width="10%"/>
+                <col width="10%"/>
+                <col width="10%"/>
+                <col width="10%"/>
+                <col width="10%"/>
+                <col width="25%"/>
+                <col width="25%"/>
+                <thead>
+                    <tr>
+                        <th>Delegatable (Repose Config)</th>
+                        <th>Request Verb</th>
+                        <th>Tenant ID in URI</th>
+                        <th>Request Header: X-Auth-Token</th>
+                        <th>Valid Credentials (Token)</th>
+                        <th>Request Headers Sent to Origin Service</th>
+                        <th>Expected Outcome</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            
+                                
+                            
+                            
+                                    <para>true</para>
+                                
+                                
+                                    <para>true</para>
+                                
+                                
+                                    <para>true</para>
+                                
+                                
+                                    <para>true</para>
+                                
+                               
+                                    <para>true</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                               
+                                    <para>false</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                                
+                                    <para>false</para>
+                                
+                            
+                                
+                            
+                        </td> 
+                        <td>
+                            
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                                    <para>GET</para>
+                                
+                        </td>
+                        <td><para>null</para>
+                            <para>not-null</para>
+                            <para>null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>null</para>
+                            <para>not-null</para>
+                            <para>null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                        </td>
+                        <td><para>null</para>
+                            <para>null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>null</para>
+                            <para>null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                            <para>not-null</para>
+                        </td>
+                        
+                        <td><para>N/A</para>
+                            <para>N/A</para>
+                            <para>N/A</para>
+                            <para>false</para>
+                            <para>true</para>
+                            <para>N/A</para>
+                            <para>N/A</para>
+                            <para>N/A</para>
+                            <para>false</para>
+                            <para>false</para>
+                            <para>false</para>
+                            <para>true</para>
+                        </td>
+                        <td><para>X-Authorization: Proxy X-Identity-Status: Indeterminate</para>
+                            <para>X-Authorization: Proxy tenantId X-Identity-Status: Indeterminate</para>
+                            <para>X-Authorization: Proxy X-Identity-Status: Indeterminate</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para></para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para></para>
+                        </td>
+                        <td><para>Depends </para>
+                            <para>X-Authorization: Proxy tenantId X-Identity-Status: Indeterminate</para>
+                            <para>X-Authorization: Proxy X-Identity-Status: Indeterminate</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para></para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para>N/A Request Rejected By Repose</para>
+                            <para></para>
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+           
         
         </section>
         </section>
@@ -1073,10 +1245,10 @@ endpoints-in-header format="some-format" cache-timeout="600000"identity-contract
 <xi:include href="samples/repose-authz-config-openstack.xml" parse="text"/>
                 </programlisting>    
                 </example>
-                <para> The &PRODNAME; authorization filter must be
-                    able to communicate with an OpenStack identity
-                    server to obtain a client's endpoint list. You
-                    make this possible by defining
+                <para>The &PRODNAME; authorization filter must be able
+                    to communicate with an OpenStack identity server
+                    to obtain a client's endpoint list. You make this
+                    possible by defining
                         <code>rackspace-authorization</code> in your
                     &PRODNAME; configuration. This configuration
                     element informs the authorization filter how to
