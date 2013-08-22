@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
+
     String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
 
     String NAME_TARGET = "\",name=\"endpoint\""
@@ -12,16 +13,19 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
 
     def setup() {
+
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
     def cleanup() {
+
         repose.stop()
         deproxy.shutdown()
     }
 
     def "when metrics are enabled, reporting should occur"() {
+
         setup: "load the correct configuration file"
         repose.applyConfigs( "features/services/metrics/common",
                 "features/services/metrics/metricsenabled" )
@@ -35,6 +39,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     }
 
     def "when metrics are disabled, reporting should not occur"() {
+
         setup: "load the correct configuration file"
         repose.applyConfigs( "features/services/metrics/common",
                 "features/services/metrics/metricsdisabled" )
@@ -45,6 +50,33 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
+    }
+
+    def "when 'enabled' is not specified, reporting should occur"() {
+
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/services/metrics/common",
+                "features/services/metrics/metricsenabled" )
+        repose.start()
+
+        when:
+        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+
+        then:
+        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+    }
+
+    def "when metrics config is missing, reporting should occur"() {
+
+        setup: "only load the common configuration files"
+        repose.applyConfigs( "features/services/metrics/common" )
+        repose.start()
+
+        when:
+        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+
+        then:
+        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
     }
 
 }
