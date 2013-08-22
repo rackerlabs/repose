@@ -55,6 +55,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
         }
     }
 
+    /**
+     * Assumption here is that not having a tenant would throw an exception - B-52709
+     * @param response
+     */
     private void checkTokenInfo(AuthenticateResponse response) {
         if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
             throw new IllegalArgumentException("Invalid token");
