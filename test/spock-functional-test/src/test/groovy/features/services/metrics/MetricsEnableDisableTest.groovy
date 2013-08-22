@@ -6,9 +6,11 @@ import org.rackspace.gdeproxy.Deproxy
 class MetricsEnableDisableTest extends ReposeValveTest {
 
     String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
+    String RESPONSE_CODE_PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""
 
     String NAME_TARGET = "\",name=\"endpoint\""
-    String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""
+    String NAME_2XX = "\",name=\"2XX\""
+    String REPOSE_2XX = RESPONSE_CODE_PREFIX + "Repose" + NAME_2XX
 
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
 
@@ -36,6 +38,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
     }
 
     def "when metrics are disabled, reporting should not occur"() {
@@ -50,6 +53,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == null
     }
 
     def "when 'enabled' is not specified, reporting should occur"() {
