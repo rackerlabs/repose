@@ -1,4 +1,4 @@
-package features.filters.locationRewrite
+package features.filters.uriStripper.locationRewrite
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
@@ -41,7 +41,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
 
     }
 
-    @Unroll("Location header should be changed when repose can find a place to place removed token")
+    @Unroll("Location header should be changed when repose can find a place to place removed token: request path: #requestPath location header: #locationheader contains tenant: #containsTenant")
     def "when putting back tenant id to Location Header within the Response"() {
 
         given:
@@ -58,21 +58,27 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         !((Handling) sentRequest).request.path.contains(tenantId)
 
         where:
-        requestPath                        | locationheader                                         | containsTenant
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v1/path/to/resource"  | true
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v2/path/to/resource"  | true
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v1/path/resource"     | true
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v1/path/to/resource?a=b"  | true
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v2/path/to/resource?a=b"  | true
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/v1/path/resource?a=b"     | true
-        "/v1/${tenantId}/path/to/resource" | "/v1/path/to/resource"  | true
-        "/v1/${tenantId}/path/to/resource" | "/v2/path/to/resource"  | true
-        "/v1/${tenantId}/path/to/resource" | "/v1/path/resource"     | true
-        "/v1/${tenantId}/path/to/resource" | "/v1/path/to/resource?a=b"  | true
-        "/v1/${tenantId}/path/to/resource" | "/v2/path/to/resource?a=b"  | true
-        "/v1/${tenantId}/path/to/resource" | "/v1/path/resource?a=b"     | true
+        requestPath                               | locationheader                                                  | containsTenant
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource"           | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource"           | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource"              | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/to/resource?a=b"       | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v2/path/to/resource?a=b"       | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/path/resource?a=b"          | true
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/v1/////path////to////resource" | true
+        "/v1////${tenantId}/path/to///resource"   | "http://${originServiceEndpoint}/v1/path/to/resource"           | true
 
-        "/v1/${tenantId}/path/to/resource" | "http://${originServiceEndpoint}/no/relation/resource" | false
+        "/v1/${tenantId}/path/////to////resource" | "/v1/path/to/resource"                                          | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource"                                          | true
+        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource"                                          | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource"                                             | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/to/resource?a=b"                                      | true
+        "/v1/${tenantId}/path/to/resource"        | "/v2/path/to/resource?a=b"                                      | true
+        "/v1/${tenantId}/path/to/resource"        | "/v1/path/resource?a=b"                                         | true
+
+        "/v1/${tenantId}/path/to/resource"        | "http://${originServiceEndpoint}/no/relation/resource"          | false
+
+        "/v1/${tenantId}/path/to/resource"        | "httdfjklsajfkdsfp://${originServiceEndpoint}/v1/path/to/resource/#\$%^&*("  | false
 
 
     }
