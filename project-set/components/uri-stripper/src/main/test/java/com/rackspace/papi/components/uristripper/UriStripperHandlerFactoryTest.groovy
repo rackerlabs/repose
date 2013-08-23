@@ -24,7 +24,7 @@ class UriStripperHandlerFactoryTest {
 
         conf = new UriStripperConfig()
         conf.setRewriteLocation(true)
-        conf.setPosition(1)
+        conf.setTokenIndex(1)
 
         factory = new UriStripperHandlerFactory();
 

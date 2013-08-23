@@ -40,7 +40,7 @@ public class UriStripperHandlerFactory extends AbstractConfiguredFilterHandlerFa
         @Override
         public void configurationUpdated(UriStripperConfig config) {
 
-            stripId = config.getPosition();
+            stripId = config.getTokenIndex();
             rewriteLocation = config.isRewriteLocation();
             isInitialized = true;
 

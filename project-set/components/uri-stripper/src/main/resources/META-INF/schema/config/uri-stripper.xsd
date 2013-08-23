@@ -16,9 +16,9 @@
                 <html:p>Document here</html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="rewriteLocation" type="xs:boolean" use="required"/>
+        <xs:attribute name="rewrite-location" type="xs:boolean" use="required"/>
 
-        <xs:attribute name="position" type="uri-stripper:nonNegativeInt" use="required"/>
+        <xs:attribute name="token-index" type="uri-stripper:nonNegativeInt" use="required"/>
 
     </xs:complexType>
 
