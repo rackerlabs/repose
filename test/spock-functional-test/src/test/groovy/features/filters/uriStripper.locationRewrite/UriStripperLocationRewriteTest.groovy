@@ -15,7 +15,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/filters/uriStripper/common", "features/filters/uriStripper/locationRewrite")
+        repose.applyConfigs("features/filters/uriStripper/common", "features/filters/uriStripper/noLocationRewrite")
         repose.start()
         waitUntilReadyToServiceRequests()
     }
