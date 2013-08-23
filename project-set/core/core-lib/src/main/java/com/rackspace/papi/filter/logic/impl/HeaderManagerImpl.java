@@ -72,7 +72,7 @@ public class HeaderManagerImpl implements HeaderManager {
     // will remove the header before setting new values
     headersToRemove.add(key.toLowerCase());
 
-    headersToAdd.put(key.toLowerCase(), new HashSet<String>(Arrays.asList(values)));
+    headersToAdd.put(key.toLowerCase(), new LinkedHashSet<String>(Arrays.asList(values)));
   }
 
   @Override
@@ -85,7 +85,7 @@ public class HeaderManagerImpl implements HeaderManager {
     Set<String> headerValues = headersToAdd.get(key.toLowerCase());
 
     if (headerValues == null) {
-      headerValues = new HashSet<String>();
+      headerValues = new LinkedHashSet<String>();
       headersToAdd.put(key.toLowerCase(), headerValues);
     }
 
@@ -105,7 +105,7 @@ public class HeaderManagerImpl implements HeaderManager {
     Set<String> headerValues = headersToAdd.get(key.toLowerCase());
 
     if (headerValues == null) {
-      headerValues = new HashSet<String>();
+      headerValues = new LinkedHashSet<String>();
       headersToAdd.put(key.toLowerCase(), headerValues);
     }
 
