@@ -122,7 +122,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles);
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles.getRole());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
