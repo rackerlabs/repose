@@ -9,6 +9,7 @@ import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 import spock.lang.Ignore
+import spock.lang.Unroll
 
 /**
  Service-admin users do not have tenant validation performed in Client-AuthN filter.
@@ -204,6 +205,10 @@ class RemoveTenantValidationTest extends ReposeValveTest{
 
     }
 
+    /*
+        Added   unrolling to see individual tests and /servers/tenantId to uri to match config
+     */
+    @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: #tenantWithAdminRole isAuthed: #isAuthed isAdminAuthed: #isAdminAuthed")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching"() {
 
         given:
@@ -229,7 +234,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET', ['content-type':'application/json','X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
