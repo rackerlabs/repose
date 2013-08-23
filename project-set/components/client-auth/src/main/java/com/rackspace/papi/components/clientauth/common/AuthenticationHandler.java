@@ -125,6 +125,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 } catch (AuthServiceException ex) {
                     LOG.error("Failure in Auth-N: " + ex.getMessage());
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    if(delegable){
+                        filterDirector.setFilterAction(FilterAction.PASS);
+                    }
                 } catch (IllegalArgumentException ex) {
                     LOG.error("Failure in Auth-N: " + ex.getMessage());
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -134,19 +137,17 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 }
             }
         }
+        String endpointsInBase64 = "";
+        List<AuthGroup> groups = new ArrayList<AuthGroup>();
+
 
         try {
-            List<AuthGroup> groups = getAuthGroups(token, offset);
+            groups = getAuthGroups(token, offset);
 
             //getting the encoded endpoints to pass into the header, if the endpoints config is not null
-            String endpointsInBase64 = null;
             if (endpointsConfiguration != null) {
                 endpointsInBase64 = getEndpointsInBase64(token);
             }
-
-
-            setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                    groups, endpointsInBase64);
 
         } catch (AuthServiceException ex) {
             LOG.error("Failure in Auth-N: " + ex.getMessage());
@@ -158,6 +159,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             LOG.error("Failure in auth: " + ex.getMessage(), ex);
             filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
+
+        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                groups, endpointsInBase64);
+
 
         return filterDirector;
     }
