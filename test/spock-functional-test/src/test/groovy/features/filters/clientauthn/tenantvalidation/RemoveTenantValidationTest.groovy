@@ -130,7 +130,7 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         123       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
         123       | true        | false               | true     | true          | "200"        | 1         | 3                 | 0                       | 1
         123       | false       | true                | true     | true          | "200"        | 1         | 3                 | 1                       | 1
-        123       | false       | false               | true     | true          | "200"        | 1         | 2                 | 1                       | 1
+        123       | false       | false               | true     | true          | "401"        | 0         | 2                 | 1                       | 0
         123       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
         123       | false       | false               | false    | true          | "401"        | 0         | 2                 | 1                       | 0
 
