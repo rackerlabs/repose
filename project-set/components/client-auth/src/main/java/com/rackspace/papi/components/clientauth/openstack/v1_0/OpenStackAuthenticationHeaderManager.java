@@ -71,7 +71,7 @@ public class OpenStackAuthenticationHeaderManager {
             if (isDelagable) {
                 setIdentityStatus();
             }
-        } else if (isDelagable) {
+        } else if (isDelagable && nullCredentials()) {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
