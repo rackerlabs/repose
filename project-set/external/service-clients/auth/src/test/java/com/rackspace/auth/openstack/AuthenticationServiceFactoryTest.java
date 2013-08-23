@@ -18,7 +18,7 @@ public class AuthenticationServiceFactoryTest {
     @Test
     public void testBuild() {
        AuthenticationServiceFactory instance = new AuthenticationServiceFactory();
-       AuthenticationService result = instance.build("/some/host/uri", "username", "password",null);
+       AuthenticationService result = instance.build("/some/host/uri", "username", "password",null,null);
        assertNotNull(result);
         
     }

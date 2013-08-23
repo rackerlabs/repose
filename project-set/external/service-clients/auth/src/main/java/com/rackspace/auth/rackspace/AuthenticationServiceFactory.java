@@ -16,7 +16,7 @@ import javax.xml.bind.JAXBException;
 public class AuthenticationServiceFactory {
    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceFactory.class);
 
-   public AuthenticationService build(String targetHostUri, String username, String password) {
+   public AuthenticationService build(String targetHostUri, String username, String password,String connectionPoolId) {
       HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
 
       JAXBContext jaxbContext;
@@ -28,6 +28,6 @@ public class AuthenticationServiceFactory {
                  + e.getMessage(), e);
       }
 
-      return new AuthenticationServiceClient(targetHostUri, new ResponseUnmarshaller(jaxbContext), new ServiceClient(targetHostUri,username,password));
+      return new AuthenticationServiceClient(targetHostUri, new ResponseUnmarshaller(jaxbContext), new ServiceClient(targetHostUri,username,password,connectionPoolId));
    }
 }

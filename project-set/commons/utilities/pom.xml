@@ -45,24 +45,23 @@
          <groupId>org.codehaus.jackson</groupId>
          <artifactId>jackson-xc</artifactId>
       </dependency>
-
-       <dependency>
+      
+        <dependency>
            <groupId>org.apache.httpcomponents</groupId>
            <artifactId>httpclient</artifactId>
-           <version>4.2.5</version>
-           <exclusions>
+           <version>4.2.5</version>           <exclusions>
                <exclusion>
                    <groupId>commons-codec</groupId>
                    <artifactId>commons-codec</artifactId>
-               </exclusion>
+              </exclusion>
            </exclusions>
        </dependency>
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
            <artifactId>httpclient-api</artifactId>
-           <version>2.8.4-SNAPSHOT</version>
-       </dependency>
+           <version>2.8.3-SNAPSHOT</version>
+       </dependency> 
 
    </dependencies>
 </project>

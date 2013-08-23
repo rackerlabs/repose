@@ -75,7 +75,8 @@ class RemoveTenantValidationTest extends ReposeValveTest{
         deproxy = new Deproxy()
 
         repose.applyConfigs("features/filters/clientauthn/removetenant",
-                "features/filters/clientauthn/removetenant/tenanteddelegable")
+                "features/filters/clientauthn/removetenant/tenanteddelegable",
+                "features/filters/clientauthn/connectionpooling")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')

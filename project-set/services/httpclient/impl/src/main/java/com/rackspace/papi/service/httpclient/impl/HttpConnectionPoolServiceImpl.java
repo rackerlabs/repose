@@ -40,7 +40,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             poolMap.put(defaultClientId, httpClient);
         }
 
-        if (clientId == null || clientId.isEmpty() || clientId.contains(defaultClientId)) {
+        if (clientId == null || clientId.isEmpty() || clientId.contains(defaultClientId.toLowerCase())) {
             return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId);
         } else {
             if (isAvailable(clientId))

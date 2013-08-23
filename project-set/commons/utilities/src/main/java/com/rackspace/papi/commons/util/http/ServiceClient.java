@@ -43,7 +43,8 @@ public class ServiceClient {
     private String TargetHostUri;
     private String Username;
     private String Password;
-    private static final String POOL_ID = "client-auth_DEFAULT_POOL";
+    private String ConnectionPoolId;
+
 
 
 
@@ -52,17 +53,18 @@ public class ServiceClient {
       public ServiceClient() {
     }
 
-    public ServiceClient(String targetHostUri, String username, String password) {
+    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId) {
         TargetHostUri =  targetHostUri;
         Username  =  username;
         Password  = password;
+        ConnectionPoolId= connectionPoolId;
 
     }
 
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
         try{
 
-            final HttpClient client = httpClientService.getClient(POOL_ID).getHttpClient();
+            final HttpClient client = httpClientService.getClient(ConnectionPoolId).getHttpClient();
             client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
 
             CredentialsProvider credsProvider = new BasicCredentialsProvider();

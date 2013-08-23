@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 public class AuthenticationServiceFactory {
    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceFactory.class);
 
-   public AuthenticationService build(String targetHostUri, String username, String password, String tenantId) {
+   public AuthenticationService build(String targetHostUri, String username, String password, String tenantId,String connectionPoolId) {
 
       JAXBContext coreJaxbContext;
       JAXBContext groupJaxbContext;
@@ -30,6 +30,6 @@ public class AuthenticationServiceFactory {
       return new AuthenticationServiceClient(targetHostUri, username, password, tenantId,
               new ResponseUnmarshaller(coreJaxbContext),
               new ResponseUnmarshaller(groupJaxbContext),
-              new ServiceClient(targetHostUri, username, password));
+              new ServiceClient(targetHostUri, username, password,connectionPoolId));
    }
 }

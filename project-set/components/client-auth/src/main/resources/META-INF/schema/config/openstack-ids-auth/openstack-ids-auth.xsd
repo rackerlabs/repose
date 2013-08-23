@@ -95,7 +95,7 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-auth">
+            <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-auth-default_pool">
                 <xs:annotation>
                     <xs:documentation>
                         c

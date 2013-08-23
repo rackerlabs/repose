@@ -32,7 +32,8 @@ public final class OpenStackAuthenticationHandlerFactory {
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(),
                                                                                            ids.getUsername(),
                                                                                            ids.getPassword(),
-                                                                                           ids.getTenantId());
+                                                                                           ids.getTenantId(),
+                                                                                            authConfig.getConnectionPoolId());
 
         //null check to prevent NPE when accessing config element attributes
         if (authConfig.getEndpointsInHeader() != null) {

@@ -45,6 +45,14 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>jetty-container</artifactId>
         </dependency>
+    
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>6.0</version>
+      <scope>provided</scope>
+    </dependency>
+    
     </dependencies>
 
     <build>

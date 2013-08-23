@@ -25,7 +25,7 @@ public final class RackspaceAuthenticationHandlerFactory {
         final AuthUserCache usrCache = new AuthUserCache(datastore, RsAuthCachePrefix.USER.toString());
 
         final AuthenticationService serviceClient = new AuthenticationServiceFactory().build(
-                authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
+                authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword(), authConfig.getConnectionPoolId());
 
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 authConfig.getAuthenticationServer().getUri(),

@@ -15,7 +15,7 @@
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
 
-    <pool id="client-auth"
+    <pool id="client-authorization"
           default="true"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
