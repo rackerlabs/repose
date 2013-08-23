@@ -13,6 +13,14 @@ import org.joda.time.DateTimeZone;
  */
 class IdentityServiceResponseSimulator {
 
+    public IdentityServiceResponseSimulator() {
+        this(12200, 10001)
+    }
+    public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+        this.port = identityPort
+        this.origin_service_port = originServicePort
+    }
+
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
     int validateTokenCount = 0;
@@ -35,8 +43,8 @@ class IdentityServiceResponseSimulator {
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
 
-    def port = 12200
-    def origin_service_port = 10001
+    int port
+    int origin_service_port
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
