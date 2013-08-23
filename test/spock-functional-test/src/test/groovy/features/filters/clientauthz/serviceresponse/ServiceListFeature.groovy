@@ -38,7 +38,8 @@ class ServiceListFeature extends ReposeValveTest {
 
     def "user requests a URL that is in the user's service list"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET',
+                ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
@@ -47,7 +48,8 @@ class ServiceListFeature extends ReposeValveTest {
 
     def "user requests a URL that is not in the user's service list"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/not_my_tenant_id/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + fakeIdentityService.client_tenant+"/ssnotexists", 'GET',
+                ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 403 response"
         mc.receivedResponse.code == "403"
@@ -56,10 +58,9 @@ class ServiceListFeature extends ReposeValveTest {
         mc.handlings.size() == 0
     }
 
-
     def "D-14988: client auth config should work without service-role element"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "No NullPointerException is logged"
         List<String> logs = reposeLogSearch.searchByString("NullPointerException")
