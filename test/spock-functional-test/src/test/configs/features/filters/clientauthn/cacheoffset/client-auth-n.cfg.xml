@@ -3,6 +3,7 @@
     <openstack-auth delegable="false"
                     tenanted="false"
                     request-groups="true"
+                    connectionPoolId="client-auth"
                     token-cache-timeout="30000"
                     group-cache-timeout="30000"
                     cache-offset="10000"
