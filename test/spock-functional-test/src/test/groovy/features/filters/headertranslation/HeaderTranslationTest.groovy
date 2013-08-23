@@ -107,14 +107,30 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().contains("X-Header-B")
         sentRequest.request.getHeaders().contains("X-Header-C")
         sentRequest.request.getHeaders().contains("X-Header-D")
+
+        and: "origin receives headers which should not be affected by the translation"
         sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-C").equalsIgnoreCase("a")
-        sentRequest.request.getHeaders().getFirstValue("X-Header-D").equalsIgnoreCase("a")
+        sentRequest.request.getHeaders().getFirstValue("X-Header-B").equalsIgnoreCase("b")
+
+        and: "origin receives translated all header values"
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("a")
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("b")
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("c")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("a")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("b")
+        sentRequest.request.getHeaders().findAll("X-Header-D").contains("c")
+
+        and: "origin receives translated header values in order in which they were sent"
+        sentRequest.request.getHeaders().findAll("X-Header-C") == ["a","b","c"]
+        sentRequest.request.getHeaders().findAll("X-Header-D") == ["a","b","c"]
+
 
         where:
         method | reqHeaders
-        "POST" | ["X-Header-A" : "a", "X-Header-B" : "b"]
-        "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
+        "POST" | ["X-Header-A" : "a,b,c", "X-Header-B" : "b"]
+        "GET"  | ["X-Header-A" : "a,b,c", "X-Header-B" : "b"]
+        "POST" | ["X-Header-A" : "a ,b,c,,", "X-Header-B" : "b"]
+
     }
 
     def "when translating request headers one-to-none"() {
