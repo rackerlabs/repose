@@ -66,6 +66,33 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-Header-A" : "a", "X-Header-B" : "b"]
     }
 
+    def "when translating request headers one-to-one with multiple values with removal"() {
+        setup: "load the correct configuration file"
+        repose.applyConfigs( "features/filters/headertranslation/common",
+                "features/filters/headertranslation/oneToOneRemoval" )
+        repose.start()
+
+        when: "client passes a request through repose with headers to be translated"
+        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+
+        then: "origin receives translated headers"
+        !sentRequest.request.getHeaders().contains("X-Header-A")
+        sentRequest.request.getHeaders().contains("X-Header-B")
+        sentRequest.request.getHeaders().contains("X-Header-C")
+        sentRequest.request.getHeaders().findAll("X-Header-B").contains("b")
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("a")
+        sentRequest.request.getHeaders().findAll("X-Header-B").contains("c")
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("b")
+        sentRequest.request.getHeaders().findAll("X-Header-B").contains("d")
+        sentRequest.request.getHeaders().findAll("X-Header-C").contains("c")
+
+        where:
+        method | reqHeaders
+        "POST" | ["X-Header-A" : "a, b, c", "X-Header-B" : "b, c, d"]
+        "GET"  | ["X-Header-A" : "a, b, c", "X-Header-B" : "b, c, d"]
+    }
+
     def "when translating request headers one-to-many without removal"() {
         setup: "load the correct configuration file"
         repose.applyConfigs( "features/filters/headertranslation/common",
