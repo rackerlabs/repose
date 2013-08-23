@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.header.translation;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -11,6 +12,8 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 public class HeaderTranslationHandler extends AbstractFilterLogicHandler {
@@ -31,12 +34,13 @@ public class HeaderTranslationHandler extends AbstractFilterLogicHandler {
 
         for (Header sourceHeader : sourceHeaders) {
             final String originalName = sourceHeader.getOriginalName();
-            final String originalHeaderValue = request.getHeader(originalName);
 
-            if(StringUtilities.isNotBlank(originalHeaderValue)) {
+            if (StringUtilities.isNotBlank(request.getHeader(originalName))) {
+
+                final List<String> originalHeaderValue = Collections.list(request.getHeaders(originalName));
 
                 for (String newname : sourceHeader.getNewName()) {
-                    headerManager.appendHeader(newname, originalHeaderValue);
+                    headerManager.appendHeader(newname, originalHeaderValue.toArray(new String[originalHeaderValue.size()]));
                     LOG.trace("Header added: " + newname);
                 }
 
