@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.http.client.HttpClient;
 /**
- * @author fran
+ * Creates apache http clients with basic auth
  */
 public class ServiceClient {
     private static final String ACCEPT_HEADER = "Accept";
@@ -43,6 +43,7 @@ public class ServiceClient {
     private String TargetHostUri;
     private String Username;
     private String Password;
+    private static final String POOL_ID = "client-auth_DEFAULT_POOL";
 
 
 
@@ -61,7 +62,7 @@ public class ServiceClient {
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
         try{
 
-            final HttpClient client = httpClientService.getClient(null).getHttpClient();
+            final HttpClient client = httpClientService.getClient(POOL_ID).getHttpClient();
             client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
 
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
