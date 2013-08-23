@@ -102,10 +102,10 @@ public class SpringContextAdapter implements ContextAdapter {
    public MetricsService metricsService() {
       MetricsService metricsService = getService(ServiceContextName.METRICS_SERVICE_CONTEXT);
 
-      if (metricsService != null && !metricsService.isEnabled()) {
-         return null;
+      if (metricsService != null && metricsService.isEnabled()) {
+         return metricsService;
       }
-      return metricsService;
+      return null;
    }
 
    @Override

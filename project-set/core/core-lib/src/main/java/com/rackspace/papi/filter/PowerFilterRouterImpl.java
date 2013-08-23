@@ -79,7 +79,12 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.responseHeaderService = responseHeaderService;
         this.requestHeaderService = requestHeaderService;
         this.locationBuilder = locationBuilder;
-        this.metricsService = metricsService;
+
+        if (metricsService != null && metricsService.isEnabled()) {
+            this.metricsService = metricsService;
+        } else {
+            this.metricsService = null;
+        }
     }
 
     @Override
