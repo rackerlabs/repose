@@ -2,13 +2,31 @@
 
 <response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
 
+    <status-code id="400" code-regex="400">
+        <message media-type="*/*">
+            &lt;test&gt;
+              An error occurred.
+              Code %s
+              Message %M
+           &lt;/test&gt;&#xA;
+        </message>
+    </status-code>
+
+
+    <status-code id="414" code-regex="414">
+      <message media-type="*/*">
+	URI Too Long
+      </message>
+    </status-code>
+
     <status-code id="413" code-regex="413">
         <message media-type="*/*">
 {
     "overLimit" : {
         "code" : 413,
         "message" : "OverLimit Retry...",
-        "details" : "Error Details..."
+        "details" : "Error Details...",
+	"retryAfter" : "%{Retry-After DATE ISO_8601}o"
     }
 }
         </message>
@@ -17,7 +35,31 @@
 <![CDATA[
 <overLimit
     xmlns="http://docs.openstack.org/common/api/v1.1"
-    code="413">
+    code="413" retryAfter="%{Retry-After DATE ISO_8601}o">
+  <message>OverLimit Retry...</message>
+  <details>Error Details...</details>
+</overLimit>
+]]>
+        </message>
+    </status-code>
+
+<status-code id="429" code-regex="429">
+        <message media-type="*/*">
+{
+    "overLimit" : {
+        "code" : 429,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details...",
+	"retryAfter" : "%{Retry-After DATE ISO_8601}o"
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<![CDATA[
+<overLimit
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="413" retryAfter="%{Retry-After DATE ISO_8601}o">
   <message>OverLimit Retry...</message>
   <details>Error Details...</details>
 </overLimit>
@@ -45,13 +87,18 @@
         </message>
     </status-code>
 
-<status-code id="346" code-regex="346" overwrite="IF_EMPTY">
+<status-code id="346" code-regex="346" overwrite="ALWAYS">
         <message media-type="*/*">
 {
     "response" : {
         "code" : 346
     }
 }
+        </message>
+    </status-code>
+
+    <status-code id="311" code-regex="311" overwrite="ALWAYS">
+        <message media-type="*/*" content-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>
     </status-code>
 
@@ -70,7 +117,7 @@
         <message media-type="application/xml">
             XML Not Authorized... Syntax highlighting is magical.
         </message>
-        <message media-type="application/json">
+        <message  media-type="application/json">
             JSON Not Authorized... The brackets are too confusing.
         </message>
         <message media-type="*/*">
@@ -79,7 +126,7 @@
     </status-code>
 
     <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
-        <message media-type="*/*" href="bar"></message>
+        <message media-type="*/*" href="file:////${repose.config.directory}/responsefor5xx"/>
     </status-code>
 
 </response-messaging>
