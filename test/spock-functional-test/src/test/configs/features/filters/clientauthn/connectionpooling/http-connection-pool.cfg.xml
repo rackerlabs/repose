@@ -16,7 +16,7 @@
           keepalive.timeout="0"/>
 
     <pool id="client-auth"
-          default="true"
+          default="false"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="30000"
