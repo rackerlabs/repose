@@ -142,7 +142,8 @@ public class ServiceClient {
         HttpPost post = new HttpPost(uri);
 
         Map<String, String> headers= new HashMap<String, String>();
-        headers.put("Content-Type",contentType.getType()); //test
+        String localContentType= contentType.getType() +"/"+ contentType.getSubtype();
+        headers.put("Content-Type",localContentType); //test
         headers.put(ACCEPT_HEADER,MEDIA_TYPE);
 
         setHeaders(post, headers);
