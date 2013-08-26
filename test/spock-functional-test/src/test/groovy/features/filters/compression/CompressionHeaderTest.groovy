@@ -53,26 +53,22 @@ class CompressionHeaderTest extends ReposeValveTest {
         return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
     }
 
-
-
-    def setup() {
+    def setupSpec() {
         repose.applyConfigs("features/filters/compression")
         repose.start()
+    }
 
+    def setup() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-
-        sleep(4000)
     }
 
     def cleanup() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        deproxy.shutdown()
+    }
 
-        if (repose) {
-            repose.stop()
-        }
+    def cleanupSpec() {
+        repose.stop()
     }
 
     def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression"() {
@@ -87,7 +83,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("Content-Encoding")
         if(!encoding.equals("identity")) {
             mc.sentRequest.body != mc.handlings[0].request.body
-            convertStreamToString(mc.handlings[0].request.body).equals(unzippedContent)
+            mc.handlings[0].request.body.toString().equals(unzippedContent)
         } else {
             mc.sentRequest.body == mc.handlings[0].request.body
             mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
