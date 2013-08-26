@@ -3,6 +3,9 @@ package com.rackspace.papi.components.clientauth.common;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author fran
  *
@@ -19,7 +22,7 @@ public class Configurables {
     private final int cacheOffset;
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
-    private final ServiceAdminRoles serviceAdminRoles;
+    private final List<String> serviceAdminRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
@@ -33,13 +36,13 @@ public class Configurables {
         this.tokenCacheTtl = tokenCacheTtl;
         this.requestGroups=requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
-        this.serviceAdminRoles = null;
+        this.serviceAdminRoles = new ArrayList<String>();
         this.cacheOffset = 0;
     }
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
             boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
-            EndpointsConfiguration endpointsConfiguration, ServiceAdminRoles serviceAdminRoles) {
+            EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -93,7 +96,7 @@ public class Configurables {
         return cacheOffset;
     }
 
-    public ServiceAdminRoles getServiceAdminRoles() {
+    public List<String> getServiceAdminRoles() {
         return serviceAdminRoles;
     }
 }

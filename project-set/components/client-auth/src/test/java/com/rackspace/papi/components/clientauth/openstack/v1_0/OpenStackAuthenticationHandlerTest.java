@@ -122,7 +122,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles);
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles.getRole());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -491,6 +491,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldPassNullOrBlankCredentials() {
             when(request.getRequestURI()).thenReturn("/start/");
+            when(request.getHeader(anyString())).thenReturn("");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
         }

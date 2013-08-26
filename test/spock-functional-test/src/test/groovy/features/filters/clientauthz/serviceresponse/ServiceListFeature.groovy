@@ -5,18 +5,19 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-
-class ClientAuthZTest extends ReposeValveTest {
+class ServiceListFeature extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
     static IdentityServiceResponseSimulator fakeIdentityService
 
-    def setupSpec() {
+    def setup() {
+        cleanLogDirectory()
+
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthz/common")
+        repose.applyConfigs("features/filters/clientauthz/servicelist")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
@@ -26,27 +27,24 @@ class ClientAuthZTest extends ReposeValveTest {
     }
 
 
-    def cleanupSpec() {
+    def cleanup() {
         if (deproxy) {
             deproxy.shutdown()
         }
         repose.stop()
     }
 
-
-    def "When user is authorized should forward request to origin service"(){
-
+    def "user requests a URL that is in the user's service list"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET',
+                ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-
     }
 
-
-    def "When user is not authorized should receive a 403 FORBIDDEN response"(){
+    def "When user requests a URL that is not in the user's service list should receive a 403 FORBIDDEN response"(){
 
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
@@ -62,6 +60,19 @@ class ClientAuthZTest extends ReposeValveTest {
         foundLogs.size() == 1
         mc.handlings.size() == 0
         mc.receivedResponse.code == "403"
+    }
+
+    def "D-14988: client auth config should work without service-role element"() {
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "No NullPointerException is logged"
+        List<String> logs = reposeLogSearch.searchByString("NullPointerException")
+        logs.size() == 0
+
+        and: "User should receive a 200 response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
     }
 
 }
