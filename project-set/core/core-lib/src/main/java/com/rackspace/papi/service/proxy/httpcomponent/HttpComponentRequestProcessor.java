@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -37,7 +38,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
     while (names.hasMoreElements()) {
       String name = names.nextElement();
-      if (name == null || name.equalsIgnoreCase("")) {
+      if (StringUtilities.isBlank(name)) {
           continue;
       }
       String[] values = sourceRequest.getParameterValues(name);
