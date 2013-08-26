@@ -83,6 +83,27 @@ class ResponseMessagingTest extends ReposeValveTest {
         "text/plain"       | 333                       | "JAWSOME"                 | "333"                | PLAIN_RESPONSE_333
     }
 
+    def "When OVERWRITE == ALWAYS, ignores the requested Accept header and always returns configured ContentType"() {
+        given:
+        def String myDate = "Fri, 09 Mar 2012 14:56:32 GMT"
+
+        when: "A request is made to repose with accept type of #acceptType"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: ["Accept": acceptType, "MYDATE": myDate, "X-PP-Groups": "WIZARD"],
+                defaultHandler: { return new Response(311, null, null, "JAWSOME") }])
+
+        then: "Repose should return the expected response code"
+        messageChain.receivedResponse.code == expectedResponseCode
+
+        and: "Repose should return the expected response body in the media type indicated by the Accept header"
+        messageChain.receivedResponse.headers.getFirstValue("Content-Type") == responseContentHeader
+
+        where:
+        acceptType         | responseContentHeader | expectedResponseCode
+        "application/xml"  | "application/xml"     | "311"
+        "application/json" | "application/xml"    | "311"
+        "text/plain"       | "application/xml"     | "311"
+
+    }
 
     def "D-12726 RMS should not throw NPE if response body is empty"() {
         when: "A request is made to repose with accept type of #acceptType"
