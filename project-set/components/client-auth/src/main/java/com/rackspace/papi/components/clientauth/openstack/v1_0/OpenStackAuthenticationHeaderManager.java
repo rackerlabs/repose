@@ -56,7 +56,7 @@ public class OpenStackAuthenticationHeaderManager {
 
     //set header with base64 string here
     public void setFilterDirectorValues() {
-        if (validToken) {
+        if (validToken && filterDirector.getResponseStatus() != HttpStatusCode.INTERNAL_SERVER_ERROR) {
             filterDirector.setFilterAction(FilterAction.PASS);
             setExtendedAuthorization();
             setUser();
