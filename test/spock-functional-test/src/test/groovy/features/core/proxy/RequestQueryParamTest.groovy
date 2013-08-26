@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import spock.lang.Unroll
 
 class RequestQueryParamTest extends ReposeValveTest {
 
@@ -25,6 +26,7 @@ class RequestQueryParamTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
+    @Unroll("When client requests: #uriSuffixGiven, repose should normalize to: #uriSuffixExpected")
     def "when given a query param list, Repose should forward a valid query param list"() {
 
         when: "the client makes a request through Repose"
