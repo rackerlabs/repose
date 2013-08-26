@@ -5,7 +5,7 @@
     <status-code id="400" code-regex="400">
         <message media-type="*/*">
             &lt;test&gt;
-              An error occurd.
+              An error occurred.
               Code %s
               Message %M
            &lt;/test&gt;&#xA;

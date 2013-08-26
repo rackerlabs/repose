@@ -57,7 +57,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         "application/json" | 345                       | null                      | "345"                | JSON_RESPONSE_345
         ""                 | 345                       | null                      | "345"                | JSON_RESPONSE_345
         "application/json" | 414                       | ORIGINAL_BODY             | "414"                | ORIGINAL_BODY
-        "*/*"              | 503                       | null                      | "503"                | "An error has occured. Please contact support... the printer may be on fire."
+        "*/*"              | 503                       | null                      | "503"                | "An error has occurred. Please contact support... the printer may be on fire."
     }
 
     @Unroll("ResponseMessaging populates responseBody with request headers for #acceptType")
@@ -100,7 +100,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         where:
         acceptType         | responseContentHeader | expectedResponseCode
         "application/xml"  | "application/xml"     | "311"
-        "application/json" | "application/xml"    | "311"
+        "application/json" | "application/xml"     | "311"
         "text/plain"       | "application/xml"     | "311"
 
     }
