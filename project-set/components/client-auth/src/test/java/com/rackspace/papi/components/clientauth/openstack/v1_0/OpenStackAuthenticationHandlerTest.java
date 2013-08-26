@@ -491,6 +491,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldPassNullOrBlankCredentials() {
             when(request.getRequestURI()).thenReturn("/start/");
+            when(request.getHeader(anyString())).thenReturn("");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
         }
