@@ -7,7 +7,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
 
-class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
+class TenantedNonDelegableWOServiceAdmin extends ReposeValveTest{
 
     def static originEndpoint
     def static identityEndpoint
@@ -19,7 +19,7 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         deproxy = new Deproxy()
 
         repose.applyConfigs("features/filters/clientauthn/removetenant",
-                "features/filters/clientauthn/removetenant/tenanteddelegable")
+                "features/filters/clientauthn/removetenant/noserviceroles")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
@@ -29,10 +29,6 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
 
 
     }
-//
-//    def cleanup() {
-//        deproxy.shutdown()
-//    }
 
     def cleanupSpec() {
         deproxy.shutdown()
@@ -40,10 +36,11 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("tenant: #reqTenant tenantMatch: #tenantMatch tenantWithAdmin: #tenantWithAdminRole isAuthed: #isAuthed isAdminAuthed: #isAdminAuthed")
-    def "when authenticating user in tenanted and delegable mode and client-mapping matching"() {
+    @Unroll("Tenant: #reqTenant")
+    def "when authenticating user in tenanted and non delegable mode and without service-admin"() {
 
         given:
+
 
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
@@ -53,7 +50,7 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
 
         when: "User passes a request through repose"
         fakeIdentityService.isTenantMatch = tenantMatch
-        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
+        fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
         MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
@@ -87,15 +84,15 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
             mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
         }
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
-        111       | false       | false               | true     | false         | "500"        | 0         | 1                 | 1                       | 0
-        222       | true        | true                | true     | true          | "200"        | 1         | 3                 | 0                       | 1
-        333       | true        | false               | true     | true          | "200"        | 1         | 2                 | 0                       | 1
-        444       | false       | true                | true     | true          | "200"        | 1         | 2                 | 1                       | 1
-        555       | false       | false               | true     | true          | "401"        | 0         | 1                 | 1                       | 0
-        666       | false       | false               | false    | true          | "401"        | 0         | 1                 | 1                       | 0
-//
+        reqTenant | tenantMatch | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings
+        111       | false       | true     | false         | "500"        | 0         | 1                 | 1                       | 0
+        222       | true        | true     | true          | "200"        | 1         | 3                 | 0                       | 1
+        333       | false       | true     | true          | "401"        | 0         | 1                 | 1                       | 0
+        444       | true        | false    | true          | "401"        | 0         | 1                 | 1                       | 0
+        555       | false       | false    | true          | "401"        | 0         | 1                 | 1                       | 0
+
 
     }
+
 
 }
