@@ -6,7 +6,6 @@
         <node id="simple-node" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
     <filters>
-        <filter name="client-auth" configuration="client-auth-keystone.cfg.xml"/>
         <filter name="client-authorization" />
     </filters>
     <destinations>
