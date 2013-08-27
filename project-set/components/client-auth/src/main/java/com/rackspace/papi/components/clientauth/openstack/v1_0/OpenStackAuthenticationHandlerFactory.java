@@ -14,7 +14,11 @@ import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.service.datastore.Datastore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class OpenStackAuthenticationHandlerFactory {
 
@@ -54,8 +58,13 @@ public final class OpenStackAuthenticationHandlerFactory {
                 authConfig.getCacheOffset(),
                 authConfig.isRequestGroups(),
                 endpointsConfiguration,
-                authConfig.getServiceAdminRoles());
+                getServiceAdminRoles(authConfig.getServiceAdminRoles()));
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
+    }
+
+    private static List<String> getServiceAdminRoles(ServiceAdminRoles roles){
+
+        return roles == null ? new ArrayList<String>() : roles.getRole();
     }
 }
