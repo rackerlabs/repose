@@ -23,7 +23,6 @@ class ReposeConfigurationProvider {
         this.reposeConfigDir = new File(reposeConfigDir)
         this.samplesDir = new File(samplesDir)
         this.commonSamplesDir = new File(samplesDir + "/common")
-
     }
 
     /**
