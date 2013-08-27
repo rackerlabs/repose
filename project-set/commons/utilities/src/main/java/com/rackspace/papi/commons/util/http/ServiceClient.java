@@ -16,6 +16,8 @@ import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import java.util.Set;
+
+import com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -58,6 +60,7 @@ public class ServiceClient {
         Username  =  username;
         Password  = password;
         ConnectionPoolId= connectionPoolId;
+        httpClientService=new HttpConnectionPoolServiceImpl();
 
     }
 
@@ -113,7 +116,7 @@ public class ServiceClient {
             }
 
 
-            HttpResponse httpResponse = getClientWithBasicAuth().execute(base);
+            HttpResponse httpResponse = client.execute(base);
             HttpEntity entity = httpResponse.getEntity();
            
 
