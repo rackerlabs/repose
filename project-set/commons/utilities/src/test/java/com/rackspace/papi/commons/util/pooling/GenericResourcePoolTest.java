@@ -135,7 +135,7 @@ public class GenericResourcePoolTest {
                 t.start();
             }
             
-            while (internalThreadCount < 6) {
+            while (internalThreadCount < 7) {
                 Thread.sleep(10);
             }
             
