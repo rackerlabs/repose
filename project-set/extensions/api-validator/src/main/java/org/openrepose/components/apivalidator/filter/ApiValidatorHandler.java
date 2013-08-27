@@ -51,8 +51,6 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       if (metricsService != null) {
          mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class,
                 "api-validator", "InvalidRequest", TimeUnit.SECONDS);
-      } else {
-         mbcsInvalidRequests = null;
       }
    }
 

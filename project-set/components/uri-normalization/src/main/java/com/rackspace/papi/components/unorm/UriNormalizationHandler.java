@@ -34,8 +34,6 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
         if (metricsService != null) {
             mbcsUriNormalizations = metricsService.newMeterByCategorySum(UriNormalization.class,
                     "uri-normalization", "Normalization", TimeUnit.SECONDS);
-        } else {
-            mbcsUriNormalizations = null;
         }
     }
 

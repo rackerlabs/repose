@@ -48,8 +48,6 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
        if (metricsService != null) {
            mbcVersionedRequests = metricsService.newMeterByCategory(Versioning.class,
                    "versioning", "VersionedRequest", TimeUnit.SECONDS);
-       } else {
-           mbcVersionedRequests = null;
        }
    }
 

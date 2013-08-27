@@ -29,8 +29,6 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
         if (metricsService != null) {
             mbcsNormalizations = metricsService.newMeterByCategorySum(HeaderNormalization.class,
                     "header-normalization", "Normalization", TimeUnit.SECONDS);
-        } else {
-            mbcsNormalizations = null;
         }
     }
 

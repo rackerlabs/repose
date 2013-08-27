@@ -60,10 +60,10 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
    @Override
    public MetricsService getService() {
-      if (!metricsService.isEnabled()) {
-          return null;
+      if (metricsService != null && metricsService.isEnabled()) {
+          return metricsService;
       }
-      return metricsService;
+      return null;
    }
 
    @Override

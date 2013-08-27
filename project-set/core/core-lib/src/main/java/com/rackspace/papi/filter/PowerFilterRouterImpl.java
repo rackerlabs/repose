@@ -82,8 +82,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
         if (metricsService != null && metricsService.isEnabled()) {
             this.metricsService = metricsService;
-        } else {
-            this.metricsService = null;
         }
     }
 
@@ -114,9 +112,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                                              "TimeoutToOrigin",
                                                              "Request Timeout",
                                                              TimeUnit.SECONDS );
-        } else {
-            mbcAllResponse = null;
-            mbcAllTimeouts = null;
         }
     }
 

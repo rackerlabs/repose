@@ -57,7 +57,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
-    private MeterByCategory mbcReponseCodes;
+    private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
 
@@ -181,9 +181,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         reportingService = papiContext.reportingService();
         responseHeaderService = papiContext.responseHeaderService();
         if (papiContext.metricsService() != null) {
-            mbcReponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
-        } else {
-            mbcReponseCodes = null;
+            mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
         }
     }
 
@@ -248,7 +246,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
             final long stopTime = System.currentTimeMillis();
 
-            markResponseCodeHelper(mbcReponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null);
+            markResponseCodeHelper(mbcResponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null);
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
