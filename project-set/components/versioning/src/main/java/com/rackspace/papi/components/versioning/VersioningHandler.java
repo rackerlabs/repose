@@ -38,7 +38,6 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
    private final ContentTransformer transformer;
    private final MetricsService metricsService;
    private MeterByCategory mbcVersionedRequests;
-   private boolean useMetrics = false;
 
    public VersioningHandler(ConfigurationData configurationData, ContentTransformer transformer, MetricsService metricsService) {
       this.configurationData = configurationData;
@@ -47,8 +46,10 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
 
        // TODO replace "versioning" with filter-id or name-number in sys-model
        if (metricsService != null) {
-           mbcVersionedRequests = metricsService.newMeterByCategory(Versioning.class, "versioning", "VersionedRequest", TimeUnit.SECONDS);
-           useMetrics = true;
+           mbcVersionedRequests = metricsService.newMeterByCategory(Versioning.class,
+                   "versioning", "VersionedRequest", TimeUnit.SECONDS);
+       } else {
+           mbcVersionedRequests = null;
        }
    }
 
@@ -63,12 +64,12 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          if (targetOriginService != null) {
             final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
             handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
-            if (useMetrics) {
+            if (mbcVersionedRequests != null) {
                 mbcVersionedRequests.mark(targetOriginService.getMapping().getId());
             }
          } else {
             handleUnversionedRequest(httpRequestInfo, filterDirector);
-            if (useMetrics) {
+            if (mbcVersionedRequests != null) {
                 mbcVersionedRequests.mark("Unversioned");
             }
          }

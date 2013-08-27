@@ -18,6 +18,8 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
@@ -164,6 +166,22 @@ public class MetricsServiceImplTest {
             MeterByCategory m = metricsService.newMeterByCategorySum( this.getClass(), "scope1", "hits", TimeUnit.SECONDS );
 
             m.mark( MeterByCategorySum.ALL, 2 );
+        }
+
+        @Test
+        public void testServiceEnabledDisabled()
+                throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
+
+            metricsService.setEnabled(false);
+            assertFalse(metricsService.isEnabled());
+
+            metricsService.setEnabled(true);
+            assertTrue(metricsService.isEnabled());
         }
     }
 }
