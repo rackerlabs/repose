@@ -47,7 +47,7 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
         }
 
         // now let's capture response times
-        for (int i : totalRequests) {
+        for (int i: 1..totalRequests) {
             // start time
             def timeStart = new DateTime()
             MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/v1/12345/path/to/resource", defaultHandler: resp])
