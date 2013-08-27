@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.rackspace.papi.service</groupId>
     <artifactId>configuration-service</artifactId>
 
     <name>Repose Services - Configuration Service</name>
