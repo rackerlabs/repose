@@ -134,30 +134,33 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 }
             }
         }
+        String endpointsInBase64 = "";
+        List<AuthGroup> groups = new ArrayList<AuthGroup>();
 
-        try {
-            List<AuthGroup> groups = getAuthGroups(token, offset);
+        if (token != null) {
+            try {
+                groups = getAuthGroups(token, offset);
 
-            //getting the encoded endpoints to pass into the header, if the endpoints config is not null
-            String endpointsInBase64 = null;
-            if (endpointsConfiguration != null) {
-                endpointsInBase64 = getEndpointsInBase64(token);
+                //getting the encoded endpoints to pass into the header, if the endpoints config is not null
+                if (endpointsConfiguration != null) {
+                    endpointsInBase64 = getEndpointsInBase64(token);
+                }
+
+            } catch (AuthServiceException ex) {
+                LOG.error("Failure in Auth-N: " + ex.getMessage());
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (IllegalArgumentException ex) {
+                LOG.error("Failure in Auth-N: " + ex.getMessage());
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (Exception ex) {
+                LOG.error("Failure in auth: " + ex.getMessage(), ex);
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
-
-
-            setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                    groups, endpointsInBase64);
-
-        } catch (AuthServiceException ex) {
-            LOG.error("Failure in Auth-N: " + ex.getMessage());
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        } catch (IllegalArgumentException ex) {
-            LOG.error("Failure in Auth-N: " + ex.getMessage());
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        } catch (Exception ex) {
-            LOG.error("Failure in auth: " + ex.getMessage(), ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
+
+        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                groups, endpointsInBase64);
+
 
         return filterDirector;
     }
@@ -273,7 +276,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 userTokenTtl = Integer.MAX_VALUE;
             }
 
-            long ttl = tokenCacheTtl > 0 ? Math.min(getMaxTTL(tokenCacheTtl+offset), userTokenTtl) : userTokenTtl;
+            long ttl = tokenCacheTtl > 0 ? Math.min(getMaxTTL(tokenCacheTtl + offset), userTokenTtl) : userTokenTtl;
             LOG.debug("Caching token for " + user.getTenantId() + " with a TTL of " + ttl);
             cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
         } catch (IOException ex) {
@@ -345,7 +348,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     }
 
     private int safeGroupTtl(int offset) {
-        final Long grpTtl = this.groupCacheTtl+offset;
+        final Long grpTtl = this.groupCacheTtl + offset;
 
         if (grpTtl >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -371,12 +374,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         return endpointsTtl.intValue();
     }
 
-    public int getCacheOffset(){
-        return cacheOffset == 0 ? 0 : offsetGenerator.nextInt(cacheOffset*2) - cacheOffset;
+    public int getCacheOffset() {
+        return cacheOffset == 0 ? 0 : offsetGenerator.nextInt(cacheOffset * 2) - cacheOffset;
 
     }
 
-    public long getMaxTTL(long ttl){
-        return Math.min(ttl,Integer.MAX_VALUE);
+    public long getMaxTTL(long ttl) {
+        return Math.min(ttl, Integer.MAX_VALUE);
     }
 }
