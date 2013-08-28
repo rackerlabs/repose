@@ -79,7 +79,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.responseHeaderService = responseHeaderService;
         this.requestHeaderService = requestHeaderService;
         this.locationBuilder = locationBuilder;
-        this.metricsService = metricsService;
+
+        if (metricsService != null && metricsService.isEnabled()) {
+            this.metricsService = metricsService;
+        }
     }
 
     @Override
@@ -100,14 +103,16 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             addDestinations(domain.getDestinations().getTarget());
         }
 
-        mbcAllResponse = metricsService.newMeterByCategory( ResponseCode.class,
+        if (metricsService != null) {
+            mbcAllResponse = metricsService.newMeterByCategory( ResponseCode.class,
                                                             "All Endpoints",
                                                             "Response Codes",
                                                             TimeUnit.SECONDS );
-        mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
+            mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
                                                              "TimeoutToOrigin",
                                                              "Request Timeout",
                                                              TimeUnit.SECONDS );
+        }
     }
 
     private void addDestinations(List<? extends Destination> destList) {
@@ -219,6 +224,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private MeterByCategory verifyGet( String endpoint ) {
+        if (metricsService == null) {
+            return null;
+        }
+
         if( !mapResponseCodes.containsKey( endpoint ) ) {
             synchronized ( mapResponseCodes ) {
 
@@ -237,6 +246,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private MeterByCategory getTimeoutMeter( String endpoint ) {
+        if (metricsService == null) {
+            return null;
+        }
+
         if( !mapRequestTimeouts.containsKey( endpoint ) ) {
             synchronized ( mapRequestTimeouts ) {
                 if( !mapRequestTimeouts.containsKey( endpoint ) ) {
@@ -252,8 +265,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     public void markRequestTimeoutHelper( MeterByCategory mbc, int responseCode, String endpoint ) {
-        assert mbc != null;
-        assert endpoint != null;
+        if (mbc == null) {
+            return;
+        }
 
         if ( responseCode == 408 ) {
             mbc.mark( endpoint );

@@ -52,20 +52,22 @@ public class MetricsServiceImpl implements MetricsService {
     private List<GraphiteReporter> listGraphite = new ArrayList<GraphiteReporter>();
     private ReposeJmxNamingStrategy reposeStrat;
 
+    private boolean enabled;
+
     @Autowired
     public MetricsServiceImpl( @Qualifier( "reposeJmxNamingStrategy" ) ReposeJmxNamingStrategy reposeStratP ) {
+        this.metrics = new MetricsRegistry();
 
-        metrics = new MetricsRegistry();
-
-        jmx = new JmxReporter( metrics );
+        this.jmx = new JmxReporter( metrics );
         jmx.start();
 
-        reposeStrat = reposeStratP;
+        this.reposeStrat = reposeStratP;
+
+        this.enabled = true;
     }
 
     public void addGraphiteServer( String host, int port, long period, String prefix )
-          throws IOException {
-
+            throws IOException {
         GraphiteReporter graphite = new GraphiteReporter( metrics,
                                                           prefix,
                                                           MetricPredicate.ALL,
@@ -80,7 +82,6 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     public void shutdownGraphite() {
-
         synchronized ( listGraphite ) {
             for( GraphiteReporter graphite : listGraphite ) {
 
@@ -90,33 +91,38 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit ) {
+    public void setEnabled(boolean b) {
+        this.enabled = b;
+    }
 
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit ) {
         return metrics.newMeter( makeMetricName( klass, name, scope ), eventType, unit );
     }
 
     @Override
     public Counter newCounter( Class klass, String name, String scope ) {
-
         return metrics.newCounter( makeMetricName( klass, name, scope ) );
     }
 
 
     @Override
     public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit ) {
-
         return new MeterByCategoryImpl( this, klass, scope, eventType, unit );
     }
 
     @Override
     public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
-
         return new MeterByCategorySum( this, klass, scope, eventType, unit );
     }
 
     @Override
     public void destroy() {
-
         metrics.shutdown();
         jmx.shutdown();
 
@@ -124,7 +130,6 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     private MetricName makeMetricName( Class klass, String name, String scope ) {
-
         return new MetricName( reposeStrat.getDomainPrefix() + klass.getPackage().getName(),
                                klass.getSimpleName(),
                                name, scope );
