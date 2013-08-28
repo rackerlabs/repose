@@ -6,6 +6,8 @@ interface ReposeLauncher {
 
     void stop();
 
+    boolean isUp();
+
     void enableDebug()
 
     void applyConfigs(String[] configLocations)
