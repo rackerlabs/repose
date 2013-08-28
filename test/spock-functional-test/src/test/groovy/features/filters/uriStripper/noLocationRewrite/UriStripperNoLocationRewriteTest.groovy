@@ -9,6 +9,8 @@ import org.rackspace.gdeproxy.Response
 class UriStripperNoLocationRewriteTest extends ReposeValveTest {
 
     def static String tenantId = "105620"
+    def static originServiceEndpoint
+
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -17,6 +19,8 @@ class UriStripperNoLocationRewriteTest extends ReposeValveTest {
         repose.applyConfigs("features/filters/uriStripper/common", "features/filters/uriStripper/noLocationRewrite")
         repose.start()
         waitUntilReadyToServiceRequests()
+        originServiceEndpoint = "${properties.getProperty("targetHostname")}:${properties.getProperty("targetPort")}"
+
     }
 
     def cleanupSpec() {

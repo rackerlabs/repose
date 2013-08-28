@@ -191,6 +191,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         return runningJvms.in.text
     }
 
+    @Override
     public boolean isUp() {
         return getJvmProcesses().contains("repose-valve.jar")
     }
