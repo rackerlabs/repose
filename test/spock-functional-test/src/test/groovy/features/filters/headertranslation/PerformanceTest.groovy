@@ -86,12 +86,12 @@ class PerformanceTest extends ReposeValveTest {
         long totalMillis = 0
 
         // warm up, ignore response times
-        for (int i : 100) {
+        for (int i : 1..100) {
             deproxy.makeRequest(reposeEndpoint, "GET", ["X-Header-A":"12345", "X-Header-B":"abcde"])
         }
 
         // now let's capture response times
-        for (int i : totalRequests) {
+        for (int i : 1..totalRequests) {
             // start time
             def timeStart = new DateTime()
             MessageChain mc = deproxy.makeRequest(reposeEndpoint, "GET", ["X-Header-A":"12345", "X-Header-B":"abcde"])
