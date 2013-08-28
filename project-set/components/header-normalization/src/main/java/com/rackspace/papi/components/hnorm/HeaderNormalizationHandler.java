@@ -20,7 +20,6 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
     private final MetricsService metricsService;
     private List<CompiledRegexAndList> compiledTargets;
     private MeterByCategorySum mbcsNormalizations;
-    private boolean useMetrics = false;
 
     HeaderNormalizationHandler(List<CompiledRegexAndList> compiledTargets, MetricsService metricsService) {
         this.compiledTargets = compiledTargets;
@@ -28,8 +27,8 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
 
         // TODO replace "header-normalization" with filter-id or name-number in sys-model
         if (metricsService != null) {
-            mbcsNormalizations = metricsService.newMeterByCategorySum(HeaderNormalization.class, "header-normalization", "Normalization", TimeUnit.SECONDS);
-            useMetrics = true;
+            mbcsNormalizations = metricsService.newMeterByCategorySum(HeaderNormalization.class,
+                    "header-normalization", "Normalization", TimeUnit.SECONDS);
         }
     }
 
@@ -44,7 +43,7 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
         for (CompiledRegexAndList target : compiledTargets) {
             if (target.getPattern().matcher(uri).matches() && (target.getMethodList().contains(method) || target.getMethodList().contains(HttpMethod.ALL))) {
                 myDirector.requestHeaderManager().headersToRemove().addAll(HeaderNormalizer.getHeadersToRemove(request, target));
-                if (useMetrics) {
+                if (mbcsNormalizations != null) {
                     mbcsNormalizations.mark(target.getPattern().toString() + "_" + method.value());
                 }
                 break;
