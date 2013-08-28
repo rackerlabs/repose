@@ -23,7 +23,6 @@ abstract class ReposeValveTest extends Specification {
     @Shared
     def ReposeLogSearch reposeLogSearch
 
-
     def setupSpec() {
 
         properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
