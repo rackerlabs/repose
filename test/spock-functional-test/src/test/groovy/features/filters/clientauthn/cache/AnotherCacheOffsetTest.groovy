@@ -23,7 +23,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
 
         given: "All users have unique X-Auth-Token"
         repose.applyConfigs("features/filters/clientauthn/cacheoffset/common",
-                additionalConfigs,"features/filters/clientauthn/connectionpooling")
+                additionalConfigs)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())

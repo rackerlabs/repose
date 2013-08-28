@@ -4,8 +4,8 @@
 
     <pool id="default"
           default="true"
-          http.conn-manager.max-total="500"
-          http.conn-manager.max-per-route="50"
+          http.conn-manager.max-total="200"
+          http.conn-manager.max-per-route="20"
           http.socket.timeout="30000"
           http.socket.buffer-size="8192"
           http.connection.timeout="30000"

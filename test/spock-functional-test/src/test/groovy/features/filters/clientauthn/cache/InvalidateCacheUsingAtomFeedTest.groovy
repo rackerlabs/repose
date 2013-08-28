@@ -95,8 +95,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
-        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom",
-                "features/filters/clientauthn/connectionpooling")
+        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom"
+                )
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
