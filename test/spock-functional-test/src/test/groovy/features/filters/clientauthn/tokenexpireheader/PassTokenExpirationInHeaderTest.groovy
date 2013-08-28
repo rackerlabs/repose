@@ -73,7 +73,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityService.handler);
 
         repose.applyConfigs("features/filters/clientauthn/tokenexpireheader",
-                "features/filters/clientauthn/connectionpooling/http-connection-pool.cfg.xml")
+                "features/filters/clientauthn/connectionpooling")
         repose.start()
     }
 

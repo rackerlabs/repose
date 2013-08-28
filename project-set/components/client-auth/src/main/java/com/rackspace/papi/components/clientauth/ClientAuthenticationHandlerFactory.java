@@ -19,6 +19,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -43,9 +44,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private final Datastore datastore;
     private FeedListenerManager manager;
     private static final Long minInterval = new Long("10000");
+    private final  HttpClientService  httpClientService;
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore) {
+    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService) {
         this.datastore = datastore;
+        this.httpClientService= httpClientService;
     }
 
     @Override
@@ -107,11 +110,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
                     if (!StringUtilities.isBlank(feed.getAuthUri())) {
-                        rdr =  new SaxAuthFeedReader(new ServiceClient(feed.getAuthUri(), feed.getUser(), feed.getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId()), feed.getUri(), feed.getId());
+                        rdr =  new SaxAuthFeedReader(new ServiceClient(feed.getAuthUri(), feed.getUser(), feed.getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
                         rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                     } else {
                         rdr =  new SaxAuthFeedReader(new ServiceClient(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
-                                modifiedConfig.getOpenstackAuth().getIdentityService().getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId()), feed.getUri(), feed.getId());
+                                modifiedConfig.getOpenstackAuth().getIdentityService().getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
                         rdr.setAuthed(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
                                 modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
                     }
@@ -165,11 +168,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     }
 
     private AuthenticationHandler getRackspaceAuthHandler(ClientAuthConfig cfg) {
-        return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
+        return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
     private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
-        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher);
+        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
     @Override

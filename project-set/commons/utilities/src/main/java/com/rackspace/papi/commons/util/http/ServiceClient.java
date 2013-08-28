@@ -17,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import java.util.Set;
 
-import com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -55,12 +55,12 @@ public class ServiceClient {
       public ServiceClient() {
     }
 
-    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId) {
-        TargetHostUri =  targetHostUri;
-        Username  =  username;
-        Password  = password;
-        ConnectionPoolId= connectionPoolId;
-        httpClientService=new HttpConnectionPoolServiceImpl();
+    public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId,HttpClientService httpClientService) {
+        this.TargetHostUri =  targetHostUri;
+        this.Username  =  username;
+        this.Password  = password;
+        this.ConnectionPoolId= connectionPoolId;
+        this.httpClientService=httpClientService;
 
     }
 
@@ -136,6 +136,7 @@ public class ServiceClient {
             LOG.error("Error executing request", ex);
         } finally {
             base.releaseConnection();
+
         }
 
         return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);

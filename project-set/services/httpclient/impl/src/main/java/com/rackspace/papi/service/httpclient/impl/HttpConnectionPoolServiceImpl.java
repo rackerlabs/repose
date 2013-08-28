@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig> {
 
     Map<String, HttpClient> poolMap;
@@ -34,13 +35,22 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     @Override
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
-        if (poolMap.isEmpty()) {
+
+
+        if (poolMap.isEmpty() ) {
             defaultClientId = "DEFAULT_POOL";
             HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
+
         }
 
-        if (clientId == null || clientId.isEmpty() || clientId.contains(defaultClientId.toLowerCase())) {
+        if(clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
+
+            HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
+            poolMap.put(clientId, httpClient);
+        }
+
+        if (clientId == null || clientId.isEmpty()) {
             return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId);
         } else {
             if (isAvailable(clientId))

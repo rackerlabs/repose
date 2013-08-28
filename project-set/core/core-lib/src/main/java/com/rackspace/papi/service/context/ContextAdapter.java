@@ -11,6 +11,7 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
@@ -18,6 +19,7 @@ import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
+
 
 public interface ContextAdapter {
 
@@ -35,6 +37,7 @@ public interface ContextAdapter {
     RequestProxyService requestProxyService();
     ReportingService reportingService();
     String getReposeVersion();
+    HttpClientService httpConnectionPoolService();
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
     DistributedDatastoreLauncherService distributedDatastoreService();
