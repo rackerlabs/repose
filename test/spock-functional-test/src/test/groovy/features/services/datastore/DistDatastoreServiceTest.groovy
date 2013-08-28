@@ -1,11 +1,11 @@
 package features.services.datastore
 
-import framework.ReposeTest
+import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
 
-class DistDatastoreServiceTest extends ReposeTest {
+class DistDatastoreServiceTest extends ReposeValveTest {
     boolean isFailedStart = false
 
     def setup(){
