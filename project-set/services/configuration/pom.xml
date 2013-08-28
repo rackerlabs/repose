@@ -12,7 +12,7 @@
     <groupId>com.rackspace.papi.service</groupId>
     <artifactId>configuration-service</artifactId>
 
-    <name>Repose Services - Configuration Service</name>
+    <name>Repose Services - Configuration</name>
 
     <packaging>pom</packaging>
 
@@ -20,5 +20,4 @@
         <module>api</module>
         <module>impl</module>
     </modules>
-
 </project>
