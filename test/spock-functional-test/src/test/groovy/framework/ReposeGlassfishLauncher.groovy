@@ -4,14 +4,12 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
     def int shutdownPort
 
-    String configDirectory
     String clusterId
     String nodeId
 
-    def ReposeConfigurationProvider configurationProvider
     String glassfishJar
 
-    ReposeGlassfishLauncher(String glassfishJar, String configDirectory, String clusterId="cluster1", String nodeId="node1") {
+    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1") {
         this.configurationProvider = configurationProvider
         this.glassfishJar = glassfishJar
         this.clusterId = clusterId
@@ -20,6 +18,7 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
     @Override
     void start() {
+        String configDirectory = configurationProvider.getReposeConfigDir()
 
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 

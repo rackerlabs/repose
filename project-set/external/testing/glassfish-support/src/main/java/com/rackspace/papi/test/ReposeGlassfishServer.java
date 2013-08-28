@@ -11,14 +11,14 @@ import java.io.IOException;
 import static org.glassfish.embeddable.GlassFishRuntime.bootstrap;
 
 /**
- * Create an embedded glassfish server
+ * Create an embedded multinode server
  */
 public class ReposeGlassfishServer {
 
     static GlassFish glassfish;
     static Server server;
-    static String installRoot = "/Volumes/workspace/repose/test/spock-functional-test/target/glassfish1";
-    static String reposeRootWar = "/Volumes/workspace/repose/test/spock-functional-test/target/ROOT.war";
+    static String installRoot = "/Users/lisa.clark/workspace/repose/test/spock-functional-test/target/glassfish1";
+    static String reposeRootWar = "/Users/lisa.clark/workspace/repose/test/spock-functional-test/target/repose_home/ROOT.war";
     static int httpPort = 9009;
 
     public static void main(String[] args) throws GlassFishException {

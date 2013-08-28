@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <repose-cluster id="repose2">
 
         <nodes>
-            <node id="nodea" hostname="localhost" http-port="${glassfish_repose_port_1}"/>
-            <node id="nodeb" hostname="localhost" http-port="${glassfish_repose_port_2}"/>
+            <node id="node2" hostname="localhost" http-port="${repose_port}"/>
         </nodes>
 
         <filters>

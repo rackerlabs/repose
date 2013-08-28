@@ -128,7 +128,7 @@
                 <repose.home>${project.build.directory}/repose_home</repose.home>
                 <repose.config.directory>${repose.home}/configs</repose.config.directory>
                 <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-                <repose.glassfish.jar.location>${project.build.directory}/${glassfish.jar}</repose.glassfish.jar.location>
+                <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
                 <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
             <build>
