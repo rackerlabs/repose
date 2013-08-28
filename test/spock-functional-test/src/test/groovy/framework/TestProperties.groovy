@@ -18,6 +18,7 @@ class TestProperties {
     // Property settings that aren't set for every test
     String targetPort
     String identityPort
+    String targetHostname
 
     TestProperties(InputStream propertiesStream) {
 
@@ -46,6 +47,7 @@ class TestProperties {
 
             targetPort = properties.getProperty("target.port")
             identityPort = properties.getProperty("identity.port")
+            targetHostname = properties.getProperty("target.hostname")
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files")

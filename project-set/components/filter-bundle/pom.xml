@@ -136,6 +136,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-translation</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>uri-stripper</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -251,6 +256,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>header-translation</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>uri-stripper</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
