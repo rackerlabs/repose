@@ -28,14 +28,8 @@ public class ReposeGlassfishServer {
             // grab install root
         }
 
-        // Create glassfish properties
-//        BootstrapProperties bootstrapProperties = new BootstrapProperties();
-//        bootstrapProperties.setInstallRoot(installRoot);
-//        GlassFishRuntime runtime = GlassFishRuntime.bootstrap(bootstrapProperties);
-
         GlassFishRuntime runtime = GlassFishRuntime.bootstrap();
         GlassFishProperties properties = new GlassFishProperties();
-        //properties.setInstanceRoot(installRoot + "/domains/domain1");
 
         glassfish = runtime.newGlassFish(properties);
         glassfish.start();
