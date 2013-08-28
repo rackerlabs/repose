@@ -23,7 +23,6 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         fakeIdentityService = new IdentityServiceResponseSimulator()
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
-
     }
 
     def cleanupSpec() {

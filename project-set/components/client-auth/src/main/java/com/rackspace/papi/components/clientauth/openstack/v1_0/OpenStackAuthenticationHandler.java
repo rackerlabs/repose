@@ -30,7 +30,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private static final String WWW_AUTH_PREFIX = "Keystone uri=";
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
-   private final ServiceAdminRoles serviceAdminRoles;
+   private final List<String> serviceAdminRoles;
 
    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
       super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
@@ -40,10 +40,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    }
 
    private boolean roleIsServiceAdmin(AuthToken authToken) {
-       if (authToken.getRoles() == null) return false;
+       if (authToken.getRoles() == null || serviceAdminRoles == null) return false;
 
        for (String role : authToken.getRoles().split(",")) {
-           if (serviceAdminRoles.getRole().contains(role)) {
+           if (serviceAdminRoles.contains(role)) {
                return true;
            }
        }

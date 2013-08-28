@@ -56,7 +56,7 @@ public class OpenStackAuthenticationHeaderManager {
 
     //set header with base64 string here
     public void setFilterDirectorValues() {
-        if (validToken) {
+        if (validToken && filterDirector.getResponseStatus() != HttpStatusCode.INTERNAL_SERVER_ERROR) {
             filterDirector.setFilterAction(FilterAction.PASS);
             setExtendedAuthorization();
             setUser();
@@ -71,7 +71,7 @@ public class OpenStackAuthenticationHeaderManager {
             if (isDelagable) {
                 setIdentityStatus();
             }
-        } else if (isDelagable && nullCredentials()) {
+        } else if (isDelagable && nullCredentials() && filterDirector.getResponseStatus() != HttpStatusCode.INTERNAL_SERVER_ERROR) {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
@@ -81,7 +81,7 @@ public class OpenStackAuthenticationHeaderManager {
     }
 
     private boolean nullCredentials() {
-        final boolean nullCreds = StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
+        final boolean nullCreds = StringUtilities.isBlank(authToken) && StringUtilities.isBlank(tenantId);
 
         LOG.debug("Credentials null = " + nullCreds);
         return nullCreds;
@@ -168,21 +168,21 @@ public class OpenStackAuthenticationHeaderManager {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.X_CATALOG.toString(), endpointsBase64);
         }
     }
-    
+
     /**
      * ExpirationDate
      * token expiration date in x-token-expires header that follows http spec rfc1123 GMT time format
      */
-    
+
     private void setExpirationDate() {
         if (cachableToken.getExpires()>0) {
             HttpDate date = new HttpDate(new Date(cachableToken.getExpires()));
             filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.X_EXPIRATION.toString(), date.toRFC1123());
         }
     }
-    
-    
-    
+
+
+
     /**
      * Default Region
      * Default region of user

@@ -6,8 +6,10 @@ import com.rackspace.auth.openstack.OpenStackGroup;
 import com.rackspace.auth.openstack.OpenStackToken;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.ArrayList;
@@ -132,6 +134,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         groups.getGroup().add(group);
         authGroupList = new ArrayList<AuthGroup>();
         authGroupList.add(new OpenStackGroup(group));
+        filterDirector.setResponseStatus(HttpStatusCode.OK);
        
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
