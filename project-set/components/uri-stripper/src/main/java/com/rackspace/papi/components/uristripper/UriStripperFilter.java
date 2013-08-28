@@ -37,7 +37,7 @@ public class UriStripperFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new UriStripperHandlerFactory();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-stripper-configuration.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-stripper.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, UriStripperConfig.class);
     }
 }
