@@ -1,12 +1,12 @@
 package features.services.datastore
 
 import framework.ReposeGlassfishLauncher
-import framework.ReposeTest
+import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
 
-class DistDatastoreGlassfishTest extends ReposeTest {
+class DistDatastoreGlassfishTest extends ReposeValveTest {
 
     // TODO
     // 1. Pull root war to spock directory
