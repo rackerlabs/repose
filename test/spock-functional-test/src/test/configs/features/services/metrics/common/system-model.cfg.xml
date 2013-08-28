@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+     </nodes>
+
+    <filters>
+        <filter name="destination-router" uri-regex=".*/endpoint/.*" configuration="destination-router.cfg.xml" />
+        <filter name="destination-router" uri-regex=".*/endpoint2/.*" configuration="destination-endpoint.cfg.xml" />
+    </filters>
+
+    <destinations>
+        <endpoint id="endpoint" protocol="http" hostname="${target_hostname}" root-path="/root_path" port="${target_port}" default="true"/>
+        <endpoint id="endpoint2" protocol="http" hostname="${target_hostname}" root-path="/root_path" port="${target_port}" default="false"/>
+    </destinations>
+
+  </repose-cluster>
+</system-model>

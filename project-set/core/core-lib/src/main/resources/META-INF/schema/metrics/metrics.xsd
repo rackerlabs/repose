@@ -11,14 +11,23 @@
     <xs:complexType name="MetricsConfiguration">
         <xs:annotation>
             <xs:documentation>
-                <html:p>All metrics-related configuration</html:p>
+                <html:p>All metrics-related configuration.</html:p>
             </xs:documentation>
         </xs:annotation>
-
+        
         <xs:sequence>
             <xs:element name="graphite" type="m:Graphite" minOccurs="0" maxOccurs="1"/>
-<!--            <xs:element name="properties" type="m:Properties" minOccurs="0" maxOccurs="1"/> -->
+            <!--xs:element name="properties" type="m:Properties" minOccurs="0" maxOccurs="1"/-->
         </xs:sequence>
+        
+        <xs:attribute name="enabled" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    Enabled: When set, dictates whether or not metrics are reported. If set to true, metrics will be
+                    reported. If set to false, metrics will not be reported. Defaults to true.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
     </xs:complexType>
 
