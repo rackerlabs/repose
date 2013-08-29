@@ -1,10 +1,13 @@
 package features.services.datastore
 import framework.*
+import org.linkedin.util.clock.SystemClock
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
+
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
@@ -46,6 +49,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         def configDirectory = properties.getConfigDirectory()
         def configSamples = properties.getConfigSamples()
+        def rootWar = properties.getReposeRootWar()
 
         ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
         config1.applyConfigsRuntime("common",
@@ -58,10 +62,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                 ]
         )
 
-        repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", reposePort1)
+        repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);
         repose1.applyConfigs("features/services/datastore/multinode/node1")
         repose1.start()
+        waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1)
 
         configDirectory = configDirectory + "/node2"
         ReposeConfigurationProvider config2 = new ReposeConfigurationProvider(configDirectory, configSamples)
@@ -74,10 +79,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                         'repose.node.id': 'node2'
 
                 ])
-        repose2 = new ReposeGlassfishLauncher(config2, properties.getGlassfishJar(), "repose2", "node2", reposePort2)
+        repose2 = new ReposeGlassfishLauncher(config2, properties.getGlassfishJar(), "repose2", "node2", rootWar, reposePort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.applyConfigs("features/services/datastore/multinode/node2")
         repose2.start()
+        waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2)
 
     }
 
@@ -130,4 +136,19 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         logMatches.size() == 0
     }
 
+    def waitUntilReadyToServiceRequests(String reposeEndpoint) {
+        def clock = new SystemClock()
+        def innerDeproxy = new Deproxy()
+        MessageChain mc
+        waitForCondition(clock, '60s', '1s', {
+            try {
+                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
+            } catch (Exception e) {}
+            if (mc != null) {
+                return mc.receivedResponse.code.equals("200")
+            } else {
+                return false
+            }
+        })
+    }
 }
