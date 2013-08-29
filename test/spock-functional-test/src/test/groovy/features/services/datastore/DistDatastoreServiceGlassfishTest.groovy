@@ -1,18 +1,10 @@
 package features.services.datastore
-
-import framework.ReposeConfigurationProvider
-import framework.ReposeGlassfishLauncher
-import framework.ReposeLauncher
-import framework.ReposeLogSearch
-import framework.ReposeValveLauncher
-import framework.ReposeValveTest
-import framework.TestProperties
+import framework.*
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
  */
@@ -56,7 +48,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
         config1.applyConfigsRuntime("common",
-                ['reposePort': reposePort1.toString(), 'targetPort': originServicePort.toString()])
+                [
+                        'repose_port': reposePort1.toString(),
+                        'target_port': originServicePort.toString(),
+                        'repose.config.directory': configDirectory,
+                        'repose.cluster.id': "repose1",
+                        'repose.node.id': 'node1'
+                ]
+        )
 
         repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1")
         reposeLogSearch1 = new ReposeLogSearch(logFile);
@@ -66,7 +65,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         configDirectory = configDirectory + "/node2"
         ReposeConfigurationProvider config2 = new ReposeConfigurationProvider(configDirectory, configSamples)
         config2.applyConfigsRuntime("common",
-                ['reposePort': reposePort2.toString(), 'targetPort': originServicePort.toString()])
+                [
+                        'repose_port': reposePort2.toString(),
+                        'target_port': originServicePort.toString(),
+                        'repose.config.directory': configDirectory,
+                        'repose.cluster.id': "repose1",
+                        'repose.node.id': 'node1'
+
+                ])
         repose2 = new ReposeGlassfishLauncher(config2, properties.getGlassfishJar(), "repose2", "node2")
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.applyConfigs("features/services/datastore/multinode/node2")

@@ -22,7 +22,7 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
-        def cmd = "java -jar ${glassfishJar} -s ${shutdownPort} ${webXmlOverrides}"
+        def cmd = "java -jar ${glassfishJar} ${webXmlOverrides}"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
