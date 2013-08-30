@@ -137,6 +137,24 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.14.1</version>
                         <configuration>
+                            <excludedGroups>framework.category.SaxonEE</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>unmarked</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
                             <excludedGroups>
                                 framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
                                 framework.category.SaxonEE,framework.category.Slow
@@ -246,7 +264,7 @@
         </profile>
 
         <profile>
-            <id>benchmark-slow</id>
+            <id>slow\benchmark</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -257,7 +275,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.14.1</version>
                         <configuration>
-                            <groups>framework.category.Benchmark,framework.category.Slow</groups>
+                            <groups>framework.category.Slow</groups>
+                            <excludedGroups>framework.category.Benchmark</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
