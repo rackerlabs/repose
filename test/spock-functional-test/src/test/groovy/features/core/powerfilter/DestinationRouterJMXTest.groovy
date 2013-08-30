@@ -1,10 +1,12 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Response
 
-
+@Category(Slow.class)
 class DestinationRouterJMXTest extends ReposeValveTest{
     String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
 
@@ -14,18 +16,22 @@ class DestinationRouterJMXTest extends ReposeValveTest{
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
     String DESTINATION_ROUTER_ALL = PREFIX + "destination-router" + NAME_TARGET_ALL
 
-    def setup() {
-        repose.applyConfigs("features/core/powerfilter/common")
-        repose.start()
-
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
+    def setup() {
+        repose.applyConfigs("features/core/powerfilter/common")
+        repose.start()
+    }
+
     def cleanup() {
-        if (deproxy)
-            deproxy.shutdown()
         repose.stop()
+    }
+
+    def cleanupSpec() {
+        deproxy.shutdown()
     }
 
     def "when requests match destination router target URI, should increment DestinationRouter mbeans for specific endpoint"() {

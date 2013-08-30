@@ -17,6 +17,30 @@
         <gmaven.version>1.5</gmaven.version>
 
         <repose.container>valve</repose.container>
+
+        <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
+
+        <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+        <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
+        <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
+        </filter.extensions.dir>
+
+        <repose.valve.jar>repose-valve.jar</repose.valve.jar>
+        <filter.ear>filter-bundle-*.ear</filter.ear>
+        <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
+
+        <repose_port>8888</repose_port>
+        <repose_jmx_port>9001</repose_jmx_port>
+        <repose_shutdown_port>10009</repose_shutdown_port>
+        <target_hostname>localhost</target_hostname>
+        <target_port>10001</target_port>
+        <identity_port>12200</identity_port>
+        <atom_port>12201</atom_port>
+
+        <repose.home>${project.build.directory}/repose_home</repose.home>
+        <repose.config.directory>${repose.home}/configs</repose.config.directory>
+        <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
+        <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
     </properties>
 
 
@@ -32,6 +56,13 @@
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
             <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -100,50 +131,22 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-
-                <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
-
-                <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
-                <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
-                <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
-                </filter.extensions.dir>
-                <glassfish.jar.dir>${project.set.dir}/external/testing/glassfish-support/target</glassfish.jar.dir>
-
-                <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
-                <repose.root.war>ROOT.war</repose.root.war>
-                <repose.valve.jar>repose-valve.jar</repose.valve.jar>
-                <filter.ear>filter-bundle-*.ear</filter.ear>
-                <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
-                <glassfish.jar>test-glassfish-container-${project.version}.jar</glassfish.jar>
-
-                <repose_port>8888</repose_port>
-                <repose_jmx_port>9001</repose_jmx_port>
-                <repose_shutdown_port>10009</repose_shutdown_port>
-                <target_hostname>localhost</target_hostname>
-                <target_port>10001</target_port>
-                <identity_port>12200</identity_port>
-                <atom_port>12201</atom_port>
-
-                <repose.home>${project.build.directory}/repose_home</repose.home>
-                <repose.config.directory>${repose.home}/configs</repose.config.directory>
-                <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-                <repose.glassfish.jar.location>${project.build.directory}/${glassfish.jar}</repose.glassfish.jar.location>
-                <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
                         <configuration>
-                            <excludes>
-                                <exclude>**/saxonEE/*.class</exclude>
-                            </excludes>
+                            <excludedGroups>
+                                framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
+                                framework.category.SaxonEE,framework.category.Slow
+                            </excludedGroups>
                         </configuration>
                     </plugin>
-            </plugins>
-        </build>
+                </plugins>
+            </build>
         </profile>
+
         <profile>
             <id>saxonEE</id>
             <activation>
@@ -151,48 +154,115 @@
             </activation>
             <properties>
                 <saxon_home>${env.SAXON_HOME}</saxon_home>
-                <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
-
-                <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
-                <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
-                <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
-                </filter.extensions.dir>
-
-
-                <repose.valve.jar>repose-valve.jar</repose.valve.jar>
-                <filter.ear>filter-bundle-*.ear</filter.ear>
-                <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
-
-                <repose_port>8888</repose_port>
-                <repose_jmx_port>9001</repose_jmx_port>
-                <repose_shutdown_port>10009</repose_shutdown_port>
-                <target_hostname>localhost</target_hostname>
-                <target_port>10001</target_port>
-                <identity_port>12200</identity_port>
-                <atom_port>12201</atom_port>
-
-                <repose.home>${project.build.directory}/repose_home</repose.home>
-                <repose.config.directory>${repose.home}/configs</repose.config.directory>
-                <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-                <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
 
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
                         <configuration>
-                            <includes>
-                                <include>**/*.class</include>
-                                <include>**/saxonEE/*.class</include>
-                            </includes>
+                            <groups>framework.category.SaxonEE</groups>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
 
+        <profile>
+            <id>bug</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
 
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
+                            <groups>framework.category.Bug</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>flaky</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
+                            <groups>framework.category.Flaky</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>benchmark</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
+                            <groups>framework.category.Benchmark</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>slow</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
+                            <groups>framework.category.Slow</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>benchmark-slow</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.14.1</version>
+                        <configuration>
+                            <groups>framework.category.Benchmark,framework.category.Slow</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
     </profiles>
 
