@@ -1,11 +1,14 @@
 package features.filters.uritranslation.perftest
 
 import framework.ReposeValveTest
+import framework.category.Benchmark
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 
+@Category(Benchmark.class)
 class UriTranslationPerformanceTest extends ReposeValveTest {
 
 

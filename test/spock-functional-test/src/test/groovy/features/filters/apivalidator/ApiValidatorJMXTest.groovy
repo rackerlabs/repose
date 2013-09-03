@@ -1,7 +1,10 @@
 package features.filters.apivalidator
 import framework.ReposeValveTest
+import framework.category.Slow
 import org.rackspace.gdeproxy.Deproxy
+import org.junit.experimental.categories.Category
 
+@Category(Slow.class)
 class ApiValidatorJMXTest extends ReposeValveTest {
     String validatorBeanDomain = '\"com.rackspace.com.papi.components.checker\":*'
     String validatorClassName = "com.rackspace.com.papi.components.checker.Validator"
@@ -18,24 +21,25 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String API_VALIDATOR_3 = PREFIX + "api-validator" + NAME_ROLE_3
     String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
 
-
-    def setup() {
-        repose.applyConfigs(
-                "features/filters/apivalidator/common",
-                "features/filters/apivalidator/jmx")
-        repose.start()
-        sleep(15000)
-
-
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
+    def setup() {
+        // TODO move repose startup to startupSpec(), clear MBeans in setup()
+        repose.applyConfigs(
+                "features/filters/apivalidator/common",
+                "features/filters/apivalidator/jmx")
+        repose.start()
+    }
+
     def cleanup() {
-        if (deproxy)
-            deproxy.shutdown()
-        sleep(4000) //TODO: add a clean way to ensure deproxy has really shutdown all endpoints
         repose.stop()
+    }
+
+    def cleanupSpec() {
+        deproxy.shutdown()
     }
 
     def "when loading validators on startup, should register validator MXBeans"() {
