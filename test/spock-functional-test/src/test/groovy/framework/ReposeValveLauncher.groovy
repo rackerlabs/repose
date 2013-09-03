@@ -1,6 +1,10 @@
 package framework
 
 import framework.client.jmx.JmxClient
+import org.apache.http.client.ClientProtocolException
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
 
 import static org.junit.Assert.fail
@@ -51,11 +55,20 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void start() {
+        this.start([:])
+    }
+    void start(Map params) {
 
-        waitForCondition(clock, '5s', '1s', {
-            killIfUp()
-            !isUp()
-        })
+        boolean killOthersBeforeStarting = (params?.killOthersBeforeStarting ? true : false)
+        boolean waitOnJmxAfterStarting = (params?.waitOnJmxAfterStarting ? true : false)
+
+
+        if (killOthersBeforeStarting) {
+            waitForCondition(clock, '5s', '1s', {
+                killIfUp()
+                !isUp()
+            })
+        }
 
         def jmxprops = ""
         def debugProps = ""
@@ -91,10 +104,12 @@ class ReposeValveLauncher implements ReposeLauncher {
             connectViaJmxRemote(jmxUrl)
         }
 
-        print("Waiting for repose to start")
-        waitForCondition(clock, '60s', '1s', {
-            isFilterChainInitialized()
-        })
+        if (waitOnJmxAfterStarting) {
+            print("Waiting for repose to start")
+            waitForCondition(clock, '60s', '1s', {
+                isFilterChainInitialized()
+            })
+        }
 
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
