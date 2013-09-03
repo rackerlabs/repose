@@ -88,4 +88,9 @@ class ReposeConfigurationProvider {
             FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
         }
     }
+
+    public void cleanConfigDirectory() {
+        FileUtils.cleanDirectory(reposeConfigDir)
+    }
+
 }
