@@ -105,24 +105,21 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             List<AuthFeedReader> listeners = new ArrayList<AuthFeedReader>();
 
             for (RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()) {
-                SaxAuthFeedReader rdr=null;
+
+                SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
                     if (!StringUtilities.isBlank(feed.getAuthUri())) {
-                        rdr =  new SaxAuthFeedReader(new ServiceClient(feed.getAuthUri(), feed.getUser(), feed.getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
                         rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                     } else {
-                        rdr =  new SaxAuthFeedReader(new ServiceClient(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
-                                modifiedConfig.getOpenstackAuth().getIdentityService().getPassword(),modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
                         rdr.setAuthed(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
                                 modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
                     }
                 }
 
-                if(rdr!=null){
                     listeners.add(rdr);
-                }
+
 
             }
 

@@ -31,10 +31,11 @@ class RequestQueryParamTest extends ReposeValveTest {
 
         when: "the client makes a request through Repose"
         def MessageChain messageChain = deproxy.makeRequest(reposeEndpoint + uriSuffixGiven, method)
-        def Handling handling = messageChain.getHandlings().get(0)
+
 
         then: "after passing through Repose, request path should contain a valid query param list"
         messageChain.getHandlings().size() == 1
+        def Handling handling = messageChain.getHandlings().get(0)
         handling.request.path.endsWith(uriSuffixExpected)
 
         where: "given a path with query params defined"
