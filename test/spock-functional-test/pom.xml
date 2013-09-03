@@ -166,7 +166,7 @@
         </profile>
 
         <profile>
-            <id>saxonEE</id>
+            <id>saxonee</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
