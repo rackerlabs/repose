@@ -71,7 +71,7 @@ class IdentityServiceResponseSimulator {
 
         // default response code and message
         def template
-        def headers = ['Connection': 'close']
+        def headers = [:]
         def code = 200
         def message = 'OK'
         if (xml) {
@@ -152,7 +152,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -207,7 +207,7 @@ class IdentityServiceResponseSimulator {
         ]
 
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -261,7 +261,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
