@@ -11,6 +11,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -42,6 +43,8 @@ public class OutputStreamUriParameterResolverTest {
             assertNotNull("Should return the href for our output stream", href);
             StreamResult result = (StreamResult)resolver.resolve(href, "");
             assertNotNull("Should return a StreamResult which wraps our output stream", result);
+            assertNotNull("Source stream should include a path", result.getSystemId());
+            assertFalse("Source stream path should not be empty", result.getSystemId().isEmpty());
             assertTrue("Should return our output stream", output == result.getOutputStream());
         }
         
