@@ -34,6 +34,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.http.client.HttpClient;
+import com.rackspace.papi.commons.util.StringUtilities;
 /**
  * Creates apache http clients with basic auth
  */
@@ -42,24 +43,23 @@ public class ServiceClient {
     private static final String MEDIA_TYPE = "application/xml";
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
     private static final int TIMEOUT = 30000;
-    private String TargetHostUri;
-    private String Username;
-    private String Password;
-    private String ConnectionPoolId;
-
-
-
+    private String targetHostUri;
+    private String username;
+    private String password;
+    private String connectionPoolId;
 
     private HttpClientService httpClientService;
 
-      public ServiceClient() {
+    public ServiceClient(String connectionPoolId,HttpClientService httpClientService) {
+        this.connectionPoolId= connectionPoolId;
+        this.httpClientService=httpClientService;
     }
 
     public ServiceClient(String targetHostUri, String username, String password, String connectionPoolId,HttpClientService httpClientService) {
-        this.TargetHostUri =  targetHostUri;
-        this.Username  =  username;
-        this.Password  = password;
-        this.ConnectionPoolId= connectionPoolId;
+        this.targetHostUri =  targetHostUri;
+        this.username  =  username;
+        this.password  = password;
+        this.connectionPoolId= connectionPoolId;
         this.httpClientService=httpClientService;
 
     }
@@ -67,18 +67,20 @@ public class ServiceClient {
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
         try{
 
-            final HttpClient client = httpClientService.getClient(ConnectionPoolId).getHttpClient();
-            client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
+            final HttpClient client = httpClientService.getClient(connectionPoolId).getHttpClient();
 
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            if(!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) & !StringUtilities.isEmpty(password) )  {
 
-            credsProvider.setCredentials(
-                    new AuthScope(TargetHostUri, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(Username, Password));
+                client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
 
+                CredentialsProvider credsProvider = new BasicCredentialsProvider();
 
-            client.getParams().setParameter("http.authentication.preemptive" ,true);
-            client.getParams().setParameter("http.authentication.credential-provider", credsProvider) ;
+                credsProvider.setCredentials(
+                        new AuthScope(targetHostUri, AuthScope.ANY_PORT),
+                        new UsernamePasswordCredentials(username, password));
+                client.getParams().setParameter("http.authentication.credential-provider", credsProvider) ;
+
+            }
 
             return client;
 
@@ -115,12 +117,8 @@ public class ServiceClient {
                client.getParams().setParameter(queryParameters[index], queryParameters[index + 1]);
             }
 
-
             HttpResponse httpResponse = client.execute(base);
             HttpEntity entity = httpResponse.getEntity();
-           
-
-
 
             InputStream stream = null;
             if (entity != null) {
