@@ -145,7 +145,7 @@
         </profile>
 
         <profile>
-            <id>unmarked</id>
+            <id>uncategorized</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

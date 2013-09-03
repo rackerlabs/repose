@@ -51,6 +51,7 @@ The following maven profiles are currently supported:
 * Benchmark (-P benchmark)
 * Slow including Benchmark(-P slow)
 * Slow excluding Benchmark (-P slow\benchmark)
+* Uncategorized (-P uncategorized)
 
 To standardize the implementation of categories and the behavior of tests, the following practices are to be followed:
 * One category per class or method (JUnit supports the assignment of multiple categories, but we do not want to run
