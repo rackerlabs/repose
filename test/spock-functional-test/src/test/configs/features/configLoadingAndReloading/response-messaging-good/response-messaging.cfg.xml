@@ -1,0 +1,9 @@
+<response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
+    <status-code id="200" code-regex="200">
+        <message media-type="*/*" content-type="application/json">
+{
+    "success" : "true"
+}
+        </message>
+    </status-code>
+</response-messaging>
