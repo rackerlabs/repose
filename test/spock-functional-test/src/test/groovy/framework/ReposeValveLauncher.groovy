@@ -27,6 +27,8 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int debugPort = 8011
     def classPaths =[]
 
+    Process process
+
     def ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
@@ -93,7 +95,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ cmd.execute() });
+        def th = new Thread({ this.process = cmd.execute() });
 
         th.run()
         th.join()
