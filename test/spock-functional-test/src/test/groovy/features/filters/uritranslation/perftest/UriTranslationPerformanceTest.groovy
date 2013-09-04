@@ -14,7 +14,7 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
         int totalThreads = 10
 
         when: "I make 1000 requests through the uri stripper filter"
-        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/noLocationRewrite")
+        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/nolocationrewrite")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
