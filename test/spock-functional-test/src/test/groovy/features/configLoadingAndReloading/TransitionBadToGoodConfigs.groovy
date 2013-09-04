@@ -63,6 +63,9 @@ class TransitionBadToGoodConfigs extends Specification {
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
+                "features/configLoadingAndReloading/common",
+                params)
+        reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/${componentLabel}-common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
@@ -123,6 +126,9 @@ class TransitionBadToGoodConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
+        reposeConfigProvider.applyConfigsRuntime(
+                "features/configLoadingAndReloading/common",
+                params)
         reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/${componentLabel}-common",
                 params)

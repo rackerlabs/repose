@@ -68,6 +68,9 @@ class StartWithMissingConfigs extends Specification {
         // set the common configs, but not the component-specific configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
+                "features/configLoadingAndReloading/common",
+                params)
+        reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/${componentLabel}-common",
                 params)
 

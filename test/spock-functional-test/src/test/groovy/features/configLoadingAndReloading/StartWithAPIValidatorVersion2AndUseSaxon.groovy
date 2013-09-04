@@ -45,6 +45,9 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
 
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
+                "features/configLoadingAndReloading/common",
+                params)
+        reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/validator-common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
