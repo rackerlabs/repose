@@ -1,4 +1,4 @@
-package features.filters.uristripper.nolocationrewrite
+package features.filters.uristripper
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy

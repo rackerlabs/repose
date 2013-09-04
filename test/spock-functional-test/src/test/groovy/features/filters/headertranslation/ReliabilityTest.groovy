@@ -14,8 +14,7 @@ class ReliabilityTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
     def setupSpec() {
-        repose.applyConfigs( "features/filters/headertranslation/common",
-                "features/filters/headertranslation/oneToMany" )
+        repose.applyConfigs( "features/filters/headertranslation/common")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
@@ -23,7 +22,7 @@ class ReliabilityTest extends ReposeValveTest {
         def missingHeaderErrorHandler = { Request request ->
             def headers = request.getHeaders()
 
-            if (!headers.contains("X-Header-C") || !headers.contains("X-Header-D")) {
+            if (!headers.contains("X-OneToMany-C") || !headers.contains("X-OneToMany-D")) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING HEADERS")
             }
 
@@ -57,7 +56,7 @@ class ReliabilityTest extends ReposeValveTest {
                     def HttpClient client = new DefaultHttpClient()
 
                     HttpGet httpGet = new HttpGet(reposeEndpoint)
-                    httpGet.addHeader('X-Header-A','lisa.rocks')
+                    httpGet.addHeader('X-OneToMany-A','lisa.rocks')
                     httpGet.addHeader('thread-name', 'spock-thread-'+threadNum+'-request-'+i)
 
                     HttpResponse response = client.execute(httpGet)
