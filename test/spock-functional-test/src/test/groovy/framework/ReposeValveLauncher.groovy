@@ -7,6 +7,9 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
 
+import java.nio.charset.Charset
+import java.util.concurrent.TimeoutException
+
 import static org.junit.Assert.fail
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -147,13 +150,35 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void stop() {
-        def cmd = "java -jar ${reposeJar} -s ${shutdownPort} stop"
-        println("Stopping repose: ${cmd}")
+        this.stop(null)
+    }
+    void stop(timeout) {
 
-        cmd.execute();
-        waitForCondition(clock, '45s', '1s', {
-            !isUp()
-        })
+        if (timeout == null) {
+            timeout = 45000
+        }
+
+        int socketTimeout = (timeout < 5000 ? timeout : 5000)
+
+        try {
+
+            Socket s = new Socket()
+            s.setSoTimeout(socketTimeout)
+            s.connect(new InetSocketAddress("localhost", shutdownPort), socketTimeout)
+            s.outputStream.write("\r\n".getBytes(Charset.forName("US-ASCII")))
+            s.outputStream.flush()
+            s.close()
+
+            waitForCondition(clock, "${timeout}", '1s', {
+                !isUp()
+            })
+
+        } catch (Exception) {
+
+            this.process.waitForOrKill(5000)
+
+            throw new TimeoutException("Repose failed to stop cleanly")
+        }
     }
 
     @Override
