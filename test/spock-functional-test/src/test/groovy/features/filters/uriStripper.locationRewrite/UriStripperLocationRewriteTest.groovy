@@ -1,4 +1,4 @@
-package features.filters.uriStripper.locationRewrite
+package features.filters.uristripper.locationrewrite
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
@@ -16,7 +16,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/filters/uriStripper/common", "features/filters/uriStripper/locationRewrite")
+        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/locationrewrite")
         repose.start()
         waitUntilReadyToServiceRequests()
         originServiceEndpoint = "${properties.getProperty("targetHostname")}:${properties.getProperty("targetPort")}"

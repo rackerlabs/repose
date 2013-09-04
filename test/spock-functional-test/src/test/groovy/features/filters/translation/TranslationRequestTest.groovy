@@ -5,6 +5,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
+import spock.lang.Ignore
 
 class TranslationRequestTest extends ReposeValveTest {
 
@@ -86,7 +87,8 @@ class TranslationRequestTest extends ReposeValveTest {
 
     }
 
-
+    // Requires gdeproxy 0.15 to work
+    @Ignore
     def "when translating application/rss+xml requests with header translations"() {
 
         given: "Repose is configured to translate request headers"
