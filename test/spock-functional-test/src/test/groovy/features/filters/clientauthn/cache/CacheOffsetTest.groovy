@@ -9,7 +9,6 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Ignore
 
-@Ignore
 class CacheOffsetTest extends ReposeValveTest {
 
     def identityEndpoint
