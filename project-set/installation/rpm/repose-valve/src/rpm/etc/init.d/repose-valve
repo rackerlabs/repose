@@ -21,14 +21,14 @@ DAEMON_HOME=/usr/share/lib/repose
 CLEAN=/usr/local/bin/clean-repose-deploy
 
 # Set sensible defaults 
+# Can override the defaults in /etc/sysconfig
+. /etc/sysconfig/repose
 
 daemonize=/usr/sbin/daemonize
 daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
 run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
 java_opts=""
 
-# Can override the defaults in /etc/sysconfig
-. /etc/sysconfig/repose
 
 if [ ! -d $DAEMON_HOME ]; then
   echo "Unable to find $NAME's directory: $DEAMON_HOME."
