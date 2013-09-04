@@ -38,14 +38,14 @@
     <xsl:template match="httpx:header">
         <xsl:choose>
 
-            <xsl:when test="@name = 'x-header-a'" >
+            <xsl:when test="@name = 'x-onetomany-a'" >
                 <xsl:element name="httpx:header">
-                    <xsl:attribute name="name"><xsl:value-of select="'x-header-c'"/></xsl:attribute>
+                    <xsl:attribute name="name"><xsl:value-of select="'x-onetomany-c'"/></xsl:attribute>
                     <xsl:attribute name="value"><xsl:value-of select="@value"/></xsl:attribute>
                     <xsl:attribute name="quality"><xsl:value-of select="@quality"/></xsl:attribute>
                 </xsl:element>
                 <xsl:element name="httpx:header">
-                    <xsl:attribute name="name"><xsl:value-of select="'x-header-d'"/></xsl:attribute>
+                    <xsl:attribute name="name"><xsl:value-of select="'x-onetomany-d'"/></xsl:attribute>
                     <xsl:attribute name="value"><xsl:value-of select="@value"/></xsl:attribute>
                     <xsl:attribute name="quality"><xsl:value-of select="@quality"/></xsl:attribute>
                 </xsl:element>
