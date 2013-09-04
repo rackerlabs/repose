@@ -108,9 +108,9 @@ class TransitionBadToGoodConfigs extends Specification {
         "versioning"              | 200
         "translation"             | 200
         "client-auth-n"           | 200
-        "openstack-authorization" | 200
+        "openstack-authorization" | 401
         "dist-datastore"          | 200
-        "http-logging"            | 401
+        "http-logging"            | 200
         "uri-identity"            | 200
         "header-identity"         | 200
         "ip-identity"             | 200
