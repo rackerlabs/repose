@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<header-translation  xmlns="http://docs.api.rackspacecloud.com/repose/header-translation/v1.0">
-    <header original-name="x-pp-user" new-name="x-rax-username" />
-    <header original-name="x-tenant-name" new-name="x-rax-tenants" />
-    <header original-name="x-roles" new-name="x-rax-roles" />
-</header-translation>
