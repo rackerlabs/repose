@@ -3,6 +3,7 @@ package features.configLoadingAndReloading
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
@@ -21,11 +22,13 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
     ReposeLogSearch reposeLogSearch
     int targetPort
     def params = [:]
+    Deproxy deproxy
 
     def setup() {
         PortFinder pf = new PortFinder()
         this.reposePort = pf.getNextOpenPort() as int
         this.stopPort = pf.getNextOpenPort() as int
+        this.targetPort = pf.getNextOpenPort() as int
         this.url = "http://localhost:${this.reposePort}/"
 
         params = [
@@ -33,6 +36,11 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
                 'targetHostname': 'localhost',
                 'targetPort': targetPort,
         ]
+
+        // start a deproxy
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(this.targetPort)
+
         // set initial config files
         def properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
@@ -65,15 +73,23 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);
+        repose.start(killOthersBeforeStarting: false,
+                waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(url)
     }
 
     def "test_start_v2_use_saxon"() {
-        this.assertEquals(503, get_status_code_from_url(this.url))
+
+        expect:
+        deproxy.makeRequest(url: url).receivedResponse.code == "503"
     }
 
     def cleanup() {
         if (repose) {
             repose.stop()
+        }
+        if (deproxy) {
+            deproxy.shutdown()
         }
     }
 }
