@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<header-translation xmlns="http://docs.api.rackspacecloud.com/repose/header-translation/v1.0">
-    <header original-name="X-header-A" new-name="X-HEADER-D" remove-original="false" />
-    <header original-name="X-Header-b" new-name="X-Header-e" remove-original="false" />
-    <header original-name="X-HEADER-C" new-name="x-HEADER-E" remove-original="false" />
-</header-translation>
