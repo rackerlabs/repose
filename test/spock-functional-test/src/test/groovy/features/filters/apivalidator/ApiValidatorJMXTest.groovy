@@ -32,6 +32,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
                 "features/filters/apivalidator/common",
                 "features/filters/apivalidator/jmx")
         repose.start()
+        sleep(15000)
     }
 
     def cleanup() {

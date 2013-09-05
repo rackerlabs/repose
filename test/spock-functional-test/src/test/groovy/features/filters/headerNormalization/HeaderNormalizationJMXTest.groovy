@@ -91,7 +91,8 @@ class HeaderNormalizationJMXTest extends Specification {
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
         repose.start()
-
+        // wait for repose to start
+        sleep(15000)
 
 
         when:
@@ -160,6 +161,8 @@ class HeaderNormalizationJMXTest extends Specification {
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
         repose.start()
+        // wait for repose to start
+        sleep(15000)
 
         when: "client makes a request that matches one filter's uri-regex attribute"
         def mc = deproxy.makeRequest(url: urlBase)
