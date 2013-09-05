@@ -150,13 +150,15 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void stop() {
-        this.stop(null)
+        this.stop([:])
     }
-    void stop(timeout) {
+    void stop(Map params) {
 
-        if (timeout == null) {
-            timeout = 45000
-        }
+        def timeout = params?.timeout ?: 45000
+
+        stop(timeout)
+    }
+    void stop(int timeout) {
 
         int socketTimeout = (timeout < 5000 ? timeout : 5000)
 
