@@ -8,7 +8,6 @@ import org.rackspace.gdeproxy.Deproxy
  */
 class PasswordLogging extends ReposeValveTest {
 
-    //Start repose once for this particular translation test
     def setupSpec() {
         cleanLogDirectory()
         repose.applyConfigs("features/core/security/before")
