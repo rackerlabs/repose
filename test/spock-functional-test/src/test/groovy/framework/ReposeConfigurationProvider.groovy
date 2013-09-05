@@ -94,7 +94,12 @@ class ReposeConfigurationProvider {
     }
 
     public void cleanConfigDirectory() {
-        FileUtils.cleanDirectory(reposeConfigDir)
+        if (reposeConfigDir.exists()) {
+            FileUtils.cleanDirectory(reposeConfigDir)
+        } else {
+            reposeConfigDir.mkdirs()
+        }
+
     }
 
 }
