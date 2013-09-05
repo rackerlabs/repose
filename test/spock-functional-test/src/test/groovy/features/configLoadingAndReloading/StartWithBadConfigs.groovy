@@ -96,65 +96,65 @@ class StartWithBadConfigs extends Specification {
 
         where:
         componentLabel            | _
-        "response-messaging"      | _
-        "rate-limiting"           | _
-        "versioning"              | _
+//        "response-messaging"      | _
+//        "rate-limiting"           | _
+//        "versioning"              | _
         "translation"             | _
-        "client-auth-n"           | _
-        "openstack-authorization" | _
-        "dist-datastore"          | _
-        "http-logging"            | _
-        "uri-identity"            | _
-        "header-identity"         | _
-        "ip-identity"             | _
-        "validator"               | _
+//        "client-auth-n"           | _
+//        "openstack-authorization" | _
+//        "dist-datastore"          | _
+//        "http-logging"            | _
+//        "uri-identity"            | _
+//        "header-identity"         | _
+//        "ip-identity"             | _
+//        "validator"               | _
     }
 
-
-    @Unroll
-    def "start with bad #componentLabel configs, should fail to connect"() {
-
-        given:
-        // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-bad",
-                params)
-        expectCleanShutdown = false
-
-        // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getProperty("repose.jar"),
-                url,
-                configDirectory,
-                reposePort,
-                stopPort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
-        repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
-        sleep 35000
-
-
-        when: "starting Repose with bad configs should lead to a connection exception"
-        deproxy.makeRequest(url: url)
-
-        then:
-        thrown(ConnectException)
-
-        where:
-        componentLabel            | _
-        "system-model"            | _
-        "container"               | _
-    }
+//
+//    @Unroll
+//    def "start with bad #componentLabel configs, should fail to connect"() {
+//
+//        given:
+//        // set the common and good configs
+//        reposeConfigProvider.cleanConfigDirectory()
+//        reposeConfigProvider.applyConfigsRuntime(
+//                "features/configLoadingAndReloading/common",
+//                params)
+//        reposeConfigProvider.applyConfigsRuntime(
+//                "features/configLoadingAndReloading/${componentLabel}-common",
+//                params)
+//        reposeConfigProvider.applyConfigsRuntime(
+//                "features/configLoadingAndReloading/${componentLabel}-bad",
+//                params)
+//        expectCleanShutdown = false
+//
+//        // start repose
+//        repose = new ReposeValveLauncher(
+//                reposeConfigProvider,
+//                properties.getProperty("repose.jar"),
+//                url,
+//                configDirectory,
+//                reposePort,
+//                stopPort
+//        )
+//        repose.enableDebug()
+//        reposeLogSearch = new ReposeLogSearch(logFile);
+//        repose.start(killOthersBeforeStarting: false,
+//                     waitOnJmxAfterStarting: false)
+//        sleep 35000
+//
+//
+//        when: "starting Repose with bad configs should lead to a connection exception"
+//        deproxy.makeRequest(url: url)
+//
+//        then:
+//        thrown(ConnectException)
+//
+//        where:
+//        componentLabel            | _
+//        "system-model"            | _
+//        "container"               | _
+//    }
 
     def cleanup() {
         if (repose) {
