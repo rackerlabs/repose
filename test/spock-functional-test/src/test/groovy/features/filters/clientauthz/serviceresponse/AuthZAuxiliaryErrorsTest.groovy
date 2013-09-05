@@ -2,10 +2,13 @@ package features.filters.clientauthz.serviceresponse
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
 
+@Category(Slow.class)
 class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
 
     def static originEndpoint
