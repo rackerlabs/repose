@@ -15,7 +15,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
 
-    def setup() {
+    def setupSpec() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
@@ -24,6 +24,11 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     def cleanup() {
 
         repose.stop()
+
+    }
+
+    def cleanupSpec(){
+
         deproxy.shutdown()
     }
 
