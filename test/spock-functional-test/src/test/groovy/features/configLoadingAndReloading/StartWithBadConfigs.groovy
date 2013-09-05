@@ -27,6 +27,7 @@ class StartWithBadConfigs extends Specification {
     ReposeValveLauncher repose
     Map params = [:]
     Deproxy deproxy
+    boolean expectCleanShutdown = true
 
     def setup() {
 
@@ -71,6 +72,7 @@ class StartWithBadConfigs extends Specification {
         reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/${componentLabel}-bad",
                 params)
+        expectCleanShutdown = true
 
         // start repose
         repose = new ReposeValveLauncher(
@@ -124,6 +126,7 @@ class StartWithBadConfigs extends Specification {
         reposeConfigProvider.applyConfigsRuntime(
                 "features/configLoadingAndReloading/${componentLabel}-bad",
                 params)
+        expectCleanShutdown = false
 
         // start repose
         repose = new ReposeValveLauncher(
@@ -155,7 +158,7 @@ class StartWithBadConfigs extends Specification {
 
     def cleanup() {
         if (repose) {
-            repose.stop()
+            repose.stop(throwExceptionOnKill: expectCleanShutdown)
         }
         if (deproxy) {
             deproxy.shutdown()
