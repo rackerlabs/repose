@@ -155,10 +155,11 @@ class ReposeValveLauncher implements ReposeLauncher {
     void stop(Map params) {
 
         def timeout = params?.timeout ?: 45000
+        def throwExceptionOnKill = params?.throwExceptionOnKill ?: true
 
-        stop(timeout)
+        stop(timeout, throwExceptionOnKill)
     }
-    void stop(int timeout) {
+    void stop(int timeout, boolean throwExceptionOnKill) {
 
         int socketTimeout = (timeout < 5000 ? timeout : 5000)
 
@@ -179,7 +180,9 @@ class ReposeValveLauncher implements ReposeLauncher {
 
             this.process.waitForOrKill(5000)
 
-            throw new TimeoutException("Repose failed to stop cleanly")
+            if (throwExceptionOnKill) {
+                throw new TimeoutException("Repose failed to stop cleanly")
+            }
         }
     }
 
