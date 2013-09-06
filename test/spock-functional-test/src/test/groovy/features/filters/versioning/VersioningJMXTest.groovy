@@ -3,6 +3,7 @@ package features.filters.versioning
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.TestProperties
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
@@ -31,11 +32,9 @@ class VersioningJMXTest extends Specification {
 
     Deproxy deproxy
 
-    Properties properties
-    def logFile
+    TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
-    ReposeLogSearch reposeLogSearch
 
     def setup() {
 
@@ -54,27 +53,22 @@ class VersioningJMXTest extends Specification {
 
 
         // configure and start repose
-        properties = new Properties()
-        properties.load(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
-        def targetHostname = properties.getProperty("target.hostname")
+        def targetHostname = properties.getTargetHostname()
         urlBase = "http://${targetHostname}:${reposePort}"
-        logFile = properties.getProperty("repose.log")
 
-        def configDirectory = properties.getProperty("repose.config.directory")
-        def configSamples = properties.getProperty("repose.config.samples")
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getProperty("repose.jar"),
+                properties.getReposeJar(),
                 urlBase,
-                configDirectory,
+                properties.getConfigDirectory(),
                 reposePort,
                 reposeStopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
 
         reposeConfigProvider.applyConfigsRuntime(
                 "common",
@@ -93,6 +87,7 @@ class VersioningJMXTest extends Specification {
                     'targetPort1': originServicePort1.toString(),
                     'targetPort2': originServicePort2.toString()])
         repose.start()
+        sleep(20000)
 
 
 

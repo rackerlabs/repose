@@ -3,6 +3,7 @@ package features.filters.headerNormalization
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
@@ -33,11 +34,9 @@ class HeaderNormalizationJMXTest extends Specification {
 
     Deproxy deproxy
 
-    Properties properties
-    def logFile
+    TestProperties  properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
-    ReposeLogSearch reposeLogSearch
 
     def setup() {
 
@@ -54,27 +53,22 @@ class HeaderNormalizationJMXTest extends Specification {
 
 
         // configure and start repose
-        properties = new Properties()
-        properties.load(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
-        def targetHostname = properties.getProperty("target.hostname")
+        def targetHostname = properties.getTargetHostname()
         urlBase = "http://${targetHostname}:${reposePort}"
-        logFile = properties.getProperty("repose.log")
 
-        def configDirectory = properties.getProperty("repose.config.directory")
-        def configSamples = properties.getProperty("repose.config.samples")
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getProperty("repose.jar"),
+                properties.getReposeJar(),
                 urlBase,
-                configDirectory,
+                properties.getConfigDirectory(),
                 reposePort,
                 reposeStopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
 
         reposeConfigProvider.applyConfigsRuntime(
                 "common",
@@ -92,7 +86,7 @@ class HeaderNormalizationJMXTest extends Specification {
                     'targetPort': originServicePort.toString()])
         repose.start()
         // wait for repose to start
-        sleep(15000)
+        sleep(20000)
 
 
         when:
@@ -162,7 +156,7 @@ class HeaderNormalizationJMXTest extends Specification {
                     'targetPort': originServicePort.toString()])
         repose.start()
         // wait for repose to start
-        sleep(15000)
+        sleep(20000)
 
         when: "client makes a request that matches one filter's uri-regex attribute"
         def mc = deproxy.makeRequest(url: urlBase)
