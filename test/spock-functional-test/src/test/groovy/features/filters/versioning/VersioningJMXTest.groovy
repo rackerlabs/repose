@@ -1,21 +1,23 @@
 package features.filters.versioning
 
 import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
 /**
  * This test ensures that the versioning filter provides metrics via JMX,
- * counting how many requests it services and which endpoints it ends them to.
+ * counting how many requests it services and which endpoints it sends them to.
  *
  * http://wiki.openrepose.org/display/REPOSE/Repose+JMX+Metrics+Development
  *
  */
 
+@Category(Slow.class)
 class VersioningJMXTest extends Specification {
 
     String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"Versioning\",scope=\"versioning\""

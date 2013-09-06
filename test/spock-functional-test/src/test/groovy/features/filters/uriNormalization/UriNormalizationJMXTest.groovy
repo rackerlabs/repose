@@ -1,13 +1,15 @@
 package features.filters.uriNormalization
 
 import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
+@Category(Slow.class)
 class UriNormalizationJMXTest extends Specification {
 
     String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"UriNormalization\",scope=\"uri-normalization\""

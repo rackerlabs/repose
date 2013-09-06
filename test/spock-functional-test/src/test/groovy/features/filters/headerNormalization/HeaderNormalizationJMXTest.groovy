@@ -1,7 +1,6 @@
 package features.filters.headerNormalization
 
 import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
