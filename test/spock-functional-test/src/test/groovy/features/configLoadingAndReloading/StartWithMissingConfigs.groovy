@@ -4,6 +4,7 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
