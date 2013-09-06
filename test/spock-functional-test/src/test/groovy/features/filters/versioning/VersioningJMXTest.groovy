@@ -1,4 +1,4 @@
-package features.filters.uriNormalization
+package features.filters.versioning
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
