@@ -1,7 +1,10 @@
-package features.filters.apivalidator
+package features.core.system_model
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 
+@Category(Slow.class)
 class SystemModelSpockTest extends ReposeValveTest {
 
     def setup() {

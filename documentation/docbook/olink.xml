@@ -1,0 +1,12 @@
+<books xmlns="http://docs.rackspace.com/olink">
+  <book path="src/resources/repose-apivalidation-deploy.xml"/>
+  <book path="src/resources/repose-authnauthz-deploy.xml"/>
+  <book path="src/resources/repose-deploy.xml"/>
+  <book path="src/resources/repose-glossary.xml"/> 	
+  <book path="src/resources/repose-intro.xml"/>
+  <book path="src/resources/repose-logging-deploy.xml"/>
+  <book path="src/resources/repose-ratelimiting-deploy.xml"/>
+  <book path="src/resources/repose-translation-deploy.xml"/> 	
+  <book path="src/resources/repose-versioning-deploy.xml"/>
+</books>
+

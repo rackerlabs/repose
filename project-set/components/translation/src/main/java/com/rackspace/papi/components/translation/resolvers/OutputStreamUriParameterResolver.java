@@ -7,8 +7,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.util.UriUtils;
 
 public class OutputStreamUriParameterResolver implements OutputURIResolver {
 
@@ -35,7 +39,11 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
   }
 
   public String getHref(String name) {
-    return PREFIX + name;
+    try {
+      return PREFIX + UriUtils.encodePathSegment(name, "utf-8");
+    } catch (UnsupportedEncodingException ex) {
+      return PREFIX + name;
+    }
   }
 
   private static class ResourceNotFoundException extends RuntimeException {
@@ -49,7 +57,13 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
   public Result resolve(String href, String base) throws TransformerException {
     OutputStream stream = streams.get(href);
     if (stream != null) {
-      return new StreamResult(stream);
+      StreamResult result = new StreamResult(stream);
+      try {
+        result.setSystemId(new URI(href).toString());
+      } catch (URISyntaxException ex) {
+      }
+
+      return result;
     }
 
     if (parent != null && href != null && !href.startsWith("reference")) {

@@ -4,12 +4,13 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 
 class DistDataShutdownTest extends ReposeValveTest {
-    def setup(){
+
+    def setupSpec(){
          deproxy = new Deproxy()
          deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
      }
 
-     def cleanup(){
+     def cleanupSpec(){
          if (deproxy)
              deproxy.shutdown()
      }

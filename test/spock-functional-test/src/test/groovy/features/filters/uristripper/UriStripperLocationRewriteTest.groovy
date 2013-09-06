@@ -1,4 +1,4 @@
-package features.filters.uriStripper.locationRewrite
+package features.filters.uristripper
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
@@ -16,7 +16,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/filters/uriStripper/common", "features/filters/uriStripper/locationRewrite")
+        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/locationrewrite")
         repose.start()
         waitUntilReadyToServiceRequests()
         originServiceEndpoint = "${properties.getProperty("targetHostname")}:${properties.getProperty("targetPort")}"
@@ -44,7 +44,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
 
     }
 
-    @Unroll("Location header should be changed when repose can find a place to place removed token: request path: #requestPath location header: #locationheader contains tenant: #containsTenant")
+    @Unroll("Location header is modified when path: #requestPath location: #locationheader contains tenant: #containsTenant")
     def "when putting back tenant id to Location Header within the Response"() {
 
         given:

@@ -37,7 +37,9 @@ public class InputStreamUriParameterResolverTest {
             
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Shoudl find source stream", source);
+            assertNotNull("Should find source stream", source);
+            assertNotNull("Source stream should include a path", source.getSystemId());
+            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
             assertTrue("Streams should be the same", input == source.getInputStream());
         }
         
@@ -49,7 +51,9 @@ public class InputStreamUriParameterResolverTest {
             
             assertEquals("HREFs should be equal", href, actualHref);
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Shoudl find source stream", source);
+            assertNotNull("Should find source stream", source);
+            assertNotNull("Source stream should include a path", source.getSystemId());
+            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
             assertTrue("Streams should be the same", input == source.getInputStream());
             resolver.removeStream(href);
             source = (StreamSource) resolver.resolve(href, "base");
@@ -63,7 +67,9 @@ public class InputStreamUriParameterResolverTest {
             String actualHref = resolver.addStream(input);
             
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
-            assertNotNull("Shoudl find source stream", source);
+            assertNotNull("Should find source stream", source);
+            assertNotNull("Source stream should include a path", source.getSystemId());
+            assertFalse("Source stream path should not be empty", source.getSystemId().isEmpty());
             assertTrue("Streams should be the same", input == source.getInputStream());
             resolver.removeStream(input);
             source = (StreamSource) resolver.resolve(href, "base");

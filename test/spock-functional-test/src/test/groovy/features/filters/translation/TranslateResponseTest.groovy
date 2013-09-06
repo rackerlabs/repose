@@ -35,19 +35,13 @@ class TranslateResponseTest extends ReposeValveTest {
                 "features/filters/translation/response"
         )
         repose.start()
-    }
-
-    def setup() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
+        deproxy.shutdown()
         repose.stop()
     }
 
@@ -106,7 +100,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
     def "when attempting to translate an invalid xml/json response"() {
 
-        given: "Origin serivce returns invalid json/xml"
+        given: "Origin service returns invalid json/xml"
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 

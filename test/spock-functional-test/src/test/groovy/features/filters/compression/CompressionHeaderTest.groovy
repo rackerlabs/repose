@@ -1,20 +1,15 @@
 package features.filters.compression
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
-import spock.lang.Ignore
-import spock.lang.Unroll
 
 import java.util.zip.Deflater
 import java.util.zip.GZIPOutputStream
-import java.util.zip.DeflaterOutputStream
-import java.util.zip.Inflater
-import java.util.zip.InflaterOutputStream
 
+@Category(Slow.class)
 class CompressionHeaderTest extends ReposeValveTest {
     def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
             "malesuada. Integer nec est turpis duis."

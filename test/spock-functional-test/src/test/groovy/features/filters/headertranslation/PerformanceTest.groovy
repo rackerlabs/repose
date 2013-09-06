@@ -1,56 +1,53 @@
 package features.filters.headertranslation
 
 import framework.ReposeValveTest
-import groovy.time.TimeCategory
-import groovy.time.TimeDuration
+import framework.category.Benchmark
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-
+@Category(Benchmark.class)
 class PerformanceTest extends ReposeValveTest {
+
+    def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+    }
+
+    def cleanupSpec() {
+        deproxy.shutdown()
+    }
 
 
     def "performance test configs produce expected responses"() {
         when: "I make a request through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/common",
-                "features/filters/headertranslation/oneToMany" )
+        repose.applyConfigs( "features/filters/headertranslation/common")
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        MessageChain mcHdrXlate = deproxy.makeRequest(reposeEndpoint, "GET", ["X-Header-A":"12345", "X-Header-B":"abcde"])
-
+        MessageChain mcHdrXlate = deproxy.makeRequest(reposeEndpoint, "GET", ["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
         repose.stop()
-        deproxy.shutdown()
 
         and: "I make a request through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/common",
-                "features/filters/headertranslation/oneToMany" )
+        repose.applyConfigs( "features/filters/headertranslation/perftest")
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        MessageChain mcTranslation = deproxy.makeRequest(reposeEndpoint, "GET", ["X-Header-A":"12345", "X-Header-B":"abcde"])
-
+        MessageChain mcTranslation = deproxy.makeRequest(reposeEndpoint, "GET", ["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
         repose.stop()
-        deproxy.shutdown()
 
-        then:
-
+        then: "Headers are translated correctly by HDR XLATE"
         def mcHdrHandling = mcHdrXlate.handlings.get(0)
+        mcHdrHandling.request.headers.contains("X-OneToMany-A")
+        mcHdrHandling.request.headers.contains("X-OneToMany-C")
+        mcHdrHandling.request.headers.contains("X-OneToMany-D")
+        mcHdrHandling.request.headers.getFirstValue("X-OneToMany-C") == mcHdrXlate.sentRequest.headers.getFirstValue("X-OneToMany-A")
+        mcHdrHandling.request.headers.getFirstValue("X-OneToMany-D") == mcHdrXlate.sentRequest.headers.getFirstValue("X-OneToMany-A")
 
-        mcHdrHandling.request.headers.contains("X-Header-A")
-        mcHdrHandling.request.headers.contains("X-Header-C")
-        mcHdrHandling.request.headers.contains("X-Header-D")
-        mcHdrHandling.request.headers.getFirstValue("X-Header-C") == mcHdrXlate.sentRequest.headers.getFirstValue("X-Header-A")
-        mcHdrHandling.request.headers.getFirstValue("X-Header-D") == mcHdrXlate.sentRequest.headers.getFirstValue("X-Header-A")
-
-        then:
+        then: "Headers are translated correctly by Translation Filter"
         def mcTransHandling = mcTranslation.handlings.get(0)
-        mcTransHandling.request.headers.contains("X-Header-A")
-        mcTransHandling.request.headers.contains("X-Header-C")
-        mcTransHandling.request.headers.contains("X-Header-D")
-        mcTransHandling.request.headers.getFirstValue("X-Header-C") == mcTranslation.sentRequest.headers.getFirstValue("X-Header-A")
-        mcTransHandling.request.headers.getFirstValue("X-Header-D") == mcTranslation.sentRequest.headers.getFirstValue("X-Header-A")
+        mcTransHandling.request.headers.contains("X-OneToMany-A")
+        mcTransHandling.request.headers.contains("X-OneToMany-C")
+        mcTransHandling.request.headers.contains("X-OneToMany-D")
+        mcTransHandling.request.headers.getFirstValue("X-OneToMany-C") == mcTranslation.sentRequest.headers.getFirstValue("X-OneToMany-A")
+        mcTransHandling.request.headers.getFirstValue("X-OneToMany-D") == mcTranslation.sentRequest.headers.getFirstValue("X-OneToMany-A")
     }
 
     def "performance test to ensure header translation is on par or better than translation filter"() {
@@ -58,23 +55,16 @@ class PerformanceTest extends ReposeValveTest {
         int totalRequests = 1000
 
         when: "I make 100 requests through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/common",
-                "features/filters/headertranslation/oneToMany" )
+        repose.applyConfigs( "features/filters/headertranslation/common")
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
         def averageWithHdrXlate = makeRequests(totalRequests)
         repose.stop()
-        deproxy.shutdown()
 
         and: "I make 100 requests through translation filter"
         repose.applyConfigs( "features/filters/headertranslation/perftest")
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
         def averageWithTranslationFilter = makeRequests(totalRequests)
         repose.stop()
-        deproxy.shutdown()
 
         then: "Average response time for header translation is <= avg response time for translation filter"
         println("HDR XLATE: " + averageWithHdrXlate + " Translation: " + averageWithTranslationFilter)

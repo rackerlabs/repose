@@ -9,6 +9,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
@@ -30,6 +31,8 @@ public class ClassPathUriResolverTest {
         public void shouldFindResource() throws TransformerException {
             Source resource = resolver.resolve(ClassPathUriResolver.CLASSPATH_PREFIX + "/style.xsl", "");
             assertNotNull("Should find resource", resource);
+            assertNotNull("Resource should contain the source path", resource.getSystemId());
+            assertFalse("Resource path should not be empty", resource.getSystemId().isEmpty());
         }
         
         @Test

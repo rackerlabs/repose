@@ -1,11 +1,14 @@
 package features.filters.uritranslation.perftest
 
 import framework.ReposeValveTest
+import framework.category.Benchmark
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 
+@Category(Benchmark.class)
 class UriTranslationPerformanceTest extends ReposeValveTest {
 
 
@@ -14,7 +17,7 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
         int totalThreads = 10
 
         when: "I make 1000 requests through the uri stripper filter"
-        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/noLocationRewrite")
+        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/nolocationrewrite")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())

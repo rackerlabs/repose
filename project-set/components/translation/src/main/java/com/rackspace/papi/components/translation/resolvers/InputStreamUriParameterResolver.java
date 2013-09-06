@@ -5,10 +5,14 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.util.UriUtils;
 
 public class InputStreamUriParameterResolver extends SourceUriResolver {
 
@@ -50,7 +54,11 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     }
 
     public String getHref(InputStream inputStreamReference) {
-        return PREFIX + inputStreamReference.toString();
+        try {
+            return PREFIX + UriUtils.encodePathSegment(inputStreamReference.toString(), "utf-8");
+        } catch (UnsupportedEncodingException ex) {
+            return PREFIX + inputStreamReference.toString();
+        }
     }
 
     public String getHref(String name) {
@@ -65,7 +73,11 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     public Source resolve(String href, String base) throws TransformerException {
         InputStream stream = streams.get(href);
         if (stream != null) {
-            return new StreamSource(stream);
+            try {
+                return new StreamSource(stream, new URI(href).toString());
+            } catch (URISyntaxException ex) {
+                return new StreamSource(stream);
+            }
         }
 
         if (!resolvers.isEmpty()) {
