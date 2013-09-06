@@ -3,6 +3,7 @@ package features.configLoadingAndReloading
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.category.Slow
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
@@ -17,6 +18,7 @@ import spock.lang.Unroll
  *
  */
 
+@Category(Slow.class)
 class StartWithMissingConfigs extends Specification {
 
     int reposePort

@@ -3,6 +3,7 @@ package features.configLoadingAndReloading
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.category.Slow
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
@@ -13,6 +14,7 @@ import spock.lang.Unroll
  * User: izrik
  *
  */
+@Category(Slow.class)
 class TransitionGoodToBadConfigs extends Specification {
 
     int reposePort
