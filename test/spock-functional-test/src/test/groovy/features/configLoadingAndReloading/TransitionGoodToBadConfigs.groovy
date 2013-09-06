@@ -3,7 +3,9 @@ package features.configLoadingAndReloading
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.TestProperties
 import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
@@ -16,10 +18,8 @@ class TransitionGoodToBadConfigs extends Specification {
     int stopPort
     int targetPort
     String url
-    Properties properties
-    def configDirectory
+    TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
-    def logFile
     ReposeLogSearch reposeLogSearch
     ReposeValveLauncher repose
     Map params = [:]
@@ -44,13 +44,8 @@ class TransitionGoodToBadConfigs extends Specification {
         deproxy.addEndpoint(this.targetPort)
 
         // setup config provider
-        properties = new Properties()
-        properties.load(ClassLoader.getSystemResource("test.properties").openStream())
-        logFile = properties.getProperty("repose.log")
-        configDirectory = properties.getProperty("repose.config.directory")
-        def configSamples = properties.getProperty("repose.config.samples")
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
-
+        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
     }
 
     @Unroll
@@ -72,14 +67,14 @@ class TransitionGoodToBadConfigs extends Specification {
         // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getProperty("repose.jar"),
+                properties.getReposeJar(),
                 url,
-                configDirectory,
+                properties.getConfigDirectory(),
                 reposePort,
                 stopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
+        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                      waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
