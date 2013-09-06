@@ -3,16 +3,13 @@ package features.filters.headerNormalization
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
-import org.apache.commons.io.FileUtils
-import org.linkedin.util.clock.SystemClock
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
-import spock.lang.Shared
 import spock.lang.Specification
 
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-
+@Category(Slow.class)
 class HeaderNormalizationJMXTest extends Specification {
 
     String PREFIX = "\"repose-config-test-com.rackspace.papi.filters\":type=\"HeaderNormalization\",scope=\"header-normalization\""
@@ -98,7 +95,6 @@ class HeaderNormalizationJMXTest extends Specification {
         sleep(15000)
 
 
-
         when:
         def mc = deproxy.makeRequest(url: urlBase, method: "GET")
 
@@ -168,8 +164,6 @@ class HeaderNormalizationJMXTest extends Specification {
         // wait for repose to start
         sleep(15000)
 
-
-
         when: "client makes a request that matches one filter's uri-regex attribute"
         def mc = deproxy.makeRequest(url: urlBase)
 
@@ -201,13 +195,8 @@ class HeaderNormalizationJMXTest extends Specification {
     }
 
     def cleanup() {
-        if (repose && repose.isUp()) {
-            repose.stop()
-        }
-
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+        repose.stop()
+        deproxy.shutdown()
     }
 
 }

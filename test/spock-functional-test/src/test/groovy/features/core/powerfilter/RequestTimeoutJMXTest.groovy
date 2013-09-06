@@ -1,11 +1,12 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
-import spock.lang.Ignore
 
+@Category(Slow.class)
 class RequestTimeoutJMXTest extends ReposeValveTest {
 
     String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"RequestTimeout\",scope=\""
