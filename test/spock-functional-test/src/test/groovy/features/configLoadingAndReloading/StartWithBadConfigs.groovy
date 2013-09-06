@@ -9,11 +9,6 @@ import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
-/**
- * Created with IntelliJ IDEA.
- * User: izrik
- *
- */
 @Category(Slow.class)
 class StartWithBadConfigs extends Specification {
 

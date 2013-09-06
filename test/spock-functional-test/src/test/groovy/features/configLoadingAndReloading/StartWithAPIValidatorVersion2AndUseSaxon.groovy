@@ -8,11 +8,6 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
-/**
- * Created with IntelliJ IDEA.
- * User: izrik
- *
- */
 @Category(Slow.class)
 class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
 

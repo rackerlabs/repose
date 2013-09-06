@@ -4,19 +4,10 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.category.Slow
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
-
-/**
- * Created with IntelliJ IDEA.
- * User: izrik
- *
- */
 
 @Category(Slow.class)
 class StartWithMissingConfigs extends Specification {
