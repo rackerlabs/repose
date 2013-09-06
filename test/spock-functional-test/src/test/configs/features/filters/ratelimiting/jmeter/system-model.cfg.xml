@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose" rewrite-host-header="false">
+
+        <nodes>
+            <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+        </nodes>
+
+        <filters>
+            <filter name="rate-limiting"/>
+            <filter name="rate-limiting" configuration="rate-limiting-2.cfg.xml" uri-regex="/rate2/.*" />
+            <filter name="rate-limiting" configuration="rate-limiting-3.cfg.xml" uri-regex="/rate3/.*" />
+        </filters>
+
+        <destinations>
+            <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true"/>
+        </destinations>
+
+    </repose-cluster>
+</system-model>

@@ -11,7 +11,7 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
 
     def setupSpec() {
         repose.applyConfigs(
-                "features/filters/ratelimiting/")
+                "features/filters/ratelimiting/datastore/")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
