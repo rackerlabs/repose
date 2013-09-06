@@ -1,0 +1,11 @@
+<rate-limiting overLimit-429-responseCode="true" use-capture-groups="false" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+    <request-endpoint uri-regex="rate3/service/limits" />
+
+
+    <limit-group id="multi3-limits" groups="multi3-limits" default="false">
+        <limit uri="rate3/service/*" uri-regex="/rate3/service/(.*)" http-methods="GET POST" unit="HOUR" value="3"/>
+    </limit-group>
+
+
+</rate-limiting>
+
