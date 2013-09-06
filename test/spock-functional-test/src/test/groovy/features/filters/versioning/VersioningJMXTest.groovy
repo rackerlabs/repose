@@ -87,7 +87,7 @@ class VersioningJMXTest extends Specification {
                     'targetPort1': originServicePort1.toString(),
                     'targetPort2': originServicePort2.toString()])
         repose.start()
-        sleep(20000)
+        sleep(30000)
 
 
 

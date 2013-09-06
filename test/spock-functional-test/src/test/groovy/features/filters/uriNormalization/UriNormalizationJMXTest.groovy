@@ -80,7 +80,7 @@ class UriNormalizationJMXTest extends Specification {
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
         repose.start()
-        sleep(20000)
+        sleep(30000)
 
 
 
@@ -142,7 +142,7 @@ class UriNormalizationJMXTest extends Specification {
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
         repose.start()
-        sleep(20000)
+        sleep(30000)
 
 
 
