@@ -1,10 +1,11 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
-import org.junit.experimental.categories.Category
 
 /*
  * Rate limiting tests ported over from python
