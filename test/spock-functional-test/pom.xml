@@ -41,6 +41,9 @@
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
         <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
+
+        <test.included></test.included>
+        <test.excluded></test.excluded>
     </properties>
 
 
@@ -131,156 +134,46 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <excludedGroups>framework.category.SaxonEE</excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>uncategorized</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <excludedGroups>
-                                framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
-                                framework.category.SaxonEE,framework.category.Slow
-                            </excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+           <properties>
+               <test.excluded>framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
+                   framework.category.SaxonEE,framework.category.Slow</test.excluded>
+           </properties>
         </profile>
 
         <profile>
             <id>saxonee</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <properties>
                 <saxon_home>${env.SAXON_HOME}</saxon_home>
+                <test.included>framework.category.SaxonEE</test.included>
             </properties>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.SaxonEE</groups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
 
         <profile>
             <id>bug</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.Bug</groups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <test.included>framework.category.Bug</test.included>
+            </properties>
         </profile>
 
         <profile>
             <id>flaky</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.Flaky</groups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <test.included>framework.category.Flaky</test.included>
+            </properties>
         </profile>
 
         <profile>
             <id>benchmark</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.Benchmark</groups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <test.included>framework.category.Benchmark</test.included>
+            </properties>
         </profile>
 
         <profile>
             <id>slow</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.Slow</groups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>slow\benchmark</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.14.1</version>
-                        <configuration>
-                            <groups>framework.category.Slow</groups>
-                            <excludedGroups>framework.category.Benchmark</excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <test.included>framework.category.Slow</test.included>
+            </properties>
         </profile>
 
     </profiles>
@@ -339,6 +232,15 @@
 
 
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
+                <configuration>
+                    <groups>${test.included}</groups>
+                    <excludedGroups>${test.excluded}</excludedGroups>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
