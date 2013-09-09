@@ -2,13 +2,15 @@ package features.filters.clientauthn.cache
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.category.Slow
 import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
-import org.joda.time.Period
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Shared
 
+@Category(Slow.class)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
@@ -126,7 +128,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         where:
         uniqueUsers | initialCallsPerUser |additionalConfigs
         10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"
-        10 | 4 | "features/filters/clientauthn/cacheoffset/defaultzero"
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero"
 
     }
 

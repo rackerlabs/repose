@@ -1,13 +1,13 @@
 package features.filters.headertranslation
 
 import framework.ReposeValveTest
-import groovy.time.TimeCategory
-import groovy.time.TimeDuration
+import framework.category.Benchmark
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-
+@Category(Benchmark.class)
 class PerformanceTest extends ReposeValveTest {
 
     def setupSpec() {
