@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Response
 import org.rackspace.gdeproxy.HeaderCollection
+import spock.lang.Unroll
 
 class TranslateResponseTest extends ReposeValveTest {
 
@@ -12,6 +13,8 @@ class TranslateResponseTest extends ReposeValveTest {
     def static String invalidXmlResponse = "<a><remove-me>test</remove-me>somebody"
     def static String invalidJsonResponse = "{{'field1': \"value1\", \"field2\": \"value2\"]}"
     def static String xmlResponseWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
+    def static String xmlResponseWithExtEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [  <!ENTITY license_agreement SYSTEM \"http://www.mydomain.com/license.xml\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&license_agreement;</a>"
+    def static String xmlResponseWithXmlBomb = "<?xml version=\"1.0\"?> <!DOCTYPE lolz [   <!ENTITY lol \"lol\">   <!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">   <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">   <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">   <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">   <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">   <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">   <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">   <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\"> ]> <lolz>&lol9;</lolz>"
     def static String jsonResponse = "{\"field1\": \"value1\", \"field2\": \"value2\"}"
 
     def static Map acceptXML = ["accept": "application/xml"]
@@ -45,6 +48,7 @@ class TranslateResponseTest extends ReposeValveTest {
         repose.stop()
     }
 
+    @Unroll("request: #reqHeaders, response: #respHeaders - #respBody with request: #requestUri")
     def "when translating responses"() {
 
         given: "Origin service returns body of type " + respHeaders
@@ -52,7 +56,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint + requestUri, method, reqHeaders, "something", xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {
@@ -68,12 +72,16 @@ class TranslateResponseTest extends ReposeValveTest {
         resp.receivedResponse.code.equalsIgnoreCase(respCode.toString())
 
         where:
-        reqHeaders | respHeaders    | respBody                | respCode | shouldContain  | shouldNotContain
-        acceptXML  | contentXML     | xmlResponse             | 200      | ["somebody"]   | [remove]
-        acceptXML  | contentXML     | xmlResponseWithEntities | 200      | ["\"somebody"] | [remove]
-        acceptXML  | contentXMLHTML | xmlResponse             | 200      | [add]          | [filterChainUnavailable]
-        acceptXML  | contentJSON    | jsonResponse            | 200      | [xmlJSON, add] | [filterChainUnavailable]
-        acceptXML  | contentOther   | jsonResponse            | 200      | [jsonResponse] | [add]
+        reqHeaders | respHeaders    | respBody                   | respCode | shouldContain  | shouldNotContain         | requestUri                          | method
+        acceptXML  | contentXML     | xmlResponse                | 200      | ["somebody"]   | [remove]                 | ""                                  | "PUT"
+        acceptXML  | contentXML     | xmlResponseWithEntities    | 200      | ["\"somebody"] | [remove]                 | ""                                  | "PUT"
+        acceptXML  | contentXML     | xmlResponseWithXmlBomb     | 500      | ["\"somebody"] | [remove]                 | ""                                  | "PUT"
+        acceptXML  | contentXMLHTML | xmlResponse                | 200      | [add]          | [filterChainUnavailable] | ""                                  | "PUT"
+        acceptXML  | contentJSON    | jsonResponse               | 200      | [xmlJSON, add] | [filterChainUnavailable] | ""                                  | "PUT"
+        acceptXML  | contentOther   | jsonResponse               | 200      | [jsonResponse] | [add]                    | ""                                  | "PUT"
+        acceptXML  | contentXML     | xmlResponseWithEntities    | 500      | ["\"somebody"] | [remove]                 | "/translation/responsedocfalse/123" | "POST"
+        acceptXML  | contentXML     | xmlResponseWithExtEntities | 500      | ["\"somebody"] | [remove]                 | "/translation/responsedocfalse/123" | "POST"
+        acceptXML  | contentXML     | xmlResponseWithExtEntities | 200      | ["\"somebody"] | [remove]                 | ""                                  | "POST"
 
 
     }
