@@ -32,7 +32,7 @@ class IpIdentityTest extends ReposeValveTest {
     def "when identifying requests by ip"() {
 
         when: "Request is sent through repose"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/test-uri-regex/123"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
         def user = ((Handling) sentRequest).request.headers.getFirstValue("x-pp-user");
 
@@ -50,7 +50,7 @@ class IpIdentityTest extends ReposeValveTest {
     def "when identifying requests by x-forwarded-for"() {
 
         when: "Request contains x-forwarded-for"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: ["x-forwarded-for": "10.6.51.192"]])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/test-uri-regex/123", headers: ["x-forwarded-for": "10.6.51.192"]])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
@@ -61,5 +61,18 @@ class IpIdentityTest extends ReposeValveTest {
 
         and: "Repose will send x-pp-groups with the value IP_Standard"
         ((Handling) sentRequest).request.headers.getFirstValue("x-pp-groups").equalsIgnoreCase("IP_Standard;q=0.4")
+    }
+
+    def "when not executing a test uri"(){
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint + "/other_path"])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+        def user = ((Handling) sentRequest).request.headers.getFirstValue("x-pp-user");
+
+        then: "Repose will not send x-pp-user"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+
+        and: "Repose will not send x-pp-groups"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
     }
 }
