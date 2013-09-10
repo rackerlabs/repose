@@ -6,15 +6,20 @@ import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.gdeproxy.PortFinder
 
 @Category(Slow.class)
 class IpIdentityTest extends ReposeValveTest {
 
     def setupSpec() {
+        PortFinder pf = new PortFinder()
+        int port = pf.getNextOpenPort()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(port)
 
-        repose.applyConfigs("features/filters/ipidentity")
+        repose.configurationProvider.applyConfigsRuntime(
+                "features/filters/ipidentity",
+                ["reposePort": port.toString()]);
         repose.start()
         waitUntilReadyToServiceRequests()
     }
