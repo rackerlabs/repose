@@ -11,6 +11,25 @@ import org.rackspace.gdeproxy.MessageChain
  */
 class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
 
+    def host = { host ->
+        Enumeration e=NetworkInterface.getNetworkInterfaces();
+        while(e.hasMoreElements())
+        {
+            NetworkInterface n=(NetworkInterface) e.nextElement();
+            Enumeration ee = n.getInetAddresses();
+            while(ee.hasMoreElements())
+            {
+                InetAddress i= (InetAddress) ee.nextElement();
+                if(i.getHostAddress().startsWith("10") || i.getHostAddress().startsWith("192"))
+                    return i.getHostAddress();
+            }
+        }
+
+        return "localhost"
+    }
+
+    def tempEndpoint = reposeEndpoint.replaceAll("localhost",host)
+
     def setupSpec() {
         repose.applyConfigs(
                 "features/filters/datastore/authed/"
@@ -28,18 +47,20 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
 
     def "when putting cache objects" () {
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'5000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
 
         when:
+
+        def url = tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
         MessageChain mc =
             deproxy.makeRequest(
                     [
                             method: 'PUT',
-                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url: url,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         then:
@@ -48,16 +69,16 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
 
     def "when checking cache object time to live"(){
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
         MessageChain mc =
             deproxy.makeRequest(
                     [
                             method: 'PUT',
-                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         when:
@@ -66,9 +87,8 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
             deproxy.makeRequest(
                     [
                             method: 'GET',
-                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            body: body
+                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers
                     ])
 
         then:
@@ -78,7 +98,7 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
 
     def "when deleting cache objects"(){
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'50']
+        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'50']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
 
@@ -87,9 +107,8 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
             deproxy.makeRequest(
                     [
                             method: "DELETE",
-                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            body: body
+                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers
                     ])
 
         then:

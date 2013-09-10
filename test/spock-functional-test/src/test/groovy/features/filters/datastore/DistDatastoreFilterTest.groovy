@@ -59,8 +59,16 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
                             method: 'PUT',
                             url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'GET',
+                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers
+                    ])
+        mc.receivedResponse.code == '200'
 
         when:
         Thread.sleep(7500)
@@ -69,8 +77,7 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
                     [
                             method: 'GET',
                             url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            body: body
+                            headers:headers
                     ])
 
         then:
@@ -80,7 +87,7 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
 
     def "when deleting cache objects"(){
         given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'1000']
+        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
         def url = reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
@@ -94,7 +101,7 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
                             method: "PUT",
                             url:url,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         then: "should report success"
@@ -109,8 +116,7 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
                     [
                             method: "GET",
                             url:url,
-                            headers:headers,
-//                            body: body
+                            headers:headers
                     ])
 
         then: "should report that it is"
