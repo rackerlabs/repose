@@ -60,6 +60,12 @@
                     <strict>true</strict>
                     <verbose>false</verbose>
 
+                    <args>
+                        <arg>-XtoString</arg>
+                        <arg>
+                            -XtoString-toStringStrategyClass=com.rackspace.papi.commons.util.string.PasswordSensitiveToStringStrategy
+                        </arg>
+                    </args>
                 </configuration>
             </plugin>
                         
