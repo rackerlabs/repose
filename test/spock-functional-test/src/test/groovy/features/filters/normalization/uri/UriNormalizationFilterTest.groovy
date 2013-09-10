@@ -48,9 +48,13 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         "GET"    | "uri_normalization"  | "a=1&r=1&r=2&N=test"                | "a=1&r=1&r=2"               | "remove QueryParams that don't match based on case sensitive query param name"
         "GET"    | "uri_normalization"  | "a=1&n=test&N=nonmatchingCase"      | "a=1&n=test"                | "remove QueryParams that don't match based on case sensitive query param name"
         "GET"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1"                       | "apply whitelist due to matching http method"
+        "GET"    | "uri_normalization/"  | "a=1&filter_me=true"                | "a=1"
         "POST"   | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
         "PUT"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
         "DELETE" | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"        | "not apply whitelist when http method does not match"
     }
+
+   def "query parameter normalization with emty target"
+    /Users/kush5342/forked_Repose/repose/test/spock-functional-test/src/test/configs/features/filters/normalization/uri/emtpyuritarget
 
 }
