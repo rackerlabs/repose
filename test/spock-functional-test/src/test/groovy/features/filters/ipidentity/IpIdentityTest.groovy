@@ -17,6 +17,10 @@ class IpIdentityTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(port)
 
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigsRuntime(
+                "common",
+                ["reposePort": port.toString()]);
         repose.configurationProvider.applyConfigsRuntime(
                 "features/filters/ipidentity",
                 ["reposePort": port.toString()]);
