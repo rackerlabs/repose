@@ -65,7 +65,10 @@ class ReposeValveLauncher implements ReposeLauncher {
     void start(Map params) {
 
         boolean killOthersBeforeStarting = (params?.killOthersBeforeStarting ? true : false)
-        boolean waitOnJmxAfterStarting = (params?.waitOnJmxAfterStarting ? true : false)
+        boolean waitOnJmxAfterStarting = true
+        if (params.containsKey("waitOnJmxAfterStarting")) {
+            waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
+        }
 
 
         if (killOthersBeforeStarting) {
