@@ -62,7 +62,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
 
@@ -137,7 +137,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
-                            <excludedGroups>framework.category.SaxonEE</excludedGroups>
+                            <excludedGroups>framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
+                                framework.category.SaxonEE,framework.category.Slow</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
