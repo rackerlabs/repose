@@ -111,7 +111,7 @@
               <stringProp name="TestPlan.comments">The tests under this controller test the happy paths of this controller.</stringProp>
             </GenericController>
             <hashTree>
-              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating application/xml" enabled="true"/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating application/xml" enabled="false"/>
               <hashTree>
                 <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Translation application/xml Responses" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
@@ -339,7 +339,7 @@
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Translation application/xml Request with entities with false allow-doctype-decl" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Translation application/xml Request with entities with false allow-doctype-decl" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="" elementType="HTTPArgument">
@@ -433,7 +433,7 @@
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Translation application/xml Request with not allowed external entities with false allow-doctype-decl" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Translation application/xml Request with not allowed external entities with false allow-doctype-decl" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="" elementType="HTTPArgument">
@@ -1622,7 +1622,7 @@
                 </hashTree>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="true"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="false"/>
             <hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating invalid application/xml " enabled="true"/>
               <hashTree>

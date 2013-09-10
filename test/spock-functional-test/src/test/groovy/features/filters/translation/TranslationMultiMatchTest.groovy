@@ -5,6 +5,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
+import spock.lang.Unroll
 
 class TranslationMultiMatchTest extends ReposeValveTest {
 
@@ -116,6 +117,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
     }
 
+    @Unroll("response: #respHeaders, request: #reqHeaders - #reqBody")
     def "when translating multi-match requests"() {
 
         given: "Repose is configured to translate requests using multimatch"
@@ -150,7 +152,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         where:
         reqHeaders              | respHeaders | reqBody   | shouldContain | method | shouldContainHeaders               | shouldNotContainHeaders            | requestPath
         acceptXML + contentAtom | contentXML  | simpleXml | [simpleXml]   | "POST" | []                                 | ["translation-a", "translation-b"] | "/somepath?translation-b=b&testparam=x&otherparam=y"
-        acceptXML + contentXML  | contentXML  | simpleXml | [simpleXml]   | "POST" | ["translation-a", "translation-b"] | []                               | "/somepath?translation-b=b&translation-a=a&testparam=x&otherparam=y"
+        acceptXML + contentXML  | contentXML  | simpleXml | [simpleXml]   | "POST" | ["translation-a", "translation-b"] | []                                 | "/somepath?translation-b=b&translation-a=a&testparam=x&otherparam=y"
 
 
     }
