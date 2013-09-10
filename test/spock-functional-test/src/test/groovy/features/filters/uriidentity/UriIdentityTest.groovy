@@ -1,11 +1,13 @@
 package features.filters.uriidentity
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
-import spock.lang.Unroll
 
+@Category(Slow.class)
 class UriIdentityTest extends ReposeValveTest {
 
     def setupSpec() {
