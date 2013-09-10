@@ -70,7 +70,7 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
 
     private void configUpdate(UpdateListener upd, Object cfg) {
         upd.configurationUpdated(cfg);
-        LOG.debug("Configuration Updated:\n" + cfg.toString());
+        LOG.debug("Configuration Updated: " + cfg.toString());
 
     }
 }
