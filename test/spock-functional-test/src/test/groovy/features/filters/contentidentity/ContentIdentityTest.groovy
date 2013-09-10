@@ -67,7 +67,6 @@ class ContentIdentityTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("When request contains identity in content #requestBody\n Expected user is #expectedUser")
     def "when identifying requests by header"() {
 
         when: "Request body contains user credentials"
@@ -102,7 +101,6 @@ class ContentIdentityTest extends ReposeValveTest {
         xmlMossoNastCred          | contentXml  | "12345"
     }
 
-    @Unroll("When bad requests pass through repose #requestBody\n")
     def "when attempting to identity user by content and passed bad content"() {
 
         when: "Request body contains user credentials"
