@@ -114,13 +114,13 @@ class HeaderNormalizationTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 0
-        mc.handlings[0].request.headers.getFirstValue("x-auth-token") == '358484212:99493'
+        mc.handlings[0].request.headers.findAll("x-auth-token") == []
         mc.handlings[0].request.headers.getFirstValue("x-user-token") == 'something'
         mc.handlings[0].request.headers.getFirstValue("user1") == 'usertest1'
-        mc.handlings[0].request.headers.getFirstValue("x-last-filter") == 'lastValue'
-        mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == 'secondValue'
-        mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == 'thirdValue'
-        mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == 'firstValue'
+        mc.handlings[0].request.headers.findAll("x-last-filter") == []
+        mc.handlings[0].request.headers.getFirstValue("x-second-filter") == 'secondValue'
+        mc.handlings[0].request.headers.getFirstValue("x-third-filter") == 'thirdValue'
+        mc.handlings[0].request.headers.getFirstValue("x-first-filter") == 'firstValue'
         mc.handlings[0].request.headers.getFirstValue("via").contains('1.1 localhost:8888 (Repose/')
         mc.receivedResponse.code == '200'
     }

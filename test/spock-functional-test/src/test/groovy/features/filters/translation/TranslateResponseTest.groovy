@@ -100,10 +100,12 @@ class TranslateResponseTest extends ReposeValveTest {
 
         then: "Response body should not be touched"
         resp.receivedResponse.body.contains(xmlRssResponse)
+        !resp.receivedResponse.body.contains("add-me")
+        resp.receivedResponse.code == "200"
 
         and: "Response headers should contain added header from translation"
         resp.receivedResponse.getHeaders().names.contains("translation-header")
-
+        !resp.receivedResponse.getHeaders().names.contains("x-powered-by")
     }
 
     def "when attempting to translate an invalid xml/json response"() {

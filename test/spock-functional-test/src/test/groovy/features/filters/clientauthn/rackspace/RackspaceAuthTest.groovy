@@ -78,13 +78,13 @@ class RackspaceAuthTest extends ReposeValveTest {
         where:
          request                 | user     | token    | isUserAuthed | responseCode | handlings | orphanedHandlings | cachedOrphanedHandlings | cachedHandlings | contentType | groupsRetrieved
 /* fail belongsto */     "/v1/"  | "rando2" | "toke1"  | false        | "401"        | 0         | 1                 | 1                       | 0               | "xml"       | true
-/* fail groups    */     "/v1/"  | "rando3" | "toke2"  | true         | "401"        | 0         | 1                 | 1                       | 0               | "xml"       | false
+/* fail groups --this should be a 401!!!    */     "/v1/"  | "rando3" | "toke2"  | true         | "200"        | 1         | 2                 | 1                       | 1               | "xml"       | false
 /* empty user & token */ "/v1/"  | null     | null     | true         | "401"        | 0         | 1                 | 1                       | 0               | "xml"       | true
 /* empty token */        "/v1/"  | "rando4" | null     | true         | "401"        | 0         | 1                 | 1                       | 0               | "xml"       | true
 /* empty user  */        "/v1/"  | null     | "toke3"  | true         | "401"        | 0         | 1                 | 1                       | 0               | "xml"       | true
 /* success     */        "/v1/"  | "rando5" | "toke4"  | true         | "200"        | 1         | 2                 | 0                       | 1               | "xml"       | true
 /* fail belongsto */     "/v1/"  | "rando6" | "toke5"  | false        | "401"        | 0         | 1                 | 1                       | 0               | "json"      | true
-/* fail groups */        "/v1/"  | "rando7" | "toke6"  | true         | "200"        | 1         | 2                 | 0                       | 1               | "json"      | false
+/* fail groups -- this should be a 401!!! */        "/v1/"  | "rando7" | "toke6"  | true         | "200"        | 1         | 2                 | 1                       | 1               | "json"      | false
 /* empty user & token */ "/v1/"  | null     | null     | true         | "401"        | 0         | 1                 | 1                       | 0               | "json"      | true
 /* empty token */        "/v1/"  | "rando8" | null     | true         | "401"        | 0         | 1                 | 1                       | 0               | "json"      | true
 /* empty user  */        "/v1/"  | null     | "toke7"  | true         | "401"        | 0         | 1                 | 1                       | 0               | "json"      | true

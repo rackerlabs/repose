@@ -39,19 +39,19 @@ class TranslationRequestTest extends ReposeValveTest {
                 "features/filters/translation/request"
         )
         repose.start()
-    }
-
-    def setup() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
+    def setup() {
+
+    }
+
     def cleanup() {
-        deproxy.shutdown()
     }
 
     def cleanupSpec() {
+        deproxy.shutdown()
         repose.stop()
     }
 
@@ -64,21 +64,25 @@ class TranslationRequestTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         def resp = deproxy.makeRequest((String) reposeEndpoint + requestUri, method, reqHeaders, reqBody, xmlResp)
-        def sentRequest = ((MessageChain) resp).sentRequest
+        def sentRequest = ((MessageChain) resp).handlings[0]
 
         then: "Request body sent from repose to the origin service should contain"
 
         resp.receivedResponse.code == responseCode
 
-        for (String st : shouldContain) {
-            sentRequest.body.contains(st)
-
+        if(responseCode != "400"){
+            for (String st : shouldContain) {
+                sentRequest.request.body.contains(st)
+            }
         }
+
 
         and: "Request body sent from repose to the origin service should not contain"
 
-        for (String st : shouldNotContain) {
-            !sentRequest.body.contains(st)
+        if(responseCode != "400"){
+            for (String st : shouldNotContain) {
+                !sentRequest.request.body.contains(st)
+            }
         }
 
         where:
@@ -90,31 +94,36 @@ class TranslationRequestTest extends ReposeValveTest {
         acceptXML + contentXMLHTML | contentXML  | xmlPayLoad                | [xmlPayLoad]   | [add]            | "PUT"  | ''                                  | '200'
         acceptXML + contentJSON    | contentXML  | jsonPayload               | [add, xmlJSON] | []               | "POST" | ''                                  | '200'
         acceptXML + contentOther   | contentXML  | jsonPayload               | [jsonPayload]  | [add]            | "POST" | ''                                  | '200'
-        acceptXML + contentXML     | contentXML  | xmlPayloadWithEntities    | ["\"somebody"] | [remove]         | "POST" | "/translation/requestdocfalse/echobody"  | "400"
-        acceptXML + contentXML     | contentXML  | xmlPayloadWithExtEntities | ["\"somebody"] | [remove]         | "POST" | "/translation/requestdocfalse/echobody"  | "400"
+        /* translation filter for this MUST GO ABOVE default translation filter */ acceptXML + contentXML     | contentXML  | xmlPayloadWithEntities    | ["\"somebody"] | [remove]         | "POST" | "/translation/requestdocfalse/echobody"  | "400"
+        /* translation filter for this MUST GO ABOVE default translation filter */ acceptXML + contentXML     | contentXML  | xmlPayloadWithExtEntities | ["\"somebody"] | [remove]         | "POST" | "/translation/requestdocfalse/echobody"  | "400"
         acceptXML + contentXML     | contentXML  | xmlPayloadWithExtEntities | ["\"somebody"] | [remove]         | "POST" | ''                                       | "200"
 
 
     }
 
-    // Requires gdeproxy 0.15 to work
-    @Ignore
     def "when translating application/rss+xml requests with header translations"() {
 
         given: "Repose is configured to translate request headers"
         def respHeaders = ["content-type": "application/xml"]
+        def testHeaders = ['test':'x', 'other': 'y']
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, rssPayload) }
 
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", contentRss + acceptXML, rssPayload, xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", "POST", contentRss + acceptXML + testHeaders, rssPayload, xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body sent from repose to the origin service should contain"
         ((Handling) sentRequest).request.body.contains(rssPayload)
+        ((Handling) sentRequest).request.path.contains("otherparam=y")
+        resp.receivedResponse.code == "200"
+        !((Handling) sentRequest).request.body.contains("add-me")
+        !((Handling) sentRequest).request.path.contains("testparam=x")
 
-        and: "Request headerssent from repose to the origin service should contain"
+        and: "Request headers sent from repose to the origin service should contain"
         ((Handling) sentRequest).request.headers.getNames().contains("translation-header")
+        ((Handling) sentRequest).request.headers.getNames().contains("other")
+        !((Handling) sentRequest).request.headers.getNames().contains("test")
 
     }
 

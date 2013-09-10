@@ -20,6 +20,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
     def static Map contentOther = ["content-type": "application/other"]
     def static String remove = "remove-me"
     def static String add = "add-me"
+    def testHeaders = ['test': 'x', 'other': 'y']
 
     //Start repose once for this particular translation test
     def setupSpec() {
@@ -29,19 +30,19 @@ class TranslationMultiMatchTest extends ReposeValveTest {
                 "features/filters/translation/multimatch"
         )
         repose.start()
-    }
-
-    def setup() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
+    def setup() {
+
+    }
+
     def cleanup() {
-        deproxy.shutdown()
     }
 
     def cleanupSpec() {
+        deproxy.shutdown()
         repose.stop()
     }
 
@@ -52,9 +53,10 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
 
         when: "The origin service sends back a response of type " + respHeaders
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, respBody, xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint + '/echobody?testparam=x&otherparam=y', "POST", reqHeaders + testHeaders, respBody, xmlResp)
 
         then: "Response body received should contain"
+
         for (String st : shouldContain) {
             resp.receivedResponse.body.contains(st)
         }
@@ -73,9 +75,9 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         resp.receivedResponse.code.equalsIgnoreCase(respCode.toString())
 
         where:
-        reqHeaders              | respHeaders  | respBody   | respCode | shouldContain | shouldNotContain | shouldContainHeaders
-        acceptXML               | contentXML   | xmlPayLoad | 200      | ["somebody"]  | [remove]         | ["translation-response-a", "translation-response-b"]
-        acceptXML + contentAtom | contentOther | simpleXml  | 200      | [simpleXml]   | [remove]         | ["translation-response-a", "translation-response-b"]
+        reqHeaders              | respHeaders  | respBody   | respCode | shouldContain            | shouldNotContain | shouldContainHeaders
+        acceptXML               | contentXML   | xmlPayLoad | 200      | ["somebody", simpleXml]  | [remove]         | ["translation-response-a", "translation-response-b"]
+        acceptXML + contentAtom | contentOther | simpleXml  | 200      | [simpleXml]              | [remove]         | ["translation-response-a", "translation-response-b"]
 
     }
 
@@ -110,6 +112,45 @@ class TranslationMultiMatchTest extends ReposeValveTest {
         reqHeaders              | respHeaders | reqBody   | shouldContain | method | shouldContainHeaders               | shouldNotContainHeaders
         acceptXML + contentXML  | contentXML  | simpleXml | [simpleXml]   | "POST" | ["translation-a", "translation-b"] | []
         acceptXML + contentAtom | contentXML  | simpleXml | [simpleXml]   | "POST" | []                                 | ["translation-a", "translation-b"]
+
+
+    }
+
+    def "when translating multi-match requests"() {
+
+        given: "Repose is configured to translate requests using multimatch"
+        def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
+
+
+
+        when: "The user sends a request of type " + reqHeaders
+        def resp = deproxy.makeRequest((String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", method, reqHeaders + testHeaders, reqBody, xmlResp)
+        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+
+        then: "Request body from repose to the origin service should contain"
+
+        resp.receivedResponse.code == "200"
+        sentRequest.request.path == requestPath
+
+        for (String st : shouldContain) {
+            ((Handling) sentRequest).request.body.contains(st)
+
+        }
+
+        and: "Request headers sent from repose to the origin service should contain"
+        for (String st : shouldContainHeaders) {
+            ((Handling) sentRequest).request.getHeaders().getNames().contains(st)
+        }
+
+        and: "Request headers sent from repose to the origin service should not contain "
+        for (String st : shouldNotContainHeaders) {
+            !((Handling) sentRequest).request.getHeaders().getNames().contains(st)
+        }
+
+        where:
+        reqHeaders              | respHeaders | reqBody   | shouldContain | method | shouldContainHeaders               | shouldNotContainHeaders            | requestPath
+        acceptXML + contentAtom | contentXML  | simpleXml | [simpleXml]   | "POST" | []                                 | ["translation-a", "translation-b"] | "/somepath?translation-b=b&testparam=x&otherparam=y"
+        acceptXML + contentXML  | contentXML  | simpleXml | [simpleXml]   | "POST" | ["translation-a", "translation-b"] | []                               | "/somepath?translation-b=b&translation-a=a&testparam=x&otherparam=y"
 
 
     }

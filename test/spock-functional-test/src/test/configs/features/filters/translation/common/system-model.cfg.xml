@@ -7,9 +7,9 @@
       <node id="node" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
     <filters>
-        <filter name="translation"/>
         <filter name="translation" configuration="translation-response-docfalse.cfg.xml" uri-regex="/translation/responsedocfalse/.*" />
         <filter name="translation" configuration="translation-request-docfalse.cfg.xml" uri-regex="/translation/requestdocfalse/.*" />
+        <filter name="translation"/>
     </filters>
     <destinations>
       <endpoint id="service" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true"/>
