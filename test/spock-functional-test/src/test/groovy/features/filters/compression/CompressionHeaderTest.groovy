@@ -50,21 +50,16 @@ class CompressionHeaderTest extends ReposeValveTest {
     }
 
     def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         repose.applyConfigs("features/filters/compression")
         repose.start()
     }
 
-    def setup() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-    }
-
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
         repose.stop()
+        deproxy.shutdown()
     }
 
     @Unroll
