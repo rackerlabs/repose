@@ -9,6 +9,7 @@
 
     <filters>
       <filter name="rate-limiting" />
+      <filter name="rate-limiting" configuration="rate-limiting-2.cfg.xml" uri-regex="/rate2/.*" />
     </filters>
 
     <destinations>
