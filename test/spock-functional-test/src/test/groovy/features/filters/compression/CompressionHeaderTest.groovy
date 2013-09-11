@@ -5,6 +5,7 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
+import spock.lang.Unroll
 
 import java.util.zip.Deflater
 import java.util.zip.GZIPOutputStream
@@ -66,7 +67,8 @@ class CompressionHeaderTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression"() {
+    @Unroll
+    def "when a compressed request is sent to Repose, Content-Encoding header is removed after decompression (#encoding)"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
                 zippedContent)
@@ -93,7 +95,8 @@ class CompressionHeaderTest extends ReposeValveTest {
 
     }
 
-    def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails"() {
+    @Unroll
+    def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails (#encoding, #responseCode, #handlings)"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
                 zippedContent)
@@ -112,7 +115,8 @@ class CompressionHeaderTest extends ReposeValveTest {
         "identity"  | content         | falseZip       | '200'        | 1
     }
 
-    def "when an uncompressed request is sent to Repose, Content-Encoding header is never present"() {
+    @Unroll
+    def "when an uncompressed request is sent to Repose, Content-Encoding header is never present (#encoding, #responseCode, #handlings)"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
                 zippedContent)
