@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.header.translation;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 public class HeaderTranslationHandler extends AbstractFilterLogicHandler {

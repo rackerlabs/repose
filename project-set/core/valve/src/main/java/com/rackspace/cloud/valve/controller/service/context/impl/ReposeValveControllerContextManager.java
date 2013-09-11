@@ -10,7 +10,6 @@ import com.rackspace.papi.service.context.impl.LoggingServiceContext;
 import com.rackspace.papi.service.context.impl.ReportingServiceContext;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
-import com.rackspace.papi.spring.SpringWithServices;
 import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

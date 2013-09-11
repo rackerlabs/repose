@@ -1,23 +1,15 @@
 package com.rackspace.papi.service.datastore.impl.distributed.servlet;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
-import com.rackspace.papi.service.context.impl.LoggingServiceContext;
-import com.rackspace.papi.service.context.impl.ReportingServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterContext;
-import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContext;
