@@ -5,7 +5,7 @@
 
     <nodes>
       <node id="dd-node-1" hostname="localhost" http-port="${repose_port}"/>
-      <!-- TODO use a dynamc port for these nodes -->
+      <!-- TODO use a dynamic port for these nodes -->
       <node id="dd-node-2" hostname="localhost" http-port="8889"/>
     </nodes>
 
