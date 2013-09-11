@@ -64,7 +64,10 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
     void start(Map params) {
 
-        boolean killOthersBeforeStarting = (params?.killOthersBeforeStarting ? true : false)
+        boolean killOthersBeforeStarting = true
+        if (params.containsKey("killOthersBeforeStarting")) {
+            killOthersBeforeStarting = params.killOthersBeforeStarting
+        }
         boolean waitOnJmxAfterStarting = true
         if (params.containsKey("waitOnJmxAfterStarting")) {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
@@ -158,7 +161,10 @@ class ReposeValveLauncher implements ReposeLauncher {
     void stop(Map params) {
 
         def timeout = params?.timeout ?: 45000
-        def throwExceptionOnKill = params?.throwExceptionOnKill ?: true
+        def throwExceptionOnKill = true
+        if (params.containsKey("throwExceptionOnKill")) {
+            throwExceptionOnKill = params.throwExceptionOnKill
+        }
 
         stop(timeout, throwExceptionOnKill)
     }
