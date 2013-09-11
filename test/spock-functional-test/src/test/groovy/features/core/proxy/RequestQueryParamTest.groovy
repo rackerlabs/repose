@@ -9,24 +9,19 @@ import spock.lang.Unroll
 class RequestQueryParamTest extends ReposeValveTest {
 
     def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         repose.applyConfigs( "features/core/proxy" )
         repose.start()
     }
 
     def cleanupSpec() {
         repose.stop()
-    }
-
-    def setup() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-    }
-
-    def cleanup() {
         deproxy.shutdown()
     }
 
-    @Unroll("When client requests: #uriSuffixGiven, repose should normalize to: #uriSuffixExpected")
+    @Unroll("When client requests: #method #uriSuffixGiven, repose should normalize to: #uriSuffixExpected")
     def "when given a query param list, Repose should forward a valid query param list"() {
 
         when: "the client makes a request through Repose"
