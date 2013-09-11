@@ -84,11 +84,11 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("200")
         messageChain.handlings.size() == 1
 
-        when: "the user sends their request and the rate-limit has not been reached"
+        when: "the user sends their request and the rate-limit has been reached"
         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler)
 
-        then: "the request is not rate-limited, and passes to the origin service"
+        then: "the request is rate-limited, and passes to the origin service"
         messageChain.receivedResponse.code.equals("413")
         messageChain.handlings.size() == 0
     }
