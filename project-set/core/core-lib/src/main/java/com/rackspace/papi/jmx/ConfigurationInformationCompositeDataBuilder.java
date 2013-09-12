@@ -68,7 +68,7 @@ public class ConfigurationInformationCompositeDataBuilder extends CompositeDataB
         
         items.add(successConfigurationLoading.toString());
         
-         StringBuilder failedConfigurationLoading=new StringBuilder();;
+        StringBuilder failedConfigurationLoading=new StringBuilder();
         for (String key : filter.getFailedConfigurationLoadingInformation().keySet()){
             String[] successInformation=filter.getFailedConfigurationLoadingInformation().get(key);
             failedConfigurationLoading.append(key+": ");

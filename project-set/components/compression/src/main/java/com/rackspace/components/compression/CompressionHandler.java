@@ -10,16 +10,15 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import javax.servlet.http.HttpServletRequest;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.io.IOException;
-import java.util.zip.ZipException;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import org.eclipse.jetty.util.StringUtil;
-import org.slf4j.LoggerFactory;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public class CompressionHandler extends AbstractFilterLogicHandler {
 

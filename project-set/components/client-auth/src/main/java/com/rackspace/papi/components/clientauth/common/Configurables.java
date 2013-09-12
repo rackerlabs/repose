@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 
 import java.util.ArrayList;
 import java.util.List;

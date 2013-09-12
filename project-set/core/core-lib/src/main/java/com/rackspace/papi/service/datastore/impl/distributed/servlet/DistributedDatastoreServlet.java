@@ -2,32 +2,30 @@ package com.rackspace.papi.service.datastore.impl.distributed.servlet;
 
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
+import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 
 public class DistributedDatastoreServlet extends HttpServlet {
 

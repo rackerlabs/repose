@@ -3,15 +3,10 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.core.MetricsRegistry;
-import java.util.UUID;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheManager;
 import com.yammer.metrics.ehcache.InstrumentedEhcache;
-
-import java.util.UUID;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 
 public class EHCacheDatastoreManager implements DatastoreManager {
 

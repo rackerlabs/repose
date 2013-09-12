@@ -4,16 +4,13 @@ import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
-
-import java.io.Serializable;
-import java.util.Map;
-import javax.xml.bind.JAXBElement;
-
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 
 /**
  * Implementation of AuthToken {@link com.rackspace.auth.AuthToken} to parse the AuthenticationResponse from an Openstack Identity Service
