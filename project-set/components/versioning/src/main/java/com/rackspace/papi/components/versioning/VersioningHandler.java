@@ -20,7 +20,6 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.Versioning;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
