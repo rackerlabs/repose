@@ -13,7 +13,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 
-
+@Category(Bug.class)
 class ContentTranslationBurstTest extends ReposeValveTest {
 
 
