@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                   xmlns='http://docs.api.rackspacecloud.com/repose/uri-normalization/v1.0'
+                   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/uri-normalization/v1.0 ../config/uri-normalization-configuration.xsd'>
+   <media-variants>
+      <media-type name="application/json" variant-extension="json" preferred="true"/>
+      <media-type name="application/xml" variant-extension="xml"/>
+      <media-type name="application/atom+xml" variant-extension="atom"/>
+   </media-variants>
+   <uri-filters>
+     <target alphabetize='true'>
+       <whitelist id='pagination-params'>
+         <parameter name='a' multiplicity='0' case-sensitive='false'/>
+         <parameter name='b' multiplicity='1' case-sensitive='false'/>
+         <parameter name='c' multiplicity='2' case-sensitive='true'/>
+       </whitelist>
+     </target>
+   </uri-filters>
+</uri-normalization>

@@ -5,24 +5,19 @@
 package com.rackspace.papi.components.clientauth.atomfeed.sax;
 
 // Retrieves admin tokens from os auth for the atom feed reader
+
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.auth.openstack.AdminToken;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import static com.rackspace.papi.commons.util.http.HttpStatusCode.OK;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.openstack.docs.identity.api.v2.*;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.AuthenticationRequest;
-import org.openstack.docs.identity.api.v2.Token;
-import org.openstack.docs.identity.api.v2.ObjectFactory;
-import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
-import org.slf4j.LoggerFactory;
 
 public class AdminTokenProvider {
 

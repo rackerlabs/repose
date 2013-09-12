@@ -4,14 +4,12 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
 import java.net.URL;

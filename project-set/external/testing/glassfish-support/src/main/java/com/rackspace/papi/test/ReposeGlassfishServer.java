@@ -2,13 +2,9 @@ package com.rackspace.papi.test;
 
 
 import org.glassfish.embeddable.*;
-import org.glassfish.internal.embedded.EmbeddedFileSystem;
 import org.glassfish.internal.embedded.Server;
 
 import java.io.File;
-import java.io.IOException;
-
-import static org.glassfish.embeddable.GlassFishRuntime.bootstrap;
 
 /**
  * Create an embedded glassfish server

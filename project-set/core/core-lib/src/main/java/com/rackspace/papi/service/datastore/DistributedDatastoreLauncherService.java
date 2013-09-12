@@ -13,11 +13,8 @@ import com.rackspace.papi.service.routing.RoutingService;
 
 public interface DistributedDatastoreLauncherService extends Destroyable{
    
-   public void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo, DatastoreService datastoreService,
+   void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo, DatastoreService datastoreService,
            ServicePorts servicePorts,RoutingService routingService, String configDirectory);
-   
-   public void startDistributedDatastoreServlet();
-   
-   public void stopDistributedDatastoreServlet();
-   
+   void startDistributedDatastoreServlet();
+   void stopDistributedDatastoreServlet();
 }
