@@ -36,6 +36,15 @@ class SplitableHeaderUtilTest {
     }
 
     @Test
+    void testSplitableList(){
+
+        SplitableHeaderUtil splitable = new SplitableHeaderUtil(PowerApiHeader.USER)
+
+        assert splitable.isSplitable("x-pp-user")
+
+    }
+
+        @Test
     void testLargerSplitableList(){
 
         SplitableHeaderUtil splitable = new SplitableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),

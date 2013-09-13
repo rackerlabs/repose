@@ -29,7 +29,7 @@ public class SplitableHeaderUtil {
 
     }
 
-    public SplitableHeaderUtil(HeaderConstant[] constant) {
+    public SplitableHeaderUtil(HeaderConstant... constant) {
         setDefaultSplitable();
 
         for (HeaderConstant ct : constant) {
