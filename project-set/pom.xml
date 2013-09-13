@@ -37,6 +37,26 @@
     </modules>
 
     <profiles>
+
+        <profile>
+            <id>spock</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.16</version>
+                        <configuration>
+                            <groups>framework.category.release</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>JAXB Schema Compilation Support</id>
 
