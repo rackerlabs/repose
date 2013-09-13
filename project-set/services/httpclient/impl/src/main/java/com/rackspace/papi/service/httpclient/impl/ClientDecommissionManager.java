@@ -1,13 +1,11 @@
 package com.rackspace.papi.service.httpclient.impl;
 
-import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
 import org.apache.http.client.HttpClient;
 import org.slf4j.Logger;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class ClientDecommissionManager {
 

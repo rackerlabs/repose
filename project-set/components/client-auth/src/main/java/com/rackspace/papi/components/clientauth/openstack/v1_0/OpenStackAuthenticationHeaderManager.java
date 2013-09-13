@@ -3,18 +3,12 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.IdentityStatus;
-import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.*;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import org.slf4j.Logger;
+
 import java.util.Date;
-import com.rackspace.papi.commons.util.http.HttpDate;
-
-
 import java.util.List;
 
 /**

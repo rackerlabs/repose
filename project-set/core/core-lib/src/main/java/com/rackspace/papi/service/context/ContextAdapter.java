@@ -1,18 +1,17 @@
 package com.rackspace.papi.service.context;
 
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
-import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterViewServiceImpl;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.rms.ResponseMessageService;

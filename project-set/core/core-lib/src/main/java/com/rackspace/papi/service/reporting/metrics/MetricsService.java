@@ -15,22 +15,13 @@ import java.util.concurrent.TimeUnit;
  */
 public interface MetricsService extends Destroyable{
 
-    public void setEnabled(boolean b);
-
-    public boolean isEnabled();
-
-    public Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
-
-    public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit );
-
-    public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit );
-
-    public Counter newCounter( Class klass, String name, String scope );
-
-    public void addGraphiteServer( String host, int port, long period, String prefix ) throws IOException;
-
-    public void shutdownGraphite();
-
-    public void destroy();
-
+    void setEnabled(boolean b);
+    boolean isEnabled();
+    Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
+    MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit );
+    MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit );
+    Counter newCounter( Class klass, String name, String scope );
+    void addGraphiteServer( String host, int port, long period, String prefix ) throws IOException;
+    void shutdownGraphite();
+    void destroy();
 }
