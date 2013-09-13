@@ -29,20 +29,6 @@ public class SplitableHeaderUtil {
 
     }
 
-    public SplitableHeaderUtil(String... headers) {
-
-        setDefaultSplitable();
-        splitableHeaders.addAll(Arrays.asList(headers));
-    }
-
-    public SplitableHeaderUtil(String[]... headers) {
-
-        setDefaultSplitable();
-        for (String[] hdrs : headers) {
-            splitableHeaders.addAll(Arrays.asList(hdrs));
-        }
-    }
-
     public SplitableHeaderUtil(HeaderConstant[] constant) {
         setDefaultSplitable();
 
