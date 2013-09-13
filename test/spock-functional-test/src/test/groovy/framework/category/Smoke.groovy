@@ -5,4 +5,4 @@ package framework.category
  *
  * A test is considered a release tests if it needs to part of parent level build & part of releases
  */
-public interface Release {}
+public interface Smoke {}

@@ -129,7 +129,7 @@
         <profile>
             <id>spock-local</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -258,6 +258,25 @@
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Slow</groups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>smoke</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.16</version>
+                        <configuration>
+                            <groups>framework.category.Smoke</groups>
                         </configuration>
                     </plugin>
                 </plugins>
