@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <repose-cluster id="repose" rewrite-host-header="false">
 
         <nodes>
             <node id="node1" hostname="localhost" http-port="${repose_port}"/>
         </nodes>
 
         <filters>
-            <filter name="ip-identity" uri-regex="/test-uri-regex/.*" />     <!-- had to use a simple filter as we have issues when no filter is present-->
+            <filter name="content-normalization"/>
+            <filter name="dist-datastore"/>
         </filters>
 
         <destinations>

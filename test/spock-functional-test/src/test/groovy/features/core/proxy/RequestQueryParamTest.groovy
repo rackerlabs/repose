@@ -11,19 +11,19 @@ class RequestQueryParamTest extends ReposeValveTest {
     def setupSpec() {
         repose.applyConfigs( "features/core/proxy" )
         repose.start()
-    }
-
-    def cleanupSpec() {
-        repose.stop()
-    }
-
-    def setup() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         deproxy.shutdown()
+        repose.stop()
+    }
+
+    def setup() {
+    }
+
+    def cleanup() {
     }
 
     @Unroll("When client requests: #uriSuffixGiven, repose should normalize to: #uriSuffixExpected")

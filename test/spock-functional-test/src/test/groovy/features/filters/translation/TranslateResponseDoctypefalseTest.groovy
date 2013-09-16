@@ -3,10 +3,9 @@ package features.filters.translation
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Response
-import org.rackspace.gdeproxy.HeaderCollection
 import spock.lang.Unroll
 
-class TranslateResponseTest extends ReposeValveTest {
+class TranslateResponseDoctypefalseTest extends ReposeValveTest {
 
     def static String xmlResponse = "<a><remove-me>test</remove-me>somebody</a>"
     def static String xmlRssResponse = "<a>test body</a>"
@@ -34,8 +33,7 @@ class TranslateResponseTest extends ReposeValveTest {
     def setupSpec() {
 
         repose.applyConfigs(
-                "features/filters/translation/common",
-                "features/filters/translation/response"
+                "features/filters/translation/responsedocfalse"
         )
         repose.start()
 
@@ -73,57 +71,11 @@ class TranslateResponseTest extends ReposeValveTest {
 
         where:
         reqHeaders | respHeaders    | respBody                   | respCode | shouldContain  | shouldNotContain         | requestUri                          | method
-        acceptXML  | contentXML     | xmlResponse                | 200      | ["somebody"]   | [remove]                 | ""                                  | "PUT"
-        acceptXML  | contentXML     | xmlResponseWithEntities    | 200      | ["\"somebody"] | [remove]                 | ""                                  | "PUT"
-        acceptXML  | contentXML     | xmlResponseWithXmlBomb     | 500      | ["\"somebody"] | [remove]                 | ""                                  | "PUT"
-        acceptXML  | contentXMLHTML | xmlResponse                | 200      | [add]          | [filterChainUnavailable] | ""                                  | "PUT"
-        acceptXML  | contentJSON    | jsonResponse               | 200      | [xmlJSON, add] | [filterChainUnavailable] | ""                                  | "PUT"
-        acceptXML  | contentOther   | jsonResponse               | 200      | [jsonResponse] | [add]                    | ""                                  | "PUT"
-        acceptXML  | contentXML     | xmlResponseWithExtEntities | 200      | ["\"somebody"] | [remove]                 | ""                                  | "POST"
-
+        acceptXML  | contentXML     | xmlResponseWithEntities    | 500      | ["\"somebody"] | [remove]                 | "/translation/responsedocfalse/123" | "POST"
+        acceptXML  | contentXML     | xmlResponseWithExtEntities | 500      | ["\"somebody"] | [remove]                 | "/translation/responsedocfalse/123" | "POST"
 
     }
 
-
-    def "when translating application/rss+xml response with header translations"() {
-
-        given: "Repose is configured to translate response headers"
-        def reqHeaders = ["accept": "application/xml"]
-        def respHeaders = ["content-type": "application/rss+xml"]
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders, xmlRssResponse) }
-
-
-        when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
-
-        then: "Response body should not be touched"
-        resp.receivedResponse.body.contains(xmlRssResponse)
-        !resp.receivedResponse.body.contains("add-me")
-        resp.receivedResponse.code == "200"
-
-        and: "Response headers should contain added header from translation"
-        resp.receivedResponse.getHeaders().names.contains("translation-header")
-        !resp.receivedResponse.getHeaders().names.contains("x-powered-by")
-    }
-
-    def "when attempting to translate an invalid xml/json response"() {
-
-        given: "Origin service returns invalid json/xml"
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
-
-
-        when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
-
-        then: "Repose should return a 500 as the response is invalid"
-        resp.receivedResponse.code.equals(respCode)
-
-        where:
-        reqHeaders | respHeaders | respBody            | respCode
-        acceptXML  | contentXML  | invalidXmlResponse  | "500"
-        acceptXML  | contentJSON | invalidJsonResponse | "500"
-
-    }
 
 
 }

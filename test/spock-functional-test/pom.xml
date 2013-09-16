@@ -40,6 +40,7 @@
         <repose_shutdown_port>10009</repose_shutdown_port>
         <target_hostname>localhost</target_hostname>
         <target_port>10001</target_port>
+        <target_port2>10002</target_port2>
         <identity_port>12200</identity_port>
         <atom_port>12201</atom_port>
 
@@ -111,7 +112,7 @@
         <dependency>
             <groupId>org.rackspace</groupId>
             <artifactId>gdeproxy</artifactId>
-            <version>0.11</version>
+            <version>0.15</version>
             <scope>test</scope>
         </dependency>
 
