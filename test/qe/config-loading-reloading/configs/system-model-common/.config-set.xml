@@ -1,7 +1,0 @@
-<config-set>
-  <folder>
-    <file src="container.cfg.xml" />
-    <file src="log4j.properties" />
-  </folder>
-</config-set>
-

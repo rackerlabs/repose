@@ -1,5 +1,0 @@
-<config-set>
-  <folder>
-    <file src="openstack-authorization.cfg.xml" />
-  </folder>
-</config-set>
