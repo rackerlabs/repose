@@ -6,17 +6,35 @@ import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.gdeproxy.PortFinder
+import spock.lang.Shared
 
 @Category(Slow.class)
 class IpIdentityTest extends ReposeValveTest {
 
+    @Shared
+    def url
     def setupSpec() {
+        PortFinder pf = new PortFinder()
+        int deproxyPort = pf.getNextOpenPort()
+        int reposePort = pf.getNextOpenPort()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(deproxyPort)
 
-        repose.applyConfigs("features/filters/ipidentity")
+        url = "http://localhost:${reposePort}"
+
+        repose.configurationProvider.cleanConfigDirectory()
+        repose.configurationProvider.applyConfigsRuntime(
+                "common",
+                ["reposePort": reposePort.toString(),
+                        "targetPort": deproxyPort.toString()]);
+        repose.configurationProvider.applyConfigsRuntime(
+                "features/filters/ipidentity",
+                ["reposePort": reposePort.toString(),
+                        "targetPort": deproxyPort.toString()]);
         repose.start()
-        waitUntilReadyToServiceRequests()
+        repose.waitForNon500FromUrl(url)
+//        waitUntilReadyToServiceRequests()
     }
 
     def cleanupSpec() {
@@ -32,7 +50,7 @@ class IpIdentityTest extends ReposeValveTest {
     def "when identifying requests by ip"() {
 
         when: "Request is sent through repose"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint])
+        def messageChain = deproxy.makeRequest([url: url])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
         def user = ((Handling) sentRequest).request.headers.getFirstValue("x-pp-user");
 
@@ -50,7 +68,7 @@ class IpIdentityTest extends ReposeValveTest {
     def "when identifying requests by x-forwarded-for"() {
 
         when: "Request contains x-forwarded-for"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: ["x-forwarded-for": "10.6.51.192"]])
+        def messageChain = deproxy.makeRequest([url: url, headers: ["x-forwarded-for": "10.6.51.192"]])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"

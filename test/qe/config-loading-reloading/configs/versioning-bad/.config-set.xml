@@ -1,5 +1,0 @@
-<config-set>
-  <folder>
-    <file src="versioning.cfg.xml" />
-  </folder>
-</config-set>
