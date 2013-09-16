@@ -1,9 +1,12 @@
 package features.services.metrics
 
 import framework.ReposeValveTest
+import framework.category.Flaky
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 
-class MetricsEnableDisableTest extends ReposeValveTest {
+@Category(Flaky.class)
+class MetricsEnableDisableOnStartTest extends ReposeValveTest {
 
     String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
     String RESPONSE_CODE_PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""
@@ -14,21 +17,15 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     String ALL_ENDPOINTS_2XX = RESPONSE_CODE_PREFIX + "All Endpoints" + NAME_2XX
 
     String DESTINATION_ROUTER_TARGET = PREFIX + "destination-router" + NAME_TARGET
+    def destRouterTarget = null
+    def repose2xx = null
+    def allEndpoints2xx = null
 
-    def setupSpec() {
-
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-    }
-
-    def cleanup() {
-
+    def cleanup(){
         repose.stop()
-
     }
 
     def cleanupSpec(){
-
         deproxy.shutdown()
     }
 
@@ -38,6 +35,8 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.applyConfigs( "features/services/metrics/common",
                 "features/services/metrics/metricsenabled" )
         repose.start()
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
         when:
         deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
@@ -76,6 +75,8 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
+        repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == 1
     }
 
     def "when metrics config is missing, reporting should occur"() {
@@ -89,6 +90,8 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
+        repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == 1
     }
 
 }

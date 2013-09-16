@@ -35,19 +35,19 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
                 "features/filters/translation/headersQueries"
         )
         repose.start()
-    }
-
-    def setup() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
+    def setup() {
+
+    }
+
     def cleanup() {
-        deproxy.shutdown()
     }
 
     def cleanupSpec() {
+        deproxy.shutdown()
         repose.stop()
     }
 
