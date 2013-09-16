@@ -2,14 +2,12 @@ package com.rackspace.papi.service.httpclient.impl;
 
 import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.DefaultHttpResponseParser;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.client.params.ClientPNames;
 import org.apache.http.params.CoreConnectionPNames;
 
 import javax.net.ssl.SSLContext;

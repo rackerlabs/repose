@@ -1,14 +1,13 @@
 package com.rackspace.cloud.valve.server;
 
 import com.rackspace.cloud.valve.logging.DefaultLogConfigurator;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.spi.OptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author zinic
