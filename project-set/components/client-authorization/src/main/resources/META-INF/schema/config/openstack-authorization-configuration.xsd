@@ -68,6 +68,15 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+
+
+       <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-authorization-default">
+           <xs:annotation>
+               <xs:documentation>
+                   <html:p>Tells the connection pool service to map to the pool with specified id. If default is chosen then the default connection pool configurations in connection pool service is used.</html:p>
+               </xs:documentation>
+           </xs:annotation>
+       </xs:attribute>
    </xs:complexType>
     
    <xs:complexType name="ServiceEndpoint">

@@ -62,7 +62,7 @@ public class AuthenticationServiceClientTest {
 
         @Test(expected = AuthServiceException.class)
         public void shouldErrorWithCorrectMessageForInternalServerErrorCase() {
-            when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString()))
+            when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString(),anyString()))
                     .thenReturn(serviceClientResponseGet);
             when(serviceClient.post(anyString(), any(JAXBElement.class), any(MediaType.class)))
                     .thenReturn(serviceClientResponsePost);
