@@ -13,12 +13,11 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 import framework.category.Bug
-import org.junit.experimental.categories.Category
+import org.junit.experimental.categories.Category;
+
 
 @Category(Bug.class)
 class ContentTranslationBurstTest extends ReposeValveTest {
-
-
 
     def static Map acceptXML = ["accept": "application/xml"]
 
