@@ -30,6 +30,9 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         repose.applyConfigs(
                 "features/filters/translation/common",
                 "features/filters/translation/headersQueries"
@@ -37,18 +40,10 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
         repose.start()
     }
 
-    def setup() {
-
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-    }
-
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
         repose.stop()
+        deproxy.shutdown()
+
     }
 
     def "when translating request headers"() {
@@ -78,14 +73,14 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint + "/path/to/resource/", method, reqHeaders, reqBody, xmlResp)
-        //def resp = deproxy.makeRequest([url: (String) reposeEndpoint + "/path/to/resource/", method: method, headers: reqHeaders, requestBody: reqBody])
-        def sentRequest = ((MessageChain) resp).getHandlings()[0]
+        def mc = deproxy.makeRequest((String) reposeEndpoint + "/path/to/resource/", method, reqHeaders, reqBody, xmlResp)
+        //def mc = deproxy.makeRequest([url: (String) reposeEndpoint + "/path/to/resource/", method: method, headers: reqHeaders, requestBody: reqBody])
 
         then: "Request url sent from repose to the origin service should contain"
 
+        mc.handlings.size() == 1
         for (String st : queryParamsShouldContain) {
-            ((Handling) sentRequest).getRequest().path.contains(st)
+            mc.handlings[0].request.path.contains(st)
 
         }
 
