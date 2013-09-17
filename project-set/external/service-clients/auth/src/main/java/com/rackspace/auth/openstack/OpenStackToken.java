@@ -28,7 +28,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String impersonatorUsername;
     private final String defaultRegion;
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
-    private static final QName regionQname = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
+    private static final QName REGION_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
 
     public OpenStackToken(AuthenticateResponse response) {
 
@@ -76,7 +76,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     }
 
     private String getDefaultRegion(AuthenticateResponse response) {
-        return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(regionQname), "");
+        return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(REGION_QNAME), "");
     }
 
     @Override

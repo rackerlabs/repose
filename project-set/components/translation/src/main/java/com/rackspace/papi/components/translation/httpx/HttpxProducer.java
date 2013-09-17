@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class HttpxProducer {
 
-  private static final ObjectFactory objectFactory = new ObjectFactory();
+  private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
   private final HttpServletRequest request;
   private final HttpServletResponse response;
   private Headers headers;
@@ -28,7 +28,7 @@ public class HttpxProducer {
   }
 
   private HeaderList getHeaderList(HeaderContainer container) {
-    HeaderList result = objectFactory.createHeaderList();
+    HeaderList result = OBJECT_FACTORY.createHeaderList();
     List<QualityNameValuePair> headerList = result.getHeader();
 
     for (String name : container.getHeaderNames()) {
@@ -49,10 +49,10 @@ public class HttpxProducer {
   
   public RequestInformation getRequestInformation() {
     if (requestInformation == null) {
-      requestInformation = objectFactory.createRequestInformation();
+      requestInformation = OBJECT_FACTORY.createRequestInformation();
       requestInformation.setUri(request.getRequestURI());
       requestInformation.setUrl(request.getRequestURL().toString());
-      ReadOnlyRequestInformation info = objectFactory.createReadOnlyRequestInformation();
+      ReadOnlyRequestInformation info = OBJECT_FACTORY.createReadOnlyRequestInformation();
       
       info.setAuthType(StringUtilities.getValue(request.getAuthType(), ""));
       info.setContextPath(StringUtilities.getValue(request.getContextPath(), ""));
@@ -81,7 +81,7 @@ public class HttpxProducer {
 
   public Headers getHeaders() {
     if (headers == null) {
-      headers = objectFactory.createHeaders();
+      headers = OBJECT_FACTORY.createHeaders();
       headers.setRequest(getHeaderList(new RequestHeaderContainer(request)));
       headers.setResponse(getHeaderList(new ResponseHeaderContainer(response)));
     }
@@ -91,7 +91,7 @@ public class HttpxProducer {
 
   public QueryParameters getRequestParameters() {
     if (queryParameters == null) {
-      queryParameters = objectFactory.createQueryParameters();
+      queryParameters = OBJECT_FACTORY.createQueryParameters();
 
       if (request != null) {
         List<NameValuePair> parameters = queryParameters.getParameter();
