@@ -29,6 +29,9 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         def saxonHome = System.getenv("SAXON_HOME")
 
         assert saxonHome != null
@@ -42,19 +45,9 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
         repose.start()
     }
 
-    def setup() {
-
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-    }
-
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
-        deproxy.shutdown()
         repose.stop()
+        deproxy.shutdown()
     }
 
     def "when translating json within xml in the request body"() {
