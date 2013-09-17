@@ -5,7 +5,6 @@ class TestProperties {
     String configDirectory
     String logFile
     String configSamples
-    String connFramework
     String reposeEndpoint
     String reposeContainer = "valve"
 
@@ -32,7 +31,6 @@ class TestProperties {
             reposeEndpoint = properties.getProperty("repose.endpoint")
             logFile = properties.getProperty("repose.log")
 
-            connFramework = "jersey"
             def value = properties.getProperty("repose.container")
             if (value) {
                 reposeContainer = value
