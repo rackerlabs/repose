@@ -89,11 +89,20 @@
             <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
                 <xs:annotation>
                     <xs:documentation>
-                        c
                         <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+
+            <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-auth-default">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Tells the connection pool service to map to the pool with specified id.
+                                If default is chosen then the default connection pool configurations in connection pool service is used.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+
             <!-- Review assertion -->
             <xs:assert vc:minVersion="1.1"
                        test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
