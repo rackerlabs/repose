@@ -73,6 +73,9 @@ class ReposeValveLauncher implements ReposeLauncher {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
 
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting)
+    }
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
         if (killOthersBeforeStarting) {
             waitForCondition(clock, '5s', '1s', {
