@@ -18,7 +18,6 @@ class ReposeValveLauncher implements ReposeLauncher {
     def boolean debugEnabled
     def String reposeJar
     def String configDir
-    def String connFramework = "jersey"
 
     def clock = new SystemClock()
 
@@ -39,11 +38,11 @@ class ReposeValveLauncher implements ReposeLauncher {
                         String reposeEndpoint,
                         String configDir,
                         int reposePort,
-                        int shutdownPort,
-                        String connFramework="jersey") {
+                        int shutdownPort) {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
+        this.reposePort = reposePort
         this.shutdownPort = shutdownPort
         this.configDir = configDir
     }
@@ -98,9 +97,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         }
 
         def cmd = "java ${classPath} ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir}"
-        if (!connFramework.isEmpty()) {
-            cmd = cmd + " -cf ${connFramework}"
-        }
+
         cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
