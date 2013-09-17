@@ -27,14 +27,14 @@ import java.util.NoSuchElementException;
  */
 final class EmptyEnumeration implements Enumeration<Object> {
 
-	private static final Enumeration<?> instance = new EmptyEnumeration();
+	private static final Enumeration<?> INSTANCE = new EmptyEnumeration();
 
 	private EmptyEnumeration() {
 		// do nothing
 	}
 
 	public static Enumeration<?> getInstance() {
-		return instance;
+		return INSTANCE;
 	}
 
 	/**
