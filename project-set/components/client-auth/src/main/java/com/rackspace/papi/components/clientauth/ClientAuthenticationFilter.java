@@ -50,7 +50,7 @@ public class ClientAuthenticationFilter implements Filter {
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()));
+        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()),ctx.httpConnectionPoolService());
         configurationManager = ctx.configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL , handlerFactory, ClientAuthConfig.class);
