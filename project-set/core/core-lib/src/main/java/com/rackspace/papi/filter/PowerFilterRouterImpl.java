@@ -31,11 +31,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
 
 /**
  * This class routes a request to the appropriate endpoint specified in system-model.cfg.xml and receives
@@ -269,7 +272,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             return;
         }
 
-        if ( responseCode == 408 ) {
+        if ( responseCode == HTTP_CLIENT_TIMEOUT) {
             mbc.mark( endpoint );
         }
     }
