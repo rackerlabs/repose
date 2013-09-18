@@ -13,7 +13,6 @@ package com.rackspace.papi.service.reporting.metrics;
  */
 public interface MeterByCategory {
 
-    public void mark( String key );
-
-    public void mark( String key, long n );
+    void mark( String key );
+    void mark( String key, long n );
 }

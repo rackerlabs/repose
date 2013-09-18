@@ -67,7 +67,9 @@ class ContentIdentityTest extends ReposeValveTest {
         }
     }
 
-    @Unroll("When request contains identity in content #requestBody\n Expected user is #expectedUser")
+
+    @Unroll("When request contains identity in content #testName\n Expected user is #expectedUser")
+
     def "when identifying requests by header"() {
 
         when: "Request body contains user credentials"
@@ -87,22 +89,24 @@ class ContentIdentityTest extends ReposeValveTest {
         ((Handling) sentRequest).request.getHeaders().getFirstValue("x-pp-groups").equals("My Group;q=0.75")
 
         where:
-        requestBody               | contentType | expectedUser
-        jsonPasswordCred          | contentJson | "test-user"
-        jsonKeyCred               | contentJson | "test-user"
-        jsonKeyCredEmptyKey       | contentJson | "test-user"
-        jsonMossoIdCred           | contentJson | "12345"
-        jsonMossoNastCred         | contentJson | "12345"
-        jsonMossoNastCredEmptyKey | contentJson | "12345"
-        xmlPasswordCred           | contentXml  | "test-user"
-        xmlPasswordCredEmptyKey   | contentXml  | "test-user"
-        xmlKeyCred                | contentXml  | "test-user"
-        xmlKeyCredEmptyKey        | contentXml  | "test-user"
-        xmlMossoIdCred            | contentXml  | "12345"
-        xmlMossoNastCred          | contentXml  | "12345"
+        requestBody               | contentType | expectedUser  | testName
+        jsonPasswordCred          | contentJson | "test-user"   | "jsonPasswordCred"
+        jsonKeyCred               | contentJson | "test-user"   | "jsonKeyCred"
+        jsonKeyCredEmptyKey       | contentJson | "test-user"   | "jsonKeyCredEmptyKey"
+        jsonMossoIdCred           | contentJson | "12345"       | "jsonMossoIdCred"
+        jsonMossoNastCred         | contentJson | "12345"       | "jsonMossoNastCred"
+        jsonMossoNastCredEmptyKey | contentJson | "12345"       | "jsonMossoNastCredEmptyKey"
+        xmlPasswordCred           | contentXml  | "test-user"   | "xmlPasswordCred"
+        xmlPasswordCredEmptyKey   | contentXml  | "test-user"   | "xmlPasswordCredEmptyKey"
+        xmlKeyCred                | contentXml  | "test-user"   | "xmlKeyCred"
+        xmlKeyCredEmptyKey        | contentXml  | "test-user"   | "xmlKeyCredEmptyKey"
+        xmlMossoIdCred            | contentXml  | "12345"       | "xmlMossoIdCred"
+        xmlMossoNastCred          | contentXml  | "12345"       | "xmlMossoNastCred"
     }
 
-    @Unroll("When bad requests pass through repose #requestBody\n")
+
+    @Unroll("When bad requests pass through repose #testName\n")
+
     def "when attempting to identity user by content and passed bad content"() {
 
         when: "Request body contains user credentials"
@@ -118,31 +122,31 @@ class ContentIdentityTest extends ReposeValveTest {
 
 
         where:
-        requestBody                        | contentType
-        jsonPasswordCredEmptyUser          | contentJson
-        jsonPasswordCredEmptyUserField     | contentJson
-        jsonPasswordCredEmptyPasswordField | contentJson
-        jsonKeyCredEmptyUser               | contentJson
-        jsonKeyCredEmptyUserField          | contentJson
-        jsonKeyCredNoKey                   | contentJson
-        jsonMossoCredNoId                  | contentJson
-        jsonMossoCredNoKey                 | contentJson
-        jsonMossoNastEmptyNast             | contentJson
-        jsonMossoNastNoNastId              | contentJson
-        jsonMossoNastNoKey                 | contentJson
+        requestBody                        | contentType | testName
+        jsonPasswordCredEmptyUser          | contentJson | "jsonPasswordCredEmptyUser"
+        jsonPasswordCredEmptyUserField     | contentJson | "jsonPasswordCredEmptyUserField"
+        jsonPasswordCredEmptyPasswordField | contentJson | "jsonPasswordCredEmptyPasswordField"
+        jsonKeyCredEmptyUser               | contentJson | "jsonKeyCredEmptyUser"
+        jsonKeyCredEmptyUserField          | contentJson | "jsonKeyCredEmptyUserField"
+        jsonKeyCredNoKey                   | contentJson | "jsonKeyCredNoKey"
+        jsonMossoCredNoId                  | contentJson | "jsonMossoCredNoId"
+        jsonMossoCredNoKey                 | contentJson | "jsonMossoCredNoKey"
+        jsonMossoNastEmptyNast             | contentJson | "jsonMossoNastEmptyNast"
+        jsonMossoNastNoNastId              | contentJson | "jsonMossoNastNoNastId"
+        jsonMossoNastNoKey                 | contentJson | "jsonMossoNastNoKey"
 
-        xmlPasswordCredEmptyUser           | contentXml
-        xmlPasswordCredEmptyUserField      | contentXml
-        xmlKeyCredEmptyUser                | contentXml
-        xmlKeyCredEmptyUserField           | contentXml
-        xmlMossoCredInvalidId              | contentXml
-        xmlMossoNastCredEmptyNastId        | contentXml
-        xmlMossoNastCredNoEmptyNastField   | contentXml
+        xmlPasswordCredEmptyUser           | contentXml  | "xmlPasswordCredEmptyUser"
+        xmlPasswordCredEmptyUserField      | contentXml  | "xmlPasswordCredEmptyUserField"
+        xmlKeyCredEmptyUser                | contentXml  | "xmlKeyCredEmptyUser"
+        xmlKeyCredEmptyUserField           | contentXml  | "xmlKeyCredEmptyUserField"
+        xmlMossoCredInvalidId              | contentXml  | "xmlMossoCredInvalidId"
+        xmlMossoNastCredEmptyNastId        | contentXml  | "xmlMossoNastCredEmptyNastId"
+        xmlMossoNastCredNoEmptyNastField   | contentXml  | "xmlMossoNastCredNoEmptyNastField"
 
-        invalidData                        | contentJson
-        invalidData                        | contentXml
-        jsonOverLimit                      | contentJson
-        xmlOverLimit                       | contentXml
+        invalidData                        | contentJson | "invalidData"
+        invalidData                        | contentXml  | "invalidData"
+        jsonOverLimit                      | contentJson | "jsonOverLimit"
+        xmlOverLimit                       | contentXml  | "xmlOverLimit"
 
 
     }

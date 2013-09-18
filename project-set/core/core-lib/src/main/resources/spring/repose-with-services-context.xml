@@ -15,6 +15,11 @@
     </bean>
 
     <bean name="httpConnectionPoolServiceContext"
-          class="com.rackspace.papi.service.context.impl.HttpConnectionPoolServiceContext"/>
+          class="com.rackspace.papi.service.context.impl.HttpConnectionPoolServiceContext">
+      
+        <constructor-arg index="0" ref="serviceRegistry"/>
+        <constructor-arg index="1" ref="configurationManager"/>
+        <constructor-arg index="2" ref="httpConnectionPoolService"/>
+    </bean>
 
 </beans>

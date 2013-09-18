@@ -1,14 +1,11 @@
 package com.rackspace.papi.service.httpclient.impl;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 
-import javax.resource.spi.ConnectionManager;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**

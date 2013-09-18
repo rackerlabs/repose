@@ -3,14 +3,10 @@ package com.rackspace.papi.commons.config.parser.jaxb;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
-import java.io.IOException;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 
 /**
  * Uses {@link com.rackspace.papi.commons.config.parser.jaxb.UnmarshallerValidator UnmarshallerValidator} to validate

@@ -92,9 +92,10 @@ class HttpConnectionPoolServiceImplTest {
         assertEquals("Pool Service should have two client pools available", srv.getAvailableClients().size(), 2);
     }
 
-    @Test(expected = HttpClientNotFoundException.class)
-    void testHttpConnectionPoolExeption() {
+
+    void testHttpRandomConnectionPool() {
         HttpClient client = srv.getClient("nonexistent client");
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
     }
 
     @Test

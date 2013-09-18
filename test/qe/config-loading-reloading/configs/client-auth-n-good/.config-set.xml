@@ -1,5 +1,0 @@
-<config-set>
-  <folder>
-    <file src="client-auth-n.cfg.xml" />
-  </folder>
-</config-set>

@@ -7,8 +7,6 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

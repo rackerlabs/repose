@@ -16,7 +16,8 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/zerocachetime")
+        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/zerocachetime",
+                "features/filters/clientauthn/connectionpooling")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')

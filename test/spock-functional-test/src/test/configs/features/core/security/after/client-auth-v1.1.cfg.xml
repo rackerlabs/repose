@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adding a comment to ensure the config appears to be after -->
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <rackspace-auth delegable="false" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
+        <authentication-server username="admin_username" password="admin_password" uri="http://localhost:${identity_port}" />
+        <account-mapping id-regex="/v\d/([\w-]+)/?" type="CLOUD"/>
+    </rackspace-auth>
+</client-auth>

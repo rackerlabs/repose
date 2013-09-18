@@ -3,6 +3,7 @@ package org.openrepose.components.rackspace.authz;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
@@ -33,13 +34,14 @@ public class RackspaceAuthorizationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final DatastoreService datastoreService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().datastoreService();
+        final ContextAdapter ctx = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
+        final DatastoreService datastoreService = ctx.datastoreService();
         final DatastoreManager defaultLocal = datastoreService.defaultDatastore();
 
         configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore());
+        handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore(),ctx.httpConnectionPoolService());
         URL xsdURL = getClass().getResource("/META-INF/schema/config/openstack-authorization-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, RackspaceAuthorization.class);
     }

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 public class EndpointsConfiguration {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
+    private static final long TEN_MINUTES_MILLIS = 600000L;
 
     private String format; //xml or json
     private Long cacheTimeout; //default is 1 hour
@@ -36,7 +37,7 @@ public class EndpointsConfiguration {
 
     public long getCacheTimeout() {
         if (cacheTimeout == null) {
-            return  600000L;
+            return TEN_MINUTES_MILLIS;
         } else {
             return cacheTimeout;
         }

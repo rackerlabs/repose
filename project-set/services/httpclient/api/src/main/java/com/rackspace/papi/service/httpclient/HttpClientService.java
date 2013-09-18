@@ -24,7 +24,7 @@ public interface HttpClientService<I> {
      * @return an HttpClient
      * @throws HttpClientNotFoundException if client identified by the provided name is not found.
      */
-    public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException;
+    HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException;
 
     /**
      * Configure the available clients that can be used via getClient()
@@ -33,23 +33,23 @@ public interface HttpClientService<I> {
      * ensure that a configure() call while
      * @param config
      */
-    public void configure(I config);
+    void configure(I config);
 
     /**
      * Returns true if the given clientId is available to be retrieved via getClient()
      * @param clientId
      * @return
      */
-    public boolean isAvailable(String clientId);
+    boolean isAvailable(String clientId);
 
     /**
      * Returns a set of available client identifiers
      * @return
      */
-    public Set<String> getAvailableClients();
+    Set<String> getAvailableClients();
 
     /**
      * Shutdown all open connections
      */
-    public void shutdown();
+    void shutdown();
 }

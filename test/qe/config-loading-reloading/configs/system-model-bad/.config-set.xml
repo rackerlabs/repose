@@ -1,5 +1,0 @@
-<config-set>
-  <folder>
-    <file src="system-model.cfg.xml" />
-  </folder>
-</config-set>

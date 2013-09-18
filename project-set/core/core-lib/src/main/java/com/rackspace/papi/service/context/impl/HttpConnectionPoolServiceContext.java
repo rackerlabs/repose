@@ -4,14 +4,13 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+
 
 import javax.servlet.ServletContextEvent;
 import java.net.URL;
@@ -20,10 +19,11 @@ import java.net.URL;
  * Manages the {@link com.rackspace.papi.service.httpclient.HttpClientService} instance and
  * subscribes to the http-connection-pool.cfg.xml configuration file.
  */
+
 public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClientService> {
     private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolServiceContext.class);
 
-    public static final String SERVICE_NAME = "HttpConnectionPoolService";
+    public static final String SERVICE_NAME = "powerapi:/services/httpConnectionPool";
     public static final String DEFAULT_CONFIG_NAME = "http-connection-pool.cfg.xml";
 
     private final HttpClientService connectionPoolService;
@@ -32,9 +32,9 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
     private final ConfigurationListener configurationListener;
 
     @Autowired
-    public HttpConnectionPoolServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
-                                 @Qualifier("configurationManager") ConfigurationService configurationService,
-                                 @Qualifier("httpConnectionPoolService") HttpClientService connectionPoolService) {
+    public HttpConnectionPoolServiceContext( ServiceRegistry registry,
+                                 ConfigurationService configurationService,
+                                 HttpClientService connectionPoolService) {
 
         this.registry = registry;
         this.configurationService = configurationService;

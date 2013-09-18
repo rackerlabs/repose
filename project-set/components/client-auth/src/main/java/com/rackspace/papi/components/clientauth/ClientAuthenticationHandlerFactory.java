@@ -19,6 +19,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -42,10 +43,13 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private UriMatcher uriMatcher;
     private final Datastore datastore;
     private FeedListenerManager manager;
-    private static final Long minInterval = new Long("10000");
+    private final  HttpClientService  httpClientService;
+    private static final Long MINIMUM_INTERVAL = new Long("10000");
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore) {
+
+    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService) {
         this.datastore = datastore;
+        this.httpClientService= httpClientService;
     }
 
     @Override
@@ -102,7 +106,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             List<AuthFeedReader> listeners = new ArrayList<AuthFeedReader>();
 
             for (RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()) {
-                SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(), feed.getUri(), feed.getId());
+
+                SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {
@@ -114,8 +119,9 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                     }
                 }
 
+                    listeners.add(rdr);
 
-                listeners.add(rdr);
+
             }
 
             manager = new FeedListenerManager(datastore, listeners, getMinimumCheckInterval(modifiedConfig.getAtomFeeds().getCheckInterval()));
@@ -130,13 +136,13 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         //If the user configures repose to poll more often than every 10000 milliseconds (10 seconds) we will override this and set it to our minimum.
         private long getMinimumCheckInterval(long interval) {
 
-            if (interval > minInterval) {
-                LOG.debug("Repose will poll Atom Feeds every " + minInterval + " milliseconds for invalidated users and tokens");
+            if (interval > MINIMUM_INTERVAL) {
+                LOG.debug("Repose will poll Atom Feeds every " + MINIMUM_INTERVAL + " milliseconds for invalidated users and tokens");
                 return interval;
             } else {
-                LOG.warn("Configured minimum check interval to poll Atom Feeds set less than " + minInterval + " milliseconds. To prevent flooding the atom endpoint with"
-                        + " requests, Repose will poll the Atom Feeds every " + minInterval + " instead.");
-                return minInterval;
+                LOG.warn("Configured minimum check interval to poll Atom Feeds set less than " + MINIMUM_INTERVAL + " milliseconds. To prevent flooding the atom endpoint with"
+                        + " requests, Repose will poll the Atom Feeds every " + MINIMUM_INTERVAL + " instead.");
+                return MINIMUM_INTERVAL;
             }
         }
     }
@@ -160,11 +166,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     }
 
     private AuthenticationHandler getRackspaceAuthHandler(ClientAuthConfig cfg) {
-        return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
+        return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
     private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
-        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher);
+        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
     @Override
