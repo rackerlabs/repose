@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose1">
+        <nodes>
+            <node id="simple-node" hostname="localhost" http-port="${repose_port}"/>
+        </nodes>
+        <filters>
+            <filter name="client-auth" configuration="client-auth-v1.1.cfg.xml" />
+
+        </filters>
+        <destinations>
+            <endpoint id="target" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true" />
+            <endpoint id="target1" protocol="http" hostname="${target_hostname}" root-path="/v1" port="${target_port}"  />
+            <endpoint id="target2" protocol="http" hostname="${target_hostname}" root-path="/v2" port="${target_port}"  />
+
+        </destinations>
+    </repose-cluster>
+
+</system-model>
+
