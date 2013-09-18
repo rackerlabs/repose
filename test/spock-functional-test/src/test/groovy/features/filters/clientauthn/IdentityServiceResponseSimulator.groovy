@@ -6,7 +6,11 @@ import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.DateTimeZone;
+import org.joda.time.DateTimeZone
+
+import javax.xml.XMLConstants
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.SchemaFactory;
 
 /**
  * Simulates responses from an Identity Service
