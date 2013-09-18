@@ -1,7 +1,14 @@
 package framework
 
 import framework.client.jmx.JmxClient
+import org.apache.http.client.ClientProtocolException
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
+
+import java.nio.charset.Charset
+import java.util.concurrent.TimeoutException
 
 import static org.junit.Assert.fail
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -22,6 +29,8 @@ class ReposeValveLauncher implements ReposeLauncher {
     def JmxClient jmx
     def int debugPort = 8011
     def classPaths =[]
+
+    Process process
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -51,11 +60,26 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void start() {
+        this.start([:])
+    }
+    void start(Map params) {
 
-        waitForCondition(clock, '5s', '1s', {
-            killIfUp()
-            !isUp()
-        })
+        boolean killOthersBeforeStarting = true
+        if (params.containsKey("killOthersBeforeStarting")) {
+            killOthersBeforeStarting = params.killOthersBeforeStarting
+        }
+        boolean waitOnJmxAfterStarting = true
+        if (params.containsKey("waitOnJmxAfterStarting")) {
+            waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
+        }
+
+
+        if (killOthersBeforeStarting) {
+            waitForCondition(clock, '5s', '1s', {
+                killIfUp()
+                !isUp()
+            })
+        }
 
         def jmxprops = ""
         def debugProps = ""
@@ -80,7 +104,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ cmd.execute() });
+        def th = new Thread({ this.process = cmd.execute() });
 
         th.run()
         th.join()
@@ -91,10 +115,12 @@ class ReposeValveLauncher implements ReposeLauncher {
             connectViaJmxRemote(jmxUrl)
         }
 
-        print("Waiting for repose to start")
-        waitForCondition(clock, '60s', '1s', {
-            isFilterChainInitialized()
-        })
+        if (waitOnJmxAfterStarting) {
+            print("Waiting for repose to start")
+            waitForCondition(clock, '60s', '1s', {
+                isFilterChainInitialized()
+            })
+        }
 
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
@@ -130,13 +156,43 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     @Override
     void stop() {
-        def cmd = "java -jar ${reposeJar} -s ${shutdownPort} stop"
-        println("Stopping repose: ${cmd}")
+        this.stop([:])
+    }
+    void stop(Map params) {
 
-        cmd.execute();
-        waitForCondition(clock, '45s', '1s', {
-            !isUp()
-        })
+        def timeout = params?.timeout ?: 45000
+        def throwExceptionOnKill = true
+        if (params.containsKey("throwExceptionOnKill")) {
+            throwExceptionOnKill = params.throwExceptionOnKill
+        }
+
+        stop(timeout, throwExceptionOnKill)
+    }
+    void stop(int timeout, boolean throwExceptionOnKill) {
+
+        int socketTimeout = (timeout < 5000 ? timeout : 5000)
+
+        try {
+
+            Socket s = new Socket()
+            s.setSoTimeout(socketTimeout)
+            s.connect(new InetSocketAddress("localhost", shutdownPort), socketTimeout)
+            s.outputStream.write("\r\n".getBytes(Charset.forName("US-ASCII")))
+            s.outputStream.flush()
+            s.close()
+
+            waitForCondition(clock, "${timeout}", '1s', {
+                !isUp()
+            })
+
+        } catch (Exception) {
+
+            this.process.waitForOrKill(5000)
+
+            if (throwExceptionOnKill) {
+                throw new TimeoutException("Repose failed to stop cleanly")
+            }
+        }
     }
 
     @Override
@@ -213,6 +269,17 @@ class ReposeValveLauncher implements ReposeLauncher {
                     else
                         rt.exec("kill -9 " + pid.toInteger());
                 }
+            }
+        }
+    }
+
+    def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
+        waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
+            try {
+                HttpClient client = new DefaultHttpClient()
+                client.execute(new HttpGet(url)).statusLine.statusCode != 500
+            } catch (IOException ignored) {
+            } catch (ClientProtocolException ignored) {
             }
         }
     }

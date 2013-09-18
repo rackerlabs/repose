@@ -26,7 +26,6 @@ import com.rackspace.papi.servlet.InitParameter;
 public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
 
    DistributedDatastoreLauncherService distDatastoreServiceLauncher;
-   public static final String serviceName = "DistributedDatastoreLauncherService";
    private boolean initialized = false;
    private SystemModel systemModel;
    private ReposeInstanceInfo instanceInfo;
@@ -67,7 +66,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
 
    @Override
    public String getServiceName() {
-      return serviceName;
+      return "DistributedDatastoreLauncherService";
    }
 
    @Override

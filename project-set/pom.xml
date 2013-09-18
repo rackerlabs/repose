@@ -37,7 +37,8 @@
     </modules>
 
     <profiles>
-        <profile>
+
+       <profile>
             <id>JAXB Schema Compilation Support</id>
 
             <activation>

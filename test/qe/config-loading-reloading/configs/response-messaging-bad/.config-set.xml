@@ -1,5 +1,0 @@
-<config-set>
-  <folder>
-    <file src="response-messaging.cfg.xml" />
-  </folder>
-</config-set>

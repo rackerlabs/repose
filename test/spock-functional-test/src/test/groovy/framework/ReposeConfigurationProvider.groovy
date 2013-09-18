@@ -74,18 +74,32 @@ class ReposeConfigurationProvider {
      *   "Hello world!"
      */
     void applyConfigsRuntime(String sourceFolder, params=[:]) {
+
         def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
-        if (!source.isDirectory()) { throw new IllegalArgumentException("sourceFolder must refer to a folder, not a file") }
+
+        if (!source.exists()) { throw new IllegalArgumentException("\"${source.toString()}\" not found")}
+        if (!source.isDirectory()) { throw new IllegalArgumentException("\"${source.toString()}\" is not a directory") }
 
         for (file in FileUtils.listFiles(source, null, true)) {
 
             String contents = FileUtils.readFileToString(file)
             def processedContents = StrSubstitutor.replace(contents, params, "\${", "}")
 
-            // beware: ugly hackery. If JDK 7, use java.nio.file.Path.relativize instead
+            // Note: this is necessary to get relative paths under JDK 6.
+            // If using JDK 7, use java.nio.file.Path.relativize instead.
             def relativePath = source.toURI().relativize(file.toURI()).path
             def destinationFilename = FilenameUtils.concat(reposeConfigDir.absolutePath, relativePath)
             FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
         }
     }
+
+    public void cleanConfigDirectory() {
+        if (reposeConfigDir.exists()) {
+            FileUtils.cleanDirectory(reposeConfigDir)
+        } else {
+            reposeConfigDir.mkdirs()
+        }
+
+    }
+
 }

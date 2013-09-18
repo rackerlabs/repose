@@ -3,7 +3,7 @@
     <repose-cluster id="repose">
 
         <nodes>
-            <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+            <node id="node1" hostname="localhost" http-port="${reposePort}"/>
         </nodes>
 
         <filters>
@@ -11,7 +11,7 @@
         </filters>
 
         <destinations>
-            <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}"
+            <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${targetPort}"
                       default="true"/>
         </destinations>
 
