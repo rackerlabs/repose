@@ -77,6 +77,17 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
+        File jarFile = new File(reposeJar)
+        if (!jarFile.exists() || !jarFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
+        }
+
+        File configFolder = new File(configDir)
+        if (!configFolder.exists() || !configFolder.isDirectory()) {
+            throw new FileNotFoundException("Missing or invalid configuration folder.")
+        }
+
+
         if (killOthersBeforeStarting) {
             waitForCondition(clock, '5s', '1s', {
                 killIfUp()
