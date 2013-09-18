@@ -11,8 +11,8 @@
         </filters>
         <destinations>
             <endpoint id="target" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true" />
-            <endpoint id="target1" protocol="http" hostname="${target_hostname}" root-path="/v1" port="${target_port}" default="true" />
-            <endpoint id="target1" protocol="http" hostname="${target_hostname}" root-path="/v2" port="${target_port}" default="true" />
+            <endpoint id="target1" protocol="http" hostname="${target_hostname}" root-path="/v1" port="${target_port}"  />
+            <endpoint id="target2" protocol="http" hostname="${target_hostname}" root-path="/v2" port="${target_port}"  />
 
         </destinations>
     </repose-cluster>

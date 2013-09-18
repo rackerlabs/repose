@@ -39,9 +39,9 @@ class ValidUserValidToken200 extends ReposeValveTest {
 
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint+"/v1/usertest1", 'GET', ['X-Auth-Token': '358484212:10469688' ])
 
         then: "User should receive a valid token response"
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
     }
 }
