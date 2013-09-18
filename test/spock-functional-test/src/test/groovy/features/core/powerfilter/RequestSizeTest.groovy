@@ -61,7 +61,7 @@ class RequestSizeTest extends ReposeValveTest {
 
         where:
         headerName | headerSize
-        "Header1"  | 5990
+        "Header1"  | 5980
         "Header1"  | 5000
         "Header1"  | 4500
         "Header1"  | 4000
