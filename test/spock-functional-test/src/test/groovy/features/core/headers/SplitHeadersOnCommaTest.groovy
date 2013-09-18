@@ -159,7 +159,10 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         "Accept-Encoding" | "compress, gzip"                      | 1             | "compress, gzip"
         "Accept-Encoding" | "gzip;q=1.0, identity;q=0.5, *;q=0"   | 1             | "gzip;q=1.0"
         "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5, *;q=0.1" | 1             | "gzip;q=0.9"
+        "Accept-Encoding" | "gzip;q=0.9, *;q=0.1, identity;q=0.5" | 1             | "gzip;q=0.9"
+        "Accept-Encoding" | "identity;q=0.5, gzip;q=0.9, *;q=0.1" | 1             | "gzip;q=0.9"
         "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5"          | 1             | "gzip;q=0.9"
+        "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5 *;q=0.6"  | 1             | "gzip;q=0.9"
         "Accept-Encoding" | ""                                    | 0             | null
     }
 
