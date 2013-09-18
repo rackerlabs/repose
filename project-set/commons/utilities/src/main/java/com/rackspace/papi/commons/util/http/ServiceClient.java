@@ -1,9 +1,7 @@
 package com.rackspace.papi.commons.util.http;
 
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 
@@ -14,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBElement;
 import java.util.Set;
 
 
@@ -140,7 +137,8 @@ public class ServiceClient {
         return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
     }
 
-    public ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType) {
+    public ServiceClientResponse post(String uri, String body, MediaType contentType) {
+
         HttpPost post = new HttpPost(uri);
 
         Map<String, String> headers= new HashMap<String, String>();
@@ -150,8 +148,8 @@ public class ServiceClient {
 
         setHeaders(post, headers);
 
-        if (body != null && !body.getValue().toString().isEmpty()) {
-            post.setEntity(new InputStreamEntity(new ByteArrayInputStream(body.getValue().toString().getBytes()),body.getValue().toString().length()));
+        if (body != null && !body.isEmpty()) {
+            post.setEntity(new InputStreamEntity(new ByteArrayInputStream(body.getBytes()),body.length()));
         }
         return execute(post);
     }
