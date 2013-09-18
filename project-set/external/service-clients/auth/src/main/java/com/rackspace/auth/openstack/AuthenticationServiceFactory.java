@@ -3,6 +3,7 @@ package com.rackspace.auth.openstack;
 import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public class AuthenticationServiceFactory {
       return new AuthenticationServiceClient(targetHostUri, username, password, tenantId,
               new ResponseUnmarshaller(coreJaxbContext),
               new ResponseUnmarshaller(groupJaxbContext),
+              new JaxbEntityToXml(coreJaxbContext),
               new ServiceClient(connectionPoolId, httpClientService));
    }
 }

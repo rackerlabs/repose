@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.openstack.docs.identity.api.v2.*;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,12 +39,15 @@ public class AuthenticationServiceClient implements AuthenticationService {
     private final ServiceClient serviceClient;
     private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
     private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
+
     private AdminToken currentAdminToken;
-    private final JAXBElement jaxbRequest;
+    private final String requestBody;
+
 
     public AuthenticationServiceClient(String targetHostUri, String username, String password, String tenantId,
                                        ResponseUnmarshaller openStackCoreResponseUnmarshaller,
                                        ResponseUnmarshaller openStackGroupsResponseUnmarshaller,
+                                       JaxbEntityToXml jaxbToString,
                                        ServiceClient serviceClient) {
         this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
         this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
@@ -64,7 +69,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         request.setCredential(jaxbCredentials);
 
-        this.jaxbRequest = objectFactory.createAuth(request);
+        JAXBElement jaxbRequest = objectFactory.createAuth(request);
+        requestBody = jaxbToString.transform(jaxbRequest);
     }
 
     @Override
@@ -302,7 +308,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         if (adminToken == null) {
-            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.post(targetHostUri + "/tokens", jaxbRequest, MediaType.APPLICATION_XML_TYPE);
+            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.post(targetHostUri + "/tokens", requestBody, MediaType.APPLICATION_XML_TYPE);
 
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:
