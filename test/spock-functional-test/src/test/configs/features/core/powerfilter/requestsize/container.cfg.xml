@@ -1,0 +1,7 @@
+<repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
+    <deployment-config client-request-logging="true" content-body-read-limit="32000">
+        <deployment-directory auto-clean="true">${project.build.directory}/repose_home</deployment-directory>
+        <artifact-directory check-interval="1000">${project.build.directory}/repose_home/artifacts</artifact-directory>
+        <logging-configuration href="log4j.properties" />
+    </deployment-config>
+</repose-container>
