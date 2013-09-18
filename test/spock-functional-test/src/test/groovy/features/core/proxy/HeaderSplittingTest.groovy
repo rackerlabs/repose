@@ -9,23 +9,22 @@ import org.rackspace.gdeproxy.Response
 class HeaderSplittingTest extends ReposeValveTest {
 
     def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         repose.applyConfigs("features/core/proxy")
         repose.start()
     }
 
     def cleanupSpec() {
-        repose.stop()
-    }
 
-    def setup() {
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        if (repose) {
+            repose.stop()
+        }
+        if (deproxy) {
+            deproxy.shutdown()
+        }
     }
-
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
 
     def "Should not split request headers according to rfc"() {
 
