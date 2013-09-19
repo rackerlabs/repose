@@ -160,27 +160,31 @@ public class ServiceClient {
 
     public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
 
-        URI uriBuilt=null;
-        if (queryParameters.length % 2 != 0) {
-            throw new IllegalArgumentException("Query parameters must be in pairs.");
-        }
-        try{
+        URI uriBuilt = null;
+        HttpGet httpget = new HttpGet(uri);
 
-            URIBuilder builder = new URIBuilder(uri);
+        if (queryParameters != null) {
 
+            if (queryParameters.length % 2 != 0) {
+                throw new IllegalArgumentException("Query parameters must be in pairs.");
+            }
+            try {
+                URIBuilder builder = new URIBuilder(uri);
 
-            for (int index = 0; index < queryParameters.length; index = index + 2) {
-                builder.setParameter(queryParameters[index], queryParameters[index + 1]);
+                for (int index = 0; index < queryParameters.length; index = index + 2) {
+                    builder.setParameter(queryParameters[index], queryParameters[index + 1]);
+                }
+
+                uriBuilt = builder.build();
+                httpget = new HttpGet(uriBuilt);
+
+            } catch (URISyntaxException e) {
+                LOG.error("Error building request URI", e);
+                return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+
             }
 
-
-            uriBuilt = builder.build();
-
-        } catch (URISyntaxException e) {
-            LOG.error("Error building request URI", e);
         }
-
-        HttpGet httpget = new HttpGet(uriBuilt);
 
         setHeaders(httpget, headers);
         return execute(httpget);
