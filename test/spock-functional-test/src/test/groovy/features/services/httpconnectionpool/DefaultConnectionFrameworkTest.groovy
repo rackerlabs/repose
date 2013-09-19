@@ -1,6 +1,7 @@
 package features.services.httpconnectionpool
 
 import framework.ReposeValveTest
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
@@ -16,11 +17,11 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
         cleanLogDirectory()
     }
 
+    @Ignore
     def "DEPRECATED: jersey as default connection framework"() {
 
         given: "Repose is configured with no connection framework specified"
         repose.applyConfigs("features/services/httpconnectionpool/common")
-        repose.connFramework = ""
 
         when: "Repose is started"
         repose.start()
@@ -30,12 +31,12 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
         logs.size() == 1
     }
 
+    @Ignore
     @Unroll("DEPRECATED: ability to specify the connection framework of #connFramework via cmdline")
     def "DEPRECATED: ability to specify the connection framework"() {
 
         given: "Repose is configured with a connection framework specified on cmdline"
         repose.applyConfigs("features/services/httpconnectionpool/common")
-        repose.connFramework = connFramework
 
         when: "Repose is started"
         repose.start()
