@@ -8,6 +8,8 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.*;
@@ -25,6 +27,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
@@ -156,14 +159,31 @@ public class ServiceClient {
 
 
     public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
-        HttpGet get = new HttpGet(uri);
 
+        URI uriBuilt=null;
         if (queryParameters.length % 2 != 0) {
             throw new IllegalArgumentException("Query parameters must be in pairs.");
         }
+        try{
 
-        setHeaders(get, headers);
-        return execute(get,queryParameters);
+            URIBuilder builder = new URIBuilder(uri);
+
+
+            for (int index = 0; index < queryParameters.length; index = index + 2) {
+                builder.setParameter(queryParameters[index], queryParameters[index + 1]);
+            }
+
+
+            uriBuilt = builder.build();
+
+        } catch (URISyntaxException e) {
+            LOG.error("Error building request URI", e);
+        }
+
+        HttpGet httpget = new HttpGet(uriBuilt);
+
+        setHeaders(httpget, headers);
+        return execute(httpget);
     }
 
 }
