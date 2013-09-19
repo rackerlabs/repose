@@ -14,7 +14,7 @@ public class SplitableHeaderUtil {
     public static final String[] DEFAULT_SPLIT = {"accept", "accept-charset", "accept-language", "allow",
             "cache-control", "connection", "content-encoding", "content-language", "expect", "pragma",
             "proxy-authenticate", "te", "trailer", "transfer-encoding", "upgrade", "www-authenticate",
-            "warning"};
+            "warning", "accept-encoding"};
 
     public static final Comparator<String> CASE_INSENSITIVE_COMPARE = new Comparator<String>() {
         @Override
