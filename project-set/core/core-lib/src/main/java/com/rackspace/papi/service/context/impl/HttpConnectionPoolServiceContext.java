@@ -9,8 +9,6 @@ import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 
 import javax.servlet.ServletContextEvent;
 import java.net.URL;
