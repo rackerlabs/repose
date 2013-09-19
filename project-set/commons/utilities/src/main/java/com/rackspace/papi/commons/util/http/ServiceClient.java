@@ -5,6 +5,18 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientService;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+import java.util.Set;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -16,6 +28,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.AuthPolicy;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
@@ -24,13 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
-import javax.ws.rs.core.MediaType;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
 /**
  * Creates apache http clients with basic auth
  */
@@ -155,14 +162,35 @@ public class ServiceClient {
 
 
     public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
-        HttpGet get = new HttpGet(uri);
 
-        if (queryParameters.length % 2 != 0) {
-            throw new IllegalArgumentException("Query parameters must be in pairs.");
+        URI uriBuilt = null;
+        HttpGet httpget = new HttpGet(uri);
+
+        if (queryParameters != null) {
+
+            if (queryParameters.length % 2 != 0) {
+                throw new IllegalArgumentException("Query parameters must be in pairs.");
+            }
+            try {
+                URIBuilder builder = new URIBuilder(uri);
+
+                for (int index = 0; index < queryParameters.length; index = index + 2) {
+                    builder.setParameter(queryParameters[index], queryParameters[index + 1]);
+                }
+
+                uriBuilt = builder.build();
+                httpget = new HttpGet(uriBuilt);
+
+            } catch (URISyntaxException e) {
+                LOG.error("Error building request URI", e);
+                return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+
+            }
+
         }
 
-        setHeaders(get, headers);
-        return execute(get,queryParameters);
+        setHeaders(httpget, headers);
+        return execute(httpget);
     }
 
 }
