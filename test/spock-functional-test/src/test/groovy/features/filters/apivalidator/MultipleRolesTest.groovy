@@ -10,7 +10,7 @@ import org.rackspace.gdeproxy.MessageChain
  * Api Validator multiple roles tests ported from python
  */
 @Category(Slow.class)
-class MultipleRolesTest extends ReposeValveTest{
+class MultipleRolesTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()

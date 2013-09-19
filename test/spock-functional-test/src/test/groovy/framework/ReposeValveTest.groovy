@@ -59,7 +59,8 @@ abstract class ReposeValveTest extends Specification {
                 properties.getReposeEndpoint(),
                 properties.getConfigDirectory(),
                 properties.getReposePort(),
-                properties.getReposeShutdownPort()
+                properties.getReposeShutdownPort(),
+                properties.getConnFramework()
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);
@@ -96,6 +97,10 @@ abstract class ReposeValveTest extends Specification {
     // Helper methods to minimize refactoring in all test classes
     def getReposeEndpoint() {
         return properties.getReposeEndpoint()
+    }
+
+    def getConnFramework() {
+        return properties.getConnFramework()
     }
 
     def getConfigSamples() {
