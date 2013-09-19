@@ -36,22 +36,17 @@
     <packaging>pom</packaging>
     <modules>
         <module>project-set</module>
-        <!-- <module>test/spock-functional-test</module> -->
+         <module>test/spock-functional-test</module>
     </modules>
     
     <profiles>
         <profile>
-            <id>docbook</id>
+            <id>build-system-packages</id>
             <modules>
                 <module>documentation/docbook</module>
             </modules>
         </profile>
-        <profile>
-            <id>spock-regression-tests</id>
-            <modules>
-                <module>test/spock-functional-test</module>
-            </modules>
-        </profile>
+
     </profiles>
     
     

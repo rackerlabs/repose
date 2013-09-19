@@ -11,6 +11,7 @@ import com.rackspace.auth.openstack.AdminToken;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class AdminTokenProvider {
    private JAXBContext coreJaxbContext;
    private ResponseUnmarshaller marshaller;
    private AdminToken curAdminToken;
-   private final JAXBElement jaxbRequest;
+   private final String requestBody;
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);
 
    public AdminTokenProvider(ServiceClient client, String authUrl, String username, String password) {
@@ -47,11 +48,10 @@ public class AdminTokenProvider {
       JAXBElement jaxbCredentials = factory.createPasswordCredentials(credentials);
 
       AuthenticationRequest request = new AuthenticationRequest();
-
-
       request.setCredential(jaxbCredentials);
 
-      this.jaxbRequest = factory.createAuth(request);
+      JaxbEntityToXml jaxbToString = new JaxbEntityToXml(coreJaxbContext);
+      requestBody = jaxbToString.transform(factory.createAuth(request));
    }
 
    private void setJAXBContext() {
@@ -74,7 +74,7 @@ public class AdminTokenProvider {
       String adminToken = curAdminToken != null && curAdminToken.isValid() ? curAdminToken.getToken() : null;
 
       if (adminToken == null) {
-         final ServiceClientResponse<AuthenticateResponse> serviceResponse = client.post(authUrl + "/tokens", jaxbRequest, MediaType.APPLICATION_XML_TYPE);
+         final ServiceClientResponse<AuthenticateResponse> serviceResponse = client.post(authUrl + "/tokens", requestBody, MediaType.APPLICATION_XML_TYPE);
 
          switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:

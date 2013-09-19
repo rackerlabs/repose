@@ -13,6 +13,7 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
@@ -127,6 +128,11 @@ public class SpringContextAdapter implements ContextAdapter {
    public RequestProxyService requestProxyService() {
       return getService(ServiceContextName.REQUEST_PROXY_SERVICE_CONTEXT);
    }
+
+    @Override
+    public HttpClientService httpConnectionPoolService(){
+        return getService(ServiceContextName.HTTP_CONNECTION_POOL_SERVICE_CONTEXT);
+    }
 
    @Override
    public ReportingService reportingService() {

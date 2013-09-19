@@ -11,21 +11,23 @@ import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
+
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 
 public final class RackspaceAuthenticationHandlerFactory {
     
     private RackspaceAuthenticationHandlerFactory() {
     }
 
-    public static AuthenticationHandler newInstance(ClientAuthConfig cfg, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
+    public static AuthenticationHandler newInstance(ClientAuthConfig cfg, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher,HttpClientService httpClientService) {
         final RackspaceAuth authConfig = cfg.getRackspaceAuth();
         final AuthTokenCache cache = new AuthTokenCache(datastore, RsAuthCachePrefix.TOKEN.toString());
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, RsAuthCachePrefix.GROUP.toString());
         final AuthUserCache usrCache = new AuthUserCache(datastore, RsAuthCachePrefix.USER.toString());
 
         final AuthenticationService serviceClient = new AuthenticationServiceFactory().build(
-                authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
+                authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword(), authConfig.getConnectionPoolId(), httpClientService);
 
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 authConfig.getAuthenticationServer().getUri(),

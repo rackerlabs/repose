@@ -52,7 +52,8 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/regionheader")
+        repose.applyConfigs("features/filters/clientauthn/regionheader",
+                "features/filters/clientauthn/connectionpooling")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')

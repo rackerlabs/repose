@@ -16,6 +16,7 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdenti
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public final class OpenStackAuthenticationHandlerFactory {
     private OpenStackAuthenticationHandlerFactory() {
     }
 
-    public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
+    public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher,HttpClientService httpClientService) {
         final AuthTokenCache cache = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
         final AuthUserCache usrCache = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
@@ -36,7 +37,9 @@ public final class OpenStackAuthenticationHandlerFactory {
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(),
                                                                                            ids.getUsername(),
                                                                                            ids.getPassword(),
-                                                                                           ids.getTenantId());
+                                                                                           ids.getTenantId(),
+                                                                                           authConfig.getConnectionPoolId(),
+                                                                                           httpClientService);
 
         //null check to prevent NPE when accessing config element attributes
         if (authConfig.getEndpointsInHeader() != null) {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<validators xmlns="http://openrepose.org/repose/validator/v1.0"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            multi-role-match="true"
+            version="2">
+    <validator role="cwaas:observer" default="true" use-saxon="false">
+        <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                     xmlns:rax="http://docs.rackspace.com/api"
+                     xmlns="http://wadl.dev.java.net/2009/02"
+                     xmlns:test="http://test.openrespose/test/v1.1" >
+            <resources base="http://localhost:${reposePort}/">
+                <resource path="/">
+                    <method name="GET" id="getContainer">
+                    </method>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+</validators>

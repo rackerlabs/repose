@@ -81,7 +81,7 @@ abstract class CompressingStreamFactory {
 	private static final String ANY_ENCODING = "*";
 
 	/** Ordered list of preferred encodings, from most to least preferred */
-	private static final List<String> supportedEncodings;
+	private static final List<String> SUPPORTED_ENCODINGS;
 	static {
 		List<String> temp = new ArrayList<String>(6);
 		temp.add(GZIP_ENCODING);
@@ -90,19 +90,19 @@ abstract class CompressingStreamFactory {
 		temp.add(X_GZIP_ENCODING);
 		temp.add(X_COMPRESS_ENCODING);
 		temp.add(NO_ENCODING);
-		supportedEncodings = Collections.unmodifiableList(temp);
+		SUPPORTED_ENCODINGS = Collections.unmodifiableList(temp);
 	}
 
 	/**
 	 * Cache mapping previously seen "Accept-Encoding" header Strings to an appropriate instance of {@link
 	 * CompressingStreamFactory}.
 	 */
-	private static final Map<String, String> bestEncodingCache =
+	private static final Map<String, String> BEST_ENCODING_CACHE =
 	    Collections.synchronizedMap(new HashMap<String, String>(101));
 	/**
 	 * Maps content type String to appropriate implementation of {@link CompressingStreamFactory}.
 	 */
-	private static final Map<String, CompressingStreamFactory> factoryMap;
+	private static final Map<String, CompressingStreamFactory> FACTORY_MAP;
   private static final Pattern COMMA = Pattern.compile(",");
 
   static {
@@ -112,7 +112,7 @@ abstract class CompressingStreamFactory {
 		temp.put(COMPRESS_ENCODING, ZIP_CSF);
 		temp.put(X_COMPRESS_ENCODING, ZIP_CSF);
 		temp.put(DEFLATE_ENCODING, DEFLATE_CSF);
-		factoryMap = Collections.unmodifiableMap(temp);
+		FACTORY_MAP = Collections.unmodifiableMap(temp);
 	}
 
 
@@ -153,11 +153,11 @@ abstract class CompressingStreamFactory {
 	}
 
 	private static boolean isSupportedResponseContentEncoding(String contentEncoding) {
-		return NO_ENCODING.equals(contentEncoding) || factoryMap.containsKey(contentEncoding);
+		return NO_ENCODING.equals(contentEncoding) || FACTORY_MAP.containsKey(contentEncoding);
 	}
 
 	static boolean isSupportedRequestContentEncoding(String contentEncoding) {
-		return NO_ENCODING.equals(contentEncoding) || factoryMap.containsKey(contentEncoding);
+		return NO_ENCODING.equals(contentEncoding) || FACTORY_MAP.containsKey(contentEncoding);
 	}
 
 	/**
@@ -167,8 +167,8 @@ abstract class CompressingStreamFactory {
 	 * @return instance for content encoding
 	 */
 	static CompressingStreamFactory getFactoryForContentEncoding(String contentEncoding) {
-		assert factoryMap.containsKey(contentEncoding);
-		return factoryMap.get(contentEncoding);
+		assert FACTORY_MAP.containsKey(contentEncoding);
+		return FACTORY_MAP.get(contentEncoding);
 	}
 
 	/**
@@ -196,7 +196,7 @@ abstract class CompressingStreamFactory {
 
 			} else {
 
-				bestEncoding = bestEncodingCache.get(acceptEncodingHeader);
+				bestEncoding = BEST_ENCODING_CACHE.get(acceptEncodingHeader);
 
 				if (bestEncoding == null) {
 
@@ -213,7 +213,7 @@ abstract class CompressingStreamFactory {
 						bestEncoding = parseBestEncoding(acceptEncodingHeader);
 					}
 
-					bestEncodingCache.put(acceptEncodingHeader, bestEncoding);
+					BEST_ENCODING_CACHE.put(acceptEncodingHeader, bestEncoding);
 				}
 			}
 		}
@@ -231,8 +231,8 @@ abstract class CompressingStreamFactory {
 		String contentEncoding = contentEncodingQ.getContentEncoding();
 		if (contentEncodingQ.getQ() > 0.0) {
 			if (ANY_ENCODING.equals(contentEncoding)) {
-				return supportedEncodings.get(0);
-			} else if (supportedEncodings.contains(contentEncoding)) {
+				return SUPPORTED_ENCODINGS.get(0);
+			} else if (SUPPORTED_ENCODINGS.contains(contentEncoding)) {
 				return contentEncoding;
 			}
 		}
@@ -253,7 +253,7 @@ abstract class CompressingStreamFactory {
 			double q = contentEncodingQ.getQ();
 			if (ANY_ENCODING.equals(contentEncoding)) {
 				willAcceptAnything = q > 0.0;
-			} else if (supportedEncodings.contains(contentEncoding)) {
+			} else if (SUPPORTED_ENCODINGS.contains(contentEncoding)) {
 				if (q > 0.0) {
 					if (q == bestQ) {
 						bestEncodings.add(contentEncoding);
@@ -272,9 +272,9 @@ abstract class CompressingStreamFactory {
 			// nothing was acceptable to us
 			if (willAcceptAnything) {
 				if (unacceptableEncodings.isEmpty()) {
-					return supportedEncodings.get(0);
+					return SUPPORTED_ENCODINGS.get(0);
 				} else {
-					for (String encoding : supportedEncodings) {
+					for (String encoding : SUPPORTED_ENCODINGS) {
 						if (!unacceptableEncodings.contains(encoding)) {
 							return encoding;
 						}
@@ -282,7 +282,7 @@ abstract class CompressingStreamFactory {
 				}
 			}
 		} else {
-			for (String encoding : supportedEncodings) {
+			for (String encoding : SUPPORTED_ENCODINGS) {
 				if (bestEncodings.contains(encoding)) {
 					return encoding;
 				}

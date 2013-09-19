@@ -21,6 +21,8 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContainerServiceContext.class);
     public static final String SERVICE_NAME = "powerapi:/services/container";
+    private static final int THIRTY_SECONDS_MILLIS = 30000;
+    private static final int THREAD_POOL_SIZE = 20;
     private final ContainerConfigurationListener configurationListener;
     private ContainerConfigurationService containerConfigurationService;
     private ConfigurationService configurationManager;
@@ -100,9 +102,9 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
 
     private boolean doesContainDepricatedConfigs(DeploymentConfiguration config) {
 
-        return config.getConnectionTimeout() != 30000 ||
-                config.getReadTimeout() != 30000 ||
-                config.getProxyThreadPool() != 20;
+        return config.getConnectionTimeout() != THIRTY_SECONDS_MILLIS ||
+                config.getReadTimeout() != THIRTY_SECONDS_MILLIS ||
+                config.getProxyThreadPool() != THREAD_POOL_SIZE;
 
     }
 }

@@ -5,6 +5,7 @@ import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
@@ -52,7 +52,7 @@ public class AuthenticationServiceClientTest {
             serviceClient = mock(ServiceClient.class);
             authenticationServiceClient =
                     new AuthenticationServiceClient(targetHostUri, username, password, tenantId, responseUnmarshaller,
-                                                    responseUnmarshaller, serviceClient);
+                                                    responseUnmarshaller, mock(JaxbEntityToXml.class), serviceClient);
         }
 
         @After
@@ -62,9 +62,9 @@ public class AuthenticationServiceClientTest {
 
         @Test(expected = AuthServiceException.class)
         public void shouldErrorWithCorrectMessageForInternalServerErrorCase() {
-            when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString()))
+            when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString(),anyString()))
                     .thenReturn(serviceClientResponseGet);
-            when(serviceClient.post(anyString(), any(JAXBElement.class), any(MediaType.class)))
+            when(serviceClient.post(anyString(), anyString(), any(MediaType.class)))
                     .thenReturn(serviceClientResponsePost);
             when(serviceClientResponseGet.getStatusCode()).thenReturn(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
             when(serviceClientResponsePost.getStatusCode()).thenReturn(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
@@ -79,7 +79,7 @@ public class AuthenticationServiceClientTest {
         public void shouldErrorWithCorrectMessageForDefaultErrorCase() {
             when(serviceClient.get(anyString(), any(Map.class), anyString(), anyString()))
                     .thenReturn(serviceClientResponseGet);
-            when(serviceClient.post(anyString(), any(JAXBElement.class), any(MediaType.class)))
+            when(serviceClient.post(anyString(), anyString(), any(MediaType.class)))
                     .thenReturn(serviceClientResponsePost);
             when(serviceClientResponseGet.getStatusCode()).thenReturn(999);
             when(serviceClientResponsePost.getStatusCode()).thenReturn(999);

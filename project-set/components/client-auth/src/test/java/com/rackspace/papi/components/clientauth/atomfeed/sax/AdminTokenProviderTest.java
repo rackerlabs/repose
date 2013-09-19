@@ -30,6 +30,8 @@ import org.openstack.docs.identity.api.v2.ServiceForCatalog;
 import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Token;
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
+
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.*;
@@ -41,10 +43,7 @@ public class AdminTokenProviderTest {
 
    @Before
    public void setUp() {
-
       client = mock(ServiceClient.class);
-
-
    }
 
    @Test
@@ -66,7 +65,7 @@ public class AdminTokenProviderTest {
       
       InputStream is = new ByteArrayInputStream(baos.toByteArray());
       ServiceClientResponse<AuthenticateResponse> resp = new ServiceClientResponse<AuthenticateResponse>(200, is);
-      when(client.post(anyString(), any(JAXBElement.class), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
+      when(client.post(anyString(), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
       provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
 
       String adminToken = provider.getAdminToken();

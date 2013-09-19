@@ -6,12 +6,24 @@ import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.DateTimeZone;
+import org.joda.time.DateTimeZone
+
+import javax.xml.XMLConstants
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.SchemaFactory;
 
 /**
  * Simulates responses from an Identity Service
  */
 class IdentityServiceResponseSimulator {
+
+    public IdentityServiceResponseSimulator() {
+        this(12200, 10001)
+    }
+    public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+        this.port = identityPort
+        this.origin_service_port = originServicePort
+    }
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
@@ -35,8 +47,8 @@ class IdentityServiceResponseSimulator {
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
 
-    def port = 12200
-    def origin_service_port = 10001
+    int port
+    int origin_service_port
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
@@ -63,7 +75,7 @@ class IdentityServiceResponseSimulator {
 
         // default response code and message
         def template
-        def headers = ['Connection': 'close']
+        def headers = [:]
         def code = 200
         def message = 'OK'
         if (xml) {
@@ -144,7 +156,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -199,7 +211,7 @@ class IdentityServiceResponseSimulator {
         ]
 
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -253,7 +265,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
