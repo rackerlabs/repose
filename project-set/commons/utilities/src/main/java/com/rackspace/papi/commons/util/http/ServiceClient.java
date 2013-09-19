@@ -1,26 +1,17 @@
 package com.rackspace.papi.commons.util.http;
 
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientService;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import javax.net.ssl.*;
-import javax.ws.rs.core.MediaType;
-import java.util.Set;
-
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -30,8 +21,16 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.http.client.HttpClient;
-import com.rackspace.papi.commons.util.StringUtilities;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 /**
  * Creates apache http clients with basic auth
  */
