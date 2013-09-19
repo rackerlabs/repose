@@ -2,12 +2,12 @@ package com.rackspace.papi.service.authclient.akka;
 
 import java.util.Map;
 
-public class AuthRequest {
+public class AuthGetRequest {
 
     private String uri;
     private Map<String, String> headers;
 
-    public AuthRequest(String uri, Map<String, String> headers) {
+    public AuthGetRequest(String uri, Map<String, String> headers) {
         this.uri = uri;
         this.headers = headers;
     }
