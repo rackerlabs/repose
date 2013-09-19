@@ -16,4 +16,19 @@
     <name>Repose Services - AuthClient Akka Impl</name>
 
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.11.0-M5</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+            <version>2.9.1-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
 </project>
