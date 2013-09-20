@@ -19,7 +19,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }
 
-    def setup() {
+    def setupSpec() {
         repose.applyConfigs("features/core/powerfilter/common")
         repose.start()
 
@@ -27,34 +27,43 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
         repose.stop()
     }
 
     def "when responses have timed out, should increment RequestTimeout mbeans for specific endpoint"() {
+        given:
+        def target = repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count")
+        target = (target == null) ? 0 : target
 
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
 
         then:
-        repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count") == 2
+        repose.jmx.getMBeanAttribute(TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
     }
 
 
     def "when responses have timed out, should increment RequestTimeout mbeans for all endpoint"() {
+        given:
+        def target = repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        target = (target == null) ? 0 : target
 
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
 
         then:
-        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == 2
+        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
     }
 
     def "when SOME responses have timed out, should increment RequestTimeout mbeans for specific endpoint only for timeouts"() {
+        given:
+        def target = repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count")
+        target = (target == null) ? 0 : target
 
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
@@ -63,6 +72,6 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         deproxy.makeRequest(reposeEndpoint + "/endpoint")
 
         then:
-        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == 2
+        repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)
     }
 }
