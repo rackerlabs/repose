@@ -6,8 +6,8 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
-import org.openrepose.components.apivalidator.servlet.config.*;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +147,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     String getWadlPath(String uri) {
-        return !uri.contains("://") ? StringUtilities.join("file://", new File(configRoot, uri).getAbsolutePath()) : uri;
+        return new File(configRoot, uri).toURI().toString();
     }
 
     void initialize() {
