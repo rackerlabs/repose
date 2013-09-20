@@ -16,15 +16,20 @@
         </request-translation>
     </request-translations>
     <response-translations>
-        <response-translation content-type="application/atom+xml" accept="*/*"
-                              translated-content-type="application/atom+xml">
-            <style-sheets>
-                <style href="headers-a.xsl"/>
-            </style-sheets>
-        </response-translation>
         <response-translation accept="application/other">
             <style-sheets>
                 <style href="headers-b.xsl"/>
+            </style-sheets>
+        </response-translation>
+        <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
+            <style-sheets>
+                <style id="ss2" href="remove-element.xsl" />
+            </style-sheets>
+        </response-translation>
+        <response-translation content-type="application/xml" accept="*/*"
+                              translated-content-type="application/xml">
+            <style-sheets>
+                <style href="headers-a.xsl"/>
             </style-sheets>
         </response-translation>
     </response-translations>
