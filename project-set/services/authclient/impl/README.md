@@ -6,3 +6,8 @@ AKKA TODO
 TokenRetrievalActor
   1. does not support query parameters, will break for rackspace auth!
   2. what happens with unhandled messages???
+
+
+  AuthTokenFutureActor
+  1.Add token expiration hashMap
+  2.HashMap least frequently used
