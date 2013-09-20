@@ -67,6 +67,6 @@ class DestinationRouterJMXTest extends ReposeValveTest{
         deproxy.makeRequest([url: reposeEndpoint + "/non-existing"])
 
         then:
-        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == target
+        repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_ALL, "Count") == (target == 0 ? null : 0)
     }
 }
