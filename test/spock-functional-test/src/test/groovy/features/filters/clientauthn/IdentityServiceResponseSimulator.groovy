@@ -10,7 +10,9 @@ import org.joda.time.DateTimeZone
 
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Schema
+import javax.xml.validation.SchemaFactory
+import javax.xml.validation.Validator;
 
 /**
  * Simulates responses from an Identity Service
@@ -231,6 +233,17 @@ class IdentityServiceResponseSimulator {
     }
 
     Response handleGetAdminTokenCall(Request request) {
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+
+        Schema schema = factory.newSchema(
+                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/META-INF/schema/config/header-translation.xsd")));
+
+        Validator validator = schema.newValidator();
+        validator.validate(request.body);
+
+
         adminTokenCount += 1
 
         if (this.isGetAdminTokenBroken) {
