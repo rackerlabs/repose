@@ -68,7 +68,7 @@ class GraphiteTest extends ReposeValveTest {
         isFound == true
 
         responses.each { MessageChain mc ->
-            mc.receivedResponse.code == 200
+            assert(mc.receivedResponse.code == "200")
         }
     }
 
