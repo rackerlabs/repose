@@ -12,7 +12,7 @@ class ServiceListFeature extends ReposeValveTest {
 
     static IdentityServiceResponseSimulator fakeIdentityService
 
-    def setup() {
+    def setupSpec() {
         cleanLogDirectory()
 
         deproxy = new Deproxy()
@@ -27,7 +27,7 @@ class ServiceListFeature extends ReposeValveTest {
     }
 
 
-    def cleanup() {
+    def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
@@ -40,6 +40,20 @@ class ServiceListFeature extends ReposeValveTest {
                 ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+    }
+
+
+    def "D-14988: client auth config should work without service-role element"() {
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "No NullPointerException is logged"
+        List<String> logs = reposeLogSearch.searchByString("NullPointerException")
+        logs.size() == 0
+
+        and: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
@@ -60,19 +74,6 @@ class ServiceListFeature extends ReposeValveTest {
         foundLogs.size() == 1
         mc.handlings.size() == 0
         mc.receivedResponse.code == "403"
-    }
-
-    def "D-14988: client auth config should work without service-role element"() {
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "No NullPointerException is logged"
-        List<String> logs = reposeLogSearch.searchByString("NullPointerException")
-        logs.size() == 0
-
-        and: "User should receive a 200 response"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
     }
 
 }
