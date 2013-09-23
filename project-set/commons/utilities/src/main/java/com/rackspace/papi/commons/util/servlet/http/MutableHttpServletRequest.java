@@ -2,13 +2,22 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
-import java.io.IOException;
-import java.util.*;
+
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -109,6 +118,21 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         synchronized (this) {
             this.inputStream = inputStream;
         }
+    }
+
+    public int getRealBodyLength() throws IOException {
+
+        synchronized (this) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            RawInputStreamReader.instance().copyTo(getInputStream(), baos);
+            final ByteBuffer internalBuffer = new CyclicByteBuffer(baos.toByteArray().length, true);
+            internalBuffer.put(baos.toByteArray());
+            this.setInputStream(new ByteBufferInputStream(internalBuffer));
+
+            return baos.toByteArray().length;
+        }
+
     }
 
     @Override
