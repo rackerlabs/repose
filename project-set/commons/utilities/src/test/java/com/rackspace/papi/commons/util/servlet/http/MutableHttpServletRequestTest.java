@@ -319,7 +319,7 @@ public class MutableHttpServletRequestTest {
         }
 
         @Test
-        public void shouldReturnNegativeOneOnNullServletInputStream() throws IOException {
+        public void shouldReturn0OnEmptyBody() throws IOException {
 
             String empty = "";
             ServletInputStream in = new ServletInputStreamWrapper(new ByteArrayInputStream(empty.getBytes()));
@@ -328,7 +328,7 @@ public class MutableHttpServletRequestTest {
             wrappedRequest = MutableHttpServletRequest.wrap(request);
 
             final int realEntitySize = wrappedRequest.getRealBodyLength();
-            assertTrue("Should return 0 on null body", realEntitySize == 0);
+            assertTrue("Should return 0 on empty body", realEntitySize == 0);
 
         }
     }
