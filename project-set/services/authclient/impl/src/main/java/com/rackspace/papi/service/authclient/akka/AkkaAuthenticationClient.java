@@ -6,6 +6,7 @@ import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
@@ -38,6 +39,7 @@ public class AkkaAuthenticationClient {
 
     private ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers){
 
+       ServiceClientResponse serviceClientResponse =null;
 
         AuthGetRequest authGetRequest = new AuthGetRequest(token, uri, headers);
         final Timeout t = new Timeout(Duration.create(5,
@@ -54,8 +56,16 @@ public class AkkaAuthenticationClient {
             }
         }
 
+        try{
+             serviceClientResponse = (ServiceClientResponse) Await.result(future, t.duration());
+        } catch(Exception e){
+            //Log exception
+        }
 
-        return null;
+
+
+
+        return serviceClientResponse;
     }
 
 
