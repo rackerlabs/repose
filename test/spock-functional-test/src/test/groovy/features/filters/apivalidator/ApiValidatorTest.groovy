@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
+import spock.lang.Unroll
 
 /*
  * Api validator tests ported over from and JMeter
@@ -34,46 +35,28 @@ class ApiValidatorTest extends ReposeValveTest{
             deproxy.shutdown()
     }
 
+    @Unroll("#request")
     def "Happy path: when no role passed, should get default wadl"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
 
-        when: "When Requesting default resource with no roles"
+        when: "When Requesting " + method + " " + request
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders,
-                defaultHandler: defaultHandler)
+                request, method: method, headers: defaultHeaders,
+                requestBody: reqBody, defaultHandler: defaultHandler)
 
-        then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
-        // Origin service handler does not return a body
-        // messageChain.receivedResponse.body.contains("wadl/default/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+        then: "result should be " + responseCode
+        messageChain.receivedResponse.code.equals(responseCode)
 
-        when: "When Requesting invalid resource with no roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders,
-                defaultHandler: defaultHandler)
+//        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
-        then: "should return not found"
-        messageChain.receivedResponse.code.equals("404")
-        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
+        where:
+        responseCode | request                                                | method | reqBody
+        "200"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "GET"  | ""
+        "404"        | "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "GET"  | ""
+        "405"        | "/resource1/id"                                        | "POST" | ""
+        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"   | "PUT"  | "some data"
 
-        when: "When using invalid method with no roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id", method: "POST", headers: defaultHeaders,
-                defaultHandler: defaultHandler)
-
-        then: "should return not found"
-        messageChain.receivedResponse.code.equals("405")
-        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
-
-        when: "When using invalid media type with no roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "PUT", headers: defaultHeaders,
-                requestBody: "some data", defaultHandler: defaultHandler)
-
-        then: "should return not found"
-        messageChain.receivedResponse.code.equals("415")
-        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
     }
 
     def "Happy path: when Group Passed, Should Get Role Specific WADL"() {
