@@ -13,7 +13,7 @@ class ContentLengthTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/core/proxy")
+        repose.applyConfigs("features/core/proxy", "features/services/httpconnectionpool/chunkedfalse")
         repose.start()
     }
 
@@ -35,9 +35,7 @@ class ContentLengthTest extends ReposeValveTest {
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then:
-        !((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == 1
-
-        !((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
+        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == 0
 
         ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == 1
 
