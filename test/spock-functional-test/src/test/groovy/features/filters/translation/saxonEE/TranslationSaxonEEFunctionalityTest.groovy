@@ -43,11 +43,15 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
                 "features/filters/translation/saxonEE"
         )
         repose.start()
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
     def cleanupSpec() {
-        repose.stop()
-        deproxy.shutdown()
+        if(deproxy)
+            deproxy.shutdown()
+        if(repose)
+            repose.stop()
     }
 
     def "when translating json within xml in the request body"() {
@@ -63,7 +67,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
         then: "Request headers sent from repose to the origin service should contain"
 
         for (String st : bodyShouldContain) {
-            ((Handling) sentRequest).request.body.contains(st)
+            assert(((Handling) sentRequest).request.body.contains(st))
 
         }
 
@@ -84,7 +88,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         then: "Response body should contain"
         for (String st : shouldContain) {
-            resp.receivedResponse.body.contains(st)
+            assert(resp.receivedResponse.body.contains(st))
         }
 
         and: "Response code should be"

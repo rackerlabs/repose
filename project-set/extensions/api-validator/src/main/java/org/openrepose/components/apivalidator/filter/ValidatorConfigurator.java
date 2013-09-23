@@ -6,7 +6,12 @@ import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
-import org.openrepose.components.apivalidator.servlet.config.*;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem1;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -165,9 +170,8 @@ public abstract class ValidatorConfigurator {
         return file.getAbsolutePath();
     }
 
-
     private String getWadlPath(String uri, String configRoot) {
-        return !uri.contains("://") ? StringUtilities.join("file://", new File(configRoot, uri).getAbsolutePath()) : uri;
+        return new File(configRoot, uri).toURI().toString();
     }
 
     static class ValidatorConfigurator1 extends ValidatorConfigurator {
