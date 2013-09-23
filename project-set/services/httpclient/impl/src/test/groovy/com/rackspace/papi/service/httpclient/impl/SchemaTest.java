@@ -93,6 +93,16 @@ public class SchemaTest {
             validator.validate(sampleSource);
         }
 
+        @Test
+        public void shouldFailIfChunkedEncodingIsConfiguredWrong() throws Exception {
+            String xml =
+                    "<http-connection-pools xmlns='http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0'> " +
+                            "<pool id='default' default='true' chunked-encoding='blah' http.conn-manager.max-per-route='200' http.conn-manager.max-total='199' /> " +
+                            "</http-connection-pools>";
+            assertInvalidConfig(xml, "'blah' is not a valid value for 'boolean'");
+        }
+
+
 
         private void assertInvalidConfig(String xml, String errorMessage) {
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
