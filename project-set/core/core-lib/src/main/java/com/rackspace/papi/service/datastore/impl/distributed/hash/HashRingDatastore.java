@@ -106,17 +106,14 @@ public class HashRingDatastore extends AbstractHashedDatastore {
                         LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
                                           target.toString());
 
-                        try {
-                            return action.performRemote(name, target, remoteBehavior);
-                        } catch (RemoteConnectionException rce) {
-                            clusterView.memberDamaged(target, rce.getMessage());
-                            remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                        }
+                        return action.performRemote(name, target, remoteBehavior);
                     }
+                } catch (RemoteConnectionException rce) {
+                    clusterView.memberDamaged(target, rce.getMessage());
+                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 } catch (DatastoreOperationException doe) {
                     clusterView.memberDamaged(target, doe.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
-                    //return action.performLocal(name);
                 }
             } while (targetIsRemote);
         } else {
