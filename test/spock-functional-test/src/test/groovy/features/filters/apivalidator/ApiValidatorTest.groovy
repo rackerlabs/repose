@@ -14,9 +14,15 @@ class ApiValidatorTest extends ReposeValveTest{
     private final String baseGroupPath = "/wadl/group1"
     private final String baseDefaultPath = "/wadl/default"
 
-    private final defaultHandler = {return new Response(200, "OK")}
+    private def defaultHandler = {return new Response(200, "OK")}
 
-    private final Map<String, String> defaultHeaders = ["Accept" : "application/xml"]
+    private final Map<String, String> defaultHeaders = [
+            "Accept" : "application/xml",
+            "Host"   : "localhost",
+            "Accept-Encoding" : "identity",
+            "User-Agent" : "gdeproxy",
+            "Deproxy-Request-ID":  UUID.randomUUID().toString()
+    ]
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -35,15 +41,18 @@ class ApiValidatorTest extends ReposeValveTest{
             deproxy.shutdown()
     }
 
-    @Unroll("#request")
+    @Unroll("Happy path: when no role passed, should get default wadl - #request")
     def "Happy path: when no role passed, should get default wadl"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
+        defaultHandler = {return new Response(200, "OK", [], reqBody)}
 
         when: "When Requesting " + method + " " + request
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 request, method: method, headers: defaultHeaders,
-                requestBody: reqBody, defaultHandler: defaultHandler)
+                requestBody: reqBody, defaultHandler: defaultHandler,
+                addDefaultHeaders: false
+        )
 
         then: "result should be " + responseCode
         messageChain.receivedResponse.code.equals(responseCode)
