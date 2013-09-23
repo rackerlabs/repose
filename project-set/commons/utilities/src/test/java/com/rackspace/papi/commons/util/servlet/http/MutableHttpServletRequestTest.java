@@ -279,12 +279,13 @@ public class MutableHttpServletRequestTest {
 
             when(request.getHeaders("content-length")).thenReturn(headerValues1);
             when(request.getHeader("content-length")).thenReturn("2");
-            when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(msg.getBytes())));
-            wrappedRequest = MutableHttpServletRequest.wrap(request);
         }
 
         @Test
         public void shouldReturnActualLengthOfEntity() throws IOException {
+
+            when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(msg.getBytes())));
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
 
             final int realEntitySize = wrappedRequest.getRealBodyLength();
 
@@ -295,6 +296,8 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldNotAlterMessageWhenRetrievingActualEntityLength() throws IOException {
 
+            when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(msg.getBytes())));
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
             final int realEntitySize = wrappedRequest.getRealBodyLength();
             ServletInputStream is = wrappedRequest.getInputStream();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -312,6 +315,20 @@ public class MutableHttpServletRequestTest {
             String newMsg = new String(os.toByteArray());
 
             assertEquals("Retrieving size of message should not alter message",msg,newMsg);
+
+        }
+
+        @Test
+        public void shouldReturnNegativeOneOnNullServletInputStream() throws IOException {
+
+            String empty = "";
+            ServletInputStream in = new ServletInputStreamWrapper(new ByteArrayInputStream(empty.getBytes()));
+
+            when(request.getInputStream()).thenReturn(in);
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
+
+            final int realEntitySize = wrappedRequest.getRealBodyLength();
+            assertTrue("Should return 0 on null body", realEntitySize == 0);
 
         }
     }

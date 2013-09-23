@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- *
  * @author jhopper
  */
 // This class is non-final so that we can mock it in unit tests.  We cannot
@@ -35,27 +34,28 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request, long streamLimit) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
     }
+
     private static final String REQUEST_ID = "requestId";
     private ServletInputStream inputStream;
     private final RequestValues values;
     private final long streamLimit;
 
     private MutableHttpServletRequest(HttpServletRequest request) {
-      this(request, -1);
+        this(request, -1);
     }
 
     private MutableHttpServletRequest(HttpServletRequest request, long streamLimit) {
         super(request);
 
         if (getAttribute(REQUEST_ID) == null) {
-          setAttribute(REQUEST_ID, UUID.randomUUID().toString());
+            setAttribute(REQUEST_ID, UUID.randomUUID().toString());
         }
         this.values = new RequestValuesImpl(request);
         this.streamLimit = streamLimit;
     }
-    
+
     public String getRequestId() {
-      return (String) getAttribute(REQUEST_ID);
+        return (String) getAttribute(REQUEST_ID);
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -123,14 +123,19 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public int getRealBodyLength() throws IOException {
 
         synchronized (this) {
+
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             RawInputStreamReader.instance().copyTo(getInputStream(), baos);
-            final ByteBuffer internalBuffer = new CyclicByteBuffer(baos.toByteArray().length, true);
-            internalBuffer.put(baos.toByteArray());
-            this.setInputStream(new ByteBufferInputStream(internalBuffer));
+
+            if (baos.toByteArray().length > 0) {
+                final ByteBuffer internalBuffer = new CyclicByteBuffer(baos.toByteArray().length, true);
+                internalBuffer.put(baos.toByteArray());
+                this.setInputStream(new ByteBufferInputStream(internalBuffer));
+            }
 
             return baos.toByteArray().length;
+
         }
 
     }
@@ -152,9 +157,9 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public void setRequestUrl(StringBuffer requestUrl) {
         values.setRequestURL(requestUrl);
     }
-    
+
     public void clearHeaders() {
-      values.getHeaders().clearHeaders();
+        values.getHeaders().clearHeaders();
     }
 
     public void addHeader(String name, String value) {
