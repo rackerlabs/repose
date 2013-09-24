@@ -108,12 +108,23 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
                         return action.performRemote(name, target, remoteBehavior);
                     }
-                } catch (RemoteConnectionException rce) {
+                }
+                // If these exceptions are thrown by the isRemoteTarget(...) method, targetIsRemote will necessarily
+                // be true if this is not the first iteration of the loop. If it is the first iteration,
+                // targetIsRemote will necessarily be false.
+                // If these exceptions are thrown by the performRemote(...) method, targetIsRemote will necessarily
+                // be true.
+                // To assure that the loop is never exited on an exception, and that behavior is consistent,
+                // we set targetIsRemote to true. Alternatively, we could set targetIsRemote to false when an exception
+                // is caught to ensure that on error, the local datastore is used.
+                catch (RemoteConnectionException rce) {
                     clusterView.memberDamaged(target, rce.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+                    targetIsRemote = true;
                 } catch (DatastoreOperationException doe) {
                     clusterView.memberDamaged(target, doe.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+                    targetIsRemote = true;
                 }
             } while (targetIsRemote);
         } else {
