@@ -19,7 +19,7 @@ class ConnectionFrameworkTest extends ReposeValveTest {
         repose.applyConfigs("features/core/connectionframework/")
         repose.start()
 
-        sleep(5000)
+        waitUntilReadyToServiceRequests()
     }
 
     def cleanupSpec() {
@@ -27,24 +27,6 @@ class ConnectionFrameworkTest extends ReposeValveTest {
                 repose.stop()
         if (deproxy)
                 deproxy.shutdown()
-    }
-
-    // Override configureReposeValve() to use the "apache" connection framework
-    @Override
-    def configureReposeValve() {
-
-        ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
-
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                properties.getReposeEndpoint(),
-                properties.getConfigDirectory(),
-                properties.getReposePort(),
-                properties.getReposeShutdownPort()
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
     }
 
     def "When accept header is absent"() {
