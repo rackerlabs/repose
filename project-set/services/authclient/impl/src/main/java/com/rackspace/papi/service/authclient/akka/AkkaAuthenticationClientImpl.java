@@ -42,7 +42,7 @@ public class AkkaAuthenticationClientImpl {
        ServiceClientResponse serviceClientResponse =null;
 
         AuthGetRequest authGetRequest = new AuthGetRequest(token, uri, headers);
-        final Timeout t = new Timeout(Duration.create(5,
+        final Timeout t = new Timeout(Duration.create(50,
                 TimeUnit.SECONDS));
 
         Future<Object> future = ask(tokenHashRouter, authGetRequest, t);
@@ -50,7 +50,7 @@ public class AkkaAuthenticationClientImpl {
         while (!future.isCompleted()) {
             // sleep
             try {
-                Thread.sleep(1l);
+                Thread.sleep(3l);
             } catch (InterruptedException e) {
                 // do something with exception
             }
