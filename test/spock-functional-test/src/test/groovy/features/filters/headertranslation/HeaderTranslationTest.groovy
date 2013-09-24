@@ -6,6 +6,7 @@ import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.HeaderCollection
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Request
+import spock.lang.Unroll
 
 class HeaderTranslationTest extends ReposeValveTest {
 
@@ -22,6 +23,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         repose.stop()
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-one without removal"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -42,6 +44,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-OneToOne-A" : "a", "X-OneToOne-B" : "b"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-one with removal"() {
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
@@ -60,6 +63,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-OneToOneRemoval-A" : "a", "X-OneToOneRemoval-B" : "b"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-many without removal"() {
         when: "client passes a request through repose with headers to be translated"
         def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
@@ -81,6 +85,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-OneToMany-A" : "a", "X-OneToMany-B" : "b"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-many with removal"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -98,16 +103,16 @@ class HeaderTranslationTest extends ReposeValveTest {
         sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-B").equalsIgnoreCase("b")
 
         and: "origin receives translated all header values"
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-C").contains("a")
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-C").contains("b")
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-C").contains("c")
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-D").contains("a")
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-D").contains("b")
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-D").contains("c")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-C").contains("a")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-C").contains("b")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-C").contains("c")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-D").contains("a")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-D").contains("b")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-D").contains("c")
 
         and: "origin receives translated header values in order in which they were sent"
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-C") == ["a","b","c"]
-        sentRequest.request.getHeaders().findAll("X-OneToManyRemoval-D") == ["a","b","c"]
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-C") == reqHeaders.get("X-OneToManyRemoval-A")
+        sentRequest.request.getHeaders().getFirstValue("X-OneToManyRemoval-D") == reqHeaders.get("X-OneToManyRemoval-A")
 
 
         where:
@@ -118,6 +123,7 @@ class HeaderTranslationTest extends ReposeValveTest {
 
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-none"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -135,6 +141,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-StripHeader-A" : "a", "X-StripHeader-B" : "b"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers many-to-many"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -161,6 +168,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-ManyToMany-A" : "a", "X-ManyToMany-B" : "b", "X-ManyToMany-C" : "c"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers many-to-one"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -179,6 +187,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-ManyToOne-A" : "a", "X-ManyToOne-B" : "b", "X-ManyToOne-C" : "c"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers translating to existing header"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -198,6 +207,7 @@ class HeaderTranslationTest extends ReposeValveTest {
         "GET"  | ["X-ToExisting-A" : "a", "X-Header-Existing" : "b"]
     }
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers with mixed case"() {
 
         when: "client passes a request through repose with headers to be translated"
@@ -224,6 +234,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     }
 
 
+    @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating CSL request headers"() {
 
         when: "client passes a request through repose with headers to be translated"

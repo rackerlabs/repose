@@ -112,7 +112,7 @@
         <dependency>
             <groupId>org.rackspace</groupId>
             <artifactId>gdeproxy</artifactId>
-            <version>0.15</version>
+            <version>0.16</version>
             <scope>test</scope>
         </dependency>
 
