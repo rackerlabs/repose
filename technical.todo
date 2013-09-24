@@ -1,0 +1,2 @@
+- Replace StringUtils with apache commons lang
+-- Evaluate any of the other utils to see if they can also be replaced
