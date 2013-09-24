@@ -58,7 +58,7 @@ class QValueTest extends ReposeValveTest {
                 "features/filters/apivalidator/f4f5p")
         repose.start()
 
-        sleep(5000)
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
     def cleanupSpec() {

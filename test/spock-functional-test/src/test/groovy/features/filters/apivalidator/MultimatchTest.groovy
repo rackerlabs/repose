@@ -197,7 +197,7 @@ class MultimatchTest extends ReposeValveTest {
                 "features/filters/apivalidator/f4f4pf5f5")
         repose.start()
 
-        sleep(10000)
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
     def cleanupSpec() {

@@ -104,7 +104,7 @@ class MultipleRolesTest extends ReposeValveTest{
                 "features/filters/apivalidator/p{1,2}")
         repose.start()
 
-        sleep(5000)
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
     def cleanupSpec() {
