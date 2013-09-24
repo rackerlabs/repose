@@ -20,11 +20,12 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        originServicePort = PortFinder.Singleton.getNextOpenPort()
+        PortFinder finder = new PortFinder()
+        originServicePort = finder.getNextOpenPort()
         deproxy.addEndpoint(originServicePort)
 
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        shutdownPort = PortFinder.Singleton.getNextOpenPort()
+        reposePort = finder.getNextOpenPort()
+        shutdownPort = finder.getNextOpenPort()
         url = "http://localhost:${reposePort}"
 
         reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
