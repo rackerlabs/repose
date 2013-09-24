@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.authclient.akka;
 
 import akka.actor.*;
-import akka.routing.RoundRobinRouter;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 
 public class RequestRoutingActor {

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
 
-public class AkkaAuthenticationClient {
+public class AkkaAuthenticationClientImpl {
 
     final private ServiceClient serviceClient;
     private ActorSystem actorSystem;
@@ -23,7 +23,7 @@ public class AkkaAuthenticationClient {
     private int numberOfActors=20;
 
 
-    public AkkaAuthenticationClient(ServiceClient pServiceClient) {
+    public AkkaAuthenticationClientImpl(ServiceClient pServiceClient) {
         this.serviceClient = pServiceClient;
         actorSystem = ActorSystem.create("AuthClientActors");
 
@@ -37,7 +37,7 @@ public class AkkaAuthenticationClient {
 
 
 
-    private ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers){
+    public ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers){
 
        ServiceClientResponse serviceClientResponse =null;
 
