@@ -120,6 +120,13 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * Returns the size of the content body by reading through the input stream.
+     * WARNING: This will cause some performance degradation as the request body will be read and
+     * not just streamed through repose.
+     * @return Size of content body based off of content within the request servletinputstream
+     * @throws IOException
+     */
     public int getRealBodyLength() throws IOException {
 
         synchronized (this) {
