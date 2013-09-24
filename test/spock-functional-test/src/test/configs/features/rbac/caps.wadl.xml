@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <resource_type id="listAttachments">
+        <resource path="/widgets/{widgetId}/gizmos">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="updateWidget">
+        <resource path="/widgets/{widgetId}">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <method name="PUT">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="deleteWidget">
+        <resource path="/widgets/{widgetId}">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <method name="DELETE">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="updateGizmo">
+        <resource path="/gizmos/{gizmoId}">
+            <param name="gizmoId" style="template" type="xsd:string"/>
+            <method name="PUT">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="deleteGizmo">
+        <resource path="/gizmos/{gizmoId}">
+            <param name="gizmoId" style="template" type="xsd:string"/>
+            <method name="DELETE">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="listGizmos">
+        <resource path="/gizmos">
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="showAttachment">
+        <resource path="/widgets/{widgetId}/gizmos/{gizmoId}">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <param name="gizmoId" style="template" type="xsd:string"/>
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="attachGizmo">
+        <resource path="/widgets/{widgetId}/gizmos">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <method name="POST">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="listGizmoDetails">
+        <resource path="/gizmos/{gizmoId}">
+            <param name="gizmoId" style="template" type="xsd:string"/>
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="listWidgets">
+        <resource path="/widgets">
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="createGizmo">
+        <resource path="/gizmos">
+            <method name="POST">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="listWidgetDetails">
+        <resource path="/widgets/{widgetId}">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <method name="GET">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="createWidget">
+        <resource path="/widgets">
+            <method name="POST">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+    <resource_type id="detachGizmo">
+        <resource path="/widgets/{widgetId}/gizmos/{gizmoId}">
+            <param name="widgetId" style="template" type="xsd:string"/>
+            <param name="gizmoId" style="template" type="xsd:string"/>
+            <method name="DELETE">
+                <request/>
+                <response status="200">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="201 202">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="404">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+                <response status="400 401 403 409 413 415 500 503">
+                    <representation mediaType="application/xml"/>
+                    <representation mediaType="application/json"/>
+                </response>
+            </method>
+        </resource>
+    </resource_type>
+</application>
