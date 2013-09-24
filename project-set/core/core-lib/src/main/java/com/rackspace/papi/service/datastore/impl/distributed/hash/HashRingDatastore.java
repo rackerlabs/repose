@@ -102,9 +102,11 @@ public class HashRingDatastore extends AbstractHashedDatastore {
                 final InetSocketAddress target = getTarget(id);
 
                 try {
-                    if (target != null && (targetIsRemote = isRemoteTarget(target))) {
+                    if (target == null) {
+                        targetIsRemote = false;
+                    } else if (targetIsRemote = isRemoteTarget(target)) {
                         LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
-                                          target.toString());
+                                target.toString());
 
                         return action.performRemote(name, target, remoteBehavior);
                     }
