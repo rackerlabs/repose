@@ -20,11 +20,12 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        originServicePort = PortFinder.Singleton.getNextOpenPort()
+        PortFinder finder = new PortFinder()
+        originServicePort = finder.getNextOpenPort()
         deproxy.addEndpoint(originServicePort)
 
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        shutdownPort = PortFinder.Singleton.getNextOpenPort()
+        reposePort = finder.getNextOpenPort()
+        shutdownPort = finder.getNextOpenPort()
         url = "http://localhost:${reposePort}"
 
         reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
@@ -104,6 +105,16 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         "Warning"          | "199 fred \"Misc. warning\", 199 ethel \"Another warning\""          | 2
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="                                 | 1
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 2
+        "Accept-Encoding"  | "identity"                                                           | 1
+        "Accept-Encoding"  | "*"                                                                  | 1
+        "Accept-Encoding"  | "compress, gzip"                                                     | 2
+        "Accept-Encoding"  | "gzip;q=1.0, identity;q=0.5, *;q=0"                                  | 3
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5, *;q=0.1"                                | 3
+        "Accept-Encoding"  | "gzip;q=0.9, *;q=0.1, identity;q=0.5"                                | 3
+        "Accept-Encoding"  | "identity;q=0.5, gzip;q=0.9, *;q=0.1"                                | 3
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5"                                         | 2
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5 *;q=0.6"                                 | 2
+        "Accept-Encoding"  | ""                                                                   | 0
 
         // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
 
@@ -129,41 +140,9 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         headerName | headerValue                                 | expectedCount
         "Via"      | "HTTP/2.0 pseudonym"                        | 2
         "Via"      | "HTTP/2.0 pseudonym (this, is, a, comment)" | 2
-        "Via"      | "1.0 fred, 1.1 nowhere.com (Apache/1.1)"    | 3
-        "Via"      | "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy"  | 5
-        "Via"      | "1.0 ricky, 1.1 mertz, 1.0 lucy"            | 4
-    }
-
-
-    @Unroll("Accept-Encoding header with \"#headerValue\" should result in #expectedResult parts")
-    def "Accept-Encoding header is special, because Repose will pick values with highest qvalue"() {
-
-        when: "make a request with the given header and value"
-        def headers = [
-                'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
-        MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
-
-        then: "the request should make it to the origin service with the header appropriately split"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName(headerName) == expectedCount
-        mc.handlings[0].request.headers[headerName] == expectedResult
-
-
-        where:
-        headerName        | headerValue                           | expectedCount | expectedResult
-        "Accept-Encoding" | "identity"                            | 1             | "identity"
-        "Accept-Encoding" | "*"                                   | 1             | "*"
-        "Accept-Encoding" | "compress, gzip"                      | 1             | "compress, gzip"
-        "Accept-Encoding" | "gzip;q=1.0, identity;q=0.5, *;q=0"   | 1             | "gzip;q=1.0"
-        "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5, *;q=0.1" | 1             | "gzip;q=0.9"
-        "Accept-Encoding" | "gzip;q=0.9, *;q=0.1, identity;q=0.5" | 1             | "gzip;q=0.9"
-        "Accept-Encoding" | "identity;q=0.5, gzip;q=0.9, *;q=0.1" | 1             | "gzip;q=0.9"
-        "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5"          | 1             | "gzip;q=0.9"
-        "Accept-Encoding" | "gzip;q=0.9, identity;q=0.5 *;q=0.6"  | 1             | "gzip;q=0.9"
-        "Accept-Encoding" | ""                                    | 0             | null
+        "Via"      | "1.0 fred, 1.1 nowhere.com (Apache/1.1)"    | 2
+        "Via"      | "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy"  | 2
+        "Via"      | "1.0 ricky, 1.1 mertz, 1.0 lucy"            | 2
     }
 
     @Unroll("Headers defined by RFC: #headerName with \"#headerValue\" should not be split")
