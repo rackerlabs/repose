@@ -1,20 +1,24 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -52,7 +56,7 @@ public class HttpComponentRequestProcessorTest {
             when(request.getParameterValues(eq("param2"))).thenReturn(params2);
             when(request.getInputStream()).thenReturn(input);
             when(method.getParams()).thenReturn(methodParams);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true);
+            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, true);
         }
 
         @Test
