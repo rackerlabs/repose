@@ -4,10 +4,11 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="simple-node" hostname="localhost" http-port="${port}"/>
+        <node id="node1" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
 
     <filters>
+        <filter name="destination-router" />
     </filters>
 
     <destinations>
