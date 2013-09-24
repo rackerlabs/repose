@@ -23,7 +23,7 @@ class ResponseCodeJMXTest extends ReposeValveTest {
 
     def handler5XX = { request -> return new Response(502, 'WIZARD FAIL') }
 
-    def setup() {
+    def setupSpec() {
         repose.applyConfigs("features/core/powerfilter/common")
         repose.start()
 
@@ -31,12 +31,9 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
-
-        sleep(3000) //TODO: add a clean way to ensure deproxy has really shutdown all endpoints
-
         repose.stop()
     }
 
@@ -44,6 +41,14 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     // responses?
     def "when sending requests, response code counters should be incremented"() {
         given:
+        def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
+        repose2XXtarget = (repose2XXtarget == null) ? 0 : repose2XXtarget
+        def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
+        all2XXtarget = (all2XXtarget == null) ? 0 : all2XXtarget
+        def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
+        repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
+        def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
+        all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
         def responses = []
 
         when:
@@ -52,27 +57,38 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         responses.add(deproxy.makeRequest(reposeEndpoint + "/cluster"))
 
         then:
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 3
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == 3
-        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == null
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == null
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == (repose2XXtarget + 3)
+        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == (all2XXtarget + 3)
+        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count").is(null)
+        repose.jmx.getMBeanAttribute(ALL_5XX, "Count").is(null)
 
         responses.each { MessageChain mc ->
-            mc.receivedResponse.code == 200
+            assert(mc.receivedResponse.code == "200")
         }
     }
 
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
+        given:
+        def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
+        repose2XXtarget = (repose2XXtarget == null) ? 0 : repose2XXtarget
+        def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
+        all2XXtarget = (all2XXtarget == null) ? 0 : all2XXtarget
+        def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
+        repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
+        def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
+        all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
 
         when:
-        deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
-        deproxy.makeRequest(reposeEndpoint + "/cluster")
+        MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
+        MessageChain mc2 = deproxy.makeRequest(reposeEndpoint + "/cluster")
 
         then:
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == 1
-        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == 1
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == 1
+        mc1.receivedResponse.code == "502"
+        mc2.receivedResponse.code == "200"
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == (repose2XXtarget + 1)
+        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == (all2XXtarget + 1)
+        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == (repose5XXtarget + 1)
+        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == (all5XXtarget + 1)
     }
 
     /**
