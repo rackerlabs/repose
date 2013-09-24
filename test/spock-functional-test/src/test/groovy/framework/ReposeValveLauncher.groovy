@@ -44,6 +44,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
+        this.reposePort = reposePort
         this.shutdownPort = shutdownPort
         this.configDir = configDir
     }
