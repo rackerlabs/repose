@@ -17,7 +17,7 @@ class RbacTest extends ReposeValveTest {
         repose.applyConfigs("features/rbac")
         repose.start()
 
-        waitUntilReadyToServiceRequests()
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
     def cleanupSpec() {
