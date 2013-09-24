@@ -2,6 +2,7 @@ package features.filters.translation
 
 
 import framework.ReposeValveTest
+import framework.category.Bug
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
