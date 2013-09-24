@@ -16,14 +16,18 @@ class ContentLengthTest extends ReposeValveTest {
 
     }
 
-    def cleanupSpec() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
+    def cleanup() {
 
         if (repose) {
             repose.stop()
         }
+    }
+
+    def cleanupSpec(){
+        if (deproxy) {
+            deproxy.shutdown()
+        }
+
     }
 
 
