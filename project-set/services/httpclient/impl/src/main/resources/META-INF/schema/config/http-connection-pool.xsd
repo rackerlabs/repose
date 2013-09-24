@@ -213,7 +213,7 @@
                         Determines whether or not this client should send chunked data when forwarding requests.
                     </html:p>
                     <html:p>
-                        WARNING: This configuration within repose will cause repose to attempt to retrieve the
+                        WARNING: Setting this attribute will cause repose to attempt to retrieve the
                         actual content length through reading the ServletInputStream. This will cause some performance
                         degradation as request body is no longer always streamed through.
                     </html:p>
