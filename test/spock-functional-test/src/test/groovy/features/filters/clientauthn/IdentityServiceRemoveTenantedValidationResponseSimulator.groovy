@@ -1,5 +1,4 @@
 package features.filters.clientauthn
-
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -7,6 +6,11 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
+
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.Schema
+import javax.xml.validation.SchemaFactory
+import javax.xml.validation.Validator
 
 /**
  * Simulates responses from an Identity Service
@@ -20,6 +24,8 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
     int groupsCount = 0;
     int adminTokenCount = 0;
     int endpointsCount = 0;
+
+
 
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
@@ -37,6 +43,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
     boolean isGetEndpointsBroken = false;
     boolean isTenantMatch = false;
     boolean doesTenantHaveAdminRoles = false;
+
 
     def port = 12200
     def origin_service_port = 10001
@@ -223,6 +230,25 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
     Response handleGetAdminTokenCall(Request request) {
         adminTokenCount += 1
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+        Schema schema = factory.newSchema(
+                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+
+
+        Validator validator= schema.newValidator();
+
+        try{
+            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+
+                validator.validate(sampleSource);
+
+        }catch(Exception e){
+            println("Admin token XSD validation error: " +e);
+            return new Response(this.errorCode);
+        }
 
         if (this.isGetAdminTokenBroken) {
             return new Response(this.errorCode);

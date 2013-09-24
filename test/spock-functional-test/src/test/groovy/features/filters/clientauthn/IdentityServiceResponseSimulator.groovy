@@ -1,18 +1,16 @@
 package features.filters.clientauthn
-
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.DateTimeZone
 
-import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
-import javax.xml.validation.Validator;
+import javax.xml.validation.Validator
 
 /**
  * Simulates responses from an Identity Service
@@ -25,6 +23,15 @@ class IdentityServiceResponseSimulator {
     public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
         this.port = identityPort
         this.origin_service_port = originServicePort
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+        Schema schema = factory.newSchema(
+                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+
+
+        this.validator = schema.newValidator();
     }
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -60,6 +67,7 @@ class IdentityServiceResponseSimulator {
     def admin_tenant = 'this-is-the-admin-tenant';
     def admin_username = 'admin_username';
     def admin_userid = 67890;
+    Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -234,16 +242,14 @@ class IdentityServiceResponseSimulator {
 
     Response handleGetAdminTokenCall(Request request) {
 
-        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
-        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+     try{
+         final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+         validator.validate(sampleSource);
 
-        Schema schema = factory.newSchema(
-                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/META-INF/schema/config/header-translation.xsd")));
-
-        Validator validator = schema.newValidator();
-        validator.validate(request.body);
-
-
+     }catch(Exception e){
+         println("Admin token XSD validation error: " +e);
+         return new Response(this.errorCode);
+     }
         adminTokenCount += 1
 
         if (this.isGetAdminTokenBroken) {

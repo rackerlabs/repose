@@ -33,10 +33,6 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
 
     }
-//
-//    def cleanup() {
-//        deproxy.shutdown()
-//    }
 
     def cleanupSpec() {
         deproxy.shutdown()
@@ -44,13 +40,44 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: #tenantWithAdminRole isAuthed: #isAuthed isAdminAuthed: #isAdminAuthed token: #clientToken")
-    def "when authenticating user in tenanted and delegable mode and client-mapping not matching"() {
+    @Unroll("token: #clientToken")
+    def "when authenticating user in tenanted and delegable mode and client-mapping not matching - fail"() {
 
         // def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
+        fakeIdentityService.adminOk = isAdminAuthed
+
+
+        when: "User passes a request through repose"
+        fakeIdentityService.isTenantMatch = false
+        fakeIdentityService.doesTenantHaveAdminRoles = false
+        fakeIdentityService.client_tenant = reqTenant
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "Everything gets passed as is to the origin service (no matter the user)"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == 0
+        mc.orphanedHandlings.size() == orphanedHandlings
+
+        where:
+        reqTenant | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | clientToken
+
+        128       | true     | false         | "500"        | 1                 | UUID.randomUUID()
+        126       | true     | true          | "401"        | 2                 | UUID.randomUUID()
+        127       | false    | true          | "401"        | 1                 | UUID.randomUUID()
+        129       | false    | true          | "401"        | 0                 | ""
+
+    }
+
+    @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: token: #clientToken")
+    def "when authenticating user in tenanted and delegable mode and client-mapping not matching - pass"() {
+
+        // def clientToken = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = clientToken
+        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = true
         fakeIdentityService.adminOk = isAdminAuthed
 
 
@@ -61,40 +88,36 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
-        mc.receivedResponse.code == responseCode
-        mc.handlings.size() == handlings
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
         mc.orphanedHandlings.size() == orphanedHandlings
 
         and: "If request made it to origin service"
         if (identityStatus == "Confirmed") {
             def request2 = mc.handlings[0].request
-            mc.handlings[0].endpoint == originEndpoint
-            request2.headers.contains("x-auth-token")
-            request2.headers.contains("x-identity-status")
-            request2.headers.contains("x-authorization")
-            request2.headers.getFirstValue("x-identity-status") == identityStatus
-            request2.headers.getFirstValue("x-authorization").startsWith("Proxy")
+            assert(mc.handlings[0].endpoint == originEndpoint)
+            assert(request2.headers.contains("x-auth-token"))
+            assert(request2.headers.contains("x-identity-status"))
+            assert(request2.headers.contains("x-authorization"))
+            assert(request2.headers.getFirstValue("x-identity-status") == identityStatus)
+            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         and: "If identityStatus was Indeterminate"
         if (identityStatus == "Indeterminate") {
 
             def request2 = mc.handlings[0].request
-            request2.headers.getFirstValue("x-identity-status") == identityStatus
-            request2.headers.getFirstValue("x-authorization").startsWith("Proxy")
+            assert(request2.headers.getFirstValue("x-identity-status") == identityStatus)
+            assert(request2.headers.getFirstValue("x-authorization").startsWith("Proxy"))
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | handlings | orphanedHandlings | identityStatus  | clientToken
+        reqTenant | tenantMatch | tenantWithAdminRole | isAdminAuthed | orphanedHandlings | identityStatus  | clientToken
 
-        128       | false       | false               | true     | false         | "500"        | 0         | 1                 | ""              | UUID.randomUUID()
-        123       | true        | true                | true     | true          | "200"        | 1         | 3                 | "Confirmed"     | UUID.randomUUID()
-        124       | true        | false               | true     | true          | "200"        | 1         | 2                 | "Confirmed"     | UUID.randomUUID()
-        125       | false       | true                | true     | true          | "200"        | 1         | 2                 | "Confirmed"     | UUID.randomUUID()
-        126       | false       | false               | true     | true          | "401"        | 0         | 1                 | ""              | UUID.randomUUID()
-        127       | false       | false               | false    | true          | "401"        | 0         | 1                 | ""              | UUID.randomUUID()
-        ""        | false       | false               | true     | false         | "200"        | 1         | 0                 | "Indeterminate" | ""
-        129       | false       | false               | false    | true          | "401"        | 0         | 0                 | ""              | ""
+        123       | true        | true                | true          | 2                 | "Confirmed"     | UUID.randomUUID()
+        124       | true        | false               | true          | 2                 | "Confirmed"     | UUID.randomUUID()
+        125       | false       | true                | true          | 2                 | "Confirmed"     | UUID.randomUUID()
+        ""        | false       | false               | false         | 0                 | "Indeterminate" | ""
 
     }
 

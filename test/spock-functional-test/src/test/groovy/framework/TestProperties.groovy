@@ -17,6 +17,7 @@ class TestProperties {
 
     // Property settings that aren't set for every test
     String targetPort
+    String targetPort2
     String identityPort
     String atomPort
     String targetHostname
@@ -47,6 +48,7 @@ class TestProperties {
 
 
             targetPort = properties.getProperty("target.port")
+            targetPort2 = properties.getProperty("target.port2")
             identityPort = properties.getProperty("identity.port")
             atomPort = properties.getProperty("atom.port")
             targetHostname = properties.getProperty("target.hostname")
@@ -65,6 +67,9 @@ class TestProperties {
         switch (propertyName) {
             case "target.port":
                 return targetPort
+                break
+            case "target.port2":
+                return targetPort2
                 break
             case "identity.port":
                 return identityPort
