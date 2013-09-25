@@ -30,6 +30,12 @@
             <version>2.9.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>authclient-api</artifactId>
+            <version>2.9.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -63,14 +63,18 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>authclient-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
            <artifactId>authclient-support</artifactId>
            <version>${project.version}</version>
        </dependency>
 
-        -->
        <dependency>
            <groupId>commons-codec</groupId>
            <artifactId>commons-codec</artifactId>

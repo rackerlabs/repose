@@ -8,7 +8,8 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-//import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClientImpl;
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClientImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.openstack.docs.identity.api.v2.*;
@@ -42,7 +43,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     private AdminToken currentAdminToken;
     private final String requestBody;
-    //private final AkkaAuthenticationClientImpl akkaAuthenticationClient;
+    private final AkkaAuthenticationClient akkaAuthenticationClient;
 
 
     public AuthenticationServiceClient(String targetHostUri, String username, String password, String tenantId,
@@ -72,7 +73,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         JAXBElement jaxbRequest = objectFactory.createAuth(request);
         requestBody = jaxbToString.transform(jaxbRequest);
-        //akkaAuthenticationClient=new AkkaAuthenticationClientImpl(serviceClient);
+        akkaAuthenticationClient=new AkkaAuthenticationClientImpl(serviceClient);
     }
 
     @Override
@@ -120,8 +121,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
-        //return akkaAuthenticationClient.validateToken(userToken,targetHostUri + TOKENS + userToken, headers);
-        return serviceClient.get(targetHostUri + TOKENS + userToken, headers);
+        return akkaAuthenticationClient.validateToken(userToken,targetHostUri + TOKENS + userToken, headers);
+        //return serviceClient.get(targetHostUri + TOKENS + userToken, headers);
     }
 
     private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {

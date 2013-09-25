@@ -6,21 +6,26 @@ import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.slf4j.Logger;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
+import scala.util.Success;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
 
-public class AkkaAuthenticationClientImpl {
+public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
     final private ServiceClient serviceClient;
     private ActorSystem actorSystem;
     private ActorRef tokenHashRouter;
     private int numberOfActors=20;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaAuthenticationClientImpl.class);
+
 
 
     public AkkaAuthenticationClientImpl(ServiceClient pServiceClient) {
@@ -37,6 +42,7 @@ public class AkkaAuthenticationClientImpl {
 
 
 
+    @Override
     public ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers){
 
        ServiceClientResponse serviceClientResponse =null;
@@ -57,7 +63,8 @@ public class AkkaAuthenticationClientImpl {
         }
 
         try{
-             serviceClientResponse = (ServiceClientResponse) Await.result(future, t.duration());
+
+             serviceClientResponse = (ServiceClientResponse) ((Success)((Promise)Await.result(future, t.duration())).future().value().get()).get();
         } catch(Exception e){
             //Log exception
         }

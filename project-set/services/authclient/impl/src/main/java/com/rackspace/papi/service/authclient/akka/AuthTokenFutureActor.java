@@ -44,7 +44,7 @@ public class AuthTokenFutureActor extends UntypedActor {
                 }, actorSystem.dispatcher());
 
                 tokenFutures.put(token,future);
-                getSender().tell(tokenFutures.get(token).value().get(), getContext().parent());
+                getSender().tell(tokenFutures.get(token), getContext().parent());
 
             }
 
