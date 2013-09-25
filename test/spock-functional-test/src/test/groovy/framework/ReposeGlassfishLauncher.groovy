@@ -2,28 +2,29 @@ package framework
 
 class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
-    def int shutdownPort
+    int shutdownPort
+    int reposePort
 
-    String configDirectory
     String clusterId
     String nodeId
 
-    def ReposeConfigurationProvider configurationProvider
     String glassfishJar
 
-    ReposeGlassfishLauncher(String glassfishJar, String configDirectory, String clusterId="cluster1", String nodeId="node1") {
+    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1", int reposePort) {
         this.configurationProvider = configurationProvider
         this.glassfishJar = glassfishJar
         this.clusterId = clusterId
         this.nodeId = nodeId
+        this.reposePort = reposePort
     }
 
     @Override
     void start() {
+        String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
+        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId} -Drepose-port=${reposePort}"
 
-        def cmd = "java -jar ${glassfishJar} -s ${shutdownPort} ${webXmlOverrides}"
+        def cmd = "java -jar ${glassfishJar} -p ${reposePort}"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
