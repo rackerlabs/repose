@@ -2,12 +2,17 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
+import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -254,6 +259,77 @@ public class MutableHttpServletRequestTest {
             assertEquals(list.get(4).getValue(), "val1.3");
             
             
+        }
+    }
+
+    public static class WhenGettingEntityLength{
+
+        private HttpServletRequest request;
+        private MutableHttpServletRequest wrappedRequest;
+        private Enumeration<String> headerNames;
+        private Enumeration<String> headerValues1;
+        private String msg = "This is my test entity";
+
+        @Before
+        public void setup() throws IOException {
+            request = mock(HttpServletRequest.class);
+
+            headerNames = createStringEnumeration("content-length");
+            headerValues1 = createStringEnumeration("2");
+
+            when(request.getHeaders("content-length")).thenReturn(headerValues1);
+            when(request.getHeader("content-length")).thenReturn("2");
+        }
+
+        @Test
+        public void shouldReturnActualLengthOfEntity() throws IOException {
+
+            when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(msg.getBytes())));
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
+
+            final int realEntitySize = wrappedRequest.getRealBodyLength();
+
+            assertEquals("Real entity length should reflect what is in the inputstream",realEntitySize,msg.length());
+            assertFalse("Real entity length should not match content-length", String.valueOf(realEntitySize).equals(request.getHeader("content-length")));
+        }
+
+        @Test
+        public void shouldNotAlterMessageWhenRetrievingActualEntityLength() throws IOException {
+
+            when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(msg.getBytes())));
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
+            final int realEntitySize = wrappedRequest.getRealBodyLength();
+            ServletInputStream is = wrappedRequest.getInputStream();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+            final byte[] internalBuffer = new byte[1024];
+
+            long total = 0;
+            int read;
+
+            while ((read = is.read(internalBuffer)) != -1) {
+                os.write(internalBuffer, 0, read);
+                total += read;
+            }
+
+            String newMsg = new String(os.toByteArray());
+
+            assertEquals("Retrieving size of message should not alter message",msg,newMsg);
+
+        }
+
+        @Test
+        public void shouldReturn0OnEmptyBody() throws IOException {
+
+            String empty = "";
+            ServletInputStream in = new ServletInputStreamWrapper(new ByteArrayInputStream(empty.getBytes()));
+
+            when(request.getInputStream()).thenReturn(in);
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
+
+            final int realEntitySize = wrappedRequest.getRealBodyLength();
+            assertTrue("Should return 0 on empty body", realEntitySize == 0);
+
         }
     }
 }

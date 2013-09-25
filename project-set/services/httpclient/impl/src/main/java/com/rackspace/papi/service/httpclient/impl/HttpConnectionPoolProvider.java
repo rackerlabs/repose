@@ -15,6 +15,7 @@ import javax.net.ssl.SSLContext;
 public final class HttpConnectionPoolProvider {
 
     private static final int DEFAULT_HTTPS_PORT = 443;
+    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
 
     private HttpConnectionPoolProvider() {
@@ -40,8 +41,9 @@ public final class HttpConnectionPoolProvider {
         client.getParams().setParameter(CoreConnectionPNames.MAX_LINE_LENGTH, poolConf.getHttpConnectionMaxLineLength());
         client.getParams().setParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, poolConf.getHttpSocketBufferSize());
 
-
         client.setKeepAliveStrategy(new ConnectionKeepAliveWithTimeoutStrategy(poolConf.getKeepaliveTimeout()));
+
+        client.getParams().setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
 
 //TODO: maxstatusline
         return client;

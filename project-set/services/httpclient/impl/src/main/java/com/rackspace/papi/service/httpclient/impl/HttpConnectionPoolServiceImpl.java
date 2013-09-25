@@ -16,10 +16,10 @@ import java.util.Set;
 
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig> {
 
-    Map<String, HttpClient> poolMap;
-    String defaultClientId;
+    private Map<String, HttpClient> poolMap;
+    private String defaultClientId;
     private static PoolType DEFAULT_POOL;
-    ClientDecommissionManager decommissionManager;
+    private ClientDecommissionManager decommissionManager;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
 
     public HttpConnectionPoolServiceImpl() {

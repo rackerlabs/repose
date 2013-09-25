@@ -2,16 +2,24 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
-import java.io.IOException;
-import java.util.*;
+
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- *
  * @author jhopper
  */
 // This class is non-final so that we can mock it in unit tests.  We cannot
@@ -26,27 +34,28 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request, long streamLimit) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
     }
+
     private static final String REQUEST_ID = "requestId";
     private ServletInputStream inputStream;
     private final RequestValues values;
     private final long streamLimit;
 
     private MutableHttpServletRequest(HttpServletRequest request) {
-      this(request, -1);
+        this(request, -1);
     }
 
     private MutableHttpServletRequest(HttpServletRequest request, long streamLimit) {
         super(request);
 
         if (getAttribute(REQUEST_ID) == null) {
-          setAttribute(REQUEST_ID, UUID.randomUUID().toString());
+            setAttribute(REQUEST_ID, UUID.randomUUID().toString());
         }
         this.values = new RequestValuesImpl(request);
         this.streamLimit = streamLimit;
     }
-    
+
     public String getRequestId() {
-      return (String) getAttribute(REQUEST_ID);
+        return (String) getAttribute(REQUEST_ID);
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -111,6 +120,33 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * Returns the size of the content body by reading through the input stream.
+     * WARNING: This will cause some performance degradation as the request body will be read and
+     * not just streamed through repose.
+     * @return Size of content body based off of content within the request servletinputstream
+     * @throws IOException
+     */
+    public int getRealBodyLength() throws IOException {
+
+        synchronized (this) {
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            RawInputStreamReader.instance().copyTo(getInputStream(), baos);
+
+            if (baos.toByteArray().length > 0) {
+                final ByteBuffer internalBuffer = new CyclicByteBuffer(baos.toByteArray().length, true);
+                internalBuffer.put(baos.toByteArray());
+                this.setInputStream(new ByteBufferInputStream(internalBuffer));
+            }
+
+            return baos.toByteArray().length;
+
+        }
+
+    }
+
     @Override
     public String getRequestURI() {
         return values.getRequestURI();
@@ -128,9 +164,9 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public void setRequestUrl(StringBuffer requestUrl) {
         values.setRequestURL(requestUrl);
     }
-    
+
     public void clearHeaders() {
-      values.getHeaders().clearHeaders();
+        values.getHeaders().clearHeaders();
     }
 
     public void addHeader(String name, String value) {

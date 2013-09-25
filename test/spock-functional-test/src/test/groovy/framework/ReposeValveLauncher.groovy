@@ -44,6 +44,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
+        this.reposePort = reposePort
         this.shutdownPort = shutdownPort
         this.configDir = configDir
     }
@@ -71,6 +72,20 @@ class ReposeValveLauncher implements ReposeLauncher {
         boolean waitOnJmxAfterStarting = true
         if (params.containsKey("waitOnJmxAfterStarting")) {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
+        }
+
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting)
+    }
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
+
+        File jarFile = new File(reposeJar)
+        if (!jarFile.exists() || !jarFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
+        }
+
+        File configFolder = new File(configDir)
+        if (!configFolder.exists() || !configFolder.isDirectory()) {
+            throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
 

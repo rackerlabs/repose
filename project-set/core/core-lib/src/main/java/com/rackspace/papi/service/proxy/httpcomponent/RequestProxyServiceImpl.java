@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientService;
@@ -38,10 +37,8 @@ import java.util.Set;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private Integer connectionTimeout = Integer.valueOf(0);
-    private Integer readTimeout = Integer.valueOf(0);
-    private Integer proxyThreadPool;
     private boolean rewriteHostHeader = false;
+    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpClientService httpClientService;
 
@@ -55,7 +52,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    public RequestProxyServiceImpl(){
+    public RequestProxyServiceImpl() {
     }
 
     private HttpClient getClient() {
@@ -72,11 +69,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
 
+            final boolean isChunkedConfigured = getClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
-            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader);
+            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader,isChunkedConfigured);
             final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
-            ((MutableHttpServletRequest) request).removeHeader("Content-Length");
 
             if (method != null) {
                 HttpRequestBase processedMethod = method.process(processor);
