@@ -12,8 +12,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         def static originEndpoint
         def static identityEndpoint
-        def static Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        def static Map acceptXML = ["accept": "application/xml"]
 
 
         static IdentityServiceResponseSimulator fakeIdentityService
@@ -30,7 +28,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
                     'identity service', null, fakeIdentityService.handler)
 
             def missingResponseErrorHandler = { Request request ->
-
+                def headers = request.getHeaders()
 
                 if (!headers.contains("X-Auth-Token") ) {
                     return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
@@ -42,9 +40,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
             }
 
             deproxy._defaultHandler = missingResponseErrorHandler
-
-            Thread.sleep(10000)
-
         }
 
 
@@ -62,6 +57,9 @@ class ValidateTokenBurstTest extends ReposeValveTest {
     def "under heavy load should not drop validate token response"() {
 
         given:
+        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
+        fakeIdentityService.validateTokenCount = 0
+
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         DateTimeFormatter fmt = DateTimeFormat
@@ -83,17 +81,19 @@ class ValidateTokenBurstTest extends ReposeValveTest {
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-'+threadNum+'-request-'+i)
 
-                    def resp = deproxy.makeRequest(reposeEndpoint, 'GET', header1+acceptXML)
+                    def messageChain = deproxy.makeRequest(reposeEndpoint, 'GET', header1)
 
-                    if ( resp.receivedResponse.code.equalsIgnoreCase("500")) {
+                    if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true
                         badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)
-                        break
                     }
-                    if (resp.receivedResponse.headers.findAll("X-Token-Expires").empty && resp.receivedResponse.headers.getFirstValue("X-Token-Expires") == expiresString)    {
+
+
+                    Request sentToOrigin = messageChain.getSentRequest()
+
+                    if (sentToOrigin.headers.findAll("X-Roles").empty)    {
                         badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
                         missingAuthHeader = true
-                        break
                     }
 
                 }
@@ -102,7 +102,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         }
 
         when:
-        fakeIdentityService.validateTokenCount = 0
         clientThreads*.join()
 
         then:
@@ -116,7 +115,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        10| 5
+        10         | 5
 
     }
 
