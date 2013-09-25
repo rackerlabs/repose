@@ -14,7 +14,7 @@ import java.io.IOException;
 public class ReposeGlassfishServer {
 
     static GlassFish glassfish;
-    static String reposeRootWar = "/Volumes/workspace/repose/test/spock-functional-test/target/repose_home/ROOT.war";
+    static String reposeRootWar;
     static int reposePort;
 
     public static void main(String[] args) throws GlassFishException, NamingException, IOException {
@@ -23,40 +23,26 @@ public class ReposeGlassfishServer {
         Options options = new Options();
 
         Option portOpt = new Option("p", true, "Repose port to listen on");
-        Option configOpt = new Option("c", true, "Config directory");
-        Option clusterOpt = new Option("l", true, "Cluster name");
-        Option nodeOpt = new Option("n", true, "Node name");
+        Option rootwarOpt = new Option("w", true, "Location of ROOT.war");
 
         portOpt.setRequired(true);
-        clusterOpt.setRequired(true);
-        nodeOpt.setRequired(true);
+        rootwarOpt.setRequired(true);
 
-        options.addOption(portOpt).addOption(configOpt).addOption(clusterOpt).addOption(nodeOpt);
+        options.addOption(portOpt).addOption(rootwarOpt);
 
         GlassFishProperties properties = new GlassFishProperties();
 
         final CommandLine cmdline;
         try {
             cmdline = parser.parse(options, args);
-            if (cmdline.hasOption("p")) {
-                reposePort = Integer.parseInt(cmdline.getOptionValue("p"));
-            } else {
-                System.err.println("Repose port is required");
-                System.exit(-1);
-            }
-            if (cmdline.hasOption("c")) {
-                properties.setProperty("powerapi-config-directory", cmdline.getOptionValue("c"));
-            }
-            properties.setProperty("repose-cluster-id", cmdline.getOptionValue("l"));
-            properties.setProperty("repose-node-id", cmdline.getOptionValue("n"));
+            reposePort = Integer.parseInt(cmdline.getOptionValue("p"));
+            reposeRootWar = cmdline.getOptionValue("w");
         } catch (ParseException ex) {
             System.err.println("Failed to start glassfish: " + ex.getMessage());
             System.exit(-1);
         }
 
         GlassFishRuntime runtime = GlassFishRuntime.bootstrap();
-
-
         properties.setPort("http-listener", reposePort);
 
         glassfish = runtime.newGlassFish(properties);

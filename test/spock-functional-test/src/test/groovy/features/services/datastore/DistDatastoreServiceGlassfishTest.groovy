@@ -5,6 +5,7 @@ import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
+
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
  */
