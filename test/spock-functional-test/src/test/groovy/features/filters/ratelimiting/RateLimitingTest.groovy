@@ -377,8 +377,8 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("200")
 
         when: "no requests remain"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all3", method: "GET",
-                headers: ["X-PP-Groups" : "multi3-limits", "X-PP-User" : "429user"])
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/rate3/service/all", method: "POST",
+                headers: ["X-PP-Groups" : "multi3-limits", "X-PP-User" : "429User"])
 
         then: "should be rate limited"
         messageChain.receivedResponse.code.equals("429")
