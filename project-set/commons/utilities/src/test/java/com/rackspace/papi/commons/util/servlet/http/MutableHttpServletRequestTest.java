@@ -332,4 +332,52 @@ public class MutableHttpServletRequestTest {
 
         }
     }
+
+    public static class WhenDealingWithNonSplittableHeaders{
+
+        private HttpServletRequest request;
+        private Enumeration<String> headerNames;
+        private Enumeration<String> headerValues1;
+        private Enumeration<String> headerValues2;
+        private Enumeration<String> headerValues3;
+        private MutableHttpServletRequest wrappedRequest;
+
+        @Before
+        public void setup() {
+
+            headerNames = createStringEnumeration("header1", "header2", "header3");
+
+            headerValues1 = createStringEnumeration("val1","val2","val3");
+            headerValues2 = createStringEnumeration("val4");
+            headerValues3 = createStringEnumeration("val5,val6,val7");
+
+
+            request = mock(HttpServletRequest.class);
+
+            when(request.getHeaderNames()).thenReturn(headerNames);
+            when(request.getHeaders("header1")).thenReturn(headerValues1);
+            when(request.getHeaders("header2")).thenReturn(headerValues2);
+            when(request.getHeaders("header3")).thenReturn(headerValues3);
+
+            wrappedRequest = MutableHttpServletRequest.wrap(request);
+        }
+
+        @Test
+        public void shouldNotSplitHeaders(){
+
+            Integer expected, actual = 0;
+            expected = 1;
+
+            Enumeration<String> headerNames = wrappedRequest.getHeaders("header3");
+
+            while (headerNames.hasMoreElements()) {
+                actual++;
+                headerNames.nextElement();
+            }
+
+            assertEquals(actual,expected);
+
+        }
+
+    }
 }
