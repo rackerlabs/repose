@@ -43,7 +43,7 @@ public class MutableHttpServletRequestTest {
 
         @Before
         public void setup() {
-            headerNames = createStringEnumeration("header1", "HEADER2");
+            headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING");
 
             headerValues1 = createStringEnumeration("val1.1", "val1.2");
             headerValues2 = createStringEnumeration("val2.1");
@@ -51,8 +51,8 @@ public class MutableHttpServletRequestTest {
             originalRequest = mock(HttpServletRequest.class);
 
             when(originalRequest.getHeaderNames()).thenReturn(headerNames);
-            when(originalRequest.getHeaders("header1")).thenReturn(headerValues1);
-            when(originalRequest.getHeaders("header2")).thenReturn(headerValues2);
+            when(originalRequest.getHeaders("accept")).thenReturn(headerValues1);
+            when(originalRequest.getHeaders("accept-encoding")).thenReturn(headerValues2);
 
             wrappedRequest = MutableHttpServletRequest.wrap(originalRequest);
         }
@@ -77,7 +77,7 @@ public class MutableHttpServletRequestTest {
             Integer expected, actual = 0;
             expected = 1;
 
-            Enumeration<String> headerNames = wrappedRequest.getHeaders("header2");
+            Enumeration<String> headerNames = wrappedRequest.getHeaders("accept-encoding");
 
             while (headerNames.hasMoreElements()) {
                 actual++;
@@ -89,7 +89,7 @@ public class MutableHttpServletRequestTest {
 
         @Test
         public void shouldMapHeaderNamesAndValues() {
-            assertEquals("val1.1", wrappedRequest.getHeader("header1"));
+            assertEquals("val1.1", wrappedRequest.getHeader("accept"));
         }
 
         @Test
@@ -116,8 +116,8 @@ public class MutableHttpServletRequestTest {
             headerValues.add("val3");
 
             headers = new HashMap<String, List<String>>();
-            headers.put("header1", headerValues);
-            headers.put("header2", new ArrayList<String>());
+            headers.put("accept", headerValues);
+            headers.put("ACCEPT-ENCODING", new ArrayList<String>());
         }
 
         @Test
@@ -125,7 +125,7 @@ public class MutableHttpServletRequestTest {
             String expected, actual;
 
             expected = headerValues.get(0);
-            actual = HeaderValuesImpl.fromMap(headers, "header1");
+            actual = HeaderValuesImpl.fromMap(headers, "accept");
 
             assertEquals(expected, actual);
         }
@@ -137,7 +137,7 @@ public class MutableHttpServletRequestTest {
 
         @Test
         public void shouldReturnNullHeadersCollectionIsEmpty() {
-            assertNull(HeaderValuesImpl.fromMap(headers, "header2"));
+            assertNull(HeaderValuesImpl.fromMap(headers, "ACCEPT-ENCODING"));
         }
     }
 
@@ -152,7 +152,7 @@ public class MutableHttpServletRequestTest {
         @Before
         public void setup() {
 
-            headerNames = createStringEnumeration("header1", "HEADER2");
+            headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING");
 
             headerValues1 = createStringEnumeration("val1.1;q=0.1", "val1.2;q=0.5", "val1.3;q=0.2", "val1.4;q=0.5");
             headerValues2 = createStringEnumeration("val2.1");
@@ -160,8 +160,8 @@ public class MutableHttpServletRequestTest {
             request = mock(HttpServletRequest.class);
 
             when(request.getHeaderNames()).thenReturn(headerNames);
-            when(request.getHeaders("header1")).thenReturn(headerValues1);
-            when(request.getHeaders("header2")).thenReturn(headerValues2);
+            when(request.getHeaders("accept")).thenReturn(headerValues1);
+            when(request.getHeaders("ACCEPT-ENCODING")).thenReturn(headerValues2);
 
             wrappedRequest = MutableHttpServletRequest.wrap(request);
 
@@ -170,7 +170,7 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldReturnFirstPreferredElementInMatchingHeader() {
             final HeaderValue expected = new HeaderValueImpl("val1.2", 0.5);
-            final HeaderValue actual = wrappedRequest.getPreferredHeader("header1");
+            final HeaderValue actual = wrappedRequest.getPreferredHeader("accept");
 
             assertEquals(expected, actual);
         }
@@ -186,7 +186,7 @@ public class MutableHttpServletRequestTest {
                     this.add(header2);
                 }
             };
-            final List<HeaderValue> actual = wrappedRequest.getPreferredHeaderValues("header1");
+            final List<HeaderValue> actual = wrappedRequest.getPreferredHeaderValues("accept");
 
             assertEquals(expected, actual);
         }
@@ -232,7 +232,7 @@ public class MutableHttpServletRequestTest {
         @Before
         public void setup() {
 
-            headerNames = createStringEnumeration("header1", "HEADER2", "header3");
+            headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING", "header3");
 
             headerValues1 = createStringEnumeration("val1.1;q=1.0", "val1.2;q=0.5","val1.5;q=1.0", "val1.3;q=0.2", "val1.4;q=0.5");
             headerValues2 = createStringEnumeration("val2.1;q=0.8");
@@ -242,8 +242,8 @@ public class MutableHttpServletRequestTest {
             request = mock(HttpServletRequest.class);
 
             when(request.getHeaderNames()).thenReturn(headerNames);
-            when(request.getHeaders("header1")).thenReturn(headerValues1);
-            when(request.getHeaders("header2")).thenReturn(headerValues2);
+            when(request.getHeaders("accept")).thenReturn(headerValues1);
+            when(request.getHeaders("ACCEPT-ENCODING")).thenReturn(headerValues2);
             when(request.getHeaders("header3")).thenReturn(headerValues3);
 
             wrappedRequest = MutableHttpServletRequest.wrap(request);
@@ -253,7 +253,7 @@ public class MutableHttpServletRequestTest {
         public void shouldReturnPreferedOrderListofHeaders() {
             final HeaderValue defaultValue = new HeaderValueImpl("default", -1);
             
-            List<HeaderValue> list = wrappedRequest.getPreferredHeaders("header1", defaultValue);
+            List<HeaderValue> list = wrappedRequest.getPreferredHeaders("accept", defaultValue);
             assertEquals("First Element should be first occurrence of the highest quality value",list.get(0).getValue(),"val1.1");
             assertEquals("Second Element should be the second occurrence of the highest quality value",list.get(1).getValue(), "val1.5");
             assertEquals(list.get(4).getValue(), "val1.3");
