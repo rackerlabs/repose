@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
+import java.net.URL;
 
 public class HttpxMarshaller {
 
@@ -58,7 +59,9 @@ public class HttpxMarshaller {
   
   private Schema getSchemaSource() {
     SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
-    Source schemaSource = new StreamSource(getClass().getResourceAsStream(HTTPX_SCHEMA));
+    InputStream inputStream = getClass().getResourceAsStream(HTTPX_SCHEMA);
+    URL inputURL = getClass().getResource(HTTPX_SCHEMA);
+    Source schemaSource = new StreamSource(inputStream, inputURL.toExternalForm());
     try {
       return factory.newSchema(schemaSource);
     } catch (SAXException ex) {
