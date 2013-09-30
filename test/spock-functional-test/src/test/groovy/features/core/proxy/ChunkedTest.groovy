@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import spock.lang.Unroll
 
 class ChunkedTest extends ReposeValveTest {
 
@@ -27,17 +28,29 @@ class ChunkedTest extends ReposeValveTest {
         }
     }
 
-
+    @Unroll("When set to #method chunked encoding to true and sending #reqBody.")
     def "When set to send chunked encoding to true. Repose should send requests chunked"() {
 
         when:
-        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "POST", requestBody: "blah"])
+        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method, requestBody: reqBody])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then:
-        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == 1
+        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == transfer_encoding
+        ((Handling) sentRequest).request.getHeaders().findAll("content-type").size() == content_type
+        ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == content_length
 
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
+        if(transfer_encoding > 0)
+         assert ((Handling) sentRequest).request.getHeaders().getFirstValue("transfer-encoding").equalsIgnoreCase("chunked")
+
+        where:
+        method | reqBody | content_type | content_length | transfer_encoding
+        "POST" | "blah"  | 1            | 0              | 1
+        "POST" | null    | 0            | 0              | 1
+        "PUT"  | "blah"  | 1            | 0              | 1
+        "PUT"  | null    | 0            | 0              | 1
+        "TRACE"| "blah"  | 1            | 0              | 0
+        "TRACE"| null    | 0            | 0              | 0
 
     }
 

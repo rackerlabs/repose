@@ -4,78 +4,55 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import spock.lang.Unroll
 
 class ContentLengthTest extends ReposeValveTest {
-
-    def static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"
 
     def setupSpec() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-    }
-
-    def cleanup() {
-
-        if (repose) {
-            repose.stop()
-        }
+        repose.applyConfigs("features/core/proxy", "features/services/httpconnectionpool/chunkedfalse")
+        repose.start()
     }
 
     def cleanupSpec(){
         if (deproxy) {
             deproxy.shutdown()
         }
+        if (repose) {
+            repose.stop()
+        }
 
     }
 
-
+    @Unroll("When set to #method chunked encoding to false and sending #reqBody.")
     def "When set to send chunked encoding to false. Repose should not send requests chunked"() {
 
-        given:
-        repose.applyConfigs("features/core/proxy", "features/services/httpconnectionpool/chunkedfalse")
-        repose.start()
-
         when:
-        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "POST", requestBody: "blah"])
+        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method, requestBody: reqBody])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then:
-        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == transfer_encoding
+        ((Handling) sentRequest).request.getHeaders().findAll("content-type").size() == content_type
 
-        ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == 1
+        ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == content_length
 
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("content-length").equalsIgnoreCase("4")
+        if(content_length > 0)
+            assert ((Handling) sentRequest).request.getHeaders().getFirstValue("content-length").equalsIgnoreCase((reqBody == null) ? "0" : reqBody.length().toString())
 
 
-    }
-
-    def "When set to send chunked encoding to false. Repose should send content length of translated request"() {
-
-        given:
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/request"
-                , "features/services/httpconnectionpool/chunkedfalse")
-
-        repose.start()
-        def reqHeaders = ["accept": "application/xml", "content-type": "application/xml"]
-
-        when:
-        MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "POST", requestBody: xmlPayLoad,
-        headers: reqHeaders])
-
-        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
-
-        then: "repose should not sending any transfer encoding header"
-        ((Handling) sentRequest).request.getHeaders().findAll("transfer-encoding").size() == 0
-
-        and: "repose should send a content-length with the request"
-        ((Handling) sentRequest).request.getHeaders().findAll("content-length").size() == 1
-
-        and: "new content length should not match that of the original request"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("content-length") == "15"
-        ((Handling) sentRequest).request.getHeaders().getFirstValue("content-length") != messageChain.sentRequest.headers.getFirstValue("content-length")
+        where:
+        method | reqBody | content_type | content_length | transfer_encoding
+        "POST" | "blah"  | 1            | 1              | 0
+        "POST" | null    | 0            | 1              | 0
+        "PUT"  | "blah"  | 1            | 1              | 0
+        "PUT"  | null    | 0            | 1              | 0
+        "TRACE"| "blah"  | 1            | 0              | 0
+        "TRACE"| null    | 0            | 0              | 0
 
     }
+
 }
