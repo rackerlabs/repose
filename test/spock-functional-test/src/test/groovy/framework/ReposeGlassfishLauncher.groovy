@@ -2,28 +2,31 @@ package framework
 
 class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
-    def int shutdownPort
+    int shutdownPort
+    int reposePort
 
-    String configDirectory
     String clusterId
     String nodeId
 
-    def ReposeConfigurationProvider configurationProvider
     String glassfishJar
+    String rootWarLocation
 
-    ReposeGlassfishLauncher(String glassfishJar, String configDirectory, String clusterId="cluster1", String nodeId="node1") {
+    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort) {
         this.configurationProvider = configurationProvider
         this.glassfishJar = glassfishJar
         this.clusterId = clusterId
         this.nodeId = nodeId
+        this.reposePort = reposePort
+        this.rootWarLocation = rootWarLocation
     }
 
     @Override
     void start() {
+        String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
+        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId} -Drepose-port=${reposePort}"
 
-        def cmd = "java -jar ${glassfishJar} -s ${shutdownPort} ${webXmlOverrides}"
+        def cmd = "java ${webXmlOverrides} -jar ${glassfishJar} -p ${reposePort} -w ${rootWarLocation}"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
