@@ -1,6 +1,6 @@
 package features.filters.headertranslation
-
 import framework.ReposeValveTest
+import framework.category.Bug
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -9,7 +9,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 
-
+@org.junit.experimental.categories.Category(Bug.class)
 class ReliabilityTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
@@ -29,7 +29,7 @@ class ReliabilityTest extends ReposeValveTest {
             return new Response(200, "OK")
         }
 
-        deproxy._defaultHandler = missingHeaderErrorHandler
+        deproxy.defaultHandler = missingHeaderErrorHandler
 
         Thread.sleep(10000)
     }

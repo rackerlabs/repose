@@ -20,11 +20,11 @@ public class HeaderFieldParser {
 
 
     private final List<String> headerValueStrings;
-    private SplitableHeaderUtil splitable;
+    private SplittableHeaderUtil splittable;
 
     private HeaderFieldParser() {
         headerValueStrings = new LinkedList<String>();
-        splitable = new SplitableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
                 ExtendedHttpHeader.values());
     }
 
@@ -112,7 +112,7 @@ public class HeaderFieldParser {
 
         final String[] splitHeaderValues;
 
-        if (headerName != null && splitable.isSplitable(headerName)) {
+        if (headerName != null && splittable.isSplitable(headerName)) {
             splitHeaderValues = rawHeaderString.split(",");
         } else {
             splitHeaderValues = new String[]{rawHeaderString};
