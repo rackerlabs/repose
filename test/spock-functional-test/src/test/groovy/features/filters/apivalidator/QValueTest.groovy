@@ -53,25 +53,26 @@ class QValueTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+    }
 
+    def cleanup() {
+        if (repose)
+            repose.stop()
+    }
+
+    def cleanupSpec() {
+        if (deproxy)
+            deproxy.shutdown()
+    }
+
+    def "When single match q-value and all roles have same high q-value (TestSingleMatchQvalue and TestUseAllRolesWithSameHighQValue)"() {
+        setup:
+        MessageChain messageChain
         repose.applyConfigs("features/filters/apivalidator/common",
                 "features/filters/apivalidator/f4f5p")
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
-    }
-
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
-    // This test must run first (due to config loading)
-    def "When single match q-value"() {
-        setup:
-        MessageChain messageChain
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -81,14 +82,19 @@ class QValueTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles                          | responseCode | numHandlings
-        "role-1; q=0.1, role-3; q=0.9" | "200"        | 1
+        roles                                         | responseCode | numHandlings | Description
+        "role-1; q=0.1, role-3; q=0.9"                | "200"        | 1            | "test_single_match_qvalue"
+        "role-3; q=0.9, role-2; q=0.1, role-1; q=0.9" | "404"        | 0            | "test_use_all_roles_with_the_same_high_qvalue"
     }
 
-    def "When multi match q-value"() {
+    def "When multi match q-value (TestMultiMatchQvalue)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/mf4p")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/mf4p")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -98,25 +104,7 @@ class QValueTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles                          | responseCode | numHandlings
-        "role-1; q=0.9, role-2; q=0.1" | "404"        | 0
-    }
-
-    // If more than one role has the highest qvalue, use all of them.
-    def "When all roles have same high q-value"() {
-        setup:
-        MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/f4f5p")
-
-        when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
-
-        then:
-        messageChain.receivedResponse.code.equals(responseCode)
-        messageChain.handlings.size() == numHandlings
-
-        where:
-        roles                                         | responseCode | numHandlings
-        "role-3; q=0.9, role-2; q=0.1, role-1; q=0.9" | "404"        | 0
+        roles                          | responseCode | numHandlings | Description
+        "role-1; q=0.9, role-2; q=0.1" | "404"        | 0            | "test_multi_match_qvalue"
     }
 }

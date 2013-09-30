@@ -192,25 +192,26 @@ class MultimatchTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+    }
 
+    def cleanup() {
+        if (repose)
+            repose.stop()
+    }
+
+    def cleanupSpec() {
+        if (deproxy)
+            deproxy.shutdown()
+    }
+
+    def "When a request is made with role(s) matching a validator (TestSspnn)"() {
+        setup:
+        MessageChain messageChain
         repose.applyConfigs("features/filters/apivalidator/common",
                 "features/filters/apivalidator/f4f4pf5f5")
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
-    }
-
-    def cleanupSpec() {
-        if (repose)
-            repose.stop()
-        if (deproxy)
-            deproxy.shutdown()
-    }
-
-    // This test must run first (due to config loading)
-    def "When a request is made with role(s) matching a validator"() {
-        setup:
-        MessageChain messageChain
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -220,18 +221,22 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-3"        | "200"        | 1
-        "role-3,role-4" | "200"        | 1
-        "role-4,role-3" | "200"        | 1
-        "role-2,role-3" | "404"        | 0
-        "role-3,role-2" | "404"        | 0
+        roles           | responseCode | numHandlings | Description
+        "role-3"        | "200"        | 1            | "test_sspnn"
+        "role-3,role-4" | "200"        | 1            | "test_pass_first_of_two"
+        "role-4,role-3" | "200"        | 1            | "test_pass_second_of_two"
+        "role-2,role-3" | "404"        | 0            | "test_fail_first_of_two"
+        "role-3,role-2" | "404"        | 0            | "test_fail_second_of_two"
     }
 
-    def "When a request is made with a role not matching a validator and no default validator"() {
+    def "When a request is made with a role not matching a validator and no default validator (TestPAndS"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/p")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/p")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -241,15 +246,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-0"        | "403"        | 0
-        "role-1"        | "200"        | 1
+        roles           | responseCode | numHandlings | Description
+        "role-0"        | "403"        | 0            | "test_s"
+        "role-1"        | "200"        | 1            | "test_p"
     }
 
-    def "When a request is made to a resource that is not defined in the wadl"() {
+    def "When a request is made to a resource that is not defined in the wadl (TestF)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/f4")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/f4")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -259,14 +268,18 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-1"        | "404"        | 0
+        roles           | responseCode | numHandlings | Description
+        "role-1"        | "404"        | 0            | "test_f"
     }
 
-    def "When a request is made to a resource that is not defined in the wadl with multiple validators"() {
+    def "When a request is made to a resource that is not defined in the wadl with multiple validators (TestSfn)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/pf4f5")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/pf4f5")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -276,14 +289,18 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-2"        | "404"        | 0
+        roles           | responseCode | numHandlings | Description
+        "role-2"        | "404"        | 0            | "test_sfn"
     }
 
-    def "When a request is made and a default validator is set"() {
+    def "When a request is made and a default validator is set (TestSingleMatchDefaults)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/s-default")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/s-default")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -293,15 +310,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles           | responseCode | numHandlings
-        "role-1"        | "404"        | 0
-        "role-0"        | "405"        | 0
+        roles           | responseCode | numHandlings | Description
+        "role-1"        | "404"        | 0            | "test_normal"
+        "role-0"        | "405"        | 0            | "test_activate_default"
     }
 
-    def "When multi-role-match is set"() {
+    def "When multi-role-match is set (TestMssfsffpnn)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/mf4f4f5f4f5f5pf4f4")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/mf4f4f5f4f5f5pf4f4")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -311,17 +332,21 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles                                | responseCode | numHandlings
-        "role-3,role-5,role-6,role-7"        | "200"        | 1
-        "role-3,role-5,role-6"               | "405"        | 0
-        "role-7,role-8"                      | "200"        | 1
-        "role-7,role-3"                      | "200"        | 1
+        roles                                | responseCode | numHandlings | Description
+        "role-3,role-5,role-6,role-7"        | "200"        | 1            | "test_mssfsffpnn"
+        "role-3,role-5,role-6"               | "405"        | 0            | "test_mssfsffsss"
+        "role-7,role-8"                      | "200"        | 1            | "test_msssssspnn"
+        "role-7,role-3"                      | "200"        | 1            | "test_mssfssspnn_order"
     }
 
-    def "When multi-role-match is set and no validator matches"() {
+    def "When multi-role-match is set and no validator matches (TestMpAndMs)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/mp")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/mp")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -331,15 +356,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-0" | "403"        | 0
-        "role-1" | "200"        | 1
+        roles    | responseCode | numHandlings | Description
+        "role-0" | "403"        | 0            | "test_s"
+        "role-1" | "200"        | 1            | "test_p"
     }
 
-    def "When multi-role-match is set and a fail validator matches the role"() {
+    def "When multi-role-match is set and a fail validator matches the role (TestMf)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/mf4")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/mf4")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -349,14 +378,18 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-1" | "404"        | 0
+        roles    | responseCode | numHandlings | Description
+        "role-1" | "404"        | 0            | "test_f"
     }
 
-    def "When multi-role-match is set and a pass validator matches the role"() {
+    def "When multi-role-match is set and a pass validator matches the role (TestMsp)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/mf4p")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/mf4p")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -366,15 +399,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-2" | "200"        | 1
+        roles    | responseCode | numHandlings | Description
+        "role-2" | "200"        | 1            | "test_msp"
     }
 
     // This TestCase checks that the default runs after skips and failures.
-    def "When multi-role-match is set and a default validator passes the request"() {
+    def "When multi-role-match is set and a default validator passes the request (TestMultimatchMatchDefaults1)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/m-default-1")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/m-default-1")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -384,15 +421,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-3" | "200"        | 1
+        roles    | responseCode | numHandlings | Description
+        "role-3" | "200"        | 1            | "test_ssf_default_p"
     }
 
     // This TestCase checks that the default doesn't overwrite a pass.
-    def "When multi-role-match is set and a matching validator passes the request"() {
+    def "When multi-role-match is set and a matching validator passes the request (TestMultimatchMatchDefaults2)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/m-default-2")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/m-default-2")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -402,15 +443,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-3" | "200"        | 1
+        roles    | responseCode | numHandlings | Description
+        "role-3" | "200"        | 1            | "test_ssp_default_f"
     }
 
     // This TestCase checks that the default is tried before anything else.
-    def "When multi-role-match is set and a matching validator fails the request"() {
+    def "When multi-role-match is set and a matching validator fails the request (TestMultimatchMatchDefaults3)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/m-default-3")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/m-default-3")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -420,15 +465,19 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-3" | "405"        | 0
+        roles    | responseCode | numHandlings | Description
+        "role-3" | "405"        | 0            | "test_ssf_default_f"
     }
 
     //This TestCase checks that the default runs if none of the roles matched.
-    def "When multi-role-match is set and a default validator fails the request"() {
+    def "When multi-role-match is set and a default validator fails the request (TestMultimatchMatchDefaults4)"() {
         setup:
         MessageChain messageChain
-        repose.updateConfigs("features/filters/apivalidator/m-default-4")
+        repose.applyConfigs("features/filters/apivalidator/common",
+                "features/filters/apivalidator/m-default-4")
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint + "/")
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", headers: ["X-Roles": roles])
@@ -438,7 +487,7 @@ class MultimatchTest extends ReposeValveTest {
         messageChain.handlings.size() == numHandlings
 
         where:
-        roles    | responseCode | numHandlings
-        "role-0" | "404"        | 0
+        roles    | responseCode | numHandlings | Description
+        "role-0" | "404"        | 0            | "test_sss_default_f"
     }
 }
