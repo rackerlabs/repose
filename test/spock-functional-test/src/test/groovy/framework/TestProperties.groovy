@@ -11,6 +11,7 @@ class TestProperties {
 
     String reposeJar
     String glassfishJar
+    String reposeRootWar
 
     int reposePort
     int reposeShutdownPort
@@ -40,7 +41,7 @@ class TestProperties {
             }
 
             reposeJar = properties.getProperty("repose.jar")
-
+            reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = properties.getProperty("repose.port").toInteger()
             reposeShutdownPort = properties.getProperty("repose.shutdown.port").toInteger()
 

@@ -24,13 +24,10 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
     void start() {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId} -Drepose-port=${reposePort}"
+        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
         def cmd = "java ${webXmlOverrides} -jar ${glassfishJar} -p ${reposePort} -w ${rootWarLocation}"
-        if (!connFramework.isEmpty()) {
-            cmd = cmd + " -cf ${connFramework}"
-        }
-        cmd = cmd + " start"
+//        cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({ cmd.execute() });
