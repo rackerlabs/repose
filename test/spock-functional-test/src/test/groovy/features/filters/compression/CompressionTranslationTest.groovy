@@ -1,7 +1,5 @@
 package features.filters.compression
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
@@ -10,7 +8,6 @@ import spock.lang.Unroll
 import java.util.zip.Deflater
 import java.util.zip.GZIPOutputStream
 
-@Category(Slow.class)
 class CompressionTranslationTest extends ReposeValveTest {
     def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
             "malesuada. Integer nec est turpis duis."
