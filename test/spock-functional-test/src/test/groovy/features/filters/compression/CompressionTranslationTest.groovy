@@ -1,9 +1,5 @@
 package features.filters.compression
-
 import framework.ReposeValveTest
-import framework.category.Bug
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
@@ -12,7 +8,6 @@ import spock.lang.Unroll
 import java.util.zip.Deflater
 import java.util.zip.GZIPOutputStream
 
-@Category(Slow.class)
 class CompressionTranslationTest extends ReposeValveTest {
     def static String content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pretium non mi ac " +
             "malesuada. Integer nec est turpis duis."
@@ -65,7 +60,7 @@ class CompressionTranslationTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("Requesting with XML Entities: #reqBody")
     def "when translating request"() {
 
         when: "User sends requests through repose"
@@ -85,7 +80,7 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("Removing Content-Encoding Header from Request after passing through Compression: #encoding")
     def "when a compressed request is sent from Origin to Repose, Content-Encoding header is removed after decompression"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
@@ -113,7 +108,7 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("content-encoding: #encoding")
     def "when a decompressed request is sent from Origin to Repose when compression fails"() {
         given:
         def decompressedHandler = {request -> return new Response(200, "OK", zippedContent.trim())}
@@ -139,7 +134,7 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("encoding: #encoding response code: #responseCode")
     def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
@@ -159,7 +154,7 @@ class CompressionTranslationTest extends ReposeValveTest {
         "identity"  | content         | falseZip       | '200'        | 1
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("No compression when entity length is less than threshold. encoding: #encoding")
     def "when an decompressed request is sent from Origin to Repose, do not compress below threshold"() {
         given:
         def decompressedHandler = {request -> return new Response(200, "OK", [],"nocompress")}
@@ -185,14 +180,13 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Category(Bug)
-    @Unroll("encoding: #encoding")
+    @Unroll("Do not compress with user-agent 'test'. encoding: #encoding")
     def "when an decompressed request is sent from Origin to Repose, do not compress for excluded user agent specified in client request"() {
         given:
         def decompressedHandler = {request -> return new Response(200, "OK", ['User-Agent':'test'],content)}
 
         when: "the decompressed content is sent to the origin service through Repose with encoding " + encoding
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, headers: ['accept-encoding': encoding], defaultHandler: decompressedHandler])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, headers: ['accept-encoding': encoding,'User-Agent':'test'], defaultHandler: decompressedHandler])
 
 
         then: "the compressed content should be compressed and the accept-encoding header should be absent"
@@ -212,8 +206,7 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Category(Bug)
-    @Unroll("encoding: #encoding")
+    @Unroll("Do not compress for content-type application/form encoding: #encoding")
     def "when an decompressed request is sent from Origin to Repose, do not compress for excluded content type"() {
         given:
         def decompressedHandler = {request -> return new Response(200, "OK", ['content-type':'application/form'],content)}
@@ -225,9 +218,8 @@ class CompressionTranslationTest extends ReposeValveTest {
         then: "the compressed content should be compressed and the accept-encoding header should be absent"
         mc.handlings.size == 1
         !mc.receivedResponse.headers.contains("Content-Encoding")
-        mc.receivedResponse.headers.contains("Accept-Encoding")
-        assert(mc.handlings[0].response.body == mc.receivedResponse.body)
-        assert(mc.receivedResponse.body.toString().trim().equals(content))
+        assert(((String)mc.handlings.get(0).response.body).getBytes() == mc.receivedResponse.body)
+        mc.receivedResponse.body == content.getBytes()
 
         where:
         encoding << [
@@ -239,7 +231,7 @@ class CompressionTranslationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("encoding: #encoding")
+    @Unroll("Content-encoding header should not be present. encoding: #encoding")
     def "when an uncompressed request is sent to Repose, Content-Encoding header is never present"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
         def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
