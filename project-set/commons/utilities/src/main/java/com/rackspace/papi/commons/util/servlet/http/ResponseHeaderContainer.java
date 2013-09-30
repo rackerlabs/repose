@@ -1,71 +1,84 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
+import com.rackspace.papi.commons.util.http.header.SplittableHeaderUtil;
+
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 public class ResponseHeaderContainer implements HeaderContainer {
 
-  private final HttpServletResponse response;
-  private final List<String> headerNames;
-  private final Map<String, List<HeaderValue>> headerValues;
+    private final HttpServletResponse response;
+    private final List<String> headerNames;
+    private final Map<String, List<HeaderValue>> headerValues;
+    private SplittableHeaderUtil splitable;
 
-  public ResponseHeaderContainer(HttpServletResponse response) {
-    this.response = response;
-    this.headerNames = extractHeaderNames();
-    this.headerValues = extractHeaderValues();
-  }
-
-  private List<String> extractHeaderNames() {
-    List<String> result = new LinkedList<String>();
-    if (response != null) {
-      Collection<String> names = response.getHeaderNames();
-
-      for (String name : names) {
-        result.add(name.toLowerCase());
-      }
+    public ResponseHeaderContainer(HttpServletResponse response) {
+        this.response = response;
+        splitable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+                ExtendedHttpHeader.values());
+        this.headerNames = extractHeaderNames();
+        this.headerValues = extractHeaderValues();
     }
 
-    return result;
-  }
+    private List<String> extractHeaderNames() {
+        List<String> result = new LinkedList<String>();
+        if (response != null) {
+            Collection<String> names = response.getHeaderNames();
 
-  private Map<String, List<HeaderValue>> extractHeaderValues() {
-    Map<String, List<HeaderValue>> valueMap = new HashMap<String, List<HeaderValue>>();
+            for (String name : names) {
+                result.add(name.toLowerCase());
+            }
+        }
 
-    if (response != null) {
-      for (String name : getHeaderNames()) {
-        HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
-        valueMap.put(name, parser.parse());
-      }
+        return result;
     }
 
-    return valueMap;
-  }
+    private Map<String, List<HeaderValue>> extractHeaderValues() {
+        Map<String, List<HeaderValue>> valueMap = new HashMap<String, List<HeaderValue>>();
 
-  @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
-  @Override
-  public List<String> getHeaderNames() {
-    return headerNames;
-  }
+        if (response != null) {
+            for (String name : getHeaderNames()) {
+                if (splitable.isSplitable(name)) {
 
-  @Override
-  public List<HeaderValue> getHeaderValues(String name) {
-    return headerValues.get(name);
-  }
+                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
+                    valueMap.put(name, parser.parse());
+                }else{
+                    List<HeaderValue> values = new ArrayList<HeaderValue>();
+                    values.add(new HeaderValueImpl(response.getHeader(name)));
+                    valueMap.put(name, values);
 
-  @Override
-  public boolean containsHeader(String name) {
-    List<HeaderValue> values = getHeaderValues(name);
-    return values != null && !values.isEmpty();
-  }
+                }
+            }
+        }
 
-  @Override
-  public HeaderContainerType getContainerType() {
-    return HeaderContainerType.RESPONSE;
-  }
+        return valueMap;
+    }
+
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
+    @Override
+    public List<String> getHeaderNames() {
+        return headerNames;
+    }
+
+    @Override
+    public List<HeaderValue> getHeaderValues(String name) {
+        return headerValues.get(name);
+    }
+
+    @Override
+    public boolean containsHeader(String name) {
+        List<HeaderValue> values = getHeaderValues(name);
+        return values != null && !values.isEmpty();
+    }
+
+    @Override
+    public HeaderContainerType getContainerType() {
+        return HeaderContainerType.RESPONSE;
+    }
 }

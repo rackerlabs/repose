@@ -5,12 +5,12 @@ import com.rackspace.papi.commons.util.http.OpenStackServiceHeader
 import com.rackspace.papi.commons.util.http.PowerApiHeader
 import org.junit.Test
 
-class SplitableHeaderUtilTest {
+class SplittableHeaderUtilTest {
 
     @Test
     void testSplitable() {
 
-        SplitableHeaderUtil splitable = new SplitableHeaderUtil();
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
         assert splitable.isSplitable("Via")
         assert splitable.isSplitable("VIA")
@@ -21,7 +21,7 @@ class SplitableHeaderUtilTest {
     @Test
     void testUnSplitable(){
 
-        SplitableHeaderUtil splitable = new SplitableHeaderUtil();
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
         assert !splitable.isSplitable("unsplitable")
     }
@@ -29,7 +29,7 @@ class SplitableHeaderUtilTest {
     @Test
     void testLargSplitableList(){
 
-        SplitableHeaderUtil splitable = new SplitableHeaderUtil(PowerApiHeader.values())
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values())
 
         assert splitable.isSplitable("x-pp-user")
 
@@ -38,7 +38,7 @@ class SplitableHeaderUtilTest {
     @Test
     void testSplitableList(){
 
-        SplitableHeaderUtil splitable = new SplitableHeaderUtil(PowerApiHeader.USER)
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.USER)
 
         assert splitable.isSplitable("x-pp-user")
 
@@ -47,7 +47,7 @@ class SplitableHeaderUtilTest {
         @Test
     void testLargerSplitableList(){
 
-        SplitableHeaderUtil splitable = new SplitableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
         ExtendedHttpHeader.values())
 
         assert splitable.isSplitable("x-pp-user")

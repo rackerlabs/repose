@@ -150,7 +150,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeIdentityService.ok = false
         fakeIdentityService.validateTokenCount = 0
         fakeAtomFeed.hasEntry = true
-        atomEndpoint._defaultHandler = fakeAtomFeed.handler
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
 
 
