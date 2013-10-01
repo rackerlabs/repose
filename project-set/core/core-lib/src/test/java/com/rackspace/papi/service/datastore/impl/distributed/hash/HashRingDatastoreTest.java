@@ -59,7 +59,7 @@ public class HashRingDatastoreTest {
         public void shouldCatchDOExceptionFromIsRemoteTarget() throws Exception {
             when(clusterView.members()).thenReturn(
                     new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
-            when(localDatastore.get(any(String.class))).thenThrow(new DatastoreOperationException("")).thenReturn(mock(StoredElementImpl.class));
+            when(localDatastore.get(any(String.class))).thenThrow(new DatastoreOperationException("")).thenReturn(storedElement);
 
             hashRingDatastore.get("", new byte[]{0}, RemoteBehavior.ALLOW_FORWARDING);
 
