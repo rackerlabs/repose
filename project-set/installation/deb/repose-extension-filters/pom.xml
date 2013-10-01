@@ -3,7 +3,7 @@
     <parent>
         <artifactId>deb</artifactId>
         <groupId>com.rackspace.repose.installation.deb</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.10.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -5,12 +5,12 @@
    <parent>
       <groupId>com.rackspace.papi</groupId>
       <artifactId>profile-support</artifactId>
-      <version>2.9.1-SNAPSHOT</version>
+      <version>2.10.1-SNAPSHOT</version>
    </parent>
 
    <groupId>com.rackspace.papi.commons</groupId>
    <artifactId>commons-support</artifactId>
-   <version>2.9.1-SNAPSHOT</version>
+   <version>2.10.1-SNAPSHOT</version>
         
    <name>Repose Commons - Commons Support</name>
 
@@ -28,7 +28,7 @@
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
-            <version>2.9.1-SNAPSHOT</version>
+            <version>2.10.1-SNAPSHOT</version>
          </dependency>
             
          <dependency>
