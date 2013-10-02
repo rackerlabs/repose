@@ -1,10 +1,13 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.FilterProcessingTime;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
+import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author fran
@@ -40,9 +44,11 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
+    private MetricsService metricsService;
+    private MeterByCategory mbcFilterProcessingTime;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
-            ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo)
+            ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
@@ -50,6 +56,10 @@ public class PowerFilterChain implements FilterChain {
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.resourceMonitor = resourceMontior;
         this.router = router;
+        this.metricsService = metricsService;
+        if (metricsService != null) {
+            mbcFilterProcessingTime = metricsService.newMeterByCategory(FilterProcessingTime.class, "PowerFilterChain", "ProcessingTime", TimeUnit.SECONDS);
+        }
         Thread.currentThread().setName(instanceInfo.toString());
     }
 
@@ -183,7 +193,10 @@ public class PowerFilterChain implements FilterChain {
             long start = tracer.traceEnter();
             setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
-            tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
+            long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
+            if (mbcFilterProcessingTime != null) {
+                mbcFilterProcessingTime.mark(filter.getName(), delay);
+            }
         } else {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
