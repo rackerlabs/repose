@@ -49,13 +49,13 @@ public class PowerFilterChain implements FilterChain {
     private Timer filterProcessingTime;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
-            ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
+            ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
-        this.resourceMonitor = resourceMontior;
+        this.resourceMonitor = resourceMonitor;
         this.router = router;
         this.metricsService = metricsService;
         if (metricsService != null) {
