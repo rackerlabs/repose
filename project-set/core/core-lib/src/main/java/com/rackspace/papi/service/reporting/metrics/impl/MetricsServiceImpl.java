@@ -110,6 +110,10 @@ public class MetricsServiceImpl implements MetricsService {
         return metrics.newCounter( makeMetricName( klass, name, scope ) );
     }
 
+    @Override
+    public Timer newTimer( Class klass, String name, String scope, TimeUnit duration, TimeUnit rate ) {
+        return metrics.newTimer( makeMetricName( klass, name, scope ), duration, rate );
+    }
 
     @Override
     public MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit ) {
