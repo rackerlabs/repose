@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+
 import java.util.Date;
 
 public class RequestTracer {
@@ -22,15 +23,13 @@ public class RequestTracer {
         return new Date().getTime() - requestStart;
     }
 
-    public long traceExit(MutableHttpServletResponse response, String filterName, long myStart) {
+    public void traceExit(MutableHttpServletResponse response, String filterName, long myStart) {
         if (!trace) {
-            return Long.MIN_VALUE;
+            return;
         }
         long totalRequestTime = new Date().getTime() - requestStart;
         long myTime = totalRequestTime - myStart - accumulatedTime;
         accumulatedTime += myTime;
         response.addHeader("X-" + filterName + "-Time", myTime + "ms");
-
-        return myTime;
     }
 }

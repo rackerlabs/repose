@@ -6,8 +6,9 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
-import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.yammer.metrics.core.Timer;
+import com.yammer.metrics.core.TimerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class PowerFilterChain implements FilterChain {
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private MetricsService metricsService;
-    private MeterByCategory mbcFilterProcessingTime;
+    private Timer filterProcessingTime;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
             ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
@@ -58,7 +59,8 @@ public class PowerFilterChain implements FilterChain {
         this.router = router;
         this.metricsService = metricsService;
         if (metricsService != null) {
-            mbcFilterProcessingTime = metricsService.newMeterByCategory(FilterProcessingTime.class, "PowerFilterChain", "ProcessingTime", TimeUnit.SECONDS);
+            filterProcessingTime = metricsService.newTimer(FilterProcessingTime.class, "testName", "testScope",
+                    TimeUnit.SECONDS, TimeUnit.SECONDS);
         }
         Thread.currentThread().setName(instanceInfo.toString());
     }
@@ -191,12 +193,16 @@ public class PowerFilterChain implements FilterChain {
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);
             long start = tracer.traceEnter();
-            setStartTimeForHttpLogger(start, mutableHttpRequest);
-            doReposeFilter(mutableHttpRequest, servletResponse, filter);
-            long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
-            if (mbcFilterProcessingTime != null) {
-                mbcFilterProcessingTime.mark(filter.getName(), delay);
+            if (filterProcessingTime != null) {
+                TimerContext timerContext = filterProcessingTime.time();
+                setStartTimeForHttpLogger(start, mutableHttpRequest);
+                doReposeFilter(mutableHttpRequest, servletResponse, filter);
+                timerContext.stop();
+            } else {
+                setStartTimeForHttpLogger(start, mutableHttpRequest);
+                doReposeFilter(mutableHttpRequest, servletResponse, filter);
             }
+            tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
         } else {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
