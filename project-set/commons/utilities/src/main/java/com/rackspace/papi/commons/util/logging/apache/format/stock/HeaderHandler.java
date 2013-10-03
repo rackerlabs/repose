@@ -38,7 +38,7 @@ public abstract class HeaderHandler {
    protected String convert(String value) {
       if (converter != null) {
          // TODO handle quality?
-         return converter.convert(value, outputFormat, inputFormat);
+         return converter.convert(value, inputFormat, outputFormat);
       }
       return value;
    }
