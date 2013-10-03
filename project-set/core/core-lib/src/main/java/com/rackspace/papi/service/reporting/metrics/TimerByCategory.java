@@ -1,5 +1,9 @@
 package com.rackspace.papi.service.reporting.metrics;
 
+import com.yammer.metrics.core.TimerContext;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * Interface to allow different TimerByCategory implementations to be used interchangeably.
  * <p>
@@ -11,6 +15,6 @@ package com.rackspace.papi.service.reporting.metrics;
  */
 public interface TimerByCategory {
 
-    //TODO
-
+    void update(String key, long duration, TimeUnit unit);
+    TimerContext time(String key);
 }

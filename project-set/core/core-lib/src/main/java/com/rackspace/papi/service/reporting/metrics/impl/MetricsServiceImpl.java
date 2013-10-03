@@ -117,9 +117,8 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public TimerByCategory newTimerByCategory( Class klass, String name, String scope, TimeUnit duration, TimeUnit rate ) {
-        // TODO
-        // return metrics.newTimer( makeMetricName( klass, name, scope ), duration, rate );
+    public TimerByCategory newTimerByCategory( Class klass, String scope, TimeUnit duration, TimeUnit rate ) {
+        return new TimerByCategoryImpl( this, klass, scope, duration, rate );
     }
 
     @Override

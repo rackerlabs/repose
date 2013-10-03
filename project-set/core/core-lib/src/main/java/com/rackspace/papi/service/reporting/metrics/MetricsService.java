@@ -23,6 +23,7 @@ public interface MetricsService extends Destroyable{
     MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit );
     Counter newCounter( Class klass, String name, String scope );
     Timer newTimer(Class klass, String name, String scope, TimeUnit duration, TimeUnit rate );
+    TimerByCategory newTimerByCategory(Class klass, String scope, TimeUnit duration, TimeUnit rate );
     void addGraphiteServer( String host, int port, long period, String prefix ) throws IOException;
     void shutdownGraphite();
     void destroy();
