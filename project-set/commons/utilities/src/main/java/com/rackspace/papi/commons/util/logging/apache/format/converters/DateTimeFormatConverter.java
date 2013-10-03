@@ -12,7 +12,7 @@ public class DateTimeFormatConverter implements FormatConverter {
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DateTimeFormatConverter.class);
 
    @Override
-   public String convert(String value, String outputFormat, String inputFormat) {
+   public String convert(String value, String inputFormat, String outputFormat) {
 
       if (!StringUtilities.isBlank(value) && !StringUtilities.isBlank(outputFormat)) {
          try {
