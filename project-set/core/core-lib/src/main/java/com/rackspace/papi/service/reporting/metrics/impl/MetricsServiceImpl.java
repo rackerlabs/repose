@@ -2,6 +2,7 @@ package com.rackspace.papi.service.reporting.metrics.impl;
 
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.*;
 import com.yammer.metrics.reporting.JmxReporter;
@@ -113,6 +114,12 @@ public class MetricsServiceImpl implements MetricsService {
     @Override
     public Timer newTimer( Class klass, String name, String scope, TimeUnit duration, TimeUnit rate ) {
         return metrics.newTimer( makeMetricName( klass, name, scope ), duration, rate );
+    }
+
+    @Override
+    public TimerByCategory newTimerByCategory( Class klass, String name, String scope, TimeUnit duration, TimeUnit rate ) {
+        // TODO
+        // return metrics.newTimer( makeMetricName( klass, name, scope ), duration, rate );
     }
 
     @Override

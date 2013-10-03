@@ -19,6 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,7 @@ public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
+    private final HashMap<String, Timer> filterTimerMap;
     private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
@@ -46,22 +48,18 @@ public class PowerFilterChain implements FilterChain {
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
     private MetricsService metricsService;
-    private Timer filterProcessingTime;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
             ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
+        this.filterTimerMap = new HashMap<String, Timer>();
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.resourceMonitor = resourceMonitor;
         this.router = router;
         this.metricsService = metricsService;
-        if (metricsService != null) {
-            filterProcessingTime = metricsService.newTimer(FilterProcessingTime.class, "testName", "testScope",
-                    TimeUnit.SECONDS, TimeUnit.SECONDS);
-        }
         Thread.currentThread().setName(instanceInfo.toString());
     }
 
@@ -193,8 +191,8 @@ public class PowerFilterChain implements FilterChain {
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);
             long start = tracer.traceEnter();
-            if (filterProcessingTime != null) {
-                TimerContext timerContext = filterProcessingTime.time();
+            if (metricsService != null) {
+                TimerContext timerContext = verifyGet(filter.getName()).time();
                 setStartTimeForHttpLogger(start, mutableHttpRequest);
                 doReposeFilter(mutableHttpRequest, servletResponse, filter);
                 timerContext.stop();
@@ -208,5 +206,22 @@ public class PowerFilterChain implements FilterChain {
             doRouting(mutableHttpRequest, servletResponse);
             tracer.traceExit(mutableHttpResponse, "route", start);
         }
+    }
+
+    private Timer verifyGet(String key) {
+        //assert metricsService != null;
+
+        if ( !filterTimerMap.containsKey( key ) )
+
+            synchronized ( this ) {
+
+                if ( !filterTimerMap.containsKey( key ) ) {
+
+                    filterTimerMap.put( key, metricsService.newTimer(FilterProcessingTime.class, "testName", key,
+                            TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS) );
+                }
+            }
+
+        return filterTimerMap.get( key );
     }
 }
