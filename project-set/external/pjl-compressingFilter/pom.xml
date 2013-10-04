@@ -3,14 +3,14 @@
     <parent>
         <groupId>com.rackspace.papi.external</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.10.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pjl-compressingFilter</artifactId>
     <groupId>com.rackspace.papi.external</groupId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.10.1-SNAPSHOT</version>
 
     <name>PlanetJ CompressingFilter</name>
 

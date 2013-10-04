@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.10.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>repose-spock-tests</artifactId>
-    <version>2.9.1-SNAPSHOT</version>
+    <version>2.10.1-SNAPSHOT</version>
 
     <name>Repose Tests - Spock Functional Tests</name>
 
@@ -127,7 +127,7 @@
         <dependency>
             <groupId>com.rackspace.papi.external.testing</groupId>
             <artifactId>test-glassfish-container</artifactId>
-            <version>2.9.1-SNAPSHOT</version>
+            <version>2.10.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -384,7 +384,7 @@
                 <artifactId>gmaven-plugin</artifactId>
                 <version>${gmaven.version}</version>
                 <configuration>
-                    <source/>
+                    <source />
                     <providerSelection>1.8</providerSelection>
                 </configuration>
                 <dependencies>
