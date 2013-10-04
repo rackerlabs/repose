@@ -72,7 +72,7 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            tracer = new RequestTracer(traceRequest(request));
+            tracer = new RequestTracer(traceRequest(request) || metricsService != null, traceRequest(request));
             currentFilters = getFilterChainForRequest(request.getRequestURI());
             filterChainAvailable = isCurrentFilterChainAvailable();
             servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
@@ -194,20 +194,22 @@ public class PowerFilterChain implements FilterChain {
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);
             long start = tracer.traceEnter();
-            if (filterTimer != null) {
-                TimerContext timerContext = filterTimer.time(filter.getName());
-                setStartTimeForHttpLogger(start, mutableHttpRequest);
-                doReposeFilter(mutableHttpRequest, servletResponse, filter);
-                timerContext.stop();
+            setStartTimeForHttpLogger(start, mutableHttpRequest);
+            doReposeFilter(mutableHttpRequest, servletResponse, filter);
+            if( filterTimer != null) {
+                filterTimer.update(filter.getFilterConfig().getName(), tracer.traceExit(mutableHttpResponse,
+                        filter.getFilterConfig().getName(), start), TimeUnit.MILLISECONDS);
             } else {
-                setStartTimeForHttpLogger(start, mutableHttpRequest);
-                doReposeFilter(mutableHttpRequest, servletResponse, filter);
+                tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
             }
-            tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
         } else {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
-            tracer.traceExit(mutableHttpResponse, "route", start);
+            if (filterTimer != null) {
+                filterTimer.update("route", tracer.traceExit(mutableHttpResponse, "route", start), TimeUnit.MILLISECONDS);
+            } else {
+                tracer.traceExit(mutableHttpResponse, "route", start);
+            }
         }
     }
 }
