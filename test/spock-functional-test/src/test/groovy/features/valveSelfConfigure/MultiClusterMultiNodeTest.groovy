@@ -8,11 +8,8 @@ import org.rackspace.gdeproxy.DeproxyEndpoint
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
-/**
- * Created with IntelliJ IDEA.
- * User: izrik
- *
- */
+
+
 class MultiClusterMultiNodeTest extends Specification {
 
     int endpointPort1
