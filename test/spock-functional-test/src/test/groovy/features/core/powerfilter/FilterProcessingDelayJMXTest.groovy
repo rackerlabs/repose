@@ -31,13 +31,22 @@ class FilterProcessingDelayJMXTest extends ReposeValveTest {
     }
 
     def "when a request is sent through Repose, should record per filter delay metrics"() {
+        given:
+        def ipIdentityCount = repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count")
+        def apiValidatorCount = repose.jmx.getMBeanAttribute(API_VALIDATOR, "Count")
+
+        if (ipIdentityCount == null)
+            ipIdentityCount = 0
+        if (apiValidatorCount == null)
+            apiValidatorCount = 0
+
         when:
         deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "GET", headers: ["X-Roles" : "role-1"],
                 defaultHandler: handler)
 
         then:
-        repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count")  > 0
-        repose.jmx.getMBeanAttribute(API_VALIDATOR, "Count")  > 0
+        repose.jmx.getMBeanAttribute(IP_IDENTITY, "Count")  == ipIdentityCount + 1
+        repose.jmx.getMBeanAttribute(API_VALIDATOR, "Count")  == apiValidatorCount + 1
         repose.jmx.getMBeanAttribute(IP_IDENTITY, "Mean") > 0
         repose.jmx.getMBeanAttribute(API_VALIDATOR, "Mean") > 0
     }
