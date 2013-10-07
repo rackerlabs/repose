@@ -3,7 +3,9 @@
     <repose-cluster id="repose1">
 
         <nodes>
-            <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+            <node id="node1" hostname="localhost" http-port="${repose_port1}"/>
+            <node id="node2" hostname="localhost" http-port="${repose_port2}"/>
+
         </nodes>
 
         <filters>
