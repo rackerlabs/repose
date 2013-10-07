@@ -126,12 +126,12 @@ public class MetricsServiceImplTest {
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).longValue() > 0L);
+            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update(1000L, TimeUnit.MILLISECONDS);
 
             assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).longValue() > 0L);
+            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test
@@ -196,7 +196,7 @@ public class MetricsServiceImplTest {
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).longValue() > 0);
+            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             tc = t.time("key2");
             try {
@@ -205,17 +205,17 @@ public class MetricsServiceImplTest {
             tc.stop();
 
             assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).longValue() > 0L);
+            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key1", 1000L, TimeUnit.MILLISECONDS);
 
             assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).longValue() > 0L);
+            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key2", 1000L, TimeUnit.MILLISECONDS);
 
             assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).longValue() > 0L);
+            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test( expected = IllegalArgumentException.class )
