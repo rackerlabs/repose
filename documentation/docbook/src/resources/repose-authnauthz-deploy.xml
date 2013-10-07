@@ -39,8 +39,8 @@
     xmlns:db="http://docbook.org/ns/docbook"
     xml:id="Repose-AuthNZ-Deployment-Guide">
     <?rax pdf.url="../../repose-authnauthz-deploy.pdf"?>
-    <title>&PRODNAME; Auth-N &amp; Auth-Z Component Deployment
-        Handbook</title>
+    <title>&PRODNAME; Authentication &amp; Authorization Component
+        Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
@@ -134,14 +134,13 @@
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>About This Document</title>
-        <para> The purpose of this handbook is to facilitate
-            deployment of &PRODNAME;'s client authentication and
-            authorization components. This handbook is not a tutorial.
-            It provides basic information that will help you
-            understand and deploy these &PRODNAME; components, but you
-            must adapt this information to suit your own
-            configuration. </para>
-        <para> This handbook is focused on two closely-related
+        <para>The purpose of this handbook is to facilitate deployment
+            of the &PRODNAME; Authentication and Authorization
+            components. This handbook is not a tutorial. It provides
+            basic information that will help you understand and deploy
+            these &PRODNAME; components, but you must adapt this
+            information to suit your own configuration. </para>
+        <para>This handbook is focused on two closely-related
             &PRODNAME; components. Other &PRODNAME; components are
             documented in companion handbooks. </para>
         <section xml:id="Document_Change_History-d1e102">
@@ -186,7 +185,7 @@
             processes are commonly used by software that requires
             users to register their identities and subscribe to
             specific services. </para>
-        <para>Using the Repose authentication and authorization
+        <para>Using the Repose Authentication and Authorization
             components improves origin service security by ensuring
             that all requests that reach the origin service are from
             valid clients with permissions to use that service.</para>
@@ -194,10 +193,10 @@
 
         <para><emphasis role="bold">Authentication
                 Component</emphasis></para>
-        <para>Repose's Client Authentication component handles
+        <para>The Repose Authentication component handles
             authentication by calling the authentication service and
             forwarding the authentication information to the origin
-            service.  The Repose Authentication Component can:</para>
+            service. The Authentication component can:</para>
         <itemizedlist>
             <listitem>
                 <para>Reduce load on the origin service by caching tokens.</para>
@@ -220,41 +219,14 @@
     </chapter>
     <chapter xml:id="Authentication-Configuration-in-Repose-001">
         <title>How Is Repose Authentication Configured?</title>
-        <para>You can configure your service to use Repose's
-            authentication component to validate the identities of
-            your users. </para>
+        <para>You can configure your service to use the Authentication
+            component to validate the identities of your users. </para>
         <para>Client authentication is divided into modules which
             represent different authentication schemes. Depending on
             the Repose components being deployed, the authentication
             configuration may change. In the following example, we are
             configuring the client-auth Repose component to interact
             with the Rackspace Cloud Authentication Service. </para>
-        
-        
-         <example>
-            <title>Client Authentication Configuration: XSD</title>
-        <programlistingco>
-            <areaspec>
-                <area xml:id="repose-authn.xsd.uripattern"
-                    units="linecolumn" coords="28 40"/>
-                <area xml:id="repose-authn.xsd.uri-regex"
-                    units="linecolumn" coords="34 30"/>
-                <area xml:id="repose-authn.xsd.whitelist"
-                    units="linecolumn" coords="45 39"/>
-                <area xml:id="repose-authn.xsd.minOccurs"
-                    units="linecolumn" coords="52 71"/>
-                <area xml:id="repose-authn.xsd.atom-feed"
-                    units="linecolumn" coords="77 38"/>
-                <area xml:id="repose-authn.xsd.id"
-                    units="linecolumn" coords="86 27"/>
-            </areaspec>    
-        
-        <programlisting language="xml">
-<xi:include href="samples/client-auth-n-configuration.xsd.txt" parse="text"/>
-                </programlisting>
-        </programlistingco>
-      </example>
-        
         
         <example>
            
@@ -350,11 +322,7 @@
                     depending on the requirements of the
                     authentication service, so you should refer to the
                     documentation describing the authentication
-                    service that you use. For example, the Rackspace
-                    Cloud Authentication Service v1.1 is documented at
-                        <link
-                        xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf"
-                        >http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf</link>. </para>
+                    service that you use. </para>
                 <para> </para>
             </callout>
         </calloutlist>
@@ -375,18 +343,17 @@
             <title>Authentication Scheme with the OpenStack Identity
                 Service</title>
            
-                <para>The &PRODNAME; client authentication component
-                is designed to work with the OpenStack Identity
-                Service authentication scheme. Using this
-                authentication scheme, the &PRODNAME; client
-                authentication component may be configured to interact
-                with Keystone, OpenStack's Identity Service, when
-                validating user credentials. To learn more about the
-                supported authentication scheme, read the 
-            <link
-                linkend="Authorization_Scheme_OpenStack_Identity-d1e325"
-                >OpenStack
-                Identity Service API v2.0 Reference.</link></para>
+                <para>The &PRODNAME; Authentication component is
+                designed to work with the OpenStack Identity Service
+                authentication scheme. Using this authentication
+                scheme, the Authentication component may be configured
+                to interact with Keystone, OpenStack's Identity
+                Service, when validating user credentials. To learn
+                more about the supported authentication scheme, read
+                the <link
+                    linkend="Authorization_Scheme_OpenStack_Identity-d1e325"
+                    >OpenStack Identity Service API v2.0
+                    Reference.</link></para>
             
             
                 <figure
@@ -402,109 +369,87 @@
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para> At a high level, the request/response lifecycle
-                    is: <orderedlist>
-                        <listitem>
-                            <para>The client authentication component
-                                receives a request from the
-                                client.</para>
-                            <para> The incoming HTTP request must have
-                                a URI and a token in the
-                                   <code>X-Auth-Token</code> request
-                                header. The URI may contain the tenant
-                                ID. </para>
-                        </listitem>
-                        <listitem>
-                            <para>The authentication component parses
-                                the URI in the request, extracting the
-                                tenant ID and token.</para>
-                            <para> &PRODNAME;'s authentication
-                                component parses the URI using a
-                                configurable regular expression
-                                   (<code>id-reg</code> in the
-                                   <code>client-auth-n-cfg.xml</code>
-                                file) to extract the tenant ID. If the
-                                tenant ID is missing, &PRODNAME; does
-                                not call the external authentication
-                                component; instead, &PRODNAME; sets
-                                the <code>X-Authorization</code>
-                                header with no user entry (for
-                                example, <code>X-Authorization:
-                                   Proxy</code>). If the origin
-                                service is configured to run in
-                                delegated mode, then the
-                                   <code>X-Identity-Status</code> HTTP
-                                header is set to a value of
-                                   <code>Indeterminate</code>. The
-                                request is then passed along to the
-                                origin service with the
-                                   <code>X-Authorization</code> and
-                                   <code>X-Identity-Status</code>
-                                request headers set as described
-                                above. </para>
-                            <para> The &PRODNAME; client
-                                authentication component identifies
-                                whether the origin service is in
-                                delegated mode based on the Boolean
-                                value of the <code>delegable</code>
-                                attribute in the
-                                   <code>client-auth-n-cfg.xml</code>
-                                file. </para>
-                            <para> If the tenant ID is missing and the
-                                origin service is not running in
-                                delegated mode
-                                   (<code>delegable="false"</code> in
-                                the <code>client-auth-n-cfg.xml</code>
-                                file), then the &PRODNAME; client
-                                authentication component does not
-                                forward the request to the origin
-                                service. Instead, the &PRODNAME;
-                                client authentication component
-                                returns a <errorcode>401</errorcode>
-                                to the client. </para>
-                            <para> The incoming HTTP request's
-                                   <code>X-Auth-Token</code> header
-                                does not have an authentication token,
-                                then &PRODNAME; performs the same
-                                steps as when the tenant ID is
-                                missing. Both the tenant ID and the
-                                   <code>X-Auth-Token</code> must be
-                                present before &PRODNAME; attempts to
-                                validate user credentials. </para>
-                        </listitem>
-                        <listitem>
-                            <para>&PRODNAME; sends a token validation
-                                request to an external authentication
-                                service.</para>
-                            <para> If the &PRODNAME; authentication
-                                component successfully obtains the
-                                tenant ID and the token from the
-                                request, then &PRODNAME; sends a
-                                request to the external authentication
-                                service. </para>
-                            <para>The &PRODNAME; authentication
-                                component handles the response from
-                                the origin service as described in the
-                                "Authentication in OpenStack"
-                                blueprint at <link
-                                   xlink:href="http://wiki.openstack.org/openstack-authn"
-                                   >http://wiki.openstack.org/openstack-authn</link>.
+                <para> The request/response lifecycle is: <orderedlist>
+                    <listitem>
+                        <para> The client sends a request with the
+                            user token to the Repose Authentication
+                            component. </para>
+                        <para> The incoming HTTP request must have a
+                            URI and a token in the
+                                <code>X-Auth-Token</code> request
+                            header. The URI may contain the tenant ID.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>Repose parses the URI token to extract the tenant ID. 
+                            If the token is missing, the authentication component 
+                            rejects the request.  
                             </para>
-                        </listitem>
-                        <listitem>
-                            <para>The &PRODNAME; authentication
-                                component returns the request to the
-                                &PRODNAME; component chain for further
-                                processing.</para>
-                        </listitem>
-                        <listitem>
-                            <para>When all processing is complete,
-                                either the request is passed on to the
-                                origin service or a response is sent
-                                to the client.</para>
-                        </listitem>
-                    </orderedlist>
-                </para>
+                        
+                    </listitem>
+                    <listitem>
+                        <para> Repose sends the token validation
+                            request to an external authentication
+                            service. </para>
+                    </listitem>
+                    <listitem>
+                        <para> The authentication service validates
+                            the token. </para>
+                    </listitem>
+                    <listitem>
+                        <para>The authentication service sends the
+                            token information back to Repose if the
+                            token is valid.</para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose caches the token. </para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose requests the user groups from
+                            the authentication service. </para>
+                    </listitem>
+                    <listitem>
+                        <para> The authentication service retrieves
+                            the user groups. </para>
+                    </listitem>
+                    <listitem>
+                        <para> The authentication service sends the
+                            user groups to Repose. </para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose caches the user groups and sets
+                            the headers. </para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose forwards the request with the
+                            following additional headers: </para>
+                        <itemizedlist>
+                            <listitem><para>X-Authorization</para></listitem>
+                            <listitem><para>X-Tenant-Name</para></listitem>
+                            <listitem><para>X-User-Name</para></listitem>
+                            <listitem><para>X-User-Id</para></listitem>
+                            <listitem><para>X-Roles</para></listitem>
+                            <listitem><para>X-Token Expires</para></listitem>
+                            <listitem><para>X-Catalog</para></listitem>
+                            <listitem><para>X-PP-User</para></listitem>
+                            <listitem><para>X-PP-Groups</para></listitem>
+                        </itemizedlist>
+                    </listitem>
+                    <listitem>
+                        <para> The origin service processes the request. </para>
+                    </listitem>
+                    <listitem>
+                        <para> The origin service returns the response. </para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose passes the response. </para>
+                    </listitem>
+                    <listitem>
+                        <para> Repose returns the response with the user token to the client. </para>
+                    </listitem>
+                    
+                </orderedlist>
+            </para>
                 <para> </para>
            
 
@@ -605,9 +550,9 @@
             </para>
             <para>When a token is validated, the authentication
                 service will return identifying information with token
-                expiration date. The Repose authentication component
-                will put this information into the following header in
-                HTTP rfc1123 GMT time format. </para>
+                expiration date. The Authentication component will put
+                this information into the following header in HTTP
+                rfc1123 GMT time format. </para>
             <table rules="all">
                 <caption>Token Expiration Header</caption>
                 <col width="33%"/>
@@ -654,8 +599,8 @@
             </para>
             <para> Client authentication includes the ability to pass
                 on a base 64 encoded service catalog from the
-                authentication service via the x-catalog header, to
-                the origin service. </para>
+                authentication service via the <code>x-catalog</code>
+                header to the origin service. </para>
             <table rules="all">
                 <caption>X-Catalog Header</caption>
                 <col width="20%"/>
@@ -700,8 +645,7 @@
             <example>
                 <title>Configuration Element for X-Catalog
                     Header</title>
-                <literallayout class="monospaced">
-                 endpoints-in-header format="some-format" cache-timeout="600000"identity-contract-versions="2"
+                <literallayout class="monospaced">&lt;endpoints-in-header format="xml" cache-timeout="600000"identity-contract-versions="2">
 			</literallayout>
             </example>
             
@@ -710,10 +654,17 @@
                 X-PP-Groups</emphasis></para>
             <para>If the requesting client is able to authenticate and
                 is passed down the request chain, the Authentication
-                Component will set X-PP-User and X-PP-Groups according
-                to the schema of the Authentication service. The
+                component will set <code>X-PP-User</code> and
+                    <code>X-PP-Groups</code> according to the schema
+                of the authentication service. The Repose
                 Authentication component will also set a quality with
                 a value of '1' for these headers. </para>
+            <example>
+                <title>Configuration Element for X-PP-User
+                    Header</title>
+                <literallayout class="monospaced">X-PP-User:Username
+			</literallayout>
+            </example>
             
             
             
@@ -722,29 +673,31 @@
             <title>Authentication Procedures</title>
             <para> This section describes some of the common
                 authentication procedures used by the Repose
-                authentication component.</para>
+                Authentication component.</para>
             <section xml:id="GetAuthToken_fromRequestHeader-dle252">
                 <title>Get Authentication Token from Request
                     Header</title>
 
-                <para>If the incoming HTTP request X-Auth-Token header
-                    does not have an authentication token then Repose
-                    performs the same steps as when the Tenant ID is
-                    missing. Thus, both the Tenant ID and the
-                    X-Auth-Token must be present in order for Repose
-                    to attempt to validate user credentials. </para>
+                <para>If the incoming HTTP request
+                        <code>X-Auth-Token</code> header does not have
+                    an authentication token,  Repose performs the same
+                    steps as when the tenant ID is missing. Thus, both
+                    the tenant ID and the <code>X-Auth-Token</code>
+                    must be present in order for Repose to attempt to
+                    validate user credentials. </para>
                 <para>If delegable is true and Tenant ID and token are
-                not present, Repose will send the request through and set
-                the X-Identity-Status to indeterminate. </para>
+                    not present, Repose will send the request through
+                    and set the <code>X-Identity-Status</code> to
+                        <code>indeterminate</code>. </para>
             </section>
             <section xml:id="GetAuthToken_fromRequestHeader-dle262">
                 <title>Validate Tenant ID/Token with Authentication
                     Service</title>
-                <para> If the Repose authentication component
-                    successfully obtains the Tenant ID and the token
-                    from the request, then Repose will send a request
-                    to the external Auth Service to validate the
-                    Token. </para>
+                <para>If the Repose Authentication component
+                    successfully obtains the tenant ID and the token
+                    from the request, Repose will send a request to
+                    the external authentication service to validate
+                    the token. </para>
                 <para>
                     <emphasis role="bold">If the token is valid,
                         Repose then performs the following
@@ -763,10 +716,9 @@
                                 the external authentication service to
                             retrieve the user's groups by using the
                             user ID from the validated token.</para> </listitem>
-                            <listitem><para>b. Adds the user’s groups to the <code>X-PP-Groups</code>
-                                   request header, which is used by
-                                   the Repose Rate Limiting
-                                   component.</para> </listitem>
+                            <listitem><para> Adds the user’s groups to the <code>X-PP-Groups</code> request
+                                   header, which is used by the Repose
+                                   Rate Limiting component.</para> </listitem>
                         </orderedlist>
                        
                     </listitem>
@@ -857,108 +809,7 @@
                         </para>
                     </note>
                 </para>
-                <para>
-                    <table>
-                        <caption>Handling of Valid and Invalid Tokens
-                            with OpenStack Authentication</caption>
-                        <col width="50%"/>
-                        <col width="50%"/>
-                        <thead>
-                            <tr>
-                                <th>If token is valid</th>
-                                <th>If token is not valid</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                   <orderedlist>
-                                   <listitem>
-                                   <para>Using the user ID from the
-                                   validated token, perform another
-                                   request against the external
-                                   authentication service to retrieve
-                                   the user's groups. </para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Add the groups to the
-                                   <code>X-PP-Groups</code> request
-                                   header, to be consumed by the
-                                   &PRODNAME; rate limiting
-                                   component.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Add the user ID to the
-                                   <code>X-PP-User</code> request
-                                   header, to be consumed by another
-                                   &PRODNAME; component that is also
-                                   passed to the origin
-                                   service.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Set the
-                                   <code>X-User-Name</code> header
-                                   with the username returned in the
-                                   validated token object.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Set the
-                                   <code>X-User-Id</code> header with
-                                   the user ID returned in the
-                                   validated token object.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Set the
-                                   <code>X-Tenant-Id</code> header
-                                   with the tenant ID extracted from
-                                   the URL.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Set the <code>X-Roles</code>
-                                   header with the roles returned in
-                                   the validated token object.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>Set the
-                                   <code>X-Authorization</code> header
-                                   to <code>Proxy
-                                   userid</code>.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>If
-                                   <code>delegable=true</code>, then
-                                   set
-                                   <code>X-Identity-Status</code>to
-                                   <code>Indeterminate</code>.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>If
-                                   <code>delegable=true</code>, then
-                                   pass the updated request to the
-                                   origin service.</para>
-                                   </listitem>
-                                   </orderedlist>
-                                </td>
-                                <td>
-                                   <orderedlist>
-                                   <listitem>
-                                   <para>Set the
-                                   <code>X-Authorization</code> header
-                                   to <code>Proxy
-                                   userid</code>.</para>
-                                   </listitem>
-                                   <listitem>
-                                   <para>If
-                                   <code>delegable=true</code>, then a
-                                   404 error message is
-                                   returned.</para>
-                                   </listitem>
-                                   </orderedlist>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </para>
+                
             </section>
         </section>
     </chapter>
@@ -966,43 +817,49 @@
 
     <chapter xml:id="Authentication_Features-d1e252">
         <title>What Are Some Authentication Features</title>
-        <para>The Repose authentication component offers the following
-            features.</para>
+        <para>The Authentication component offers the following
+            features that can enhance performance and
+            functionality.</para>
         <section xml:id="Tenanted-Non-tenanted_Mode-252">
             <title>Tenanted/Non-tenanted Mode</title>
             <para><emphasis role="bold">Tenanted Mode - Parse
                     URI</emphasis></para>
-            <para>Repose's authentication filter will parse the URI
+            <para>The Authentication component will parse the URI
                 using a configurable regular expression ("id-reg" in
                 the client-auth-n-cfg.xml file) to extract the tenant
-                ID from the Request URI. If the tenant ID is missing,
+                ID from the request URI. If the tenant ID is missing,
                 Repose will not make a call to the external
-                authenticate component to validate credentials. Repose
-                will set the X-Authorization header with no user entry
-                (e.g. X-Authorization: Proxy). If the origin service
-                is configured to run in delegated mode, an HTTP
-                request header named X-Identity-Status will be set
-                with a value of "Indeterminate". The request will then
-                be passed along to the origin service with the
-                X-Authorization and X-Identity-Status request headers
+                authentication service to validate credentials. Repose
+                will set the <code>X-Authorization</code> header with
+                no user entry (e.g. <code>X-Authorization:
+                    Proxy</code>). </para>
+            <para>If the origin service is configured to run in
+                    <code>delegated</code> mode, an HTTP request
+                header named <code>X-Identity-Status</code> will be
+                set with a value of <code>Indeterminate</code>. The
+                request will then be passed along to the origin
+                service with the <code>X-Authorization</code> and
+                    <code>X-Identity-Status</code> request headers
                 set.</para>
-            <para>The Repose client authentication component knows if
-                the origin service is in delegated mode based on the
-                boolean value of the "deletable" attribute in the
-                Repose client-auth-n.cfg.xml file.</para>
-            <para>If the Tenant ID is missing and the origin service
-                is not running in delegated mode (i.e.
+            <para>The  Authentication component knows if the origin
+                service is in <code>delegated</code> mode based on the
+                boolean value of the delegable attribute in the Repose
+                    <code>client-auth-n.cfg.xml</code> file.</para>
+            <para>If the tenant ID is missing and the origin service
+                is not running in <code>delegated</code> mode (i.e.
                 delegable="false" in the client-auth-n.cfg.xml file),
-                then the Repose client authentication component does
-                not forward the request to the origin service.
-                Instead, the Repose authentication component returns a
-                401 to the client.</para>
+                the Repose Authentication Component does not forward
+                the request to the origin service. Instead, the
+                Authentication component returns a 401 to the
+                client.</para>
+            <para> </para>
             <para><emphasis role="bold">Non-tenanted
                 Mode</emphasis></para>
-            <para>Repose's authentication filter has the option of a
-                non-tenanted mode within the openstack-auth element of
-                the configuration. In this mode, Repose will validate
-                the authentication token without regard to a
+            <para>The Authentication component has the option of a
+                non-tenanted mode within the
+                    <code>openstack-auth</code> element of the
+                configuration. In this mode, Repose will validate the
+                authentication token without regard to a
                 tenant.</para>
             <para>
                 <important>
@@ -1014,25 +871,27 @@
 
         </section>
         <section xml:id="WhiteList-d1e253">
-            <title>White List</title>
+            <title>Whitelist</title>
 
-            <para> Repose authentication may be configured to allow
-                the processing of requests that do not require
+            <para>You can configure Repose authentication to allow the
+                processing of requests that do not require
                 authentication. For example, a service might want all
                 calls authenticated with the exception of the call for
-                WADL retrieval. In this situation, the Repose
-                whitelist may be configured as shown in the sample
-                authentication configuration file:</para>
-
-            <para>Sample OpenStack Identity Service Authentication
-                Configuration</para>
+                WADL retrieval. In this situation, you can configure
+                the Repose whitelist as shown in the sample
+                authentication configuration file.</para>
 
             <para>The whitelist contains a list of regular expressions
                 Repose will attempt to match against the full request
                 URI. If the URI matches a regular expression on the
-                white list, then the request is passed to the origin
+                white list, the request is passed to the origin
                 service. Otherwise, authentication is performed
                 against the request. </para>
+            <example><title>Sample Authentication Configuration File</title>
+            <programlisting language="xml">
+<xi:include href="samples/client-auth-n.cfg.xml" parse="text"/>
+                </programlisting>
+            </example>
         </section>
         <section xml:id="Caching-d1e254">
             <title>Caching</title>
@@ -1059,12 +918,14 @@
                 value is optional and defaults to 600,000 milliseconds
                 (10 minutes). You can set the
                     <code>group-cache-timeout</code> value in the
-                OpenStack or Rackspace authentication schemas as shown
-                in the following example.</para>
+                OpenStack authentication scheme as shown in the
+                following example.</para>
+            <example><title>OpenStack Authentication Scheme with the
+                Caching Feature</title>
             <programlisting language="xml">
-<xi:include href="samples/client-auth-n.cfg.xml" parse="text"/>
+<xi:include href="samples/repose-authn-caching.txt" parse="text"/>
                 </programlisting>
-            
+            </example>
         </section>
 
     </chapter>
@@ -1078,21 +939,20 @@
         <para>The authentication test suite is summarized in the
             Repose wiki at <link
                 xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
-                > "Repose Authentication Tests</link> . You can adapt
-            those tests to work within your own Repose configuration.
-        </para>
+                >Repose Authentication Tests</link> . You can adapt
+            those tests to work within your own Repose configuration. </para>
     </chapter>
     
     
     <chapter xml:id="Client-Authorization-002">
 
         <title>What Can Repose Authorization do?</title>
-        <para>For identities validated by the authentication
-            component, you can use the authorization component to
-            confirm that the services being requested match those for
-            which the user has permission. </para>
-        <para> The client authorization service component enables the
-            service implementer to validate that a client's request is
+        <para>For identities that are validated by the Authentication
+            component, you can use the Repose Authorization component
+            to confirm that the services being requested match those
+            for which the user has permission. </para>
+        <para> The Authorization component enables the service
+            implementer to validate that a client's request is
             allowed. <itemizedlist>
                 <listitem>
                     <para> If the client's request is allowed, then
@@ -1118,7 +978,7 @@
     </chapter>
     <chapter xml:id="How-Does-Authorization-Work-003">
         <title>How Does Authorization Work?</title>
-        <para>The &PRODNAME; authorization component's decision flow
+        <para>The &PRODNAME; Authorization component's decision flow
             is summarized in the drawing below: </para>
         <figure xml:id="Authorization_Decisions-figure">
             <title>Decision Flow in the &PRODNAME; Client
@@ -1132,22 +992,22 @@
                 </imageobject>
             </mediaobject>
         </figure>
-        <para> As shown above, the authorization component must be
+        <para>As shown above, the Authorization component must be
             configured to represent a valid endpoint. The client
             receives a token as a result of successful authentication;
             the identity server uses the client's token to retrieve
-            the client's endpoint list. The authorization component
+            the client's endpoint list. The Authorization component
             then compares the configured endpoint against the
             authenticated client's endpoint list. </para>
         <important>
-            <para> The authorization component assumes that any
-                requests passed to it have already been authenticated.
-            </para>
+            <para> The Authorization component assumes that any
+                requests passed to it have already been authenticated. </para>
         </important>
         <section xml:id="Authorization_Schemes-d1e320">
-            <title>Authorization Schemes</title>
-            <para> The &PRODNAME; client authorization component is
-                designed to allow selection from a list of supported
+            <title>Authorization Scheme with the OpenStack Identity
+                Request A</title>
+            <para> The &PRODNAME; Authorization component is designed
+                to allow selection from a list of supported
                 authorization schemes. The list of supported
                 authorization schemes is:</para>
             <itemizedlist>
@@ -1177,13 +1037,13 @@
 <xi:include href="samples/repose-authz-config-openstack.xml" parse="text"/>
                 </programlisting>
                 </example>
-                <para>The &PRODNAME; authorization component must be
-                    able to communicate with an identity server that
+                <para>The Authorization component must be able to
+                    communicate with an identity server that
                     implements the identity scheme to obtain a
                     client's endpoint list. You make this possible by
                     defining <code>rackspace-authorization</code> in
                     your &PRODNAME; configuration. This configuration
-                    element informs the authorization component how to
+                    element informs the Authorization component how to
                     contact the identity server, which credentials to
                     use when contacting the OpenStack identity server,
                     and how long to cache responses from the OpenStack
@@ -1238,7 +1098,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <para> The authorization component must be able to
+                <para>The Authorization component must be able to
                     identify which service it represents when
                     inspecting a client's endpoint list. The
                         <code>service-endpoint</code> configuration
@@ -1274,12 +1134,12 @@
                         </tbody>
                     </table>
                     <warning>
-                        <para> In a client's endpoint list (also known
+                        <para>In a client's endpoint list (also known
                             as service catalog), each endpoint must
                             specify its <code>publicURL</code> and
                                 <code>type</code> if the client is to
                             be authorized by using the &PRODNAME;
-                            authorization service and the OpenStack
+                            Authorization component and the OpenStack
                             identity service. This is a requirement of
                             the OpenStack identity service contract.
                             If any required endpoint elements are null
