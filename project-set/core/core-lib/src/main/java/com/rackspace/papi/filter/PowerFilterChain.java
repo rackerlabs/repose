@@ -53,7 +53,6 @@ public class PowerFilterChain implements FilterChain {
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
-//        this.filterTimerMap = new HashMap<String, Timer>();
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.resourceMonitor = resourceMonitor;
