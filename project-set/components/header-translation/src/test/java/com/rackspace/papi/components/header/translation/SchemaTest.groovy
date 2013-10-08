@@ -1,5 +1,4 @@
 package com.rackspace.papi.components.header.translation
-
 import org.junit.Before
 import org.junit.Test
 import org.xml.sax.SAXParseException
@@ -9,10 +8,7 @@ import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertThat
-import static org.junit.matchers.JUnitMatchers.containsString
+import static org.junit.Assert.*
 
 public class SchemaTest {
 
@@ -65,7 +61,7 @@ public class SchemaTest {
         assertNotNull("Expected exception", caught);
         assertSame(SAXParseException.class, caught.getClass());
 
-        assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
+        assertTrue(caught.getLocalizedMessage().contains(errorMessage));
     }
 
 
