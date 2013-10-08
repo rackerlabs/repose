@@ -3,7 +3,7 @@
     <parent>
         <artifactId>deb</artifactId>
         <groupId>com.rackspace.repose.installation.deb</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.10.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -66,7 +66,7 @@
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/${artifactId}</prefix>
+                                                <prefix>/usr/share/doc/${project.artifactId}</prefix>
                                                 <filemode>644</filemode>
                                             </mapper>
                                         </data>
