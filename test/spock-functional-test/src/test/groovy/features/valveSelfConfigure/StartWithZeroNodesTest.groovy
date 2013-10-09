@@ -3,16 +3,13 @@ package features.valveSelfConfigure
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.category.Slow
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.DeproxyEndpoint
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
 
-/**
- * Created with IntelliJ IDEA.
- * User: izrik
- *
- */
+@org.junit.experimental.categories.Category(Slow.class)
 class StartWithZeroNodesTest extends Specification {
 
     int endpointPort
