@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class SplitableHeaderUtil {
+public class SplittableHeaderUtil {
 
     // Headers available for splitting (According to RFC2616
     public static final String[] DEFAULT_SPLIT = {"accept", "accept-charset", "accept-language", "allow",
@@ -24,29 +24,29 @@ public class SplitableHeaderUtil {
     };
 
 
-    private Set<String> splitableHeaders;
+    private Set<String> splittableHeaders;
 
-    public SplitableHeaderUtil() {
+    public SplittableHeaderUtil() {
 
         setDefaultSplitable();
 
     }
 
-    public SplitableHeaderUtil(HeaderConstant... constant) {
+    public SplittableHeaderUtil(HeaderConstant... constant) {
         setDefaultSplitable();
 
         for (HeaderConstant ct : constant) {
-            splitableHeaders.add(ct.toString());
+            splittableHeaders.add(ct.toString());
         }
 
     }
 
-    public SplitableHeaderUtil(HeaderConstant[]... constant) {
+    public SplittableHeaderUtil(HeaderConstant[]... constant) {
         setDefaultSplitable();
 
         for (HeaderConstant[] cts : constant) {
             for (HeaderConstant ct : cts) {
-                splitableHeaders.add(ct.toString());
+                splittableHeaders.add(ct.toString());
             }
         }
 
@@ -54,14 +54,14 @@ public class SplitableHeaderUtil {
 
     private void setDefaultSplitable() {
         // Using a set which us so as to pass a comparator
-        splitableHeaders = new TreeSet<String>(CASE_INSENSITIVE_COMPARE);
-        splitableHeaders.addAll(Arrays.asList(DEFAULT_SPLIT));
+        splittableHeaders = new TreeSet<String>(CASE_INSENSITIVE_COMPARE);
+        splittableHeaders.addAll(Arrays.asList(DEFAULT_SPLIT));
     }
 
 
     public boolean isSplitable(String st) {
 
-        return splitableHeaders.contains(st.toLowerCase());
+        return splittableHeaders.contains(st.toLowerCase());
     }
 }
 

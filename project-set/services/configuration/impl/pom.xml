@@ -3,7 +3,7 @@
     <parent>
         <artifactId>configuration-support</artifactId>
         <groupId>com.rackspace.papi.service</groupId>
-        <version>2.9.1-SNAPSHOT</version>
+        <version>2.10.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>configuration-api</artifactId>
-            <version>2.9.1-SNAPSHOT</version>
+            <version>2.10.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

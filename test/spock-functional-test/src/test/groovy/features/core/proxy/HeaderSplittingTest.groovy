@@ -1,7 +1,5 @@
 package features.core.proxy
-
 import framework.ReposeValveTest
-import org.junit.Test
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
@@ -58,7 +56,7 @@ class HeaderSplittingTest extends ReposeValveTest {
 
         then:
         assert respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
-        assert respFromOrigin.receivedResponse.headers.findAll("via").size() == 2
+        assert respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
     }
 
 

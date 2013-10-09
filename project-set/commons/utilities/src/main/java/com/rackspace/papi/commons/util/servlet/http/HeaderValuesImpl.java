@@ -1,10 +1,10 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpDate;
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +14,8 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     private static final String HEADERS_PREFIX = "repose.headers.";
     private final Map<String, List<HeaderValue>> headers;
+    private SplittableHeaderUtil splittable;
+
 
     public static HeaderValues extract(HttpServletRequest request) {
         return new HeaderValuesImpl(request, new RequestHeaderContainer(request));
@@ -24,6 +26,9 @@ public final class HeaderValuesImpl implements HeaderValues {
     }
 
     private HeaderValuesImpl(HttpServletRequest request, HeaderContainer container) {
+        splittable = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
+                ExtendedHttpHeader.values());
+
         this.headers = initHeaders(request, container);
         cloneHeaders(container);
     }
@@ -71,7 +76,11 @@ public final class HeaderValuesImpl implements HeaderValues {
             headerValues = new LinkedList<HeaderValue>();
         }
 
-        headerValues.addAll(parseHeaderValues(value, lowerCaseName));
+        if (splittable.isSplitable(name)) {
+            headerValues.addAll(parseHeaderValues(value, lowerCaseName));
+        } else {
+            headerValues.add(new HeaderValueImpl(value));
+        }
 
         headers.put(lowerCaseName, headerValues);
     }
