@@ -35,12 +35,12 @@ class ClientRequestLogging extends ReposeValveTest {
 
         when:
         MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "GET"])
-        wire_logs = wire_logs - reposeLogSearch.searchByString("org.apache.http.wire").size()
-        headers_logs = headers_logs - reposeLogSearch.searchByString("org.apache.http.headers").size()
+        List<String> after_wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
+        List<String> after_headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
 
         then:
-        wire_logs.size() > 0
-        headers_logs.size() > 0
+        after_wire_logs.size() - wire_logs.size() > 0
+        after_headers_logs.size() - headers_logs.size() > 0
 
 
     }
@@ -55,13 +55,12 @@ class ClientRequestLogging extends ReposeValveTest {
 
         when:
         MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "GET"])
-        wire_logs = wire_logs - reposeLogSearch.searchByString("org.apache.http.wire").size()
-        headers_logs = headers_logs - reposeLogSearch.searchByString("org.apache.http.headers").size()
+        List<String> after_wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
+        List<String> after_headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
 
         then:
-        wire_logs.size() == 0
-        headers_logs.size() == 0
-
+        after_wire_logs.size() - wire_logs.size() == 0
+        after_headers_logs.size() - headers_logs.size() == 0
 
     }
 
@@ -75,13 +74,12 @@ class ClientRequestLogging extends ReposeValveTest {
 
         when:
         MessageChain messageChain = deproxy.makeRequest([url: reposeEndpoint, method: "GET"])
-        wire_logs = wire_logs - reposeLogSearch.searchByString("org.apache.http.wire").size()
-        headers_logs = headers_logs - reposeLogSearch.searchByString("org.apache.http.headers").size()
+        List<String> after_wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
+        List<String> after_headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
 
         then:
-        wire_logs.size() == 0
-        headers_logs.size() == 0
-
+        after_wire_logs.size() - wire_logs.size() == 0
+        after_headers_logs.size() - headers_logs.size() == 0
 
     }
 }
