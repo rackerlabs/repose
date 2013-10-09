@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.config.resource.impl;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,7 +30,7 @@ public class FileDirectoryResourceResolver implements ConfigurationResourceResol
 
       try {
 
-         if (resourceName.contains("://")) {
+         if (resourceName.contains(":/")) {
             return new BufferedURLConfigurationResource(new URL(resourceName));
          } else {
             final File spec = new File(configRoot, resourceName);
