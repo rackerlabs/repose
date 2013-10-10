@@ -176,9 +176,6 @@
                     abbreviated as Auth-Z.</para>
             </listitem>
         </itemizedlist>
-    </chapter>
-    <chapter xml:id="Introduction-001">
-        <title>What Can Repose Authentication Do?</title>
         <para>Repose includes a component designed to support client
             authentication and another component designed to support
             authorization. Both authentication and authorization
@@ -188,11 +185,10 @@
         <para>Using the Repose Authentication and Authorization
             components improves origin service security by ensuring
             that all requests that reach the origin service are from
-            valid clients with permissions to use that service.</para>
-
-
-        <para><emphasis role="bold">Authentication
-                Component</emphasis></para>
+            valid clients with permissions to use that service. </para>
+    </chapter>
+    <chapter xml:id="Introduction-001">
+        <title>What Can Repose Authentication Do?</title>
         <para>The Repose Authentication component handles
             authentication by calling the authentication service and
             forwarding the authentication information to the origin
@@ -927,6 +923,35 @@
                 </programlisting>
             </example>
         </section>
+        <section xml:id="Delegated-Mode-d1e255">
+                <title>Delegated Mode</title>
+                    
+                <para>In some cases, you may want the decision to
+                reject an unauthenticated request to be made by the
+                authentication service. The Repose Authentication
+                component may be placed in <code>delegated</code> mode
+                to allow an unauthenticated request to pass as either
+                    <code>confirmed</code> or
+                    <code>indeterminate</code>. </para>
+                <para>The Authentication component sends a
+                    <code>confirmed</code> value when valid
+                credentials and identity have been confirmed. The
+                Authentication component sends an
+                    <code>indeterminate</code> value when no
+                credentials have been sent and identity has not been
+                confirmed. </para>
+                <para>If the authorization service is configured to
+                run in <code>delegated</code> mode, the
+                    <code>X-Identity-Status</code> HTTP header is set
+                to a value of <code>indeterminate</code>. The request
+                is then passed along to the authorization service with
+                the <code>X-Authorization</code> and the
+                    <code>X-Identity-Status</code> request headers set
+                with no user entry (for example,
+                    <code>X-Authorization: Proxy</code>). </para>
+            </section>
+           
+        
 
     </chapter>
     <chapter xml:id="Authentication_Tests-d1e262">
