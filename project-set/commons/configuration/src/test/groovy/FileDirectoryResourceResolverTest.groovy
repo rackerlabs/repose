@@ -26,6 +26,6 @@ class FileDirectoryResourceResolverTest extends Specification {
         bufferedURLConfigurationResource = fileDirectoryResourceResolver.resolve(partialPath)
 
         then:
-        bufferedURLConfigurationResource.name().contains(filePrepended)
+        bufferedURLConfigurationResource.name().startsWith(filePrepended)
     }
 }
