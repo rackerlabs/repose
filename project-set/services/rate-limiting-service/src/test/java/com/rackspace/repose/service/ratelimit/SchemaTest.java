@@ -70,6 +70,137 @@ public class SchemaTest {
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
 
+        // TODO Break method validation tests into a parameterized test suite
+        @Test
+        public void shouldValidateWhenGetMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='GET' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenDeleteMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='DELETE' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenPostMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='POST' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenPutMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenPatchMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='PATCH' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenHeadMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='HEAD' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenOptionsMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='OPTIONS' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenConnectMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='CONNECT' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenTraceMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='TRACE' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenAllMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
         @Test
         public void shouldFailWhenConfigHasNonUniqueUriAndMethods() throws Exception {
             String xml =

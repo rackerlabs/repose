@@ -24,6 +24,7 @@
             <xs:enumeration value="DELETE" />
             <xs:enumeration value="POST" />
             <xs:enumeration value="PUT" />
+            <xs:enumeration value="PATCH" />
             <xs:enumeration value="HEAD" />
             <xs:enumeration value="OPTIONS" />
             <xs:enumeration value="CONNECT" />
