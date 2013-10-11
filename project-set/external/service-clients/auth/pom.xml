@@ -69,4 +69,13 @@
             <version>1.8</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
