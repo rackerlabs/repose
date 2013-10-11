@@ -25,7 +25,6 @@ class HeaderSplittingTest extends ReposeValveTest {
     }
 
     def "Should not split request headers according to rfc"() {
-
         given:
         def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
@@ -39,13 +38,9 @@ class HeaderSplittingTest extends ReposeValveTest {
         assert sentRequest.request.getHeaders().findAll("user-agent").size() == 1
         assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
         assert sentRequest.request.getHeaders().findAll("accept").size() == 2
-
-
     }
 
     def "Should not split response headers according to rfc"() {
-
-
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
         def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
