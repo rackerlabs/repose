@@ -225,6 +225,7 @@ class ApiValidatorTest extends ReposeValveTest{
         assert sentRequest.request.getHeaders().findAll("accept").size() == 2
     }
 
+    @Category(Bug)
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]

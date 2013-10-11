@@ -129,8 +129,6 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         444       | false       | true                | 2                 | 1
     }
 
-
-    @org.junit.experimental.categories.Category(Bug)
     def "Should not split request headers according to rfc"() {
         given:
         def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
@@ -151,12 +149,12 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         fakeIdentityService.isValidateClientTokenBroken = false
         fakeIdentityService.isGetAdminTokenBroken = false
         fakeIdentityService.isGetGroupsBroken = false
-        def respFromOrigin = deproxy.makeRequest(reposeEndpoint + "/servers/" + 123 + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(reposeEndpoint + "/servers/123/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then:
         assert sentRequest.request.getHeaders().findAll("user-agent").size() == 1
-        assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 3
+        assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
         assert sentRequest.request.getHeaders().findAll("accept").size() == 2
     }
 
@@ -180,8 +178,8 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         fakeIdentityService.isGetAdminTokenBroken = false
         fakeIdentityService.isGetGroupsBroken = false
         def respFromOrigin =
-            deproxy.makeRequest(reposeEndpoint + "/servers/" + 123 + "/", 'GET',
-                    ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+            deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET',
+                    headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
                     defaultHandler: xmlResp
             )
 
