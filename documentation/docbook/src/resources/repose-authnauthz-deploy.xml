@@ -933,22 +933,23 @@
                 to allow an unauthenticated request to pass as either
                     <code>confirmed</code> or
                     <code>indeterminate</code>. </para>
-                <para>The Authentication component sends a
+                <para> The Authentication component sends a
                     <code>confirmed</code> value when valid
                 credentials and identity have been confirmed. The
                 Authentication component sends an
                     <code>indeterminate</code> value when no
-                credentials have been sent and identity has not been
+                credentials have been sent or identity has not been
                 confirmed. </para>
-                <para>If the authorization service is configured to
-                run in <code>delegated</code> mode, the
+                <para>If the origin service is configured to run in
+                    <code>delegated</code> mode, the
                     <code>X-Identity-Status</code> HTTP header is set
                 to a value of <code>indeterminate</code>. The request
-                is then passed along to the authorization service with
-                the <code>X-Authorization</code> and the
+                is then passed along to the origin service with the
+                    <code>X-Authorization</code> and the
                     <code>X-Identity-Status</code> request headers set
                 with no user entry (for example,
-                    <code>X-Authorization: Proxy</code>). </para>
+                    <code>X-Authorization: Proxy and
+                    X-Identity-Status: Indeterminate</code>). </para>
             </section>
            
         
