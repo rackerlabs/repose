@@ -4,14 +4,14 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="node-1" hostname="${host}" http-port="${port}"/>
+      <node id="node-1" hostname="localhost" ${proto}-port="${sysmod_port}"/>
     </nodes>
 
     <filters>
     </filters>
 
     <destinations>
-      <endpoint id="target" protocol="http" hostname="${target_hostname}" port="${target_port}" root-path="/" default="true"/>
+      <endpoint id="target" protocol="http" hostname="localhost" port="${endpointPort}" root-path="/" default="true"/>
     </destinations>
 
   </repose-cluster>

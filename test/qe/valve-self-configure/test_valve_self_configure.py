@@ -50,68 +50,6 @@ def apply_config_set(config_set_name, params=None):
                                  params=params)
 
 
-class TestMultiClusterMultiNode(unittest.TestCase):
-    def setUp(self):
-        logger.debug('setUp')
-
-        self.port11 = get_next_open_port()
-        self.port12 = get_next_open_port()
-        self.port21 = get_next_open_port()
-        self.port22 = get_next_open_port()
-        self.stop_port = get_next_open_port()
-
-        pathutil.clear_folder(config_dir)
-        self.params = {
-            'proto': 'http',
-            'target_hostname': target_hostname,
-            'target_port': target_port,
-            'deploy_dir': deploy_dir,
-            'artifact_dir': artifact_dir,
-            'log_file': log_file,
-            'port11': self.port11,
-            'port12': self.port12,
-            'port21': self.port21,
-            'port22': self.port22,
-        }
-        apply_config_set('valve-self-common', params=self.params)
-        apply_config_set('container-no-port', params=self.params)
-        apply_config_set('two-clusters-two-nodes-each', params=self.params)
-        self.valve = valve.Valve(config_dir=config_dir,
-                                 stop_port=self.stop_port)
-        time.sleep(2 * sleep_duration)
-
-    def tearDown(self):
-        logger.debug('tearDown')
-        if self.valve is not None:
-            self.valve.stop()
-            time.sleep(5)
-
-    def make_request_and_assert_status_code(self, url, expected_status_code):
-        logger.debug('asserting status code - url = %s' % url)
-        logger.debug('expected status code = %i' % expected_status_code)
-        status_code = get_status_code_from_url(url)
-        logger.debug('received status code = %i' % status_code)
-        self.assertEqual(expected_status_code, status_code)
-
-    def make_request_and_assert_connection_fails(self, url):
-        logger.debug('asserting connection fails - url = %s' % url)
-        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
-                          url)
-
-    def runTest(self):
-        logger.debug('runTest')
-
-        url = 'http://localhost:%i/' % (self.port11)
-        self.make_request_and_assert_status_code(url, 200)
-
-        url = 'http://localhost:%i/' % (self.port12)
-        self.make_request_and_assert_connection_fails(url)
-
-        url = 'http://localhost:%i/' % (self.port21)
-        self.make_request_and_assert_status_code(url, 200)
-
-        url = 'http://localhost:%i/' % (self.port22)
-        self.make_request_and_assert_connection_fails(url)
 
 
 class TestRuntimeSysmodChanges(unittest.TestCase):
