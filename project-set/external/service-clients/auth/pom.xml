@@ -58,12 +58,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>cli-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.8</version>
