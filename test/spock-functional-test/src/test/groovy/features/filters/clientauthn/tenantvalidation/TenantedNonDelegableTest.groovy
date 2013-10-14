@@ -1,8 +1,6 @@
 package features.filters.clientauthn.tenantvalidation
-
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
-import framework.category.Bug
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
@@ -153,9 +151,9 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then:
-        assert sentRequest.request.getHeaders().findAll("user-agent").size() == 1
-        assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
-        assert sentRequest.request.getHeaders().findAll("accept").size() == 2
+        sentRequest.request.getHeaders().findAll("user-agent").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
+        sentRequest.request.getHeaders().findAll("accept").size() == 2
     }
 
     def "Should not split response headers according to rfc"() {
@@ -184,8 +182,8 @@ class TenantedNonDelegableTest extends ReposeValveTest{
             )
 
         then:
-        assert respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
-        assert respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
+        respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
+        respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
     }
 
 

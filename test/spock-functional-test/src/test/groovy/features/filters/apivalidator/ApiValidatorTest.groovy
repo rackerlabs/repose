@@ -205,10 +205,10 @@ class ApiValidatorTest extends ReposeValveTest{
         def handling = messageChain.getHandlings()[0]
 
         then:
-        assert handling.request.getHeaders().findAll("user-agent").size() == 1
-        assert handling.request.headers['user-agent'] == userAgentValue
-        assert handling.request.getHeaders().findAll("x-pp-user").size() == 3
-        assert handling.request.getHeaders().findAll("accept").size() == 2
+        handling.request.getHeaders().findAll("user-agent").size() == 1
+        handling.request.headers['user-agent'] == userAgentValue
+        handling.request.getHeaders().findAll("x-pp-user").size() == 3
+        handling.request.getHeaders().findAll("accept").size() == 2
     }
 
     def "Should not split response headers according to rfc"() {
@@ -224,8 +224,8 @@ class ApiValidatorTest extends ReposeValveTest{
                 defaultHandler: xmlResp)
 
         then:
-        assert messageChain.receivedResponse.headers.findAll("location").size() == 1
-        assert messageChain.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
-        assert messageChain.receivedResponse.headers.findAll("via").size() == 1
+        messageChain.receivedResponse.headers.findAll("location").size() == 1
+        messageChain.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        messageChain.receivedResponse.headers.findAll("via").size() == 1
     }
 }
