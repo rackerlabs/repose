@@ -13,7 +13,6 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(Enclosed.class)
 public class SchemaTest {
@@ -116,7 +115,7 @@ public class SchemaTest {
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
 
-            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
+            assertTrue(caught.getLocalizedMessage().contains(errorMessage));
         }
 
     }

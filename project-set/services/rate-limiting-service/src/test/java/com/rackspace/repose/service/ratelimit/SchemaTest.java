@@ -12,8 +12,8 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
 public class SchemaTest {
@@ -172,7 +172,7 @@ public class SchemaTest {
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
 
-            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
+            assert (caught.getLocalizedMessage().contains(errorMessage));
         }
 
     }

@@ -12,9 +12,9 @@ class SplittableHeaderUtilTest {
 
         SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
-        assert splitable.isSplitable("Via")
-        assert splitable.isSplitable("VIA")
-        assert splitable.isSplitable("via")
+        assert splitable.isSplitable("accept")
+        assert splitable.isSplitable("ACCEPT")
+        assert splitable.isSplitable("Accept")
 
     }
 
@@ -24,6 +24,7 @@ class SplittableHeaderUtilTest {
         SplittableHeaderUtil splitable = new SplittableHeaderUtil();
 
         assert !splitable.isSplitable("unsplitable")
+        assert !splitable.isSplitable("user-agent")
     }
 
     @Test
