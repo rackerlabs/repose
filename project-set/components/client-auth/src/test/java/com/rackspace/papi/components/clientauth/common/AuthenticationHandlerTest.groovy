@@ -40,51 +40,46 @@ class AuthenticationHandlerTest extends Specification {
         then:
         nil == null;
     }
-}
 
-class TestableAuthenticationHandler extends AuthenticationHandler {
+    class TestableAuthenticationHandler extends AuthenticationHandler {
 
-    TestableAuthenticationHandler(Configurables configurables) {
-        super(configurables, null, null, null, null)
+        TestableAuthenticationHandler(Configurables configurables) {
+            super(configurables, null, null, null, null, null)
+        }
+
+        Integer safeEndpointsTtl() {
+            super.safeEndpointsTtl()
+        }
+
+        @Override
+        protected AuthToken validateToken(ExtractorResult<String> account, String token) {
+            return null
+        }
+
+        @Override
+        protected AuthGroups getGroups(String group) {
+            return null
+        }
+
+        @Override
+        protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) {
+            return null
+        }
+
+        @Override
+        protected FilterDirector processResponse(ReadableHttpServletResponse response) {
+            return null
+        }
+
+        @Override
+        protected void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64) {
+
+        }
+
+        protected String checkEndpointsCache(String token) {
+            super.checkEndpointsCache()
+        }
+
     }
 
-    @Override
-    Integer safeEndpointsTtl() {
-        super.safeEndpointsTtl()
-    }
-
-    TestableAuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache,
-                                  EndpointsCache endpointsCache, UriMatcher uriMatcher) {
-        super(configurables, cache, grpCache, endpointsCache, uriMatcher)
-    }
-
-    @Override
-    protected AuthToken validateToken(ExtractorResult<String> account, String token) {
-        return null
-    }
-
-    @Override
-    protected AuthGroups getGroups(String group) {
-        return null
-    }
-
-    @Override
-    protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) {
-        return null
-    }
-
-    @Override
-    protected FilterDirector processResponse(ReadableHttpServletResponse response) {
-        return null
-    }
-
-    @Override
-    protected void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64) {
-
-    }
-
-    @Override
-    protected String checkEndpointsCache(String token) {
-        super.checkEndpointsCache()
-    }
 }

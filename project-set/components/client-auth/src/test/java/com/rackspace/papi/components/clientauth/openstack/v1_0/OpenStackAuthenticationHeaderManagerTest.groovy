@@ -2,6 +2,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0
 
 import com.rackspace.auth.AuthGroup
 import com.rackspace.auth.AuthToken
+import com.rackspace.papi.commons.util.http.HttpStatusCode
 import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
@@ -22,6 +23,7 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
 
         given:
         filterDirector = new FilterDirectorImpl()
+        filterDirector.setResponseStatus(HttpStatusCode.OK)
         isDelegatable = false;
         authGroupList = new ArrayList<AuthGroup>()
         wwwAuthHeaderContents = "test URI";

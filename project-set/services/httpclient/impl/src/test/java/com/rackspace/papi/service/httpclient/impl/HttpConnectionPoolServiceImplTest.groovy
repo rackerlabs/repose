@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.httpclient.impl
 
-import com.rackspace.papi.service.httpclient.HttpClientNotFoundException
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
@@ -12,9 +11,7 @@ import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.*
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*
 
 class HttpConnectionPoolServiceImplTest {
 
@@ -92,9 +89,9 @@ class HttpConnectionPoolServiceImplTest {
         assertEquals("Pool Service should have two client pools available", srv.getAvailableClients().size(), 2);
     }
 
-
+    @Test
     void testHttpRandomConnectionPool() {
-        HttpClient client = srv.getClient("nonexistent client");
+        HttpClient client = srv.getClient("nonexistent client").getHttpClient();
         assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
     }
 
