@@ -75,10 +75,6 @@
                 </configuration>
 
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 </project>

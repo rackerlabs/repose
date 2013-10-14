@@ -66,10 +66,6 @@
             <version>0.6.3</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
-        </dependency>
 
     </dependencies>
 
@@ -131,10 +127,6 @@
                         </arg>
                     </args>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

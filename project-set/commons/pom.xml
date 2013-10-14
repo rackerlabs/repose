@@ -26,12 +26,6 @@
    <dependencyManagement>
       <dependencies>
 
-        <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
-            <version>0.7-groovy-2.0</version>
-        </dependency>
-
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
@@ -106,10 +100,6 @@
                </execution>
             </executions>
          </plugin>
-        <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
-        </plugin>
       </plugins>
    </build>
 </project>

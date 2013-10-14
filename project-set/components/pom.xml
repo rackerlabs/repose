@@ -136,13 +136,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.spockframework</groupId>
-                <artifactId>spock-core</artifactId>
-                <version>0.7-groovy-2.0</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>2.6.0</version>
