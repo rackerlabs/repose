@@ -1,13 +1,12 @@
 package features.filters.headertranslation
-
 import framework.ReposeValveTest
-import framework.category.Benchmark
+import framework.category.Flaky
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-@Category(Benchmark.class)
+@Category(Flaky)
 class PerformanceTest extends ReposeValveTest {
 
     def setupSpec() {

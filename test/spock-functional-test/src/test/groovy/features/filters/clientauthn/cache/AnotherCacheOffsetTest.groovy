@@ -1,8 +1,7 @@
 package features.filters.clientauthn.cache
-
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import framework.category.Slow
+import framework.category.Flaky
 import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -10,7 +9,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Shared
 
-@Category(Slow.class)
+@Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
