@@ -1,10 +1,10 @@
 package features.filters.clientauthn.tenantvalidation
-
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.gdeproxy.Response
 import spock.lang.Unroll
 
 class TenantedNonDelegableTest extends ReposeValveTest{
@@ -125,6 +125,65 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
         444       | false       | true                | 2                 | 1
+    }
+
+    def "Should not split request headers according to rfc"() {
+        given:
+        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
+                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
+        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        def clientToken = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = clientToken
+        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = true
+        fakeIdentityService.adminOk = true
+
+        when: "User passes a request through repose"
+        fakeIdentityService.isTenantMatch = true
+        fakeIdentityService.doesTenantHaveAdminRoles = true
+        fakeIdentityService.client_tenant = 123
+        fakeIdentityService.client_userid = 123
+        fakeIdentityService.isValidateClientTokenBroken = false
+        fakeIdentityService.isGetAdminTokenBroken = false
+        fakeIdentityService.isGetGroupsBroken = false
+        def respFromOrigin = deproxy.makeRequest(reposeEndpoint + "/servers/123/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+
+        then:
+        sentRequest.request.getHeaders().findAll("user-agent").size() == 1
+        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
+        sentRequest.request.getHeaders().findAll("accept").size() == 2
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
+        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        def clientToken = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = clientToken
+        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fakeIdentityService.ok = true
+        fakeIdentityService.adminOk = true
+
+        when: "User passes a request through repose"
+        fakeIdentityService.isTenantMatch = true
+        fakeIdentityService.doesTenantHaveAdminRoles = true
+        fakeIdentityService.client_tenant = 123
+        fakeIdentityService.client_userid = 123
+        fakeIdentityService.isValidateClientTokenBroken = false
+        fakeIdentityService.isGetAdminTokenBroken = false
+        fakeIdentityService.isGetGroupsBroken = false
+        def respFromOrigin =
+            deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET',
+                    headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
+                    defaultHandler: xmlResp
+            )
+
+        then:
+        respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
+        respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
     }
 
 
