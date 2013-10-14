@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.transform.stream.StreamSource;
@@ -11,12 +12,62 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 @RunWith(Enclosed.class)
 public class SchemaTest {
+
+    @RunWith(Parameterized.class)
+    public static class WhenValidatingConfiguredMethod {
+
+        // TODO Upgrade jUnit to 4.11 to name parameterized tests
+        @Parameterized.Parameters // (name = "{0} method")
+        public static Collection<Object[]> data() {
+            return Arrays.asList(new Object[][]{
+                    {"GET"}, {"DELETE"}, {"POST"}, {"PUT"},
+                    {"PATCH"}, {"HEAD"}, {"OPTIONS"},
+                    {"CONNECT"}, {"TRACE"}, {"ALL"}
+            });
+        }
+
+        private String method;
+        private Validator validator;
+
+        public WhenValidatingConfiguredMethod(String method) {
+            this.method = method;
+        }
+
+        @Before
+        public void standUp() throws Exception {
+            SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+            factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+
+            Schema schema = factory.newSchema(
+                    new StreamSource[]{
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/limits/limits.xsd")),
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rate-limiting-configuration.xsd"))
+                    });
+
+            validator = schema.newValidator();
+        }
+
+        @Test
+        public void shouldValidateWhenValidMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+    }
 
     public static class WhenValidatingRateLimitConfiguration {
 
@@ -70,135 +121,17 @@ public class SchemaTest {
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
 
-        // TODO Break method validation tests into a parameterized test suite
         @Test
-        public void shouldValidateWhenGetMethodUsed() throws Exception {
+        public void shouldFailWhenInvalidMethodUsed() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='GET' value='1' unit='HOUR'/>" +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits' groups='user'/> " +
                             "</rate-limiting>";
 
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenDeleteMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='DELETE' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenPostMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='POST' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenPutMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='PUT' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenPatchMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='PATCH' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenHeadMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='HEAD' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenOptionsMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='OPTIONS' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenConnectMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='CONNECT' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenTraceMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='TRACE' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenAllMethodUsed() throws Exception {
-            String xml =
-                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
-                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
-                            "    </limit-group>" +
-                            "    <limit-group id='customer-limits' groups='user'/> " +
-                            "</rate-limiting>";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+            assertInvalidConfig(xml, "It must be a value from the enumeration.");
         }
 
         @Test
