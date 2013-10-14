@@ -1,13 +1,9 @@
 package features.filters.apivalidator
-
 import framework.ReposeValveTest
-import framework.category.Bug
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 import spock.lang.Unroll
-import org.junit.experimental.categories.Category
-
 /*
  * Api validator tests ported over from and JMeter
  */
@@ -16,14 +12,11 @@ class ApiValidatorTest extends ReposeValveTest{
     private final String baseGroupPath = "/wadl/group1"
     private final String baseDefaultPath = "/wadl/default"
 
-    private def defaultHandler = {return new Response(200, "OK")}
-
     private final Map<String, String> defaultHeaders = [
             "Accept" : "application/xml",
             "Host"   : "localhost",
             "Accept-Encoding" : "identity",
-            "User-Agent" : "gdeproxy",
-            "Deproxy-Request-ID":  UUID.randomUUID().toString()
+            "User-Agent" : "gdeproxy"
     ]
 
     def setupSpec() {
@@ -32,8 +25,7 @@ class ApiValidatorTest extends ReposeValveTest{
 
         repose.applyConfigs("features/filters/apivalidator/jmeter/")
         repose.start()
-
-        sleep(5000)
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     def cleanupSpec() {
@@ -47,12 +39,12 @@ class ApiValidatorTest extends ReposeValveTest{
     def "Happy path: when no role passed, should get default wadl"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        defaultHandler = {return new Response(200, "OK", [], reqBody)}
+        def customHandler = {return new Response(200, "OK", [], reqBody)}
 
         when: "When Requesting " + method + " " + request
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 request, method: method, headers: defaultHeaders,
-                requestBody: reqBody, defaultHandler: defaultHandler,
+                requestBody: reqBody, defaultHandler: customHandler,
                 addDefaultHeaders: false
         )
 
@@ -77,16 +69,14 @@ class ApiValidatorTest extends ReposeValveTest{
 
         when: "When Requesting resource with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers,
-                defaultHandler: defaultHandler)
+                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers)
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("200")
 
         when: "When Requesting invalid resource with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers,
-                defaultHandler: defaultHandler)
+                "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers)
 
         then: "should return not found"
         messageChain.receivedResponse.code.equals("404")
@@ -94,8 +84,7 @@ class ApiValidatorTest extends ReposeValveTest{
 
         when: "When using invalid method with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id", method: "POST", headers: defaultHeaders + headers,
-                defaultHandler: defaultHandler)
+                "/resource1/id", method: "POST", headers: defaultHeaders + headers)
 
         then: "should return not found"
         messageChain.receivedResponse.code.equals("405")
@@ -104,8 +93,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When using valid media type with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
                 "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "POST", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns='http://test.openrespose/test/v1.1'><test>some data</test></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns='http://test.openrespose/test/v1.1'><test>some data</test></c>")
 
         then: "should return OK"
         messageChain.receivedResponse.code.equals("200")
@@ -121,8 +109,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When Requesting with valid content"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("200")
@@ -132,8 +119,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When Requesting with invalid content and Ignore XSD enabled"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("200")
@@ -149,8 +135,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When Requesting with valid content"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("200")
@@ -160,8 +145,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When Requesting with invalid content"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("400")
@@ -170,8 +154,7 @@ class ApiValidatorTest extends ReposeValveTest{
         when: "When Requesting with non well-formed content"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
                 "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></c>",
-                defaultHandler: defaultHandler)
+                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></c>")
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("400")
@@ -185,7 +168,7 @@ class ApiValidatorTest extends ReposeValveTest{
 
         when: "When Requesting default resource with no roles and required header"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders + headers, defaultHandler: defaultHandler)
+                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders + headers)
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("200")
@@ -197,49 +180,52 @@ class ApiValidatorTest extends ReposeValveTest{
 
         when: "When Requesting default resource with no roles without required header"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders, defaultHandler: defaultHandler)
+                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders)
 
         then: "should return resource"
         messageChain.receivedResponse.code.equals("400")
         messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
     }
 
-
-    @Category(Bug)
     def "Should not split request headers according to rfc"() {
         given:
-        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
-                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
-        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+            [
+                    "user-agent": userAgentValue,
+                    "x-pp-user": "usertest1, usertest2, usertest3",
+                    "accept": "application/xml;q=1 , application/json;q=0.5",
+                    "X-Roles" : "group1"
+            ]
 
         when: "When Requesting resource with x-roles"
-        def respFromOrigin = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: reqHeaders + headers,
-                defaultHandler: defaultHandler)
-        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
+                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: reqHeaders)
+        def handling = messageChain.getHandlings()[0]
 
         then:
-        assert sentRequest.request.getHeaders().findAll("user-agent").size() == 1
-        assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 3
-        assert sentRequest.request.getHeaders().findAll("accept").size() == 2
+        assert handling.request.getHeaders().findAll("user-agent").size() == 1
+        assert handling.request.headers['user-agent'] == userAgentValue
+        assert handling.request.getHeaders().findAll("x-pp-user").size() == 3
+        assert handling.request.getHeaders().findAll("accept").size() == 2
     }
 
-    @Category(Bug)
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
-        def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
+        def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
         Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
 
 
         when: "client passes a request through repose with headers"
-        def respFromOrigin = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers,
+        def MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
+                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: headers,
                 defaultHandler: xmlResp)
 
         then:
-        assert respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
-        assert respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
+        assert messageChain.receivedResponse.headers.findAll("location").size() == 1
+        assert messageChain.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        assert messageChain.receivedResponse.headers.findAll("via").size() == 1
     }
 }
