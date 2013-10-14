@@ -252,6 +252,44 @@
         </profile>
 
         <profile>
+            <id>JSON Support</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-core-lgpl</artifactId>
+                        <version>1.9.13</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-mapper-lgpl</artifactId>
+                        <version>1.9.13</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-xc</artifactId>
+                        <version>1.9.13</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.jackson</groupId>
+                        <artifactId>jackson-jaxrs</artifactId>
+                        <version>1.9.13</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.github.fge</groupId>
+                        <artifactId>json-schema-validator</artifactId>
+                        <version>2.1.7</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
             <id>Default JUL Logging Support</id>
 
             <activation>
