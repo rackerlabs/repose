@@ -6,7 +6,6 @@
   "env_run_lists": {
   },
   "run_list": [
-    "recipe[tomcat7]",
     "recipe[powerapi-valve]",
     "recipe[powerapi-valve::rootwarnode]"
   ],
