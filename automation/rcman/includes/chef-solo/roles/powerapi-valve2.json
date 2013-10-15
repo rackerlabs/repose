@@ -7,7 +7,6 @@
   },
   "run_list": [
     "recipe[java]",
-    "recipe[tomcat7]",
     "recipe[powerapi-valve::powerapi-valve2]"
   ],
   "description": "",
