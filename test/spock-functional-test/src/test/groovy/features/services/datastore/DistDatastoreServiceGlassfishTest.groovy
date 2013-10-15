@@ -160,12 +160,10 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             } catch (Exception e) {}
             if (mc != null) {
                 if(mc.receivedResponse.code.equalsIgnoreCase("401")){
-                    print("Received 401!")
                     return true
 
                 }
             } else {
-                print("Received null!!")
                 return false
             }
         })
