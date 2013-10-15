@@ -65,6 +65,8 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>0.6.3</version>
         </dependency>
+
+
     </dependencies>
 
     <build>

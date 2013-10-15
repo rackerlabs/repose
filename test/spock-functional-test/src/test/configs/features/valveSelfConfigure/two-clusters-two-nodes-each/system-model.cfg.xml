@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="cluster-1">
+
+    <nodes>
+      <node id="node-1-1" hostname="localhost" http-port="${port11}"/>
+      <node id="node-1-2" hostname="example.com" http-port="${port12}"/>
+    </nodes>
+
+    <filters>
+    </filters>
+
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="${endpointPort1}" root-path="/" default="true"/>
+    </destinations>
+
+  </repose-cluster>
+
+  <repose-cluster id="cluster-2">
+
+    <nodes>
+      <node id="node-2-1" hostname="localhost" http-port="${port21}"/>
+      <node id="node-2-2" hostname="example.com" http-port="${port22}"/>
+    </nodes>
+
+    <filters>
+    </filters>
+
+    <destinations>
+      <endpoint id="target" protocol="http" hostname="localhost" port="${endpointPort2}" root-path="/" default="true"/>
+    </destinations>
+
+  </repose-cluster>
+</system-model>

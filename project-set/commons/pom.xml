@@ -25,6 +25,7 @@
 
    <dependencyManagement>
       <dependencies>
+
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
@@ -66,20 +67,6 @@
             <artifactId>jetty-servlet</artifactId>
             <version>8.0.1.v20110908</version>
          </dependency>
-
-         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-lgpl</artifactId>
-            <version>1.9.4</version>
-            <type>jar</type>
-         </dependency>
-      
-         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-xc</artifactId>
-            <version>1.9.4</version>
-         </dependency>
-      
       </dependencies>
    </dependencyManagement>
 

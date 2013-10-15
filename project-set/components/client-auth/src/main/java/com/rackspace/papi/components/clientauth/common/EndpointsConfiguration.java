@@ -8,31 +8,28 @@ import org.slf4j.Logger;
 
 public class EndpointsConfiguration {
 
+    private enum Formats { XML, JSON };
+
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
     private static final long TEN_MINUTES_MILLIS = 600000L;
 
-    private String format; //xml or json
+    private Formats format; //xml or json
     private Long cacheTimeout; //default is 1 hour
     private Integer identityContractVersion; //not used yet
 
     public EndpointsConfiguration(String format, Long cacheTimeout, Integer identityContractVersion) {
-        this.format = format;
+        this.format = determineFormat(format);
         this.cacheTimeout = cacheTimeout;
         this.identityContractVersion = identityContractVersion;
     }
 
     public String getFormat() {
-        String json = "JSON";
 
-        if (format == null) {
-            return json;
-        } else {
-            return format;
-        }
+        return format.toString().toLowerCase();
     }
 
     public void setFormat(String value) {
-        this.format = value;
+        this.format = determineFormat(value);
     }
 
     public long getCacheTimeout() {
@@ -60,5 +57,10 @@ public class EndpointsConfiguration {
 
     public void setIdentityContractVersion(Integer value) {
         this.identityContractVersion = value;
+    }
+
+    private Formats determineFormat(String input){
+
+        return input == null || !input.equalsIgnoreCase(Formats.XML.toString()) ? Formats.JSON : Formats.XML;
     }
 }
