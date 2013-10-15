@@ -400,7 +400,6 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("413")
     }
 
-    // Helper methods
     def "Should not split request headers according to rfc"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
@@ -444,6 +443,7 @@ class RateLimitingTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
+    // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
