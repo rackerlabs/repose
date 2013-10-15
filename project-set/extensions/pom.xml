@@ -12,6 +12,12 @@
     <artifactId>extensions-support</artifactId>
     
     <name>Repose Components - Extensions Support</name>
+    <description>
+        API Validator filter bundle to address dependency collisions between
+        API Validator and other filters/Repose Core.
+
+        No other filters should be developed here.
+    </description>
     <packaging>pom</packaging>
    
     <modules>

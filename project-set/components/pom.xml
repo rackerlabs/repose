@@ -12,6 +12,12 @@
     <artifactId>components-support</artifactId>
  
     <name>Repose Components - Components Support</name>
+    <description>
+        Repose filters except for:
+            cli-utils - Command Line Interface utilities
+            filter-bundle - packages all filters
+            xsl - stylesheet used by many filters during build
+    </description>
     <packaging>pom</packaging>
 
     <modules>

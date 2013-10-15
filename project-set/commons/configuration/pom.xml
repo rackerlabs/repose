@@ -12,7 +12,11 @@
     <artifactId>configuration</artifactId>
 
     <name>Repose Commons - Configuration Management</name>
-    
+    <description>
+        Configuration library to support the registration of Repose configuration
+        files and configuration listeners.
+    </description>
+
     <packaging>jar</packaging>
 
     <dependencies>
