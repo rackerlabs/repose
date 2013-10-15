@@ -55,6 +55,93 @@ class PatchMethodTest extends Specification {
         repose.waitForNon500FromUrl("http://localhost:${reposePort}")
     }
 
+    def "PATCH requests should be limited by limit-groups marked as 'PATCH'"() {
+
+        given:
+        def mc
+        String url = "http://localhost:${reposePort}/patchmethod/resource"
+        def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'patchmethod']
+
+
+        when: "we make some PATCH requests"
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+
+        then: "they should all come out ok"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+
+
+        when: "we make the final request that goes over the limit"
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+
+        then: "Repose should return an error and not forward the request to the origin service"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
+    def "PATCH requests should apply to limit-groups marked as 'ALL'"() {
+
+        given:
+        def mc
+        String url ="http://localhost:${reposePort}/allmethods/resource"
+        def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'allmethods']
+
+        when: "we make some requests with mixed methods"
+        mc = deproxy.makeRequest(method: "GET", url: url, headers: headers)
+
+        then: "they should all come out ok"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "GET", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when:
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers)
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+
+
+        when: "we make the final request that goes over the limit"
+        mc = deproxy.makeRequest(method: "GET", url: url, headers: headers)
+
+        then: "Repose should return an error and not forward the request to the origin service"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
     def cleanup() {
 
         if (repose) {
