@@ -14,6 +14,10 @@
         
    <name>Repose Commons - Commons Support</name>
 
+   <description>Common libraries used by Repose modules.
+       Commons should not have dependencies on other Repose modules.
+   </description>
+
    <packaging>pom</packaging>
 
    <modules>

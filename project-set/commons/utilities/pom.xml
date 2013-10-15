@@ -12,7 +12,15 @@
    <artifactId>utilities</artifactId>
 
    <name>Repose Commons - Utilities</name>
-    
+
+   <description>
+       Common utility classes (such as jaxb utilities, regex, logging) that
+       can be used by other Repose modules.
+
+       Utility classes should not have dependencies on other Repose modules.
+   </description>
+
+
    <packaging>jar</packaging>
 
    <dependencies>
