@@ -71,7 +71,7 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            tracer = new RequestTracer(traceRequest(request) || metricsService != null, traceRequest(request));
+            tracer = new RequestTracer(traceRequest(request) || filterTimer != null, traceRequest(request));
             currentFilters = getFilterChainForRequest(request.getRequestURI());
             filterChainAvailable = isCurrentFilterChainAvailable();
             servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
@@ -195,9 +195,9 @@ public class PowerFilterChain implements FilterChain {
             long start = tracer.traceEnter();
             setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
-            if( filterTimer != null) {
-                filterTimer.update(filter.getFilterConfig().getName(), tracer.traceExit(mutableHttpResponse,
-                        filter.getFilterConfig().getName(), start), TimeUnit.MILLISECONDS);
+            if(filterTimer != null) {
+                long delay = tracer.traceExit(mutableHttpResponse, "route", start);
+                filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             } else {
                 tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
             }
@@ -205,7 +205,8 @@ public class PowerFilterChain implements FilterChain {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
             if (filterTimer != null) {
-                filterTimer.update("route", tracer.traceExit(mutableHttpResponse, "route", start), TimeUnit.MILLISECONDS);
+                long delay = tracer.traceExit(mutableHttpResponse, "route", start);
+                filterTimer.update("route", delay, TimeUnit.MILLISECONDS);
             } else {
                 tracer.traceExit(mutableHttpResponse, "route", start);
             }
