@@ -3,6 +3,7 @@ package framework
 class TestProperties {
 
     String configDirectory
+    String rawConfigDirectory
     String logFile
     String configSamples
     String connFramework
@@ -53,6 +54,7 @@ class TestProperties {
             identityPort = properties.getProperty("identity.port")
             atomPort = properties.getProperty("atom.port")
             targetHostname = properties.getProperty("target.hostname")
+            rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files")

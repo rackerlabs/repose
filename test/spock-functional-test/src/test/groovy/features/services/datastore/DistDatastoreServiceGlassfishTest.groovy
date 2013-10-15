@@ -35,16 +35,13 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         int originServicePort = pf.getNextOpenPort()
 
-        //int originServicePort = 10001
         // start deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
 
-        int reposePort1 = 20000
-        int reposePort2 = 30000
-//        int reposePort1 = pf.getNextOpenPort()
-//        int reposePort2 = pf.getNextOpenPort()
+        int reposePort1 = pf.getNextOpenPort()
+        int reposePort2 = pf.getNextOpenPort()
 
         // configure and start repose
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
@@ -52,7 +49,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         reposeGlassfishEndpoint1 = "http://localhost:${reposePort1}"
         reposeGlassfishEndpoint2 = "http://localhost:${reposePort2}"
 
-        def configDirectory = properties.getConfigDirectory()
+        def configDirectory = properties.getRawConfigDirectory()
         def configSamples = properties.getConfigSamples()
         def rootWar = properties.getReposeRootWar()
 
