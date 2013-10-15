@@ -15,7 +15,8 @@
     <name>Repose - Build Support Profiles</name>
 
     <description>
-        POM file to provide build profile management
+        Aggregator of all Repose source modules.  Provides common dependency versions
+        used by source modules.
     </description>
 
     <packaging>pom</packaging>

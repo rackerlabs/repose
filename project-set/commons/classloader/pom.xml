@@ -12,6 +12,10 @@
     <artifactId>classloader</artifactId>
 
     <name>Repose Commons - Class Loader</name>
+    <description>
+        Repose Classloader library for loading and unloading external ear and jars
+        to allow the extension of Repose through custom filters and services.
+    </description>
 
     <packaging>jar</packaging>
 
