@@ -147,5 +147,25 @@ class TranslationRequestTest extends ReposeValveTest {
         acceptXML + contentJSON | contentXML  | invalidJson | "400"
     }
 
+    def "Should not split request headers according to rfc"() {
+        given:
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+            [
+                    "user-agent": userAgentValue,
+                    "x-pp-user": "usertest1, usertest2, usertest3",
+                    "accept": "application/xml;q=1 , application/json;q=0.5"
+            ]
 
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
+        def handling = mc.getHandlings()[0]
+
+        then:
+        handling.request.getHeaders().findAll("user-agent").size() == 1
+        handling.request.headers['user-agent'] == userAgentValue
+        handling.request.getHeaders().findAll("x-pp-user").size() == 3
+        handling.request.getHeaders().findAll("accept").size() == 2
+    }
 }

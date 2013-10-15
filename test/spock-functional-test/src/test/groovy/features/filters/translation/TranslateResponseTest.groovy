@@ -2,6 +2,7 @@ package features.filters.translation
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 import org.rackspace.gdeproxy.HeaderCollection
 import spock.lang.Unroll
@@ -131,6 +132,23 @@ class TranslateResponseTest extends ReposeValveTest {
         acceptXML  | contentXML  | invalidXmlResponse  | "500"
         acceptXML  | contentJSON | invalidJsonResponse | "500"
 
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', defaultHandler: xmlResp)
+        def handling = mc.getHandlings()[0]
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
 
