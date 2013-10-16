@@ -35,6 +35,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         int originServicePort = pf.getNextOpenPort()
 
+        println("Deproxy: " + originServicePort)
         // start deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
@@ -42,6 +43,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         int reposePort1 = pf.getNextOpenPort()
         int reposePort2 = pf.getNextOpenPort()
+        int dataStorePort1 = pf.getNextOpenPort()
+        int dataStorePort2 = pf.getNextOpenPort()
+
+        println("repose1: " + reposePort1 + "\nrepose2: " + reposePort2 + "\ndatastore1: " + dataStorePort1 + "\n" +
+                "datastore2: " + dataStorePort2)
 
         // configure and start repose
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
@@ -49,50 +55,36 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         reposeGlassfishEndpoint1 = "http://localhost:${reposePort1}"
         reposeGlassfishEndpoint2 = "http://localhost:${reposePort2}"
 
-        def configDirectory = properties.getRawConfigDirectory()
-        def configSamples = properties.getConfigSamples()
+        def configDirectory = properties.getConfigDirectory()
+        def configSamples = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
+        def buildDirectory = properties.getReposeHome() + "/.."
 
         ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
-        config1.applyConfigsRuntime("features/services/datastore/multinode/node1",
+        config1.applyConfigsRuntime("features/services/datastore/multinode",
                 [
                         'repose_port1': reposePort1.toString(),
                         'repose_port2': reposePort2.toString(),
                         'target_port': originServicePort.toString(),
                         'repose.config.directory': configDirectory,
                         'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1'
+                        'repose.node.id': 'node1',
+                        'target_hostname': 'localhost',
+                        'datastore_port1' : dataStorePort1,
+                        'datastore_port2' : dataStorePort2
                 ]
         )
 
-        config1.applyConfigsRuntime("common", ['':''])
+        config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
 
         repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);
-        //repose1.applyConfigs("features/services/datastore/multinode/node1")
-        //repose1.applyConfigs("common")
 
         repose1.start()
         waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1)
 
-        configDirectory = configDirectory + "/node2"
-        ReposeConfigurationProvider config2 = new ReposeConfigurationProvider(configDirectory, configSamples)
-        config2.applyConfigsRuntime("features/services/datastore/multinode/node2",
-                [
-                        'repose_port1': reposePort1.toString(),
-                        'repose_port2': reposePort2.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node2'
-
-                ])
-
-        config2.applyConfigsRuntime("common", ['':''])
-
-        repose2 = new ReposeGlassfishLauncher(config2, properties.getGlassfishJar(), "repose2", "node2", rootWar, reposePort2)
+        repose2 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
-        //repose2.applyConfigs("features/services/datastore/multinode/node2")
         repose2.start()
         waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2)
 
@@ -116,8 +108,8 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         def xmlResp = { request -> return new Response(200, "OK", ['header':"blah"], "test") }
 
         when:
-        MessageChain mc1 = deproxy.makeRequest([url: reposeGlassfishEndpoint1 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'], defaultHandler: xmlResp])
-        MessageChain mc2 = deproxy.makeRequest([url: reposeGlassfishEndpoint2 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'], defaultHandler: xmlResp])
+        MessageChain mc1 = deproxy.makeRequest(url: reposeGlassfishEndpoint1 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
+        MessageChain mc2 = deproxy.makeRequest(url: reposeGlassfishEndpoint2 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
 
         then:
         mc1.receivedResponse.code == '200'
@@ -134,14 +126,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when:
         //rate limiting is set to 3 an hour
         for (int i = 0; i < 3; i++) {
-            MessageChain mc = deproxy.makeRequest(reposeGlassfishEndpoint1 + "/test", 'GET', ['X-PP-USER': user], 'x-trace-request':'true')
+            MessageChain mc = deproxy.makeRequest(url: reposeGlassfishEndpoint1 + "/test", headers: ['X-PP-USER': user])
             if (mc.receivedResponse.code == 200) {
                 throw new SpockAssertionError("Expected 200 response from repose")
             }
         }
 
         //this call should rate limit when calling the second node
-        MessageChain mc = deproxy.makeRequest(reposeGlassfishEndpoint2 + "/test", 'GET', ['X-PP-USER': user])
+        MessageChain mc = deproxy.makeRequest(url: reposeGlassfishEndpoint2 + "/test", headers: ['X-PP-USER': user])
 
         then:
         mc.receivedResponse.code == "413"
