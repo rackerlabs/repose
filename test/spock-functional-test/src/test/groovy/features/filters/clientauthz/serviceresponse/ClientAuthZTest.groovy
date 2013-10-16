@@ -48,25 +48,6 @@ class ClientAuthZTest extends ReposeValveTest {
 
     }
 
-
-    def "When user is not authorized should receive a 403 FORBIDDEN response"(){
-
-        given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
-        def token = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = token
-        fakeIdentityService.origin_service_port = 99999
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+token+"/ss", 'GET', ['X-Auth-Token': token])
-        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
-                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
-
-        then: "User should receive a 403 FORBIDDEN response"
-        foundLogs.size() == 1
-        mc.handlings.size() == 0
-        mc.receivedResponse.code == "403"
-    }
-
     def "Should not split request headers according to rfc"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
@@ -85,8 +66,8 @@ class ClientAuthZTest extends ReposeValveTest {
         def handling = mc.getHandlings()[0]
 
         then: "User should receive a 200 response"
-        mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        mc.receivedResponse.code == "200"
         handling.request.getHeaders().findAll("user-agent").size() == 1
         handling.request.headers['user-agent'] == userAgentValue
         handling.request.getHeaders().findAll("x-pp-user").size() == 3
@@ -105,11 +86,29 @@ class ClientAuthZTest extends ReposeValveTest {
         def handling = mc.getHandlings()[0]
 
         then:
-        mc.receivedResponse.code == "201"
         mc.handlings.size() == 1
+        mc.receivedResponse.code == "201"
         mc.receivedResponse.headers.findAll("location").size() == 1
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
+    def "When user is not authorized should receive a 403 FORBIDDEN response"(){
+
+        given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
+        def token = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = token
+        fakeIdentityService.origin_service_port = 99999
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+token+"/ss", 'GET', ['X-Auth-Token': token])
+        def foundLogs = reposeLogSearch.searchByString("User token: " + token +
+                ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
+
+        then: "User should receive a 403 FORBIDDEN response"
+        foundLogs.size() == 1
+        mc.handlings.size() == 0
+        mc.receivedResponse.code == "403"
     }
 
 }
