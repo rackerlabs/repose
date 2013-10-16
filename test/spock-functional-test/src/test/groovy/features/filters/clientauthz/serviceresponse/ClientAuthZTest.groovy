@@ -61,29 +61,29 @@ class ClientAuthZTest extends ReposeValveTest {
             ]
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", 'GET',
-                reqHeaders)
-        def handling = mc.getHandlings()[0]
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss",
+                method: 'GET',
+                headers: reqHeaders)
 
         then: "User should receive a 200 response"
         mc.handlings.size() == 1
         mc.receivedResponse.code == "200"
-        handling.request.getHeaders().findAll("user-agent").size() == 1
-        handling.request.headers['user-agent'] == userAgentValue
-        handling.request.getHeaders().findAll("x-pp-user").size() == 3
-        handling.request.getHeaders().findAll("accept").size() == 2
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
 
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
-        def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
         Map<String, String> headers = ['X-Auth-Token': fakeIdentityService.client_token]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss",
-                method: 'GET', headers: headers, defaultHandler: xmlResp)
-        def handling = mc.getHandlings()[0]
+                method: 'GET', headers: headers, defaultHandler: handler)
 
         then:
         mc.handlings.size() == 1

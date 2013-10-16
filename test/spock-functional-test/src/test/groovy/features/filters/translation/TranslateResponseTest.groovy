@@ -137,11 +137,10 @@ class TranslateResponseTest extends ReposeValveTest {
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
-        def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', defaultHandler: xmlResp)
-        def handling = mc.getHandlings()[0]
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', defaultHandler: handler)
 
         then:
         mc.receivedResponse.code == "201"

@@ -160,12 +160,12 @@ class TranslationRequestTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
-        def handling = mc.getHandlings()[0]
 
         then:
-        handling.request.getHeaders().findAll("user-agent").size() == 1
-        handling.request.headers['user-agent'] == userAgentValue
-        handling.request.getHeaders().findAll("x-pp-user").size() == 3
-        handling.request.getHeaders().findAll("accept").size() == 2
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
 }

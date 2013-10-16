@@ -95,23 +95,22 @@ class IpIdentityTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: url, method: 'GET', headers: reqHeaders)
-        def handling = mc.getHandlings()[0]
 
         then:
-        handling.request.getHeaders().findAll("user-agent").size() == 1
-        handling.request.headers['user-agent'] == userAgentValue
-        handling.request.getHeaders().findAll("x-pp-user").size() == 4
-        handling.request.getHeaders().findAll("accept").size() == 2
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 4
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
 
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
-        def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: url, method: 'GET', defaultHandler: xmlResp)
-        def handling = mc.getHandlings()[0]
+        MessageChain mc = deproxy.makeRequest(url: url, method: 'GET', defaultHandler: handler)
 
         then:
         mc.receivedResponse.code == "201"
