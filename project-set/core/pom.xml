@@ -5,15 +5,23 @@
    <parent>
       <groupId>com.rackspace.papi</groupId>
       <artifactId>profile-support</artifactId>
-      <version>2.10.1-SNAPSHOT</version>
+      <version>2.11.0-SNAPSHOT</version>
    </parent>
 
    <groupId>com.rackspace.papi.core</groupId>
    <artifactId>core-support</artifactId>
-   <version>2.10.1-SNAPSHOT</version>
+   <version>2.11.0-SNAPSHOT</version>
 
    <name>Repose Core - Core Support</name>
-    
+
+   <description>
+        core-lib: Repose Core
+
+        valve: Standalone Repose java servlet
+
+        web-application: Wraps Repose up in a WAR
+   </description>
+
    <packaging>pom</packaging>
 
    <modules>
@@ -33,7 +41,7 @@
          <dependency>
             <groupId>org.openrepose.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
 
          <dependency>
@@ -45,13 +53,13 @@
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
 
           <dependency>
               <groupId>com.rackspace.papi.service</groupId>
               <artifactId>httpclient-connection-pool</artifactId>
-              <version>2.10.1-SNAPSHOT</version>
+              <version>2.11.0-SNAPSHOT</version>
           </dependency>
 
          <dependency>
@@ -63,25 +71,25 @@
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
 
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>jetty-container</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>classloader</artifactId>
-            <version>2.10.1-SNAPSHOT</version>
+            <version>2.11.0-SNAPSHOT</version>
          </dependency>
 
       </dependencies>

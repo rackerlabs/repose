@@ -5,14 +5,22 @@
    <parent>
       <groupId>com.rackspace.papi.commons</groupId>
       <artifactId>commons-support</artifactId>
-      <version>2.10.1-SNAPSHOT</version>
+      <version>2.11.0-SNAPSHOT</version>
    </parent>
 
    <groupId>com.rackspace.papi.commons</groupId>
    <artifactId>utilities</artifactId>
 
    <name>Repose Commons - Utilities</name>
-    
+
+   <description>
+       Common utility classes (such as jaxb utilities, regex, logging) that
+       can be used by other Repose modules.
+
+       Utility classes should not have dependencies on other Repose modules.
+   </description>
+
+
    <packaging>jar</packaging>
 
    <dependencies>
@@ -54,7 +62,7 @@
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
            <artifactId>httpclient-connection-pool</artifactId>
-           <version>2.10.1-SNAPSHOT</version>
+           <version>2.11.0-SNAPSHOT</version>
        </dependency>
 
    </dependencies>

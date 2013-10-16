@@ -5,14 +5,18 @@
     <parent>
         <groupId>com.rackspace.papi.commons</groupId>
         <artifactId>commons-support</artifactId>
-        <version>2.10.1-SNAPSHOT</version>
+        <version>2.11.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.commons</groupId>
     <artifactId>configuration</artifactId>
 
     <name>Repose Commons - Configuration Management</name>
-    
+    <description>
+        Configuration library to support the registration of Repose configuration
+        files and configuration listeners.
+    </description>
+
     <packaging>jar</packaging>
 
     <dependencies>

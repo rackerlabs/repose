@@ -5,13 +5,17 @@
     <parent>
         <groupId>com.rackspace.papi.commons</groupId>
         <artifactId>commons-support</artifactId>
-        <version>2.10.1-SNAPSHOT</version>
+        <version>2.11.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.commons</groupId>
     <artifactId>classloader</artifactId>
 
     <name>Repose Commons - Class Loader</name>
+    <description>
+        Repose Classloader library for loading and unloading external ear and jars
+        to allow the extension of Repose through custom filters and services.
+    </description>
 
     <packaging>jar</packaging>
 
