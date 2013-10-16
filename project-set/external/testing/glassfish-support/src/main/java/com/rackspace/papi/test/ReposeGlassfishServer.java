@@ -3,6 +3,7 @@ package com.rackspace.papi.test;
 
 import org.apache.commons.cli.*;
 import org.glassfish.embeddable.*;
+import sun.jvmstat.monitor.MonitorException;
 
 import javax.naming.NamingException;
 import java.io.File;
@@ -15,20 +16,22 @@ public class ReposeGlassfishServer {
 
     static GlassFish glassfish;
     static String reposeRootWar;
-    static int reposePort;
+    static int reposePort, stopPort;
+    static GlassFishMonitorThread monitor;
 
-    public static void main(String[] args) throws GlassFishException, NamingException, IOException {
+    public static void main(String[] args) throws GlassFishException, NamingException, IOException, MonitorException {
 
         CommandLineParser parser = new BasicParser();
         Options options = new Options();
 
         Option portOpt = new Option("p", true, "Repose port to listen on");
         Option rootwarOpt = new Option("w", true, "Location of ROOT.war");
+        Option stopPortOpt = new Option("s", true, "Glassfish stop port");
 
         portOpt.setRequired(true);
         rootwarOpt.setRequired(true);
 
-        options.addOption(portOpt).addOption(rootwarOpt);
+        options.addOption(portOpt).addOption(rootwarOpt).addOption(stopPortOpt);
 
         GlassFishProperties properties = new GlassFishProperties();
 
@@ -37,6 +40,7 @@ public class ReposeGlassfishServer {
             cmdline = parser.parse(options, args);
             reposePort = Integer.parseInt(cmdline.getOptionValue("p"));
             reposeRootWar = cmdline.getOptionValue("w");
+            stopPort =   Integer.parseInt(cmdline.getOptionValue("s"));
         } catch (ParseException ex) {
             System.err.println("Failed to start glassfish: " + ex.getMessage());
             System.exit(-1);
@@ -51,6 +55,11 @@ public class ReposeGlassfishServer {
         File war = new File(reposeRootWar);
         Deployer deployer = glassfish.getDeployer();
         deployer.deploy(war, "--name=repose", "--contextroot=/", "--force=true");
+
+
+        monitor = new GlassFishMonitorThread(glassfish, stopPort);
+
+        monitor.run();
     }
 
 }
