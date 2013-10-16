@@ -45,6 +45,8 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         int reposePort2 = pf.getNextOpenPort()
         int dataStorePort1 = pf.getNextOpenPort()
         int dataStorePort2 = pf.getNextOpenPort()
+        int shutdownPort1 = pf.getNextOpenPort()
+        int shutdownPort2 = pf.getNextOpenPort()
 
         println("repose1: " + reposePort1 + "\nrepose2: " + reposePort2 + "\ndatastore1: " + dataStorePort1 + "\n" +
                 "datastore2: " + dataStorePort2)
@@ -77,13 +79,13 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
 
-        repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1)
+        repose1 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
         waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1)
 
-        repose2 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2)
+        repose2 = new ReposeGlassfishLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
         waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2)

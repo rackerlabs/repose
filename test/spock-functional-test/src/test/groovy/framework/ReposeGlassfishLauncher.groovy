@@ -1,5 +1,7 @@
 package framework
 
+import java.nio.charset.Charset
+
 class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
     int shutdownPort
@@ -11,13 +13,14 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
     String glassfishJar
     String rootWarLocation
 
-    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort) {
+    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort, int stopPort) {
         this.configurationProvider = configurationProvider
         this.glassfishJar = glassfishJar
         this.clusterId = clusterId
         this.nodeId = nodeId
         this.reposePort = reposePort
         this.rootWarLocation = rootWarLocation
+        this.shutdownPort = stopPort
     }
 
     @Override
@@ -26,7 +29,7 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
-        def cmd = "java ${webXmlOverrides} -jar ${glassfishJar} -p ${reposePort} -w ${rootWarLocation}"
+        def cmd = "java ${webXmlOverrides} -jar ${glassfishJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
 //        cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
@@ -38,8 +41,18 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
     @Override
     void stop() {
-        def cmd = "java -jar ${glassfishJar} -s ${shutdownPort} stop"
-        println("Stopping Glassfish: ${cmd}")
+        try {
+            final Socket s = new Socket(InetAddress.getByName("127.0.0.1"), shutdownPort);
+            final OutputStream out = s.getOutputStream();
+
+            println("Sending Repose stop request");
+
+            out.write(("\r\n").getBytes(Charset.forName("UTF-8")));
+            out.flush();
+            s.close();
+        } catch (IOException ioex) {
+            println("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+        }
     }
 
     @Override
