@@ -1,9 +1,10 @@
-package features.filters.normalization.uri
+package features.filters.uriNormalization
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.gdeproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -13,7 +14,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         repose.applyConfigs(
-                "features/filters/normalization/uri")
+                "features/filters/uriNormalization")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
@@ -57,7 +58,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
    @Unroll("URI Normalization of queryParameters #behaviorExpected")
    def "When target is empty in uri filter"(){
 
-       repose.updateConfigs("features/filters/normalization/uri/emtpyuritarget")
+       repose.updateConfigs("features/filters/uriNormalization/emtpyuritarget")
 
         given:
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
@@ -81,7 +82,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When http method doesn't match the uri filter"(){
 
-        repose.updateConfigs("features/filters/normalization/uri/withmedia")
+        repose.updateConfigs("features/filters/uriNormalization/withmedia")
 
 
         given:
@@ -112,7 +113,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri-regex is not specified"(){
 
-        repose.updateConfigs("features/filters/normalization/uri/noregexwithmedia")
+        repose.updateConfigs("features/filters/uriNormalization/noregexwithmedia")
 
 
         given:
@@ -137,7 +138,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri filter does not have uri-regex and htt-methods"(){
 
-        repose.updateConfigs("features/filters/normalization/uri/nohttpmethodswithmedia")
+        repose.updateConfigs("features/filters/uriNormalization/nohttpmethodswithmedia")
 
 
 
@@ -163,7 +164,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When no uri filters exist"(){
 
-        repose.updateConfigs("features/filters/normalization/uri/onlymediavariant")
+        repose.updateConfigs("features/filters/uriNormalization/onlymediavariant")
 
 
         given:
@@ -183,5 +184,43 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         method   | matchingUriRegex      | qpBeforeRepose                                               | qpAfterRepose                                               | behaviorExpected
         "GET"    | "only_media_variant"  | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space"   | "filter_me=true&a=1&a=4&a=2&a=Add+Space&r=1241.212&n=test" | "Should not filter any query parameters"
 
+    }
+
+    def "Should not split request headers according to rfc"() {
+        given:
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+            [
+                    "user-agent": userAgentValue,
+                    "x-pp-user": "usertest1, usertest2, usertest3",
+                    "accept": "application/xml;q=1 , application/json;q=0.5"
+            ]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', defaultHandler: handler)
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers.findAll("via").size() == 1
     }
 }
