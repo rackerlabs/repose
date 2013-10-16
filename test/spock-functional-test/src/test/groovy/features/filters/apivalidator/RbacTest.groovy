@@ -1,4 +1,4 @@
-package features.rbac
+package features.filters.apivalidator
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
@@ -14,7 +14,7 @@ class RbacTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/rbac")
+        repose.applyConfigs("features/filters/apivalidator/rbac")
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

@@ -1,4 +1,4 @@
-package features.valveSelfConfigure
+package features.core.valveSelfConfigure
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
@@ -56,13 +56,13 @@ class MultiClusterMultiNodeTest extends Specification {
         ]
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/common",
+                "features/core/valveSelfConfigure/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/container-no-port",
+                "features/core/valveSelfConfigure/container-no-port",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/two-clusters-two-nodes-each",
+                "features/core/valveSelfConfigure/two-clusters-two-nodes-each",
                 params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

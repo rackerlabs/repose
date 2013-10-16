@@ -1,4 +1,4 @@
-package features.valveSelfConfigure
+package features.core.valveSelfConfigure
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
@@ -46,13 +46,13 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
         reposeConfigProvider.cleanConfigDirectory()
 
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/common",
+                "features/core/valveSelfConfigure/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/container-no-port",
+                "features/core/valveSelfConfigure/container-no-port",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/one-node",
+                "features/core/valveSelfConfigure/one-node",
                 params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
@@ -85,7 +85,7 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
             'port': port,
             'endpointPort': endpointPort,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/valveSelfConfigure/one-node', params)
+        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/one-node', params)
         sleep(sleep_duration)
         then:
         1 == 1
