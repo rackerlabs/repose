@@ -75,7 +75,7 @@ class ReposeConfigurationProvider {
      */
     void applyConfigsRuntime(String sourceFolder, params=[:]) {
 
-        def source = new File(reposeConfigDir.absolutePath + "/" + sourceFolder)
+        def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
 
         if (!source.exists()) { throw new IllegalArgumentException("\"${source.toString()}\" not found")}
         if (!source.isDirectory()) { throw new IllegalArgumentException("\"${source.toString()}\" is not a directory") }
@@ -88,7 +88,7 @@ class ReposeConfigurationProvider {
             // Note: this is necessary to get relative paths under JDK 6.
             // If using JDK 7, use java.nio.file.Path.relativize instead.
             def relativePath = source.toURI().relativize(file.toURI()).path
-            def destinationFilename = FilenameUtils.concat(samplesDir.absolutePath, relativePath)
+            def destinationFilename = FilenameUtils.concat(reposeConfigDir.absolutePath, relativePath)
             FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
         }
     }

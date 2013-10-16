@@ -9,6 +9,7 @@ class TestProperties {
     String connFramework
     String reposeEndpoint
     String reposeContainer = "valve"
+    String reposeHome
 
     String reposeJar
     String glassfishJar
@@ -55,6 +56,7 @@ class TestProperties {
             atomPort = properties.getProperty("atom.port")
             targetHostname = properties.getProperty("target.hostname")
             rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
+            reposeHome = properties.getProperty("repose.home")
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files")
