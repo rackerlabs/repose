@@ -400,6 +400,48 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("413")
     }
 
+    def "Should not split request headers according to rfc"() {
+        given:
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+            [
+                    "user-agent": userAgentValue,
+                    "x-pp-user": "usertest1, usertest2, usertest3",
+                    "accept": "application/xml;q=1 , application/json;q=0.5",
+                    "x-pp-groups": "unlimited"
+            ]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
+        Map<String, String> headers = ["x-pp-user": "usertest1, usertest2, usertest3", "X-PP-Groups" : "unlimited",
+                "Content-Type" : "application/xml"]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers,
+                defaultHandler: handler)
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
     // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -433,23 +475,23 @@ class RateLimitingTest extends ReposeValveTest {
         return json.limits.absolute[limit].value
     }
 
+
+
     private int parseRemainingFromJSON(String body, String limit) {
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.absolute[limit].value
     }
-
-
 
     private int parseRateCountFromXML(String body){
         def xml = XmlSlurper.newInstance().parseText(body)
         return xml.limits.rates.size()
     }
 
+
     private int parseRateCountFromJSON(String body){
         def json = JsonSlurper.newInstance().parseText(body)
         return json.limits.rate.size()
     }
-
 
     private String getDefaultLimits(Map group = null) {
         def groupHeader = (group != null) ? group : groupHeaderDefault

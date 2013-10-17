@@ -31,7 +31,7 @@ JUnit categories (http://junit.org/javadoc/4.9/org/junit/experimental/categories
 Repose's functional tests. These categories enable the user to run a select subset of all tests provided. To run a test
 category, execute 'mvn test -P <your-category>' in the spock-functional-tests module (e.g., mvn test -P bug). Note that
 the -P flag is immediately followed by the selected category name in all lower-case letters. To run multiple profiles,
-use a list of -P flags (i.e., mvn test -P bug -P slow).
+use a list of -P flags (e.g., mvn test -P bug -P slow).
 
 The following categories have been implemented:
 * SaxonEE       - A test is considered a SaxonEE test if it requires a SaxonEE license to run.
