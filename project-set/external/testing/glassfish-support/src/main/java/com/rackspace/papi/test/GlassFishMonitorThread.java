@@ -2,7 +2,6 @@ package com.rackspace.papi.test;
 
 import org.glassfish.embeddable.GlassFish;
 import org.glassfish.embeddable.GlassFishException;
-import sun.jvmstat.monitor.MonitorException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +17,17 @@ public class GlassFishMonitorThread extends Thread {
     private static final String MONITOR_NAME = "GlassFish_MONITOR";
     private static final String LOCAL_ADDRESS = "127.0.0.1";
     private ServerSocket socket;
+
+    public static class MonitorException extends RuntimeException {
+        public MonitorException(String message) {
+            super(message);
+        }
+
+        public MonitorException(Throwable cause) {
+            super(cause);
+        }
+    }
+
 
     public GlassFishMonitorThread(GlassFish glassfish, int stopPort) throws MonitorException {
         this.glassfish = glassfish;

@@ -3,7 +3,6 @@ package com.rackspace.papi.test;
 
 import org.apache.commons.cli.*;
 import org.glassfish.embeddable.*;
-import sun.jvmstat.monitor.MonitorException;
 
 import javax.naming.NamingException;
 import java.io.File;
@@ -19,7 +18,7 @@ public class ReposeGlassfishServer {
     static int reposePort, stopPort;
     static GlassFishMonitorThread monitor;
 
-    public static void main(String[] args) throws GlassFishException, NamingException, IOException, MonitorException {
+    public static void main(String[] args) throws GlassFishException, NamingException, IOException {
 
         CommandLineParser parser = new BasicParser();
         Options options = new Options();
@@ -57,9 +56,13 @@ public class ReposeGlassfishServer {
         deployer.deploy(war, "--name=repose", "--contextroot=/", "--force=true");
 
 
-        monitor = new GlassFishMonitorThread(glassfish, stopPort);
+        try{
+            monitor = new GlassFishMonitorThread(glassfish, stopPort);
 
-        monitor.run();
+            monitor.run();
+        }catch(Exception ex){
+            System.err.println("Unable to start Glassfish Monitor Thread");
+        }
     }
 
 }
