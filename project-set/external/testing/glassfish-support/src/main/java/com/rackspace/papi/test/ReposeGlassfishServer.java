@@ -57,9 +57,13 @@ public class ReposeGlassfishServer {
         deployer.deploy(war, "--name=repose", "--contextroot=/", "--force=true");
 
 
-        monitor = new GlassFishMonitorThread(glassfish, stopPort);
+        try{
+            monitor = new GlassFishMonitorThread(glassfish, stopPort);
 
-        monitor.run();
+            monitor.run();
+        }catch(Exception ex){
+            System.err.println("Unable to start Glassfish Monitor Thread");
+        }
     }
 
 }
