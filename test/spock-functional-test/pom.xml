@@ -46,8 +46,16 @@
 
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
+        <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
         <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
+
+        <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
+        <repose.root.war>ROOT.war</repose.root.war>
+        <glassfish.jar.dir>${project.set.dir}/external/testing/glassfish-support/target</glassfish.jar.dir>
+        <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>
+        <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
+        <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
     </properties>
 
 
