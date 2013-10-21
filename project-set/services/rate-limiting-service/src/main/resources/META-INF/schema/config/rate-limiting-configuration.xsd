@@ -273,7 +273,7 @@
                 <xs:documentation>
                     <html:p>List of HTTP Methods this rate limit will match on.
                         Valid values include:
-                        GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, ALL   
+                        GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE, ALL
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
