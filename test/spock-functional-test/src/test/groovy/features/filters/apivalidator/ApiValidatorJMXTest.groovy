@@ -60,7 +60,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         validatorBeans.size() == 3
-
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
