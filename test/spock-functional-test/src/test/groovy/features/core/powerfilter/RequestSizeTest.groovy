@@ -5,6 +5,7 @@ import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
+import org.rackspace.gdeproxy.Header
 
 /**
  * Setup: the configuration for this test has a container.cfg.xml with a content-body-read-limit="32000"
@@ -50,7 +51,13 @@ class RequestSizeTest extends ReposeValveTest {
     def "headers within jetty default size limit are allowed through"() {
 
         given: "I have headers that are within the header size limit"
-        def header1 = RandomStringUtils.random(headerSize, charset)
+        int defaultHeadersSize = 0
+        MessageChain fmc = deproxy.makeRequest(url: reposeEndpoint)
+        for(Header hdr : fmc.sentRequest.headers._headers){
+            defaultHeadersSize += hdr.value.length()
+        }
+        int largeHeaderSize = headerSize - defaultHeadersSize
+        def header1 = RandomStringUtils.random(largeHeaderSize, charset)
 
         when: "I send a request to REPOSE with my headers"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [headerName: header1])
