@@ -1,5 +1,6 @@
 package features.services.datastore
 import framework.*
+import framework.category.Flaky
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
@@ -13,6 +14,8 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
  */
+
+@Category(Flaky)
 class DistDatastoreServiceGlassfishTest extends Specification {
 
     static def reposeGlassfishEndpoint1
