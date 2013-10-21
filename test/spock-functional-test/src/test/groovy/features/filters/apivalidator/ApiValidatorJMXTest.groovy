@@ -35,6 +35,22 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         repose.stop()
     }
 
+
+    def "when loading validators on startup, should register Configuration MXBeans"() {
+
+        String ConfigurationBeanDomain = '\"com.rackspace.papi.jmx\":*'
+        String ConfigurationClassName = "com.rackspace.papi.jmx.ConfigurationInformation"
+
+        deproxy.makeRequest(reposeEndpoint + "/")
+
+        when:
+        def validatorBeans = repose.jmx.getMBeans(ConfigurationBeanDomain, ConfigurationClassName, 1)
+
+        then:
+        validatorBeans.size() == 1
+
+    }
+
     def "when loading validators on startup, should register validator MXBeans"() {
 
         deproxy.makeRequest(reposeEndpoint + "/")
@@ -44,7 +60,6 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
         then:
         validatorBeans.size() == 3
-
     }
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
