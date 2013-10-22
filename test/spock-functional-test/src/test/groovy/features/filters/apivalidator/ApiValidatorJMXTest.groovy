@@ -38,7 +38,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register Configuration MXBeans"() {
 
-        String ConfigurationBeanDomain = '\"com.rackspace.papi.jmx\":*'
+        String ConfigurationBeanDomain = 'repose-node-com.rackspace.papi.jmx:*'
         String ConfigurationClassName = "com.rackspace.papi.jmx.ConfigurationInformation"
 
         deproxy.makeRequest(reposeEndpoint + "/")
