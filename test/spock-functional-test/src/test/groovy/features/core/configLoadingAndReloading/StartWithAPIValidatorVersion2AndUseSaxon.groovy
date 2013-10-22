@@ -1,4 +1,4 @@
-package features.configLoadingAndReloading
+package features.core.configLoadingAndReloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -9,24 +9,21 @@ import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
-import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithMissingConfigs extends Specification {
+class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
 
     int reposePort
     int stopPort
-    int targetPort
     String url
-    TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
-    ReposeLogSearch reposeLogSearch
     ReposeValveLauncher repose
-    Map params = [:]
+    ReposeLogSearch reposeLogSearch
+    int targetPort
+    def params = [:]
     Deproxy deproxy
 
     def setup() {
-
         PortFinder pf = new PortFinder()
         this.reposePort = pf.getNextOpenPort() as int
         this.stopPort = pf.getNextOpenPort() as int
@@ -43,24 +40,20 @@ class StartWithMissingConfigs extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
-        // setup config provider
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        // set initial config files
+        TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
-    }
-
-    @Unroll
-    def "start with missing #componentLabel config"() {
-
-        given:
-
-        // set the common configs, but not the component-specific configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/common",
+                "features/core/configLoadingAndReloading/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-common",
+                "features/core/configLoadingAndReloading/validator-common",
+                params)
+        reposeConfigProvider.applyConfigsRuntime(
+                "features/core/configLoadingAndReloading/validator-v2-use-saxon",
                 params)
 
         // start repose
@@ -75,17 +68,14 @@ class StartWithMissingConfigs extends Specification {
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
+                waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
+    }
 
+    def "test_start_v2_use_saxon"() {
 
-
-        expect: "if the file is missing then the default should produce 200's"
-        deproxy.makeRequest(url: url).receivedResponse.code == "200"
-
-        where:
-        componentLabel       | _
-        "response-messaging" | _
+        expect:
+        deproxy.makeRequest(url: url).receivedResponse.code == "503"
     }
 
     def cleanup() {

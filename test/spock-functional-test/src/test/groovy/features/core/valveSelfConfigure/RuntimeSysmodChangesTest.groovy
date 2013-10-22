@@ -1,4 +1,4 @@
-package features.valveSelfConfigure
+package features.core.valveSelfConfigure
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
@@ -55,13 +55,13 @@ class RuntimeSysmodChangesTest extends Specification {
         reposeConfigProvider.cleanConfigDirectory()
 
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/common",
+                "features/core/valveSelfConfigure/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/container-no-port",
+                "features/core/valveSelfConfigure/container-no-port",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/valveSelfConfigure/single-node-with-proto",
+                "features/core/valveSelfConfigure/single-node-with-proto",
                 params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
@@ -107,7 +107,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'node1port': port1,
             'node2port': port2,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/valveSelfConfigure/two-nodes', params)
+        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/two-nodes', params)
         sleep(sleep_duration)
         then:
         1 == 1
@@ -139,7 +139,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'endpointPort': endpointPort,
             'sysmod_port': port2,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/valveSelfConfigure/single-node-with-proto', params)
+        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/single-node-with-proto', params)
         sleep(sleep_duration)
         then:
         1 == 1
@@ -174,7 +174,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'node2port': port2,
             'node3port': port3,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/valveSelfConfigure/three-nodes', params)
+        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/three-nodes', params)
         sleep(sleep_duration)
         then:
         1 == 1
@@ -209,7 +209,7 @@ class RuntimeSysmodChangesTest extends Specification {
             'node2port': port2,
             'node3port': port3,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/valveSelfConfigure/three-nodes', params)
+        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/three-nodes', params)
         sleep(sleep_duration)
         then:
         1 == 1

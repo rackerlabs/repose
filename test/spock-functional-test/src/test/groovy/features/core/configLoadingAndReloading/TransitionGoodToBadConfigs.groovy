@@ -1,4 +1,4 @@
-package features.configLoadingAndReloading
+package features.core.configLoadingAndReloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -55,13 +55,13 @@ class TransitionGoodToBadConfigs extends Specification {
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/common",
+                "features/core/configLoadingAndReloading/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-common",
+                "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-good",
+                "features/core/configLoadingAndReloading/${componentLabel}-good",
                 params)
 
         // start repose
@@ -86,7 +86,7 @@ class TransitionGoodToBadConfigs extends Specification {
 
         when: "the configs are changed to bad ones and we wait for Repose to pick up the change"
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-bad",
+                "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
         sleep 15000
 

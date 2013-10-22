@@ -1,4 +1,4 @@
-package features.configLoadingAndReloading
+package features.core.configLoadingAndReloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -57,13 +57,13 @@ class StartWithBadConfigs extends Specification {
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/common",
+                "features/core/configLoadingAndReloading/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-common",
+                "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-bad",
+                "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
         expectCleanShutdown = true
 
@@ -111,13 +111,13 @@ class StartWithBadConfigs extends Specification {
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/common",
+                "features/core/configLoadingAndReloading/common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-common",
+                "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
         reposeConfigProvider.applyConfigsRuntime(
-                "features/configLoadingAndReloading/${componentLabel}-bad",
+                "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
         expectCleanShutdown = false
 
