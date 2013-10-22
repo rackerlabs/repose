@@ -8,6 +8,8 @@ import org.rackspace.gdeproxy.PortFinder
 import org.rackspace.gdeproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
+import org.junit.experimental.categories.Category
+
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
