@@ -41,7 +41,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when configured with DD service and filter, repose should not start" () {
         given:
-        repose.applyConfigs("features/badconfig/datastore/servicefilter")
+        repose.applyConfigs("features/services/datastore/badconfig")
         setIsFailedStart(true)
 
         def MessageChain mc
@@ -110,7 +110,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.start()
         logMatchesFalse = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/badconfig/datastore/servicefilter")
+        repose.updateConfigs("features/services/datastore/badconfig")
         logMatchesTrue = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
         def user= UUID.randomUUID().toString();
@@ -134,7 +134,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
         logMatchesFalse = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/badconfig/datastore/servicefilter")
+        repose.updateConfigs("features/services/datastore/badconfig")
         logMatchesTrue = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
         def user= UUID.randomUUID().toString();
