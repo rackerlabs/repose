@@ -109,6 +109,9 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
+                        Deprecated: This attribute is deprecated and will always be considered true.
+                    </html:p>
+                    <html:p>
                         Determines whether or not capture groups will be used to evalute limits
                         from uri-regex. Set to false will count all the requests with the uri-regex that has 
                         the capture group towards the limit count specified. By default it is set to true.
