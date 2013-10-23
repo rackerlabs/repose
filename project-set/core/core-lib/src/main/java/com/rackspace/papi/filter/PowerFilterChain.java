@@ -1,10 +1,14 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.FilterProcessingTime;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import com.yammer.metrics.core.TimerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author fran
@@ -40,16 +45,23 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
+    private MetricsService metricsService;
+    private TimerByCategory filterTimer;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
-            ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo)
+            ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
-        this.resourceMonitor = resourceMontior;
+        this.resourceMonitor = resourceMonitor;
         this.router = router;
+        this.metricsService = metricsService;
+        if (metricsService != null) {
+            filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
+                    TimeUnit.MILLISECONDS);
+        }
         Thread.currentThread().setName(instanceInfo.toString());
     }
 
@@ -59,7 +71,15 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
-            tracer = new RequestTracer(traceRequest(request));
+
+            boolean useTrace;
+            boolean addTraceHeader = traceRequest(request);
+            if (addTraceHeader || filterTimer != null)
+                useTrace = true;
+            else
+                useTrace = false;
+
+            tracer = new RequestTracer(useTrace, addTraceHeader);
             currentFilters = getFilterChainForRequest(request.getRequestURI());
             filterChainAvailable = isCurrentFilterChainAvailable();
             servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
@@ -183,11 +203,17 @@ public class PowerFilterChain implements FilterChain {
             long start = tracer.traceEnter();
             setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
-            tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
+            long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
+            if(filterTimer != null) {
+                filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
+            }
         } else {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
-            tracer.traceExit(mutableHttpResponse, "route", start);
+            long delay = tracer.traceExit(mutableHttpResponse, "route", start);
+            if (filterTimer != null) {
+                filterTimer.update("route", delay, TimeUnit.MILLISECONDS);
+            }
         }
     }
 }

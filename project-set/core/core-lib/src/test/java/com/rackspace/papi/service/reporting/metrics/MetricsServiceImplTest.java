@@ -6,6 +6,8 @@ import com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
+import com.yammer.metrics.core.Timer;
+import com.yammer.metrics.core.TimerContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -108,6 +110,31 @@ public class MetricsServiceImplTest {
         }
 
         @Test
+        public void testServiceTimer() throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
+
+            Timer t = metricsService.newTimer( this.getClass(), "name1", "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS );
+
+            TimerContext tc = t.time();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {}
+            tc.stop();
+
+            assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+
+            t.update(1000L, TimeUnit.MILLISECONDS);
+
+            assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+        }
+
+        @Test
         public void testMeterByCategory() throws
               MalformedObjectNameException,
               AttributeNotFoundException,
@@ -150,6 +177,45 @@ public class MetricsServiceImplTest {
 
             l = (Long) getAttribute( this.getClass(), MeterByCategorySum.ALL, "scope1", "Count" );
             assertEquals( (long) 6, l );
+        }
+
+        @Test
+        public void testTimerByCategory() throws
+                MalformedObjectNameException,
+                AttributeNotFoundException,
+                MBeanException,
+                ReflectionException,
+                InstanceNotFoundException {
+
+            TimerByCategory t = metricsService.newTimerByCategory( this.getClass(), "scope1", TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS );
+
+            TimerContext tc = t.time("key1");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {}
+            tc.stop();
+
+            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+
+            tc = t.time("key2");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {}
+            tc.stop();
+
+            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
+
+            t.update("key1", 1000L, TimeUnit.MILLISECONDS);
+
+            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+
+            t.update("key2", 1000L, TimeUnit.MILLISECONDS);
+
+            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test( expected = IllegalArgumentException.class )
