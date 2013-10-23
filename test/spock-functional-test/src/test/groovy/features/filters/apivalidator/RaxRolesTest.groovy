@@ -91,15 +91,41 @@ class RaxRolesTest extends ReposeValveTest {
         "DELETE" | null                                                | "403"
     }
 
-//    @Unroll("User3:method=#method,headers=#headers,expected response=#responseCode")
-//    def "when enable-rax-roles is true, validate with wadl resource level roles"() {
-//        given:
-//        MessageChain messageChain
-//
-//        when:
-//        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers)
-//
-//        then:
-//        messageChain.getReceivedResponse().getCode().equals(responseCode)
-//    }
+    @Unroll("User3:method=#method,headers=#headers,expected response=#responseCode")
+    def "when enable-rax-roles is true, validate with wadl resource level roles"() {
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method,
+                headers: headers)
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | headers                                        | responseCode
+        "GET"    | ["x-roles": "test_user3, a:admin"]             | "200"
+        "GET"    | ["x-roles": "test_user3, a:observer"]          | "403"
+        "GET"    | ["x-roles": "test_user3, b:observer"]          | "403"
+        "GET"    | ["x-roles": "test_user3, b:creator"]           | "403"
+        "PUT"    | ["x-roles": "test_user3, a:admin"]             | "200"
+        "PUT"    | ["x-roles": "test_user3, a:observer"]          | "200"
+        "PUT"    | ["x-roles": "test_user3, a:observer, a:admin"] | "200"
+        "PUT"    | ["x-roles": "test_user3, a:bar"]               | "403"
+        "PUT"    | ["x-roles": "test_user3"]                      | "403"
+        "PUT"    | ["x-roles": "test_user3, a:observe"]           | "403"
+        "POST"   | ["x-roles": "test_user3, a:observer"]          | "403"
+        "POST"   | ["x-roles": "test_user3, a:admin"]             | "200"
+        "DELETE" | ["x-roles": "test_user3, a:admin"]             | "200"
+        "DELETE" | ["x-roles": "test_user3, a:observer"]          | "200"
+        "DELETE" | ["x-roles": "test_user3, a:observer, a:admin"] | "200"
+        "DELETE" | ["x-roles": "test_user3, a:creator"]           | "200"
+        "DELETE" | ["x-roles": "test_user3, a:bar"]               | "403"
+        "DELETE" | ["x-roles": "test_user3"]                      | "403"
+        "DELETE" | ["x-roles": "test_user3, a:observe"]           | "403"
+        "GET"    | null                                           | "403"
+        "PUT"    | null                                           | "403"
+        "POST"   | null                                           | "403"
+        "DELETE" | null                                           | "403"
+    }
 }
