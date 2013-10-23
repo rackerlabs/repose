@@ -14,12 +14,12 @@ import java.util.Map;
  * @author jhopper
  */
 public class CachedRateLimit implements Serializable {
-    private final Map<HttpMethod, LinkedList<LoggedRequest>> usageMap;
+    private final Map<HttpMethod, LinkedList<Long>> usageMap;
     private final int regexHashcode;
 
     public CachedRateLimit(String regex) {
         this.regexHashcode = regex.hashCode();
-        this.usageMap = new EnumMap<HttpMethod, LinkedList<LoggedRequest>>(HttpMethod.class);
+        this.usageMap = new EnumMap<HttpMethod, LinkedList<Long>>(HttpMethod.class);
     }
 
     public long now() {
@@ -33,24 +33,24 @@ public class CachedRateLimit implements Serializable {
     private void vacuum() {
         final long now = now();
 
-        for (Map.Entry<HttpMethod, LinkedList<LoggedRequest>> entry : usageMap.entrySet()) {
-            final LinkedList<LoggedRequest> usageQueue = entry.getValue();
+        for (Map.Entry<HttpMethod, LinkedList<Long>> entry : usageMap.entrySet()) {
+            final LinkedList<Long> usageQueue = entry.getValue();
 
-            while (!usageQueue.isEmpty() && usageQueue.peek().getTimestamp() < now) {
+            while (!usageQueue.isEmpty() && usageQueue.peek() < now) {
                 usageQueue.poll();
             }
         }
     }
 
     public void logHit(HttpMethod method, long time) {
-        LinkedList<LoggedRequest> usageQueue = usageMap.get(method);
+        LinkedList<Long> usageQueue = usageMap.get(method);
 
         if (usageQueue == null) {
-            usageQueue = new LinkedList<LoggedRequest>();
+            usageQueue = new LinkedList<Long>();
             usageMap.put(method, usageQueue);
         }
 
-        usageQueue.add(new LoggedRequest(time));
+        usageQueue.add(time);
     }
 
     public void logHit(HttpMethod method, TimeUnit timeInterval) {
@@ -62,21 +62,21 @@ public class CachedRateLimit implements Serializable {
     public int amount(HttpMethod method) {
         vacuum();
 
-        final LinkedList<LoggedRequest> usageQueue = usageMap.get(method);
+        final LinkedList<Long> usageQueue = usageMap.get(method);
         return usageQueue != null ? usageQueue.size() : 0;
     }
 
     public long getEarliestExpirationTime(HttpMethod method) {
         vacuum();
 
-        final LinkedList<LoggedRequest> usageQueue = usageMap.get(method);
-        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peek().getTimestamp() : now();
+        final LinkedList<Long> usageQueue = usageMap.get(method);
+        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peek() : now();
     }
 
     public long getLatestExpirationTime(HttpMethod method) {
         vacuum();
 
-        final LinkedList<LoggedRequest> usageQueue = usageMap.get(method);
-        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peekLast().getTimestamp() : now();
+        final LinkedList<Long> usageQueue = usageMap.get(method);
+        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peekLast() : now();
     }
 }
