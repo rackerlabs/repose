@@ -11,8 +11,6 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static org.junit.Assert.fail;
-
 /*
  * A set of tests to verify that the schema is defined as desired
  * and that configuration files can be validated against it.
@@ -31,7 +29,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void shouldNotRequireRaxRolesAttribute() throws IOException {
+    public void shouldNotRequireRaxRolesAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                         "    <validator" +
@@ -40,15 +38,11 @@ public class SchemaTest {
                         "        wadl=\"file://my/wadl/file.wadl\"/>" +
                         "</validators>";
 
-        try {
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        } catch (SAXException se) {
-            fail("Validated bad XML");
-        }
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
 
     @Test
-    public void shouldAllowEnableRaxRolesAttribute() throws IOException {
+    public void shouldAllowEnableRaxRolesAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                 "    <validator" +
@@ -58,15 +52,11 @@ public class SchemaTest {
                 "        enable-rax-roles=\"true\"/>" +
                 "</validators>";
 
-        try {
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        } catch (SAXException se) {
-            fail("Failed to validate XML");
-        }
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
 
-    @Test
-    public void shouldNotAllowInvalidRaxRolesAttribute() throws IOException {
+    @Test(expected = SAXException.class)
+    public void shouldNotAllowInvalidRaxRolesAttribute() throws IOException, SAXException {
         String xml =
                 "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
                         "    <validator" +
@@ -76,9 +66,6 @@ public class SchemaTest {
                         "        enable-rax-roles=\"foo\"/>" +
                         "</validators>";
 
-        try {
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-            fail("Validated bad XML");
-        } catch (SAXException se) {}
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
 }
