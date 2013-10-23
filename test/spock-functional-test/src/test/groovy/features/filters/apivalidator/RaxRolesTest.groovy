@@ -104,14 +104,36 @@ class RaxRolesTest extends ReposeValveTest{
         MessageChain messageChain
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers,
-                defaultHandler: okHandler)
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method,
+                headers: headers + ["x-roles": "test_user3"], defaultHandler: okHandler)
 
         then:
         messageChain.getReceivedResponse().getCode().equals(responseCode)
 
         where:
         method   | headers                            | responseCode
-
+        "GET"    | ["x-roles": "a:admin"]             | "200"
+        "GET"    | ["x-roles": "a:observer"]          | "403"
+        "GET"    | ["x-roles": "b:observer"]          | "403"
+        "GET"    | ["x-roles": "b:creator"]           | "403"
+        "GET"    | null                               | "403"
+        "PUT"    | ["x-roles": "a:admin"]             | "200"
+        "PUT"    | ["x-roles": "a:observer"]          | "200"
+        "PUT"    | ["x-roles": "a:observer, a:admin"] | "200"
+        "PUT"    | ["x-roles": "a:bar"]               | "403"
+        "PUT"    | ["x-roles": ""]                    | "403"
+        "PUT"    | ["x-roles": "a:observe"]           | "403"
+        "PUT"    | null                               | "403"
+        "POST"   | ["x-roles": "a:observer"]          | "403"
+        "POST"   | ["x-roles": "a:admin"]             | "200"
+        "POST"   | null                               | "403"
+        "DELETE" | ["x-roles": "a:admin"]             | "200"
+        "DELETE" | ["x-roles": "a:observer"]          | "200"
+        "DELETE" | ["x-roles": "a:observer, a:admin"] | "200"
+        "DELETE" | ["x-roles": "a:creator"]           | "200"
+        "DELETE" | ["x-roles": "a:bar"]               | "403"
+        "DELETE" | ["x-roles": ""]                    | "403"
+        "DELETE" | ["x-roles": "a:observe"]           | "403"
+        "DELETE" | null                               | "403"
     }
 }
