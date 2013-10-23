@@ -132,7 +132,7 @@ public abstract class ValidatorConfigurator {
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
-
+        config.setEnableRaxRolesExtension(validatorItem.isEnableRaxRoles());
 
         return config;
     }

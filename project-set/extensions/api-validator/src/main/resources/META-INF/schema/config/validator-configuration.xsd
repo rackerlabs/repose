@@ -401,7 +401,7 @@
                         Enables the use of rax:roles in WADL files to determine resource access.
                         If true, rax:roles defined in the supplied WADL files will be used to determine resource access.
                         If false, rax:roles defined in WADL files are NOT used to determine resource access.
-                        Default value is false if not specified.
+                        NOTE: If true, check-headers will also be enabled regardless of your setting.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
