@@ -30,13 +30,13 @@ public class TimerByCategoryImpl implements TimerByCategory {
     private TimeUnit duration;
     private TimeUnit rate;
 
-    TimerByCategoryImpl(MetricsService metricsServiceP, Class klassP, String scopeP, TimeUnit durationP,
-                        TimeUnit rateP) {
-        this.metricsService = metricsServiceP;
-        this.klass = klassP;
-        this.scope = scopeP;
-        this.duration = durationP;
-        this.rate = rateP;
+    TimerByCategoryImpl(MetricsService metricsService, Class klass, String scope, TimeUnit duration,
+                        TimeUnit rate) {
+        this.metricsService = metricsService;
+        this.klass = klass;
+        this.scope = scope;
+        this.duration = duration;
+        this.rate = rate;
     }
 
     public void update(String key, long duration, TimeUnit unit) {
@@ -48,17 +48,13 @@ public class TimerByCategoryImpl implements TimerByCategory {
     }
 
     private Timer verifyGet(String key) {
-        //assert metricsService != null;
-
-        if ( !map.containsKey( key ) )
-
-            synchronized ( this ) {
-
-                if ( !map.containsKey( key ) ) {
-
-                    map.put( key, metricsService.newTimer(klass, key, scope, duration, rate) );
+        if (!map.containsKey(key)) {
+            synchronized (this) {
+                if (!map.containsKey(key)) {
+                    map.put(key, metricsService.newTimer(klass, key, scope, duration, rate));
                 }
             }
+        }
 
         return map.get( key );
     }
