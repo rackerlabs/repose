@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators multi-role-match="false" xmlns='http://openrepose.org/repose/validator/v1.0'>
+
+    <validator role="raxRolesDisabled" default="false" enable-rax-roles="false">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${target_port}">
+                <resource path="/a">
+                    <method name="GET" rax:roles="a:observer"/>
+                    <method name="POST" rax:roles="a:admin"/>
+                    <method name="PUT"/>
+                    <method name="DELETE" rax:roles="a:observer a:admin"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+    <validator role="raxRolesEnabled" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${target_port}">
+                <resource path="/a">
+                    <method name="GET" rax:roles="a:observer"/>
+                    <method name="POST" rax:roles="a:admin"/>
+                    <method name="PUT"/>
+                    <method name="DELETE" rax:roles="a:observer a:admin"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user3" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a" rax:roles="a:admin">
+                    <method name="POST"/>
+                    <method name="GET"/>
+                    <method name="PUT" rax:roles="a:observer"/>
+                    <method name="DELETE" rax:roles="a:observer a:admin a:creator"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user4" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a" rax:roles="a:admin">
+                    <method name="PUT" rax:roles="a:observer"/>
+                    <resource path="/b" rax:roles="b:creator">
+                        <method name="POST"/>
+                        <method name="PUT" rax:roles="b:observer"/>
+                        <method name="DELETE" rax:roles="b:observer b:admin"/>
+                    </resource>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user5" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a" rax:roles="a:admin">
+                    <method name="POST" rax:roles="a:creator"/>
+                    <method name="GET" rax:roles="#all"/>
+                    <method name="PUT"/>
+                </resource>
+                <resource path="/b" rax:roles="#all">
+                    <method name="GET"/>
+                    <resource path="/c" rax:roles="c:admin">
+                        <method name="POST"/>
+                        <method name="GET" rax:roles="c:observer"/>
+                    </resource>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user6" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a">
+                    <method name="GET"/>
+                    <method name="PUT"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user7" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a" rax:roles="a:admin">
+                    <method name="PUT" rax:roles="a:observer"/>
+                    <resource path="/b" rax:roles="b:creator">
+                        <method name="POST"/>
+                        <method name="PUT" rax:roles="b:observer"/>
+                        <method name="DELETE" rax:roles="b:observer b:admin"/>
+                    </resource>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user8" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="https://test.api.openstack.com">
+                <resource path="/a" rax:roles="a:admin">
+                    <method name="POST" rax:roles="a:creator"/>
+                    <method name="GET" rax:roles="#all"/>
+                    <method name="PUT"/>
+                </resource>
+                <resource path="/b" >
+                    <method name="GET"/>
+                    <resource path="/c">
+                        <method name="POST"/>
+                        <method name="GET"/>
+                    </resource>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+
+    <!--validator wadl="generic_pass.wadl" default="true" enable-rax-roles="true"/-->
+</validators>
