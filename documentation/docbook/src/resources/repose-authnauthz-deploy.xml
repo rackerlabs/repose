@@ -79,6 +79,18 @@
         </abstract>
         <revhistory>
             <revision>
+                <date>2013-10-23</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Revised edition of
+                                Authentication and Authorization
+                                document.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
                 <date>2012-02-14</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
@@ -224,7 +236,8 @@
             configuring the client-auth Repose component to interact
             with the Rackspace Cloud Authentication Service. </para>
         
-        <example>
+        
+        <para> Key elements of the preceding example are labeled with<example>
            
             <title>Client Authentication Configuration: XML</title>
             <programlistingco>
@@ -247,7 +260,6 @@
                 </programlisting>
             </programlistingco>
         </example>
-        <para> Key elements of the preceding example are labeled with
             callouts and explained below: </para>
         <calloutlist>
             <callout arearefs="repose-authn.xml.delegable">
@@ -951,9 +963,179 @@
                     <code>X-Authorization: Proxy and
                     X-Identity-Status: Indeterminate</code>). </para>
             </section>
-           
-        
-
+        <section xml:id="Token_Invalidation_Through_Atom_Feed-d1e256">
+            <title>Token Invalidation Through Atom Feed</title>
+            <para>Using Atom Hopper’s Atom feed for token invalidation
+                allows you to clear your cache of possible invalid
+                tokens. This feature compares the existing tokens in
+                the cache against the Atom feed. If the Atom feed
+                states that a token is invalid, the token is deleted
+                from the cache, which prevents the cache from storing
+                and authenticating existing invalid tokens. You can
+                configure this feature to listen to multiple atom
+                feeds if necessary. </para>
+            <para><guilabel>Configuration</guilabel></para>
+            <para>To configure your subscription to an Atom feed to
+                retrieve invalidated users and tokens, add the
+                &lt;atom-feeds&gt; element to the client-auth config
+                as shown below. 
+                <note>
+                    <para> Currently this functionality only works
+                        with the &lt;openstack-auth&gt; option for the
+                        client auth filter. </para>
+                </note>
+            </para>
+            
+            <example><title>Client Authentication Configuration with
+                Atom Feed</title>
+                <programlisting language="xml">
+<xi:include href="samples/client_auth_config_atom_hopper.txt" parse="text"/>
+                </programlisting>
+            </example>
+            
+           <para>
+                <table rules="all">
+                    <caption>Configurations Options</caption>
+                   
+                        <col
+                           width="33%"/>
+                        <col
+                            width="33%"/>
+                        <col
+                            width="33%"/>
+                        <thead>
+                            <tr>
+                               <th>Attribute</th>
+                                <th>Description</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    check-interval
+                                </td>
+                                <td>Length of time (in milliseconds)
+                                that Repose will poll the configured
+                                Atom feeds. </td>
+                                <td>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Optional</para>
+                                        </listitem>
+                                    
+                                    <listitem>
+                                        <para>Default: 60000</para>
+                                    </listitem>
+                                    <listitem>
+                                        <para>Minimum: 10000 (Use this
+                                   option to prevent Repose from
+                                   flooding Atom endpoints with
+                                   requests.)</para>
+                                    </listitem>
+                                    </itemizedlist>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    uri
+                                </td>
+                                <td>Location of Identity feed that
+                                listens for updates to users and
+                                tokens.</td>
+                                <td>
+                                <itemizedlist>
+                                   <listitem>
+                                   <para>Required</para>
+                                   </listitem>
+                                </itemizedlist>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    isAuthed
+                                </td>
+                                <td>Configures whether or not the
+                                configured Atom feed will require an
+                                Auth token to retrieve feeds.</td>
+                                <td>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Optional</para>
+                                        </listitem>
+                                        
+                                        <listitem>
+                                            <para>Default:
+                                   false</para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </td>
+                                
+                            </tr>
+                            <tr>
+                                <td>auth-uri</td>
+                                <td>Configures the authentication
+                                endpoint to retrieve Auth tokens to
+                                read the configured Atom feed.</td>
+                                <td>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Optional</para>
+                                        </listitem>
+                                        
+                                        <listitem>
+                                   <para>Default:</para>
+                                   <para>- If auth-url is not
+                                   configured and isAuthed is set to
+                                   true, then Repose will use the user
+                                   credentials from the
+                                   &lt;identity-service> element
+                                   within the client-auth
+                                   configuration.</para>
+                                   <db:para>-If auth-url is
+                                   configured, then the
+                                   <code>user</code> and
+                                   <code>password</code> attributes
+                                   must be configured.</db:para>
+                                   </listitem>
+                                    </itemizedlist>
+                                </td>
+                                
+                            </tr>
+                            <tr>
+                                <td>
+                                    user
+                                </td>
+                                <td>User name used to retrieve the
+                                Auth token that is required to read
+                                Atom feeds. </td>
+                                <td>
+                                <itemizedlist>
+                                   <listitem>
+                                   <para>Optional</para>
+                                   </listitem>
+                                </itemizedlist>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td> password </td>
+                                <td>Password of the user that is used
+                                to retrieve the Auth token required to
+                                read Atom feeds.</td>
+                                <td>
+                                <itemizedlist>
+                                   <listitem>
+                                   <para>Optional</para>
+                                   </listitem>
+                                </itemizedlist>
+                            </td>
+                            </tr>
+                            
+                        </tbody>
+                    
+                </table>
+            </para>
+        </section>
     </chapter>
     <chapter xml:id="Authentication_Tests-d1e262">
         <title>What Are Some Authentication Tests?</title>
