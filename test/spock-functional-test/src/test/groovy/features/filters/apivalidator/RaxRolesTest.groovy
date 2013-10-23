@@ -128,4 +128,198 @@ class RaxRolesTest extends ReposeValveTest {
         "POST"   | null                                           | "403"
         "DELETE" | null                                           | "403"
     }
+
+    @Unroll("User5:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is true and wadl has roles with #all"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method | path   | headers                                      | responseCode
+        "GET"  | "/a"   | ["x-roles": "test_user5, a:observer"]        | "200"
+        "GET"  | "/a"   | ["x-roles": "test_user5, a:observer, a:bar"] | "200"
+        "GET"  | "/a"   | ["x-roles": "test_user5, a:bar"]             | "200"
+        "GET"  | "/a"   | ["x-roles": "test_user5, a:abar, a:admin"]   | "200"
+        "GET"  | "/a"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "GET"  | "/a"   | ["x-roles": "test_user5"]                    | "200"
+        "PUT"  | "/a"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "PUT"  | "/a"   | ["x-roles": "test_user5, a:bar, a:admin"]    | "200"
+        "PUT"  | "/a"   | ["x-roles": "test_user5, a:observer, a:bar"] | "403"
+        "PUT"  | "/a"   | ["x-roles": "test_user5"]                    | "403"
+        "GET"  | "/b"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "GET"  | "/b"   | ["x-roles": "test_user5"]                    | "200"
+        "GET"  | "/b"   | ["x-roles": "test_user5, bar"]               | "200"
+        "POST" | "/b"   | ["x-roles": "test_user5, a:admin"]           | "405"
+        "POST" | "/b"   | ["x-roles": "test_user5"]                    | "405"
+        "POST" | "/b/c" | ["x-roles": "test_user5, a:admin"]           | "200"
+        "POST" | "/b/c" | ["x-roles": "test_user5"]                    | "200"
+        "POST" | "/b/c" | ["x-roles": "test_user5, bar"]               | "200"
+
+    }
+
+    @Unroll("User7:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is false and check-headers does not affect it"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | path | headers                                | responseCode
+        "PUT"    | "/a" | ["x-roles": "test_user7, a:noone"]     | "200"
+        "PUT"    | "/a" | ["x-roles": "test_user7, a:creator"]   | "200"
+        "PUT"    | "/a" | ["x-roles": "test_user7"]              | "200"
+        "DELETE" | "/a" | ["x-roles": "test_user7"]              | "405"
+        "GET"    | "/b" | ["x-roles": "test_user7, a:noone"]     | "404"
+
+        "PUT"    | "/a" | ["x-roles": "test_user7.1, a:noone"]   | "200"
+        "PUT"    | "/a" | ["x-roles": "test_user7.1, a:creator"] | "200"
+        "PUT"    | "/a" | ["x-roles": "test_user7.1"]            | "200"
+        "DELETE" | "/a" | ["x-roles": "test_user7.1"]            | "405"
+        "GET"    | "/b" | ["x-roles": "test_user7.1, a:noone"]   | "404"
+
+    }
+
+    @Unroll("User8:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is true, Rax Roles will not inherit from siblings"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method | path   | headers                                      | responseCode
+        "PUT"  | "/a"   | ["x-roles": "test_user8, a:observer, a:bar"] | "403"
+        "PUT"  | "/a"   | ["x-roles": "test_user8"]                    | "403"
+        "GET"  | "/a"   | ["x-roles": "test_user8, a:admin"]           | "200"
+        "GET"  | "/b"   | ["x-roles": "test_user8, a:noone"]           | "200"
+        "GET"  | "/b"   | ["x-roles": "test_user8, a:creator"]         | "200"
+        "GET"  | "/b/c" | ["x-roles": "test_user8"]                    | "200"
+        "POST" | "/b/c" | ["x-roles": "test_user8"]                    | "200"
+    }
+
+    @Unroll("User9:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is true, Wadl has nested resources"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | path   | headers                                        | responseCode
+        "PUT"    | "/a"   | ["x-roles": "test_user9, a:admin"]             | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user9, a:observer"]          | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user9, a:admin, a:observer"] | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user9, b:observer"]          | "403"
+        "PUT"    | "/a"   | ["x-roles": "test_user9"]                      | "403"
+
+        "DELETE" | "/a"   | ["x-roles": "test_user9, a:admin"]             | "405"
+        "DELETE" | "/a"   | ["x-roles": "test_user9"]                      | "405"
+
+        "POST"   | "/a/b" | ["x-roles": "test_user9, a:admin"]             | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user9, b:creator"]           | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user9, a:observer"]          | "403"
+        "POST"   | "/a/b" | ["x-roles": "test_user9"]                      | "403"
+
+        "PUT"    | "/a/b" | ["x-roles": "test_user9, a:admin"]             | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user9, b:creator"]           | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user9, b:observer, a:foo"]   | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user9, a:creator"]           | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user9"]                      | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user9, observer"]            | "403"
+    }
+
+    @Unroll("User10:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is true, Remove Duplications is true"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | path   | headers                                        | responseCode
+        "PUT"    | "/a"   | ["x-roles": "test_user10, a:admin"]             | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user10, a:observer"]          | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user10, a:admin, a:observer"] | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user10, b:observer"]          | "403"
+        "PUT"    | "/a"   | ["x-roles": "test_user10"]                      | "403"
+
+        "DELETE" | "/a"   | ["x-roles": "test_user10, a:admin"]             | "405"
+        "DELETE" | "/a"   | ["x-roles": "test_user10"]                      | "405"
+
+        "POST"   | "/a/b" | ["x-roles": "test_user10, a:admin"]             | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user10, b:creator"]           | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user10, a:observer"]          | "403"
+        "POST"   | "/a/b" | ["x-roles": "test_user10"]                      | "403"
+
+        "PUT"    | "/a/b" | ["x-roles": "test_user10, a:admin"]             | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user10, b:creator"]           | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user10, b:observer, a:foo"]   | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user10, a:creator"]           | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user10"]                      | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user10, observer"]            | "403"
+    }
+
+    @Unroll("User11:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "when enable-rax-roles is true, Check Headers is false"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | path   | headers                                        | responseCode
+        "PUT"    | "/a"   | ["x-roles": "test_user11, a:admin"]             | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user11, a:observer"]          | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user11, a:admin, a:observer"] | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user11, b:observer"]          | "403"
+        "PUT"    | "/a"   | ["x-roles": "test_user11"]                      | "403"
+
+        "DELETE" | "/a"   | ["x-roles": "test_user11, a:admin"]             | "405"
+        "DELETE" | "/a"   | ["x-roles": "test_user11"]                      | "405"
+
+        "POST"   | "/a/b" | ["x-roles": "test_user11, a:admin"]             | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user11, b:creator"]           | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user11, a:observer"]          | "403"
+        "POST"   | "/a/b" | ["x-roles": "test_user11"]                      | "403"
+
+        "PUT"    | "/a/b" | ["x-roles": "test_user11, a:admin"]             | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user11, b:creator"]           | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user11, b:observer, a:foo"]   | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user11, a:creator"]           | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user11"]                      | "403"
+        "PUT"    | "/a/b" | ["x-roles": "test_user11, observer"]            | "403"
+    }
 }
