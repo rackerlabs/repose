@@ -14,7 +14,7 @@ public class RequestTracer {
     public RequestTracer(boolean trace, boolean addHeader) {
         this.trace = trace;
         this.addHeader = addHeader;
-        requestStart = new Date().getTime();
+        requestStart = System.currentTimeMillis();
     }
 
     public long traceEnter() {
@@ -22,7 +22,7 @@ public class RequestTracer {
             return 0;
         }
 
-        return new Date().getTime() - requestStart;
+        return System.currentTimeMillis() - requestStart;
     }
 
     public long traceExit(MutableHttpServletResponse response, String filterName, long myStart) {
@@ -30,7 +30,7 @@ public class RequestTracer {
             return 0;
         }
 
-        long totalRequestTime = new Date().getTime() - requestStart;
+        long totalRequestTime = System.currentTimeMillis() - requestStart;
         long myTime = totalRequestTime - myStart - accumulatedTime;
         accumulatedTime += myTime;
 
