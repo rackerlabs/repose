@@ -12,7 +12,7 @@ public class LimitKey {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
 
-   public static String getLimitKey(Matcher uriMatcher) {
+   public static String getLimitKey(Matcher uriMatcher, boolean useCaptureGroups) {
       // The group count represents the number of elements that will go into
       // generating the unique cache id for the requested URI
       final int groupCount = uriMatcher.groupCount();
@@ -22,9 +22,11 @@ public class LimitKey {
       // All cacheId's contain the full regex pattern
       cacheIdBuffer.append(uriMatcher.pattern().toString());
 
-      // Capture groups are appended to the pattern for uniqueness
-      for (int i = 1; i <= groupCount; ++i) {
-        cacheIdBuffer.append(uriMatcher.group(i));
+      if (useCaptureGroups) {
+          // Capture groups are appended to the pattern for uniqueness
+          for (int i = 1; i <= groupCount; ++i) {
+            cacheIdBuffer.append(uriMatcher.group(i));
+          }
       }
 
       return cacheIdBuffer.toString();
