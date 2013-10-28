@@ -188,6 +188,24 @@ class PatchMethodTest extends Specification {
         mc.handlings.size() == 1
     }
 
+
+    def "PATCH requests should allow all headers and body to pass through"() {
+
+        given:
+        def mc
+        String url = "http://localhost:${reposePort}/patchmethod/resource"
+        def headers1 = ['X-PP-User': 'user1', 'X-PP-Groups': 'patchmethod']
+
+        when: "we make a PATCH request"
+        mc = deproxy.makeRequest(method: "PATCH", url: url, headers: headers1, requestBody:"My Content Body")
+
+        then: "the request headers and body should be passed to the origin service"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.body == "My Content Body"
+        mc.handlings[0].request.headers.contains("X-PP-User")
+    }
+
+
     def cleanup() {
 
         if (repose) {
