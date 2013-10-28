@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.external</groupId>
+        <artifactId>external-lib-support</artifactId>
+        <version>2.11.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <groupId>com.rackspace.papi.external.testing</groupId>
+    <artifactId>test-container-support</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Repose Test - Testing embedded support for Repose</name>
+
+    <description>Container support to launch repose under Glassfish and Tomcat</description>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
+
+</project>
