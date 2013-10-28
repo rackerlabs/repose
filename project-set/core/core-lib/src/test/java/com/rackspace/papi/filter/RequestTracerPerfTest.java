@@ -39,7 +39,8 @@ public class RequestTracerPerfTest {
             totalMillis += endTime - startTime;
         }
 
-        long avg = totalMillis / NUM_HITS;
+        // Average time (ms) delay per trace
+        double avg = totalMillis / NUM_HITS;
     }
 
     @Test
@@ -90,6 +91,7 @@ public class RequestTracerPerfTest {
             totalTime += l;
         }
 
-        long avg = totalTime / (NUM_HITS * NUM_THREADS);
+        // Average time (ms) delay per trace
+        double avg = (double)totalTime / (double)(NUM_HITS * NUM_THREADS);
     }
 }
