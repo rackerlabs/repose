@@ -18,7 +18,6 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  *
@@ -98,7 +97,7 @@ public class VersioningSchemaTest {
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
 
-            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
+            assertTrue(caught.getLocalizedMessage().contains(errorMessage));
         }
 
     }

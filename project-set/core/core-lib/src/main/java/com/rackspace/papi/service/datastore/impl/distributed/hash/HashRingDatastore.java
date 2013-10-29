@@ -1,12 +1,6 @@
 package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteConnectionException;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Delete;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Get;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Put;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
@@ -14,6 +8,12 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteConnectionException;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Delete;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Get;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +92,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
     }
 
     private Object performAction(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
-        boolean targetIsRemote = false;
+        boolean targetIsRemote = true;
 
         if (initialBehavior != RemoteBehavior.DISALLOW_FORWARDING) {
             RemoteBehavior remoteBehavior =
@@ -101,16 +101,21 @@ public class HashRingDatastore extends AbstractHashedDatastore {
             do {
                 final InetSocketAddress target = getTarget(id);
 
-                if (target != null && (targetIsRemote = isRemoteTarget(target))) {
-                    LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
-                                      target.toString());
+                try {
+                    if (target == null) {
+                        targetIsRemote = false;
+                    } else if (targetIsRemote = isRemoteTarget(target)) {
+                        LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
+                                target.toString());
 
-                    try {
                         return action.performRemote(name, target, remoteBehavior);
-                    } catch (RemoteConnectionException rce) {
-                        clusterView.memberDamaged(target, rce.getMessage());
-                        remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                     }
+                } catch (RemoteConnectionException rce) {
+                    clusterView.memberDamaged(target, rce.getMessage());
+                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+                } catch (DatastoreOperationException doe) {
+                    clusterView.memberDamaged(target, doe.getMessage());
+                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 }
             } while (targetIsRemote);
         } else {

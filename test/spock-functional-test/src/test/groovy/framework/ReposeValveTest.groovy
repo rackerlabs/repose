@@ -33,7 +33,7 @@ abstract class ReposeValveTest extends Specification {
                 break
             case "tomcat":
                 throw new UnsupportedOperationException("Please implement me")
-            case "glassfish":
+            case "multinode":
                 String glassfishJar = properties.glassfishJar
                 configureReposeGlassfish(glassfishJar)
                 break

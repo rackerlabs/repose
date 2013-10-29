@@ -206,6 +206,23 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="chunked-encoding" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not this client should send chunked data when forwarding requests.
+                    </html:p>
+                    <html:p>
+                        WARNING: Setting this attribute will cause repose to attempt to retrieve the
+                        actual content length through reading the ServletInputStream. This will cause some performance
+                        degradation as request body is no longer always streamed through.
+                    </html:p>
+
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+
         <xs:assert vc:minVersion="1.1"
                    test="(@http.conn-manager.max-per-route) &lt;= (@http.conn-manager.max-total)"
                    xerces:message="Max connections per route must be less than or equal to total max connections"

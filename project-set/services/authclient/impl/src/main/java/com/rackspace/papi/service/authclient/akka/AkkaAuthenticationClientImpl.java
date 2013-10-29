@@ -6,6 +6,8 @@ import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -30,7 +32,15 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
     public AkkaAuthenticationClientImpl(ServiceClient pServiceClient) {
         this.serviceClient = pServiceClient;
-        actorSystem = ActorSystem.create("AuthClientActors");
+
+        Config customConf = ConfigFactory.parseString(
+                "akka {actor { default-dispatcher {throughput = 10} } }");
+        Config regularConf = ConfigFactory.defaultReference();
+        Config combinedConf = customConf.withFallback(regularConf);
+
+        actorSystem = ActorSystem.create("AuthClientActors", ConfigFactory.load(combinedConf));
+
+
 
         tokenHashRouter = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {

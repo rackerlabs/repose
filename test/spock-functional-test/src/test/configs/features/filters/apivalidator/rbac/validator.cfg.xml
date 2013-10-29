@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns="http://openrepose.org/repose/validator/v1.0"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            multi-role-match="true">
+    <validator role="cwaas:observer" default="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02"
+                     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <resources>
+                <resource path="/"
+                          type="caps.wadl.xml#listAttachments
+                                caps.wadl.xml#listGizmoDetails
+                                caps.wadl.xml#listGizmos
+                                caps.wadl.xml#listWidgetDetails
+                                caps.wadl.xml#listWidgets
+                                caps.wadl.xml#showAttachment" />
+            </resources>
+        </application>
+    </validator>
+    <validator role="cwaas:creator">
+        <application xmlns="http://wadl.dev.java.net/2009/02"
+                     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <resources>
+                <resource path="/"
+                          type="caps.wadl.xml#attachGizmo
+                                caps.wadl.xml#createGizmo
+                                caps.wadl.xml#createWidget
+                                caps.wadl.xml#listAttachments
+                                caps.wadl.xml#listGizmoDetails
+                                caps.wadl.xml#listGizmos
+                                caps.wadl.xml#listWidgetDetails
+                                caps.wadl.xml#listWidgets
+                                caps.wadl.xml#showAttachment
+                                caps.wadl.xml#updateGizmo
+                                caps.wadl.xml#updateWidget" />
+            </resources>
+        </application>
+    </validator>
+    <validator role="cwaas:admin">
+        <application xmlns="http://wadl.dev.java.net/2009/02"
+                     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <resources>
+                <resource path="/"
+                          type="caps.wadl.xml#attachGizmo
+                                caps.wadl.xml#createGizmo
+                                caps.wadl.xml#createWidget
+                                caps.wadl.xml#deleteGizmo
+                                caps.wadl.xml#deleteWidget
+                                caps.wadl.xml#detachGizmo
+                                caps.wadl.xml#listAttachments
+                                caps.wadl.xml#listGizmoDetails
+                                caps.wadl.xml#listGizmos
+                                caps.wadl.xml#listWidgetDetails
+                                caps.wadl.xml#listWidgets
+                                caps.wadl.xml#showAttachment
+                                caps.wadl.xml#updateGizmo
+                                caps.wadl.xml#updateWidget" />
+            </resources>
+        </application>
+    </validator>
+</validators>

@@ -11,3 +11,8 @@ TokenRetrievalActor
   AuthTokenFutureActor
   1.Add token expiration hashMap
   2.HashMap least frequently used
+
+
+Core-lib manually added reference.conf specific to akka-actor version.
+Find a way to automate making reference.conf file available in the valve classpath.
+

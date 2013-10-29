@@ -3,14 +3,17 @@ package framework
 class TestProperties {
 
     String configDirectory
+    String rawConfigDirectory
     String logFile
     String configSamples
     String connFramework
     String reposeEndpoint
     String reposeContainer = "valve"
+    String reposeHome
 
     String reposeJar
     String glassfishJar
+    String reposeRootWar
 
     int reposePort
     int reposeShutdownPort
@@ -40,7 +43,7 @@ class TestProperties {
             }
 
             reposeJar = properties.getProperty("repose.jar")
-
+            reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = properties.getProperty("repose.port").toInteger()
             reposeShutdownPort = properties.getProperty("repose.shutdown.port").toInteger()
 
@@ -52,6 +55,8 @@ class TestProperties {
             identityPort = properties.getProperty("identity.port")
             atomPort = properties.getProperty("atom.port")
             targetHostname = properties.getProperty("target.hostname")
+            rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
+            reposeHome = properties.getProperty("repose.home")
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files")
