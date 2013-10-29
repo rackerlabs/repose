@@ -14,7 +14,7 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class TomcatProxyTest extends Specification {
 
-    static ReposeLauncher repose1
+    static ReposeLauncher repose
     static Deproxy deproxy
     static String tomcatEndpoint
 
@@ -50,18 +50,18 @@ class TomcatProxyTest extends Specification {
         config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
 
 
-        repose1 = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
-        repose1.clusterId = "repose"
-        repose1.nodeId = "simple-node"
-        repose1.start()
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
+        repose.clusterId = "repose"
+        repose.nodeId = "simple-node"
+        repose.start()
     }
 
     def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
 
-        if (repose1)
-            repose1.stop()
+        if (repose)
+            repose.stop()
     }
 
     def "Should Pass Requests through repose"() {
