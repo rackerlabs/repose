@@ -24,7 +24,7 @@ class AkkaAuthenticationClientImplTest {
     public void setUp() {
 
 
-        serviceClientResponseGet = new ServiceClientResponse(500,new ByteArrayInputStream("getinput".getBytes("UTF-8")));
+        serviceClientResponseGet = new ServiceClientResponse(200,new ByteArrayInputStream("getinput".getBytes("UTF-8")));
 
         serviceClient = mock(ServiceClient.class);
         when(serviceClient.get(anyString(), any(Map.class)))
@@ -43,7 +43,7 @@ class AkkaAuthenticationClientImplTest {
         ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
         ServiceClientResponse serviceClientResponse = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
-        org.junit.Assert.assertEquals("Should retrive service client with response", serviceClientResponse.getStatusCode(), 500);
+        org.junit.Assert.assertEquals("Should retrive service client with response", serviceClientResponse.getStatusCode(), 200);
     }
 
 
