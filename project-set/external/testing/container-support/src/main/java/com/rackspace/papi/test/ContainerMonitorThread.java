@@ -11,7 +11,7 @@ public class ContainerMonitorThread extends Thread {
 
     private final ReposeContainer container;
     private final int stopPort;
-    private static final String MONITOR_NAME = "GlassFish_MONITOR";
+    private static final String MONITOR_NAME = "Repose_Container_MONITOR";
     private static final String LOCAL_ADDRESS = "127.0.0.1";
     private ServerSocket socket;
 
@@ -24,7 +24,6 @@ public class ContainerMonitorThread extends Thread {
             super(cause);
         }
     }
-
 
     public ContainerMonitorThread(ReposeContainer container, int stopPort) throws MonitorException {
         this.container = container;
@@ -51,7 +50,7 @@ public class ContainerMonitorThread extends Thread {
             accept.close();
             socket.close();
         } catch (IOException ex) {
-            System.err.println("Unble to stop glassfish instance " + ex.getMessage());
+            System.err.println("Unble to stop repose container instance " + ex.getMessage());
         } catch (Exception e) {
             System.err.println("Unable to stop repose container instance: " + e.getMessage());
         }
