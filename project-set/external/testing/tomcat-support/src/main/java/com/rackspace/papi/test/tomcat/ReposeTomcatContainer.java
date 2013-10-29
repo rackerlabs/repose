@@ -22,8 +22,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.getHost().setDeployOnStartup(true);
         tomcat.addWebapp("/", warLocation);
         monitor = new ContainerMonitorThread(this, Integer.parseInt(stopPort));
-
-
     }
 
     @Override

@@ -11,11 +11,7 @@ public class ReposeTomcatServer {
     public static void main(String[] args) throws ParseException, ServletException {
 
         ReposeContainerProps props = ReposeContainerUtil.parseArgs(args);
-
-
         ReposeTomcatContainer container = new ReposeTomcatContainer(props);
-
-
         container.startRepose();
     }
 }
