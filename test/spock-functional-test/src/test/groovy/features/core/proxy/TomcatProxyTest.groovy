@@ -26,20 +26,20 @@ class TomcatProxyTest extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort1 = pf.getNextOpenPort()
-        int shutdownPort1 = pf.getNextOpenPort()
+        int reposePort = pf.getNextOpenPort()
+        int shutdownPort = pf.getNextOpenPort()
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        tomcatEndpoint = "http://localhost:${reposePort1}"
+        tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
         def configSamples = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
-        ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
+        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config1.applyConfigsRuntime("features/core/proxy",
+        config.applyConfigsRuntime("features/core/proxy",
                 [
-                        'repose_port': reposePort1.toString(),
+                        'repose_port': reposePort.toString(),
                         'target_port': originServicePort.toString(),
                         'repose.config.directory': configDirectory,
                         'repose.cluster.id': "repose1",
@@ -47,10 +47,10 @@ class TomcatProxyTest extends Specification {
                         'target_hostname': 'localhost',
                 ]
         )
-        config1.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
+        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
 
 
-        repose1 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
+        repose1 = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
         repose1.clusterId = "repose"
         repose1.nodeId = "simple-node"
         repose1.start()
@@ -66,12 +66,15 @@ class TomcatProxyTest extends Specification {
 
     def "Should Pass Requests through repose"() {
 
-        when:
+        when: "Request is sent through Repose/Tomcat"
         waitUntilReadyToServiceRequests(tomcatEndpoint)
-        MessageChain mc1 = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-trace-request': 'true', 'x-pp-user': 'usertest1'])
+        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-trace-request': 'true', 'x-pp-user': 'usertest1'])
 
-        then:
-        mc1.receivedResponse.code == "200"
+        then: "Repose Should Forward Request"
+        mc.handlings[0].request.getHeaders().contains("x-pp-user")
+
+        and: "Repose Should Forward Response"
+        mc.receivedResponse.code == "200"
     }
 
 
