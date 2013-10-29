@@ -188,7 +188,7 @@ class PatchMethodTest extends Specification {
         mc.handlings.size() == 1
     }
 
-
+    //@Ignore
     def "PATCH requests should allow all headers and body to pass through"() {
 
         given:
