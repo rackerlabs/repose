@@ -25,6 +25,11 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.external.testing</groupId>
+            <artifactId>test-container-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -34,7 +39,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.rackspace.papi.test.ReposeGlassfishServer</mainClass>
+                            <mainClass>com.rackspace.papi.test.glassfish.ReposeGlassfishServer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

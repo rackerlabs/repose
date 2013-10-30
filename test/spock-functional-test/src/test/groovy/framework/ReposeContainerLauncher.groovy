@@ -2,7 +2,7 @@ package framework
 
 import java.nio.charset.Charset
 
-class ReposeGlassfishLauncher extends AbstractReposeLauncher {
+class ReposeContainerLauncher extends AbstractReposeLauncher {
 
     int shutdownPort
     int reposePort
@@ -10,12 +10,12 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
     String clusterId
     String nodeId
 
-    String glassfishJar
+    String containerJar
     String rootWarLocation
 
-    ReposeGlassfishLauncher(ReposeConfigurationProvider configurationProvider, String glassfishJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort, int stopPort) {
+    ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort, int stopPort) {
         this.configurationProvider = configurationProvider
-        this.glassfishJar = glassfishJar
+        this.containerJar = containerJar
         this.clusterId = clusterId
         this.nodeId = nodeId
         this.reposePort = reposePort
@@ -29,7 +29,7 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
 
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
-        def cmd = "java ${webXmlOverrides} -jar ${glassfishJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
+        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
 //        cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
@@ -45,7 +45,7 @@ class ReposeGlassfishLauncher extends AbstractReposeLauncher {
             final Socket s = new Socket(InetAddress.getByName("127.0.0.1"), shutdownPort);
             final OutputStream out = s.getOutputStream();
 
-            println("Sending Repose stop request");
+            println("Sending Repose stop request to port $shutdownPort");
 
             out.write(("\r\n").getBytes(Charset.forName("UTF-8")));
             out.flush();

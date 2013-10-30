@@ -55,6 +55,9 @@
         <glassfish.jar.dir>${project.set.dir}/external/testing/glassfish-support/target</glassfish.jar.dir>
         <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
+        <tomcat.jar.dir>${project.set.dir}/external/testing/tomcat-support/target</tomcat.jar.dir>
+        <tomcat.jar>test-tomcat-container-${project.version}-jar-with-dependencies.jar</tomcat.jar>
+        <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
         <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
     </properties>
 
@@ -127,7 +130,7 @@
         <dependency>
             <groupId>com.rackspace.papi.external.testing</groupId>
             <artifactId>test-glassfish-container</artifactId>
-            <version>2.11.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -365,6 +368,13 @@
                 <directory>${glassfish.jar.dir}</directory>
                 <includes>
                     <include>${glassfish.jar}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home</targetPath>
+            </testResource>
+            <testResource>
+                <directory>${tomcat.jar.dir}</directory>
+                <includes>
+                    <include>${tomcat.jar}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home</targetPath>
             </testResource>
