@@ -25,7 +25,7 @@ public enum HttpComponentFactory {
   POST("POST", HttpPost.class, EntityEnclosingMethodWrapper.class),
   DELETE("DELETE", EntityEnclosingDelete.class, EntityEnclosingMethodWrapper.class),
   HEAD("HEAD", HttpHead.class),
-  OPTIONS("OPTIONS", HttpOptions.class, EntityEnclosingMethodWrapper.class),
+  OPTIONS("OPTIONS", HttpOptions.class),
   PATCH("PATCH", HttpPatch.class, EntityEnclosingMethodWrapper.class),
   TRACE("TRACE", HttpTrace.class);
   private static final Logger LOG = LoggerFactory.getLogger(HttpComponentFactory.class);
