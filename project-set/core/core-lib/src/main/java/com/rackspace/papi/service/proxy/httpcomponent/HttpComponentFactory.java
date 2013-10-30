@@ -1,13 +1,22 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpTrace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.apache.http.client.methods.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public enum HttpComponentFactory {
 
@@ -16,8 +25,8 @@ public enum HttpComponentFactory {
   POST("POST", HttpPost.class, EntityEnclosingMethodWrapper.class),
   DELETE("DELETE", EntityEnclosingDelete.class, EntityEnclosingMethodWrapper.class),
   HEAD("HEAD", HttpHead.class),
-  OPTIONS("OPTIONS", HttpOptions.class),
-  PATCH("PATCH", HttpPatch.class),
+  OPTIONS("OPTIONS", HttpOptions.class, EntityEnclosingMethodWrapper.class),
+  PATCH("PATCH", HttpPatch.class, EntityEnclosingMethodWrapper.class),
   TRACE("TRACE", HttpTrace.class);
   private static final Logger LOG = LoggerFactory.getLogger(HttpComponentFactory.class);
   private static final String CONSTRUCTION_ERROR = "Unable to construct HttpMethod";

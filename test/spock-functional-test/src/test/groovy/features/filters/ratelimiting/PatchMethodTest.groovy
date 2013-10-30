@@ -188,7 +188,6 @@ class PatchMethodTest extends Specification {
         mc.handlings.size() == 1
     }
 
-    //@Ignore
     def "PATCH requests should allow all headers and body to pass through"() {
 
         given:
@@ -202,9 +201,9 @@ class PatchMethodTest extends Specification {
         then: "the request headers and body should be passed to the origin service"
         mc.handlings.size() == 1
         mc.handlings[0].request.body == "My Content Body"
+        mc.handlings[0].request.method == "PATCH"
         mc.handlings[0].request.headers.contains("X-PP-User")
     }
-
 
     def cleanup() {
 
