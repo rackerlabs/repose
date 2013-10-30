@@ -10,45 +10,47 @@ import org.rackspace.gdeproxy.Response
 
 class ValidateTokenBurstTest extends ReposeValveTest {
 
-        def static originEndpoint
-        def static identityEndpoint
+    def static originEndpoint
+    def static identityEndpoint
+    static IdentityServiceResponseSimulator fakeIdentityService
+
+    def setupSpec() {
+        deproxy = new Deproxy()
 
 
-        static IdentityServiceResponseSimulator fakeIdentityService
+        repose.applyConfigs("features/filters/clientauthn/common")
+        repose.start()
 
-        def setupSpec() {
-            deproxy = new Deproxy()
+        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
+        fakeIdentityService = new IdentityServiceResponseSimulator()
+        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+                'identity service', null, fakeIdentityService.handler)
 
-            repose.applyConfigs("features/filters/clientauthn/common")
-            repose.start()
+        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
+        Map acceptXML = ["accept": "application/xml"]
 
-            originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
-            fakeIdentityService = new IdentityServiceResponseSimulator()
-            identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
-                    'identity service', null, fakeIdentityService.handler)
+        def missingResponseErrorHandler = { Request request ->
+            def headers = request.getHeaders()
 
-            def missingResponseErrorHandler = { Request request ->
-                def headers = request.getHeaders()
-
-                if (!headers.contains("X-Auth-Token") ) {
-                    return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
-                }
-
-
-                return new Response(200, "OK",header1+acceptXML)
-
+            if (!headers.contains("X-Auth-Token") ) {
+                return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
 
-            deproxy._defaultHandler = missingResponseErrorHandler
+
+            return new Response(200, "OK",header1+acceptXML)
+
         }
 
+        deproxy.defaultHandler = missingResponseErrorHandler
+    }
 
-        def cleanupSpec() {
-            if (deproxy) {
-                deproxy.shutdown()
-            }
-            repose.stop()
+
+    def cleanupSpec() {
+        if (deproxy) {
+            deproxy.shutdown()
         }
+        repose.stop()
+    }
 
 
 
@@ -91,7 +93,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
                     Request sentToOrigin = messageChain.getSentRequest()
 
-                    if (sentToOrigin.headers.findAll("X-Roles").empty)    {
+                    if (sentToOrigin.headers.findAll("X-Roles").empty) {
                         badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
                         missingAuthHeader = true
                     }
@@ -115,7 +117,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        10         | 5
+        10 | 5
 
     }
 
