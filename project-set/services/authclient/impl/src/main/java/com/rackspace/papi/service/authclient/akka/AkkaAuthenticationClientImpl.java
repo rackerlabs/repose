@@ -4,6 +4,8 @@ package com.rackspace.papi.service.authclient.akka;
 import akka.actor.*;
 import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.typesafe.config.Config;
@@ -14,7 +16,6 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
@@ -26,21 +27,25 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     private ActorRef tokenActorRef;
     private int numberOfActors = 20;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaAuthenticationClientImpl.class);
-    private ConcurrentHashMap<String, Future> tokenFutureMap;
     final Timeout t = new Timeout(Duration.create(50, TimeUnit.SECONDS));
+    private final Cache<String, Future> quickFutureCache;
 
+    private static final long FUTURE_CACHE_TTL = 500;
+    private static final long MAX_FUTURE_CACHE_SIZE = 1000;  // just guessing on this
 
     public AkkaAuthenticationClientImpl(ServiceClient pServiceClient) {
         this.serviceClient = pServiceClient;
 
         Config customConf = ConfigFactory.parseString(
-                "akka {actor { default-dispatcher {throughput = 10} } }");
+                "akka { actor { default-dispatcher {throughput = 10} } }");
         Config regularConf = ConfigFactory.defaultReference();
         Config combinedConf = customConf.withFallback(regularConf);
 
         actorSystem = ActorSystem.create("AuthClientActors", ConfigFactory.load(combinedConf));
 
-        tokenFutureMap = new ConcurrentHashMap<String, Future>();
+        quickFutureCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(FUTURE_CACHE_TTL, TimeUnit.MILLISECONDS)
+                .build();
 
         tokenActorRef = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
@@ -76,16 +81,17 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
         Future<Object> newFuture;
 
-        if (!tokenFutureMap.containsKey(token)) {
-            synchronized (tokenFutureMap) {
-                if (!tokenFutureMap.containsKey(token)) {
+
+        if (!quickFutureCache.asMap().containsKey(token)) {
+            synchronized (quickFutureCache) {
+                if (!quickFutureCache.asMap().containsKey(token)) {
                     newFuture = ask(tokenActorRef, authGetRequest, t);
-                    tokenFutureMap.putIfAbsent(token, newFuture);
+                    quickFutureCache.asMap().putIfAbsent(token, newFuture);
                 }
             }
         }
 
-        return tokenFutureMap.get(token);
+        return quickFutureCache.asMap().get(token);
     }
 
 

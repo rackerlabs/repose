@@ -8,6 +8,8 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
+import static org.mockito.Mockito.times
+import static org.mockito.Mockito.verify
 
 class AkkaAuthenticationClientImplTest {
 
@@ -46,5 +48,19 @@ class AkkaAuthenticationClientImplTest {
         org.junit.Assert.assertEquals("Should retrive service client with response", serviceClientResponse.getStatusCode(), 200);
     }
 
+    @org.junit.Test
+    public void shouldExpireItemInFutureMap() {
+        final String AUTH_TOKEN_HEADER = "X-Auth-Token";
+        final String ACCEPT_HEADER = "Accept";
+        final Map<String, String> headers = new HashMap<String, String>();
+        ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
+        ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
+        akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
 
+        Thread.sleep(500)
+
+        akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+
+        verify(serviceClient, times(2)).get(anyString(), any(Map.class))
+    }
 }
