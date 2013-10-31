@@ -8,6 +8,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.service.httpclient.config.PoolType;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +28,7 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     final private ServiceClient serviceClient;
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
-    private int numberOfActors = 20;
+    private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaAuthenticationClientImpl.class);
     final Timeout t = new Timeout(Duration.create(50, TimeUnit.SECONDS));
     private final Cache<String, Future> quickFutureCache;
@@ -33,8 +36,9 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     private static final long FUTURE_CACHE_TTL = 500;
     private static final long MAX_FUTURE_CACHE_SIZE = 1000;  // just guessing on this
 
-    public AkkaAuthenticationClientImpl(ServiceClient pServiceClient) {
-        this.serviceClient = pServiceClient;
+    public AkkaAuthenticationClientImpl(ServiceClient sc) {
+        this.serviceClient = sc;
+        numberOfActors = new PoolType().getHttpConnManagerMaxTotal();
 
         Config customConf = ConfigFactory.parseString(
                 "akka { actor { default-dispatcher {throughput = 10} } }");
@@ -66,12 +70,17 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
         Future<ServiceClientResponse> future = getFuture(authGetRequest);
         try {
 
-            serviceClientResponse = Await.result(future, Duration.create(6, TimeUnit.SECONDS));
+            serviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
 
              } catch (Exception e) {
-            //TODO
+                LOG.error("error with akka future: "+e.getMessage());
         }
 
+        try{
+          serviceClientResponse.getData().reset();
+        }catch(IOException e) {
+          LOG.error("Error resetting response data on validate token: "+e.getMessage());
+        }
         return serviceClientResponse;
     }
 
@@ -94,5 +103,25 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
         return quickFutureCache.asMap().get(token);
     }
 
+    public class FutureExpire {
 
+        private final Future<Object> newFuture;
+        private final Calendar expires;
+
+        public FutureExpire(Future<Object> newFuture, Calendar expires) {
+            this.newFuture = newFuture;
+            this.expires = expires;
+            expires.add(Calendar.SECOND,1);
+        }
+
+        public Future<Object> getFuture() {
+            return newFuture;
+        }
+
+        public boolean isValid() {
+           return expires != null && !expires.getTime().before(Calendar.getInstance().getTime()) ;
+        }
+
+
+}
 }
