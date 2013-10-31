@@ -1,15 +1,16 @@
 package com.rackspace.papi.service.authclient.akka
+
 import com.rackspace.papi.commons.util.http.ServiceClient
 import com.rackspace.papi.commons.util.http.ServiceClientResponse
+import org.apache.commons.io.IOUtils
+import org.junit.Test
 
 import javax.ws.rs.core.MediaType
 
+import static org.junit.Assert.assertEquals
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
-import static org.mockito.Mockito.times
-import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.*
 
 class AkkaAuthenticationClientImplTest {
 
@@ -21,12 +22,13 @@ class AkkaAuthenticationClientImplTest {
     private String targetHostUri;
     ServiceClientResponse<String> serviceClientResponseGet, serviceClientResponsePost;
     ServiceClient serviceClient;
+    String returnString = "getinput"
 
     @org.junit.Before
     public void setUp() {
 
 
-        serviceClientResponseGet = new ServiceClientResponse(200,new ByteArrayInputStream("getinput".getBytes("UTF-8")));
+        serviceClientResponseGet = new ServiceClientResponse(200,new ByteArrayInputStream(returnString.getBytes("UTF-8")));
 
         serviceClient = mock(ServiceClient.class);
         when(serviceClient.get(anyString(), any(Map.class)))
@@ -63,4 +65,30 @@ class AkkaAuthenticationClientImplTest {
 
         verify(serviceClient, times(2)).get(anyString(), any(Map.class))
     }
+
+    @Test
+    public void testServiceResponseReusable() {
+        final String AUTH_TOKEN_HEADER = "X-Auth-Token";
+        final String ACCEPT_HEADER = "Accept";
+        final Map<String, String> headers = new HashMap<String, String>();
+        ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
+        ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
+        ServiceClientResponse serviceClientResponse1 = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+        ServiceClientResponse serviceClientResponse2 = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+
+        StringWriter writer1 = new StringWriter();
+        IOUtils.copy(serviceClientResponse1.data, writer1, "UTF-8");
+        String returnString1 = writer1.toString();
+
+        StringWriter writer2 = new StringWriter()
+        IOUtils.copy(serviceClientResponse2.data, writer2, "UTF-8");
+        String returnString2 = writer2.toString()
+
+        assertEquals(returnString1, returnString2, "Should be able to read from service response more than once")
+        assertEquals(returnString, returnString2, "Should be able to read from service response more than once")
+        assertEquals(returnString, returnString1, "Should be able to read from service response more than once")
+
+    }
+
+
 }
