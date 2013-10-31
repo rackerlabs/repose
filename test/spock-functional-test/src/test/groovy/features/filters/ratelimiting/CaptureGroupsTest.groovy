@@ -9,16 +9,16 @@ import spock.lang.Specification
 
 class CaptureGroupsTest extends Specification {
 
-    Deproxy deproxy
-    int endpointPort
+    static Deproxy deproxy
+    static int endpointPort
 
-    int reposePort
-    int stopPort
-    TestProperties properties
-    ReposeConfigurationProvider reposeConfigProvider
-    ReposeValveLauncher repose
+    static int reposePort
+    static int stopPort
+    static TestProperties properties
+    static ReposeConfigurationProvider reposeConfigProvider
+    static ReposeValveLauncher repose
 
-    def setup() {
+    def setupSpec() {
 
         endpointPort = PortFinder.Singleton.getNextOpenPort()
         deproxy = new Deproxy()
@@ -55,18 +55,110 @@ class CaptureGroupsTest extends Specification {
         repose.waitForNon500FromUrl("http://localhost:${reposePort}")
     }
 
-    def "Requests to urls with capture groups should have separate buckets for different captured parts of the path"() {
+    def "Requests to urls with different captured values should go into separate buckets"() {
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/servers/abc/instances/123"
+        String url2 = "http://localhost:${reposePort}/servers/abc/instances/456"
+        String url3 = "http://localhost:${reposePort}/servers/def/instances/123"
+        String url4 = "http://localhost:${reposePort}/servers/def/instances/456"
+        def headers = ['X-PP-User': 'user1', 'X-PP-Groups': 'group']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
+    def "Captured values should make no difference when concatenated"() {
 
         given:
 
         // the uri-regex is "/servers/(.+)/instances/(.+)"
         // if requests have different values for the captured part of the path,
-        // they should be considered separately, and not affect each other
+        // they should be considered separately, and not affect each other,
+        // even if they have the same combined string value when appended
 
         def mc
         String url1 = "http://localhost:${reposePort}/servers/abc/instances/def"    // abc + def = abcdef
         String url2 = "http://localhost:${reposePort}/servers/abcde/instances/f"    // abcde + f = abcdef
-        def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'group']
+        def headers = ['X-PP-User': 'user2', 'X-PP-Groups': 'group']
 
 
         when: "we make one request to the first url"
@@ -118,7 +210,7 @@ class CaptureGroupsTest extends Specification {
     }
 
 
-    def cleanup() {
+    def cleanupSpec() {
 
         if (repose) {
             repose.stop()
