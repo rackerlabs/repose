@@ -202,14 +202,14 @@ public class PowerFilterChain implements FilterChain {
             long start = tracer.traceEnter();
             setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
-            long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
+            long delay = tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName());
             if(filterTimer != null) {
                 filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             }
         } else {
             long start = tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
-            long delay = tracer.traceExit(mutableHttpResponse, "route", start);
+            long delay = tracer.traceExit(mutableHttpResponse, "route");
             if (filterTimer != null) {
                 filterTimer.update("route", delay, TimeUnit.MILLISECONDS);
             }

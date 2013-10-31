@@ -22,7 +22,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
    private final RateLimiter rateLimiter;
    private final RateLimitingConfigHelper helper;
    private final boolean useCaptureGroups;
-   
 
    public RateLimitingServiceImpl(RateLimitCache cache, RateLimitingConfiguration rateLimitingConfiguration) {
 
@@ -72,7 +71,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
          
          // Did we find a limit that matches the incoming uri and http method?
          if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod)) {
-              rateLimiter.handleRateLimit(user, new LimitKey().getLimitKey(uri, uriMatcher, useCaptureGroups), rateLimit, datastoreWarnLimit);
+              rateLimiter.handleRateLimit(user, LimitKey.getLimitKey(uriMatcher, useCaptureGroups), rateLimit, datastoreWarnLimit);
            
             return;
          }
