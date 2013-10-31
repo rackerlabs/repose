@@ -50,6 +50,8 @@ public class AuthenticationServiceClientTest {
             serviceClientResponseGet = mock(ServiceClientResponse.class);
             serviceClientResponsePost = mock(ServiceClientResponse.class);
             serviceClient = mock(ServiceClient.class);
+            when(serviceClient.getPoolSize()).thenReturn(100);
+
             authenticationServiceClient =
                     new AuthenticationServiceClient(targetHostUri, username, password, tenantId, responseUnmarshaller,
                                                     responseUnmarshaller, mock(JaxbEntityToXml.class), serviceClient);
@@ -66,6 +68,7 @@ public class AuthenticationServiceClientTest {
                     .thenReturn(serviceClientResponseGet);
             when(serviceClient.post(anyString(), anyString(), any(MediaType.class)))
                     .thenReturn(serviceClientResponsePost);
+
             when(serviceClientResponseGet.getStatusCode()).thenReturn(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
             when(serviceClientResponsePost.getStatusCode()).thenReturn(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
 
@@ -81,6 +84,7 @@ public class AuthenticationServiceClientTest {
                     .thenReturn(serviceClientResponseGet);
             when(serviceClient.post(anyString(), anyString(), any(MediaType.class)))
                     .thenReturn(serviceClientResponsePost);
+
             when(serviceClientResponseGet.getStatusCode()).thenReturn(999);
             when(serviceClientResponsePost.getStatusCode()).thenReturn(999);
 
