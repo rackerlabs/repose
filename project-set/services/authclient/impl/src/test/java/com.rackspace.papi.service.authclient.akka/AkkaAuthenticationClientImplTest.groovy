@@ -33,6 +33,7 @@ class AkkaAuthenticationClientImplTest {
         serviceClient = mock(ServiceClient.class);
         when(serviceClient.get(anyString(), any(Map.class)))
                 .thenReturn(serviceClientResponseGet);
+        when(serviceClient.getPoolSize()).thenReturn(100)
 
         akkaAuthenticationClientImpl = new AkkaAuthenticationClientImpl(serviceClient);
         userToken = "userToken";
@@ -84,11 +85,9 @@ class AkkaAuthenticationClientImplTest {
         IOUtils.copy(serviceClientResponse2.data, writer2, "UTF-8");
         String returnString2 = writer2.toString()
 
-        assertEquals(returnString1, returnString2, "Should be able to read from service response more than once")
-        assertEquals(returnString, returnString2, "Should be able to read from service response more than once")
-        assertEquals(returnString, returnString1, "Should be able to read from service response more than once")
+        assertEquals(returnString1, returnString2)
+        assertEquals(returnString, returnString2)
+        assertEquals(returnString, returnString1)
 
     }
-
-
 }
