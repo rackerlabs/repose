@@ -9,7 +9,10 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
+import org.junit.experimental.categories.Category
+import framework.category.Flaky
 
+@Category(Flaky)
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class TomcatProxyTest extends Specification {
