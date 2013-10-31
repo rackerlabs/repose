@@ -5,6 +5,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
 
@@ -91,9 +92,9 @@ class ValidateTokenBurstTest extends ReposeValveTest {
                     }
 
 
-                    Request sentToOrigin = messageChain.getSentRequest()
+                    def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
 
-                    if (sentToOrigin.headers.findAll("X-Roles").empty) {
+                    if (sentToOrigin.request.headers.findAll("x-roles").empty) {
                         badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
                         missingAuthHeader = true
                     }
