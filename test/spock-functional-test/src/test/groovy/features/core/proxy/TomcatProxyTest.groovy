@@ -1,20 +1,19 @@
 package features.core.proxy
-
 import framework.ReposeConfigurationProvider
-import framework.ReposeLauncher
 import framework.ReposeContainerLauncher
+import framework.ReposeLauncher
 import framework.TestProperties
+import framework.category.Flaky
+import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.PortFinder
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
-import framework.category.Flaky
 
-@Category(Flaky)
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
+@Category(Flaky)
 class TomcatProxyTest extends Specification {
 
     static ReposeLauncher repose
