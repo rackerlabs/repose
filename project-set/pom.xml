@@ -40,440 +40,121 @@
         <module>management</module>
     </modules>
 
-    <profiles>
+    <dependencyManagement>
+        <dependencies>
+            <!--For Javax Library Support support-->
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.servlet</artifactId>
+                <version>3.1</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-web-api</artifactId>
+                <version>6.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>6.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>transaction-api</artifactId>
+                <version>1.1</version>
+                <scope>provided</scope>
+            </dependency>
 
-        <profile>
-            <id>JAXB Schema Compilation Support</id>
+            <!--For Spring Framework support-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
 
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+            <!--For Jersey RESTful Services Communication support-->
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>1.16</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>1.16</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.jersey.test.framework</groupId>
+                <artifactId>jersey-test-framework</artifactId>
+                <version>1.0.3.1</version>
+                <scope>test</scope>
+            </dependency>
 
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>xml-maven-plugin</artifactId>
-                            <version>1.0</version>
+            <!--For JSON support-->
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-lgpl</artifactId>
+                <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-lgpl</artifactId>
+                <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-xc</artifactId>
+                <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>1.9.13</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fge</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>2.1.7</version>
+            </dependency>
 
-                            <executions>
-                                <execution>
-                                    <goals>
-                                        <goal>transform</goal>
-                                    </goals>
-                                    <phase>generate-sources</phase>
-                                </execution>
-                            </executions>
-                        </plugin>
-
-                        <plugin>
-                            <groupId>org.jvnet.jaxb2.maven2</groupId>
-                            <artifactId>maven-jaxb2-plugin</artifactId>
-                            <version>0.8.1</version>
-                            <configuration>
-
-                                <specVersion>2.1</specVersion>
-
-                                <schemaIncludes>
-                                    <include>**/*.xsd</include>
-                                </schemaIncludes>
-                                <bindingIncludes>
-                                    <include>**/*.xjb</include>
-                                </bindingIncludes>
-
-                                <strict>true</strict>
-                                <verbose>false</verbose>
-                                <extension>true</extension>
-
-                                <args>
-                                    <arg>-XtoString</arg>
-                                </args>
-                                <plugins>
-                                    <plugin>
-                                        <groupId>org.jvnet.jaxb2_commons</groupId>
-                                        <artifactId>jaxb2-basics</artifactId>
-                                        <version>0.6.3</version>
-                                    </plugin>
-                                </plugins>
-                            </configuration>
-
-                            <executions>
-                                <execution>
-                                    <goals>
-                                        <goal>generate</goal>
-                                    </goals>
-
-                                    <phase>process-sources</phase>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-
-        <profile>
-            <id>Javax Library Support</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.glassfish</groupId>
-                        <artifactId>javax.servlet</artifactId>
-                        <version>3.1</version>
-                        <scope>test</scope>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>javax.mail</groupId>
-                        <artifactId>mail</artifactId>
-                        <version>1.4.4</version>
-                        <scope>test</scope>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>javax</groupId>
-                        <artifactId>javaee-web-api</artifactId>
-                        <version>6.0</version>
-                        <scope>provided</scope>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>javax</groupId>
-                        <artifactId>javaee-api</artifactId>
-                        <version>6.0</version>
-                        <scope>provided</scope>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>javax.transaction</groupId>
-                        <artifactId>transaction-api</artifactId>
-                        <version>1.1</version>
-                        <scope>provided</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.glassfish</groupId>
-                    <artifactId>javax.servlet</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>javax</groupId>
-                    <artifactId>javaee-web-api</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>javax.transaction</groupId>
-                    <artifactId>transaction-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.jvnet.jaxb2_commons</groupId>
-                    <artifactId>jaxb2-basics-runtime</artifactId>
-                    <version>0.6.3</version>
-                </dependency>
-
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>Spring Framework</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                        <version>${org.springframework.version}</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-beans</artifactId>
-                        <version>${org.springframework.version}</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                        <version>${org.springframework.version}</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-web</artifactId>
-                        <version>${org.springframework.version}</version>
-                    </dependency>
-
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-
-        <profile>
-            <id>Jersey RESTful Services Communication</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-
-                    <dependency>
-                        <groupId>com.sun.jersey</groupId>
-                        <artifactId>jersey-client</artifactId>
-                        <version>1.16</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>com.sun.jersey</groupId>
-                        <artifactId>jersey-server</artifactId>
-                        <version>1.16</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>com.sun.jersey.test.framework</groupId>
-                        <artifactId>jersey-test-framework</artifactId>
-                        <version>1.0.3.1</version>
-                        <scope>test</scope>
-                    </dependency>
-
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-
-        <profile>
-            <id>JSON Support</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.jackson</groupId>
-                        <artifactId>jackson-core-lgpl</artifactId>
-                        <version>1.9.13</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.jackson</groupId>
-                        <artifactId>jackson-mapper-lgpl</artifactId>
-                        <version>1.9.13</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.jackson</groupId>
-                        <artifactId>jackson-xc</artifactId>
-                        <version>1.9.13</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.jackson</groupId>
-                        <artifactId>jackson-jaxrs</artifactId>
-                        <version>1.9.13</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.github.fge</groupId>
-                        <artifactId>json-schema-validator</artifactId>
-                        <version>2.1.7</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-
-        <profile>
-            <id>Default JUL Logging Support</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                        <version>1.7.5</version>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                        <version>1.6.6</version>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>Java Compiler 1.6</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <version>2.3.2</version>
-
-                            <configuration>
-                                <source>1.6</source>
-                                <target>1.6</target>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-release-plugin</artifactId>
-                            <version>2.2.2</version>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-
-        <profile>
-            <id>Testing Support</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.mockito</groupId>
-                        <artifactId>mockito-all</artifactId>
-                        <version>1.8.5</version>
-                        <scope>test</scope>
-                    </dependency>
-
-                    <dependency>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                        <version>4.11</version>
-                        <scope>test</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-
-            <dependencies>
-                <dependency>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-all</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </dependency>
-            </dependencies>
-
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
-                            <version>2.9</version>
-                            <configuration>
-                                <includes>
-                                    <include>**/*Test.*</include>
-                                </includes>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-
-        <profile>
-            <id>Spock Testing Support</id>
-
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.codehaus.gmaven</groupId>
-                            <artifactId>gmaven-plugin</artifactId>
-                            <version>${gmaven.version}</version>
-                            <configuration>
-                                <testSources>
-                                    <fileset>
-                                        <directory>${pom.basedir}/src/test/java</directory>
-                                        <includes>
-                                            <include>**/*.groovy</include>
-                                        </includes>
-                                    </fileset>
-                                </testSources>
-                                <providerSelection>1.8</providerSelection>
-                            </configuration>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>org.codehaus.gmaven.runtime</groupId>
-                                    <artifactId>gmaven-runtime-2.0</artifactId>
-                                    <version>${gmaven.version}</version>
-                                    <exclusions>
-                                        <exclusion>
-                                            <groupId>org.codehaus.groovy</groupId>
-                                            <artifactId>groovy-all</artifactId>
-                                        </exclusion>
-                                    </exclusions>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.codehaus.groovy</groupId>
-                                    <artifactId>groovy-all</artifactId>
-                                    <version>${groovy.version}</version>
-                                </dependency>
-                            </dependencies>
-                            <executions>
-                                <execution>
-                                    <id>buildGroovies</id>
-                                    <goals>
-                                        <goal>generateStubs</goal>
-                                        <goal>compile</goal>
-                                        <goal>generateTestStubs</goal>
-                                        <goal>testCompile</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-    </profiles>
+            <!--For apache httpclient support-->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- We like Spock, test long and prosper -->
@@ -489,9 +170,145 @@
             <version>${spock.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--For unit testing-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--For slf4j logging support-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+        </dependency>
+
+        <!--For Javax Library Support-->
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>transaction-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>0.6.3</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+
+                <!--For JAXB Schema Compilation Support-->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>xml-maven-plugin</artifactId>
+                    <version>1.0</version>
+
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>transform</goal>
+                            </goals>
+                            <phase>generate-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <version>0.8.1</version>
+                    <configuration>
+
+                        <specVersion>2.1</specVersion>
+
+                        <schemaIncludes>
+                            <include>**/*.xsd</include>
+                        </schemaIncludes>
+                        <bindingIncludes>
+                            <include>**/*.xjb</include>
+                        </bindingIncludes>
+
+                        <strict>true</strict>
+                        <verbose>false</verbose>
+                        <extension>true</extension>
+
+                        <args>
+                            <arg>-XtoString</arg>
+                        </args>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.6.3</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+
+                            <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--For Java Compiler 1.6-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.2.2</version>
+                </plugin>
+
+                <!--For Testing Support-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.9</version>
+                    <configuration>
+                        <includes>
+                            <include>**/*Test.*</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
@@ -507,6 +324,7 @@
                         </fileset>
                     </testSources>
                     <providerSelection>1.8</providerSelection>
+                    <source/>
                 </configuration>
                 <dependencies>
                     <dependency>

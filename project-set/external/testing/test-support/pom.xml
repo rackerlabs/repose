@@ -66,14 +66,11 @@
       </dependency>
 
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-      </dependency>
-      <dependency>
          <groupId>com.sun.jersey.test.framework</groupId>
          <artifactId>jersey-test-framework</artifactId>
          <scope>test</scope>
       </dependency>
+
       <!-- javax.mail provides a functional version of javaee jar required for tests -->
       <dependency>
             <groupId>javax.mail</groupId>
