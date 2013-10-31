@@ -7,6 +7,7 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -37,14 +38,14 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
 
-        if (poolMap.isEmpty() ) {
+        if (poolMap.isEmpty()) {
             defaultClientId = "DEFAULT_POOL";
             HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
 
         }
 
-        if(clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
+        if (clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
 
             HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
             poolMap.put(clientId, httpClient);
@@ -98,5 +99,15 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             client.getConnectionManager().shutdown();
         }
         decommissionManager.stopThread();
+    }
+
+    @Override
+    public int getPoolSize(String poolID) {
+
+        if (poolMap.containsKey(poolID)) {
+            return ((PoolingClientConnectionManager) poolMap.get(poolID).getConnectionManager()).getMaxTotal();
+        } else {
+            return DEFAULT_POOL.getHttpConnManagerMaxTotal();
+        }
     }
 }

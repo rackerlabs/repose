@@ -19,7 +19,8 @@ public class AuthTokenFutureActor extends UntypedActor {
         if (message instanceof AuthGetRequest) {
             final AuthGetRequest authRequest = (AuthGetRequest) message;
             ServiceClientResponse serviceClientResponse = serviceClient.get(authRequest.getUri(), authRequest.getHeaders());
-            getSender().tell(serviceClientResponse, getContext().parent());
+            ReusableServiceClientResponse reusableServiceClientResponse = new ReusableServiceClientResponse(serviceClientResponse.getStatusCode(), serviceClientResponse.getData());
+            getSender().tell(reusableServiceClientResponse, getContext().parent());
         } else {
             unhandled(message);
         }
