@@ -213,6 +213,55 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
+    def "Separate users should have separate buckets"() {
+
+        given:
+
+        def mc
+        String url = "http://localhost:${reposePort}/servers/abc/instances/123"
+        def headers1 = ['X-PP-User': 'user3', 'X-PP-Groups': 'group']
+        def headers2 = ['X-PP-User': 'user4', 'X-PP-Groups': 'group']
+
+
+        when: "we make one request as the first user"
+        mc = deproxy.makeRequest(url: url, headers: headers1)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request as the first user"
+        mc = deproxy.makeRequest(url: url, headers: headers1)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request as the first user"
+        mc = deproxy.makeRequest(url: url, headers: headers1)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request as the second user"
+        mc = deproxy.makeRequest(url: url, headers: headers2)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request as the second user"
+        mc = deproxy.makeRequest(url: url, headers: headers2)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request as the second user"
+        mc = deproxy.makeRequest(url: url, headers: headers2)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
 
     def cleanupSpec() {
 
