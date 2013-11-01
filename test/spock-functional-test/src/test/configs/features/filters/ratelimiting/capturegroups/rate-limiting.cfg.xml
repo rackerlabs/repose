@@ -12,4 +12,9 @@
         <limit uri="/servers/*/instances/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
+    <limit-group id="separate-limits" groups="separate-limits" default="false">
+        <limit uri="/v1/*/servers" uri-regex="/v1/(.+)/servers" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit uri="/v2/*/images" uri-regex="/v2/(.+)/images" http-methods="ALL" unit="MINUTE" value="2"/>
+    </limit-group>
+
 </rate-limiting>

@@ -299,6 +299,97 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
+    def "Limits in separate <limit>s should get separate buckets"() {
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/v1/abc/servers"
+        String url2 = "http://localhost:${reposePort}/v2/abc/images"
+        String url3 = "http://localhost:${reposePort}/v1/def/servers"
+        String url4 = "http://localhost:${reposePort}/v2/def/images"
+        def headers = ['X-PP-User': 'user7', 'X-PP-Groups': 'separate-limits']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the third url"
+        mc = deproxy.makeRequest(url: url3, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the fourth url"
+        mc = deproxy.makeRequest(url: url4, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
 
     def cleanupSpec() {
 
