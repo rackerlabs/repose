@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>2.11.1-SNAPSHOT</version>
+        <version>2.12</version>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>profile-support</artifactId>
-    <version>2.11.1-SNAPSHOT</version>
+    <version>2.12</version>
 
     <name>Repose - Build Support Profiles</name>
 
@@ -324,7 +324,7 @@
                         </fileset>
                     </testSources>
                     <providerSelection>1.8</providerSelection>
-                    <source/>
+                    <source />
                 </configuration>
                 <dependencies>
                     <dependency>
