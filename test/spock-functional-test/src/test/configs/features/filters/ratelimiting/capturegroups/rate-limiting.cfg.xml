@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"
+               use-capture-groups="true">
+
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="servers-instances" groups="group" default="false">
