@@ -262,6 +262,43 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
+    def "A pattern with no capture groups () should use the pattern as the key"() {
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/objects/abc/things/123"
+        String url2 = "http://localhost:${reposePort}/objects/def/things/456"
+        def headers = ['X-PP-User': 'user5', 'X-PP-Groups': 'no-captures']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should be block as well"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
 
     def cleanupSpec() {
 
