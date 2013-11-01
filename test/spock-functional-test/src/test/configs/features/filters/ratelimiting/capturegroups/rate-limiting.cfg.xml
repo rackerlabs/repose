@@ -9,7 +9,7 @@
     </limit-group>
 
     <limit-group id="no-captures" groups="no-captures" default="false">
-        <limit uri="/servers/*/instances/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="separate-limits" groups="separate-limits" default="false">
