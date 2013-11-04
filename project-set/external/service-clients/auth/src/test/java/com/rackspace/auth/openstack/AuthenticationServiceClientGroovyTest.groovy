@@ -3,6 +3,7 @@ package com.rackspace.auth.openstack
 import com.rackspace.auth.AuthServiceException
 import com.rackspace.papi.commons.util.http.ServiceClient
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient
 import org.junit.Test
 
 import javax.xml.bind.JAXBContext
@@ -33,8 +34,10 @@ class AuthenticationServiceClientGroovyTest {
 
         ServiceClient serviceClient = mock(ServiceClient.class);
         when(serviceClient.getPoolSize()).thenReturn(100);
+        AkkaAuthenticationClient akkaAuthenticationClient= mock(AkkaAuthenticationClient.class)
 
-        def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id", null, null, new JaxbEntityToXml(coreJaxbContext), serviceClient)
+        def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id",
+                null, null, new JaxbEntityToXml(coreJaxbContext), serviceClient, akkaAuthenticationClient)
         def InputStream inputStream = new ByteArrayInputStream("test".getBytes())
         def String s
 

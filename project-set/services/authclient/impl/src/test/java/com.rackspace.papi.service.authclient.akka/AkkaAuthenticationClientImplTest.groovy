@@ -28,6 +28,7 @@ class AkkaAuthenticationClientImplTest {
     HttpClientService httpClientService;
     ServiceClient serviceClient;
     String returnString = "getinput"
+    HttpClient httpClient
 
     @org.junit.Before
     public void setUp() {
@@ -41,7 +42,7 @@ class AkkaAuthenticationClientImplTest {
         when(httpClientService.getPoolSize(anyString())).thenReturn(20);
         when(httpClientService.getClient(anyString())).thenReturn(httpClientResponse);
 
-        HttpClient httpClient = mock(HttpClient.class);
+        httpClient = mock(HttpClient.class);
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient);
 
         HttpResponse httpResponse = mock(HttpResponse.class)
@@ -50,9 +51,10 @@ class AkkaAuthenticationClientImplTest {
         HttpEntity entity = mock(HttpEntity.class)
         when(httpResponse.getEntity()).thenReturn(entity);
         when(entity.getContent()).thenReturn(new ByteArrayInputStream(returnString.getBytes("UTF-8")));
-        when(httpResponse.getStatusLine()).thenReturn(mock(StatusLine.class));
 
-        ServiceClientResponse serviceClientResponse = new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), stream);
+        StatusLine statusLine = mock(StatusLine.class)
+        when(statusLine.getStatusCode()).thenReturn(200)
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
 
         serviceClient = mock(ServiceClient.class);
         when(serviceClient.get(anyString(), any(Map.class)))
@@ -88,7 +90,7 @@ class AkkaAuthenticationClientImplTest {
 
         akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
 
-        verify(serviceClient, times(2)).get(anyString(), any(Map.class))
+        verify(httpClient, times(2)).execute(anyObject())
     }
 
     @Test

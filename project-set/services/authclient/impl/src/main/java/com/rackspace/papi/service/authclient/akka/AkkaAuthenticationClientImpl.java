@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
 
-@Component("akkaAuthenticationClientService")
 public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
     final private ServiceClient serviceClient;
@@ -31,7 +30,7 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     private ActorRef tokenActorRef;
     private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaAuthenticationClientImpl.class);
-    final Timeout t = new Timeout(Duration.create(50, TimeUnit.SECONDS));
+    final Timeout t = new Timeout(50, TimeUnit.SECONDS);
     private final Cache<String, Future> quickFutureCache;
 
     private static final long FUTURE_CACHE_TTL = 500;

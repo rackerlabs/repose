@@ -9,7 +9,6 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
-import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClientImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.openstack.docs.identity.api.v2.*;
@@ -50,11 +49,13 @@ public class AuthenticationServiceClient implements AuthenticationService {
                                        ResponseUnmarshaller openStackCoreResponseUnmarshaller,
                                        ResponseUnmarshaller openStackGroupsResponseUnmarshaller,
                                        JaxbEntityToXml jaxbToString,
-                                       ServiceClient serviceClient) {
+                                       ServiceClient serviceClient,
+                                       AkkaAuthenticationClient akkaAuthenticationClient) {
         this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
         this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
         this.serviceClient = serviceClient;
         this.targetHostUri = targetHostUri;
+        this.akkaAuthenticationClient = akkaAuthenticationClient;
 
         ObjectFactory objectFactory = new ObjectFactory();
         PasswordCredentialsRequiredUsername credentials = new PasswordCredentialsRequiredUsername();
@@ -73,7 +74,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         JAXBElement jaxbRequest = objectFactory.createAuth(request);
         requestBody = jaxbToString.transform(jaxbRequest);
-        akkaAuthenticationClient=new AkkaAuthenticationClientImpl(serviceClient);
     }
 
     @Override

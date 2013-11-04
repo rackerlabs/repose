@@ -18,6 +18,7 @@ import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenti
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
@@ -45,11 +46,13 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private FeedListenerManager manager;
     private final  HttpClientService  httpClientService;
     private static final Long MINIMUM_INTERVAL = new Long("10000");
+    private AkkaAuthenticationClient akkaAuthenticationClient;
 
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService) {
+    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaAuthenticationClient akkaAuthenticationClient) {
         this.datastore = datastore;
         this.httpClientService= httpClientService;
+        this.akkaAuthenticationClient = akkaAuthenticationClient;
     }
 
     @Override
@@ -170,7 +173,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     }
 
     private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
-        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService);
+        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaAuthenticationClient);
     }
 
     @Override

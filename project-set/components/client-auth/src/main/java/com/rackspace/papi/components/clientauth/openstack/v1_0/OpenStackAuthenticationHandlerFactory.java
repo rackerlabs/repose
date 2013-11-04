@@ -15,6 +15,7 @@ import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 
@@ -26,7 +27,9 @@ public final class OpenStackAuthenticationHandlerFactory {
     private OpenStackAuthenticationHandlerFactory() {
     }
 
-    public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher,HttpClientService httpClientService) {
+    public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor,
+                                                    Datastore datastore, UriMatcher uriMatcher,
+                                                    HttpClientService httpClientService, AkkaAuthenticationClient akkaAuthenticationClient) {
         final AuthTokenCache cache = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
         final AuthUserCache usrCache = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
@@ -39,7 +42,8 @@ public final class OpenStackAuthenticationHandlerFactory {
                                                                                            ids.getPassword(),
                                                                                            ids.getTenantId(),
                                                                                            authConfig.getConnectionPoolId(),
-                                                                                           httpClientService);
+                                                                                           httpClientService,
+                akkaAuthenticationClient);
 
         //null check to prevent NPE when accessing config element attributes
         if (authConfig.getEndpointsInHeader() != null) {
