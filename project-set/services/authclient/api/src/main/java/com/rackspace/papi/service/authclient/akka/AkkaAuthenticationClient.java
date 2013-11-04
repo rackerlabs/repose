@@ -8,10 +8,6 @@ import java.util.Map;
  * Interface to provide Akka and futures support to Auth client
  */
 public interface AkkaAuthenticationClient {
-    ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers);
-
-    /**
-     * Shutdown all open Actors
-     */
+    ServiceClientResponse get(String token, String uri, Map<String, String> headers);
     void shutdown();
 }

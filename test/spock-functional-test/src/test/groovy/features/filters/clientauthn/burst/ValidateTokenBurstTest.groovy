@@ -111,6 +111,9 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 1
 
         and:
+        fakeIdentityService.groupsCount == 1
+
+        and:
         missingAuthHeader == false
 
         and:

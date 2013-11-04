@@ -55,7 +55,7 @@ public class AuthenticationServiceClientTest {
             serviceClient = mock(ServiceClient.class);
             akkaAuthenticationClient = mock(AkkaAuthenticationClient.class);
             when(serviceClient.getPoolSize()).thenReturn(100);
-            when(akkaAuthenticationClient.validateToken(anyString(), anyString(), anyMap())).thenReturn(serviceClientResponseGet);
+            when(akkaAuthenticationClient.get(anyString(), anyString(), anyMap())).thenReturn(serviceClientResponseGet);
 
             authenticationServiceClient =
                     new AuthenticationServiceClient(targetHostUri, username, password, tenantId, responseUnmarshaller,

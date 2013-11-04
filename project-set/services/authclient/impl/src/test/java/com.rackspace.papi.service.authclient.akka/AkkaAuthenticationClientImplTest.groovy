@@ -73,7 +73,7 @@ class AkkaAuthenticationClientImplTest {
         final Map<String, String> headers = new HashMap<String, String>();
         ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
-        ServiceClientResponse serviceClientResponse = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+        ServiceClientResponse serviceClientResponse = akkaAuthenticationClientImpl.get(userToken, targetHostUri,  headers );
         org.junit.Assert.assertEquals("Should retrive service client with response", serviceClientResponse.getStatusCode(), 200);
     }
 
@@ -84,11 +84,11 @@ class AkkaAuthenticationClientImplTest {
         final Map<String, String> headers = new HashMap<String, String>();
         ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
-        akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+        akkaAuthenticationClientImpl.get(userToken, targetHostUri,  headers );
 
         Thread.sleep(500)
 
-        akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+        akkaAuthenticationClientImpl.get(userToken, targetHostUri,  headers );
 
         verify(httpClient, times(2)).execute(anyObject())
     }
@@ -100,8 +100,8 @@ class AkkaAuthenticationClientImplTest {
         final Map<String, String> headers = new HashMap<String, String>();
         ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token");
-        ServiceClientResponse serviceClientResponse1 = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
-        ServiceClientResponse serviceClientResponse2 = akkaAuthenticationClientImpl.validateToken(userToken, targetHostUri,  headers );
+        ServiceClientResponse serviceClientResponse1 = akkaAuthenticationClientImpl.get(userToken, targetHostUri,  headers );
+        ServiceClientResponse serviceClientResponse2 = akkaAuthenticationClientImpl.get(userToken, targetHostUri,  headers );
 
         StringWriter writer1 = new StringWriter();
         IOUtils.copy(serviceClientResponse1.data, writer1, "UTF-8");

@@ -8,12 +8,12 @@ public class AuthGetRequest implements ConsistentHashable {
 
     private String uri;
     private Map<String, String> headers;
-    private String token;
+    private String hashKey;
 
-    public AuthGetRequest(String token, String uri, Map<String, String> headers) {
+    public AuthGetRequest(String hashKey, String uri, Map<String, String> headers) {
         this.uri = uri;
         this.headers = headers;
-        this.token = token;
+        this.hashKey = hashKey;
     }
 
     public String getUri() {
@@ -24,12 +24,12 @@ public class AuthGetRequest implements ConsistentHashable {
         return headers;
     }
 
-    public String getToken() {
-        return token;
+    public String hashKey() {
+        return hashKey;
     }
 
     public String consistentHashKey(){
-        return getToken();
+        return hashKey();
     }
 
 }

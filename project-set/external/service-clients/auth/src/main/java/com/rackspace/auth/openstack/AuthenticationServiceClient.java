@@ -39,6 +39,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
     private final ServiceClient serviceClient;
     private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
     private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
+    private static final String TOKEN_PREFIX = "TOKEN:";
+    private static final String GROUPS_PREFIX = "GROUPS:";
+    private static final String ENDPOINTS_PREFIX = "ENDPOINTS";
 
     private AdminToken currentAdminToken;
     private final String requestBody;
@@ -121,8 +124,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
-        return akkaAuthenticationClient.validateToken(userToken,targetHostUri + TOKENS + userToken, headers);
-        //return serviceClient.get(targetHostUri + TOKENS + userToken, headers);
+        return akkaAuthenticationClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
     }
 
     private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {
@@ -142,7 +144,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
-        ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + TOKENS + userToken +
+        ServiceClientResponse<EndpointList> endpointListResponse = akkaAuthenticationClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken +
                 ENDPOINTS, headers);
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
@@ -156,7 +158,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                         "Retrieving new admin token and retrying endpoints retrieval...");
 
                 headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
-                endpointListResponse = serviceClient.get(targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+                endpointListResponse = akkaAuthenticationClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
                 if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     endpointList = getEndpointList(endpointListResponse);
@@ -192,7 +194,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
 
-        ServiceClientResponse serviceClientResponse = serviceClient.get(targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+        ServiceClientResponse serviceClientResponse = akkaAuthenticationClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
         String rawEndpointsData = "";
 
@@ -204,7 +206,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 LOG.error("Unable to get endpoints for user: " + serviceClientResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
 
                 headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
-                serviceClientResponse = serviceClient.get(targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+                serviceClientResponse = akkaAuthenticationClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
                 if (serviceClientResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     rawEndpointsData = convertStreamToBase64String(serviceClientResponse.getData());
@@ -254,7 +256,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
 
-        ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+        ServiceClientResponse<Groups> serviceResponse = akkaAuthenticationClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
         AuthGroups authGroups = null;
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
@@ -267,7 +269,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
                 headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
 
-                serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+                serviceResponse = akkaAuthenticationClient.get(GROUPS_PREFIX + userId,targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     authGroups = getAuthGroups(serviceResponse);

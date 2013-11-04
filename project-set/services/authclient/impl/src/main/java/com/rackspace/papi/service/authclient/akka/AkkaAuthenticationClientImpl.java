@@ -57,15 +57,14 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
                 return new AuthTokenFutureActor(serviceClient);
             }
         }).withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
-
     }
 
 
     @Override
-    public ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers) {
+    public ServiceClientResponse get(String key, String uri, Map<String, String> headers) {
 
         ServiceClientResponse reusableServiceserviceClientResponse = null;
-        AuthGetRequest authGetRequest = new AuthGetRequest(token, uri, headers);
+        AuthGetRequest authGetRequest = new AuthGetRequest(key, uri, headers);
         Future<ServiceClientResponse> future = getFuture(authGetRequest);
         try {
             reusableServiceserviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
@@ -81,9 +80,8 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
     }
 
-
     public Future getFuture(AuthGetRequest authGetRequest) {
-        String token = authGetRequest.getToken();
+        String token = authGetRequest.hashKey();
         Future<Object> newFuture;
         if (!quickFutureCache.asMap().containsKey(token)) {
             synchronized (quickFutureCache) {
@@ -99,5 +97,4 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     public ServiceClient getServiceClient(HttpClientService httpClientService){
         return new ServiceClient(null,httpClientService);
     }
-
 }
