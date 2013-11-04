@@ -5,7 +5,7 @@
    <parent>
       <groupId>com.rackspace.papi.external</groupId>
       <artifactId>external-lib-support</artifactId>
-      <version>2.11.1-SNAPSHOT</version>
+      <version>2.12.1-SNAPSHOT</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
@@ -66,14 +66,11 @@
       </dependency>
 
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-      </dependency>
-      <dependency>
          <groupId>com.sun.jersey.test.framework</groupId>
          <artifactId>jersey-test-framework</artifactId>
          <scope>test</scope>
       </dependency>
+
       <!-- javax.mail provides a functional version of javaee jar required for tests -->
       <dependency>
             <groupId>javax.mail</groupId>

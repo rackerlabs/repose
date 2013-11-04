@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"
+               use-capture-groups="false">
+
+    <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
+
+    <limit-group id="no-captures" groups="no-captures" default="false">
+        <limit uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
+    </limit-group>
+
+    <limit-group id="captures" groups="captures" default="false">
+        <limit uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL" unit="MINUTE" value="2"/>
+    </limit-group>
+
+</rate-limiting>

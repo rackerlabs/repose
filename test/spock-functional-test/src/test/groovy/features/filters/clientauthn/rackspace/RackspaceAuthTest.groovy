@@ -26,13 +26,10 @@ class RackspaceAuthTest extends ReposeValveTest {
         fakeIdentityService = new RackspaceIdentityServiceResponseSimulator()
         identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
-
-
     }
 
     def cleanupSpec() {
         deproxy.shutdown()
-
         repose.stop()
     }
 
@@ -143,5 +140,4 @@ class RackspaceAuthTest extends ReposeValveTest {
         "rando3" | "toke2" | "xml"
         "rando7" | "toke6" | "json"
     }
-
 }
