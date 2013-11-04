@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+      xml:id="Repose-Ratelimiting-Chapter">
+    <?rax pdf.url="../../repose-versioning-deploy.pdf"?>
+    
+    <!-- I am commenting this out because I am unsure if it is needed
+        at this point.
+    
+      xml:base="file:/Users/becc5822/Documents/repose/documentation/docbook/src/resources/repose-ratelimiting-deploy*.xml">
+      -->
+    
+    <title>Rate Limiting Filter</title>
+    <section xml:id="Introduction-300">
+        <title>What is Rate Limiting?</title>
+        <para> Rate limiting controls the flow of traffic. You can use
+            Repose's rate limiting filter to manage the flow of
+            traffic into your service so that it does not exceed the
+            service's actual capacity. In addition to allowing you to
+            manage legitimate workloads, this allows you to prevent
+            overload due to abuse of your system. </para>
+        <para> To understand how Repose handles rate limiting, you
+            must understand the relationship between Repose and an
+            origin service. An origin service is the service for which
+            Repose is performing a function. For example, if
+            Repose is used to provide rate limiting to a
+            load-balancing service, then the load-balancing service is
+            Repose's origin service. Requests are sent to
+            Repose as the proxy for the origin service, not to the
+            server where the origin service lives. Repose
+            functions as a reverse proxy, in that it acts on behalf of
+            the origin service rather than on behalf of the client.
+            Repose passes client requests to the origin service
+            only after those requests have been examined and processed
+            by the Repose filters configured for that origin
+            service. </para> 
+   </section>
+    
+        <section xml:id="What-It-Does-999">
+            <title> What can Repose Rate Limiting Do?</title>
+        <para> Repose's rate limiting filter protects the origin
+            service from being bombarded by client requests. It
+            accomplishes this by specifying limits for the number of
+            times a client may request a given resource. When a client
+            has exceeded the number of requests permitted during the
+            current time period, no further requests from that client
+            are delivered to the origin service until a new time
+            period begins. This provides essential protection to any
+            public-facing API. </para>
+        <para> A client's current limits may include the client's
+            absolute limits. Absolute limits are specific to a service
+            domain and are therefore only provided by the origin
+            service. However, Repose will integrate absolute and
+            current limits as they apply to a client. </para>
+        <para> Repose does not enforce absolute limits, but it
+            does inform the origin service of those limits.</para>
+        <para> The Repose rate limiting component performs two
+            categories of behavior: <itemizedlist>
+                <listitem>
+                    <para> querying for limits </para>
+                </listitem>
+                <listitem>
+                    <para> tracking limits </para>
+                </listitem>
+            </itemizedlist>
+      </para>
+    </section>
+    <section xml:id="cONTROL-888">
+        <title> Request Prerequisites </title>
+        <para> To correctly rate limit a requested resource, the rate
+            limiting component uses one required HTTP header
+            precondition and one optional HTTP header precondition. </para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>HTTP Request Headers</caption>
+            <thead>
+                <tr>
+                    <td>Header</td>
+                    <td>Purpose</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <para>
+                            <code>X-PP-User</code>
+                        </para>
+                        <para>
+                            <emphasis>Required</emphasis>
+                        </para>
+                    </td>
+                    <td>
+                        <para>
+                            <code>X-PP-User</code> is a single-value
+                            header. This header is used to describe
+                            the unique name of the client making the
+                            request. This name is used in part to
+                            cache and store request hits. </para>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <para>
+                            <code>X-PP-Groups</code>
+                        </para>
+                        <para>
+                            <emphasis>Optional</emphasis>
+                        </para>
+                    </td>
+                    <td>
+                        <para>
+                            <code>X-PP-Groups</code> is a list of
+                            string values. This header is used to
+                            describe all of the limit groups the
+                            client belongs to. A client may belong to
+                            multiple limit groups or to none. </para>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <para> These headers are used by the rate limiting filter but
+            are populated by other Repose components such as the
+            authentication filter. </para>
+        <para> Repose filters may add values to HTTP message
+            headers to communicate a set of options to downstream
+            filters. To aid downstream filters in selecting the most
+            qualified value from a given set, the values themselves
+            may be annotated with a quality factor parameter. This
+            allows downstream components to make a decision based on
+            the available options rather then on which component
+            overwrote the header last. </para>
+        
+    </section>
+        
+    <section xml:id="Configuration-d1e465">
+        <title>Configuration Options</title>
+
+            <para> Before attempting to customize your rate limiting
+            configuration, familiarize yourself with the basic
+            Repose concepts.</para>
+  
+        <para> The rate limiting component obtains its configuration,
+            including its API endpoint, from a file named
+                <code>rate-limiting.cfg.xml</code>. We have included
+            an annotated example of a valid
+                <code>rate-limiting.cfg.xml</code> in this
+            section.</para>
+        <para> To change your rate limiting configuration, edit
+                <code>rate-limiting.cfg.xml</code> at any time. Within
+                <code>rate-limiting.cfg.xml</code>, you can specify
+            the following: </para>
+        <table rules="all">
+            <caption>Customizable Options of the Rate Limiting
+                Configuration</caption>
+            <col width="31%"/>
+            <col width="33%"/>
+            <col width="36%"/>
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Attribute</th>
+                    <th>Parameter</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4">
+                  <emphasis role="bold">Endpoint</emphasis>: <?sbr?>
+                        <code>&lt;request-endpoint&gt;</code> sets the
+                        endpoint and format with which the user can
+                        query limits. </td>
+                    
+                </tr>
+                <tr>
+                    <td>
+                        <code>&lt;uri-regex&gt;</code> is a regular
+                        expression (regex) for the URI at which the
+                        user can query their limits. Within the regex,
+                        each capture group is allowed the number of
+                        hits specified in the value attribute of the
+                        limit element. For example, suppose the
+                        configuration specifies a regex of
+                            <literal>/v1/(.*)</literal> with
+                            <code>value</code> set to 100. With this
+                        configuration, some requests come in with a
+                        URI of <code>/v1/pan</code> and other requests
+                        come in with a URI of <code>/v1/cake</code>.
+                        Each user would be allowed 200 hits if the
+                        hits are evenly divided among the two URIs:
+                        100 hits for URI <code>/v1/pan</code> and 100
+                        hits for URI <code>/v1/cake</code>. </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>
+                        <code>&lt;include-absolute-limits&gt;</code>
+                        enables or disables integration with absolute
+                        limits. </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>
+                  <code>&lt;limits-format&gt;</code> identifies
+                        the format of returned rate limits.</td>
+                    <td>
+                  <code>OPENSTACK</code>, the format supported
+                        by OpenStack. You can learn about this format
+                        at <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>.
+                    </td>
+                </tr>
+                <tr>
+                    <td rowspan="5">
+                  <emphasis role="bold">
+                            Group</emphasis>: <?sbr?>
+                        <code>&lt;limit-group&gt;</code> is a list of
+                        rate limits to be applied to a user, based on
+                        the user's membership in a group.  </td>
+                    
+                </tr>
+                <tr>
+                    <td>
+                  <code>&lt;id&gt;</code> is the unique
+                        identifier for a given limit group </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>
+                  <code>&lt;groups&gt;</code> is a
+                        space-delimited list of the groups to which
+                        this limit group will apply </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>
+                        <para>
+                            <code>&lt;default&gt;</code> identifies
+                            the limit group that will be applied if a
+                            user is passed in either of these
+                            conditions: <itemizedlist>
+                                <listitem>
+                                   <para> no group is specified
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para> no group in the rate
+                                   limiting configuration matches the
+                                   group or groups specified </para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>
+                        <para>
+                            <code>&lt;limit&gt;</code> describes
+                            limits configured for a given endpoint.
+                        </para>
+                    </td>
+                    <td>
+                        <para>
+                            <itemizedlist>
+                                <listitem>
+                                   <para>
+                                   <code>&lt;uri&gt;</code> is a
+                                   human-readable URI describing the
+                                   endpoint for a given configured
+                                   limit </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                   <code>&lt;uri-regex&gt;</code> is
+                                   the regex used to match a passing
+                                   request to current limit group
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                   <code>&lt;http-methods&gt;</code>
+                                   lists the HTTP methods associated
+                                   with this limit. Valid values
+                                   include: GET, DELETE, POST, PUT,
+                                   HEAD, OPTIONS, CONNECT, TRACE, ALL
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                   <code>&lt;unit&gt;</code> is the
+                                   unit of time associated with this
+                                   limit. Valid values include:
+                                   SECOND, MINUTE, HOUR, DAY</para>
+                                </listitem>
+                                <listitem>
+                                   <para>
+                                   <code>&lt;value&gt;</code> is the
+                                   number of requests allowed within
+                                   the configured unit of time</para>
+             
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </td>
+                </tr>
+         
+           
+          
+             <tr>
+                 <td rowspan="4">
+                        <emphasis role="bold">Rate
+                        Limiting</emphasis>:
+                            <code>&lt;rate-limiting&gt;</code>
+               </td>
+                    <db:td>
+                  <code>&lt;datastore&gt;</code> name of the
+                        datastore to used to store rate limiting
+                        information. If not specified, rate limiting
+                        will use the first distributed datastore
+                        available, if none are available it will
+                        revert to using a local data store. Valid
+                        values are: local/default
+                        distributed/hash-ring (requires dist-datastore
+                        filter) distributed/replicated (requires
+                        replicated datastore filter)</db:td>
+                    <db:td/>
+               </tr> 
+                <tr>
+                    <td>
+                        <code>&lt;datastore-warn-limit&gt;</code>defines
+                        limit to  log a warning on size when an object
+                        is stored into the database over this limit.
+                        When this limit is met, Repose, will issue a
+                        warning message in the logs. The limit default
+                        is 1000 cache keys per user.</td>
+                    <db:td/>
+                </tr>
+                <tr>
+                    <td>
+                  <code>&lt;overLimit-429-responseCode&gt;</code>
+                        when set to "true" Repose will send a 429
+                        response code instead of the default 413
+                        response code which is in conjunction with the
+                        Response Messaging Service Configuration for a
+                        429 status code will provide custom over limit
+                        message. As a 429 response code is proposed
+                        HTTP standard code and servlet containers
+                        return 429 as a response message. </td>
+                    <db:td/>
+                </tr>
+                <tr>
+                    <td>
+                  <code>&lt;use-capture-groups&gt; </code>set to
+                        "false" will count all the requests with the
+                        uri-regex that has the capture group towards
+                        the limit count specified. By default, this is
+                        set to "true". </td>
+                    <db:td/> 
+            </tr>
+                        
+                    
+                    
+            </tbody> 
+        </table>
+        <?sbr?>
+        <para> Your rate limiting configuration in
+                <code>rate-limiting.cfg.xml</code> will resemble the
+            following example: </para>
+        <example>
+            <title>Rate Limiting Configuration: XML</title>
+            <programlistingco>
+                <areaspec>
+                    <area xml:id="cfg.xml.request-endpoint" units="linecolumn" coords="5 22"/>
+                    <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
+                    <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
+                    <area xml:id="cfg.xml.limit-group" units="linecolumn" coords="8 17"/>
+                    <area xml:id="cfg.xml.id" units="linecolumn" coords="8 21"/>
+                    <area xml:id="cfg.xml.groups" units="linecolumn" coords="9 15"/>
+                    <area xml:id="cfg.xml.default" units="linecolumn" coords="9 35"/>
+                    <area xml:id="cfg.xml.limit" units="linecolumn" coords="10 15"/>
+                </areaspec>
+                <programlisting language="xml">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"&gt;
+    &lt;request-endpoint uri-regex="/service/limits/" 
+        include-absolute-limits="true"/&gt;
+    
+    &lt;limit-group id="customer-limits " 
+        groups="customer" default="true"&gt;
+        &lt;limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="GET" unit="SECOND" value="1"/&gt;
+        &lt;limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="DELETE" unit="MINUTE" value="5"/&gt;
+        &lt;limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="PUT" unit="HOUR" value="15"/&gt;
+        &lt;limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="POST" unit="DAY" value="2"/&gt;
+    &lt;/limit-group&gt;
+    
+    &lt;limit-group id="admin-limits" 
+        groups="admin"&gt;
+        &lt;limit uri="/service/admin/*" uri-regex="/service/admin/(.*)" 
+            http-methods="GET POST PUT DELETE" unit="SECOND" value="1"/&gt;
+    &lt;/limit-group&gt;
+&lt;/rate-limiting&gt;
+
+            </programlisting>
+            </programlistingco>
+        </example>
+        <para> Key elements of the preceding example are labeled with
+            callouts and explained below: </para>
+        <calloutlist>
+            <callout arearefs="cfg.xml.request-endpoint">
+                <para> The <code>request-endpoint</code> configuration
+                    element must specify a regular expression that
+                    identifies client requests for the client's
+                    current limits. </para>
+                <para>This element is
+                    <emphasis>required</emphasis>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.uri-regex">
+                <para> The <code>uri-regex</code> attribute of the
+                        <code>request-endpoint</code> configuration
+                    element must be a regular expression. It should
+                    match all representations of the request resource
+                    that the rate limiting component should answer. </para>
+                <para>This attribute is
+                    <emphasis>required</emphasis>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.include-absolute-limits">
+                <para> The <code>include-absolute-limits</code>
+                    attribute of the <code>request-endpoint</code>
+                    configuration element is a Boolean attribute that
+                    can be used to switch on or off integration with
+                    the origin service's absolute limits. </para>
+                <para>This attribute is
+                    <emphasis>optional</emphasis>.</para>
+                <para>Acceptable values are <code>TRUE</code>,
+                        <code>FALSE</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.limit-group">
+                <para> One or more specifications of
+                        <code>limit-group</code> may be associated
+                    with a single specification of
+                        <code>request-endpoint</code>. </para>
+                <para> Limit groups identify a group of related rate
+                    limits and bind them to a series of names. The
+                    names can be used to limit incoming requests using
+                    the <code>X-PP-Groups</code> header. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.id">
+                <para> An <code>id</code> uniquely identifies each
+                        <code>limit-group</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.groups">
+                <para> Specifying <code>groups</code> for a
+                        <code>limit-group</code> associates it with
+                    recognizable workloads. In this example, one
+                        <code>limit-group</code> relates to customers
+                    and another relates to administrators. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.default">
+                <para> A single <code>limit-group</code> may be
+                    identified as the <code>default</code> group. The
+                        <code>default</code> group will handle any
+                    requests that cannot be matched on the basis of a
+                    group name to any of the groups identified in the
+                        <code>X-PP-Groups</code> header. In this
+                    example, the limits defined for
+                        <code>groups="customer"</code> will be applied
+                    to requests that cannot be explicitly matched to a
+                    group. </para>
+                <para> </para>
+            </callout>
+                
+        </calloutlist>
+    </section>
+    <section xml:id="Tracking_Requests-d1e431">
+        <title>Rate Limiting Behavior</title>
+        <para> There are two general categories of behavior performed
+            by the Repose rate limiting component: <itemizedlist>
+                <listitem>
+                    <para> Querying for Limits</para>
+                </listitem>
+                <listitem>
+                    <para> Tracking Limits </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <section xml:id="Cache_Indexing-d1e439">
+            <title>Querying Limits</title>
+            <para> The rate limiting component caches rate limits by
+                user. Consequently, to query limits, a user must be
+                passed into the rate limiting component. The rate
+                limiting component uses the <code>X-PP-User</code>
+                header to identify user whose limits will be queried.
+                Without a value in this header, the rate limiting
+                component will send back a "401 Unauthorized". </para>
+            <para> The rate limiting component uses the
+                    <code>X-PP-Groups</code> header to determine which
+                rate limits to apply to the user. Without this header
+                present, the rate limiting component will assign
+                limits from a default group specified in the
+                    <code>rate-limiting.cfg.xml</code> configuration
+                file. </para>
+            <para> It is possible to query a user's rate limits before
+                the user's limits are placed in the cache. This is the
+                case when querying limits before the user has ever
+                been rate limited. In this case, there are two
+                possible results based on the contents of the
+                    <code>X-PP-Groups</code> header: </para>
+            <db:para>
+                <itemizedlist>
+                    <listitem>
+                        <para>If the X-PP-Groups header containing
+                            specification of a group is passed in,
+                            then the rate limits configured for the
+                            specified group in rate-limiting.cfg.xml
+                            are returned.</para>
+                    </listitem>
+                    <listitem>
+                        <para>If the X-PP-Groups header is not passed
+                            in, then the rate limits configured for
+                            the default limit group in
+                            rate-limiting.cfg.xml are returned.
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </db:para>
+
+        <para> As shown below, a request in which the user is
+            identified via <code>X-PP-User</code> and the user's group
+            is identified via <code>X-PP-Groups</code> generates a
+            response showing all the limits applicable to that user in
+            that group:</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Request
+                Limits for User</caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+GET /service/limits HTTP/1.1 
+Accept: application/vnd.rackspace-v1.0+xml 
+X-PP-User: demo-username
+X-PP-Groups: demo-customer
+</programlisting>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <informalexample>
+                            <literallayout class="monospaced">
+HTTP/1.1 200 OK
+Content-Length: 538
+</literallayout>
+                        </informalexample>
+                        <informalexample>
+                            <programlisting language="xml">
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;limits xmlns="http://docs.openstack.org/common/api/v1.0"&gt;
+    &lt;rates&gt;
+        &lt;rate uri="/service*" regex="/service/([\d^/]*)/.*"&gt;
+            &lt;limit value="5" verb="DELETE" unit="MINUTE" 
+                remaining="1" next-available="2010-12-15T22:42:12Z" /&gt;
+            &lt;limit value="15" verb="PUT" unit="HOUR" 
+                remaining="4" next-available="2010-12-15T22:42:12Z" /&gt;
+            &lt;limit value="2" verb="POST" unit="DAY" 
+                remaining="1" next-available="2010-12-15T22:42:12Z" /&gt;
+        &lt;/rate&gt;
+    &lt;/rates&gt;
+&lt;/limits&gt;
+
+</programlisting>
+                        </informalexample>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <note>
+            <para> The rate limiting component understands quality
+                factors for the <code>X-PP-User</code> and
+                    <code>X-PP-Groups</code> headers. This is useful
+                when a service implementer wishes to employ multiple
+                authentication/identity mechanisms. You can learn more
+                about how Repose handles authentication and
+                identity in the Repose Authentication and
+                Authorization Components Deployment Handbook. </para>
+            <para> If multiple user or group values are present in the
+                    <code>X-PP-User</code> or <code>X-PP-Groups</code>
+                headers with the same quality, then the first value is
+                used. If the user or group does not have an explicit
+                quality, Repose assumes the quality for that item
+                is 1. </para>
+        </note>
+        <para> In the rate limiting configuration shown below,
+                <code>rate-limiting.cfg.xml</code> defines limits to
+            be applied to two groups, <code>BETA_Group</code> and
+                <code>IP_Standard</code>, and separately defines
+            limits to be applied to default group named
+                <code>My_Group</code>. The limits defined for
+                <code>My_Group</code> apply when no other group is
+            specified. In the <code>request-endpoint</code> element,
+            which applies to all groups, the <code>uri-regex</code>
+            attribute is set to <code>/limits</code>.  This is the URI
+            at which the user should query for rate limits.</para>
+        <example>
+            <title>Rate Limiting Configuration with Default
+                Group</title>
+            <programlisting language="xml">
+&lt;rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"&gt;
+    &lt;request-endpoint uri-regex="/limits" include-absolute-limits="false" /&gt;
+    
+    &lt;limit-group id="limited" groups="BETA_Group IP_Standard" default="false"&gt;
+        &lt;limit uri="*" uri-regex="/something/(.*)" http-methods="PUT" unit="MINUTE" value="10" /&gt;
+        &lt;limit uri="*" uri-regex="/something/(.*)" http-methods="GET" unit="MINUTE" value="10" /&gt;
+    &lt;/limit-group&gt;
+    
+    &lt;limit-group id="limited-all" groups="My_Group" default="true"&gt;
+        &lt;limit uri="*" uri-regex="/something/(.*)" http-methods="ALL" unit="HOUR" value="10" /&gt;
+    &lt;/limit-group&gt;
+&lt;/rate-limiting&gt;
+
+                </programlisting>
+        </example>
+        <para> Under this rate limiting configuration, a request in
+            which the user is not yet in the cache generates a
+            response showing the limits applicable to that user on the
+            basis of the default group:</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Request
+                Limits for User Not in Cache </caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application/xml" 
+</programlisting>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <informalexample>
+                            <programlisting language="xml">
+&lt;limits xmlns="http://docs.openstack.org/common/api/v1.0"&gt;
+    &lt;rates&gt;
+        &lt;rate regex="/something/(.*)" uri="*"&gt;
+            &lt;limit next-available="2012-06-22T14:39:33.832Z" unit="HOUR" remaining="10" value="10" verb="ALL"/&gt;
+        &lt;/rate&gt;
+    &lt;/rates&gt;
+&lt;/limits&gt;
+
+</programlisting>
+                        </informalexample>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <para> Under the same rate limiting configuration, a request
+            associating a user with a group generates a response
+            showing the limits applicable to that user on the basis of
+            membership in the <code>IP_Standard</code> group:</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Request
+                Limits for User in Group </caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_Standard" -H "accept: application/xml" 
+</programlisting>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <informalexample>
+                            <programlisting language="xml">
+&lt;limits xmlns="http://docs.openstack.org/common/api/v1.0"&gt;
+    &lt;rates&gt;
+        &lt;rate regex="/something/(.*)" uri="*"&gt;
+            &lt;limit next-available="2012-06-22T15:38:17.956Z" unit="MINUTE" remaining="10" value="10" verb="PUT"/&gt;
+            &lt;limit next-available="2012-06-22T15:38:17.956Z" unit="MINUTE" remaining="10" value="10" verb="GET"/&gt;
+        &lt;/rate&gt;
+    &lt;/rates&gt;
+&lt;/limits&gt;
+
+</programlisting>
+                        </informalexample>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+       
+        </section>
+    </section>
+    <section xml:id="Limited-d1e731">
+        <title>Handling Limited Client Requests</title>
+        <para> When a client makes a request that exceeds the client's
+            specified rate limit, the rate limiting component will
+            return the HTTP response code <errorcode>413</errorcode>
+            (Request Entity Too Large). </para>
+        <para> When this occurs, the response's
+                <code>Retry-After</code> HTTP header contains
+            HTTP-encoded data that the client can use to plan a retry. </para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Rate
+                Exceeded</caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+GET /service/my/resource HTTP/1.1 
+Accept: application/vnd.rackspace-v1.0+xml 
+X-PP-User: username
+X-PP-Groups: customer
+</programlisting>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <programlisting>
+HTTP/1.1 413 Request Entity Too Large
+Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
+</programlisting>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    
+    <section xml:id="Rate-Limiting-Use-Cases">
+        <title> Rate Limiting Use Cases</title>
+        <para> In order to rate limit by certain mechanisms you need
+            to configure the proper identity filter <emphasis role="italic">before</emphasis> the rate limiting
+            filter in your system model. Below shows which the
+            necessary order of the filters.  </para>
+        <db:para>
+         <emphasis role="bold">Rate Limit by
+            User</emphasis>:</db:para>
+        
+       <para>       Client-auth filter <code> &lt;filter name=
+                "client-auth"/&gt;</code>
+      </para>
+        <para>       Rate Limiting filter  <code>&lt;filter name
+                ="rate-limiting/&gt; </code>
+        </para>
+        <db:para/>
+        <para>
+         <emphasis role="bold"> Rate Limit by
+            URI</emphasis>
+      </para>
+      
+       <para> URI- identity filter     <code>&lt;filter name=
+                "uri-identity"/&gt; </code>
+        </para>
+        <para> Rate Limiting filter    <code> &lt;filter name=
+                "rate-limiting"/&gt;</code>
+        </para>
+        <db:para/>
+        <para>
+         <emphasis role="bold"> Rate Limit by
+            Header</emphasis>
+      </para>
+        <para>Header-Identity Filter <code>&lt;filter
+                name="header-identity"/&gt;</code>
+      </para>
+        
+        <para> Rate Limiting Filter <code> &lt;filter name=
+                "rate-limiting"/&gt; </code>
+      </para>
+    </section>
+</chapter>

@@ -158,10 +158,10 @@
                 translation configuration, edit
                     <code>translation.cfg.xml</code>. You can see an
                 annotated example of <code>translation.cfg.xml</code>
-                in <xref linkend="Configuration-d1e365"/>. </para>
+                in <xref linkend="Configuration-d1e3659"/>. </para>
         </tip>
     </chapter>
-    <chapter xml:id="Configuration-d1e365">
+    <chapter xml:id="Configuration-d1e3659">
         <title>Configuration</title>
         <tip>
             <para> Before attempting to customize your translation
