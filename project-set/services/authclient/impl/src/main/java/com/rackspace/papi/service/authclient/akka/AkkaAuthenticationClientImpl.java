@@ -8,9 +8,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -20,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
 
+@Component("akkaAuthenticationClientService")
 public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
 
     final private ServiceClient serviceClient;
@@ -33,9 +37,10 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
     private static final long FUTURE_CACHE_TTL = 500;
     private static final long MAX_FUTURE_CACHE_SIZE = 1000;  // just guessing on this
 
-    public AkkaAuthenticationClientImpl(ServiceClient sc) {
-        this.serviceClient = sc;
-        numberOfActors = sc.getPoolSize();
+    @Autowired
+    public AkkaAuthenticationClientImpl(HttpClientService httpClientService) {
+        this.serviceClient = getServiceClient(httpClientService);
+        numberOfActors = serviceClient.getPoolSize();
 
         Config customConf = ConfigFactory.parseString(
                 "akka { actor { default-dispatcher {throughput = 10} } }");
@@ -71,6 +76,12 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
         return reusableServiceserviceClientResponse;
     }
 
+    @Override
+    public void shutdown(){
+        actorSystem.shutdown();
+
+    }
+
 
     public Future getFuture(AuthGetRequest authGetRequest) {
         String token = authGetRequest.getToken();
@@ -86,5 +97,8 @@ public class AkkaAuthenticationClientImpl implements AkkaAuthenticationClient {
         return quickFutureCache.asMap().get(token);
     }
 
+    public ServiceClient getServiceClient(HttpClientService httpClientService){
+        return new ServiceClient(null,httpClientService);
+    }
 
 }

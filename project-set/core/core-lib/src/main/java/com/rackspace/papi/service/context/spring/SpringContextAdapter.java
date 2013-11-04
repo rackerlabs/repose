@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.spring;
 
+import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -132,6 +133,11 @@ public class SpringContextAdapter implements ContextAdapter {
     @Override
     public HttpClientService httpConnectionPoolService(){
         return getService(ServiceContextName.HTTP_CONNECTION_POOL_SERVICE_CONTEXT);
+    }
+
+    @Override
+    public AkkaAuthenticationClient akkaAuthenticationClientService(){
+        return getService(ServiceContextName.AKKA_AUTHENTICATION_SERVICE_CONTEXT);
     }
 
    @Override

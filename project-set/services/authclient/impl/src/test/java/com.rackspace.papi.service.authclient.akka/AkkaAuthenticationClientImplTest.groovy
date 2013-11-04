@@ -1,15 +1,19 @@
 package com.rackspace.papi.service.authclient.akka
-
 import com.rackspace.papi.commons.util.http.ServiceClient
 import com.rackspace.papi.commons.util.http.ServiceClientResponse
+import com.rackspace.papi.service.httpclient.HttpClientResponse
+import com.rackspace.papi.service.httpclient.HttpClientService
 import org.apache.commons.io.IOUtils
+import org.apache.http.HttpEntity
+import org.apache.http.HttpResponse
+import org.apache.http.StatusLine
+import org.apache.http.client.HttpClient
 import org.junit.Test
 
 import javax.ws.rs.core.MediaType
 
 import static org.junit.Assert.assertEquals
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.anyString
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AkkaAuthenticationClientImplTest {
@@ -21,6 +25,7 @@ class AkkaAuthenticationClientImplTest {
     private String userToken;
     private String targetHostUri;
     ServiceClientResponse<String> serviceClientResponseGet, serviceClientResponsePost;
+    HttpClientService httpClientService;
     ServiceClient serviceClient;
     String returnString = "getinput"
 
@@ -29,13 +34,32 @@ class AkkaAuthenticationClientImplTest {
 
 
         serviceClientResponseGet = new ServiceClientResponse(200,new ByteArrayInputStream(returnString.getBytes("UTF-8")));
+        httpClientService  = mock(HttpClientService.class) ;
+
+        HttpClientResponse httpClientResponse =mock(HttpClientResponse.class)
+
+        when(httpClientService.getPoolSize(anyString())).thenReturn(20);
+        when(httpClientService.getClient(anyString())).thenReturn(httpClientResponse);
+
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClientResponse.getHttpClient()).thenReturn(httpClient);
+
+        HttpResponse httpResponse = mock(HttpResponse.class)
+        when(httpClient.execute(anyObject())).thenReturn(httpResponse);
+
+        HttpEntity entity = mock(HttpEntity.class)
+        when(httpResponse.getEntity()).thenReturn(entity);
+        when(entity.getContent()).thenReturn(new ByteArrayInputStream(returnString.getBytes("UTF-8")));
+        when(httpResponse.getStatusLine()).thenReturn(mock(StatusLine.class));
+
+        ServiceClientResponse serviceClientResponse = new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), stream);
 
         serviceClient = mock(ServiceClient.class);
         when(serviceClient.get(anyString(), any(Map.class)))
                 .thenReturn(serviceClientResponseGet);
         when(serviceClient.getPoolSize()).thenReturn(100)
 
-        akkaAuthenticationClientImpl = new AkkaAuthenticationClientImpl(serviceClient);
+        akkaAuthenticationClientImpl = new AkkaAuthenticationClientImpl(httpClientService);
         userToken = "userToken";
         targetHostUri = "targetHostUri";
     }

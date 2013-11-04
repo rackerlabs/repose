@@ -9,4 +9,9 @@ import java.util.Map;
  */
 public interface AkkaAuthenticationClient {
     ServiceClientResponse validateToken(String token, String uri, Map<String, String> headers);
+
+    /**
+     * Shutdown all open Actors
+     */
+    void shutdown();
 }
