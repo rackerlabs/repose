@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class AuthenticationServiceClientTest {
         String username;
         String password;
         String tenantId;
-        AkkaAuthenticationClient akkaAuthenticationClient;
+        AkkaServiceClient akkaServiceClient;
 
         @Before
         public void setUp() throws Exception {
@@ -53,14 +53,14 @@ public class AuthenticationServiceClientTest {
             serviceClientResponseGet = mock(ServiceClientResponse.class);
             serviceClientResponsePost = mock(ServiceClientResponse.class);
             serviceClient = mock(ServiceClient.class);
-            akkaAuthenticationClient = mock(AkkaAuthenticationClient.class);
+            akkaServiceClient = mock(AkkaServiceClient.class);
             when(serviceClient.getPoolSize()).thenReturn(100);
-            when(akkaAuthenticationClient.get(anyString(), anyString(), anyMap())).thenReturn(serviceClientResponseGet);
+            when(akkaServiceClient.get(anyString(), anyString(), anyMap())).thenReturn(serviceClientResponseGet);
 
             authenticationServiceClient =
                     new AuthenticationServiceClient(targetHostUri, username, password, tenantId, responseUnmarshaller,
                             responseUnmarshaller, mock(JaxbEntityToXml.class), serviceClient,
-                            akkaAuthenticationClient);
+                            akkaServiceClient);
         }
 
         @After

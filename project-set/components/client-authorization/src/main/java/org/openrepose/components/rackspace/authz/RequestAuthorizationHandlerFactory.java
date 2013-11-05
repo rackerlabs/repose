@@ -4,7 +4,7 @@ import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
@@ -24,13 +24,13 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
     private RackspaceAuthorization authorizationConfiguration;
     private AuthenticationService authenticationService;
     private HttpClientService httpClientService;
-    private AkkaAuthenticationClient akkaAuthenticationClient;
+    private AkkaServiceClient akkaServiceClient;
 
     public RequestAuthorizationHandlerFactory(Datastore datastore,HttpClientService httpClientService
-            ,AkkaAuthenticationClient akkaAuthenticationClient) {
+            ,AkkaServiceClient akkaServiceClient) {
         this.datastore = datastore;
         this.httpClientService=httpClientService;
-        this.akkaAuthenticationClient = akkaAuthenticationClient;
+        this.akkaServiceClient = akkaServiceClient;
     }
 
     private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
@@ -47,7 +47,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
                 authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(),
                         serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),
                         configurationObject.getAuthenticationServer().getConnectionPoolId(),httpClientService,
-                        akkaAuthenticationClient);
+                        akkaServiceClient);
             } else {
                 LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
             }

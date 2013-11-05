@@ -4,7 +4,7 @@ import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class AuthenticationServiceFactory {
 
    public AuthenticationService build(String targetHostUri, String username, String password, String tenantId,
                                       String connectionPoolId,HttpClientService httpClientService,
-                                      AkkaAuthenticationClient akkaAuthenticationClient) {
+                                      AkkaServiceClient akkaServiceClient) {
 
       JAXBContext coreJaxbContext;
       JAXBContext groupJaxbContext;
@@ -37,6 +37,6 @@ public class AuthenticationServiceFactory {
               new ResponseUnmarshaller(groupJaxbContext),
               new JaxbEntityToXml(coreJaxbContext),
               new ServiceClient(connectionPoolId, httpClientService),
-              akkaAuthenticationClient);
+              akkaServiceClient);
    }
 }

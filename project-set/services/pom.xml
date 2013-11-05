@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>authclient</module>
+        <module>service-client</module>
         <module>configuration</module>
         <module>httpclient</module>
     </modules>

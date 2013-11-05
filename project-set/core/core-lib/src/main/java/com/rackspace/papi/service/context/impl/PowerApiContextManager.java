@@ -115,7 +115,7 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
       ca.getContext( MetricsServiceContext.class ).contextInitialized( sce );
       ca.getContext(HttpConnectionPoolServiceContext.class).contextInitialized(sce);
-      ca.getContext(AkkaAuthenticationServiceContext.class).contextInitialized(sce);
+      ca.getContext(AkkaServiceClientContext.class).contextInitialized(sce);
 
       // Start management server
       if (isManagementServerEnabled()) {

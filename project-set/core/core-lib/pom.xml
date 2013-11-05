@@ -48,7 +48,7 @@
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
-           <artifactId>authclient-akka</artifactId>
+           <artifactId>service-client-akka</artifactId>
            <version>${project.version}</version>
        </dependency>
 

@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import com.rackspace.papi.service.authclient.akka.AkkaAuthenticationClient;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
@@ -38,7 +38,7 @@ public interface ContextAdapter {
     ReportingService reportingService();
     String getReposeVersion();
     HttpClientService httpConnectionPoolService();
-    AkkaAuthenticationClient akkaAuthenticationClientService();
+    AkkaServiceClient akkaServiceClientService();
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
     DistributedDatastoreLauncherService distributedDatastoreService();
