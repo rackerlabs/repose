@@ -61,6 +61,8 @@
 
 <!-- **************************************************** -->
 
+  <xsd:include schemaLocation="./javaee_6.xsd"/>
+
   <xsd:complexType name="service-refType">
     <xsd:annotation>
       <xsd:documentation>
