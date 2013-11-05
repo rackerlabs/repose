@@ -51,7 +51,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
                 try {
                     builder.addParameter(name, URLDecoder.decode(value, ENCODING));
                 } catch (UnsupportedEncodingException ex) {
-                    throw new URISyntaxException(value, "Invalid value for query parameter: " + name);
+                    builder.addParameter(name, value);
                 }
             }
         }
