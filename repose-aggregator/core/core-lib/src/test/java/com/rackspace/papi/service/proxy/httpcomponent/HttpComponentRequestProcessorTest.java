@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -110,5 +111,20 @@ public class HttpComponentRequestProcessorTest {
             
             verify(method).setEntity(any(InputStreamEntity.class));
         }
+
+        @Test
+        public void shouldNotModifyInvalidURI() throws IOException {
+            URI uri;
+
+            try{
+                uri = processor.getUri("http://localhost:8888/path/resource?key=value@%");
+            } catch (URISyntaxException use) {
+                assertTrue(false);
+                return;
+            }
+
+            assertTrue("Reserved characters persist", uri.getRawQuery().equalsIgnoreCase("key=value@%"));
+        }
+
     }
 }
