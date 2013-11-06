@@ -45,7 +45,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
         fakeIdentityService.adminOk = isAdminAuthed
-        fakeIdentityService.errorCode = errorCode
+        fakeIdentityService.errorCode = 500
 
         when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
         fakeIdentityService.isTenantMatch = tenantMatch
@@ -72,13 +72,13 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | www_auth_header | validateClientBroken | getAdminTokenBroken | getGroupsBroken | errorCode
-        111       | false       | false               | true     | false         | "500"        | 1                 | false           | false                | false               | false           | 500
-        888       | true        | true                | true     | true          | "500"        | 1                 | false           | false                | true                | false           | 500
-        555       | false       | false               | true     | true          | "401"        | 2                 | true            | false                | false               | false           | 500
-        666       | false       | false               | false    | true          | "401"        | 1                 | true            | false                | false               | false           | 500
-        777       | true        | true                | true     | true          | "500"        | 1                 | false           | true                 | false               | false           | 500
-        100       | true        | true                | true     | true          | "500"        | 2                 | false           | false                | false               | true            | 500
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | www_auth_header | validateClientBroken | getAdminTokenBroken | getGroupsBroken
+        111       | false       | false               | true     | false         | "500"        | 1                 | false           | false                | false               | false
+        888       | true        | true                | true     | true          | "500"        | 1                 | false           | false                | true                | false
+        555       | false       | false               | true     | true          | "401"        | 2                 | true            | false                | false               | false
+        666       | false       | false               | false    | true          | "401"        | 1                 | true            | false                | false               | false
+        777       | true        | true                | true     | true          | "500"        | 1                 | false           | true                 | false               | false
+        100       | true        | true                | true     | true          | "500"        | 2                 | false           | false                | false               | true
     }
 
     @Unroll("Tenant: #reqTenant")
