@@ -7,7 +7,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
 
-class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
+class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -51,7 +51,7 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
 
         then: "Request body sent from repose to the origin service should contain"
         System.out.println(mc)
@@ -84,12 +84,14 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = true
         fakeIdentityService.adminOk = true
+        fakeIdentityService.client_tenant = reqTenant
+        fakeIdentityService.client_userid = reqTenant
 
         when: "User passes a request through repose"
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
 
         then: "Request body sent from repose to the origin service should contain"
         System.out.println(mc)
@@ -107,7 +109,7 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token+reqTenant])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -126,7 +128,7 @@ class ClientAuthNRemoveTenantTenantedDelegable extends ReposeValveTest {
         reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 1
+        444       | false       | true                | 2                 | 0
     }
 
 }

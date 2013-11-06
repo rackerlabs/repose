@@ -40,6 +40,8 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
 
         given: "When Calls to Auth Return bad responses"
 
+        def clientToken = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = clientToken
         fakeIdentityService.isGetAdminTokenBroken = adminBroken
         fakeIdentityService.errorCode = errorCode
         fakeIdentityService.isGetEndpointsBroken = endpointsBroken

@@ -7,7 +7,7 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
 
-class NonTenantedNonDelegable extends ReposeValveTest{
+class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
 
     def static originEndpoint
     def static identityEndpoint
@@ -19,7 +19,7 @@ class NonTenantedNonDelegable extends ReposeValveTest{
         deproxy = new Deproxy()
 
         repose.applyConfigs("features/filters/clientauthn/removetenant",
-                "features/filters/clientauthn/removetenant/nontenantednondelegable")
+                "features/filters/clientauthn/removetenant/nontenanteddelegable")
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
@@ -36,21 +36,22 @@ class NonTenantedNonDelegable extends ReposeValveTest{
         repose.stop()
     }
 
+
     @Unroll("Tenant: #reqTenant")
-    def "when authenticating user in non tenanted and non delegable mode - fail"() {
+    def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - fail"() {
 
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
         fakeIdentityService.adminOk = isAdminAuthed
+        fakeIdentityService.client_userid =reqTenant
 
         when: "User passes a request through repose"
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -62,31 +63,31 @@ class NonTenantedNonDelegable extends ReposeValveTest{
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == 1
+        mc.orphanedHandlings.size() == cachedOrphanedHandlings
         mc.handlings.size() == 0
 
         where:
-        reqTenant | isAuthed | isAdminAuthed | responseCode  | orphanedHandlings
-        111       | true     | false         | "500"         | 1
-        666       | false    | true          | "401"         | 2
+        reqTenant | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | cachedOrphanedHandlings
+        111       | true     | false         | "500"        | 1                 | 1
+        666       | false    | true          | "401"        | 2                 | 0
 
     }
 
     @Unroll("Tenant: #reqTenant")
-    def "when authenticating user in non tenanted and non delegable mode - pass"() {
+    def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - pass"() {
 
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = true
         fakeIdentityService.adminOk = true
+        fakeIdentityService.client_userid =reqTenant
 
         when: "User passes a request through repose"
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -95,6 +96,10 @@ class NonTenantedNonDelegable extends ReposeValveTest{
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.contains("x-identity-status")
+        request2.headers.contains("x-authorization")
+        request2.headers.getFirstValue("x-identity-status") == "Confirmed"
+        request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
@@ -110,8 +115,10 @@ class NonTenantedNonDelegable extends ReposeValveTest{
         reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 1
-        555       | false       | false               | 1                 | 1
+        444       | false       | true                | 2                 | 0
+        555       | false       | false               | 1                 | 0
+
     }
+
 
 }

@@ -1,14 +1,9 @@
 package features.filters.clientauthn.tenantvalidation
-
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
 import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
@@ -54,7 +49,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET',
+                ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
@@ -78,6 +74,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = true
+        fakeIdentityService.client_tenant = reqTenant
+        fakeIdentityService.client_userid = reqTenant
         fakeIdentityService.adminOk = isAdminAuthed
 
 
