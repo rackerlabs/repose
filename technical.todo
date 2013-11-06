@@ -10,3 +10,7 @@
 - project-set/commons/classloader
 -- Break the dependency on external
 
+
+- TEST IMPROVEMENTS
+
+- ContentNormalization filter - 0% functional test coverage
