@@ -58,12 +58,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>cli-utils</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>service-client-akka</artifactId>
             <version>${project.version}</version>
