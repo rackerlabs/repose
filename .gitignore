@@ -48,6 +48,3 @@ log.txt
 ## Python
 *.py[cod]
 .Python
-
-## akka reference conf
-project-set/core/core-lib/src/main/resources/reference.conf

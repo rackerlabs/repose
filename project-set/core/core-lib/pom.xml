@@ -250,10 +250,9 @@
                             <artifactItem>
                                 <groupId>com.typesafe.akka</groupId>
                                 <artifactId>akka-actor_2.11.0-M5</artifactId>
-                                <version>2.2.1</version>
                                 <type>jar</type>
                                 <includes>reference.conf</includes>
-                                <outputDirectory>${project.basedir}/src/main/resources/</outputDirectory>
+                                <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
                             </artifactItem>
                         </artifactItems>
                     </configuration>
