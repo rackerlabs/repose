@@ -73,7 +73,7 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
                     method:"POST",
                     headers:acceptXML + contentJSON ,
                     requestBody:jsonPayload,
-                    defaultHadnler:xmlResp)
+                    defaultHandler:xmlResp)
         def handling = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request url sent from repose to the origin service should contain"

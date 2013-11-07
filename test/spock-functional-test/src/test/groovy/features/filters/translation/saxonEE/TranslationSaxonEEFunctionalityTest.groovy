@@ -84,7 +84,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requqestBody:"something", defaultHandler:xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {
