@@ -10,9 +10,9 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.DefaultHttpClient
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 import framework.category.Bug
 import org.junit.experimental.categories.Category;
 

@@ -4,8 +4,8 @@ import features.filters.clientauthn.RackspaceIdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class RackspaceAuthTest extends ReposeValveTest {

@@ -3,8 +3,8 @@ package features.filters.clientauthn.nogroups
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {

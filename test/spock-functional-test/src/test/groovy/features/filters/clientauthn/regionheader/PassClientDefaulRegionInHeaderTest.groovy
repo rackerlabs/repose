@@ -3,8 +3,8 @@ package features.filters.clientauthn.regionheader;
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /**
 B-50304

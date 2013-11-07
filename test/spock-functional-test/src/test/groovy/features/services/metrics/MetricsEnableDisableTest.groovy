@@ -1,7 +1,7 @@
 package features.services.metrics
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 

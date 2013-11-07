@@ -4,8 +4,8 @@ import framework.ReposeValveTest
 import org.json.JSONArray
 import org.json.JSONTokener
 import org.json.JSONObject
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,10 +1,10 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Header
-import org.rackspace.gdeproxy.HeaderCollection
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Header
+import org.rackspace.deproxy.HeaderCollection
+import org.rackspace.deproxy.Response
 
 
 class HeaderParserTest extends ReposeValveTest {

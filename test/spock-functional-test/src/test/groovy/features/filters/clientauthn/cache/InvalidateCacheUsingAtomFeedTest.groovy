@@ -2,8 +2,8 @@ package features.filters.clientauthn.cache
 import features.filters.clientauthn.AtomFeedResponseSimulator
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache

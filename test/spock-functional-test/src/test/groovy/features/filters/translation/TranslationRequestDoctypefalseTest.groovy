@@ -1,8 +1,8 @@
 package features.filters.translation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class TranslationRequestDoctypefalseTest extends ReposeValveTest {

@@ -4,10 +4,10 @@ import framework.ReposeValveTest
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 
 class ValidateTokenBurstTest extends ReposeValveTest {
 

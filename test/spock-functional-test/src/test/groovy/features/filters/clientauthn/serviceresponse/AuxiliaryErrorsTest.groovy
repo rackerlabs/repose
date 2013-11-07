@@ -2,8 +2,8 @@ package features.filters.clientauthn.serviceresponse
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class AuxiliaryErrorsTest extends ReposeValveTest {

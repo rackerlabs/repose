@@ -1,7 +1,7 @@
 package features.filters.apivalidator
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
 
 @Category(Slow.class)

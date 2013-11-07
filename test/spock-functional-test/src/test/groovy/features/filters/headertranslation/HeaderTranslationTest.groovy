@@ -1,12 +1,12 @@
 package features.filters.headertranslation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.HeaderCollection
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.HeaderCollection
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class HeaderTranslationTest extends ReposeValveTest {

@@ -7,8 +7,8 @@ import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.joda.time.Period
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Ignore
 
 @Category(Slow.class)

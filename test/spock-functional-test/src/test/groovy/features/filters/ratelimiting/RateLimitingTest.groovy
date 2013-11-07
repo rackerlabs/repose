@@ -4,9 +4,9 @@ import framework.ReposeValveTest
 import framework.category.Slow
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import spock.lang.Unroll

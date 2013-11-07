@@ -7,8 +7,8 @@ package features.filters.clientauthn.tokenexpireheader;
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator;
 import framework.ReposeValveTest;
-import org.rackspace.gdeproxy.Deproxy;
-import org.rackspace.gdeproxy.MessageChain;
+import org.rackspace.deproxy.Deproxy;
+import org.rackspace.deproxy.MessageChain;
 import org.joda.time.DateTime;
 import java.text.SimpleDateFormat;
 import org.joda.time.format.DateTimeFormat;

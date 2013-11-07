@@ -3,9 +3,9 @@ package features.filters.clientauthn.tenantvalidation
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class TenantedNonDelegableTest extends ReposeValveTest {

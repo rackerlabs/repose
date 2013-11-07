@@ -1,8 +1,8 @@
 package features.filters.datastore
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /**
  * User: dimi5963

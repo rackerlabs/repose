@@ -1,9 +1,9 @@
 package features.filters.versioning
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**

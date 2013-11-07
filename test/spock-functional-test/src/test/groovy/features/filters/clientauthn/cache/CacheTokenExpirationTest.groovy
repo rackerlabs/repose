@@ -2,8 +2,8 @@ package features.filters.clientauthn.cache
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.joda.time.DateTime
 
 class CacheTokenExpirationTest extends ReposeValveTest {

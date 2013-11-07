@@ -4,8 +4,8 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Bug
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.PortFinder
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Ignore
 import spock.lang.Specification
 import org.junit.experimental.categories.Category

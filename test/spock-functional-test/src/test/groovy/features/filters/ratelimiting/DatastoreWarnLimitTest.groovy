@@ -1,8 +1,8 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 

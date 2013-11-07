@@ -4,7 +4,7 @@ import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 @Category(Slow.class)
 class ValidatorConfiguratorTest extends ReposeValveTest {

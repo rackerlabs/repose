@@ -3,10 +3,10 @@ package features.filters.translation.saxonEE
 import framework.ReposeValveTest
 import framework.category.SaxonEE
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 @Category(SaxonEE.class)
 class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
