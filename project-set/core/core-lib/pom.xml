@@ -46,6 +46,12 @@
           <artifactId>httpclient-connection-pool</artifactId>
       </dependency>
 
+       <dependency>
+           <groupId>com.rackspace.papi.service</groupId>
+           <artifactId>service-client-akka</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+
       <dependency>
          <groupId>org.codehaus.jackson</groupId>
          <artifactId>jackson-core-lgpl</artifactId>
@@ -229,6 +235,30 @@
 
             </configuration>
          </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpack</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>com.typesafe.akka</groupId>
+                                <artifactId>akka-actor_2.11.0-M5</artifactId>
+                                <type>jar</type>
+                                <includes>reference.conf</includes>
+                                <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
       </plugins>
       <resources>
          <resource>
@@ -236,20 +266,5 @@
             <filtering>true</filtering>
          </resource>
       </resources>
-      <!--
-      <resources>
-          <resource>
-              <directory>src/main/resources/com/rackspace/papi/service/context/banner</directory>
-              <filtering>true</filtering>
-          </resource>
-          <resource>
-              <directory>src/main/resources/META-INF/**</directory>
-              <filtering>false</filtering>
-              <includes>
-                  <include>**/*</include>
-              </includes>
-          </resource>
-      </resources>
-      -->
    </build>
 </project>

@@ -104,6 +104,9 @@ class AuthZConnectionPoolingTest extends Specification {
         // collect all of the handlings that make it to the identity endpoint into one list
         def allOrphanedHandlings = mc1.orphanedHandlings + mc2.orphanedHandlings
         List<Handling> identityHandlings = allOrphanedHandlings.findAll { it.endpoint == identityEndpoint }
+        def commons = allOrphanedHandlings.intersect(identityHandlings)
+        def diff = allOrphanedHandlings.plus(identityHandlings)
+        diff.removeAll(commons)
 
 
         then: "the connections for Repose's request to Identity should have the same id"
@@ -112,7 +115,7 @@ class AuthZConnectionPoolingTest extends Specification {
         mc2.orphanedHandlings.size() > 0
         identityHandlings.size() > 0
         // there should be no requests to auth with a different connection id
-        identityHandlings.count { it.connection != identityHandlings[0].connection } == 0
+        diff.size() == 0
     }
 
     def cleanup() {

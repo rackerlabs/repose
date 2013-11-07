@@ -1,4 +1,5 @@
 package features.filters.clientauthn.tenantvalidation
+
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
@@ -7,7 +8,7 @@ import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 import spock.lang.Unroll
 
-class TenantedNonDelegableTest extends ReposeValveTest{
+class TenantedNonDelegableTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -44,6 +45,7 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
         fakeIdentityService.adminOk = isAdminAuthed
+        fakeIdentityService.errorCode = 500
 
         when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
         fakeIdentityService.isTenantMatch = tenantMatch
@@ -67,7 +69,6 @@ class TenantedNonDelegableTest extends ReposeValveTest{
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == 1
         mc.handlings.size() == 0
 
         where:
@@ -124,7 +125,7 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 1
+        444       | false       | true                | 2                 | 0
     }
 
     def "Should not split request headers according to rfc"() {
@@ -132,7 +133,7 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
                 "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
-        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
@@ -160,7 +161,7 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
         def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
-        Map<String, String> headers = ["X-Roles" : "group1", "Content-Type" : "application/xml"]
+        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
         def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
@@ -170,8 +171,8 @@ class TenantedNonDelegableTest extends ReposeValveTest{
         when: "User passes a request through repose"
         fakeIdentityService.isTenantMatch = true
         fakeIdentityService.doesTenantHaveAdminRoles = true
-        fakeIdentityService.client_tenant = 123
-        fakeIdentityService.client_userid = 123
+        fakeIdentityService.client_tenant = 321
+        fakeIdentityService.client_userid = 321
         fakeIdentityService.isValidateClientTokenBroken = false
         fakeIdentityService.isGetAdminTokenBroken = false
         fakeIdentityService.isGetGroupsBroken = false

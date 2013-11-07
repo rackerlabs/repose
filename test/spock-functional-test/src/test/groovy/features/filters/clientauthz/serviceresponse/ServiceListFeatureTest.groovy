@@ -5,7 +5,7 @@ import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-class ServiceListFeature extends ReposeValveTest {
+class ServiceListFeatureTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint

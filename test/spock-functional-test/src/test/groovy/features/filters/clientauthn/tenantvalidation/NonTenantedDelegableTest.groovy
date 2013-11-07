@@ -58,7 +58,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token+reqTenant])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -103,7 +103,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "Request body sent from repose to the origin service should contain"
+        then: "Request sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.orphanedHandlings.size() == cachedOrphanedHandlings
         mc.handlings.size() == 1
@@ -114,8 +114,8 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 1
-        555       | false       | false               | 1                 | 1
+        444       | false       | true                | 2                 | 0
+        555       | false       | false               | 1                 | 0
     }
 
 

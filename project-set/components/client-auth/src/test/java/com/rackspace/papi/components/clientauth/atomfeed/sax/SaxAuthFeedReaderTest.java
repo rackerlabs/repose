@@ -8,15 +8,19 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.components.clientauth.atomfeed.CacheKeys;
-import java.io.File;
-import java.io.FileNotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.*;
 
 public class SaxAuthFeedReaderTest {
 
@@ -36,6 +40,8 @@ public class SaxAuthFeedReaderTest {
       resp1 = new ServiceClientResponse(200, fileReader1.getResourceAsStream());
 
       resp2 = new ServiceClientResponse(200, fileReader2.getResourceAsStream());
+       when(client.getPoolSize()).thenReturn(100);
+
    }
 
    @After

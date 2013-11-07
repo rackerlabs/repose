@@ -58,9 +58,14 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.8</version>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>service-client-akka</artifactId>
+            <version>${project.version}</version>
         </dependency>
-    </dependencies>
+       <dependency>
+           <groupId>commons-codec</groupId>
+           <artifactId>commons-codec</artifactId>
+           <version>1.8</version>
+       </dependency>
+   </dependencies>
 </project>

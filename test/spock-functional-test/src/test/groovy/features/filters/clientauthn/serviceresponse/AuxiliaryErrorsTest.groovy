@@ -42,14 +42,14 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def "When the identity service endpoint returns failed or unexpected responses"() {
 
         given: "When Calls to Auth Return bad responses"
-
         fakeIdentityService.isGetAdminTokenBroken = adminBroken
         fakeIdentityService.isValidateClientTokenBroken = validateBroken
         fakeIdentityService.isGetGroupsBroken = groupsBroken
         fakeIdentityService.errorCode = errorCode
+        def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token+tokenId])
 
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode

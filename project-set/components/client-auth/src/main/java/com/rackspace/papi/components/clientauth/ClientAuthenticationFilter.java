@@ -9,12 +9,12 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
-import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  *
@@ -50,7 +50,7 @@ public class ClientAuthenticationFilter implements Filter {
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()),ctx.httpConnectionPoolService());
+        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()),ctx.httpConnectionPoolService(),ctx.akkaServiceClientService());
         configurationManager = ctx.configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL , handlerFactory, ClientAuthConfig.class);

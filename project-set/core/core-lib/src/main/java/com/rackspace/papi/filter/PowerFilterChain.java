@@ -8,7 +8,6 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
-import com.yammer.metrics.core.TimerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
