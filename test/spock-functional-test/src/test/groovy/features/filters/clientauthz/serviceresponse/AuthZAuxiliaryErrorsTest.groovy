@@ -47,7 +47,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         fakeIdentityService.isGetEndpointsBroken = endpointsBroken
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode

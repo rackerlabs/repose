@@ -62,7 +62,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, method, acceptXML, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:acceptXML, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {
@@ -103,7 +103,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response body should not be touched"
         resp.receivedResponse.body.contains(xmlRssResponse)
@@ -122,7 +122,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Repose should return a 500 as the response is invalid"
         resp.receivedResponse.code.equals(respCode)

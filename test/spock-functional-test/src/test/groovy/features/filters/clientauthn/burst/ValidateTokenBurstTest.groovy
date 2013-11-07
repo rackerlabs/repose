@@ -84,7 +84,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-'+threadNum+'-request-'+i)
 
-                    def messageChain = deproxy.makeRequest(reposeEndpoint, 'GET', header1)
+                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true

@@ -22,7 +22,7 @@ class RequestQueryParamTest extends ReposeValveTest {
     def "when given a query param list, Repose should forward a valid query param list"() {
 
         when: "the client makes a request through Repose"
-        MessageChain messageChain = deproxy.makeRequest(reposeEndpoint + uriSuffixGiven, method)
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + uriSuffixGiven, method: method)
 
 
         then: "after passing through Repose, request path should contain a valid query param list"

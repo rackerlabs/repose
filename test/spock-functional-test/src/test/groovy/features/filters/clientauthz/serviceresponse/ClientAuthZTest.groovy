@@ -40,7 +40,7 @@ class ClientAuthZTest extends ReposeValveTest {
     def "When user is authorized should forward request to origin service"(){
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
@@ -101,7 +101,7 @@ class ClientAuthZTest extends ReposeValveTest {
         fakeIdentityService.origin_service_port = 99999
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+token+"/ss", 'GET', ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 

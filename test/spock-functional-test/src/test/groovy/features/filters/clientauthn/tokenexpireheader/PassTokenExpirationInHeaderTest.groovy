@@ -95,7 +95,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         when: "I send a GET request to Repose with an X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should validate the token and path the token's expiration date/time as the X-Token-Expires header to the origin service"
         mc.receivedResponse.code == "200"
@@ -110,7 +110,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityService.validateTokenCount = 0
-        mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url: reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-Token-Expires header as before"
         mc.receivedResponse.code == "200"

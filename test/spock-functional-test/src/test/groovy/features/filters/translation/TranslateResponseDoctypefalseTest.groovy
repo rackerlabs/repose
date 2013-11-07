@@ -54,7 +54,7 @@ class TranslateResponseDoctypefalseTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint + "/translation/responsedocfalse/123", "POST", acceptXML, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint + "/translation/responsedocfalse/123", method:"POST", headers:acceptXML, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response code should be"
         resp.receivedResponse.code == "500"

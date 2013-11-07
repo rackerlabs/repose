@@ -54,7 +54,7 @@ class TranslationRequestDoctypefalseTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint + "/translation/requestdocfalse/echobody", "POST", acceptXML + contentXML, reqBody, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint + "/translation/requestdocfalse/echobody", method:"POST", headers:acceptXML + contentXML, requestBody:reqBody, defaultHandler:xmlResp)
 
         then: "Request body sent from repose to the origin service should contain"
 

@@ -82,7 +82,7 @@ class ContentTranslationBurstTest extends ReposeValveTest {
 
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-'+threadNum+'-request-'+i)
-                    def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", acceptXML+header1+header2)
+                    def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers: acceptXML+header1+header2)
                     if ( resp.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingHeader = true
                         badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)

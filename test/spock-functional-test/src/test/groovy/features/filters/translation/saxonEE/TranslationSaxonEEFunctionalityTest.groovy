@@ -61,7 +61,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders, requestBody:reqBody, defaultHandler:xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request headers sent from repose to the origin service should contain"
@@ -84,7 +84,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requqestBody:"something", defaultHandler:xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {

@@ -31,7 +31,7 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         when:
         for (int i = 0; i < totalRequests; i++) {
             def path= UUID.randomUUID().toString();
-            deproxy.makeRequest(reposeEndpoint+ "/" + path, 'GET', ['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"])
+            deproxy.makeRequest(url:reposeEndpoint+ "/" + path, method:'GET', headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"])
         }
 
         then:

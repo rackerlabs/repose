@@ -55,7 +55,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.isValidateClientTokenBroken = validateClientBroken
         fakeIdentityService.isGetAdminTokenBroken = getAdminTokenBroken
         fakeIdentityService.isGetGroupsBroken = getGroupsBroken
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -65,7 +65,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == www_auth_header
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -98,7 +98,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.isValidateClientTokenBroken = false
         fakeIdentityService.isGetAdminTokenBroken = false
         fakeIdentityService.isGetGroupsBroken = false
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -111,7 +111,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         !mc.receivedResponse.headers.contains("www-authenticate")
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -148,7 +148,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.isValidateClientTokenBroken = false
         fakeIdentityService.isGetAdminTokenBroken = false
         fakeIdentityService.isGetGroupsBroken = false
-        def respFromOrigin = deproxy.makeRequest(reposeEndpoint + "/servers/123/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:reposeEndpoint + "/servers/123/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then:

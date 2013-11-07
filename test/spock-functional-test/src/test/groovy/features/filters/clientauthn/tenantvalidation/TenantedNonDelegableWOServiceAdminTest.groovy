@@ -53,7 +53,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
         fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         System.out.println(mc)
@@ -62,7 +62,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -94,7 +94,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = true
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = 222
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + 222 + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         System.out.println(mc)
@@ -110,7 +110,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy " + 222
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + 222 + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

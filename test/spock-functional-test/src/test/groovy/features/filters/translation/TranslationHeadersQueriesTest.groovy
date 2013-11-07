@@ -69,8 +69,11 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
         when: "User passes a request through repose"
         def resp =
             deproxy.makeRequest(
-                    (String) reposeEndpoint + "/path/to/resource/", "POST",
-                    acceptXML + contentJSON , jsonPayload, xmlResp)
+                    url:(String) reposeEndpoint + "/path/to/resource/",
+                    method:"POST",
+                    headers:acceptXML + contentJSON ,
+                    requestBody:jsonPayload,
+                    defaultHadnler:xmlResp)
         def handling = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request url sent from repose to the origin service should contain"

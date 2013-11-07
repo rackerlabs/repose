@@ -56,8 +56,11 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
         when: "The origin service sends back a response of type " + respHeaders
         def resp = deproxy.makeRequest(
-                (String) reposeEndpoint + '/echobody?testparam=x&otherparam=y', "GET",
-                reqHeaders + testHeaders, respBody, xmlResp)
+                url:(String) reposeEndpoint + '/echobody?testparam=x&otherparam=y',
+                method:"GET",
+                headers:reqHeaders + testHeaders,
+                requestBody:respBody,
+                defaultHandler:xmlResp)
 
         then: "Response body received should contain"
         for (String st : shouldContain) {
@@ -97,7 +100,7 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
 
         when: "The user sends a request of type " + reqHeaders
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, simpleXml, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"POST", headers:reqHeaders, requestBody:simpleXml, defaultHandler:xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body from repose to the origin service should contain"
@@ -132,8 +135,11 @@ class TranslationMultiMatchTest extends ReposeValveTest {
 
         when: "The user sends a request of type " + reqHeaders
         def resp = deproxy.makeRequest(
-                (String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", "POST",
-                reqHeaders + testHeaders, simpleXml, xmlResp)
+                url:(String) reposeEndpoint + "/somepath?testparam=x&otherparam=y",
+                method:"POST",
+                headers:reqHeaders + testHeaders,
+                requestBody:simpleXml,
+                defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body from repose to the origin service should contain"

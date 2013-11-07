@@ -31,7 +31,11 @@ class HeaderParserTest extends ReposeValveTest {
                 ["Location" : locations], "")}
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["x-test" : "test"], "", headerResp)
+        def resp = deproxy.makeRequest(url: (String) reposeEndpoint,
+                method: "GET",
+                headers: ["x-test" : "test"],
+                requestBody: "",
+                defaultHandler:headerResp)
 
         then: "Repose returns a comma-separated location header"
         resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(locations)
@@ -43,7 +47,12 @@ class HeaderParserTest extends ReposeValveTest {
                 ["Allow" : "GET,POST"], "")}
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "GET", ["x-test" : "test"], "", headerResp)
+        def resp = deproxy.makeRequest(
+                url:(String) reposeEndpoint,
+                method: "GET",
+                headers: ["x-test" : "test"],
+                requestBody: "",
+                defaultHandler: headerResp)
 
         then: "Repose returns multiple headers after splitting on commas"
         resp.getReceivedResponse().getHeaders().findAll("Allow").get(0).equalsIgnoreCase("GET")

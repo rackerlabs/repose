@@ -38,9 +38,9 @@ class GraphiteTest extends ReposeValveTest {
         def responses = []
 
         when:
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/cluster"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
 
         then:
         boolean isFound = false

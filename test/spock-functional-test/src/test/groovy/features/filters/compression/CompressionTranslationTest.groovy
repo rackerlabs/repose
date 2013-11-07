@@ -65,9 +65,10 @@ class CompressionTranslationTest extends ReposeValveTest {
 
         when: "User sends requests through repose"
         def resp = deproxy.makeRequest(
-                (String) reposeEndpoint, "GET",
-                ['content-type': 'application/xml', 'accept': 'application/xml'],
-                reqBody)
+                url: (String) reposeEndpoint,
+                method: "GET",
+                headers: ['content-type': 'application/xml', 'accept': 'application/xml'],
+                requestBody: reqBody)
 
         then: "Response code should contain"
         resp.receivedResponse.code == "400"
@@ -83,8 +84,8 @@ class CompressionTranslationTest extends ReposeValveTest {
     @Unroll("Removing Content-Encoding Header from Request after passing through Compression: #encoding")
     def "when a compressed request is sent from Origin to Repose, Content-Encoding header is removed after decompression"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
-                zippedContent)
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "POST", headers: ["Content-Encoding" : encoding],
+                requestBody: zippedContent)
 
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
@@ -137,8 +138,8 @@ class CompressionTranslationTest extends ReposeValveTest {
     @Unroll("encoding: #encoding response code: #responseCode")
     def "when a compressed request is sent to Repose, Content-Encoding header is not removed if decompression fails"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
-                zippedContent)
+        def MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method:"POST", headers:["Content-Encoding" : encoding],
+                requestBody:zippedContent)
 
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
@@ -234,8 +235,8 @@ class CompressionTranslationTest extends ReposeValveTest {
     @Unroll("Content-encoding header should not be present. encoding: #encoding")
     def "when an uncompressed request is sent to Repose, Content-Encoding header is never present"() {
         when: "the compressed content is sent to the origin service through Repose with encoding " + encoding
-        def MessageChain mc = deproxy.makeRequest(reposeEndpoint, "POST", ["Content-Encoding" : encoding],
-                zippedContent)
+        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers:["Content-Encoding" : encoding],
+                requestBody:zippedContent)
 
 
         then: "the compressed content should be decompressed and the content-encoding header should be absent"
