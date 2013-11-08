@@ -25,7 +25,7 @@ public class LimitKey {
       if (useCaptureGroups) {
           // Capture groups are appended to the pattern for uniqueness
           for (int i = 1; i <= groupCount; ++i) {
-            cacheIdBuffer.append(String.valueOf(uriMatcher.group(i).hashCode()));
+            cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
           }
       }
 
