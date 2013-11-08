@@ -3,12 +3,9 @@ package features.filters.ratelimiting
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
-import framework.category.Bug
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
-import spock.lang.Ignore
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
 
 class CaptureGroupsTest extends Specification {
 
@@ -149,7 +146,6 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
-    @Category(Bug)
     def "Captured values should make no difference when concatenated"() {
 
         given:

@@ -20,12 +20,12 @@ public class LimitKey {
       final StringBuilder cacheIdBuffer = new StringBuilder();
 
       // All cacheId's contain the full regex pattern
-      cacheIdBuffer.append(uriMatcher.pattern().toString());
+      cacheIdBuffer.append(String.valueOf(uriMatcher.pattern().toString().hashCode()));
 
       if (useCaptureGroups) {
           // Capture groups are appended to the pattern for uniqueness
           for (int i = 1; i <= groupCount; ++i) {
-            cacheIdBuffer.append(uriMatcher.group(i));
+            cacheIdBuffer.append(String.valueOf(uriMatcher.group(i).hashCode()));
           }
       }
 
