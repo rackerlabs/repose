@@ -56,10 +56,11 @@ class RequestQueryParamTest extends ReposeValveTest {
     def "when given an improperly encoded URI character, Repose should pass it through"() {
 
         when:
-        MessageChain messageChain = deproxy.makeRequest(reposeEndpoint + uriSuffixGiven, method)
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uriSuffixGiven, method: method)
 
         then:
         messageChain.handlings.size() == 1
+        messageChain.sentRequest.path.endsWith(uriSuffixExpected)
         messageChain.handlings[0].request.path.endsWith(uriSuffixExpected)
 
         where:
