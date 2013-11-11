@@ -92,7 +92,7 @@
 
                 <repose_port>8888</repose_port>
                 <repose_jmx_port>9001</repose_jmx_port>
-                <repose_shutdown_port>9999</repose_shutdown_port>
+                <repose_shutdown_port>10009</repose_shutdown_port>
                 <target_hostname>localhost</target_hostname>
                 <target_port>10001</target_port>
                 <identity_port>12200</identity_port>
@@ -136,7 +136,7 @@
 
                 <repose_port>8888</repose_port>
                 <repose_jmx_port>9001</repose_jmx_port>
-                <repose_shutdown_port>9999</repose_shutdown_port>
+                <repose_shutdown_port>10009</repose_shutdown_port>
                 <target_hostname>localhost</target_hostname>
                 <target_port>10001</target_port>
                 <identity_port>12200</identity_port>

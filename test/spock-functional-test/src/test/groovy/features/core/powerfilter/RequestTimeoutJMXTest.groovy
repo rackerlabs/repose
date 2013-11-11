@@ -12,8 +12,8 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     String NAME_OPENREPOSE_ENDPOINT = "\",name=\"localhost:10001/root_path\""
     String ALL_ENDPOINTS = "\",name=\"All Endpoints\""
-    String TIMEOUT_TO_ORIGIN = PREFIX + "TimeoutToOrigin" + NAME_OPENREPOSE_ENDPOINT
 
+    String TIMEOUT_TO_ORIGIN = PREFIX + "TimeoutToOrigin" + NAME_OPENREPOSE_ENDPOINT
     String ALL_TIMEOUT_TO_ORIGIN = PREFIX + "TimeoutToOrigin" + ALL_ENDPOINTS
 
     def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }

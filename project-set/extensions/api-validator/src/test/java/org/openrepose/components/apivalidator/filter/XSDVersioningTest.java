@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -12,6 +13,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +33,7 @@ public class XSDVersioningTest {
         }
 
         @Test
-        public void shouldDefaultToVersion1() {
+        public void shouldDefaultToVersion1() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\">" +
@@ -59,13 +61,13 @@ public class XSDVersioningTest {
             try {
                 validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
                 validated = true;
-            } catch (Exception e) {}
-
-            assertTrue(validated);
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldValidateVersion1() {
+        public void shouldValidateVersion1() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
@@ -93,13 +95,85 @@ public class XSDVersioningTest {
             try {
                 validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
                 validated = true;
-            } catch (Exception e) {}
-
-            assertTrue(validated);
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
 
         @Test
-        public void shouldValidateVersion2() {
+        public void shouldNotValidateVersion1WithXsdEngine() throws SAXException, IOException {
+            boolean validated = false;
+            String xml =
+                    "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"1\">" +
+                            "    <validator" +
+                            "        role=\"default\"" +
+                            "        default=\"true\"" +
+                            "        wadl=\"file://my/wadl/file.wadl\"" +
+                            "        dot-output=\"/tmp/default.dot\"" +
+                            "        check-well-formed=\"false\"" +
+                            "        check-xsd-grammar=\"true\"" +
+                            "        check-elements=\"true\"" +
+                            "        check-plain-params=\"true\"" +
+                            "        do-xsd-grammar-transform=\"true\"" +
+                            "        enable-pre-process-extension=\"true\"" +
+                            "        remove-dups=\"true\"" +
+                            "        xpath-version=\"2\"" +
+                            "        xsl-engine=\"XalanC\"" +
+                            "        xsd-engine=\"Xerces\"" +
+                            "        enable-ignore-xsd-extension=\"false\"" +
+                            "        join-xpath-checks=\"false\"" +
+                            "        validator-name=\"testName\"" +
+                            "        check-headers=\"true\"/>" +
+                            "</validators>";
+
+            try{
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                validated = false;
+            }
+
+            assertFalse(validated);
+        }
+
+        @Test
+        public void shouldNotValidateVersion2WithUseSaxon() throws SAXException, IOException {
+            boolean validated = false;
+            String xml =
+                    "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
+                            "    <validator" +
+                            "        role=\"default\"" +
+                            "        default=\"true\"" +
+                            "        wadl=\"file://my/wadl/file.wadl\"" +
+                            "        dot-output=\"/tmp/default.dot\"" +
+                            "        check-well-formed=\"false\"" +
+                            "        check-xsd-grammar=\"true\"" +
+                            "        check-elements=\"true\"" +
+                            "        check-plain-params=\"true\"" +
+                            "        do-xsd-grammar-transform=\"true\"" +
+                            "        enable-pre-process-extension=\"true\"" +
+                            "        remove-dups=\"true\"" +
+                            "        xpath-version=\"2\"" +
+                            "        xsl-engine=\"XalanC\"" +
+                            "        use-saxon=\"false\"" +
+                            "        enable-ignore-xsd-extension=\"false\"" +
+                            "        join-xpath-checks=\"false\"" +
+                            "        validator-name=\"testName\"" +
+                            "        check-headers=\"true\"/>" +
+                            "</validators>";
+
+            try{
+                validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+                validated = true;
+            } catch (SAXException se) {
+                validated = false;
+            }
+
+            assertFalse(validated);
+        }
+
+        @Test
+        public void shouldValidateVersion2() throws IOException {
             boolean validated = false;
             String xml =
                     "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" multi-role-match=\"true\" version=\"2\">" +
@@ -127,9 +201,9 @@ public class XSDVersioningTest {
             try {
                 validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
                 validated = true;
-            } catch (Exception e) {}
-
-            assertTrue(validated);
+            } catch (SAXException se) {
+                fail("Failed to validate XML");
+            }
         }
     }
 }
