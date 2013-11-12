@@ -8,11 +8,11 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filters.OpenStackAuthentication;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.yammer.metrics.core.Meter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.rackspace.papi.filters.OpenStackAuthentication;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -27,17 +27,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
    private final List<String> serviceAdminRoles;
-   private final MetricsService metricsService;
    private Meter mCalls;
 
    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache,
                                          AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache,
                                          UriMatcher uriMatcher, MetricsService metricsService) {
-      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
+      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher, metricsService);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
       this.serviceAdminRoles = cfg.getServiceAdminRoles();
-      this.metricsService = metricsService;
 
       // TODO replace "openstack-authentication" with filter-id or name-number in sys-model
       if (metricsService != null) {
