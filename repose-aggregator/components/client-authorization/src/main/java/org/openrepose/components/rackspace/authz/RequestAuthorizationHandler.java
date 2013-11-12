@@ -11,6 +11,9 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.filters.Authorization;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.yammer.metrics.core.Meter;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -22,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
@@ -29,11 +33,20 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
+    private final MetricsService metricsService;
+    private Meter mCalls;
 
-    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
+                                       ServiceEndpoint myEndpoint, MetricsService metricsService) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
+        this.metricsService = metricsService;
+
+        // TODO replace "authorization" with filter-id or name-number in sys-model
+        if (metricsService != null) {
+            mCalls = metricsService.newMeter(Authorization.class, "Call to Authorization Service", "authorization", "CallsToAuthZ", TimeUnit.SECONDS);
+        }
     }
 
     @Override
@@ -130,6 +143,11 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
         final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
         final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
+
+        if (mCalls != null)
+            mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
+                           // Solution: Implement metrics in AuthenticationServiceClient
+                           // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
 
         for (Endpoint ep : authorizedEndpoints) {
             serializable.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));

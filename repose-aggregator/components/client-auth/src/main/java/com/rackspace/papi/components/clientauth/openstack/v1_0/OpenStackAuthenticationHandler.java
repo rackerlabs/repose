@@ -39,7 +39,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
       // TODO replace "openstack-authentication" with filter-id or name-number in sys-model
       if (metricsService != null) {
-          mCalls = metricsService.newMeter(OpenStackAuthentication.class, "Call to Authenticaton Service", "openstack-authentication", "CallsToAuth", TimeUnit.SECONDS);
+          mCalls = metricsService.newMeter(OpenStackAuthentication.class, "Call to Authenticaton Service", "openstack-authentication", "CallsToAuthN", TimeUnit.SECONDS);
       }
    }
 
@@ -67,7 +67,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
       if (mCalls != null)
-          mCalls.mark(); // This metric will be inaccurate; validateToken may hit the auth service mutliple times
+          mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
                          // Solution: Implement metrics in AuthenticationServiceClient
                          // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
       return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
