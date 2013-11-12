@@ -7,14 +7,14 @@ import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 import spock.lang.Unroll
 
-class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
+class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    def static Map<String,String> headersCommon = [
-            'X-Default-Region':'the-default-region',
-            'x-auth-token':'token',
-            'x-forwarded-for':'127.0.0.1',
+    def static Map<String, String> headersCommon = [
+            'X-Default-Region': 'the-default-region',
+            'x-auth-token': 'token',
+            'x-forwarded-for': '127.0.0.1',
             'x-pp-user': 'username;q=1.0'
     ]
 
@@ -50,6 +50,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = isAuthed
         fakeIdentityService.adminOk = isAdminAuthed
+        fakeIdentityService.errorCode = 500
 
         when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
         fakeIdentityService.isTenantMatch = tenantMatch
@@ -73,16 +74,16 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == 1
+        mc.orphanedHandlings.size() == secondPassOrphanedHandlings
         mc.handlings.size() == 0
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | x_www_auth  |validateClientBroken | getAdminTokenBroken | getGroupsBroken
-        111       | false       | false               | true     | false         | "500"        | 1                 | false       | false               | false               | false
-        888       | true        | true                | true     | true          | "500"        | 1                 | false       | false               | true                | false
-        555       | false       | false               | true     | true          | "401"        | 2                 | true        | false               | false               | false
-        666       | false       | false               | false    | true          | "401"        | 1                 | true        | false               | false               | false
-        777       | true        | true                | true     | true          | "500"        | 1                 | false       | true                | false               | false
+        reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | x_www_auth | validateClientBroken | getAdminTokenBroken | getGroupsBroken | secondPassOrphanedHandlings
+        111       | false       | false               | true     | false         | "500"        | 1                 | false      | false                | false               | false           | 1
+        888       | true        | true                | true     | true          | "500"        | 1                 | false      | false                | true                | false           | 1
+        555       | false       | false               | true     | true          | "401"        | 2                 | true       | false                | false               | false           | 0
+        666       | false       | false               | false    | true          | "401"        | 1                 | true       | false                | false               | false           | 0
+        777       | true        | true                | true     | true          | "500"        | 1                 | false      | true                 | false               | false           | 0
     }
 
 
@@ -108,7 +109,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == orphanedHandlings
+        mc.orphanedHandlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
@@ -128,7 +129,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == cachedOrphanedHandlings
+        mc.orphanedHandlings.size() == 0
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
@@ -142,10 +143,10 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest{
         !mc.handlings[0].request.headers.contains("x-pp-groups")
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | responseCode | orphanedHandlings | cachedOrphanedHandlings | x_pp_groups |validateClientBroken | getAdminTokenBroken | getGroupsBroken
-        222       | true        | true                | "200"        | 1                 | 0                       | false | false                | false               | false
-        333       | true        | false               | "200"        | 1                 | 0                       | false | false                | false               | false
-        444       | false       | true                | "200"        | 1                 | 1                       | false | false                | false               | false
-        100       | true        | true                | "200"        | 1                 | 0                       | false | false                | false               | true
+        reqTenant | tenantMatch | tenantWithAdminRole | responseCode  | x_pp_groups | validateClientBroken | getAdminTokenBroken | getGroupsBroken
+        222       | true        | true                | "200"                         | false       | false                | false               | false
+        333       | true        | false               | "200"                         | false       | false                | false               | false
+        444       | false       | true                | "200"                         | false       | false                | false               | false
+        100       | true        | true                | "200"                         | false       | false                | false               | true
     }
 }

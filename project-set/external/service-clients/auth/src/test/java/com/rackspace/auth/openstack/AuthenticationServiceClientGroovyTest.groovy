@@ -1,11 +1,16 @@
 package com.rackspace.auth.openstack
 
 import com.rackspace.auth.AuthServiceException
+import com.rackspace.papi.commons.util.http.ServiceClient
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.junit.Test
 
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBException
+
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 class AuthenticationServiceClientGroovyTest {
 
@@ -27,8 +32,12 @@ class AuthenticationServiceClientGroovyTest {
         }
 
 
+        ServiceClient serviceClient = mock(ServiceClient.class);
+        when(serviceClient.getPoolSize()).thenReturn(100);
+        AkkaServiceClient akkaAuthenticationClient= mock(AkkaServiceClient.class)
 
-        def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id", null, null, new JaxbEntityToXml(coreJaxbContext), null)
+        def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id",
+                null, null, new JaxbEntityToXml(coreJaxbContext), serviceClient, akkaAuthenticationClient)
         def InputStream inputStream = new ByteArrayInputStream("test".getBytes())
         def String s
 

@@ -7,6 +7,14 @@ package com.rackspace.papi.components.clientauth.atomfeed.sax;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import org.junit.Before;
+import org.junit.Test;
+import org.openstack.docs.identity.api.v2.*;
+
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,28 +22,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Role;
-import org.openstack.docs.identity.api.v2.RoleList;
-import org.openstack.docs.identity.api.v2.ServiceCatalog;
-import org.openstack.docs.identity.api.v2.ServiceForCatalog;
-import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Token;
-import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.*;
-import org.openstack.docs.identity.api.v2.ObjectFactory;
 public class AdminTokenProviderTest {
 
    ServiceClient client;
@@ -44,6 +36,8 @@ public class AdminTokenProviderTest {
    @Before
    public void setUp() {
       client = mock(ServiceClient.class);
+       when(client.getPoolSize()).thenReturn(100);
+
    }
 
    @Test

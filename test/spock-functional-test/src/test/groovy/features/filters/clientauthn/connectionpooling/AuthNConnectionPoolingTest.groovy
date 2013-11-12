@@ -53,7 +53,6 @@ class AuthNConnectionPoolingTest extends Specification {
         identityEndpoint = deproxy.addEndpoint(identityServicePort,
                 "identity", "localhost", identityService.handler)
 
-
         // configure and start repose
         properties = new Properties()
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
@@ -78,14 +77,14 @@ class AuthNConnectionPoolingTest extends Specification {
         reposeLogSearch = new ReposeLogSearch(logFile);
 
         def params = [
-            'reposePort': reposePort.toString(),
-            'repose_port': reposePort.toString(),
-            'targetPort': originServicePort.toString(),
-            'target_port': originServicePort.toString(),
-            'targetHostname': targetHostname.toString(),
-            'target_hostname': targetHostname.toString(),
-            'identityPort': identityServicePort.toString(),
-            'identity_port': identityServicePort.toString()
+                'reposePort': reposePort.toString(),
+                'repose_port': reposePort.toString(),
+                'targetPort': originServicePort.toString(),
+                'target_port': originServicePort.toString(),
+                'targetHostname': targetHostname.toString(),
+                'target_hostname': targetHostname.toString(),
+                'identityPort': identityServicePort.toString(),
+                'identity_port': identityServicePort.toString()
         ]
         reposeConfigProvider.applyConfigsRuntime("common", params)
         reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling", params)
@@ -105,6 +104,9 @@ class AuthNConnectionPoolingTest extends Specification {
         // collect all of the handlings that make it to the identity endpoint into one list
         def allOrphanedHandlings = mc1.orphanedHandlings + mc2.orphanedHandlings
         List<Handling> identityHandlings = allOrphanedHandlings.findAll { it.endpoint == identityEndpoint }
+        def commons = allOrphanedHandlings.intersect(identityHandlings)
+        def diff = allOrphanedHandlings.plus(identityHandlings)
+        diff.removeAll(commons)
 
 
         then: "the connections for Repose's request to Identity should have the same id"
@@ -113,7 +115,7 @@ class AuthNConnectionPoolingTest extends Specification {
         mc2.orphanedHandlings.size() > 0
         identityHandlings.size() > 0
         // there should be no requests to auth with a different connection id
-        identityHandlings.count { it.connection != identityHandlings[0].connection } == 0
+        diff.size() == 0
     }
 
     def cleanup() {

@@ -25,7 +25,6 @@ public class RateLimiterTest {
       private static final String USER = "a user";
       private static final String URI = "/some/uri/";
       private final RateLimitCache mockedCache = mock(RateLimitCache.class);
-      private final LimitKey limitKey = new LimitKey();
       private final Pattern pattern = Pattern.compile("/some/uri/(.*)");
       private final Matcher uriMatcher = pattern.matcher(URI);
       private final ConfiguredRatelimit configuredRateLimit = RateLimitingTestSupport.defaultRateLimitingConfiguration().getLimitGroup().get(0).getLimit().get(0);
@@ -34,7 +33,7 @@ public class RateLimiterTest {
 
       public WhenHandlingRateLimits() {
          uriMatcher.matches();
-         key = limitKey.getLimitKey(URI, uriMatcher, true);
+         key = LimitKey.getLimitKey(uriMatcher, true);
       }
       
       @Test(expected=OverLimitException.class)
@@ -45,7 +44,7 @@ public class RateLimiterTest {
          when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
 
-         key = limitKey.getLimitKey(URI, uriMatcher, false);
+         key = LimitKey.getLimitKey(uriMatcher, false);
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit, datastoreWarnLimit);
       }
 

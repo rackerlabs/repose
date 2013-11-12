@@ -22,4 +22,16 @@
         <constructor-arg index="2" ref="httpConnectionPoolService"/>
     </bean>
 
+    <bean name="akkaServiceClientService"
+          class="com.rackspace.papi.service.serviceclient.akka.AkkaServiceClientImpl">
+        <constructor-arg index="0" ref="httpConnectionPoolService"/>
+    </bean>
+
+    <bean name="akkaServiceClientContext"
+          class="com.rackspace.papi.service.context.impl.AkkaServiceClientContext">
+
+        <constructor-arg index="0" ref="serviceRegistry"/>
+        <constructor-arg index="1" ref="akkaServiceClientService"/>
+    </bean>
+
 </beans>
