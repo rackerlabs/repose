@@ -11,37 +11,56 @@ import org.rackspace.gdeproxy.MessageChain
 
 abstract class ReposeValveTest extends Specification {
 
-    @Shared def configDirectory
-    @Shared def logFile
-    @Shared def configSamples
+    @Shared
+    def ReposeValveLauncher repose
 
-    @Shared def ReposeValveLauncher repose
-    @Shared def Deproxy deproxy
+    @Shared
+    def Deproxy deproxy
 
-    @Shared def Properties properties
+    @Shared
+    def TestProperties properties
 
-    @Shared def reposeEndpoint
-
-    @Shared def ReposeLogSearch reposeLogSearch
+    @Shared
+    def ReposeLogSearch reposeLogSearch
 
     def setupSpec() {
-        properties = new Properties()
-        properties.load(ClassLoader.getSystemResource("test.properties").openStream())
 
-        configDirectory = properties.getProperty("repose.config.directory")
-        configSamples = properties.getProperty("repose.config.samples")
-        reposeEndpoint = properties.getProperty("repose.endpoint")
-        logFile = properties.getProperty("repose.log")
+        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+
+        switch (properties.getReposeContainer().toLowerCase()) {
+            case "valve":
+                configureReposeValve()
+                break
+            case "tomcat":
+                throw new UnsupportedOperationException("Please implement me")
+            case "multinode":
+                String glassfishJar = properties.glassfishJar
+                configureReposeGlassfish(glassfishJar)
+                break
+            default:
+                throw new UnsupportedOperationException("Unknown container: " + reposeContainer)
+        }
+    }
+
+    def configureReposeGlassfish(String glassfishJar) {
+        ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+
+        repose = new ReposeGlassfishLauncher(glassfishJar)
+    }
+
+
+    def configureReposeValve() {
 
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getProperty("repose.jar"),
-                reposeEndpoint,
-                configDirectory,
-                properties.getProperty("repose.port").toInteger(),
-                properties.getProperty("repose.shutdown.port").toInteger()
+                properties.getReposeJar(),
+                properties.getReposeEndpoint(),
+                properties.getConfigDirectory(),
+                properties.getReposePort(),
+                properties.getReposeShutdownPort(),
+                properties.getConnFramework()
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);
@@ -63,9 +82,9 @@ abstract class ReposeValveTest extends Specification {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
         MessageChain mc
-        waitForCondition(clock, '15s', '1s', {
+        waitForCondition(clock, '35s', '1s', {
             try {
-            mc = innerDeproxy.makeRequest([url:reposeEndpoint])
+                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
             } catch (Exception e) {}
             if (mc != null) {
                 return mc.receivedResponse.code.equals("200")
@@ -74,4 +93,31 @@ abstract class ReposeValveTest extends Specification {
             }
         })
     }
+
+    // Helper methods to minimize refactoring in all test classes
+    def getReposeEndpoint() {
+        return properties.getReposeEndpoint()
+    }
+
+    def getConnFramework() {
+        return properties.getConnFramework()
+    }
+
+    def getConfigSamples() {
+        return properties.getConfigSamples()
+    }
+
+    def getConfigDirectory() {
+        return properties.getConfigDirectory()
+    }
+
+    def getLogFile() {
+        return properties.getLogFile()
+    }
+
+    def getReposeContainer() {
+        return properties.getReposeContainer()
+    }
+
+
 }

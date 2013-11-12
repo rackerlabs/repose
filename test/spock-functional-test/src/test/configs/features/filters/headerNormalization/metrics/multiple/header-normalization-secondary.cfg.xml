@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                      xmlns='http://docs.api.rackspacecloud.com/repose/header-normalization/v1.0'
+                      xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/header-normalization/v1.0 ../config/header-normalization-configuration.xsd'>
+
+    <header-filters>
+
+        <!-- this one should never apply, because its uri-regex doesn't fit
+             with the uri-regex specified for the whole finlter in the
+             system model -->
+        <target uri-regex="/path/(.*)">
+            <whitelist id="modification">
+                <header id="X-Modify"/>
+            </whitelist>
+        </target>
+
+        <target uri-regex="/secondary/path/(.*)">
+            <whitelist id="modification">
+                <header id="X-Modify"/>
+            </whitelist>
+        </target>
+
+        <target>
+            <blacklist id="rate-limit-headers">
+                <header id="X-PP-User" />
+                <header id="X-PP-Groups" />
+            </blacklist>
+        </target>
+        
+    </header-filters>
+
+</header-normalization>

@@ -15,6 +15,7 @@
  */
 package com.rackspace.external.pjlcompression;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import javax.servlet.Filter;
@@ -211,6 +212,13 @@ public final class CompressingFilter implements Filter {
    public void doFilter(ServletRequest request,
            ServletResponse response,
            FilterChain chain) throws IOException, ServletException {
+       if (isForRepose) {
+           // Remove 'Content-Encoding' header when value is identity
+           if(StringUtilities.nullSafeEqualsIgnoreCase(((HttpServletRequest) request).getHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER), CompressingStreamFactory.NO_ENCODING)){
+               request = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+               ((MutableHttpServletRequest)request).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+           }
+       }
 
       ServletRequest chainRequest = getRequest(request);
       ServletResponse chainResponse = getResponse(request, response);
@@ -307,6 +315,12 @@ public final class CompressingFilter implements Filter {
          logger.logDebug("Can't decompress request with encoding: " + contentEncoding);
          return null;
       }
+
+       if (isForRepose) {
+          // Remove 'Content-Encoding' header after decompression
+          httpRequest = MutableHttpServletRequest.wrap(httpRequest);
+          ((MutableHttpServletRequest)httpRequest).removeHeader(CompressingHttpServletResponse.CONTENT_ENCODING_HEADER);
+       }
 
       return new CompressedHttpServletRequest(httpRequest,
               CompressingStreamFactory.getFactoryForContentEncoding(contentEncoding),

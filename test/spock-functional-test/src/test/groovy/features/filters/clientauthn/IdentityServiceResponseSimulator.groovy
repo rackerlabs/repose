@@ -1,17 +1,38 @@
 package features.filters.clientauthn
-
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.rackspace.gdeproxy.Request
 import org.rackspace.gdeproxy.Response
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.DateTimeZone;
+
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.Schema
+import javax.xml.validation.SchemaFactory
+import javax.xml.validation.Validator
 
 /**
  * Simulates responses from an Identity Service
  */
 class IdentityServiceResponseSimulator {
+
+    public IdentityServiceResponseSimulator() {
+        this(12200, 10001)
+    }
+    public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+        this.port = identityPort
+        this.origin_service_port = originServicePort
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+        Schema schema = factory.newSchema(
+                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+
+
+        this.validator = schema.newValidator();
+    }
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
@@ -35,6 +56,9 @@ class IdentityServiceResponseSimulator {
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
 
+    int port
+    int origin_service_port
+
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
     def client_username = 'username';
@@ -43,6 +67,7 @@ class IdentityServiceResponseSimulator {
     def admin_tenant = 'this-is-the-admin-tenant';
     def admin_username = 'admin_username';
     def admin_userid = 67890;
+    Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -60,7 +85,7 @@ class IdentityServiceResponseSimulator {
 
         // default response code and message
         def template
-        def headers = ['Connection': 'close']
+        def headers = [:]
         def code = 200
         def message = 'OK'
         if (xml) {
@@ -73,10 +98,10 @@ class IdentityServiceResponseSimulator {
 
         if (request.method == "POST") {
             return handleGetAdminTokenCall(request);
+        } else if (request.method == "GET" && request.path.endsWith("endpoints")) {
+            return handleEndpointsCall(request);
         } else if (request.method == "GET" && request.path.contains("tokens")) {
             return handleValidateTokenCall(request);
-        } else if (request.method == "GET" && request.path.contains("endpoints")) {
-            return handleEndpointsCall(request);
         } else if (request.method == "GET") {
             return handleGroupsCall(request);
         } else {
@@ -115,12 +140,15 @@ class IdentityServiceResponseSimulator {
             return new Response(this.errorCode);
         }
 
+        def path = request.getPath()
+        def request_token = path.substring(path.lastIndexOf("/")+1)
+
         def params = [
                 expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request_token
         ];
 
         return handleTokenCallBase(request, params);
@@ -138,7 +166,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -164,7 +192,7 @@ class IdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        //println body
+        println body
         return new Response(code, null, headers, body)
     }
 
@@ -188,11 +216,12 @@ class IdentityServiceResponseSimulator {
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: client_token
+                token: request.getHeaders().getFirstValue("X-Auth-Token")
+
         ]
 
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -212,6 +241,15 @@ class IdentityServiceResponseSimulator {
     }
 
     Response handleGetAdminTokenCall(Request request) {
+
+     try{
+         final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+         validator.validate(sampleSource);
+
+     }catch(Exception e){
+         println("Admin token XSD validation error: " +e);
+         return new Response(this.errorCode);
+     }
         adminTokenCount += 1
 
         if (this.isGetAdminTokenBroken) {
@@ -246,7 +284,7 @@ class IdentityServiceResponseSimulator {
 
         def code;
         def template;
-        def headers = ['Connection': 'close'];
+        def headers = [:];
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
@@ -258,18 +296,19 @@ class IdentityServiceResponseSimulator {
 
         def params = [
                 'identity_port': this.port,
-                'token': this.client_token,
+                token: request.getHeaders().getFirstValue("X-Auth-Token"),
                 'expires': getExpires(),
                 'userid': this.client_userid,
                 'username': this.client_username,
                 'tenant': this.client_tenant,
-                'token': this.client_token,
                 'origin_service_port': this.origin_service_port,
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
     }
+
+
 
     def groupsJsonTemplate =
         """{
@@ -400,6 +439,65 @@ class IdentityServiceResponseSimulator {
                   name="compute:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000001"
+                  tenantId="12345"/>
+            <role id="5"
+                  name="object-store:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="12345"/>
+        </roles>
+    </user>
+    <serviceCatalog>
+        <service type="rax:object-cdn"
+                 name="cloudFilesCDN">
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+        </service>
+        <service type="object-store"
+                 name="cloudFiles">
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+        </service>
+    </serviceCatalog>
+</access>
+"""
+
+    def identitySuccessXmlWithServiceAdminTemplate =
+        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
+    <token id="\${token}"
+           expires="\${expires}">
+        <tenant id="\${tenant}"
+                name="\${tenant}"/>
+    </token>
+    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+          id="\${userid}"
+          name="\${username}"
+          rax-auth:defaultRegion="the-default-region">
+        <roles>
+            <role id="684"
+                  name="compute:default"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000001"
+                  tenantId="12345"/>
+            <role id="6"
+                  name="service:admin"
+                  description="A Role that allows a user to auth without belongsto"
+                  serviceId="0000000000000000000000000000000000000003"
                   tenantId="12345"/>
             <role id="5"
                   name="object-store:default"

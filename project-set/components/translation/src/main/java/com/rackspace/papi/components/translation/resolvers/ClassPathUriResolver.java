@@ -5,6 +5,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 
 public class ClassPathUriResolver extends SourceUriResolver {
 
@@ -27,8 +28,12 @@ public class ClassPathUriResolver extends SourceUriResolver {
             if (resource == null) {
                 return null;
             }
-            
-            return new StreamSource(resource);
+
+            try {
+                return new StreamSource(resource, getClass().getResource(path).toURI().toString());
+            } catch (URISyntaxException ex) {
+                return new StreamSource(resource);
+            }
         }
         
         return super.resolve(href, base);

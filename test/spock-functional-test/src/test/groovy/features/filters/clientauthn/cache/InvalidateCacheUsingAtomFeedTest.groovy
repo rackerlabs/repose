@@ -95,7 +95,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
-        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom")
+        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom"
+                )
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
@@ -143,10 +144,15 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
         // change identity atom feed
+
+        fakeIdentityService.errorCode = 404
+        fakeIdentityService.isValidateClientTokenBroken= true
         fakeIdentityService.ok = false
         fakeIdentityService.validateTokenCount = 0
         fakeAtomFeed.hasEntry = true
-        atomEndpoint._defaultHandler = fakeAtomFeed.handler
+        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+
+
 
         and: "we sleep for 11 seconds so that repose can check the atom feed"
         sleep(15000)

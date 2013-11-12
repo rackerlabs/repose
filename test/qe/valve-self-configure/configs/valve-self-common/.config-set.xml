@@ -1,7 +1,0 @@
-<config-set>
-  <folder>
-    <file src="log4j.properties" />
-    <file src="keystore.jks" />
-  </folder>
-</config-set>
-

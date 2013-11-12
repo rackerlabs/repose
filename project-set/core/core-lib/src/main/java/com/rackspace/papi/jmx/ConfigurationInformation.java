@@ -35,7 +35,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
    private ServicePorts ports;
    private final List<FilterInformation> filterChain;
    private SystemModelListener systemModelListener;
-   private static final String filterError = "Error updating Mbean for Filter";
+   private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
 
    public static class FilterInformation {
 
@@ -199,11 +199,11 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
                   } catch (IOException e) {
                      filter.failedConfigurationLoadingInformation.put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
-                     LOG.debug(filterError, e);
+                     LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
 
                   }
                } catch (Exception e) {
-                  LOG.debug(filterError, e);
+                  LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
                }
             }
          }
@@ -231,11 +231,11 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
                   } catch (IOException e) {
                      filter.failedConfigurationLoadingInformation.put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
-                     LOG.debug(filterError, e);
+                     LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
 
                   }
                } catch (Exception e) {
-                  LOG.debug(filterError, e);
+                  LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
                }
             }
          }

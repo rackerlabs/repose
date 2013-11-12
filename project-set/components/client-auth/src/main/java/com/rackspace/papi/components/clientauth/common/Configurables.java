@@ -2,6 +2,9 @@ package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author fran
  *
@@ -15,13 +18,14 @@ public class Configurables {
     private final long groupCacheTtl;
     private final long userCacheTtl;
     private final long tokenCacheTtl;
+    private final int cacheOffset;
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
-
+    private final List<String> serviceAdminRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
-            boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
-            EndpointsConfiguration endpointsConfiguration) {
+                         boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
+                         EndpointsConfiguration endpointsConfiguration) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -31,6 +35,24 @@ public class Configurables {
         this.tokenCacheTtl = tokenCacheTtl;
         this.requestGroups=requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
+        this.serviceAdminRoles = new ArrayList<String>();
+        this.cacheOffset = 0;
+    }
+
+    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
+            boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
+            EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles) {
+        this.delegable = delegable;
+        this.authServiceUri = authServiceUri;
+        this.keyedRegexExtractor = keyedRegexExtractor;
+        this.tenanted = tenanted;
+        this.groupCacheTtl = groupCacheTtl;
+        this.userCacheTtl = usrCacheTtl;
+        this.tokenCacheTtl = tokenCacheTtl;
+        this.cacheOffset = cacheOffset;
+        this.requestGroups=requestGroups;
+        this.endpointsConfiguration = endpointsConfiguration;
+        this.serviceAdminRoles = serviceAdminRoles;
     }
 
     public boolean isDelegable() {
@@ -60,12 +82,20 @@ public class Configurables {
     public long getUserCacheTtl() {
         return userCacheTtl;
     }
-    
+
     public boolean isRequestGroups() {
         return requestGroups;
     }
 
     public EndpointsConfiguration getEndpointsConfiguration() {
         return endpointsConfiguration;
+    }
+
+    public int getCacheOffset(){
+        return cacheOffset;
+    }
+
+    public List<String> getServiceAdminRoles() {
+        return serviceAdminRoles;
     }
 }

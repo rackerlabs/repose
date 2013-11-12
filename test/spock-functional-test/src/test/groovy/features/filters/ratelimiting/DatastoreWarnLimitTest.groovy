@@ -11,7 +11,7 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
 
     def setupSpec() {
         repose.applyConfigs(
-                "features/filters/ratelimiting/")
+                "features/filters/ratelimiting/datastore/")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
@@ -21,8 +21,6 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
     def cleanupSpec() {
         repose.stop()
         deproxy.shutdown()
-        sleep(3000)
-
     }
 
     def "when sending requests that match capture group with different cache keys should warn when exceeds limit"() {

@@ -44,10 +44,11 @@ public class CompressionFilter implements Filter {
       
       CompressionHandler handler = factory.buildHandler();
       
-      if(handler == null){
-         throw new ServletException("Unable to build content compression handler");
+      if(handler != null){
+          handler.setFilterChain(fc);
+      } else {
+          LOG.error("Unable to build content compression handler");
       }
-      handler.setFilterChain(fc);
       new FilterLogicHandlerDelegate(sr, sr1, fc).doFilter(handler);
 
    }

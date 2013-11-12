@@ -13,6 +13,7 @@ public enum ServiceContextName {
     RESPONSE_MESSAGE_SERVICE_CONTEXT("responseMessageServiceContext"),
     ROUTING_SERVICE_CONTEXT("routingServiceContext"),
     THREADING_SERVICE_CONTEXT("threadingServiceContext"),
+    HTTP_CONNECTION_POOL_SERVICE_CONTEXT("httpConnectionPoolServiceContext"),
     REQUEST_PROXY_SERVICE_CONTEXT("requestProxyServiceContext"),
     REPORTING_SERVICE_CONTEXT("reportingServiceContext"),
     REQUEST_HEADER_SERVICE_CONTEXT("requestHeaderServiceContext"),

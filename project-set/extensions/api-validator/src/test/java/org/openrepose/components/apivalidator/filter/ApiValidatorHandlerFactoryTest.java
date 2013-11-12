@@ -9,9 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
 
 import java.net.MalformedURLException;
@@ -22,7 +20,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class ApiValidatorHandlerFactoryTest {
@@ -65,7 +68,7 @@ public class ApiValidatorHandlerFactoryTest {
             
         }
         
-       @Test
+        @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
@@ -76,7 +79,9 @@ public class ApiValidatorHandlerFactoryTest {
             for(ValidatorInfo validatorForRole : validatorsForRole){
              assertEquals("Should get validator for role", role, validatorForRole.getRoles().get(0));
             }
-            verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
+            verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)),
+                                                        any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class),
+                                                        any(GenericResourceConfigurationParser.class));
         }
 
         @Test

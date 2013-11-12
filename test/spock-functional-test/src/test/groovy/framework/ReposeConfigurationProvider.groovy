@@ -1,6 +1,8 @@
 package framework
 
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
 
 import java.util.concurrent.TimeoutException
@@ -21,7 +23,6 @@ class ReposeConfigurationProvider {
         this.reposeConfigDir = new File(reposeConfigDir)
         this.samplesDir = new File(samplesDir)
         this.commonSamplesDir = new File(samplesDir + "/common")
-
     }
 
     /**
@@ -59,6 +60,46 @@ class ReposeConfigurationProvider {
         }
 
         println("updated configs")
+    }
+
+    /**
+     * Copies files from the designated source folder to Repose's config
+     *   folder, and substitutes templates parameters as specified. This
+     *   method acts recursively, copying and retaining the whole folder
+     *   hierarchy under sourceFolder. Template parameters are substituted
+     *   at runtime.
+     * @param sourceFolder The folder containing the config files to apply
+     * @param params A map for names to values to be substituted.
+     *   eg: "Hello ${name}!" with params=["name":"world"] becomes
+     *   "Hello world!"
+     */
+    void applyConfigsRuntime(String sourceFolder, params=[:]) {
+
+        def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
+
+        if (!source.exists()) { throw new IllegalArgumentException("\"${source.toString()}\" not found")}
+        if (!source.isDirectory()) { throw new IllegalArgumentException("\"${source.toString()}\" is not a directory") }
+
+        for (file in FileUtils.listFiles(source, null, true)) {
+
+            String contents = FileUtils.readFileToString(file)
+            def processedContents = StrSubstitutor.replace(contents, params, "\${", "}")
+
+            // Note: this is necessary to get relative paths under JDK 6.
+            // If using JDK 7, use java.nio.file.Path.relativize instead.
+            def relativePath = source.toURI().relativize(file.toURI()).path
+            def destinationFilename = FilenameUtils.concat(reposeConfigDir.absolutePath, relativePath)
+            FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
+        }
+    }
+
+    public void cleanConfigDirectory() {
+        if (reposeConfigDir.exists()) {
+            FileUtils.cleanDirectory(reposeConfigDir)
+        } else {
+            reposeConfigDir.mkdirs()
+        }
+
     }
 
 }

@@ -4,6 +4,7 @@
 
         <nodes>
             <node id="nofilters" hostname="localhost" http-port="${repose_port}"/>
+            <node id="nofilters2" hostname="foo.bar.doesnotexist" http-port="${repose_port}"/>
         </nodes>
 
         <filters>

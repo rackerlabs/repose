@@ -13,23 +13,21 @@ import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.spring.SpringConfiguration;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
+import com.rackspace.papi.spring.SpringWithServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Map;
+
 public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-   private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
    private AbstractApplicationContext applicationContext;
    private ServicePorts ports;
    private boolean contextInitialized = false;
@@ -49,15 +47,13 @@ public class PowerApiContextManager implements ServletContextListener {
    private AbstractApplicationContext initApplicationContext(ServletContext servletContext) {
       final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
       final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
-      final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
 
-      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-      if (StringUtilities.isNotBlank(beanName) && context.containsBean(beanName)) {
-         LOG.info("Using connection framework: " + beanName);
-         context.registerAlias(beanName, "requestProxyService");
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringWithServices.class);
+      if (StringUtilities.isNotBlank(connectionFramework)) {
+          LOG.warn("***DEPRECATED*** The ability to define the connection framework of jersey, ning, or apache has been deprecated!" +
+                  " The default and only available connection framework is Apache HttpClient");
       } else {
-         LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-         context.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
+          LOG.warn("***DEPRECATED*** The default connection framework has changed from Jersey to Apache HttpClient!");
       }
 
       configurePorts(context);
@@ -118,6 +114,7 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
       ca.getContext( MetricsServiceContext.class ).contextInitialized( sce );
+      ca.getContext(HttpConnectionPoolServiceContext.class).contextInitialized(sce);
 
       // Start management server
       if (isManagementServerEnabled()) {
@@ -151,7 +148,6 @@ public class PowerApiContextManager implements ServletContextListener {
 
       //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
       System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-      System.setProperty("http.maxConnections", "100");
 
       // Most bootstrap steps require or will try to load some kind of
       // configuration so we need to set our naming context in the servlet context

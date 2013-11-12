@@ -92,7 +92,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
     }
 
     private Object performAction(String name, byte[] id, DatastoreAction action, RemoteBehavior initialBehavior) {
-        boolean targetIsRemote;
+        boolean targetIsRemote = true;
 
         if (initialBehavior != RemoteBehavior.DISALLOW_FORWARDING) {
             RemoteBehavior remoteBehavior =
@@ -100,18 +100,22 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
             do {
                 final InetSocketAddress target = getTarget(id);
-                targetIsRemote = isRemoteTarget(target);
 
-                if (target != null && (targetIsRemote)) {
-                    LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
-                                      target.toString());
+                try {
+                    if (target == null) {
+                        targetIsRemote = false;
+                    } else if (targetIsRemote = isRemoteTarget(target)) {
+                        LOG.debug("Routing datastore " + action.toString() + " request for, \"" + name + "\" to: " +
+                                target.toString());
 
-                    try {
                         return action.performRemote(name, target, remoteBehavior);
-                    } catch (RemoteConnectionException rce) {
-                        clusterView.memberDamaged(target, rce.getMessage());
-                        remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                     }
+                } catch (RemoteConnectionException rce) {
+                    clusterView.memberDamaged(target, rce.getMessage());
+                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
+                } catch (DatastoreOperationException doe) {
+                    clusterView.memberDamaged(target, doe.getMessage());
+                    remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 }
             } while (targetIsRemote);
         } else {

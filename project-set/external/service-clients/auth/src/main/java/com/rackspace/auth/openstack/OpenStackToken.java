@@ -4,16 +4,13 @@ import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
-
-import java.io.Serializable;
-import java.util.Map;
-import javax.xml.bind.JAXBElement;
-
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 
 /**
  * Implementation of AuthToken {@link com.rackspace.auth.AuthToken} to parse the AuthenticationResponse from an Openstack Identity Service
@@ -31,7 +28,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String impersonatorUsername;
     private final String defaultRegion;
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
-    private static final QName regionQname = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
+    private static final QName REGION_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
 
     public OpenStackToken(AuthenticateResponse response) {
 
@@ -55,6 +52,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
         }
     }
 
+    /**
+     * Assumption here is that not having a tenant would throw an exception - B-52709
+     * @param response
+     */
     private void checkTokenInfo(AuthenticateResponse response) {
         if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
             throw new IllegalArgumentException("Invalid token");
@@ -75,7 +76,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     }
 
     private String getDefaultRegion(AuthenticateResponse response) {
-        return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(regionQname), "");
+        return StringUtilities.getNonBlankValue(response.getUser().getOtherAttributes().get(REGION_QNAME), "");
     }
 
     @Override

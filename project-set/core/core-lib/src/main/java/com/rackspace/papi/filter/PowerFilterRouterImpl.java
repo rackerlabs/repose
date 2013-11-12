@@ -18,7 +18,6 @@ import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
-import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
 
 /**
  * This class routes a request to the appropriate endpoint specified in system-model.cfg.xml and receives
@@ -80,7 +81,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.responseHeaderService = responseHeaderService;
         this.requestHeaderService = requestHeaderService;
         this.locationBuilder = locationBuilder;
-        this.metricsService = metricsService;
+
+        if (metricsService != null && metricsService.isEnabled()) {
+            this.metricsService = metricsService;
+        }
     }
 
     @Override
@@ -101,14 +105,16 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             addDestinations(domain.getDestinations().getTarget());
         }
 
-        mbcAllResponse = metricsService.newMeterByCategory( ResponseCode.class,
+        if (metricsService != null) {
+            mbcAllResponse = metricsService.newMeterByCategory( ResponseCode.class,
                                                             "All Endpoints",
                                                             "Response Codes",
                                                             TimeUnit.SECONDS );
-        mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
+            mbcAllTimeouts = metricsService.newMeterByCategory( RequestTimeout.class,
                                                              "TimeoutToOrigin",
                                                              "Request Timeout",
                                                              TimeUnit.SECONDS );
+        }
     }
 
     private void addDestinations(List<? extends Destination> destList) {
@@ -183,7 +189,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
-                    } catch (ClientHandlerException e) {
+                    } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
@@ -193,7 +199,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                         }
                     }
-
                 }
             }
         }
@@ -221,6 +226,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private MeterByCategory verifyGet( String endpoint ) {
+        if (metricsService == null) {
+            return null;
+        }
+
         if( !mapResponseCodes.containsKey( endpoint ) ) {
             synchronized ( mapResponseCodes ) {
 
@@ -239,6 +248,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     private MeterByCategory getTimeoutMeter( String endpoint ) {
+        if (metricsService == null) {
+            return null;
+        }
+
         if( !mapRequestTimeouts.containsKey( endpoint ) ) {
             synchronized ( mapRequestTimeouts ) {
                 if( !mapRequestTimeouts.containsKey( endpoint ) ) {
@@ -254,10 +267,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     public void markRequestTimeoutHelper( MeterByCategory mbc, int responseCode, String endpoint ) {
-        assert mbc != null;
-        assert endpoint != null;
+        if (mbc == null) {
+            return;
+        }
 
-        if ( responseCode == 408 ) {
+        if ( responseCode == HTTP_CLIENT_TIMEOUT) {
             mbc.mark( endpoint );
         }
     }

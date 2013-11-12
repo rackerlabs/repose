@@ -1,11 +1,14 @@
 package features.filters.translation.saxonEE
 
 import framework.ReposeValveTest
+import framework.category.SaxonEE
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.Handling
 import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 
+@Category(SaxonEE.class)
 class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a>test</a>"
@@ -26,6 +29,9 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         def saxonHome = System.getenv("SAXON_HOME")
 
         assert saxonHome != null
@@ -37,21 +43,15 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
                 "features/filters/translation/saxonEE"
         )
         repose.start()
-    }
-
-    def setup() {
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
+        if(deproxy)
+            deproxy.shutdown()
+        if(repose)
+            repose.stop()
     }
 
     def "when translating json within xml in the request body"() {
@@ -67,7 +67,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
         then: "Request headers sent from repose to the origin service should contain"
 
         for (String st : bodyShouldContain) {
-            ((Handling) sentRequest).request.body.contains(st)
+            assert(((Handling) sentRequest).request.body.contains(st))
 
         }
 
@@ -88,7 +88,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         then: "Response body should contain"
         for (String st : shouldContain) {
-            resp.receivedResponse.body.contains(st)
+            assert(resp.receivedResponse.body.contains(st))
         }
 
         and: "Response code should be"

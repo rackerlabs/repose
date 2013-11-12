@@ -5,6 +5,7 @@ import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -21,9 +22,11 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
     private final Datastore datastore;
     private RackspaceAuthorization authorizationConfiguration;
     private AuthenticationService authenticationService;
+    private HttpClientService httpClientService;
 
-    public RequestAuthorizationHandlerFactory(Datastore datastore) {
+    public RequestAuthorizationHandlerFactory(Datastore datastore,HttpClientService httpClientService) {
         this.datastore = datastore;
+        this.httpClientService=httpClientService ;
     }
 
     private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
@@ -37,7 +40,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
             final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
             if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-                authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId());
+                authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId(),configurationObject.getAuthenticationServer().getConnectionPoolId(),httpClientService);
             } else {
                 LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
             }

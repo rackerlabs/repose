@@ -7,8 +7,6 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +26,11 @@ public class ApiValidatorFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         ApiValidatorHandler handler = handlerFactory.newHandler();
-        if (handler == null) {
-            throw new ServletException("Unable to build validator handler");
+        if (handler != null) {
+            handler.setFilterChain(chain);
+        } else {
+            LOG.error("Unable to build API validator handler");
         }
-        handler.setFilterChain(chain);
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
     }
 

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.net.URL;
 
 public class RequestStreamPostProcessor implements InputStreamPostProcessor {
    private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
@@ -31,7 +32,8 @@ public class RequestStreamPostProcessor implements InputStreamPostProcessor {
    public RequestStreamPostProcessor(String xsltName) throws PostProcessorException {
       try {
          InputStream xsltStream = RequestStreamPostProcessor.class.getResourceAsStream(xsltName);
-         templates = HANDLER_FACTORY.newTemplates(new StreamSource(xsltStream));
+         URL xsltURL = RequestStreamPostProcessor.class.getResource(xsltName);
+         templates = HANDLER_FACTORY.newTemplates(new StreamSource(xsltStream, xsltURL.toExternalForm()));
       } catch (TransformerConfigurationException ex) {
          throw new PostProcessorException(ex);
       }

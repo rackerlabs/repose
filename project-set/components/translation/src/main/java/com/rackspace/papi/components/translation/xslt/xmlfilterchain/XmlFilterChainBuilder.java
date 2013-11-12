@@ -149,8 +149,9 @@ public class XmlFilterChainBuilder {
   protected StreamSource getClassPathResource(String path) {
     String resource = path.substring(CLASSPATH_PREFIX.length());
     InputStream input = getClass().getResourceAsStream(resource);
+    URL inputURL = getClass().getResource(resource);
     if (input != null) {
-      return new StreamSource(input);
+      return new StreamSource(input, inputURL.toExternalForm());
     }
 
     throw new XsltException("Unable to load stylesheet " + path);
@@ -197,7 +198,8 @@ public class XmlFilterChainBuilder {
         return getClassPathResource(stylesheet.getUri());
       } else {
         try {
-          return new StreamSource(new URL(stylesheet.getUri()).openStream());
+          URL stylesheetURL = new URL(stylesheet.getUri());
+          return new StreamSource(stylesheetURL.openStream(), stylesheetURL.toExternalForm());
         } catch (IOException ex) {
           throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
         }

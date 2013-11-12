@@ -1,16 +1,27 @@
 package features.services.datastore
 
 import framework.ReposeValveTest
+import org.rackspace.gdeproxy.Deproxy
 
 class DistDataShutdownTest extends ReposeValveTest {
+
+    def setupSpec(){
+         deproxy = new Deproxy()
+         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+     }
+
+     def cleanupSpec(){
+         if (deproxy)
+             deproxy.shutdown()
+     }
 
     def "when configured with dist datastore as a service should shutdown nicely when asked" () {
         given: "repose is configured with dist datastore"
         repose.applyConfigs("features/services/datastore/")
         repose.start()
+        waitUntilReadyToServiceRequests()
 
         when: "i ask repose to stop"
-        sleep(15000)  // sleeping here as repose may not have been up
         repose.stop()
 
         then: "the process should not be running"
@@ -21,9 +32,9 @@ class DistDataShutdownTest extends ReposeValveTest {
         given:
         repose.applyConfigs("features/filters/datastore/")
         repose.start()
+        waitUntilReadyToServiceRequests()
 
         when:
-        sleep(15000)  // sleeping here as repose may not have been up
         repose.stop()
 
         then:

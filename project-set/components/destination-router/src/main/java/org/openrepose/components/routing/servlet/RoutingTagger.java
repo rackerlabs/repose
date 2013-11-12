@@ -19,7 +19,6 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingTagger.class);
     private String id;
     private double quality;
-    private boolean useMetrics = false;
     private MetricsService metricsService;
     private MeterByCategorySum mbcsRoutedReponse;
 
@@ -28,12 +27,9 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
         this.id = id;
         this.metricsService = metricsService;
 
-        try {
+        if (metricsService != null) {
             mbcsRoutedReponse = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router",
                     "Routed Response", TimeUnit.SECONDS);
-            useMetrics = true;
-        } catch (Exception e) {
-            LOG.error("Error with metrics service", e);
         }
     }
 
@@ -46,7 +42,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             LOG.warn("No Destination configured for Destination Router");
         } else {
             myDirector.addDestination(id, request.getRequestURI(), quality);
-            if (useMetrics) {
+            if (mbcsRoutedReponse != null) {
                 mbcsRoutedReponse.mark(id);
             }
         }

@@ -29,7 +29,6 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
    public static final String SERVICE_NAME = "MetricsService";
 
    private static final Logger LOG = LoggerFactory.getLogger( MetricsService.class );
-   private static final String prefix = "Error with the MetricsService";
 
    private final MetricsService metricsService;
    private final ServiceRegistry registry;
@@ -60,7 +59,10 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
    @Override
    public MetricsService getService() {
-      return metricsService;
+      if (metricsService != null && metricsService.isEnabled()) {
+          return metricsService;
+      }
+      return null;
    }
 
    @Override
@@ -102,10 +104,11 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
                }
             } catch (IOException e ) {
 
-               LOG.debug( prefix, e );
+               LOG.debug("Error with the MetricsService", e );
             }
          }
 
+         metricsService.setEnabled(metricsC.isEnabled());
          initialized = true;
       }
 

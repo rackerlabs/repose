@@ -1,15 +1,12 @@
 package features.services.datastore
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.MessageChain
 
-/**
- * Created with IntelliJ IDEA.
- * User: dimi5963
- * Date: 6/26/13
- * Time: 2:45 PM
- */
+@Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
     boolean isFailedStart = false
 
@@ -44,7 +41,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when configured with DD service and filter, repose should not start" () {
         given:
-        repose.applyConfigs("features/badconfig/datastore/servicefilter")
+        repose.applyConfigs("features/services/datastore/badconfig")
         setIsFailedStart(true)
 
         def MessageChain mc
@@ -113,7 +110,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.start()
         logMatchesFalse = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/badconfig/datastore/servicefilter")
+        repose.updateConfigs("features/services/datastore/badconfig")
         logMatchesTrue = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
         def user= UUID.randomUUID().toString();
@@ -137,7 +134,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
         logMatchesFalse = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/badconfig/datastore/servicefilter")
+        repose.updateConfigs("features/services/datastore/badconfig")
         logMatchesTrue = reposeLogSearch.searchByString(
                 "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
         def user= UUID.randomUUID().toString();

@@ -2,8 +2,10 @@ package features.filters.translation
 
 import framework.ReposeValveTest
 import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.gdeproxy.MessageChain
 import org.rackspace.gdeproxy.Response
 import org.rackspace.gdeproxy.HeaderCollection
+import spock.lang.Unroll
 
 class TranslateResponseTest extends ReposeValveTest {
 
@@ -12,6 +14,8 @@ class TranslateResponseTest extends ReposeValveTest {
     def static String invalidXmlResponse = "<a><remove-me>test</remove-me>somebody"
     def static String invalidJsonResponse = "{{'field1': \"value1\", \"field2\": \"value2\"]}"
     def static String xmlResponseWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
+    def static String xmlResponseWithExtEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [  <!ENTITY license_agreement SYSTEM \"http://www.mydomain.com/license.xml\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&license_agreement;</a>"
+    def static String xmlResponseWithXmlBomb = "<?xml version=\"1.0\"?> <!DOCTYPE lolz [   <!ENTITY lol \"lol\">   <!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">   <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">   <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">   <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">   <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">   <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">   <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">   <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\"> ]> <lolz>&lol9;</lolz>"
     def static String jsonResponse = "{\"field1\": \"value1\", \"field2\": \"value2\"}"
 
     def static Map acceptXML = ["accept": "application/xml"]
@@ -22,10 +26,15 @@ class TranslateResponseTest extends ReposeValveTest {
     def static Map contentXMLHTML = ["content-type": "application/xhtml+xml"]
     def static Map contentOther = ["content-type": "application/other"]
     def static Map acceptRss = ["accept": "application/rss+xml"]
-    def static String xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
+    def static ArrayList<String> xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
     def static String filterChainUnavailable = "filter list not available"
     def static String remove = "remove-me"
     def static String add = "add-me"
+
+
+    def String convertStreamToString(byte[] input){
+        return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
+    }
 
     //Start repose once for this particular translation test
     def setupSpec() {
@@ -35,22 +44,17 @@ class TranslateResponseTest extends ReposeValveTest {
                 "features/filters/translation/response"
         )
         repose.start()
-    }
-
-    def setup() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup() {
-        deproxy.shutdown()
-    }
-
     def cleanupSpec() {
+        deproxy.shutdown()
         repose.stop()
     }
 
+    @Unroll("when translating responses - request: xml, response: #respHeaders - #respBody")
     def "when translating responses"() {
 
         given: "Origin service returns body of type " + respHeaders
@@ -58,28 +62,33 @@ class TranslateResponseTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest((String) reposeEndpoint, method, acceptXML, "something", xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {
-            resp.receivedResponse.body.contains(st)
+            if(resp.receivedResponse.body instanceof byte[])
+                assert(convertStreamToString(resp.receivedResponse.body).contains(st))
+            else
+                assert(resp.receivedResponse.body.contains(st))
         }
 
         and: "Response body should not contain"
         for (String st : shouldNotContain) {
-            !resp.receivedResponse.body.contains(st)
+            assert(!resp.receivedResponse.body.contains(st))
         }
 
         and: "Response code should be"
         resp.receivedResponse.code.equalsIgnoreCase(respCode.toString())
 
         where:
-        reqHeaders | respHeaders    | respBody                | respCode | shouldContain  | shouldNotContain
-        acceptXML  | contentXML     | xmlResponse             | 200      | ["somebody"]   | [remove]
-        acceptXML  | contentXML     | xmlResponseWithEntities | 200      | ["\"somebody"] | [remove]
-        acceptXML  | contentXMLHTML | xmlResponse             | 200      | [add]          | [filterChainUnavailable]
-        acceptXML  | contentJSON    | jsonResponse            | 200      | [xmlJSON, add] | [filterChainUnavailable]
-        acceptXML  | contentOther   | jsonResponse            | 200      | [jsonResponse] | [add]
+        respHeaders    | respBody                   | respCode | shouldContain  | shouldNotContain         | method
+        contentXML     | xmlResponse                | 200      | ["somebody"]   | [remove]                 | "PUT"
+        contentXML     | xmlResponseWithEntities    | 200      | ["\"somebody"] | [remove]                 | "PUT"
+        contentXML     | xmlResponseWithXmlBomb     | 500      | []             | [remove]                 | "PUT"
+        contentXMLHTML | xmlResponse                | 200      | [add]          | [filterChainUnavailable] | "PUT"
+        contentJSON    | jsonResponse               | 200      | xmlJSON + [add]| [filterChainUnavailable] | "PUT"
+        contentOther   | jsonResponse               | 200      | [jsonResponse] | [add]                    | "PUT"
+        contentXML     | xmlResponseWithExtEntities | 200      | ["\"somebody"] | [remove]                 | "POST"
 
 
     }
@@ -98,15 +107,17 @@ class TranslateResponseTest extends ReposeValveTest {
 
         then: "Response body should not be touched"
         resp.receivedResponse.body.contains(xmlRssResponse)
+        !resp.receivedResponse.body.contains("add-me")
+        resp.receivedResponse.code == "200"
 
         and: "Response headers should contain added header from translation"
         resp.receivedResponse.getHeaders().names.contains("translation-header")
-
+        !resp.receivedResponse.getHeaders().names.contains("x-powered-by")
     }
 
     def "when attempting to translate an invalid xml/json response"() {
 
-        given: "Origin serivce returns invalid json/xml"
+        given: "Origin service returns invalid json/xml"
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, respBody) }
 
 
@@ -121,6 +132,22 @@ class TranslateResponseTest extends ReposeValveTest {
         acceptXML  | contentXML  | invalidXmlResponse  | "500"
         acceptXML  | contentJSON | invalidJsonResponse | "500"
 
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def handler = { request -> return new Response(201, "Created", respHeaders, "") }
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', defaultHandler: handler)
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
 

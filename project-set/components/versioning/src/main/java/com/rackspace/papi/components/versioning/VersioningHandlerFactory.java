@@ -12,6 +12,7 @@ import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +25,13 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
     private final ContentTransformer transformer;
     private final ServicePorts ports;
+    private final MetricsService metricsService;
     private ReposeCluster localDomain;
     private Node localHost;
 
-    public VersioningHandlerFactory(ServicePorts ports) {
+    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService) {
         this.ports = ports;
+        this.metricsService = metricsService;
 
         transformer = new ContentTransformer();
     }
@@ -92,7 +95,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     @Override
     protected VersioningHandler buildHandler() {
-
         if (!this.isInitialized()) {
             return null;
         }
@@ -102,6 +104,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
 
-        return new VersioningHandler(configData, transformer);
+        return new VersioningHandler(configData, transformer, metricsService);
     }
 }

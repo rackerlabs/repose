@@ -1,11 +1,8 @@
 package com.rackspace.papi.service.datastore.impl.distributed.cluster;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -16,22 +13,19 @@ import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessCont
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.datastore.impl.distributed.config.DistributedDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.impl.distributed.config.HostAccessControl;
-import com.rackspace.papi.service.datastore.impl.distributed.config.Port;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URL;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component("distributedDatastoreServiceClusterContext")
 public class DistributedDatastoreServiceClusterContext implements ServiceContext<DistributedDatastoreServiceClusterViewService> {

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.transform.stream.StreamSource;
@@ -11,12 +12,62 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.Collection;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
 public class SchemaTest {
+
+    @RunWith(Parameterized.class)
+    public static class WhenValidatingConfiguredMethod {
+
+        // TODO Upgrade jUnit to 4.11 to name parameterized tests
+        @Parameterized.Parameters // (name = "{0} method")
+        public static Collection<Object[]> data() {
+            return Arrays.asList(new Object[][]{
+                    {"GET"}, {"DELETE"}, {"POST"}, {"PUT"},
+                    {"PATCH"}, {"HEAD"}, {"OPTIONS"},
+                    {"CONNECT"}, {"TRACE"}, {"ALL"}
+            });
+        }
+
+        private String method;
+        private Validator validator;
+
+        public WhenValidatingConfiguredMethod(String method) {
+            this.method = method;
+        }
+
+        @Before
+        public void standUp() throws Exception {
+            SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+            factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+
+            Schema schema = factory.newSchema(
+                    new StreamSource[]{
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/limits/limits.xsd")),
+                            new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rate-limiting-configuration.xsd"))
+                    });
+
+            validator = schema.newValidator();
+        }
+
+        @Test
+        public void shouldValidateWhenValidMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+    }
 
     public static class WhenValidatingRateLimitConfiguration {
 
@@ -68,6 +119,19 @@ public class SchemaTest {
                     "</rate-limiting>";
 
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldFailWhenInvalidMethodUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
+                            "       <limit uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits' groups='user'/> " +
+                            "</rate-limiting>";
+
+            assertInvalidConfig(xml, "It must be a value from the enumeration.");
         }
 
         @Test
@@ -172,7 +236,7 @@ public class SchemaTest {
             assertNotNull("Expected exception", caught);
             assertSame(SAXParseException.class, caught.getClass());
 
-            assertThat(caught.getLocalizedMessage(), containsString(errorMessage));
+            assert (caught.getLocalizedMessage().contains(errorMessage));
         }
 
     }
