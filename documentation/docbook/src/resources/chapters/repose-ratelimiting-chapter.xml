@@ -49,7 +49,7 @@
     
     <title>Rate Limiting Filter</title>
     <section xml:id="Introduction-300">
-        <title>What is Rate Limiting?</title>
+        <title>What Is Rate Limiting?</title>
         <para> Rate limiting controls the flow of traffic. You can use
             Repose's rate limiting filter to manage the flow of
             traffic into your service so that it does not exceed the
@@ -74,7 +74,7 @@
    </section>
     
         <section xml:id="What-It-Does-999">
-            <title> What can Repose Rate Limiting Do?</title>
+            <title> What Can Repose Rate Limiting Do?</title>
         <para> Repose's rate limiting filter protects the origin
             service from being bombarded by client requests. It
             accomplishes this by specifying limits for the number of
@@ -94,10 +94,16 @@
         <para> The Repose rate limiting component performs two
             categories of behavior: <itemizedlist>
                 <listitem>
-                    <para> querying for limits </para>
+                    <para>
+                        <guilabel>Querying for Limits</guilabel>: This
+                        feature allows the client to view how many
+                        requests a user has already sent and how the
+                        Rate Limiting filter behaves.</para>
                 </listitem>
                 <listitem>
-                    <para> tracking limits </para>
+                    <para>
+                        <guilabel>Tracking Limits</guilabel>: This
+                        feature ...  </para>
                 </listitem>
             </itemizedlist>
       </para>

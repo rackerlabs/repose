@@ -62,7 +62,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-02-14</pubdate>
+        <pubdate>2013-11-12</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,7 +74,7 @@
         </abstract>
         <revhistory>
             <revision>
-                <date>2013-11-11</date>
+                <date>2013-11-12</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
                         <listitem>
@@ -88,10 +88,10 @@
     <chapter xml:id="Overview-d1e85">
         <title>About This Document</title>
             <para>The purpose of this handbook is to facilitate
-            deployment of &PRODNAME;'s components. This handbook is
-            not a tutorial. It provides basic information that will
-            help you understand and deploy &PRODNAME; components, but
-            you must adapt this information to suit your own
+            deployment of &PRODNAME; components. This handbook is not
+            a tutorial. It provides basic information that will help
+            you understand and deploy &PRODNAME; components, but you
+            must adapt this information to suit your own
             configuration. </para>
             
         <section xml:id="Document_Change_History-d1e102">
@@ -110,6 +110,7 @@
         
     <xi:include href="chapters/repose-versioning-chapter.xml"/>
     <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
+    <xi:include href="chapters/repose-translation-chapter.xml"/>
     <xi:include href="chapters/afterword.xml"/> 
     
     
