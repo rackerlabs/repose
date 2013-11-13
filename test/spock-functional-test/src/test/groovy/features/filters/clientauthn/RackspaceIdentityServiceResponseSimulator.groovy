@@ -121,7 +121,6 @@ class RackspaceIdentityServiceResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        println body
         return new Response(code, null, headers, body)
     }
 
@@ -169,7 +168,6 @@ Response handleGroupsCall(Request request) {
 
     def body = templateEngine.createTemplate(template).make(params)
 
-    println body
     return new Response(code, null, headers, body)
 
 }

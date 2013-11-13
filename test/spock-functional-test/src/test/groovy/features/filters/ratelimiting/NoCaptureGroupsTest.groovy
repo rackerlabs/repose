@@ -7,7 +7,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
-class NoCaptureGroupsTest  extends Specification {
+class NoCaptureGroupsTest extends Specification {
 
     static Deproxy deproxy
     static int endpointPort

@@ -180,7 +180,6 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        println body
         return new Response(code, null, headers, body)
     }
 
