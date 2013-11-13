@@ -24,7 +24,7 @@
 
         <repose.container>valve</repose.container>
 
-        <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
+        <project.set.dir>${project.basedir}/../../repose-aggregator</project.set.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
