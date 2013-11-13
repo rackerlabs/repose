@@ -3,12 +3,9 @@ package features.filters.ratelimiting
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
-import framework.category.Bug
 import org.rackspace.gdeproxy.Deproxy
 import org.rackspace.gdeproxy.PortFinder
-import spock.lang.Ignore
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
 
 class CaptureGroupsTest extends Specification {
 
@@ -149,7 +146,6 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
-    @Category(Bug)
     def "Captured values should make no difference when concatenated"() {
 
         given:
@@ -158,13 +154,69 @@ class CaptureGroupsTest extends Specification {
         // if requests have different values for the captured part of the path,
         // they should be considered separately, and not affect each other,
         // even if they have the same combined string value when appended
-        //
-        // this is a known defect that can't be fixed before the 2.12.0 release
 
         def mc
         String url1 = "http://localhost:${reposePort}/servers/abc/instances/def"    // abc + def = abcdef
         String url2 = "http://localhost:${reposePort}/servers/abcde/instances/f"    // abcde + f = abcdef
         def headers = ['X-PP-User': 'user2', 'X-PP-Groups': 'group']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+        when: "we make a second request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+        when: "we make a third request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+    }
+
+    def "Order of captured values should make no difference when concatenated"() {
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/servers/abc/instances/def"
+        String url2 = "http://localhost:${reposePort}/servers/def/instances/abc"
+        def headers = ['X-PP-User': 'user8', 'X-PP-Groups': 'group']
 
 
         when: "we make one request to the first url"
