@@ -124,7 +124,7 @@
             by reading the 
             <link xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html">Repose Deployment Handbook</link>
             and by examining a  
-            <link xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
+            <link xlink:href="https://github.com/rackspace/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
             in GitHub.
         </para>
         <para> &PRODNAME; uses 

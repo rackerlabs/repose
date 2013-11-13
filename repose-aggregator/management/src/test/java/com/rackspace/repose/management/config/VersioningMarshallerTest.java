@@ -24,7 +24,7 @@ public class VersioningMarshallerTest {
         @Before
         public void setUp() throws Exception {
             versioningMarshaller = new VersioningMarshaller();
-            configurationRoot = "project-set/management/src/test/resources/";
+            configurationRoot = "repose-aggregator/management/src/test/resources/";
             config = new Integer(0);
         }
 
