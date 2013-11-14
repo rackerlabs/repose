@@ -1,24 +1,18 @@
 package features.core.powerfilter
-
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import spock.lang.Unroll
 
 class URIEncodingTest extends ReposeValveTest {
 
-    def static String parameterWithSpace = "/messages?ids= locationOne"
-    def static String parameterWithSpaceWithPlus = "/messages?ids=+locationOne"
-
-    def static String URIWithSpace = "/%20messages?ids=locationOne"
-    def static String URIWithSpaceAsciiEncode = "/%20messages?ids=+locationOne"
-
 
     def setupSpec() {
-        repose.applyConfigs( "features/core/powerfilter/common" )
-        repose.start()
+
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
+
     }
 
     def cleanupSpec() {
@@ -27,42 +21,92 @@ class URIEncodingTest extends ReposeValveTest {
         repose.stop()
     }
 
-   /* def "when space in the parameter value"() {
-        given:
-        def headerResp = {request -> return new Response(200, "OK",
-                ["Location" : parameterWithSpace], "")}
+
+
+   @Unroll("URI's with special character through no filter sent = #URISent")
+   def "URI's with special character through no filter(only destination filter)"() {
+       setup:
+       repose.applyConfigs( "features/core/powerfilter/URIEncode/noFilters" )
+       repose.start()
+       repose.waitForNon500FromUrl(reposeEndpoint)
+
+       when: "User sends a request through repose"
+       def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent)
+
+       then: "Repose send the URI parameters without manipulation"
+       messageChain.handlings.size()>0
+       messageChain.handlings.get(0).request.path.equals(URISent)
+       messageChain.receivedResponse.code.equals("200")
+
+       cleanup:
+       repose.stop()
+
+       where:
+       URISent | URItoOriginService
+       "/messages?ids= locations"  | "/messages?ids= locations"
+       "/messages?ids=+locations"  | "/messages?ids=+locations"
+       "/ messages?ids=locations"  | "/ messages?ids=locations"
+       "/+messages?ids=locations"  | "/+messages?ids=locations"
+       "/messages?ids=locations"   | "/messages?ids=locations"
+
+
+    }
+
+    @Unroll("URI's with special character through API Validator filter sent = #URISent")
+    def "URI's with special character through API Validator filter"() {
+
+        setup:
+        repose.applyConfigs( "features/core/powerfilter/URIEncode/withAPIValidator" )
+        repose.start()
+
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint+parameterWithSpace , "GET", ["x-test" : "test"], "", headerResp)
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent ,method: "GET", headers: ["X-Roles" : "role-1"])
 
-        then: "Repose returns a comma-separated location header"
-        resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(parameterWithSpaceWithPlus)
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code.equals("200")
+        messageChain.handlings.size()>0
+        messageChain.handlings.get(0).request.path.equals(URISent)
+
+        cleanup:
+        repose.stop()
+
+        where:
+        URISent | URItoriginService
+        "/+messages?ids=locations"  | "/+messages?ids=locations"
+
+
+
     }
-    */
-    def "when space in the URI"() {
-        given:
-        def headerResp = {request -> return new Response(200, "OK",
-                ["Location" : URIWithSpace], "")}
+
+
+    @Unroll("URI's with special character through All filters except API Validator sent = #URISent")
+    def "URI's with special character through All filters except API Validator"() {
+
+        setup:
+        repose.applyConfigs( "features/core/powerfilter/multifilters" )
+        repose.start()
 
         when: "User sends a request through repose"
-        def messageChain = deproxy.makeRequest((String) reposeEndpoint+URIWithSpace , "GET", ["x-test" : "test"], "", headerResp)
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent)
 
-        then: "Repose returns a comma-separated location header"
-        messageChain.sentRequest.path==URIWithSpace
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.handlings.size()>0
+        messageChain.handlings.get(0).request.path.equals(URISent)
+        messageChain.receivedResponse.code.equals("200")
+
+        cleanup:
+        repose.stop()
+
+        where:
+        URISent | URItoOriginService
+        "/messages?ids= locations"  | "/messages?ids= locations"
+        "/messages?ids=+locations"  | "/messages?ids=+locations"
+        "/ messages?ids=locations"  | "/ messages?ids=locations"
+        "/+messages?ids=locations"  | "/+messages?ids=locations"
+        "/messages?ids=locations"   | "/messages?ids=locations"
+
 
     }
 
-    def "when Plus in the URI"() {
-        given:
-        def headerResp = {request -> return new Response(200, "OK",
-                ["Location" : URIWithPlus], "")}
-        def String URIWithPlus = URLEncoder.encode("+messages","UTF-8");
-        def String URIWithPlusAsciiEncode = "/%2Bmessages?ids=+locationOne"
-
-        when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint+URIWithPlus , "GET", ["x-test" : "test"], "", headerResp)
-
-        then: "Repose returns a comma-separated location header"
-        resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(URIWithPlusAsciiEncode)
-    }
 }
