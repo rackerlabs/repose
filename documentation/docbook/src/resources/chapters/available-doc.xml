@@ -24,37 +24,35 @@
                 <emphasis role="bold">Glossary</emphasis>: The &PRODNAME; glossary defines key terms as they are used in the context of &PRODABBREV; documentation. </para>
         </listitem>
         <listitem>
-            <para>
-                <emphasis role="bold">Deployment Handbooks</emphasis>:
-                Deployment handbooks are non-procedural collections of
-                key facts designed to be helpful in preparing to use
-                &PRODNAME; or specific filters of &PRODNAME;.
-                Deployment handbooks are available to assist with: 
-                <itemizedlist>
+            <para><guilabel>Component Reference Guide</guilabel>: The
+                Repose Component Reference Guide is a  non-procedural
+                collection of key facts designed to be helpful in
+                preparing to use &PRODNAME; or specific components of
+                &PRODNAME;. This guide is available to assist with: <itemizedlist>
                     <listitem>
                         <para>&PRODNAME; Deployment </para>
                     </listitem>
                     <listitem>
-                        <para>&PRODNAME; Filter Deployments:</para>
+                        <para>&PRODNAME; Components:</para>
                         <itemizedlist>
+                            <listitem>
+                                <para>HTTP Logging</para>
+                            </listitem>
                             <listitem>
                                 <para>Authentication and
                                    Authorization</para>
                             </listitem>
                             <listitem>
-                                <para>Logging</para>
-                            </listitem>
-                            <listitem>
                                 <para>Rate Limiting</para>
                             </listitem>
                             <listitem>
-                                <para>Translation</para>
-                            </listitem>
-                            <listitem>
-                                <para>Validation</para>
-                            </listitem>
-                            <listitem>
                                 <para>Versioning</para>
+                            </listitem>
+                            <listitem>
+                                <para>API Validation</para>
+                            </listitem>
+                            <listitem>
+                                <para>Translation</para>
                             </listitem>
                         </itemizedlist>
                     </listitem>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xml:id="repose-components-deploy.xml">
+    <?rax pdf.url="../../repose-logging-deploy.pdf"?>
+    <title>&PRODNAME; Component Reference Guide</title>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Component Reference Guide</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <year>2012</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v1.0</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2013-11-12</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for systems administrators interested in configuring
+                their service to use the components of &PRODEXPAND;. </para>
+        </abstract>
+        <revhistory>
+            <revision>
+                <date>2013-11-12</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Initial release.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>About This Document</title>
+            <para>The purpose of this handbook is to facilitate
+            deployment of &PRODNAME; components. This handbook is not
+            a tutorial. It provides basic information that will help
+            you understand and deploy &PRODNAME; components, but you
+            must adapt this information to suit your own
+            configuration. </para>
+            
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the handbook replaces and obsoletes all previous versions.
+                The most recent changes are described in the table below: </para>
+            <?rax revhistory?>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
+   
+    <xi:include href="chapters/repose-logging-chapter.xml"/>
+    <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
+   
+    <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>
+        
+    <xi:include href="chapters/repose-versioning-chapter.xml"/>
+    <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
+    <xi:include href="chapters/repose-translation-chapter.xml"/>
+    <xi:include href="chapters/afterword.xml"/> 
+    
+    
+</book>

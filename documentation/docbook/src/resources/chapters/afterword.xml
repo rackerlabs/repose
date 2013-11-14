@@ -35,7 +35,12 @@
         </para>
         <para>Because the individual authors and editors of this material are sometimes unnamed, the
             bibliography is alphabetized according to the title of the document.</para>
-        <bibliography>
+        <!-- (This section is in the wiki. I have saved the information
+            here in case we decide to add it back to the docs. I have
+            been told that the Bibliography section does not work
+            right and needs repair in the doc books.) -->
+            
+            <bibliography>
             <title>Bibliography</title>
             <biblioentry xml:id="APACHELOG">
                 <author>
@@ -167,7 +172,7 @@
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions 
+                <title>Hypertext Transfer Protocol HTTP/1.1: Status Code Definitions 
                     <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link>
                 </title>
                 <abstract>
@@ -427,6 +432,7 @@
                     </para>
                 </abstract>
             </biblioentry>
+                
             <!-- this link is bad and I don't remember why it is here; commenting it out pending investigation
             <biblioentry xml:id="OSXSD">
                 <author>
