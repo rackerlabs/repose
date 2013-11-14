@@ -60,12 +60,13 @@ class RequestQueryParamTest extends ReposeValveTest {
 
         then:
         messageChain.handlings.size() == 1
-        messageChain.sentRequest.path.endsWith(uriSuffixExpected)
+        messageChain.sentRequest.path.endsWith(uriSuffixGiven)
         messageChain.handlings[0].request.path.endsWith(uriSuffixExpected)
 
         where:
-        uriSuffixGiven                  | uriSuffixExpected               | method
-        "/path/to/resource?key=value@%" | "/path/to/resource?key=value@%" | "GET"
+        uriSuffixGiven                  | uriSuffixExpected                   | method
+        "/path/to/resource?key=value@%" | "/path/to/resource?key=value%40%25" | "GET"
+        "/path/to/resource?key=va%lu@e" | "/path/to/resource?key=va%25lu%40e" | "GET"
     }
 
     def cleanupSpec() {
