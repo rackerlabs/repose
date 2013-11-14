@@ -6,9 +6,9 @@ import framework.TestProperties
 import framework.category.Flaky
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.PortFinder
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition

@@ -1,9 +1,9 @@
 package features.filters.versioning
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -51,7 +51,7 @@ class VersioningTest extends ReposeValveTest {
     @Unroll("request: #reqHeaders")
     def "when retrieving all versions"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest((String) reposeEndpoint, 'GET', reqHeaders)
+        def mc = deproxy.makeRequest(url:(String) reposeEndpoint, method:'GET', headers:reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == "200"
@@ -71,7 +71,7 @@ class VersioningTest extends ReposeValveTest {
     @Unroll("request: #reqHeaders - #requestUri")
     def "when retrieving version details"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest((String) reposeEndpoint + requestUri, 'GET', reqHeaders)
+        def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == respCode
@@ -105,7 +105,7 @@ class VersioningTest extends ReposeValveTest {
     @Unroll("request: #reqHeaders - #requestUri")
     def "when retrieving version details with variant uri"() {
         when: "User sends requests through repose"
-        def mc = deproxy.makeRequest((String) reposeEndpoint + requestUri, 'GET', reqHeaders)
+        def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
 
         then: "Response body should contain"
         mc.receivedResponse.code == "200"

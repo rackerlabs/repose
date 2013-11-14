@@ -1,7 +1,7 @@
 package features.core.security
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 /**
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.

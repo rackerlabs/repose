@@ -4,8 +4,8 @@ import features.filters.clientauthn.RackspaceIdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class RackspaceAuthTest extends ReposeValveTest {
@@ -41,7 +41,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         fakeIdentityService.isAbleToGetGroups = true
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -57,7 +57,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy " + user
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -85,7 +85,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         fakeIdentityService.isAbleToGetGroups = true
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -93,7 +93,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -120,7 +120,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         fakeIdentityService.isAbleToGetGroups = false
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"
@@ -128,7 +128,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/v1/" + user, 'GET', ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "401"

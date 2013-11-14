@@ -3,11 +3,11 @@ package features.filters.ipidentity
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.PortFinder
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
+import org.rackspace.deproxy.Response
 import spock.lang.Shared
 
 @Category(Slow.class)

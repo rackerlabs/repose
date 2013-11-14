@@ -4,8 +4,8 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /**
  *  Connection framework tests ported over from python

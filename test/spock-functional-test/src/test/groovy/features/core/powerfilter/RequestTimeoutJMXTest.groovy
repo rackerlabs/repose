@@ -3,8 +3,8 @@ package features.core.powerfilter
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Response
 
 @Category(Slow.class)
 class RequestTimeoutJMXTest extends ReposeValveTest {
@@ -68,8 +68,8 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
         when:
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
         deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handlerTimeout])
-        deproxy.makeRequest(reposeEndpoint + "/endpoint")
-        deproxy.makeRequest(reposeEndpoint + "/endpoint")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint")
 
         then:
         repose.jmx.getMBeanAttribute(ALL_TIMEOUT_TO_ORIGIN, "Count") == (target + 2)

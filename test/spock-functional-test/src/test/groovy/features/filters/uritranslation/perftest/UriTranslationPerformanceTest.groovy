@@ -4,9 +4,9 @@ import framework.ReposeValveTest
 import framework.category.Benchmark
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 @Category(Benchmark.class)
 class UriTranslationPerformanceTest extends ReposeValveTest {

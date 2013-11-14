@@ -2,7 +2,7 @@ package features.filters.clientauthn
 
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Response
 
 /**
  * Simulates responses from an Identity Atom Feed

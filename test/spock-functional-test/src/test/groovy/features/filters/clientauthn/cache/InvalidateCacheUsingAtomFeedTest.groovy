@@ -2,8 +2,8 @@ package features.filters.clientauthn.cache
 import features.filters.clientauthn.AtomFeedResponseSimulator
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -118,7 +118,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -133,7 +133,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         when:"I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.validateTokenCount = 0
-        mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'

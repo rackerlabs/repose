@@ -1,8 +1,8 @@
 package features.services.httpconnectionpool
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 
 class HttpClientServiceTest extends ReposeValveTest {

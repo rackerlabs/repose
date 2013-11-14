@@ -1,7 +1,7 @@
 package features.services.datastore
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 class DistDataShutdownTest extends ReposeValveTest {
 

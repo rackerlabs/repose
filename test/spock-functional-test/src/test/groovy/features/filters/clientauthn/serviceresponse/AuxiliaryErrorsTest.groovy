@@ -2,8 +2,8 @@ package features.filters.clientauthn.serviceresponse
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
@@ -49,7 +49,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': fakeIdentityService.client_token+tokenId])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token+tokenId])
 
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode

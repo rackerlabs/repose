@@ -1,10 +1,10 @@
 package features.filters.uriNormalization
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 /**
@@ -31,7 +31,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + path, method:method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1
@@ -64,7 +64,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + path, method:method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1
@@ -89,7 +89,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + path, method:method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1
@@ -120,7 +120,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1
@@ -146,7 +146,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method:method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1
@@ -171,7 +171,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + path, method)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method:method)
 
         then: "Request is forwarded to origin service"
         mc.handlings.size() == 1

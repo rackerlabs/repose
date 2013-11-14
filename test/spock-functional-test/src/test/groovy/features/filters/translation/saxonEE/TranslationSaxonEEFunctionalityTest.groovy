@@ -3,10 +3,10 @@ package features.filters.translation.saxonEE
 import framework.ReposeValveTest
 import framework.category.SaxonEE
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 @Category(SaxonEE.class)
 class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
@@ -61,7 +61,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders, requestBody:reqBody, defaultHandler:xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request headers sent from repose to the origin service should contain"
@@ -84,7 +84,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", reqHeaders, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers:reqHeaders, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response body should contain"
         for (String st : shouldContain) {
