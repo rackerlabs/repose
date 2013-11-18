@@ -2,12 +2,12 @@
 -- Evaluate any of the other utils to see if they can also be replaced
 
 
-- project-set/commons/utilities
+- repose-aggregator/commons/utilities
 -- Make spring dependencies optional.  The user of utilities will need to explicitly
    call out the spring dependencies.
 -- Break the dependency on httpclient-connection-pool
 
-- project-set/commons/classloader
+- repose-aggregator/commons/classloader
 -- Break the dependency on external
 
 

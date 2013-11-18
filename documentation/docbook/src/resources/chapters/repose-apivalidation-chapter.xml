@@ -29,8 +29,7 @@
         </imageobject>
         </inlinemediaobject>'>
 ]>
-<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
-<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -38,91 +37,11 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-Ratelimiting-Deployment-Guide">
-    <?rax pdf.url="../../repose-ratelimiting-deploy.pdf"?>
-    <title>&PRODNAME; API Validation Component Deployment Handbook</title>
-    <!-- set watermark on cover and left margin -->
-    <?rax status.bar.text.font.size="40px" status.bar.text="DRAFT"?>
-    <!-- size line1 & line2 of title on PDF cover -->
-    <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; Validation Deployment</titleabbrev>
-    <info>
-        <author>
-            <personname>
-                <firstname/>
-                <surname/>
-            </personname>
-            <affiliation>
-                <orgname>Rackspace Cloud</orgname>
-            </affiliation>
-        </author>
-        <copyright>
-            <year>2010</year>
-            <year>2011</year>
-            <year>2012</year>
-            <year>2013</year>
-            <holder>Rackspace US, Inc.</holder>
-        </copyright>
-        <releaseinfo>v2.4.1</releaseinfo>
-        <productname>&PRODNAME;</productname>
-        <pubdate>2013-03-04</pubdate>
-        <legalnotice role="apache2">
-            <annotation>
-                <remark>Copyright details are filled in by the template.</remark>
-            </annotation>
-        </legalnotice>
-        <abstract>
-            <para>This document is intended for systems administrators
-                interested in configuring their service to use the
-                API Validation component of the &PRODEXPAND;. </para>
-        </abstract>
-        <revhistory>
-            <revision>
-                <date>2013-03-04</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Added details in 
-                                <xref linkend="Configuration-d1e365"></xref>
-                                and <xref linkend="Deployment-d1e105"></xref>.
-                            </para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-12-12</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Initial release as internal
-                                draft.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-        </revhistory>
-    </info>
-    <chapter xml:id="Overview-d1e85">
-        <title>About This Document</title>
-            <para> 
-                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s API Validation component. This handbook is not a tutorial. It provides basic information
-                that will help you understand and deploy this &PRODNAME; component, but you must
-                adapt this information to suit your own configuration. 
-            </para>  
-            <para>
-                This handbook is focused on one &PRODNAME; component.
-                Other &PRODNAME; components are documented in companion handbooks.
-            </para>
-        <section xml:id="Document_Change_History-d1e102">
-            <title>Document Change History</title>
-            <para>This version of the handbook replaces and obsoletes all previous versions.
-            The most recent changes are described in the table below: </para>
-            <?rax revhistory?>
-        </section>
-        <xi:include href="chapters/available-doc.xml"/>
-    </chapter>
-    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
-    <chapter xml:id="Introduction-000">
+    
+    <title>API Validation Filter</title>
+
+    
+    <section xml:id="Introduction-100">
         <title>Introduction to the API Validation Component of
             &PRODNAME;</title>
         <para> API validation examines an API request and confirms
@@ -135,7 +54,7 @@
                 xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html"
                 >Repose Deployment Handbook</link> and by examining a
                 <link
-                xlink:href="https://github.com/rackspace/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml"
+                xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml"
                 >basic system model configuration</link> in GitHub. </para>
         <para> 
             To understand the &PRODNAME; API validation filter,
@@ -245,11 +164,11 @@
                     validation configuration, edit
                     <code>validator.cfg.xml</code>. You can see an
                     annotated example of <code>validator.cfg.xml</code> in
-                    <xref linkend="Configuration-d1e365"/>. 
+                    <xref linkend="Configuration-d1e3657"/>. 
                 </para>
         </tip>
-    </chapter>
-    <chapter xml:id="Configuration-d1e365">
+    </section>
+    <section xml:id="Configuration-d1e3657">
         <title>Configuration</title>
         <tip>
             <para> Before attempting to customize your validation
@@ -375,7 +294,7 @@
                         units="linecolumn" coords="39 9"/>
                 </areaspec>
                 <programlisting language="xml">
-<xi:include href="samples/repose-apivalidation-validator.cfg.xml" parse="text"/>
+<xi:include href="../samples/repose-apivalidation-validator.cfg.xml" parse="text"/>
             </programlisting>
             </programlistingco>
         </example>
@@ -646,7 +565,7 @@
                 <example>
                     <title>Response Messaging Configuration</title>
 <programlisting language="xml">
-<xi:include href="samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
+<xi:include href="../samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
 </programlisting>
                 </example>    
                 <para>
@@ -656,8 +575,8 @@
                     and a JSON response is formatted as JSON (<code><![CDATA[{"error-message": "%M"}]]></code>).
                 </para>
         </section>
-    </chapter>
-    <chapter xml:id="Deployment-d1e105">
+    </section>
+    <section xml:id="Deployment-d1e105">
         <title>Deployment</title>
         <para> 
             The validation filter is packaged in the extensions filter bundle: <code>extensions-filter-bundle-&lt;version&gt;.ear</code>.  
@@ -676,8 +595,8 @@
             The ideal value depends upon your configuration; 
             <code>export JAVA_OPTS="$JAVA_OPTS -XX:MaxPermSize=256m"</code> may be sufficient 
         </para>
-    </chapter>
-    <chapter xml:id="Optimization-d1e107">
+    </section>
+    <section xml:id="Optimization-d1e107">
         <title>Optimization</title>
         <para>
             You can make choices in your validation configuration to optimize performance. 
@@ -708,6 +627,6 @@
                 Talk about how to use all the .dot drawings to improve the WADL and the API it describes.
             </para>
         </section>
-    </chapter>
-    <xi:include href="chapters/afterword.xml"/>
-</book>
+    </section>
+</chapter>
+    

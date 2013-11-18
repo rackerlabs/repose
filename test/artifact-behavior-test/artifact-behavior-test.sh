@@ -28,9 +28,9 @@ echo Deployment directory: $BASE_DIR
 echo Artifact directory: $ART_DIR
 
 
-FILTER_A_BUNDLE="`pwd`/../../project-set/external/testing/dummy-filters/dummy-filter-a/dummy-filter-bundle-a/target/"
-FILTER_B_BUNDLE="`pwd`/../../project-set/external/testing/dummy-filters/dummy-filter-b/dummy-filter-bundle-b/target/"
-FILTER_C_BUNDLE="`pwd`/../../project-set/external/testing/dummy-filters/dummy-filter-c/dummy-filter-bundle-a/target/"
+FILTER_A_BUNDLE="`pwd`/../../repose-aggregator/external/testing/dummy-filters/dummy-filter-a/dummy-filter-bundle-a/target/"
+FILTER_B_BUNDLE="`pwd`/../../repose-aggregator/external/testing/dummy-filters/dummy-filter-b/dummy-filter-bundle-b/target/"
+FILTER_C_BUNDLE="`pwd`/../../repose-aggregator/external/testing/dummy-filters/dummy-filter-c/dummy-filter-bundle-a/target/"
 DROP_CONFIGS="`pwd`/system-models/"
 
 echo "Filter Bundle A: $FILTER_A_BUNDLE"

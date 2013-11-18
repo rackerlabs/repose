@@ -21,13 +21,13 @@ else
     fi
   done
 
-  for f in $DIR/project-set/components/filter-bundle/target/filter-bundle*.ear $DIR/project-set/extensions/extensions-filter-bundle/target/extensions-filter-bundle*.ear
+  for f in $DIR/repose-aggregator/components/filter-bundle/target/filter-bundle*.ear $DIR/repose-aggregator/extensions/extensions-filter-bundle/target/extensions-filter-bundle*.ear
   do
     echo ln -s $f "$1/usr/share/repose/filters/"
     ln -s $f "$1/usr/share/repose/filters/"
   done
 
-  for f in $DIR/project-set/core/valve/target/repose-valve.jar 
+  for f in $DIR/repose-aggregator/core/valve/target/repose-valve.jar
   do
     echo ln -s $f "$1/usr/share/repose/"
     ln -s $f "$1/usr/share/repose/"
