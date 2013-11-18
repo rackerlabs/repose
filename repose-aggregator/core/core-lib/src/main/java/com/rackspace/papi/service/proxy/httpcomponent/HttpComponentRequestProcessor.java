@@ -8,6 +8,8 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -22,6 +24,8 @@ import java.util.Enumeration;
  * request body as necessary.
  */
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HttpComponentRequestProcessor.class);
 
     private static final String ENCODING = "UTF-8";
     private final HttpServletRequest sourceRequest;
@@ -50,8 +54,12 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
             for (String value : values) {
                 try {
                     builder.addParameter(name, URLDecoder.decode(value, ENCODING));
+                } catch (IllegalArgumentException iae) {
+                    LOG.warn("URL parameter could not be decoded, passing it as-is.", iae);
+                    builder.addParameter(name, value);
                 } catch (UnsupportedEncodingException ex) {
-                    throw new URISyntaxException(value, "Invalid value for query parameter: " + name);
+                    LOG.warn("URL parameter could not be decoded, passing it as-is.", ex);
+                    builder.addParameter(name, value);
                 }
             }
         }
