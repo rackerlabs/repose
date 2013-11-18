@@ -5,12 +5,15 @@
    xmlns="http://wadl.dev.java.net/2009/02"
    xmlns:test="http://test.openrespose/test/v1.1" >
 
-    <grammars>
-    </grammars>
     <resources base="http://localhost:${target_port}/">
-        <resource path="/messages/+nodes">
-            <method name="GET" id="getContainer">
-            </method>
-        </resource>
-    </resources>
+    <resource path="/messages/+add-nodes">
+
+      <method name="GET">
+       <doc title="Add nodes to a deployment">
+        WRITEME
+     </doc>
+      </method>
+     </resource>
+  </resources>
 </application>
+
