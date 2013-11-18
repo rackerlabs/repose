@@ -499,7 +499,7 @@ class CaptureGroupsTest extends Specification {
         def mc
         String url1 = "http://localhost:${reposePort}/servers/%6a%6b%6c/instances/123"  //  /servers/jkl/instances/123
         String url2 = "http://localhost:${reposePort}/servers/%6A%6B%6C/instances/123"
-        def headers = ['X-PP-User': 'user9', 'X-PP-Groups': 'group']
+        def headers = ['X-PP-User': 'user10', 'X-PP-Groups': 'group']
 
 
         when: "we make one request to the first url"
