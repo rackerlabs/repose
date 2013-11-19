@@ -44,7 +44,7 @@ class AuthenticationHandlerTest extends Specification {
     class TestableAuthenticationHandler extends AuthenticationHandler {
 
         TestableAuthenticationHandler(Configurables configurables) {
-            super(configurables, null, null, null, null, null)
+            super(configurables, null, null, null, null, null, null)
         }
 
         Integer safeEndpointsTtl() {
