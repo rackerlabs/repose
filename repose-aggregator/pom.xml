@@ -38,6 +38,7 @@
         <module>services/rate-limiting-service</module>
         <module>installation</module>
         <module>management</module>
+        <module>functional-tests</module>
     </modules>
 
     <dependencyManagement>
