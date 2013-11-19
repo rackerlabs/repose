@@ -40,14 +40,14 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
         if (poolMap.isEmpty()) {
             defaultClientId = "DEFAULT_POOL";
-            HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
+            HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
 
         }
 
         if (clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
 
-            HttpClient httpClient = HttpConnectionPoolProvider.genClient(DEFAULT_POOL);
+            HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(clientId, httpClient);
         }
 
@@ -71,7 +71,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             if (poolType.isDefault()) {
                 defaultClientId = poolType.getId();
             }
-            newPoolMap.put(poolType.getId(), HttpConnectionPoolProvider.genClient(poolType));
+            newPoolMap.put(poolType.getId(), clientGenerator(poolType));
         }
 
         if (!poolMap.isEmpty()) {
@@ -109,5 +109,10 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
         }
+    }
+
+    private HttpClient clientGenerator(PoolType poolType) {
+        final HttpClient httpClient = HttpConnectionPoolProvider.genClient(poolType);
+        return httpClient;
     }
 }

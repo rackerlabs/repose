@@ -17,6 +17,7 @@ public class ClientDecommissioner implements Runnable {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissioner.class);
 
     private static final long DEFAULT_INTERVAL = 5000;
+    public static final String UNIQUE_ID = "UNIQUE_ID";
     List<HttpClient> clientList;
     private boolean done;
     private Object listLock;
@@ -28,7 +29,6 @@ public class ClientDecommissioner implements Runnable {
         done = false;
     }
 
-
     public void addClientToBeDecommissioned(HttpClient client) {
 
         synchronized (listLock) {
@@ -38,9 +38,9 @@ public class ClientDecommissioner implements Runnable {
             connMan.setDefaultMaxPerRoute(1);
             clientList.add(client);
         }
-
     }
 
+    /*TODO: yagni*/
     public void addClientsToBeDecommissioned(List<HttpClient> clients) {
         for (HttpClient client : clients) {
             addClientToBeDecommissioned(client);
@@ -73,6 +73,7 @@ public class ClientDecommissioner implements Runnable {
                 }
                 for(HttpClient client: clientsToRemove) {
                     clientList.remove(client);
+                    LOG.info("HTTP connection pool {} has been destroyed.", client.getParams().getParameter(UNIQUE_ID));
                 }
             }
 
@@ -86,6 +87,5 @@ public class ClientDecommissioner implements Runnable {
 
         LOG.error("Shutting down decommissioner");
         Thread.currentThread().interrupt();
-
     }
 }
