@@ -598,9 +598,11 @@
                     element must specify a regular expression that
                     identifies client requests for the client's
                     current limits. </para>
-                <para>This element is not <emphasis>required</emphasis>, but it is highly
-                    recommended. 
-                    .</para>
+                <para>This element is highly
+                        <emphasis>recommended</emphasis>, but it is
+                    not required. If the <code>request-endpoint</code>
+                    element is not in the configuration, the user
+                    cannot query limits.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.uri-regex">
@@ -650,7 +652,7 @@
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.default">
-                <para> A single <code>limit-group</code> may be
+                <para>A single <code>limit-group</code> may be
                     identified as the <code>default</code> group. The
                         <code>default</code> group will handle any
                     requests that cannot be matched on the basis of a
@@ -663,12 +665,13 @@
                 <para> </para>
             </callout>
             
-            <!--   NEED TO FILL IN THIS DESCRIPTION FOR CALLOUT #8 
+             
             <callout arearefs="cfg.xml.limit">
-                <para>  </para>
+                <para>The uri attribute defines a human-readable
+                descriptive name for this limit.</para>
                
             </callout>
-            -->
+            
                 
         </calloutlist>
     </section>
@@ -692,7 +695,7 @@
                 Consequently, to query limits, a user must be passed
                 into the rate limiting component. The rate limiting
                 component uses the <code>X-PP-User</code> header to
-                identify user whose limits will be queried. Without a
+                identify the user whose limits will be queried. Without a
                 value in this header, the rate limiting component will
                 send back a "401 Unauthorized". </para>
             <para> The rate limiting component uses the
@@ -922,9 +925,13 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_St
                 user has within a timetable defined by the rate
                 limiting configuration. </para>
             <para>Repose shares limits across nodes using the
-                Distributed Datastore filter. For more information
-                about setting up the Distributed Datastore filter for
-                use with the Rate Limiting filter, see here.</para>
+                Distributed Datastore filter. Look here for more
+                information about setting up the Distributed Datastore
+                filter for use with the Rate Limiting filter.</para>
+            
+            <!--<link
+                    linkend="distributed_datastore_NEED ID">Distributed
+                    Datastore</link> -->
         </section>
     </section>
     <section xml:id="Limited-d1e731">
@@ -975,7 +982,7 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
         <title> Rate Limiting Use Cases</title>
         <para> In order to rate limit by certain mechanisms you need
             to configure the proper identity filter <emphasis role="italic">before</emphasis> the rate limiting
-            filter in your system model. Below shows which the
+            filter in your system model. The examples below show the
             necessary order of the filters.  </para>
         <db:para>
          <emphasis role="bold">Rate Limit by
