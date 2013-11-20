@@ -6,14 +6,73 @@
    xmlns:test="http://test.openrespose/test/v1.1" >
 
     <resources base="http://localhost:${target_port}/">
-    <resource path="/messages/+add-nodes">
+        <resource path="/messages/+add-nodes">
 
-      <method name="GET">
-       <doc title="Add nodes to a deployment">
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
         WRITEME
-     </doc>
-      </method>
-     </resource>
-  </resources>
+        </doc>
+        </method>
+        </resource>
+
+        <resource path="/messages">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+        <resource path="//messages">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+        <resource path="/;messages">
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+        <resource path="/@messages">
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+
+        <resource path="/=messages">
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+        <resource path="/,messages">
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+
+
+    </resources>
 </application>
 
