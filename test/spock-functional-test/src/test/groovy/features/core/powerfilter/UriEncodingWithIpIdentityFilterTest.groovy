@@ -4,27 +4,18 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-class URIEncodingWithIpIdentityFilterTest extends ReposeValveTest {
+class UriEncodingWithIpIdentityFilterTest extends ReposeValveTest {
 
 
     def setupSpec() {
 
-        repose.applyConfigs("features/core/powerfilter/URIEncode/withIpIdentity")
-        repose.start()
-        repose.waitForNon500FromUrl(reposeEndpoint)
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-
+        repose.applyConfigs("features/core/powerfilter/URIEncode/withIpIdentity")
+        repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
-
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
 
     @Unroll("URI's with special character through Identity filters except API Validator sent = #URISent")
     def "URI's with special character through Identity filter"() {
@@ -66,5 +57,14 @@ class URIEncodingWithIpIdentityFilterTest extends ReposeValveTest {
 
     }
 
+    def cleanupSpec() {
 
+        if (repose) {
+            repose.stop()
+        }
+
+        if (deproxy) {
+            deproxy.shutdown()
+        }
+    }
 }

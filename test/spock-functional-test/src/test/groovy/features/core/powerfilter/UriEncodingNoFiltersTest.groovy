@@ -4,28 +4,17 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-class URIEncodingNoFiltersTest extends ReposeValveTest {
-
+class UriEncodingNoFiltersTest extends ReposeValveTest {
 
     def setupSpec() {
-
-        repose.applyConfigs("features/core/powerfilter/URIEncode/noFilters")
-        repose.start()
-        repose.waitForNon500FromUrl(reposeEndpoint)
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-
+        repose.applyConfigs("features/core/powerfilter/URIEncode/noFilters")
+        repose.start()
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
-
-    def cleanupSpec() {
-        deproxy.shutdown()
-
-        repose.stop()
-    }
-
-
 
     @Unroll("URI's with reserved character through no filter sent = #URISent")
     def "URI's with reserved character(+) through no filter(only destination filter)"() {
@@ -164,6 +153,17 @@ class URIEncodingNoFiltersTest extends ReposeValveTest {
         URISent                 | _
         "/resource?name=val ue" | _
         "/resource?na me=value" | _
+    }
+
+    def cleanupSpec() {
+
+        if (repose) {
+            repose.stop()
+        }
+
+        if (deproxy) {
+            deproxy.shutdown()
+        }
     }
 
 
