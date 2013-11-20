@@ -10,9 +10,9 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.DefaultHttpClient
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 import framework.category.Bug
 import org.junit.experimental.categories.Category;
 
@@ -82,7 +82,7 @@ class ContentTranslationBurstTest extends ReposeValveTest {
 
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-'+threadNum+'-request-'+i)
-                    def resp = deproxy.makeRequest((String) reposeEndpoint, "PUT", acceptXML+header1+header2)
+                    def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"PUT", headers: acceptXML+header1+header2)
                     if ( resp.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingHeader = true
                         badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)

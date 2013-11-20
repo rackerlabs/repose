@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>2.12.1-SNAPSHOT</version>
+        <version>2.13.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>repose-spock-tests</artifactId>
-    <version>2.12.1-SNAPSHOT</version>
+    <version>2.13.1-SNAPSHOT</version>
 
     <name>Repose Tests - Spock Functional Tests</name>
 
@@ -24,7 +24,7 @@
 
         <repose.container>valve</repose.container>
 
-        <project.set.dir>${project.basedir}/../../project-set</project.set.dir>
+        <project.set.dir>${project.basedir}/../../repose-aggregator</project.set.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
@@ -122,9 +122,15 @@
 
         <dependency>
             <groupId>org.rackspace</groupId>
-            <artifactId>gdeproxy</artifactId>
-            <version>0.16</version>
+            <artifactId>deproxy</artifactId>
+            <version>0.17</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.rackspace</groupId>
+                    <artifactId>gdeproxy</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

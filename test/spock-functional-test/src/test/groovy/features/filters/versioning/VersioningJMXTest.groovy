@@ -5,8 +5,8 @@ import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.PortFinder
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**

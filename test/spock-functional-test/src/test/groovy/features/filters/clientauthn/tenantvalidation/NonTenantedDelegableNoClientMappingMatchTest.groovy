@@ -3,8 +3,8 @@ package features.filters.clientauthn.tenantvalidation
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
@@ -51,7 +51,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -59,7 +59,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -87,7 +87,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -102,7 +102,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(reposeEndpoint + "/servers/" + reqTenant + "/", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"

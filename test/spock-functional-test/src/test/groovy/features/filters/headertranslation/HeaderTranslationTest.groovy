@@ -1,12 +1,12 @@
 package features.filters.headertranslation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.HeaderCollection
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.HeaderCollection
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class HeaderTranslationTest extends ReposeValveTest {
@@ -28,7 +28,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers one-to-one without removal"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -48,7 +48,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-one with removal"() {
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -67,7 +67,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     @Unroll("Request Verb: #method Headers: #reqHeaders")
     def "when translating request headers one-to-many without removal"() {
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -90,7 +90,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers one-to-many with removal"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -128,7 +128,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers one-to-none"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -146,7 +146,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers many-to-many"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -173,7 +173,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers many-to-one"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -192,7 +192,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers translating to existing header"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -212,7 +212,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating request headers with mixed case"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method: method, headers:reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"
@@ -239,7 +239,7 @@ class HeaderTranslationTest extends ReposeValveTest {
     def "when translating CSL request headers"() {
 
         when: "client passes a request through repose with headers to be translated"
-        def respFromOrigin = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders)
+        def respFromOrigin = deproxy.makeRequest(url:(String) reposeEndpoint, method: method, headers: reqHeaders)
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "origin receives translated headers"

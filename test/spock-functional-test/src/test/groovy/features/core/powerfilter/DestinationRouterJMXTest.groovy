@@ -3,7 +3,7 @@ package features.core.powerfilter
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 @Category(Slow.class)
 class DestinationRouterJMXTest extends ReposeValveTest{

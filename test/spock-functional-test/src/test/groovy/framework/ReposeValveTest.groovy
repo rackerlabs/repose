@@ -2,12 +2,12 @@ package framework
 
 import org.apache.commons.io.FileUtils
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.MessageChain
 
 abstract class ReposeValveTest extends Specification {
 

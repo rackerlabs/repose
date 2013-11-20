@@ -2,8 +2,8 @@ package features.filters.clientauthz.serviceresponse
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 class ServiceListFeatureTest extends ReposeValveTest {
 
@@ -36,8 +36,8 @@ class ServiceListFeatureTest extends ReposeValveTest {
 
     def "user requests a URL that is in the user's service list"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET',
-                ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", method:'GET',
+                headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
@@ -47,7 +47,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
 
     def "D-14988: client auth config should work without service-role element"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", 'GET', ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+fakeIdentityService.client_tenant+"/ss", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "No NullPointerException is logged"
         List<String> logs = reposeLogSearch.searchByString("NullPointerException")
@@ -66,7 +66,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
         fakeIdentityService.origin_service_port = 99999
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/v1/"+token+"/ss", 'GET', ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in openstack-authorization.cfg.xml")
 

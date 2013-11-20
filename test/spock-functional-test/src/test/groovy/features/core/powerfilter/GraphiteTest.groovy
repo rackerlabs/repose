@@ -4,8 +4,8 @@ import framework.ReposeValveTest
 import org.json.JSONArray
 import org.json.JSONTokener
 import org.json.JSONObject
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,9 +38,9 @@ class GraphiteTest extends ReposeValveTest {
         def responses = []
 
         when:
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(reposeEndpoint + "/cluster"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
+        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
 
         then:
         boolean isFound = false

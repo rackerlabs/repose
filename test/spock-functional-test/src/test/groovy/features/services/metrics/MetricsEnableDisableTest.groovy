@@ -1,7 +1,7 @@
 package features.services.metrics
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
@@ -40,7 +40,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.start()
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
@@ -56,7 +56,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.start()
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == null
@@ -72,7 +72,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.start()
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
@@ -85,7 +85,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.start()
 
         when:
-        deproxy.makeRequest(reposeEndpoint + "/endpoint/1")
+        deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1

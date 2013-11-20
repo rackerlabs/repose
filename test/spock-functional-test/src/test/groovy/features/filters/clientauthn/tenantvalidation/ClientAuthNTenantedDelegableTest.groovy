@@ -2,8 +2,8 @@ package features.filters.clientauthn.tenantvalidation
 import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
 import org.joda.time.DateTime
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
@@ -49,8 +49,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET',
-                ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/$reqTenant", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
@@ -83,7 +83,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(reposeEndpoint + "/servers/$reqTenant", 'GET', ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/$reqTenant", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == "200"

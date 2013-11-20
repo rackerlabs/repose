@@ -1,7 +1,7 @@
 package features.filters.apivalidator
 import framework.ReposeValveTest
 import framework.category.Slow
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
 
 @Category(Slow.class)
@@ -41,7 +41,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         String ConfigurationBeanDomain = 'repose-node-com.rackspace.papi.jmx:*'
         String ConfigurationClassName = "com.rackspace.papi.jmx.ConfigurationInformation"
 
-        deproxy.makeRequest(reposeEndpoint + "/")
+        deproxy.makeRequest(url:reposeEndpoint + "/")
 
         when:
         def validatorBeans = repose.jmx.getMBeans(ConfigurationBeanDomain, ConfigurationClassName, 1)
@@ -53,7 +53,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register validator MXBeans"() {
 
-        deproxy.makeRequest(reposeEndpoint + "/")
+        deproxy.makeRequest(url:reposeEndpoint + "/")
 
         when:
         def validatorBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
@@ -64,7 +64,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when reconfiguring validators from 3 to 2, should drop 3 MXBeans and register 2"() {
 
-        deproxy.makeRequest(reposeEndpoint + "/")
+        deproxy.makeRequest(url:reposeEndpoint + "/")
 
         given:
         def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)

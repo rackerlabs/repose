@@ -1,10 +1,10 @@
 package features.filters.translation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 class TranslationHeadersQueriesTest extends ReposeValveTest {
 
@@ -69,8 +69,11 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
         when: "User passes a request through repose"
         def resp =
             deproxy.makeRequest(
-                    (String) reposeEndpoint + "/path/to/resource/", "POST",
-                    acceptXML + contentJSON , jsonPayload, xmlResp)
+                    url:(String) reposeEndpoint + "/path/to/resource/",
+                    method:"POST",
+                    headers:acceptXML + contentJSON ,
+                    requestBody:jsonPayload,
+                    defaultHandler:xmlResp)
         def handling = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request url sent from repose to the origin service should contain"

@@ -1,8 +1,8 @@
 package features.filters.translation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class TranslateResponseDoctypefalseTest extends ReposeValveTest {
@@ -54,7 +54,7 @@ class TranslateResponseDoctypefalseTest extends ReposeValveTest {
 
 
         when: "User sends requests through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint + "/translation/responsedocfalse/123", "POST", acceptXML, "something", xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint + "/translation/responsedocfalse/123", method:"POST", headers:acceptXML, requestBody:"something", defaultHandler:xmlResp)
 
         then: "Response code should be"
         resp.receivedResponse.code == "500"

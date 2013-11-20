@@ -1,8 +1,8 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 
@@ -31,7 +31,7 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         when:
         for (int i = 0; i < totalRequests; i++) {
             def path= UUID.randomUUID().toString();
-            deproxy.makeRequest(reposeEndpoint+ "/" + path, 'GET', ['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"])
+            deproxy.makeRequest(url:reposeEndpoint+ "/" + path, method:'GET', headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"])
         }
 
         then:

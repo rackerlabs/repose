@@ -3,11 +3,11 @@ package features.filters.ratelimiting
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.PortFinder
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
-class NoCaptureGroupsTest  extends Specification {
+class NoCaptureGroupsTest extends Specification {
 
     static Deproxy deproxy
     static int endpointPort

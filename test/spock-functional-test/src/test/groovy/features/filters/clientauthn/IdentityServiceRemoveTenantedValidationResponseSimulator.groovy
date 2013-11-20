@@ -4,8 +4,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -180,7 +180,6 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
         def body = templateEngine.createTemplate(template).make(params)
 
-        println body
         return new Response(code, null, headers, body)
     }
 

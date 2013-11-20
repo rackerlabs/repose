@@ -2,9 +2,9 @@ package features.core.proxy
 
 import framework.ReposeValveTest
 import framework.category.Bug
-import org.rackspace.gdeproxy.Deproxy
+import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.MessageChain
 
 /**
  * User: dimi5963

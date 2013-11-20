@@ -2,10 +2,10 @@ package features.core.powerfilter
 
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-import org.rackspace.gdeproxy.Header
+import org.rackspace.deproxy.Header
 
 /**
  * Setup: the configuration for this test has a container.cfg.xml with a content-body-read-limit="32000"

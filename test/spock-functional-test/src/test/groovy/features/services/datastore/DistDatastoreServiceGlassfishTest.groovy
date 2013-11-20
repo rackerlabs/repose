@@ -2,10 +2,10 @@ package features.services.datastore
 import framework.*
 import framework.category.Flaky
 import org.linkedin.util.clock.SystemClock
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.PortFinder
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
+import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
 import org.junit.experimental.categories.Category

@@ -7,8 +7,8 @@ import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.joda.time.Period
 import org.junit.experimental.categories.Category
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.MessageChain
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Ignore
 
 @Category(Slow.class)
@@ -67,7 +67,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
                 for (i in 1..initialCallsPerUser) {
                     def threadName = "User_" + x + "_Call_" + i
-                    MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': token, 'TEST_THREAD': threadName])
+                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token, 'TEST_THREAD': threadName])
                     messageChainList.put("InitialBurst-" + x + "-" + i, mc)
 
                     if (threadNumber == uniqueUsers && i == 1) {
@@ -96,7 +96,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
             def thread = Thread.start {
                 while (DateTime.now().isBefore(minimumTokenExpiration)) {
-                    MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': token])
+                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
                     roundTwo.put("RoundTwo-" + x + "-" , mc)
                 }
             }
@@ -119,7 +119,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
             def thread = Thread.start {
             while (DateTime.now().isBefore(maxTokenExpiration)) {
-                    MessageChain mc = deproxy.makeRequest(reposeEndpoint, 'GET', ['X-Auth-Token': token])
+                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
                     roundTwo.put("RoundThree-" + x + "-" , mc)
             }
             }

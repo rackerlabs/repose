@@ -4,10 +4,10 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.DeproxyEndpoint
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.PortFinder
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.DeproxyEndpoint
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**

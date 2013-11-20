@@ -5,9 +5,9 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Request
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 
 @org.junit.experimental.categories.Category(Bug.class)
 class ReliabilityTest extends ReposeValveTest {

@@ -1,10 +1,10 @@
 package features.filters.translation
 
 import framework.ReposeValveTest
-import org.rackspace.gdeproxy.Deproxy
-import org.rackspace.gdeproxy.Handling
-import org.rackspace.gdeproxy.MessageChain
-import org.rackspace.gdeproxy.Response
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Handling
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Ignore
 import spock.lang.Unroll
 
@@ -65,7 +65,7 @@ class TranslationRequestTest extends ReposeValveTest {
 
 
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, method, reqHeaders, reqBody, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:method, headers:reqHeaders, requestBody:reqBody, defaultHandler: xmlResp)
         def sentRequest = ((MessageChain) resp).handlings[0]
 
         then: "Request body sent from repose to the origin service should contain"
@@ -116,7 +116,7 @@ class TranslationRequestTest extends ReposeValveTest {
 
 
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", "POST", contentRss + acceptXML + testHeaders, rssPayload, xmlResp)
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", method:"POST", headers:contentRss + acceptXML + testHeaders, requestBody:rssPayload, defaultHandler:xmlResp)
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body sent from repose to the origin service should contain"
@@ -136,7 +136,7 @@ class TranslationRequestTest extends ReposeValveTest {
     def "when attempting to translate an invalid xml/json request"() {
 
         when: "User passes invalid json/xml through repose"
-        def resp = deproxy.makeRequest((String) reposeEndpoint, "POST", reqHeaders, reqBody, "")
+        def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"POST", headers:reqHeaders, requestBody:reqBody, defaultHandler:"")
 
         then: "Repose will send back 400s as the requests are invalid"
         resp.receivedResponse.code.equals(respCode)
