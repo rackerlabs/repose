@@ -62,6 +62,8 @@ class URIEncodingWithFiltersTest extends ReposeValveTest {
         "/@messages?ids=locations"  | "/@messages?ids=locations"
         "/=messages?ids=locations"  | "/=messages?ids=locations"
         "/,messages?ids=locations"  | "/,messages?ids=locations"
+        "/messages/add-nodes"       | "/messages/add-nodes"
+        "/messages/add.nodes"       | "/messages/add.nodes"
 
     }
 
@@ -82,7 +84,7 @@ class URIEncodingWithFiltersTest extends ReposeValveTest {
 
         where:
         URISent | URItoriginService
-        "/messages/+add-nodes"     | "/messages?ids=+locations"
+        "/messages/+add-nodes"     | "/messages/+add-nodes"
         "/+messages?ids=locations" | "/+messages?ids=locations"
         "/:messages?ids=locations" | "/:messages?ids=locations"
 
@@ -101,7 +103,7 @@ class URIEncodingWithFiltersTest extends ReposeValveTest {
         then: "Repose send the URI parameters without manipulation"
         messageChain.receivedResponse.code.equals("200")
         messageChain.handlings.size()>0
-        messageChain.handlings.get(0).request.path.equals(URItoOriginService)
+        messageChain.handlings.get(0).request.path.equals(URItoriginService)
 
         where:
         URISent | URItoriginService
@@ -119,9 +121,11 @@ class URIEncodingWithFiltersTest extends ReposeValveTest {
 
         "//messages?ids=locations"  | "/messages?ids=locations"
         "/;messages?ids=locations"  | "/;messages?ids=locations"
-       "/@messages?ids=locations"  | "/@messages?ids=locations"
+       "/@messages?ids=locations"   | "/@messages?ids=locations"
         "/=messages?ids=locations"  | "/=messages?ids=locations"
         "/,messages?ids=locations"  | "/,messages?ids=locations"
+        "/messages/add-nodes"       | "/messages/add-nodes"
+        "/messages/add.nodes"       | "/messages/add.nodes"
 
 
     }
