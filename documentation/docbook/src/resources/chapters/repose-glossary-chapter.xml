@@ -29,8 +29,8 @@
         </imageobject>
         </inlinemediaobject>'>
 ]>
-<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
-<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -39,83 +39,13 @@
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-Glossary">
     <?rax pdf.url="../../repose-glossary.pdf"?>
-    <title>&PRODNAME; Glossary</title>
-    <!-- set watermark on cover and left margin 
-        <?rax status.bar.text="CONFIDENTIAL"?>
-    -->
-    <?rax title.font.size="35px" subtitle.font.size="24px"?>
-    <titleabbrev>&PRODABBREV; Glossary</titleabbrev>
-    <info>
-        <author>
-            <personname>
-                <firstname/>
-                <surname/>
-            </personname>
-            <affiliation>
-                <orgname>Rackspace Cloud</orgname>
-            </affiliation>
-        </author>
-        <copyright>
-            <year>2010</year>
-            <year>2011</year>
-            <year>2012</year>
-            <holder>Rackspace US, Inc.</holder>
-        </copyright>
-        <releaseinfo>v1.0</releaseinfo>
-        <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-11</pubdate>
-        <legalnotice role="apache2">
-            <annotation>
-                <remark>Copyright details are filled in by the template.</remark>
-            </annotation>
-        </legalnotice>
-        <abstract>
-            <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
-        </abstract>
-        <revhistory>
-            <revision>
-                <date>2012-01-11</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem><para>Initial release for Repose v1.0.</para></listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2011-09-28</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Initial release as internal draft.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-        </revhistory>
-    </info>
-    <chapter xml:id="Overview-d1e85">
-        <title>About This Document</title>
-            <para>
-                The purpose of this glossary is to explain basic vocabulary and key concepts useful in understanding &PRODNAME; and some or all of its components. 
-                This glossary is not a tutorial.
-            </para>
-        <section xml:id="Document_Change_History-d1e102">
-            <title>Document Change History</title>
-            <para>This version of the glossary replaces and obsoletes all previous versions.
-                The most recent changes are described in the table below: </para>
-            <?rax revhistory?>
-        </section>
-        <xi:include href="chapters/available-doc.xml"/>
-    </chapter>
-    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
-    <chapter xml:id="Introduction-000">
+    <title>Glossary</title>
+   
+   
+    <section xml:id="Introduction-900">
         <title>&PRODNAME; Vocabulary</title>
-            <note>
-                <para> Below, we have explained what we mean when we use some basic &PRODNAME;
-                terms. Terms not defined here are not unique to &PRODNAME; and are used in
-                industry-standard ways. Many such terms are defined in the sources listed in <xref
-                    linkend="References-d1e994"/>. </para>
-            </note>
+        <para>Below, we have explained what we mean when we use some basic Repose terms. 
+            Terms not defined here are not unique to Repose and are used in industry-standard ways. </para>
             <glossary>
                 <title>&PRODNAME; Components</title>
                 <para>
@@ -125,6 +55,17 @@
                         uses of &PRODNAME;.
                     </emphasis>
                 </para>
+                
+                
+                <glossentry xml:id="lollipop">
+                    <glossterm><emphasis role="bold">Lollipop</emphasis></glossterm>
+                    <glossdef>
+                        <para> All about lollipops.</para>
+                    </glossdef>
+                </glossentry>
+                
+                
+                
                 <glossentry xml:id="Client-AuthN-d1e015">
                 <glossterm><emphasis role="bold">Client Authentication</emphasis></glossterm>
                 <glossdef>
@@ -317,6 +258,6 @@
                     </glossdef>
                 </glossentry>
             </glossary>    
-    </chapter>
-    <xi:include href="chapters/afterword.xml"/>
-</book>
+    </section>
+   
+</chapter>

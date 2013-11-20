@@ -71,7 +71,7 @@
         </legalnotice>
         <abstract>
             <para>This document is intended for systems administrators interested in configuring
-                their service to use the Rate Limiting component of the &PRODEXPAND;. </para>
+                their service to use the Rate Limiting filter of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
             <revision>
@@ -161,13 +161,13 @@
         <title>About This Document</title>
             <para> 
                 The purpose of this handbook is to facilitate deployment of &PRODNAME;'s rate
-                limiting component. This handbook is not a tutorial. It provides basic information
-                that will help you understand and deploy this &PRODNAME; component, but you must
+                limiting filter. This handbook is not a tutorial. It provides basic information
+                that will help you understand and deploy this &PRODNAME; filter, but you must
                 adapt this information to suit your own configuration. 
             </para>  
             <para>
-                This handbook is focused on one &PRODNAME; component.
-                Other &PRODNAME; components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; filter.
+                Other &PRODNAME; filters are documented in companion handbooks.
             </para>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
@@ -221,7 +221,7 @@
             learn more about absolute limits at <xref
                 linkend="Absolute-d1e631"/>. </para>
         <para>
-            The &PRODNAME; rate limiting component performs two categories of behavior:
+            The &PRODNAME; rate limiting filter performs two categories of behavior:
             <itemizedlist>
                 <listitem>
                     <para>
@@ -247,7 +247,7 @@
     </chapter>
     <chapter xml:id="HTTP_Message_Requirements-d1e222">
         <title>HTTP Message Requirements</title>
-        <para> To correctly rate limit a requested resource, the rate limiting component uses one
+        <para> To correctly rate limit a requested resource, the rate limiting filter uses one
         required HTTP header precondition and one optional HTTP header precondition. </para>
         
         <table border="1" frame="box">
@@ -297,13 +297,13 @@
             </tbody>
         </table>
         <para>
-            These headers are used by the rate limiting filter but are populated by other &PRODNAME; components such as the authentication filter. 
+            These headers are used by the rate limiting filter but are populated by other &PRODNAME; filters such as the authentication filter. 
         </para>
         <para>
             &PRODNAME; filters may add values to HTTP message headers to communicate a set of options to downstream filters. 
             To aid downstream filters in selecting the most qualified value from a given set, 
             the values themselves may be annotated with a quality factor parameter. 
-            This allows downstream components to make a decision based on the available options rather then on which component overwrote the header last.
+            This allows downstream filters to make a decision based on the available options rather then on which filter overwrote the header last.
         </para>
         <tip>
             <para>
@@ -327,7 +327,7 @@
                 &PRODNAME; concepts and deployment methods in our
                 Getting Started document. </para>
         </tip>
-        <para> The rate limiting component obtains its configuration,
+        <para> The rate limiting filter obtains its configuration,
             including its API endpoint, from a file named
                 <code>rate-limiting.cfg.xml</code>. We have included
             an annotated example of a valid
@@ -677,7 +677,7 @@
                         <code>request-endpoint</code> configuration
                     element must be a regular expression. It should
                     match all representations of the request resource
-                    that the rate limiting component should answer. </para>
+                    that the rate limiting filter should answer. </para>
                 <para>This attribute is
                     <emphasis>required</emphasis>.</para>
                 <para> </para>
@@ -784,7 +784,7 @@
                             attribute. As the name implies, the
                             attribute may contain more than one value;
                             multiple values are delimited by spaces.
-                            The rate limiting component supports all
+                            The rate limiting filter supports all
                             valid HTTP methods as described by RFC
                             2616 at <link
                                 xlink:href="http://www.ietf.org/rfc/rfc2616.txt"
@@ -792,7 +792,7 @@
                             If the configuration specifies
                                 <code>ALL</code> for the
                                 <code>http-methods</code> attribute,
-                            this informs the rate limiting component
+                            this informs the rate limiting filter
                             that rate limiting should occur on all
                             HTTP requests. </td>
                         <td><code>GET</code>, <code>DELETE</code>,
@@ -840,17 +840,17 @@
         <section xml:id="Constructing_Cache_Keys-d1e378">
             <title>Constructing Cache Keys with Regular
                 Expressions</title>
-            <para> The rate limiting component must be able to track
+            <para> The rate limiting filter must be able to track
                 rate limits per resource. To effectively facilitate
-                this, the rate limiting component attempts to generate
+                this, the rate limiting filter attempts to generate
                 a cache key from the limit's regular expression, as
                 defined in its <code>uri-regex</code> attribute.
                 Extracting cache keys from the regular expression is
                 performed via regular expression capture groups. </para>
             <tip>
                 <para>
-                    Regular expression (regex) capture groups are essential in configuring the rate limiting component and
-                    other &PRODNAME; components. Our 
+                    Regular expression (regex) capture groups are essential in configuring the rate limiting filter and
+                    other &PRODNAME; filters. Our 
                     <link linkend="References-d1e994">bibliography</link>
                     includes a link to an excellent source of information about
                     regex capture groups.
@@ -861,7 +861,7 @@
                 request. This is considered sub-optimal in most cases,
                 since each unique resource representation will have
                 requests made against it tracked separately. </para>
-            <para> The rate limiting component uses the
+            <para> The rate limiting filter uses the
                 java.util.regex package to match character sequences
                 against patterns specified by regular expressions. The
                 patterns are defined in
@@ -872,12 +872,12 @@
                     >http://download.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>. </para>
             <warning>
                 <para> You can get an unexpected result by failing to
-                    account for all components of a request URI. </para>
+                    account for all filters of a request URI. </para>
                 <para> As you construct regular expressions, keep in
                     mind that query parameters as well as other
-                    request URI components <emphasis role="bold"
+                    request URI filters <emphasis role="bold"
                         >are</emphasis> included as part of the
-                    request URI that the rate limiting component
+                    request URI that the rate limiting filter
                     operates against. </para>
             </warning>
             <para>The following examples may help you plan your own
@@ -915,11 +915,11 @@
                                 resource named <code>service</code>
                                 and catches any request against a
                                 resource that falls under that parent. </para>
-                            <para> The rate limiting component cannot
+                            <para> The rate limiting filter cannot
                                 detect whether the service implementer
                                 is requesting that each resource
                                 request be tracked separately or as
-                                part of a group; the component
+                                part of a group; the filter
                                 defaults to tracking limited requests
                                 under unique keys. </para>
                         </td>
@@ -943,7 +943,7 @@
                                 executing this regular expression
                                 against the client request extracts
                                    <code>12345-account</code>. The
-                                rate limiting component can use this
+                                rate limiting filter can use this
                                 extracted information as a unique
                                 identifier to ensure that all of the
                                 recorded rate limits belong only to
@@ -959,13 +959,13 @@
                     taken into consideration when designing limits.
                     This is because a given expression's performance
                     has a direct impact on the rate limiting
-                    component's performance and throughput. </para>
+                    filter's performance and throughput. </para>
             </note>
         </section>
     </chapter>
     <chapter xml:id="Tracking_Requests-d1e431">
         <title>Tracking Client Requests</title>
-        <para> The rate limiting component uses the 
+        <para> The rate limiting filter uses the 
             <code>X-PP-User</code> HTTP header for two purposes:
             <itemizedlist>
                 <listitem>
@@ -983,7 +983,7 @@
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
             <para> 
-                The caching format for the rate limiting component is designed for high throughput. 
+                The caching format for the rate limiting filter is designed for high throughput. 
                 Because of this, an aggregation index is required to group active rate
                 limits for a named client. 
             </para>
@@ -993,7 +993,7 @@
                 for this index. 
             </para>
             <para> 
-                The rate limiting component indexes stored limit cache keys in a separate cached
+                The rate limiting filter indexes stored limit cache keys in a separate cached
                 object for each named client identified with the <code>X-PP-User</code> HTTP header.
                 This data structure is called the user limit key map.  
             </para>
@@ -1001,26 +1001,26 @@
         <section xml:id="Single_Node_Multi_Node-d1e447">
             <title>Caching in Single-Node or Multi-Node Configurations</title>
             <para> 
-                The rate limiting component caches in single-node or multi-node configurations.
+                The rate limiting filter caches in single-node or multi-node configurations.
             </para>
             <para>
-                The rate limiting component 
+                The rate limiting filter 
                 supports a single-node &PRODNAME; installation in
                 which all cache operations are performed locally. When no other nodes are identified in the system model as hosting
-                a distributed datastore component, 
+                a distributed datastore filter, 
                 &PRODNAME;'s default local
                 datastore is used. 
             </para>
             <para> 
-                The rate limiting component supports multiple-node &PRODNAME; installations
+                The rate limiting filter supports multiple-node &PRODNAME; installations
                 via &PRODNAME;'s datastore service. If a clustered datastore is available, the
-                component will make use of it for caching. 
+                filter will make use of it for caching. 
             </para>
             </section>
     </chapter>
     <chapter xml:id="Querying_Limits-d1e531">
         <title>Querying Current Limits</title>
-        <para> A client may ask the rate limiting component for
+        <para> A client may ask the rate limiting filter for
             information about the client's own current limits. Those
             limits may include <link linkend="Absolute-d1e631"
                 >absolute limits</link>. </para>
@@ -1085,17 +1085,17 @@ Content-Length: 538
                 </tr>
             </tbody>
         </table>   
-        <para> The rate limiting component caches rate limits by user.
+        <para> The rate limiting filter caches rate limits by user.
             Consequently, to query rate limits, a user must be passed
-            into the rate limiting component. The rate limiting
-            component uses the <code>X-PP-User</code> header to
+            into the rate limiting filter. The rate limiting
+            filter uses the <code>X-PP-User</code> header to
             identify a user whose limits will be queried. Without a
-            value in this header, the rate limiting component will
+            value in this header, the rate limiting filter will
             send back a '401 Unauthorized'. </para>
-        <para> The rate limiting component uses the
+        <para> The rate limiting filter uses the
                 <code>X-PP-Groups</code> header to determine which
             rate limits to apply to the user. If this header is not
-            present, the rate limiting component will assign limits
+            present, the rate limiting filter will assign limits
             from a default group specified in the
                 <code>rate-limiting.cfg.xml</code> configuration file. </para>
         <para> It is possible to query a user's rate limits before the
@@ -1121,10 +1121,10 @@ Content-Length: 538
         </para>
         <para>
             Once the user has made a call which uses any of the defined limits, the user has rate limits in the cache. 
-            At this point, the rate limiting component will return the limits stored in the cache for that user.
+            At this point, the rate limiting filter will return the limits stored in the cache for that user.
         </para>
         <note>
-            <para> The rate limiting component understands quality
+            <para> The rate limiting filter understands quality
                 factors for the <code>X-PP-User</code> and
                     <code>X-PP-Groups</code> headers. This is useful
                 when a service implementer wishes to employ multiple
@@ -1229,7 +1229,7 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_St
     </chapter>
     <chapter xml:id="Absolute-d1e631">
         <title>Integrating Absolute Limits</title>
-        <para> The rate limiting component is designed to integrate
+        <para> The rate limiting filter is designed to integrate
             with limits that are returned as a response from the
             origin service. These limits are absolute, meaning that
             they define limits for the service as a whole rather than
@@ -1293,9 +1293,9 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_St
         <para> To activate inclusion of absolute limits that are specific to a client's origin
             service, use the optional configuration attribute, <code>include-absolute-limits</code>. </para>
         <para> When <code>include-absolute-limits</code> is set to <code>true</code>, the rate
-            limiting component marks incoming requests that match the limit request endpoint's
+            limiting filter marks incoming requests that match the limit request endpoint's
                 <code>uri-regex</code> and then passes them down to the origin service. After the
-            origin service responds with the client's absolute limits, the rate limiting component
+            origin service responds with the client's absolute limits, the rate limiting filter
             enhances the response with the combined absolute and current rate limits. It then sends
             the response to the client. </para>
         <note>
@@ -1312,7 +1312,7 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_St
     <chapter xml:id="Limited-d1e731">
         <title>Handling Limited Client Requests</title>
         <para> When a client makes a request that exceeds the client's specified rate limit, the
-            rate limiting component will return the HTTP response code <errorcode>413</errorcode> (Request Entity Too
+            rate limiting filter will return the HTTP response code <errorcode>413</errorcode> (Request Entity Too
             Large). 
         </para> 
         <para>
