@@ -24,6 +24,41 @@
         </method>
         </resource>
 
+        <resource path="/messages/add-nodes">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+        <resource path="/messages">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+        <resource path="/messages/add.nodes">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
+
+        <resource path="/messages">
+
+        <method name="GET">
+        <doc title="Add nodes to a deployment">
+        WRITEME
+        </doc>
+        </method>
+        </resource>
 
         <resource path="//messages">
 
