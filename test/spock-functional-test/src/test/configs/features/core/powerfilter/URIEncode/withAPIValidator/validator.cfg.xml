@@ -2,6 +2,6 @@
 
 <validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
 
-  <validator role="role-1" wadl="pass.wadl" default="true" use-saxon="false" />
+  <validator role="role-1" wadl="pass.wadl.xml" default="true" use-saxon="false" />
 
 </validators>
