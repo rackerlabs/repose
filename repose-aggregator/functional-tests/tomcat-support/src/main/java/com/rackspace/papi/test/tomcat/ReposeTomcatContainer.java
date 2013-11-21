@@ -7,6 +7,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
 import javax.servlet.ServletException;
+import java.io.File;
 
 public class ReposeTomcatContainer extends ReposeContainer {
 
@@ -20,7 +21,23 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.setPort(Integer.parseInt(listenPort));
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
-        tomcat.addWebapp("/", warLocation);
+
+        tomcat.addWebapp("/", warLocation).setCrossContext(true);
+
+
+        if(props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0){
+
+            for(String originService: props.getOriginServiceWars()){
+
+                File os = new File(originService);
+
+                int dot = os.getName().lastIndexOf(".");
+
+                tomcat.addWebapp("/"+os.getName().substring(0, dot), originService);
+
+            }
+        }
+
         monitor = new ContainerMonitorThread(this, Integer.parseInt(stopPort));
     }
 
