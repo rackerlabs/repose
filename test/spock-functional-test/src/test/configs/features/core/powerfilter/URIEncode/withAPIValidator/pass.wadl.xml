@@ -1,111 +1,120 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-   xmlns:rax="http://docs.rackspace.com/api"
-   xmlns="http://wadl.dev.java.net/2009/02"
-   xmlns:test="http://test.openrespose/test/v1.1" >
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:rax="http://docs.rackspace.com/api"
+             xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:test="http://test.openrespose/test/v1.1">
 
     <resources base="http://localhost:${target_port}/">
         <resource path="/messages/+add-nodes">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="/messages">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="/messages/add-nodes">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="/messages">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="/messages/add.nodes">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="/messages">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
         <resource path="//messages">
 
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
 
         <resource path="/;messages">
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
 
         <resource path="/@messages">
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
 
-
         <resource path="/=messages">
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
 
         <resource path="/,messages">
-        <method name="GET">
-        <doc title="Add nodes to a deployment">
-        WRITEME
-        </doc>
-        </method>
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
         </resource>
 
+
+        <resource path="/resource">
+            <method name="GET" />
+        </resource>
+        <resource path="/resource%3Fname=name">
+            <method name="GET" />
+        </resource>
+        <resource path="/resource%3Fname%3Dname">
+            <method name="GET" />
+        </resource>
 
 
     </resources>
