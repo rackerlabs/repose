@@ -480,7 +480,7 @@ class CaptureGroupsTest extends Specification {
 
         when: "we make one request to the second url"
         mc = deproxy.makeRequest(url: url2, headers: headers)
-        then: "it should make it to the origin service"
+        then: "it should be blocked"
         mc.receivedResponse.code == "413"
         mc.handlings.size() == 0
 
@@ -524,7 +524,7 @@ class CaptureGroupsTest extends Specification {
 
         when: "we make one request to the second url"
         mc = deproxy.makeRequest(url: url2, headers: headers)
-        then: "it should make it to the origin service"
+        then: "it should be blocked"
         mc.receivedResponse.code == "413"
         mc.handlings.size() == 0
 
