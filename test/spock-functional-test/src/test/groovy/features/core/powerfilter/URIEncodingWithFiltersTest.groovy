@@ -8,7 +8,7 @@ class URIEncodingWithFiltersTest extends ReposeValveTest {
 
     def setupSpec() {
 
-        repose.applyConfigs( "features/core/powerfilter/URIEncode" )
+        repose.applyConfigs( "features/core/powerfilter/URIEncode/withIpIdentity" )
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
 
