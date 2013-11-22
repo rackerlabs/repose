@@ -148,24 +148,6 @@
          <version>8.0.1.v20110908</version>
       </dependency>
 
-       <dependency>
-           <groupId>com.yammer.metrics</groupId>
-           <artifactId>metrics-core</artifactId>
-           <version>2.2.0</version>
-       </dependency>
-
-       <dependency>
-           <groupId>com.yammer.metrics</groupId>
-           <artifactId>metrics-graphite</artifactId>
-           <version>2.2.0</version>
-       </dependency>
-
-       <dependency>
-         <groupId>com.yammer.metrics</groupId>
-         <artifactId>metrics-ehcache</artifactId>
-         <version>2.2.0</version>
-      </dependency>
-
        <!-- CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator -->
        <dependency>
            <groupId>com.github.fge</groupId>

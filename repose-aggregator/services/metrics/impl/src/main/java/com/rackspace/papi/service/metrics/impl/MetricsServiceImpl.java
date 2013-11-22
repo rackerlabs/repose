@@ -1,8 +1,8 @@
-package com.rackspace.papi.service.reporting.metrics.impl;
+package com.rackspace.papi.service.metrics.impl;
 
-import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import com.rackspace.papi.service.metrics.MeterByCategory;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.TimerByCategory;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.*;
 import com.yammer.metrics.reporting.JmxReporter;

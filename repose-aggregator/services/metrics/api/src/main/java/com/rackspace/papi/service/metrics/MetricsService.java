@@ -1,7 +1,7 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
 import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;

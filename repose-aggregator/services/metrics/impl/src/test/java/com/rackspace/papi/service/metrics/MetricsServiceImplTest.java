@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
@@ -84,7 +84,7 @@ public class MetricsServiceImplTest {
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
 
-            assertEquals( (long) 3, l );
+            Assert.assertEquals((long) 3, l);
         }
 
         @Test
@@ -106,7 +106,7 @@ public class MetricsServiceImplTest {
 
             long l = (Long) getAttribute( this.getClass(), "counter1", "scope1", "Count" );
 
-            assertEquals( (long) 3, l );
+            Assert.assertEquals((long) 3, l);
         }
 
         @Test
@@ -125,13 +125,13 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update(1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test
@@ -149,10 +149,10 @@ public class MetricsServiceImplTest {
             m.mark( "meter1" );
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            Assert.assertEquals((long) 2, l);
 
             l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            Assert.assertEquals((long) 4, l);
         }
 
         @Test
@@ -170,13 +170,13 @@ public class MetricsServiceImplTest {
             m.mark( "meter1" );
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            Assert.assertEquals((long) 2, l);
 
             l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            Assert.assertEquals((long) 4, l);
 
             l = (Long) getAttribute( this.getClass(), MeterByCategorySum.ALL, "scope1", "Count" );
-            assertEquals( (long) 6, l );
+            Assert.assertEquals((long) 6, l);
         }
 
         @Test
@@ -195,8 +195,8 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             tc = t.time("key2");
             try {
@@ -204,18 +204,18 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key1", 1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key2", 1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test( expected = IllegalArgumentException.class )
@@ -244,10 +244,10 @@ public class MetricsServiceImplTest {
                 InstanceNotFoundException {
 
             metricsService.setEnabled(false);
-            assertFalse(metricsService.isEnabled());
+            Assert.assertFalse(metricsService.isEnabled());
 
             metricsService.setEnabled(true);
-            assertTrue(metricsService.isEnabled());
+            Assert.assertTrue(metricsService.isEnabled());
         }
     }
 }

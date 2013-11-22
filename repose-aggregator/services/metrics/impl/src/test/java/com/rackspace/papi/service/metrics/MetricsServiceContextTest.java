@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -24,24 +24,24 @@ public class MetricsServiceContextTest {
 
         @Before
         public void setUp() {
-            serviceRegistry = mock(ServiceRegistry.class);
-            configurationService = mock(ConfigurationService.class);
-            metricsService = mock(MetricsService.class);
+            serviceRegistry = Mockito.mock(ServiceRegistry.class);
+            configurationService = Mockito.mock(ConfigurationService.class);
+            metricsService = Mockito.mock(MetricsService.class);
             metricsServiceContext = new MetricsServiceContext(serviceRegistry, configurationService, metricsService);
         }
 
         @Test
         public void testMetricsServiceEnabled() {
-            when(metricsService.isEnabled()).thenReturn(true);
+            Mockito.when(metricsService.isEnabled()).thenReturn(true);
 
-            assertNotNull(metricsServiceContext.getService());
+            Assert.assertNotNull(metricsServiceContext.getService());
         }
 
         @Test
         public void testMetricsServiceDisabled() {
-            when(metricsService.isEnabled()).thenReturn(false);
+            Mockito.when(metricsService.isEnabled()).thenReturn(false);
 
-            assertNull(metricsServiceContext.getService());
+            Assert.assertNull(metricsServiceContext.getService());
         }
     }
 }
