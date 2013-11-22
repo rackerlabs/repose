@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
 /**
  * Interface to allow different MeterByCategory implementations (like

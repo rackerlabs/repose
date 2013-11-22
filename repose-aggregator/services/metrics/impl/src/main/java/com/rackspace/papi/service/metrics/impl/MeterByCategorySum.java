@@ -1,6 +1,6 @@
-package com.rackspace.papi.service.reporting.metrics.impl;
+package com.rackspace.papi.service.metrics.impl;
 
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.yammer.metrics.core.Meter;
 
 import java.util.concurrent.TimeUnit;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * Additionally, an additional Meter registered under the name ACROSS ALL tracks the summary of all Meters in this
  * object.
  * <p>
- * This is created by the {@link com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl} factory class.
+ * This is created by the {@link MetricsServiceImpl} factory class.
  * <p>
  * This class is thread-safe.
  */

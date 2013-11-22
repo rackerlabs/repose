@@ -1,7 +1,7 @@
-package com.rackspace.papi.service.reporting.metrics.impl;
+package com.rackspace.papi.service.metrics.impl;
 
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.TimerByCategory;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
 
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * By calling the time(), stop(), and update() methods, a Timer object is automatically registered and can be updated
  * by later calls.
  * <p>
- * This is created by the {@link com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl} factory class.
+ * This is created by the {@link MetricsServiceImpl} factory class.
  * <p>
  * This class is thread-safe.
  *
