@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.metrics;
 
 import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
@@ -20,7 +19,6 @@ public interface MetricsService extends Destroyable{
     boolean isEnabled();
     Meter newMeter( Class klass, String name, String scope, String eventType, TimeUnit unit );
     MeterByCategory newMeterByCategory( Class klass, String scope, String eventType, TimeUnit unit );
-    MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit );
     Counter newCounter( Class klass, String name, String scope );
     Timer newTimer(Class klass, String name, String scope, TimeUnit duration, TimeUnit rate );
     TimerByCategory newTimerByCategory(Class klass, String scope, TimeUnit duration, TimeUnit rate );
