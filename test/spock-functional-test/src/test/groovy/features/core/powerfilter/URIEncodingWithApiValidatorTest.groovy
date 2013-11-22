@@ -1,8 +1,10 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
@@ -27,11 +29,11 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         where:
         URISent                    | URItoriginService
-        "/messages/+add-nodes"     | "/messages/+add-nodes"
         "/+messages?ids=locations" | "/+messages?ids=locations"
         "/:messages?ids=locations" | "/:messages?ids=locations"
     }
 
+    @Category(Bug)
     @Unroll("URI's with special character through API Validator filter sent = #URISent")
     def "URI's with special character through API Validator filter that gives 200"() {
 
@@ -61,6 +63,7 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/,messages?ids=locations" | "/,messages?ids=locations"
         "/messages/add-nodes"      | "/messages/add-nodes"
         "/messages/add.nodes"      | "/messages/add.nodes"
+        "/messages/+add-nodes"     | "/messages/+add-nodes"
     }
 
     @Unroll("URI's with special character through API Validator filter sent = #URISent")
