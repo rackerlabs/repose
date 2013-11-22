@@ -3,11 +3,11 @@ package com.rackspace.papi.test.tomcat;
 import com.rackspace.papi.test.ContainerMonitorThread;
 import com.rackspace.papi.test.ReposeContainer;
 import com.rackspace.papi.test.ReposeContainerProps;
+import com.rackspace.papi.test.ReposeContainerUtil;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
 import javax.servlet.ServletException;
-import java.io.File;
 
 public class ReposeTomcatContainer extends ReposeContainer {
 
@@ -21,20 +21,12 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.setPort(Integer.parseInt(listenPort));
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
-
         tomcat.addWebapp("/", warLocation).setCrossContext(true);
-
 
         if(props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0){
 
             for(String originService: props.getOriginServiceWars()){
-
-                File os = new File(originService);
-
-                int dot = os.getName().lastIndexOf(".");
-
-                tomcat.addWebapp("/"+os.getName().substring(0, dot), originService);
-
+                tomcat.addWebapp("/"+ ReposeContainerUtil.getFileNameWOExtention(originService), originService);
             }
         }
 
