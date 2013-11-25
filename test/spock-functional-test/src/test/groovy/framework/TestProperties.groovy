@@ -15,6 +15,7 @@ class TestProperties {
     String glassfishJar
     String tomcatJar
     String reposeRootWar
+    String mocksWar
 
     int reposePort
     int reposeShutdownPort
@@ -58,6 +59,7 @@ class TestProperties {
             targetHostname = properties.getProperty("target.hostname")
             rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
             reposeHome = properties.getProperty("repose.home")
+            mocksWar = properties.getProperty("mocks.war")
 
         } catch (Exception e) {
             throw new RuntimeException("Failure in setup of test: unable to read property files")

@@ -8,10 +8,11 @@ import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
+import spock.lang.Specification
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class EmbeddedTomcatProxyTest {
+class EmbeddedTomcatProxyTest extends  Specification{
 
     static ReposeLauncher repose
     static Deproxy deproxy
@@ -34,6 +35,11 @@ class EmbeddedTomcatProxyTest {
         def configSamples = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
+        def mocksWar = properties.getMocksWar()
+        def mocksPath = getMocksPath(mocksWar)
+
+
+
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
         config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
@@ -46,14 +52,14 @@ class EmbeddedTomcatProxyTest {
                         'repose.config.directory': configDirectory,
                         'repose.cluster.id': "repose1",
                         'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
+                        'app_path':  mocksPath
                 ]
         )
 
 
-        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
+                reposePort, shutdownPort, mocksWar)
         repose.clusterId = "repose"
-        repose.nodeId = "simple-node"
         repose.start()
     }
 
@@ -71,10 +77,7 @@ class EmbeddedTomcatProxyTest {
         waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-trace-request': 'true', 'x-pp-user': 'usertest1'])
 
-        then: "Repose Should Forward Request"
-        mc.handlings[0].request.getHeaders().contains("x-pp-user")
-
-        and: "Repose Should Forward Response"
+        then: "Repose Should Forward Response"
         mc.receivedResponse.code == "200"
     }
 
@@ -95,6 +98,14 @@ class EmbeddedTomcatProxyTest {
                 return false
             }
         })
+    }
+
+    def getMocksPath(String path){
+
+        int dot = path.lastIndexOf(".")
+        int slash = path.lastIndexOf("/")
+
+        return path.substring(slash+1, dot)
     }
 
 }
