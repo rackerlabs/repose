@@ -109,6 +109,15 @@
         <resource path="/resource">
             <method name="GET" />
         </resource>
+        <resource path="/resource/name=name">
+            <method name="GET" />
+        </resource>
+        <resource path="/resource%253Fname=name">
+            <method name="GET" />
+        </resource>
+        <resource path="/resource/3Fname=name">
+            <method name="GET" />
+        </resource>
         <resource path="/resource%3Fname=name">
             <method name="GET" />
         </resource>
