@@ -1,5 +1,4 @@
 package features.services.httpconnectionpool
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -86,6 +85,65 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         then:
         messageChain.receivedResponse.code == "200"
     }
+
+    @Category(Slow)
+    def "under heavy load and constant HTTPClientService reconfigures, should not drop inflight connections"() {
+
+        given: "Repose is up and the HTTPClientService has been configured"
+        repose.applyConfigs("features/services/httpconnectionpool/common",
+                "features/services/httpconnectionpool/decommissioned/first")
+        repose.start()
+        waitUntilReadyToServiceRequests()
+
+        and: "Alot of concurrent users are making requests to Repose"
+        List<Thread> clientThreads = new ArrayList<Thread>()
+
+        Random rand = new Random()
+        int totalErrors = 0
+
+        for (x in 1..50) {
+            println("Starting client: " + x)
+            def thread = Thread.start {
+                for (y in 1..5) {
+                    MessageChain messageChain = deproxy.makeRequest(url:reposeEndpoint, defaultHandler: Handlers.Delay(rand.nextInt(15000)))
+                    if (messageChain.receivedResponse.code != "200") {
+                        println("ERROR: call received an error response")
+                        println("RESPONSE: " + messageChain.receivedResponse.body)
+                        totalErrors++
+                    }
+                }
+            }
+            clientThreads.add(thread)
+        }
+
+        and: "The HTTP Client Service is continuously being reconfigured"
+        def keepReconfiguring = true
+        def reconfigureCount = 0
+        def reconfigureThread = Thread.start {
+            while (keepReconfiguring) {
+                println("Reconfiguring...")
+                sleep(16000) //TODO: better strategy to know when Repose has been reconfigured
+                if (reconfigureCount % 2) {
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/second")
+                } else {
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/first")
+                }
+                reconfigureCount++
+            }
+        }
+
+        when: "All clients have completed their calls"
+        clientThreads*.join()
+
+        and: "We stop reconfiguring madness in Repose"
+        keepReconfiguring = false
+        reconfigureThread.join()
+
+        then: "All client calls should have succeeded"
+        totalErrors == 0
+    }
+
+
 
     /*
    * need a user to do these actions
