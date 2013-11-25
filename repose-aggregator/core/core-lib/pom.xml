@@ -48,6 +48,12 @@
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
+           <artifactId>metrics-reporting</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+
+       <dependency>
+           <groupId>com.rackspace.papi.service</groupId>
            <artifactId>service-client-akka</artifactId>
            <version>${project.version}</version>
        </dependency>
