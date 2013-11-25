@@ -39,12 +39,8 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         this.serviceClient = getServiceClient(httpClientService);
         numberOfActors = serviceClient.getPoolSize();
 
-        Config customConf = ConfigFactory.parseString(
-                "akka { actor { default-dispatcher {throughput = 10} } }");
-        Config regularConf = ConfigFactory.defaultReference();
-        Config combinedConf = customConf.withFallback(regularConf);
-
-        actorSystem = ActorSystem.create("AuthClientActors", ConfigFactory.load(combinedConf));
+        Config conf = ConfigFactory.load();
+        actorSystem = ActorSystem.create("AuthClientActors", conf);
 
         quickFutureCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(FUTURE_CACHE_TTL, TimeUnit.MILLISECONDS)
