@@ -4,7 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
-class URIEncodingWithoutFiltersTest extends ReposeValveTest {
+class URIEncodingWithIpIdentityTest extends ReposeValveTest {
 
 
     def setupSpec() {
@@ -12,7 +12,7 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/core/powerfilter/URIEncode/noFilters")
+        repose.applyConfigs("features/core/powerfilter/URIEncode/withIpIdentity")
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }

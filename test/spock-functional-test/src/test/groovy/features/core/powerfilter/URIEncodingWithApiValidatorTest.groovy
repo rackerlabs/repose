@@ -1,20 +1,83 @@
 package features.core.powerfilter
 
 import framework.ReposeValveTest
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
-class URIEncodingWithoutFiltersTest extends ReposeValveTest {
-
+class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
     def setupSpec() {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
-        repose.applyConfigs("features/core/powerfilter/URIEncode/noFilters")
-        repose.start()
-        repose.waitForNon500FromUrl(reposeEndpoint)
+        repose.applyConfigs("features/core/powerfilter/URIEncode/withAPIValidator")
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        repose.waitForNon500FromUrl(reposeEndpoint, 120)
+    }
+
+    @Unroll("URI's with special character through API Validator filter sent = #URISent")
+    def "URI's with special character through API Validator filter that gives 404"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent, method: "GET", headers: ["X-Roles": "role-1"])
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code.equals("404")
+
+        where:
+        URISent                    | URItoriginService
+        "/+messages?ids=locations" | "/+messages?ids=locations"
+        "/:messages?ids=locations" | "/:messages?ids=locations"
+    }
+
+    @Category(Bug)
+    @Unroll("URI's with special character through API Validator filter sent = #URISent")
+    def "URI's with special character through API Validator filter that gives 200"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent, method: "GET", headers: ["X-Roles": "role-1"])
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code.equals("200")
+        messageChain.handlings.size() > 0
+        messageChain.handlings.get(0).request.path.equals(URItoriginService)
+
+        where:
+        URISent                    | URItoriginService
+        "/messages?ids=+locations" | "/messages?ids=+locations"
+        "/messages?ids=locations"  | "/messages?ids=locations"
+        "/messages?ids=;locations" | "/messages?ids=%3Blocations"
+        "/messages?ids=/locations" | "/messages?ids=%2Flocations"
+        "/messages?ids=?locations" | "/messages?ids=%3Flocations"
+        "/messages?ids=:locations" | "/messages?ids=%3Alocations"
+        "/messages?ids=@locations" | "/messages?ids=%40locations"
+        "/messages?ids==locations" | "/messages?ids=%3Dlocations"
+        "/messages?ids=,locations" | "/messages?ids=%2Clocations"
+        "//messages?ids=locations" | "/messages?ids=locations"
+        "/;messages?ids=locations" | "/;messages?ids=locations"
+        "/@messages?ids=locations" | "/@messages?ids=locations"
+        "/=messages?ids=locations" | "/=messages?ids=locations"
+        "/,messages?ids=locations" | "/,messages?ids=locations"
+        "/messages/add-nodes"      | "/messages/add-nodes"
+        "/messages/add.nodes"      | "/messages/add.nodes"
+        "/messages/+add-nodes"     | "/messages/+add-nodes"
+    }
+
+    @Unroll("URI's with special character through API Validator filter sent = #URISent")
+    def "URI's with special character through API Validator filter that gives 405"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent, method: "GET", headers: ["X-Roles": "role-1"])
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code.equals("405")
+
+        where:
+        URISent                    | URItoriginService
+        "/?messages?ids=locations" | "/?messages?ids=locations"
     }
 
     @Unroll("Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
