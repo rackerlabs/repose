@@ -13,11 +13,13 @@ public class ReposeTomcatContainer extends ReposeContainer {
 
     private Tomcat tomcat;
     protected ContainerMonitorThread monitor;
+    private static final String BASE_DIRECTORY = System.getProperty("java.io.tmpdir");
 
 
     public ReposeTomcatContainer(ReposeContainerProps props) throws ServletException {
         super(props);
         tomcat = new Tomcat();
+        tomcat.setBaseDir(BASE_DIRECTORY);
         tomcat.setPort(Integer.parseInt(listenPort));
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
