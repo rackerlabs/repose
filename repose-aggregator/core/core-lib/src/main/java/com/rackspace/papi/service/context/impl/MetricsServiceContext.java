@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
 
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * Manages the {@link com.rackspace.papi.service.reporting.metrics.MetricsService} instance and subscribes to the
+ * Manages the {@link com.rackspace.papi.service.metrics.MetricsService} instance and subscribes to the
  * metrics.cfg.xml configuration file.
  */
 @Component("metricsServiceContext")
@@ -77,7 +77,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
 
-      metricsService.destroy();
+      metricsService.shutdown();
       configurationService.unsubscribeFrom( "metrics.cfg.xml", metricsCfgListener);
    }
 

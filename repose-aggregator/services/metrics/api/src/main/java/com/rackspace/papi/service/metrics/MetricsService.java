@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.metrics;
 
-import com.rackspace.papi.commons.util.Destroyable;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
@@ -13,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This service creates all necessary classes to track repose performance through JMX & Graphite.
  */
-public interface MetricsService extends Destroyable{
+public interface MetricsService {
 
     void setEnabled(boolean b);
     boolean isEnabled();
@@ -24,5 +23,5 @@ public interface MetricsService extends Destroyable{
     TimerByCategory newTimerByCategory(Class klass, String scope, TimeUnit duration, TimeUnit rate );
     void addGraphiteServer( String host, int port, long period, String prefix ) throws IOException;
     void shutdownGraphite();
-    void destroy();
+    void shutdown();
 }

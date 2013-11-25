@@ -126,13 +126,12 @@ public class MetricsServiceImpl implements MetricsService {
         return new MeterByCategoryImpl( this, klass, scope, eventType, unit );
     }
 
-    @Override
     public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
         return new MeterByCategorySum( this, klass, scope, eventType, unit );
     }
 
     @Override
-    public void destroy() {
+    public void shutdown() {
         metrics.shutdown();
         jmx.shutdown();
 
