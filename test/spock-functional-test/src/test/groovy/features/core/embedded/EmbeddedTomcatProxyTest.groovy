@@ -79,6 +79,9 @@ class EmbeddedTomcatProxyTest extends  Specification{
 
         then: "Repose Should Forward Response"
         mc.receivedResponse.code == "200"
+
+        and: "Response should contain a body"
+        !mc.receivedResponse.body.toString().empty
     }
 
 
