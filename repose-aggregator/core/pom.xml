@@ -56,6 +56,12 @@
               <version>2.13.1-SNAPSHOT</version>
           </dependency>
 
+          <dependency>
+              <groupId>com.rackspace.papi.service</groupId>
+              <artifactId>metrics-reporting</artifactId>
+              <version>2.13.1-SNAPSHOT</version>
+          </dependency>
+
          <dependency>
             <groupId>org.jboss.netty</groupId>
             <artifactId>netty</artifactId>
