@@ -18,7 +18,7 @@ import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenti
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;

@@ -9,7 +9,7 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -12,7 +12,7 @@ import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 
 import java.util.ArrayList;
 import java.util.HashMap;

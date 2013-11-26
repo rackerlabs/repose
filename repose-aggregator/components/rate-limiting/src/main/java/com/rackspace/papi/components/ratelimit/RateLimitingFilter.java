@@ -1,18 +1,16 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.classloader.digest.Sha1Digester;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import org.slf4j.Logger;
+
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
-import javax.servlet.*;
-import org.slf4j.Logger;
 
 public class RateLimitingFilter implements Filter {
 

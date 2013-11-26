@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filters.OpenStackAuthentication;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.yammer.metrics.core.Meter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
