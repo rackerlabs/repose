@@ -3,8 +3,11 @@ package com.rackspace.papi.service.httpclient.impl
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
+import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
 import org.junit.Before
+import org.junit.Test
 
 import static org.junit.Assert.assertEquals
 
@@ -65,39 +68,70 @@ class MultiThreadHttpClientUserTest {
         httpClientService.configure(poolCfg);
     }
 
-    void whenMultipleThreadsConnectAndSeviceReconfigsAllClientsCanStillBeUsed() {
+    @Test
+    void whenMultipleThreadsConnectAndServiceReconfigsAllClientsCanStillBeUsed() {
 
         // Create a socket to listen for connections and respond back with 200 OK
         ServerSocket serverSocket = new ServerSocket(0);
+        Thread.start {
+            while (true) {
+                serverSocket.accept { socket ->
+                    socket.withStreams { input, output ->
+                        def reader = input.newReader()
+                        def buffer = reader.readLine()
+                        println "server received: $buffer"
+                        output << "HTTP/1.1 200 OK\r\n"
+                        output << "server:unittest\r\ncontent-length:6\r\ncontent-type:text/plain"
+                        output << "status"
+                    }
+                }
+            }
+        }
+
         URI uri1 = new URI("http://localhost:" + serverSocket.getLocalPort() + "/blah");
+        Random rand = new Random()
 
         int totalErrors = 0
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         for (x in 1..5) {
             println("Starting client: " + x)
-            def thread = Thread.start {
-                for (y in 1..5) {
+            String threadName = "Thread:" + x
+
+            Thread thread = Thread.start {
+
+                for (y in 1..2) {
                     HttpClientResponse clientResponse = httpClientService.getClient("pool1")
                     HttpClient httpClient = clientResponse.getHttpClient();
+                    HttpGet get
                     try {
-                        // make a call
-                        httpClient.execute
+                        get = new HttpGet(uri1);
+                        get.addHeader("Thread", threadName)
 
-                        httpClientService.releaseClient(clientResponse)
-                        // Validate we got a 200 with no exception
+                        println("STARTED Thread: " + threadName + " Call: " + y)
+                        Thread.sleep(500 + rand.nextInt(3000))
+                        HttpResponse rsp = httpClient.execute(get);
+                        println("COMPLETED Thread: " + threadName + " Call: " + y)
+
+                        if (rsp.getStatusLine().getStatusCode() != 200) {
+                            totalErrors++
+                        }
                     } catch (Exception e) {
+                        println("Got an exception: " + e)
                         totalErrors++
+                    } finally {
+                        get.releaseConnection()
+                        httpClientService.releaseClient(clientResponse)
                     }
                 }
             }
             clientThreads.add(thread)
         }
 
-        and: "The HTTP Client Service is continuously being reconfigured"
-        def keepReconfiguring = true
-        def reconfigureCount = 0
-        def reconfigureThread = Thread.start {
+        Boolean keepReconfiguring = true
+        int reconfigureCount = 0
+
+        Thread reconfigureThread = Thread.start {
             while (keepReconfiguring) {
                 println("Reconfiguring...")
                 sleep(500)
@@ -113,6 +147,6 @@ class MultiThreadHttpClientUserTest {
         keepReconfiguring = false
         reconfigureThread.join()
 
-        assertEquals(totalErrors, 0)
+        assertEquals(0, totalErrors)
     }
 }
