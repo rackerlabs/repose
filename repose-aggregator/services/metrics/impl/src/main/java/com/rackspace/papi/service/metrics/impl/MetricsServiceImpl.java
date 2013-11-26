@@ -126,7 +126,8 @@ public class MetricsServiceImpl implements MetricsService {
         return new MeterByCategoryImpl( this, klass, scope, eventType, unit );
     }
 
-    public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
+    @Override
+    public MeterByCategory newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
         return new MeterByCategorySum( this, klass, scope, eventType, unit );
     }
 
