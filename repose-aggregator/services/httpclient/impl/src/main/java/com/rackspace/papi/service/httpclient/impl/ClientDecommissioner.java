@@ -21,12 +21,14 @@ public class ClientDecommissioner implements Runnable {
     List<HttpClient> clientList;
     private boolean done;
     private Object listLock;
+    HttpClientUserManager userManager;
 
-    public ClientDecommissioner() {
+    public ClientDecommissioner(HttpClientUserManager userManager) {
 
         clientList = new ArrayList<HttpClient>();
         listLock = new Object();
         done = false;
+        this.userManager = userManager;
     }
 
     public void addClientToBeDecommissioned(HttpClient client) {
@@ -61,6 +63,13 @@ public class ClientDecommissioner implements Runnable {
                 List<HttpClient> clientsToRemove = new ArrayList<HttpClient>();
 
                 for (HttpClient client : clientList) {
+
+                    String clientId = client.getParams().getParameter(UNIQUE_ID).toString();
+
+                    if (userManager.hasUsers(clientId)) {
+                        LOG.warn("Failed to shutdown client {} due to users still registered.", clientId);
+                        break;
+                    }
 
                     PoolingClientConnectionManager connMan = (PoolingClientConnectionManager) client.getConnectionManager();
                     PoolStats stats = connMan.getTotalStats();

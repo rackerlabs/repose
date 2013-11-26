@@ -13,8 +13,8 @@ public class ClientDecommissionManager {
     private final ClientDecommissioner decommissioner;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissionManager.class);
 
-    public ClientDecommissionManager() {
-        this.decommissioner = new ClientDecommissioner();
+    public ClientDecommissionManager(HttpClientUserManager userManager) {
+        this.decommissioner = new ClientDecommissioner(userManager);
         this.decommThread = new Thread(decommissioner);
     }
 

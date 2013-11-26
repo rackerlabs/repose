@@ -41,4 +41,12 @@ public class HttpClientUserManager {
             registeredClientUsers.get(clientId).remove(userId);
         }
     }
+
+    public boolean hasUsers(String clientId) {
+        if (!registeredClientUsers.containsKey(clientId) || registeredClientUsers.get(clientId).size() == 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
