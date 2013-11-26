@@ -6,8 +6,8 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.TimerByCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

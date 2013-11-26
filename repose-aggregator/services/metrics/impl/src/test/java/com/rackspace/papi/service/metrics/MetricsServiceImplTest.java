@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.metrics;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
-import com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl;
+import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.impl.MetricsServiceImpl;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
