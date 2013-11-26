@@ -12,7 +12,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.Authorization;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.yammer.metrics.core.Meter;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
