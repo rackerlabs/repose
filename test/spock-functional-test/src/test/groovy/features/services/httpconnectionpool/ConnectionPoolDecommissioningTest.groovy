@@ -9,9 +9,7 @@ import org.rackspace.deproxy.MessageChain
 class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
     /*
-    TODO:    1. log when pools are created or removed
-    TODO:    2. add mbeans for pools with current open connections
-    TODO:    3. time spent on calls within connections,
+        TODO:    3. time spent on calls within connections,
     */
 
     def setup() {
@@ -142,8 +140,6 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         then: "All client calls should have succeeded"
         totalErrors == 0
     }
-
-
 
     /*
    * need a user to do these actions

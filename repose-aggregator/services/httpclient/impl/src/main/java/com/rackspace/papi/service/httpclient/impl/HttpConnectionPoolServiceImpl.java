@@ -2,7 +2,6 @@ package com.rackspace.papi.service.httpclient.impl;
 
 import com.rackspace.papi.service.httpclient.DefaultHttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
-import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
@@ -15,12 +14,14 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig> {
+public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, DefaultHttpClientResponse> {
 
+    private static PoolType DEFAULT_POOL;
     private Map<String, HttpClient> poolMap;
     private String defaultClientId;
-    private static PoolType DEFAULT_POOL;
     private ClientDecommissionManager decommissionManager;
+    private HttpClientUserManager httpClientUserManager;
+
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpConnectionPoolServiceImpl.class);
 
     public HttpConnectionPoolServiceImpl() {
@@ -30,35 +31,42 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         DEFAULT_POOL = new PoolType();
         decommissionManager = new ClientDecommissionManager();
         decommissionManager.startThread();
-
-
+        httpClientUserManager = new HttpClientUserManager();
     }
 
     @Override
-    public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
-
+    public DefaultHttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
         if (poolMap.isEmpty()) {
             defaultClientId = "DEFAULT_POOL";
             HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(defaultClientId, httpClient);
-
         }
 
         if (clientId != null && !clientId.isEmpty() && !isAvailable(clientId)) {
-
             HttpClient httpClient = clientGenerator(DEFAULT_POOL);
             poolMap.put(clientId, httpClient);
         }
 
         if (clientId == null || clientId.isEmpty()) {
-            return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId);
+            String userId = httpClientUserManager.addUser(defaultClientId);
+            return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId, userId);
         } else {
-            if (isAvailable(clientId))
-                return new DefaultHttpClientResponse(poolMap.get(clientId), clientId);
-            else
+            if (isAvailable(clientId)) {
+                String userId = httpClientUserManager.addUser(clientId);
+                return new DefaultHttpClientResponse(poolMap.get(clientId), clientId, userId);
+            } else {
                 throw new HttpClientNotFoundException("Pool " + clientId + "not available");
+            }
         }
+    }
+
+    @Override
+    public void releaseClient(DefaultHttpClientResponse httpClientResponse) {
+        String clientId = httpClientResponse.getClientId();
+        String userId = httpClientResponse.getUserId();
+
+        httpClientUserManager.removeUser(clientId, userId);
     }
 
     @Override

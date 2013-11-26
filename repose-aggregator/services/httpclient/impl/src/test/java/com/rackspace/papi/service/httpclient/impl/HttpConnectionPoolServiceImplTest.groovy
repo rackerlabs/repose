@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.httpclient.impl
 
 import com.rackspace.papi.service.httpclient.HttpClientResponse
-import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
@@ -10,8 +9,13 @@ import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.*
-import static org.mockito.Mockito.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertTrue
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.when
 
 class HttpConnectionPoolServiceImplTest {
 
@@ -29,7 +33,7 @@ class HttpConnectionPoolServiceImplTest {
 
     HttpConnectionPoolConfig poolCfg;
 
-    HttpClientService srv;
+    HttpConnectionPoolServiceImpl srv;
 
     @Before
     void setUp() {
@@ -73,8 +77,6 @@ class HttpConnectionPoolServiceImplTest {
 
         srv = new HttpConnectionPoolServiceImpl();
         srv.configure(poolCfg);
-
-
     }
 
 
@@ -156,5 +158,45 @@ class HttpConnectionPoolServiceImplTest {
 
         cpool.shutdown()
         verify(mockConnMgr).shutdown()
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNullClient() {
+        HttpClientResponse clientResponse = srv.getClient(null);
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey("defaultPool"))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingEmptyClient() {
+        HttpClientResponse clientResponse = srv.getClient("");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey("defaultPool"))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNamedDefaultClient() {
+        HttpClientResponse clientResponse = srv.getClient("defaultPool");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey("defaultPool"))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNonDefaultClient() {
+        HttpClientResponse clientResponse = srv.getClient("pool");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey("pool"))
+    }
+
+    @Test
+    void shouldReleaseUserFromClientWhenBothAreValid() {
+        HttpClientResponse clientResponse = srv.getClient("pool");
+
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey("pool"))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.get("pool").size() == 1)
+
+        srv.releaseClient(clientResponse)
+
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.get("pool").size() == 0)
     }
 }
