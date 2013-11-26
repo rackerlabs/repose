@@ -1,12 +1,9 @@
 package features.filters.translation
 import framework.ReposeValveTest
-import framework.category.Bug
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-@Category(Bug.class)
 class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
     def static Map acceptXML = ["accept": "application/xml"]
@@ -41,7 +38,7 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         }
 
-        deproxy._defaultHandler = missingHeaderErrorHandler
+        deproxy.defaultHandler = missingHeaderErrorHandler
 
         Thread.sleep(10000)
     }
