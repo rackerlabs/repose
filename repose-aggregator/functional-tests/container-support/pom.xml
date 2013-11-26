@@ -2,10 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.papi.external</groupId>
-        <artifactId>external-lib-support</artifactId>
-        <version>2.12.1-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <artifactId>functional-test-support</artifactId>
+        <groupId>com.rackspace.papi.test</groupId>
+        <version>2.13.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.external.testing</groupId>
@@ -15,7 +14,6 @@
     <name>Repose Test - Testing embedded support for Repose</name>
 
     <description>Container support to launch repose under Glassfish and Tomcat</description>
-
 
     <dependencies>
         <dependency>

@@ -148,7 +148,8 @@ public class SystemModelInterrogator {
       ReposeCluster domain = null;
 
       for (ReposeCluster possibleDomain : systemModel.getReposeCluster()) {
-         if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(ports)) {
+          //todo: This is really bad, creating objects that are used for just a moment then never again is expensive
+          if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(ports)) {
             domain = possibleDomain;
             break;
          }

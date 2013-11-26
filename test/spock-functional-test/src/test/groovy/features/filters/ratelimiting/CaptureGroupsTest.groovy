@@ -444,6 +444,91 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
+    def "Requests to an url and a percent-encoded equivalent form of that url should go into the same bucket"() {
+
+        // rfc 3986 § 2.3: "URIs that differ in the replacement of an
+        // unreserved character with its corresponding percent-encoded
+        // US-ASCII octet are equivalent: they identify the same resource."
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/servers/abc/instances/123"
+        String url2 = "http://localhost:${reposePort}/servers/abc/instances/%31%32%33"
+        def headers = ['X-PP-User': 'user9', 'X-PP-Groups': 'group']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+    }
+
+    def "Capitalization of hex digits in percent-encoded octets should be treated as equivalent"() {
+
+        // rfc 3986 § 2.1: "The uppercase hexadecimal digits 'A' through 'F'
+        // are equivalent to the lowercase digits 'a' through 'f',
+        // respectively.  If two URIs differ only in the case of hexadecimal
+        // digits used in percent-encoded octets, they are equivalent."
+
+        given:
+
+        def mc
+        String url1 = "http://localhost:${reposePort}/servers/%6a%6b%6c/instances/123"  //  /servers/jkl/instances/123
+        String url2 = "http://localhost:${reposePort}/servers/%6A%6B%6C/instances/123"
+        def headers = ['X-PP-User': 'user10', 'X-PP-Groups': 'group']
+
+
+        when: "we make one request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a second request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should make it to the origin service"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        when: "we make a third request to the first url"
+        mc = deproxy.makeRequest(url: url1, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+
+
+        when: "we make one request to the second url"
+        mc = deproxy.makeRequest(url: url2, headers: headers)
+        then: "it should be blocked"
+        mc.receivedResponse.code == "413"
+        mc.handlings.size() == 0
+
+    }
 
     def cleanupSpec() {
 

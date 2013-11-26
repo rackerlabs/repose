@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>2.12.1-SNAPSHOT</version>
+        <version>2.13.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>profile-support</artifactId>
-    <version>2.12.1-SNAPSHOT</version>
+    <version>2.13.1-SNAPSHOT</version>
 
     <name>Repose - Build Support Profiles</name>
 
@@ -38,6 +38,7 @@
         <module>services/rate-limiting-service</module>
         <module>installation</module>
         <module>management</module>
+        <module>functional-tests</module>
     </modules>
 
     <dependencyManagement>
