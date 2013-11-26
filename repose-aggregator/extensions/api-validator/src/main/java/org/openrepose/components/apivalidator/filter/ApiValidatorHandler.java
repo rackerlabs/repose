@@ -14,8 +14,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.ApiValidator;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

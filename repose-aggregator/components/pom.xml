@@ -60,8 +60,8 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.service</groupId>
-                <artifactId>metrics-reporting</artifactId>
-                <version>2.13.1-SNAPSHOT</version>
+                <artifactId>metrics</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
