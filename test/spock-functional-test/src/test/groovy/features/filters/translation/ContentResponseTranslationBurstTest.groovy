@@ -1,24 +1,13 @@
 package features.filters.translation
-
-
 import framework.ReposeValveTest
 import framework.category.Bug
-import org.apache.http.HttpEntity
-import org.apache.http.HttpResponse
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.DefaultHttpClient
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import framework.category.Bug
-import org.junit.experimental.categories.Category;
-
 
 @Category(Bug.class)
-class ContentTranslationBurstTest extends ReposeValveTest {
+class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
     def static Map acceptXML = ["accept": "application/xml"]
 
@@ -35,7 +24,7 @@ class ContentTranslationBurstTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
         repose.applyConfigs("features/filters/translation/common",
-                            "features/filters/translation/missingContent")
+                            "features/filters/translation/missingContent/response")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
