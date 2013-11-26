@@ -31,7 +31,7 @@ import com.rackspace.papi.service.reporting.ReportingService;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import com.rackspace.papi.service.metrics.MeterByCategory;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

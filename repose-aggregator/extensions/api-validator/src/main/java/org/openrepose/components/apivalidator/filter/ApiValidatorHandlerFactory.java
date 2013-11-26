@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.metrics.api.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
