@@ -3,9 +3,11 @@ package features.filters.ratelimiting
 import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
+import org.junit.experimental.categories.Category
 
 class CaptureGroupsTest extends Specification {
 
@@ -444,6 +446,7 @@ class CaptureGroupsTest extends Specification {
         mc.handlings.size() == 0
     }
 
+    @Category(Bug) // DEFECT: D-16373
     def "Requests to an url and a percent-encoded equivalent form of that url should go into the same bucket"() {
 
         // rfc 3986 § 2.3: "URIs that differ in the replacement of an
@@ -487,6 +490,7 @@ class CaptureGroupsTest extends Specification {
 
     }
 
+    @Category(Bug) // DEFECT: D-16373
     def "Capitalization of hex digits in percent-encoded octets should be treated as equivalent"() {
 
         // rfc 3986 § 2.1: "The uppercase hexadecimal digits 'A' through 'F'
