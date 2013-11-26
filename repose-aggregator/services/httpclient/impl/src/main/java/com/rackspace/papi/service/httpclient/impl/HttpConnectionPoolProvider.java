@@ -22,7 +22,6 @@ public final class HttpConnectionPoolProvider {
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
     public static final String UNIQUE_ID = "UNIQUE_ID";
 
-
     private HttpConnectionPoolProvider() {}
 
     public static HttpClient genClient(PoolType poolConf) {

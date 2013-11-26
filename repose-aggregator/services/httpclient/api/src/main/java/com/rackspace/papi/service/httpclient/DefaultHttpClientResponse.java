@@ -2,21 +2,19 @@ package com.rackspace.papi.service.httpclient;
 
 import org.apache.http.client.HttpClient;
 
-import java.util.UUID;
-
 /**
  *  An HttpClientResponse that generates a unique UUID
  */
-public class DefaultHttpClientResponse implements HttpClientResponse{
+public class DefaultHttpClientResponse implements HttpClientResponse {
 
     private HttpClient httpClient;
     private String clientId;
-    private String uuid;
+    private String userId;
 
-    public DefaultHttpClientResponse(HttpClient httpClient, String clientId) {
+    public DefaultHttpClientResponse(HttpClient httpClient, String clientId, String userId) {
         this.httpClient = httpClient;
         this.clientId = clientId;
-        this.uuid = UUID.randomUUID().toString();
+        this.userId = userId;
     }
 
     @Override
@@ -28,7 +26,7 @@ public class DefaultHttpClientResponse implements HttpClientResponse{
         return clientId;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getUserId() {
+        return userId;
     }
 }
