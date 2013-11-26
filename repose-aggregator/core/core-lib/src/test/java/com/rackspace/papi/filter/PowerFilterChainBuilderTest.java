@@ -5,7 +5,6 @@ import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
-import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
@@ -14,6 +13,7 @@ import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import java.util.*;
@@ -21,7 +21,6 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author fran
@@ -166,7 +165,7 @@ public class PowerFilterChainBuilderTest {
          domain.setFilters(mock(FilterList.class));
 
          Node host = new Node();
-         host.setHostname(NetUtilities.getLocalHostName());
+         host.setHostname("localhost");
          host.setHttpPort(8080);
          host.setHttpsPort(0);
 

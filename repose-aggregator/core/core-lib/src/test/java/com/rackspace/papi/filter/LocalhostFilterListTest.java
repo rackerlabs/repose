@@ -1,6 +1,5 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.*;
@@ -62,7 +61,7 @@ public class LocalhostFilterListTest {
          domain.setFilters(mock(FilterList.class));
 
          Node host = new Node();
-         host.setHostname(NetUtilities.getLocalHostName());
+         host.setHostname("localhost");
          host.setHttpPort(8080);
          host.setHttpsPort(0);
 
