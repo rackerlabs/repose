@@ -49,7 +49,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
       // TODO replace "api-validator" with filter-id or name-number in sys-model
       if (metricsService != null) {
-         mbcsInvalidRequests = metricsService.newMeterByCategorySum(ApiValidator.class,
+         mbcsInvalidRequests = (MeterByCategorySum)metricsService.newMeterByCategorySum(ApiValidator.class,
                 "api-validator", "InvalidRequest", TimeUnit.SECONDS);
       }
    }
