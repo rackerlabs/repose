@@ -34,7 +34,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
 
         then: "HTTPClientService has logged that the conn pool is created"
-        def logLines = reposeLogSearch.searchByString("HTTP connection pool default-1 with unique id .* has been created") //default-1 comes from connection pool config
+        def logLines = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
         logLines.size() == 1
 
         cleanup:
@@ -50,7 +50,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
         waitUntilReadyToServiceRequests()
-        def createdLog = reposeLogSearch.searchByString("HTTP connection pool default-1 with unique id .* has been created") //default-1 comes from connection pool config
+        def createdLog = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
 
         and: "The HttpClientService is reconfigured"
         repose.updateConfigs("features/services/httpconnectionpool/decommissioned/second")
