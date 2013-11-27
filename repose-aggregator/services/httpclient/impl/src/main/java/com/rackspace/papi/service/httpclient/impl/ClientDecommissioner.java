@@ -43,13 +43,6 @@ public class ClientDecommissioner implements Runnable {
         }
     }
 
-    /*TODO: yagni*/
-    public void addClientsToBeDecommissioned(List<HttpClient> clients) {
-        for (HttpClient client : clients) {
-            addClientToBeDecommissioned(client);
-        }
-    }
-
     public void stop() {
         this.done = true;
     }

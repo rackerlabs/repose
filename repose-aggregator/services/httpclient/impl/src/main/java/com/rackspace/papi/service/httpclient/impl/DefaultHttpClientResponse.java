@@ -33,7 +33,4 @@ public class DefaultHttpClientResponse implements HttpClientResponse {
         return userId;
     }
 
-    public String getClientId() {
-        return clientId;
-    }
 }
