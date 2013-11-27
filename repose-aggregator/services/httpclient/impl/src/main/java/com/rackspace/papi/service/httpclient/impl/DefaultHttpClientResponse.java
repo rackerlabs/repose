@@ -1,5 +1,6 @@
-package com.rackspace.papi.service.httpclient;
+package com.rackspace.papi.service.httpclient.impl;
 
+import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import org.apache.http.client.HttpClient;
 
 /**
@@ -9,11 +10,13 @@ public class DefaultHttpClientResponse implements HttpClientResponse {
 
     private HttpClient httpClient;
     private String clientId;
+    private String clientInstanceId;
     private String userId;
 
-    public DefaultHttpClientResponse(HttpClient httpClient, String clientId, String userId) {
+    public DefaultHttpClientResponse(HttpClient httpClient, String clientId, String clientInstanceId, String userId) {
         this.httpClient = httpClient;
         this.clientId = clientId;
+        this.clientInstanceId = clientInstanceId;
         this.userId = userId;
     }
 
@@ -22,11 +25,15 @@ public class DefaultHttpClientResponse implements HttpClientResponse {
         return httpClient;
     }
 
-    public String getClientId() {
-        return clientId;
+    public String getClientInstanceId() {
+        return clientInstanceId;
     }
 
     public String getUserId() {
         return userId;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 }

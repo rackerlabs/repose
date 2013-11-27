@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.httpclient.impl;
 
-import com.rackspace.papi.service.httpclient.DefaultHttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
@@ -12,6 +11,8 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolProvider.CLIENT_INSTANCE_ID;
 
 
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, DefaultHttpClientResponse> {
@@ -48,30 +49,34 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
             poolMap.put(clientId, httpClient);
         }
 
+        final HttpClient requestedClient;
+
         if (clientId == null || clientId.isEmpty()) {
-            String userId = httpClientUserManager.addUser(defaultClientId);
-            return new DefaultHttpClientResponse(poolMap.get(defaultClientId), clientId, userId);
+            requestedClient = poolMap.get(defaultClientId);
         } else {
             if (isAvailable(clientId)) {
-                String userId = httpClientUserManager.addUser(clientId);
-                return new DefaultHttpClientResponse(poolMap.get(clientId), clientId, userId);
+                requestedClient = poolMap.get(clientId);
             } else {
                 throw new HttpClientNotFoundException("Pool " + clientId + "not available");
             }
         }
+
+        String clientInstanceId = requestedClient.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
+        String userId = httpClientUserManager.addUser(clientInstanceId);
+
+        return new DefaultHttpClientResponse(requestedClient, clientId, clientInstanceId, userId);
     }
 
     @Override
     public void releaseClient(DefaultHttpClientResponse httpClientResponse) {
-        String clientId = httpClientResponse.getClientId();
+        String clientInstanceId = httpClientResponse.getClientInstanceId();
         String userId = httpClientResponse.getUserId();
 
-        httpClientUserManager.removeUser(clientId, userId);
+        httpClientUserManager.removeUser(clientInstanceId, userId);
     }
 
     @Override
     public void configure(HttpConnectionPoolConfig config) {
-
 
         HashMap<String, HttpClient> newPoolMap = new HashMap<String, HttpClient>();
 

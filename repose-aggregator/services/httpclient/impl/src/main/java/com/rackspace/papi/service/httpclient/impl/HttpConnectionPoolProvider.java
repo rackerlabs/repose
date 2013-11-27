@@ -20,7 +20,7 @@ public final class HttpConnectionPoolProvider {
     private static final Logger LOG = LoggerFactory.getLogger(HttpConnectionPoolProvider.class);
     private static final int DEFAULT_HTTPS_PORT = 443;
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
-    public static final String UNIQUE_ID = "UNIQUE_ID";
+    public static final String CLIENT_INSTANCE_ID = "CLIENT_INSTANCE_ID";
 
     private HttpConnectionPoolProvider() {}
 
@@ -32,7 +32,7 @@ public final class HttpConnectionPoolProvider {
         cm.setMaxTotal(poolConf.getHttpConnManagerMaxTotal());
         DefaultHttpClient client = new DefaultHttpClient(cm);
         final String uuid =  UUID.randomUUID().toString();
-        client.getParams().setParameter(UNIQUE_ID, uuid);
+        client.getParams().setParameter(CLIENT_INSTANCE_ID, uuid);
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
         SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         SchemeRegistry registry = cm.getSchemeRegistry();
@@ -50,7 +50,7 @@ public final class HttpConnectionPoolProvider {
 
         client.getParams().setBooleanParameter(CHUNKED_ENCODING_PARAM, poolConf.isChunkedEncoding());
 
-        LOG.info("HTTP connection pool {} with unique id {} has been created", poolConf.getId(), uuid);
+        LOG.info("HTTP connection pool {} with instance id {} has been created", poolConf.getId(), uuid);
 
         return client;
     }

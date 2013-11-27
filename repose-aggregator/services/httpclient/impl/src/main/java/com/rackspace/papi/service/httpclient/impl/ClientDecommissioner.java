@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolProvider.CLIENT_INSTANCE_ID;
+
 /**
  * Thread runner which will  monitor and shutdown when no active connections are being processed by passed
  * HttpClient(s)
@@ -17,7 +19,6 @@ public class ClientDecommissioner implements Runnable {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissioner.class);
 
     private static final long DEFAULT_INTERVAL = 5000;
-    public static final String UNIQUE_ID = "UNIQUE_ID";
     List<HttpClient> clientList;
     private boolean done;
     private Object listLock;
@@ -64,7 +65,7 @@ public class ClientDecommissioner implements Runnable {
 
                 for (HttpClient client : clientList) {
 
-                    String clientId = client.getParams().getParameter(UNIQUE_ID).toString();
+                    String clientId = client.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
 
                     if (userManager.hasUsers(clientId)) {
                         LOG.warn("Failed to shutdown client {} due to users still registered.", clientId);
@@ -75,14 +76,14 @@ public class ClientDecommissioner implements Runnable {
                     PoolStats stats = connMan.getTotalStats();
 
                     if (stats.getLeased() == 0) {   // if no active connections we will shutdown this client
-                        LOG.debug("Shutting down client: " + client.hashCode());
+                        LOG.debug("Shutting down client {}", clientId);
                         connMan.shutdown();
                         clientsToRemove.add(client);
                     }
                 }
                 for(HttpClient client: clientsToRemove) {
                     clientList.remove(client);
-                    LOG.info("HTTP connection pool {} has been destroyed.", client.getParams().getParameter(UNIQUE_ID));
+                    LOG.info("HTTP connection pool {} has been destroyed.", client.getParams().getParameter(CLIENT_INSTANCE_ID));
                 }
             }
 

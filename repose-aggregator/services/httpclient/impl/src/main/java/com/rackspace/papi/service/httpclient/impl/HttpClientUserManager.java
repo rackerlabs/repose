@@ -1,49 +1,46 @@
 package com.rackspace.papi.service.httpclient.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpClientUserManager {
 
-    private Map<String, ArrayList<String>> registeredClientUsers = new ConcurrentHashMap<String, ArrayList<String>>();
+    private Map<String, List<String>> registeredClientUsers = new ConcurrentHashMap<String, List<String>>();
 
-    String addUser(String clientId) {
+    String addUser(String clientInstanceId) {
 
-        if (clientId == null || clientId.isEmpty()) {
+        if (clientInstanceId == null || clientInstanceId.isEmpty()) {
             throw new IllegalArgumentException("No client ID provided!");
         }
 
         String userId = UUID.randomUUID().toString();
 
-        if (registeredClientUsers.containsKey(clientId)) {
-            ArrayList<String> users = registeredClientUsers.get(clientId);
+        if (registeredClientUsers.containsKey(clientInstanceId)) {
+            List<String> users = registeredClientUsers.get(clientInstanceId);
             users.addAll(Arrays.asList(userId));
-            registeredClientUsers.put(clientId, users);
+            registeredClientUsers.put(clientInstanceId, users);
         } else {
-            ArrayList<String> users = new ArrayList<String>();
+            List<String> users = Collections.synchronizedList(new ArrayList<String>());
             users.add(userId);
-            registeredClientUsers.put(clientId, users);
+            registeredClientUsers.put(clientInstanceId, users);
         }
 
         return userId;
     }
 
-    void removeUser(String clientId, String userId) {
+    void removeUser(String clientInstanceId, String userId) {
 
-        if (clientId == null || clientId.isEmpty() || userId == null || userId.isEmpty()) {
+        if (clientInstanceId == null || clientInstanceId.isEmpty() || userId == null || userId.isEmpty()) {
             throw new IllegalArgumentException("No client and/or user ID provided!");
         }
 
-        if (registeredClientUsers.containsKey(clientId)) {
-            registeredClientUsers.get(clientId).remove(userId);
+        if (registeredClientUsers.containsKey(clientInstanceId)) {
+            registeredClientUsers.get(clientInstanceId).remove(userId);
         }
     }
 
-    public boolean hasUsers(String clientId) {
-        if (!registeredClientUsers.containsKey(clientId) || registeredClientUsers.get(clientId).size() == 0) {
+    public boolean hasUsers(String clientInstanceId) {
+        if (!registeredClientUsers.containsKey(clientInstanceId) || registeredClientUsers.get(clientInstanceId).size() == 0) {
             return false;
         }
 
