@@ -111,6 +111,7 @@
     <xi:include href="chapters/repose-versioning-chapter.xml"/>
     <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
     <xi:include href="chapters/repose-translation-chapter.xml"/>
+    <xi:include href="chapters/repose-compression-chapter.xml"/>
     <xi:include href="chapters/repose-glossary-chapter.xml"/>
     <xi:include href="chapters/afterword.xml"/> 
     

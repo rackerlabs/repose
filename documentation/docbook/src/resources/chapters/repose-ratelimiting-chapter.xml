@@ -348,7 +348,7 @@
                                 <para>local/default</para>
                             </listitem>
                             <listitem>
-                                <para>distributed/has-ring (requires
+                                <para>distributed/hash-ring (requires
                                    dist-datastore filter)</para>
                             </listitem>
                             <listitem>
@@ -739,8 +739,8 @@
             
             <caption>Sample Request/Response Conversation: Request
                 Limits for User</caption>
-          <col width="50%"/>  
-            <col width="50%"/>  
+          <col width="30%"/>  
+            <col width="70%"/>  
             <thead>
                 <tr>
                     <th>Request</th>
@@ -773,10 +773,10 @@ Content-Length: 538
     &lt;rates&gt;
         &lt;rate uri="/service*" regex="/service/([\d^/]*)/.*"&gt;
             &lt;limit value="5" verb="DELETE" unit="MINUTE" 
-                remaining="1" next-available="2010-12-15T22:42:12Z" /&gt;
+                <guilabel>remaining="1"</guilabel> next-available="2010-12-15T22:42:12Z" /&gt;
             &lt;limit value="15" verb="PUT" unit="HOUR" 
                 remaining="4" next-available="2010-12-15T22:42:12Z" /&gt;
-            &lt;limit value="2" verb="POST" unit="DAY" 
+            &lt;<guilabel>limit value="2"</guilabel> verb="POST" unit="DAY" 
                 remaining="1" next-available="2010-12-15T22:42:12Z" /&gt;
         &lt;/rate&gt;
     &lt;/rates&gt;
@@ -843,8 +843,8 @@ Content-Length: 538
            
             <caption>Sample Request/Response Conversation: Request
                 Limits for User Not in Cache </caption>
-            <col width="50%"/>
-            <col width="50%"/>
+            <col width="30%"/>
+            <col width="70%"/>
             <thead>
                 <tr>
                     <th>Request</th>
@@ -855,9 +855,11 @@ Content-Length: 538
                 <tr>
                     <td>
                         <programlisting>
-curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application/xml" 
+curl http://localhost:8020/limits -H "x-pp-user:
+123456" -H "accept: application/xml"
 </programlisting>
                     </td>
+ 
                     <td>
                         <informalexample>
                             <programlisting language="xml">
@@ -887,6 +889,8 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application
            
             <caption>Sample Request/Response Conversation: Request
                 Limits for User in Group </caption>
+            <col width="30%"/>
+            <col width="70%"/>
             <thead>
                 <tr>
                     <th>Request</th>
@@ -897,7 +901,9 @@ curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application
                 <tr>
                     <td>
                         <programlisting>
-curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_Standard" -H "accept: application/xml" 
+curl http://localhost:8020/limits -H "x-pp-user:
+123456"  -H "x-pp-groups: IP_Standard" -H "accept:
+application/xml" 
 </programlisting>
                     </td>
                     <td>
