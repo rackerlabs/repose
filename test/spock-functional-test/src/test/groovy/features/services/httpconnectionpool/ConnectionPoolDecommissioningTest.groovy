@@ -103,7 +103,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
             println("Starting client: " + x)
             def thread = Thread.start {
                 for (y in 1..5) {
-                    MessageChain messageChain = deproxy.makeRequest(url:reposeEndpoint, defaultHandler: Handlers.Delay(rand.nextInt(15000)))
+                    MessageChain messageChain = deproxy.makeRequest(url:reposeEndpoint, defaultHandler: Handlers.Delay(500 + rand.nextInt(1000)))
                     if (messageChain.receivedResponse.code != "200") {
                         println("ERROR: call received an error response")
                         println("RESPONSE: " + messageChain.receivedResponse.body)
