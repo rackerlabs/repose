@@ -160,25 +160,20 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
 
         then: "Repose returns an error"
-        if (messageChain.receivedResponse.code == "400") {
-            messageChain.handlings.size() == 0
-        } else {
-            messageChain.receivedResponse.code == "200"
-            messageChain.handlings.size() == 1
-            messageChain.handlings[0].request.path == encodedValue
-        }
+        messageChain.receivedResponse.code == "400"
+        messageChain.handlings.size() == 0
 
         where:
-        uri                      | encodedValue
-        "/resource?name=val`ue"  | "/resource?name=val%60ue"
-        "/resource?name=val^ue"  | "/resource?name=val%5Eue"
-        "/resource?name=val{ue"  | "/resource?name=val%7Bue"
-        "/resource?name=val}ue"  | "/resource?name=val%7Due"
-        "/resource?name=val\\ue" | "/resource?name=val%5Cue"
-        "/resource?name=val|ue"  | "/resource?name=val%7Cue"
-        "/resource?name=val\"ue" | "/resource?name=val%22ue"
-        "/resource?name=val<ue"  | "/resource?name=val%3Cue"
-        "/resource?name=val>ue"  | "/resource?name=val%3Eue"
+        uri                      | _
+        "/resource?name=val`ue"  | _
+        "/resource?name=val^ue"  | _
+        "/resource?name=val{ue"  | _
+        "/resource?name=val}ue"  | _
+        "/resource?name=val\\ue" | _
+        "/resource?name=val|ue"  | _
+        "/resource?name=val\"ue" | _
+        "/resource?name=val<ue"  | _
+        "/resource?name=val>ue"  | _
     }
 
     @Unroll("Query components with spaces disrupt the request line -> Either 400 response or percent-encode -- #uri")
