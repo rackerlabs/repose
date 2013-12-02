@@ -23,7 +23,6 @@
 
     <modules>
         <module>jee6-schemas</module>
-        <module>servlet-api</module>
         <module>service-clients</module>
         <module>testing/test-support</module>
         <module>os-auth-schemas</module>
