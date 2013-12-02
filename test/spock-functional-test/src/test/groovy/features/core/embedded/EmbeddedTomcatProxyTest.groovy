@@ -1,5 +1,7 @@
 package features.core.embedded
 
+import com.rackspace.papi.external.testing.mocks.MocksUtil
+import com.rackspace.papi.external.testing.mocks.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
@@ -75,13 +77,18 @@ class EmbeddedTomcatProxyTest extends  Specification{
 
         when: "Request is sent through Repose/Tomcat"
         waitUntilReadyToServiceRequests(tomcatEndpoint)
-        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-trace-request': 'true', 'x-pp-user': 'usertest1'])
+        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['passheader': 'value1'])
+        RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
 
         then: "Repose Should Forward Response"
         mc.receivedResponse.code == "200"
 
         and: "Response should contain a body"
         !mc.receivedResponse.body.toString().empty
+
+        and: "Repose should have passed the x-pp-user header"
+        info.getHeaders().get("passheader").get(0) == "value1"
+
     }
 
 

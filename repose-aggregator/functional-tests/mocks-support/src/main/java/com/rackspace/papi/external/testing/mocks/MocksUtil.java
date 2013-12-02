@@ -96,4 +96,9 @@ public final class MocksUtil {
         req.setHeaders(h);
         return req;
     }
+
+    public static RequestInfo xmlStringToRequestInfo(String xml) throws JAXBException {
+
+        return new RequestInfo(xmlStringToRequestInformation(xml));
+    }
 }

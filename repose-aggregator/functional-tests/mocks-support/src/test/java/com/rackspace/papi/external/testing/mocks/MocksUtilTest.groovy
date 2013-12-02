@@ -131,6 +131,15 @@ class MocksUtilTest {
 
     }
 
+    @Test
+    void testXmlToRequestInfo(){
+
+        RequestInfo info = MocksUtil.xmlStringToRequestInfo(testXml)
+
+        assert info.method == "GET"
+        assert info.path == "/blah"
+        assert info.getHeaders().get("accept").get(0) == "application/xml"
+    }
 
     static Enumeration<String> createStringEnumeration(String... names) {
         Vector<String> namesCollection = new Vector<String>(names.length)

@@ -31,7 +31,8 @@ public class RequestInfo {
         this.queryString = requestInformation.getQueryString();
         this.headers = parseNameValuePair(requestInformation.getHeaders().getHeader());
         this.method = requestInformation.getMethod();
-        this.queryParams = parseNameValuePair(requestInformation.getQueryParams().getParameter());
+        this.queryParams = requestInformation.getQueryParams() != null ?
+                parseNameValuePair(requestInformation.getQueryParams().getParameter()) : null;
     }
 
     private Map<String, List<String>> parseNameValuePair(List<NameValuePair> nameValuePairs) {

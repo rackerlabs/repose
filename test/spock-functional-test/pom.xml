@@ -59,8 +59,8 @@
         <tomcat.jar>test-tomcat-container-${project.version}-jar-with-dependencies.jar</tomcat.jar>
         <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
         <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
-        <mocks.war.dir>${project.set.dir}/external/testing/test-support/target</mocks.war.dir>
-        <mocks.war>test-service-mock-${project.version}.war</mocks.war>
+        <mocks.war.dir>${project.set.dir}/functional-tests/mocks-servlet/target</mocks.war.dir>
+        <mocks.war>mocks-servlet-${project.version}.war</mocks.war>
         <mocks.war.location>${mocks.war.dir}/${mocks.war}</mocks.war.location>
     </properties>
 
@@ -146,6 +146,13 @@
             <groupId>xerces</groupId>
             <artifactId>xerces-xsd11</artifactId>
             <version>2.12.0-rax</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.rackspace.papi.external.testing</groupId>
+            <artifactId>mocks-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
