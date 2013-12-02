@@ -176,7 +176,31 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         "/resource?name=val>ue"  | _
     }
 
-    @Unroll("Query components with spaces disrupt the request line -> Either 400 response or percent-encode -- #uri")
+    @Unroll("Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+
+        when: "User sends request with a bad query component"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose returns an error"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == uri
+
+        where:
+        uri                       | _
+        "/resource?name=val%60ue" | _
+        "/resource?name=val%5Eue" | _
+        "/resource?name=val%7Bue" | _
+        "/resource?name=val%7Due" | _
+        "/resource?name=val%5Cue" | _
+        "/resource?name=val%7Cue" | _
+        "/resource?name=val%22ue" | _
+        "/resource?name=val%3Cue" | _
+        "/resource?name=val%3Eue" | _
+    }
+
+    @Unroll("Query components with spaces disrupt the request line -> 400 response -- #uri")
     def "Query components with spaces disrupt the request line -> 400 response"() {
 
         when: "User sends a request through repose"
