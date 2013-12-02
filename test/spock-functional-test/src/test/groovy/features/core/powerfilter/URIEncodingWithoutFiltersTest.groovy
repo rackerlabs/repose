@@ -44,7 +44,6 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         "/resource?name=_"          | "/resource?name=_"          | "/resource?name=%5F"
         "/resource?name=~"          | "/resource?name=~"          | "/resource?name=%7E"
 
-
         "/resource?name=val!ue"     | "/resource?name=val!ue"     | "/resource?name=val%21ue"
         "/resource?name=val\$ue"    | "/resource?name=val\$ue"    | "/resource?name=val%24ue"
         "/resource?name=val&ue"     | "/resource?name=val&ue"     | "/resource?name=val%26ue"
@@ -61,36 +60,51 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         "/resource?name=val/ue"     | "/resource?name=val/ue"     | "/resource?name=val%2Fue"
         "/resource?name=val?ue"     | "/resource?name=val?ue"     | "/resource?name=val%3Fue"
         "/resource?name=val%35ue"   | "/resource?name=val5ue"     | "/resource?name=val%35ue"
+    }
 
-        /* percent-encoding the question mark means that it should not be
-           interpreted as the beginning of the query component */
-        "/resource%3Fname=value" | "/resource%3Fname=value" | _
+    @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Query components with percent-encoded allowed characters -> send to origin service"() {
 
-        /* allowed characters that are percent-encoding are just as good. they
-         SHOULD be decoded, but don't have to be */
-        "/resource?name=val%2Due" | "/resource?name=val-ue" | "/resource?name=val%2Due"
-        "/resource?name=val%2Eue" | "/resource?name=val.ue" | "/resource?name=val%2Eue"
-        "/resource?name=val%5Fue" | "/resource?name=val_ue" | "/resource?name=val%5Fue"
-        "/resource?name=val%7Eue" | "/resource?name=val~ue" | "/resource?name=val%7Eue"
-        "/resource?name=val%21ue" | "/resource?name=val!ue" | "/resource?name=val%21ue"
+        // allowed characters that are percent-encoding are just as good. they
+        // SHOULD be decoded, but don't have to be.
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                       | expectedValue            | acceptableEncodedValue
+        "/resource?name=val%2Due" | "/resource?name=val-ue"  | "/resource?name=val%2Due"
+        "/resource?name=val%2Eue" | "/resource?name=val.ue"  | "/resource?name=val%2Eue"
+        "/resource?name=val%5Fue" | "/resource?name=val_ue"  | "/resource?name=val%5Fue"
+        "/resource?name=val%7Eue" | "/resource?name=val~ue"  | "/resource?name=val%7Eue"
+        "/resource?name=val%21ue" | "/resource?name=val!ue"  | "/resource?name=val%21ue"
         "/resource?name=val%24ue" | "/resource?name=val\$ue" | "/resource?name=val%24ue"
-        "/resource?name=val%26ue" | "/resource?name=val&ue" | "/resource?name=val%26ue"
+        "/resource?name=val%26ue" | "/resource?name=val&ue"  | "/resource?name=val%26ue"
         "/resource?name=val%27ue" | "/resource?name=val\'ue" | "/resource?name=val%27ue"
-        "/resource?name=val%28ue" | "/resource?name=val(ue" | "/resource?name=val%28ue"
-        "/resource?name=val%29ue" | "/resource?name=val)ue" | "/resource?name=val%29ue"
-        "/resource?name=val%2Aue" | "/resource?name=val*ue" | "/resource?name=val%2Aue"
-        "/resource?name=val%2Bue" | "/resource?name=val+ue" | "/resource?name=val%2Bue"
-        "/resource?name=val%2Cue" | "/resource?name=val,ue" | "/resource?name=val%2Cue"
-        "/resource?name=val%3Bue" | "/resource?name=val;ue" | "/resource?name=val%3Bue"
-        "/resource?name=val%3Due" | "/resource?name=val=ue" | "/resource?name=val%3Due"
-        "/resource?name=val%3Aue" | "/resource?name=val:ue" | "/resource?name=val%3Aue"
-        "/resource?name=val%40ue" | "/resource?name=val@ue" | "/resource?name=val%40ue"
-        "/resource?name=val%2Fue" | "/resource?name=val/ue" | "/resource?name=val%2Fue"
-        "/resource?name=val%3Fue" | "/resource?name=val?ue" | "/resource?name=val%3Fue"
-        "/resource?name=val%35ue" | "/resource?name=val5ue" | "/resource?name=val%35ue"
+        "/resource?name=val%28ue" | "/resource?name=val(ue"  | "/resource?name=val%28ue"
+        "/resource?name=val%29ue" | "/resource?name=val)ue"  | "/resource?name=val%29ue"
+        "/resource?name=val%2Aue" | "/resource?name=val*ue"  | "/resource?name=val%2Aue"
+        "/resource?name=val%2Bue" | "/resource?name=val+ue"  | "/resource?name=val%2Bue"
+        "/resource?name=val%2Cue" | "/resource?name=val,ue"  | "/resource?name=val%2Cue"
+        "/resource?name=val%3Bue" | "/resource?name=val;ue"  | "/resource?name=val%3Bue"
+        "/resource?name=val%3Due" | "/resource?name=val=ue"  | "/resource?name=val%3Due"
+        "/resource?name=val%3Aue" | "/resource?name=val:ue"  | "/resource?name=val%3Aue"
+        "/resource?name=val%40ue" | "/resource?name=val@ue"  | "/resource?name=val%40ue"
+        "/resource?name=val%2Fue" | "/resource?name=val/ue"  | "/resource?name=val%2Fue"
+        "/resource?name=val%3Fue" | "/resource?name=val?ue"  | "/resource?name=val%3Fue"
+        "/resource?name=val%35ue" | "/resource?name=val5ue"  | "/resource?name=val%35ue"
     }
 
     def "When there are two question marks in the URI, the first should indicate the beginning of the query component"() {
+
+        given:
+        String uri = "/resource?name=some?value"
+        String expectedValue = "/resource?name=some%3Fvalue"
 
         when: "User sends a request through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -100,9 +114,21 @@ class URIEncodingWithoutFiltersTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.path == expectedValue
 
-        where:
-        uri                         | expectedValue
-        "/resource?name=some?value" | "/resource?name=some%3Fvalue"
+    }
+
+    def "A percent-encoded question mark should not be interpreted as the beginning of the query component"() {
+
+        given:
+        String uri = "/resource%3Fname=value"
+        String expectedValue = "/resource%3Fname=value"
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue
     }
 
     @Unroll("Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
