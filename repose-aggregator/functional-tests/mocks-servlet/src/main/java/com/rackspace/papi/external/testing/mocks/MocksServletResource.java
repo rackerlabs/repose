@@ -10,12 +10,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 @Path("/")
-public class MockServiceResource {
+public class MocksServletResource {
 
     private static final String DEFAULT_RESPONSE_CODE = "200";
     private MockServiceProvider provider;
 
-    public MockServiceResource() {
+    public MocksServletResource() {
         provider = new MockServiceProvider();
     }
 
