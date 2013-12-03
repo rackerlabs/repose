@@ -28,7 +28,7 @@ public class RackspaceAuthenticationHandler extends AuthenticationHandler {
 
    public RackspaceAuthenticationHandler(Configurables cfg, AuthenticationService authenticationService, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache,
            EndpointsCache endpointsCache, UriMatcher uriMatcher) {
-      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher, null);
+      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = authenticationService;
    }
 

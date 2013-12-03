@@ -123,7 +123,7 @@ public class OpenStackAuthenticationHandlerTest {
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
                     AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles.getRole());
-            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns), null);
+            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
             // Handler with cache
@@ -133,7 +133,7 @@ public class OpenStackAuthenticationHandlerTest {
             AuthUserCache usrCache = new AuthUserCache(store, AUTH_USER_CACHE_PREFIX);
             EndpointsCache endpointsCache = new EndpointsCache(store, ENDPOINTS_CACHE_PREFIX);
 
-            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache,usrCache, endpointsCache, new UriMatcher(whiteListRegexPatterns), null);
+            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache,usrCache, endpointsCache, new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();
