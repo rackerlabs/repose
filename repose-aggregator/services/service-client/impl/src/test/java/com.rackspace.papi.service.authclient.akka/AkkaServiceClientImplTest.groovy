@@ -39,7 +39,7 @@ class AkkaServiceClientImplTest {
 
         HttpClientResponse httpClientResponse =mock(HttpClientResponse.class)
 
-        when(httpClientService.getPoolSize(anyString())).thenReturn(20);
+        when(httpClientService.getMaxConnections(anyString())).thenReturn(20);
         when(httpClientService.getClient(anyString())).thenReturn(httpClientResponse);
 
         httpClient = mock(HttpClient.class);

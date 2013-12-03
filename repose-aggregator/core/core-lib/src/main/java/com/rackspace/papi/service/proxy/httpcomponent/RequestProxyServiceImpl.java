@@ -8,12 +8,12 @@ import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
+import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
@@ -55,10 +55,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     public RequestProxyServiceImpl() {
     }
 
-    private HttpClient getClient() {
+    private HttpClientResponse getClient() {
         try {
-            HttpClient httpClient = httpClientService.getClient(null).getHttpClient();
-            return httpClient;
+            HttpClientResponse httpClientResponse = httpClientService.getClient(null);
+            return httpClientResponse;
         } catch (HttpClientNotFoundException e) {
             LOG.error("Failed to obtain an HTTP default client connection");
             throw new ProxyRequestException("Failed to obtain an HTTP default client connection", e);
@@ -67,9 +67,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @Override
     public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
+        HttpClientResponse httpClientResponse = getClient();
 
-            final boolean isChunkedConfigured = getClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
+        try {
+            final boolean isChunkedConfigured = httpClientResponse.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
             final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader,isChunkedConfigured);
@@ -84,6 +85,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             LOG.error("Error processing request", ex);
         } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
+        } finally {
+            httpClientService.releaseClient(httpClientResponse);
         }
 
         //Something exploded; return a status code that doesn't exist
@@ -91,11 +94,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
+        HttpClientResponse httpClientResponse = getClient();
 
         try {
-
-
-            HttpResponse httpResponse = getClient().execute(httpMethodProxyRequest);
+            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(httpMethodProxyRequest);
             HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
@@ -114,6 +116,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 LOG.error("Error processing request", ex);
                 return -1;
             }
+        } finally {
+            httpClientService.releaseClient(httpClientResponse);
         }
         return 1;
 
@@ -128,8 +132,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private ServiceClientResponse execute(HttpRequestBase base) {
+        HttpClientResponse httpClientResponse = getClient();
         try {
-            HttpResponse httpResponse = getClient().execute(base);
+            HttpResponse httpResponse = httpClientResponse.getHttpClient().execute(base);
             HttpEntity entity = httpResponse.getEntity();
             HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
 
@@ -144,6 +149,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             LOG.error("Error executing request", ex);
         } finally {
             base.releaseConnection();
+            httpClientService.releaseClient(httpClientResponse);
         }
 
         return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);

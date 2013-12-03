@@ -13,10 +13,9 @@ public class ClientDecommissionManager {
     private final ClientDecommissioner decommissioner;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientDecommissionManager.class);
 
-    public ClientDecommissionManager() {
-        this.decommissioner = new ClientDecommissioner();
+    public ClientDecommissionManager(HttpClientUserManager userManager) {
+        this.decommissioner = new ClientDecommissioner(userManager);
         this.decommThread = new Thread(decommissioner);
-
     }
 
     public void startThread() {
@@ -33,7 +32,6 @@ public class ClientDecommissionManager {
 
     public void decommissionClient(Map<String, HttpClient> clients) {
 
-
         Set<Entry<String, HttpClient>> entrySet = clients.entrySet();
 
         for (Map.Entry<String, HttpClient> clientEntry : entrySet) {
@@ -44,6 +42,4 @@ public class ClientDecommissionManager {
     public void decommissionClient(HttpClient client) {
         decommissioner.addClientToBeDecommissioned(client);
     }
-
-
 }

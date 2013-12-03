@@ -4,6 +4,7 @@ package com.rackspace.papi.commons.util.http;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
+import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -65,9 +66,12 @@ public class ServiceClient {
     }
 
     private HttpClient getClientWithBasicAuth() throws ServiceClientException {
+        HttpClientResponse clientResponse = null;
+
         try{
 
-            final HttpClient client = httpClientService.getClient(connectionPoolId).getHttpClient();
+            clientResponse = httpClientService.getClient(connectionPoolId);
+            final HttpClient client = clientResponse.getHttpClient();
 
             if(!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) & !StringUtilities.isEmpty(password) )  {
 
@@ -84,9 +88,13 @@ public class ServiceClient {
 
             return client;
 
-        }catch(HttpClientNotFoundException e) {
+        } catch(HttpClientNotFoundException e) {
             LOG.error("Failed to obtain an HTTP default client connection");
             throw new ServiceClientException("Failed to obtain an HTTP default client connection", e);
+        } finally {
+            if (clientResponse != null) {
+                httpClientService.releaseClient(clientResponse);
+            }
         }
 
     }
@@ -191,7 +199,7 @@ public class ServiceClient {
     }
 
     public int getPoolSize(){
-        return httpClientService.getPoolSize(connectionPoolId);
+        return httpClientService.getMaxConnections(connectionPoolId);
     }
 
 }

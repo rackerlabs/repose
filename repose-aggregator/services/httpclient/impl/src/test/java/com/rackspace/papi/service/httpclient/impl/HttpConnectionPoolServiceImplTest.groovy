@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.httpclient.impl
 
 import com.rackspace.papi.service.httpclient.HttpClientResponse
-import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient
@@ -10,78 +9,39 @@ import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.*
-import static org.mockito.Mockito.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertTrue
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.when
 
 class HttpConnectionPoolServiceImplTest {
 
-
-    private PoolType poolType1, poolType2;
-    private final static int CONN_TIMEOUT = 30000;
-    private final static int MAX_HEADERS = 100;
-    private final static int MAX_LINE = 50;
-    private final static int SOC_TIMEOUT = 40000;
-    private final static boolean TCP_NODELAY = false;
-    private final static boolean TCP_NODELAY2 = true;
-    private final static int SOC_BUFF_SZ = 1023;
-    private final static int MAX_PER_ROUTE = 50;
-    private final static int MAX_TOTAL = 300;
-
     HttpConnectionPoolConfig poolCfg;
-
-    HttpClientService srv;
+    HttpConnectionPoolServiceImpl srv;
+    Boolean POOL1_TCPNODELAY = false
+    Boolean POOL2_TCPNODELAY = true
 
     @Before
     void setUp() {
-
-        poolType1 = new PoolType();
-
-        poolType1.setHttpConnectionMaxHeaderCount(MAX_HEADERS);
-        poolType1.setHttpConnectionMaxLineLength(MAX_LINE);
-        poolType1.setHttpConnectionMaxStatusLineGarbage(10);
-        poolType1.setHttpConnectionTimeout(CONN_TIMEOUT);
-        poolType1.setHttpConnManagerMaxPerRoute(MAX_PER_ROUTE);
-        poolType1.setHttpConnManagerMaxTotal(MAX_TOTAL);
-        poolType1.setHttpSocketBufferSize(SOC_BUFF_SZ);
-        poolType1.setHttpSocketTimeout(SOC_TIMEOUT);
-        poolType1.setHttpTcpNodelay(TCP_NODELAY);
-        poolType1.setId("pool");
-
-
-
-        poolType2 = new PoolType();
-
-        poolType2.setHttpConnectionMaxHeaderCount(MAX_HEADERS);
-        poolType2.setHttpConnectionMaxLineLength(MAX_LINE);
-        poolType2.setHttpConnectionMaxStatusLineGarbage(10);
-        poolType2.setHttpConnectionTimeout(CONN_TIMEOUT);
-        poolType2.setHttpConnManagerMaxPerRoute(MAX_PER_ROUTE);
-        poolType2.setHttpConnManagerMaxTotal(MAX_TOTAL);
-        poolType2.setHttpSocketBufferSize(SOC_BUFF_SZ);
-        poolType2.setHttpSocketTimeout(SOC_TIMEOUT);
-        poolType2.setHttpTcpNodelay(TCP_NODELAY2);
-        poolType2.setDefault(true);
-        poolType2.setId("defaultPool");
-
-        List<PoolType> pools = new ArrayList<PoolType>();
-
-        pools.add(poolType2);
-        pools.add(poolType1);
+        List<PoolType> pools = PoolTypeHelper.createListOfPools(2, 2)
+        pools.get(0).setHttpTcpNodelay(POOL1_TCPNODELAY)
+        pools.get(1).setHttpTcpNodelay(POOL2_TCPNODELAY)
 
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
 
         srv = new HttpConnectionPoolServiceImpl();
         srv.configure(poolCfg);
-
-
     }
 
 
     @Test
     void testGetClient() {
-        HttpClient client = srv.getClient("pool").getHttpClient();
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), false);
+        HttpClient client = srv.getClient("pool1").getHttpClient();
+        assertEquals("Should retrieve requested client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL1_TCPNODELAY);
     }
 
     @Test
@@ -92,18 +52,18 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void testHttpRandomConnectionPool() {
         HttpClient client = srv.getClient("nonexistent client").getHttpClient();
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL2_TCPNODELAY);
     }
 
     @Test
     void getDefaultClientPoolByPassingNull() {
         HttpClient client = srv.getClient(null).getHttpClient();
-        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), true);
+        assertEquals("Should retrive default client", client.getParams().getParameter(CoreConnectionPNames.TCP_NODELAY), POOL2_TCPNODELAY);
     }
 
     @Test
     void shouldReturnIfClientIsOrIsntAvailable() {
-        assertTrue("Should return true if client is available", srv.isAvailable("pool"));
+        assertTrue("Should return true if client is available", srv.isAvailable("pool1"));
         assertFalse("Should return false if client is not available", srv.isAvailable("nonexistent pool"));
     }
 
@@ -156,5 +116,45 @@ class HttpConnectionPoolServiceImplTest {
 
         cpool.shutdown()
         verify(mockConnMgr).shutdown()
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNullClient() {
+        HttpClientResponse clientResponse = srv.getClient(null);
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingEmptyClient() {
+        HttpClientResponse clientResponse = srv.getClient("");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNamedDefaultClient() {
+        HttpClientResponse clientResponse = srv.getClient("defaultPool");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+    }
+
+    @Test
+    void shouldRegisterUserWhenGettingNonDefaultClient() {
+        HttpClientResponse clientResponse = srv.getClient("pool");
+        assertNotNull(clientResponse)
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+    }
+
+    @Test
+    void shouldReleaseUserFromClientWhenBothAreValid() {
+        HttpClientResponse clientResponse = srv.getClient("pool");
+
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.containsKey(clientResponse.clientInstanceId))
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size() == 1)
+
+        srv.releaseClient(clientResponse)
+
+        assertTrue(srv.httpClientUserManager.registeredClientUsers.get(clientResponse.clientInstanceId).size() == 0)
     }
 }
