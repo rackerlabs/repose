@@ -17,7 +17,6 @@ import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.metrics.MeterByCategory;
 import com.rackspace.papi.service.metrics.MetricsService;
-import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +181,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
 
                         PowerFilter.markResponseCodeHelper( mbc, servletResponse.getStatus(), LOG, endpoint );
-                        PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
+                        PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, "ACROSS ALL" );
                         markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), endpoint );
                         markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );
 

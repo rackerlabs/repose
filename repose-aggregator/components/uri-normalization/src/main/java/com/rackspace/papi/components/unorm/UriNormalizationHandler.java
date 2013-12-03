@@ -8,8 +8,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.UriNormalization;
+import com.rackspace.papi.service.metrics.MeterByCategory;
 import com.rackspace.papi.service.metrics.MetricsService;
-import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -23,7 +23,7 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
     private final Collection<QueryParameterNormalizer> queryStringNormalizers;
     private final MediaTypeNormalizer mediaTypeNormalizer;
     private final MetricsService metricsService;
-    private MeterByCategorySum mbcsUriNormalizations;
+    private MeterByCategory mbcsUriNormalizations;
 
     public UriNormalizationHandler(Collection<QueryParameterNormalizer> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer, MetricsService metricsService) {
         this.queryStringNormalizers = queryStringNormalizers;
@@ -32,7 +32,7 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
 
         // TODO replace "uri-normalization" with filter-id or name-number in sys-model
         if (metricsService != null) {
-            mbcsUriNormalizations = (MeterByCategorySum)metricsService.newMeterByCategorySum(UriNormalization.class,
+            mbcsUriNormalizations = metricsService.newMeterByCategorySum(UriNormalization.class,
                     "uri-normalization", "Normalization", TimeUnit.SECONDS);
         }
     }
