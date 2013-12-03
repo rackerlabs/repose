@@ -2,15 +2,12 @@ package com.rackspace.papi.test;
 
 import org.apache.commons.cli.*;
 
-import java.io.File;
-
 public class ReposeContainerUtil {
 
     private ReposeContainerUtil(){
     }
 
     public static ReposeContainerProps parseArgs(String[] args) throws ParseException {
-
 
         Options options = new Options();
         CommandLineParser parser = new BasicParser();
@@ -28,14 +25,5 @@ public class ReposeContainerUtil {
         cmdline = parser.parse(options, args);
 
         return new ReposeContainerProps(cmdline.getOptionValue("p"), cmdline.getOptionValue("s"), cmdline.getOptionValue("w"), cmdline.getOptionValues("war"));
-    }
-
-    public static String getFileNameWOExtention(String path){
-
-        File os = new File(path);
-        int dot = os.getName().lastIndexOf(".");
-
-        return os.getName().substring(0, dot);
-
     }
 }

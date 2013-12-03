@@ -3,7 +3,7 @@ package com.rackspace.papi.test.tomcat;
 import com.rackspace.papi.test.ContainerMonitorThread;
 import com.rackspace.papi.test.ReposeContainer;
 import com.rackspace.papi.test.ReposeContainerProps;
-import com.rackspace.papi.test.ReposeContainerUtil;
+import com.rackspace.papi.test.mocks.util.MocksUtil;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
@@ -28,7 +28,7 @@ public class ReposeTomcatContainer extends ReposeContainer {
         if(props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0){
 
             for(String originService: props.getOriginServiceWars()){
-                tomcat.addWebapp("/"+ ReposeContainerUtil.getFileNameWOExtention(originService), originService);
+                tomcat.addWebapp("/"+ MocksUtil.getServletPath(originService), originService);
             }
         }
 

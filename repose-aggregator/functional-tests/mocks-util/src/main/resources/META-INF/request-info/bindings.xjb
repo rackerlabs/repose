@@ -6,6 +6,6 @@
           schemaLocation="request-info.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.external.testing.mocks" />
+        <package name="com.rackspace.papi.test.mocks" />
     </schemaBindings>
 </bindings>

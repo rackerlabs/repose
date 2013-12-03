@@ -1,5 +1,6 @@
 package com.rackspace.papi.external.testing.mocks
 
+import com.rackspace.papi.test.mocks.*
 import com.rackspace.papi.test.mocks.util.MocksUtil
 import com.rackspace.papi.test.mocks.util.RequestInfo
 import org.junit.Test
@@ -7,7 +8,7 @@ import org.junit.Test
 import javax.servlet.http.HttpServletRequest
 
 import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when
 
 class MocksUtilTest {
 
@@ -43,7 +44,6 @@ class MocksUtilTest {
 
         ObjectFactory factory = new ObjectFactory();
         RequestInformation req = factory.createRequestInformation();
-
         req.uri = "http://test.openrepose.org/path/to/resource"
         req.path = "/path/to/resource"
         req.method = "PATCH"
@@ -59,7 +59,6 @@ class MocksUtilTest {
         headers.add(h1)
         headers.add(h2)
         headerList.header = headers
-
         QueryParameters params = factory.createQueryParameters();
         List<NameValuePair> queryParams = new ArrayList<NameValuePair>()
         NameValuePair p1 = factory.createNameValuePair()
@@ -67,7 +66,6 @@ class MocksUtilTest {
         p1.value = "q"
         queryParams.add(p1)
         params.parameter = queryParams
-
         req.headers = headerList
         req.queryParams = params
 
@@ -130,14 +128,12 @@ class MocksUtilTest {
         assert info.path == "/path/to/resource"
         assert info.queryString == "q=1&q=2&r=3&r=4"
         assert info.getHeaders().get("accept").get(0) == "application/xml"
-
     }
 
     @Test
     void testXmlToRequestInfo(){
 
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(testXml)
-
         assert info.method == "GET"
         assert info.path == "/blah"
         assert info.getHeaders().get("accept").get(0) == "application/xml"
@@ -145,9 +141,7 @@ class MocksUtilTest {
 
     static Enumeration<String> createStringEnumeration(String... names) {
         Vector<String> namesCollection = new Vector<String>(names.length)
-
         namesCollection.addAll(Arrays.asList(names))
-
         return namesCollection.elements()
     }
 
@@ -180,6 +174,4 @@ class MocksUtilTest {
         assert info.getQueryParams() != null
         assert info.getQueryParams().size() == 0
     }
-
-
 }

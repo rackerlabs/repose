@@ -1,5 +1,9 @@
 package com.rackspace.papi.external.testing.mocks
 
+import com.rackspace.papi.test.mocks.HeaderList
+import com.rackspace.papi.test.mocks.NameValuePair
+import com.rackspace.papi.test.mocks.ObjectFactory
+import com.rackspace.papi.test.mocks.RequestInformation
 import com.rackspace.papi.test.mocks.util.RequestInfo
 import org.junit.Test
 
@@ -26,11 +30,9 @@ class RequestInfoTest {
         headers.add(h1)
         headers.add(h2)
         headerList.header = headers
-
         req.headers = headerList
 
         RequestInfo info = new RequestInfo(req)
-
 
         assert info.getHeaders().get("accept").size() == 2
         assert info.getHeaders().get("AccePt").size() == 2

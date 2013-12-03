@@ -1,20 +1,17 @@
 package features.core.embedded
-
 import com.rackspace.papi.test.mocks.util.MocksUtil
 import com.rackspace.papi.test.mocks.util.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.TestProperties
-import org.linkedin.util.clock.SystemClock
+import framework.TestUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-
-class EmbeddedTomcatProxyTest extends  Specification{
+class EmbeddedTomcatProxyTest extends Specification {
 
     static ReposeLauncher repose
     static Deproxy deproxy
@@ -23,7 +20,6 @@ class EmbeddedTomcatProxyTest extends  Specification{
     def setupSpec() {
 
         PortFinder pf = new PortFinder()
-
         int originServicePort = pf.getNextOpenPort()
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
@@ -38,9 +34,7 @@ class EmbeddedTomcatProxyTest extends  Specification{
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()
-        def mocksPath = getMocksPath(mocksWar)
-
-
+        def mocksPath = MocksUtil.getServletPath(mocksWar)
 
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
@@ -57,8 +51,6 @@ class EmbeddedTomcatProxyTest extends  Specification{
                         'app_path':  mocksPath
                 ]
         )
-
-
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
                 reposePort, shutdownPort, mocksWar)
         repose.clusterId = "repose"
@@ -76,7 +68,7 @@ class EmbeddedTomcatProxyTest extends  Specification{
     def "Should Pass Requests through repose"() {
 
         when: "Request is sent through Repose/Tomcat"
-        waitUntilReadyToServiceRequests(tomcatEndpoint)
+        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder' : 'value2'])
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
 
@@ -94,32 +86,4 @@ class EmbeddedTomcatProxyTest extends  Specification{
         info.getQueryParams().get("a").get(0).equals("[b]")
         info.getQueryParams().size() == 2
     }
-
-
-    def waitUntilReadyToServiceRequests(String reposeEndpoint) {
-        def clock = new SystemClock()
-        def innerDeproxy = new Deproxy()
-        MessageChain mc
-        waitForCondition(clock, '60s', '1s', {
-            try {
-                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-            } catch (Exception e) {}
-            if (mc != null) {
-                if (mc.receivedResponse.code.equalsIgnoreCase("200")) {
-                    return true
-                }
-            } else {
-                return false
-            }
-        })
-    }
-
-    def getMocksPath(String path){
-
-        int dot = path.lastIndexOf(".")
-        int slash = path.lastIndexOf("/")
-
-        return path.substring(slash+1, dot)
-    }
-
 }

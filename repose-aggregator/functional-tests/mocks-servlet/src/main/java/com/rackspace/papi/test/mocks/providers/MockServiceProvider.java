@@ -1,8 +1,8 @@
 package com.rackspace.papi.test.mocks.providers;
 
 import com.rackspace.papi.test.mocks.util.MocksUtil;
-import com.rackspace.papi.external.testing.mocks.ObjectFactory;
-import com.rackspace.papi.external.testing.mocks.RequestInformation;
+import com.rackspace.papi.test.mocks.ObjectFactory;
+import com.rackspace.papi.test.mocks.RequestInformation;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;

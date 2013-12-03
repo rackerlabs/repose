@@ -1,6 +1,6 @@
 package com.rackspace.papi.test.mocks.util;
 
-import com.rackspace.papi.external.testing.mocks.*;
+import com.rackspace.papi.test.mocks.*;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +14,7 @@ import java.util.Enumeration;
  */
 public final class MocksUtil {
 
-    public static final String CONTEXT_PATH = "com.rackspace.papi.external.testing.mocks";
+    public static final String CONTEXT_PATH = "com.rackspace.papi.test.mocks";
 
     private MocksUtil() {
     }
@@ -101,5 +101,14 @@ public final class MocksUtil {
     public static RequestInfo xmlStringToRequestInfo(String xml) throws JAXBException {
 
         return new RequestInfo(xmlStringToRequestInformation(xml));
+    }
+
+    public static String getServletPath(String filePath){
+
+        int dot = filePath.lastIndexOf(".");
+        int slash = filePath.lastIndexOf("/");
+
+        return filePath.substring(slash+1, dot);
+
     }
 }

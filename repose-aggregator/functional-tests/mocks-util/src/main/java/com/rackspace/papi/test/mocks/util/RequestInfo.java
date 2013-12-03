@@ -1,7 +1,7 @@
 package com.rackspace.papi.test.mocks.util;
 
-import com.rackspace.papi.external.testing.mocks.NameValuePair;
-import com.rackspace.papi.external.testing.mocks.RequestInformation;
+import com.rackspace.papi.test.mocks.NameValuePair;
+import com.rackspace.papi.test.mocks.RequestInformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +37,6 @@ public class RequestInfo {
                 HeaderMap.wrap(parseNameValuePair(requestInformation.getHeaders().getHeader())) : new HeaderMap();
         this.queryParams = requestInformation.getQueryParams() != null ?
                 parseNameValuePair(requestInformation.getQueryParams().getParameter()) : new HashMap<String, List<String>>();
-
     }
 
     private Map<String, List<String>> parseNameValuePair(List<NameValuePair> nameValuePairs) {
@@ -49,9 +48,7 @@ public class RequestInfo {
             }
             parsedMap.get(nvp.getName()).add(nvp.getValue());
         }
-
         return parsedMap;
-
     }
 
     public String getUrl() {
