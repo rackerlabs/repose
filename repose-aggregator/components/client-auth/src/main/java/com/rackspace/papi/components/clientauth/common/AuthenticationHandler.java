@@ -15,9 +15,12 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+<<<<<<< HEAD
 import com.rackspace.papi.filters.Authentication;
 import com.rackspace.papi.service.metrics.MetricsService;
 import com.yammer.metrics.core.Meter;
+=======
+>>>>>>> parent of 1ab55d6... B-60117 Added whitelist metrics
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author fran
@@ -61,19 +63,14 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final boolean requestGroups;
     private final AuthUserCache usrCache;
     private final EndpointsConfiguration endpointsConfiguration;
-    private final MetricsService metricsService;
-    private Meter mWhitelist;
 
-    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache,
-                                    AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher,
-                                    MetricsService metricsService) {
+    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
         this.cache = cache;
         this.grpCache = grpCache;
         this.endpointsCache = endpointsCache;
         this.uriMatcher = uriMatcher;
-        this.metricsService = metricsService;
         this.tenanted = configurables.isTenanted();
         this.groupCacheTtl = configurables.getGroupCacheTtl();
         this.tokenCacheTtl = configurables.getTokenCacheTtl();
@@ -83,11 +80,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.requestGroups = configurables.isRequestGroups();
         this.usrCache = usrCache;
         this.endpointsConfiguration = configurables.getEndpointsConfiguration();
-
-        // TODO replace "authentication" with filter-id or name-number in sys-model
-        if (metricsService != null) {
-            mWhitelist = metricsService.newMeter(Authentication.class, "Request Whitelisted", "authentication", "RequestsWhitelisted", TimeUnit.SECONDS);
-        }
     }
 
     @Override
@@ -100,10 +92,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         LOG.debug("Uri is " + uri);
         if (uriMatcher.isUriOnWhiteList(uri)) {
             filterDirector.setFilterAction(FilterAction.PASS);
-            LOG.debug("Uri is on whitelist! Letting request pass through.");
-            if (mWhitelist != null) {
-                mWhitelist.mark();
-            }
+            LOG.debug("Uri is on whitelist!  Letting request pass through.");
         } else {
             filterDirector = this.authenticate(request);
         }
