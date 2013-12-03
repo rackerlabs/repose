@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.papi.test.mocks</groupId>
-    <artifactId>mocks-support</artifactId>
+    <artifactId>mocks-util</artifactId>
     <packaging>jar</packaging>
 
     <name>Repose Test - Mocks Support</name>
