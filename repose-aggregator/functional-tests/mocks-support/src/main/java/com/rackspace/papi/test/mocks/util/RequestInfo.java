@@ -1,4 +1,7 @@
-package com.rackspace.papi.external.testing.mocks;
+package com.rackspace.papi.test.mocks.util;
+
+import com.rackspace.papi.external.testing.mocks.NameValuePair;
+import com.rackspace.papi.external.testing.mocks.RequestInformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

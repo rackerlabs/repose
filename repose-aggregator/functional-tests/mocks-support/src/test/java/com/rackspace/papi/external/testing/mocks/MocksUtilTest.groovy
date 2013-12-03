@@ -1,5 +1,7 @@
 package com.rackspace.papi.external.testing.mocks
 
+import com.rackspace.papi.test.mocks.util.MocksUtil
+import com.rackspace.papi.test.mocks.util.RequestInfo
 import org.junit.Test
 
 import javax.servlet.http.HttpServletRequest

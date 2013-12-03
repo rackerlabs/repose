@@ -1,4 +1,4 @@
-package com.rackspace.papi.external.testing.mocks;
+package com.rackspace.papi.test.mocks.util;
 
 import java.util.*;
 

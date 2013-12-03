@@ -1,7 +1,7 @@
 package features.core.embedded
 
-import com.rackspace.papi.external.testing.mocks.MocksUtil
-import com.rackspace.papi.external.testing.mocks.RequestInfo
+import com.rackspace.papi.test.mocks.util.MocksUtil
+import com.rackspace.papi.test.mocks.util.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher

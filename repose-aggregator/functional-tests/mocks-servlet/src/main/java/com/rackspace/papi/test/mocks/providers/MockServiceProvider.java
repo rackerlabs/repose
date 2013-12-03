@@ -1,6 +1,6 @@
-package com.rackspace.papi.external.testing.mocks.providers;
+package com.rackspace.papi.test.mocks.providers;
 
-import com.rackspace.papi.external.testing.mocks.MocksUtil;
+import com.rackspace.papi.test.mocks.util.MocksUtil;
 import com.rackspace.papi.external.testing.mocks.ObjectFactory;
 import com.rackspace.papi.external.testing.mocks.RequestInformation;
 

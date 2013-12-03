@@ -1,5 +1,6 @@
-package com.rackspace.papi.external.testing.mocks;
+package com.rackspace.papi.test.mocks.util;
 
+import com.rackspace.papi.external.testing.mocks.*;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;

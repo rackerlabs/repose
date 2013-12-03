@@ -8,7 +8,7 @@
         <version>2.13.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.external.testing</groupId>
+    <groupId>com.rackspace.papi.test.mocks</groupId>
     <artifactId>mocks-support</artifactId>
     <packaging>jar</packaging>
 

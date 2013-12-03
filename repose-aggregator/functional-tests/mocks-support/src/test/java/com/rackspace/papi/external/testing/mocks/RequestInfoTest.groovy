@@ -1,5 +1,6 @@
 package com.rackspace.papi.external.testing.mocks
 
+import com.rackspace.papi.test.mocks.util.RequestInfo
 import org.junit.Test
 
 class RequestInfoTest {

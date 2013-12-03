@@ -1,6 +1,6 @@
-package com.rackspace.papi.external.testing.mocks;
+package com.rackspace.papi.test.mocks;
 
-import com.rackspace.papi.external.testing.mocks.providers.MockServiceProvider;
+import com.rackspace.papi.test.mocks.providers.MockServiceProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
