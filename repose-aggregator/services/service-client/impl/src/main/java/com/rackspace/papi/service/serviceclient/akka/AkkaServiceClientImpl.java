@@ -39,7 +39,10 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         this.serviceClient = getServiceClient(httpClientService);
         numberOfActors = serviceClient.getPoolSize();
 
-        Config conf = ConfigFactory.load();
+        Config customConf = ConfigFactory.load();
+        Config baseConf = ConfigFactory.defaultReference();
+        Config conf = customConf.withFallback(baseConf);
+
         actorSystem = ActorSystem.create("AuthClientActors", conf);
 
         quickFutureCache = CacheBuilder.newBuilder()
