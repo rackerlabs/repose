@@ -14,7 +14,6 @@
 
     <name>Repose Test - Mocks Support</name>
 
-
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>
@@ -27,24 +26,18 @@
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
-
                 <configuration>
-
                     <specVersion>2.1</specVersion>
-
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
-
                     <strict>true</strict>
                     <verbose>false</verbose>
-
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
 </project>
