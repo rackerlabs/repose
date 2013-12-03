@@ -8,15 +8,10 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filters.OpenStackAuthentication;
-import com.rackspace.papi.service.metrics.MetricsService;
-import com.yammer.metrics.core.Meter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.rackspace.papi.filters.OpenStackAuthentication;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author fran
@@ -28,22 +23,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
    private final List<String> serviceAdminRoles;
-   private final MetricsService metricsService;
-   private Meter mCalls;
 
-   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache,
-                                         AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache,
-                                         UriMatcher uriMatcher, MetricsService metricsService) {
+   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
       super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
       this.serviceAdminRoles = cfg.getServiceAdminRoles();
-      this.metricsService = metricsService;
-
-      // TODO replace "openstack-authentication" with filter-id or name-number in sys-model
-      if (metricsService != null) {
-          mCalls = metricsService.newMeter(OpenStackAuthentication.class, "Call to Authenticaton Service", "openstack-authentication", "CallsToAuth", TimeUnit.SECONDS);
-      }
    }
 
    private boolean roleIsServiceAdmin(AuthToken authToken) {
@@ -69,10 +54,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      if (mCalls != null)
-          mCalls.mark(); // This metric will be inaccurate; validateToken may hit the auth service mutliple times
-                         // Solution: Implement metrics in AuthenticationServiceClient
-                         // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
       return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
               : authenticationService.validateToken(null, token);
    }

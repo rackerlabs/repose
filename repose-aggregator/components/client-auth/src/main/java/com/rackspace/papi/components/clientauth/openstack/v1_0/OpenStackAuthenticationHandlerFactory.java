@@ -15,7 +15,6 @@ import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
-import com.rackspace.papi.service.metrics.MetricsService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
@@ -30,8 +29,7 @@ public final class OpenStackAuthenticationHandlerFactory {
 
     public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor,
                                                     Datastore datastore, UriMatcher uriMatcher,
-                                                    HttpClientService httpClientService, AkkaServiceClient akkaServiceClient,
-                                                    MetricsService metricsService) {
+                                                    HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
         final AuthTokenCache cache = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
         final AuthUserCache usrCache = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
@@ -69,8 +67,7 @@ public final class OpenStackAuthenticationHandlerFactory {
                 endpointsConfiguration,
                 getServiceAdminRoles(authConfig.getServiceAdminRoles()));
 
-        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher,
-                metricsService);
+        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
     }
 
     private static List<String> getServiceAdminRoles(ServiceAdminRoles roles){

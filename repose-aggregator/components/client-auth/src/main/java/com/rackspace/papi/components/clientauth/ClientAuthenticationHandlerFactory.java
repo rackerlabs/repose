@@ -18,7 +18,6 @@ import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenti
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.metrics.MetricsService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
@@ -48,14 +47,12 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private final  HttpClientService  httpClientService;
     private static final Long MINIMUM_INTERVAL = new Long("10000");
     private AkkaServiceClient akkaServiceClient;
-    private final MetricsService metricsService;
 
-    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaServiceClient akkaServiceClient,
-                                              MetricsService metricsService) {
+
+    public ClientAuthenticationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
         this.datastore = datastore;
         this.httpClientService= httpClientService;
         this.akkaServiceClient = akkaServiceClient;
-        this.metricsService = metricsService;
     }
 
     @Override
@@ -82,7 +79,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                     accountRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
                 }
             } else if (modifiedConfig.getOpenstackAuth() != null) {
-                authenticationModule = getOpenStackAuthHandler(modifiedConfig, metricsService);
+                authenticationModule = getOpenStackAuthHandler(modifiedConfig);
                 for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
                 }
@@ -175,9 +172,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
-    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config, MetricsService metricsService) {
-        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaServiceClient,
-                metricsService);
+    private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
+        return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher,httpClientService, akkaServiceClient);
     }
 
     @Override
