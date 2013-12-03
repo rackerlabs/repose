@@ -19,12 +19,12 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
     def setupSpec() {
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+
         repose.applyConfigs("features/filters/translation/common",
                 "features/filters/translation/missingContent/request")
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        Thread.sleep(10000)
     }
 
     def cleanupSpec() {
@@ -39,7 +39,7 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
         def missingHeader = false
         def badContent = false
         def missingContent = false
-        List<String> badRequests = new ArrayList()
+        def noHandlings = false
         List<String> requests = new ArrayList()
 
         for (x in 1..numClients) {
@@ -49,24 +49,23 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
 
                 for (i in 1..callsPerClient) {
                     requests.add('spock-thread-' + threadNum + '-request-' + i)
-                    def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: acceptXML + header1 + header2 + contentXML, requestBody: xmlResponse)
+                    def messageChain = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: acceptXML + header1 + header2 + contentXML, requestBody: xmlResponse)
 
-                    if (resp.handlings.size() > 0) {
-                        if (!resp.handlings.get(0).request.body.toString().contains("Stuff")) {
-                            badRequests.add('content-spock-thread-' + threadNum + '-request-' + i)
-                            missingContent = true
-                            break
-                        }
-                        if (resp.handlings.get(0).request.body.toString().contains("remove-me")) {
-                            badRequests.add('content-spock-thread-' + threadNum + '-request-' + i)
-                            badContent = true
-                            break
-                        }
-                        if (resp.handlings.get(0).request.headers.findAll("x-pp-user").empty) {
-                            badRequests.add('header-spock-thread-' + threadNum + '-request-' + i)
-                            missingHeader = true
-                            break
-                        }
+                    if (messageChain.handlings.size() == 0) {
+                        noHandlings = true
+                        break
+                    }
+                    if (!messageChain.handlings.get(0).request.body.toString().equals("<a>Stuff</a>")) {
+                        missingContent = true
+                        break
+                    }
+                    if (messageChain.handlings.get(0).request.body.toString().contains("remove-me")) {
+                        badContent = true
+                        break
+                    }
+                    if (messageChain.handlings.get(0).request.headers.findAll("x-pp-user").empty) {
+                        missingHeader = true
+                        break
                     }
                 }
             }
@@ -78,12 +77,9 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
 
         then:
         missingHeader == false
-
-        and:
         missingContent == false
-
-        and:
         badContent == false
+        noHandlings == false
 
         where:
         numClients | callsPerClient

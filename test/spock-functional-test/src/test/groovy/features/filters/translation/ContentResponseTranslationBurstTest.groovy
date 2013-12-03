@@ -20,9 +20,6 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
     def setupSpec() {
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/missingContent/response")
-        repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
@@ -37,16 +34,15 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         deproxy.defaultHandler = missingHeaderErrorHandler
 
-        Thread.sleep(10000)
+        repose.applyConfigs("features/filters/translation/common",
+                "features/filters/translation/missingContent/response")
+        repose.start()
     }
 
     def cleanupSpec() {
         deproxy.shutdown()
         repose.stop()
     }
-
-
-
 
     def "under heavy load should not drop headers"() {
 
@@ -55,7 +51,6 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         def missingHeader = false
         def missingContent = false
-        List<String> badRequests = new ArrayList()
         List<String> requests = new ArrayList()
 
         for (x in 1..numClients) {
@@ -68,20 +63,16 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
                     def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "PUT", headers: acceptXML + header1 + header2)
                     if (resp.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingHeader = true
-                        badRequests.add('500-spock-thread-' + threadNum + '-request-' + i)
                         break
                     }
                     if (!resp.receivedResponse.body.contains("Stuff")) {
-                        badRequests.add('content-spock-thread-' + threadNum + '-request-' + i)
                         missingContent = true
                         break
                     }
                     if (resp.receivedResponse.headers.findAll("x-pp-user").empty) {
-                        badRequests.add('header-spock-thread-' + threadNum + '-request-' + i)
                         missingHeader = true
                         break
                     }
-
                 }
             }
             clientThreads.add(thread)
@@ -92,8 +83,6 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         then:
         missingHeader == false
-
-        and:
         missingContent == false
 
         where:
