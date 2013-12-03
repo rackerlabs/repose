@@ -7,10 +7,10 @@ Modules to help out with creating functional tests for Repose that take advantag
 
 These two modules generate a executable jar which can be used to deploy Repose under a Tomcat or Glassfish Environment.
 
-Invocation: java -jar test-**Tomcat | Glassfish**-jar-with-dependencies.jar -p 10001 -w **ReposeWar** -s 10002 -os **OtherWar**
+Invocation: java -jar test-**Tomcat | Glassfish**-jar-with-dependencies.jar -p 10001 -w **ReposeWar** -s 10002 -war **OtherWar**
 -p Listening port for container
 -s Stop port for container
--os Other war files to be deployed. Currently, only the Tomcat-Support module supports this feature.
+-war Other war files to be deployed. Currently, only the Tomcat-Support module supports this feature.
 
 ##Mocks-Servlet
 

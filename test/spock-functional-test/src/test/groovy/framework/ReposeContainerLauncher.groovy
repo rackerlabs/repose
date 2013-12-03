@@ -34,11 +34,10 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
-//        cmd = cmd + " start"
 
         if (appWars != null || appWars.length != 0) {
             for (String path : appWars) {
-                cmd += " -os ${path}"
+                cmd += " -war ${path}"
             }
         }
         println("Starting repose: ${cmd}")
