@@ -77,7 +77,7 @@ class EmbeddedTomcatProxyTest extends  Specification{
 
         when: "Request is sent through Repose/Tomcat"
         waitUntilReadyToServiceRequests(tomcatEndpoint)
-        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['passheader': 'value1'])
+        MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder' : 'value2'])
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
 
         then: "Repose Should Forward Response"
@@ -86,9 +86,13 @@ class EmbeddedTomcatProxyTest extends  Specification{
         and: "Response should contain a body"
         !mc.receivedResponse.body.toString().empty
 
-        and: "Repose should have passed the x-pp-user header"
+        and: "Repose should have passed the pass header"
         info.getHeaders().get("passheader").get(0) == "value1"
+        info.getHeaders().get("pAssHeader").size() == 2
 
+        and: "Repose should have passed query params"
+        info.getQueryParams().get("a").get(0).equals("[b]")
+        info.getQueryParams().size() == 2
     }
 
 

@@ -19,7 +19,7 @@ public class RequestInfo {
         this.queryString = queryString;
         this.body = body;
 
-        this.headers = headers;
+        this.headers = HeaderMap.wrap(headers);
         this.queryParams = queryParams;
     }
 
@@ -31,7 +31,7 @@ public class RequestInfo {
         this.queryString = requestInformation.getQueryString();
         this.method = requestInformation.getMethod();
         this.headers = requestInformation.getHeaders() != null ?
-                parseNameValuePair(requestInformation.getHeaders().getHeader()) : new HashMap<String, List<String>>();
+                HeaderMap.wrap(parseNameValuePair(requestInformation.getHeaders().getHeader())) : new HeaderMap();
         this.queryParams = requestInformation.getQueryParams() != null ?
                 parseNameValuePair(requestInformation.getQueryParams().getParameter()) : new HashMap<String, List<String>>();
 
