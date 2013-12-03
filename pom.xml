@@ -14,8 +14,6 @@
         profiles.
     </description>
     
-
-    
     <organization>
         <name>Rackspace Cloud Research</name>
         <url>http://research.rackspace.com/</url>
@@ -48,7 +46,6 @@
         </profile>
 
     </profiles>
-    
     
     <scm>
         <connection>scm:git:ssh://git@github.com/rackerlabs/repose.git</connection>
@@ -94,8 +91,4 @@
             </plugins>
         </pluginManagement>
     </build>
-    
-    
-    
-    
 </project>

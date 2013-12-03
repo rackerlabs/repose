@@ -23,6 +23,8 @@
         <module>container-support</module>
         <module>glassfish-support</module>
         <module>tomcat-support</module>
+        <module>mocks-util</module>
+        <module>mocks-servlet</module>
     </modules>
 
 </project>

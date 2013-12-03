@@ -12,8 +12,11 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
 
     String containerJar
     String rootWarLocation
+    String[] appWars
 
-    ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar, String clusterId="cluster1", String nodeId="node1", String rootWarLocation, int reposePort, int stopPort) {
+    ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
+                            String clusterId = "cluster1", String nodeId = "node1",
+                            String rootWarLocation, int reposePort, int stopPort, String... appWars) {
         this.configurationProvider = configurationProvider
         this.containerJar = containerJar
         this.clusterId = clusterId
@@ -21,6 +24,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         this.reposePort = reposePort
         this.rootWarLocation = rootWarLocation
         this.shutdownPort = stopPort
+        this.appWars = appWars
     }
 
     @Override
@@ -30,8 +34,14 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
-//        cmd = cmd + " start"
+
+        if (appWars != null || appWars.length != 0) {
+            for (String path : appWars) {
+                cmd += " -war ${path}"
+            }
+        }
         println("Starting repose: ${cmd}")
+
 
         def th = new Thread({ cmd.execute() });
 
@@ -59,4 +69,5 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     boolean isUp() {
         throw new UnsupportedOperationException("implement me")
     }
+
 }

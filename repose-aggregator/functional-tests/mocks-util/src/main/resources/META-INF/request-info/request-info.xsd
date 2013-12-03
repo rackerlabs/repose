@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:request="http://openrepose.org/repose/httpx/v1.0"
+           targetNamespace="http://openrepose.org/repose/httpx/v1.0"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified">
+
+    <xs:element name="request-info" type="request:RequestInformation"/>
+
+    <xs:complexType name="RequestInformation">
+        <xs:all>
+            <xs:element name="method" type="xs:string"/>
+            <xs:element name="path" type="xs:string"/>
+            <xs:element name="uri" type="xs:string"/>
+            <xs:element name="queryString" type="xs:string"/>
+            <xs:element name="query-params" type="request:QueryParameters" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="headers" type="request:HeaderList" minOccurs="0" maxOccurs="1"/>
+
+            <xs:element minOccurs="0" name="body" type="xs:string" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="Body" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="xs:anyType">
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="HeaderList">
+        <xs:sequence>
+            <xs:element name="header" type="request:NameValuePair" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="NameValuePair">
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="value" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="QueryParameters">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The request/response headers in an xml representation.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="parameter" type="request:NameValuePair" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
+

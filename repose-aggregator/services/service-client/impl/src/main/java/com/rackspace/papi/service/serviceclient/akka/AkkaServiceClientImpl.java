@@ -17,6 +17,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -42,9 +43,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
         Config conf = customConf.withFallback(baseConf);
-
         actorSystem = ActorSystem.create("AuthClientActors", conf);
-
         quickFutureCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(FUTURE_CACHE_TTL, TimeUnit.MILLISECONDS)
                 .build();

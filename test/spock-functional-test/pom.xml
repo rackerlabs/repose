@@ -52,13 +52,16 @@
 
         <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
-        <glassfish.jar.dir>${project.set.dir}/external/testing/glassfish-support/target</glassfish.jar.dir>
+        <glassfish.jar.dir>${project.set.dir}/functional-tests/glassfish-support/target</glassfish.jar.dir>
         <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
-        <tomcat.jar.dir>${project.set.dir}/external/testing/tomcat-support/target</tomcat.jar.dir>
+        <tomcat.jar.dir>${project.set.dir}/functional-tests/tomcat-support/target</tomcat.jar.dir>
         <tomcat.jar>test-tomcat-container-${project.version}-jar-with-dependencies.jar</tomcat.jar>
         <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
         <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
+        <mocks.war.dir>${project.set.dir}/functional-tests/mocks-servlet/target</mocks.war.dir>
+        <mocks.war>mocks-servlet-${project.version}.war</mocks.war>
+        <mocks.war.location>${mocks.war.dir}/${mocks.war}</mocks.war.location>
     </properties>
 
 
@@ -143,6 +146,13 @@
             <groupId>xerces</groupId>
             <artifactId>xerces-xsd11</artifactId>
             <version>2.12.0-rax</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.rackspace.papi.test.mocks</groupId>
+            <artifactId>mocks-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

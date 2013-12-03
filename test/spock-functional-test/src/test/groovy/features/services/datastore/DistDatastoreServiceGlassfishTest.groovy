@@ -1,18 +1,13 @@
 package features.services.datastore
 import framework.*
 import framework.category.Flaky
-import org.linkedin.util.clock.SystemClock
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.Specification
-import org.junit.experimental.categories.Category
-
-
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
  */
@@ -88,12 +83,12 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
-        waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1)
+        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1,"401")
 
         repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
-        waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2)
+        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2,"401")
 
     }
 
@@ -147,24 +142,5 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
 //        def List<String> logMatches = reposeLogSearch1.searchByString("damaged node");
 //        logMatches.size() == 0
-    }
-
-    def waitUntilReadyToServiceRequests(String reposeEndpoint) {
-        def clock = new SystemClock()
-        def innerDeproxy = new Deproxy()
-        MessageChain mc
-        waitForCondition(clock, '60s', '1s', {
-            try {
-                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-            } catch (Exception e) {}
-            if (mc != null) {
-                if(mc.receivedResponse.code.equalsIgnoreCase("401")){
-                    return true
-
-                }
-            } else {
-                return false
-            }
-        })
     }
 }

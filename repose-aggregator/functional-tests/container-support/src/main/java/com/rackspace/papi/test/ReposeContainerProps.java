@@ -5,11 +5,14 @@ public class ReposeContainerProps {
     String startPort;
     String stopPort;
     String war;
+    String[] originServiceWars;
 
-    public ReposeContainerProps(String startPort, String stopPort, String war) {
+    public ReposeContainerProps(String startPort, String stopPort, String war, String... originServiceWars){
         this.startPort = startPort;
         this.stopPort = stopPort;
         this.war = war;
+        this.originServiceWars = originServiceWars;
+
     }
 
     public String getStartPort() {
@@ -22,5 +25,9 @@ public class ReposeContainerProps {
 
     public String getWar() {
         return war;
+    }
+
+    public String[] getOriginServiceWars(){
+        return originServiceWars;
     }
 }
