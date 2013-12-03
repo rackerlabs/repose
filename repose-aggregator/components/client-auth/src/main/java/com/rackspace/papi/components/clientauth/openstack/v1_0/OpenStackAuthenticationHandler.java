@@ -67,7 +67,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
       if (mCalls != null)
-          mCalls.mark(); // This metric may be inaccurate; getGroups may hit the auth service mutliple times
+          mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
                          // Solution: Implement metrics in AuthenticationServiceClient
                          // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
       return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
@@ -76,11 +76,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public AuthGroups getGroups(String group) {
-       if (mCalls != null)
-           mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
-                          // Solution: Implement metrics in AuthenticationServiceClient
-                          // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
-       return authenticationService.getGroups(group);
+      return authenticationService.getGroups(group);
    }
 
    @Override
