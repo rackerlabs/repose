@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
 import com.yammer.metrics.core.TimerContext;
 
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * Any class which implements this interface is expected to be thread-safe.  The individual yammer Timer class is
  * thread-safe.
  * <p>
- * These objects should be created by the {@link com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl}
+ * These objects should be created by the {@link com.rackspace.papi.service.metrics.impl.MetricsServiceImpl}
  * factory class.
  */
 public interface TimerByCategory {
