@@ -149,5 +149,35 @@ class MocksUtilTest {
         return namesCollection.elements()
     }
 
+    @Test
+    void testRequestInformationToRequestInfoNoQueryParams() {
+
+        ObjectFactory factory = new ObjectFactory();
+        RequestInformation req = factory.createRequestInformation();
+
+        req.uri = "http://test.openrepose.org/path/to/resource"
+        req.path = "/path/to/resource"
+        req.method = "PATCH"
+        req.body = "<some><body/>blah</some>"
+        HeaderList headerList = factory.createHeaderList();
+        List<NameValuePair> headers = new ArrayList<NameValuePair>()
+        NameValuePair h1 = factory.createNameValuePair()
+        h1.name = "accept"
+        h1.value = "application/xml"
+        NameValuePair h2 = factory.createNameValuePair()
+        h2.name = "x-pp-user"
+        h2.value = "usertest1"
+        headers.add(h1)
+        headers.add(h2)
+        headerList.header = headers
+
+        req.headers = headerList
+
+        RequestInfo info = new RequestInfo(req)
+
+        assert info.getQueryParams() != null
+        assert info.getQueryParams().size() == 0
+    }
+
 
 }

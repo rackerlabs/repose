@@ -29,10 +29,12 @@ public class RequestInfo {
         this.path = requestInformation.getPath();
         this.body = requestInformation.getBody();
         this.queryString = requestInformation.getQueryString();
-        this.headers = parseNameValuePair(requestInformation.getHeaders().getHeader());
         this.method = requestInformation.getMethod();
+        this.headers = requestInformation.getHeaders() != null ?
+                parseNameValuePair(requestInformation.getHeaders().getHeader()) : new HashMap<String, List<String>>();
         this.queryParams = requestInformation.getQueryParams() != null ?
-                parseNameValuePair(requestInformation.getQueryParams().getParameter()) : null;
+                parseNameValuePair(requestInformation.getQueryParams().getParameter()) : new HashMap<String, List<String>>();
+
     }
 
     private Map<String, List<String>> parseNameValuePair(List<NameValuePair> nameValuePairs) {
