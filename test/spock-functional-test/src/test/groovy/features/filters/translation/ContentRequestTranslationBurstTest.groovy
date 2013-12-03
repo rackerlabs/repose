@@ -1,4 +1,5 @@
 package features.filters.translation
+
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -9,13 +10,9 @@ import org.rackspace.deproxy.Deproxy
 class ContentRequestTranslationBurstTest extends ReposeValveTest {
 
     def static Map acceptXML = ["accept": "application/xml"]
-
     def static Map contentXML = ["content-type": "application/xml"]
-
     def static Map header1 = ["x-pp-user": "user1"]
-
     def static Map header2 = ["x-tenant-name": "tenant1"]
-
     def static String remove = "remove-me"
     def static String add = "add-me"
     def static String xmlResponse = "<a><remove-me>test</remove-me>Stuff</a>"
@@ -27,8 +24,6 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-
-
         Thread.sleep(10000)
     }
 
@@ -37,14 +32,10 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
-
-
-
     def "under heavy load should not drop headers"() {
 
         given:
         List<Thread> clientThreads = new ArrayList<Thread>()
-
         def missingHeader = false
         def badContent = false
         def missingContent = false
@@ -57,36 +48,27 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
                 def threadNum = x
 
                 for (i in 1..callsPerClient) {
+                    requests.add('spock-thread-' + threadNum + '-request-' + i)
+                    def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: acceptXML + header1 + header2 + contentXML, requestBody: xmlResponse)
 
-
-                    requests.add('spock-thread-'+threadNum+'-request-'+i)
-                    def resp = deproxy.makeRequest(url:(String) reposeEndpoint, method:"POST", headers: acceptXML+header1+header2+contentXML,requestBody: xmlResponse)
-
-
-                    if(resp.handlings.size()>0) {
-                        if (!resp.handlings.get(0).request.body.toString().contains("Stuff"))
-                        {
-                            badRequests.add('content-spock-thread-'+threadNum+'-request-'+i)
+                    if (resp.handlings.size() > 0) {
+                        if (!resp.handlings.get(0).request.body.toString().contains("Stuff")) {
+                            badRequests.add('content-spock-thread-' + threadNum + '-request-' + i)
                             missingContent = true
                             break
                         }
-                        if (resp.handlings.get(0).request.body.toString().contains("remove-me"))    {
-                            badRequests.add('content-spock-thread-'+threadNum+'-request-'+i)
+                        if (resp.handlings.get(0).request.body.toString().contains("remove-me")) {
+                            badRequests.add('content-spock-thread-' + threadNum + '-request-' + i)
                             badContent = true
                             break
                         }
-                        if (resp.handlings.get(0).request.headers.findAll("x-pp-user").empty)    {
-                            badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
+                        if (resp.handlings.get(0).request.headers.findAll("x-pp-user").empty) {
+                            badRequests.add('header-spock-thread-' + threadNum + '-request-' + i)
                             missingHeader = true
                             break
                         }
-
                     }
-
-
                 }
-
-
             }
             clientThreads.add(thread)
         }
@@ -103,10 +85,9 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
         and:
         badContent == false
 
-
         where:
         numClients | callsPerClient
-        100| 50
+        100        | 50
 
     }
 
