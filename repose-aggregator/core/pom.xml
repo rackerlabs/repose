@@ -39,12 +39,6 @@
          </dependency>
 
          <dependency>
-            <groupId>org.openrepose.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.13.1-SNAPSHOT</version>
-         </dependency>
-
-         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
             <version>${project.version}</version>
