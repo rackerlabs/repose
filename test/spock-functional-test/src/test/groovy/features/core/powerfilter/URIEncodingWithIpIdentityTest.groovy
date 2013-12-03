@@ -32,13 +32,13 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         uri                         | expectedValue               | acceptableEncodedValue
         "/resource?name=value"      | "/resource?name=value"      | "/resource?name=value"
         "/resource?name%3Dvalue"    | "/resource?name=value"      | "/resource?name%3Dvalue"
-        "/resource?name=abcdefghi"  | "/resource?name=abcdefghi"  | _
-        "/resource?name=jklmnopqr"  | "/resource?name=jklmnopqr"  | _
-        "/resource?name=stuvwxyz"   | "/resource?name=stuvwxyz"   | _
-        "/resource?name=ABCDEFGHI"  | "/resource?name=ABCDEFGHI"  | _
-        "/resource?name=JKLMNOPQR"  | "/resource?name=JKLMNOPQR"  | _
-        "/resource?name=STUVWXYZ"   | "/resource?name=STUVWXYZ"   | _
-        "/resource?name=0123456789" | "/resource?name=0123456789" | _
+        "/resource?name=abcdefghi"  | "/resource?name=abcdefghi"  | "/resource?name=abcdefghi"
+        "/resource?name=jklmnopqr"  | "/resource?name=jklmnopqr"  | "/resource?name=jklmnopqr"
+        "/resource?name=stuvwxyz"   | "/resource?name=stuvwxyz"   | "/resource?name=stuvwxyz"
+        "/resource?name=ABCDEFGHI"  | "/resource?name=ABCDEFGHI"  | "/resource?name=ABCDEFGHI"
+        "/resource?name=JKLMNOPQR"  | "/resource?name=JKLMNOPQR"  | "/resource?name=JKLMNOPQR"
+        "/resource?name=STUVWXYZ"   | "/resource?name=STUVWXYZ"   | "/resource?name=STUVWXYZ"
+        "/resource?name=0123456789" | "/resource?name=0123456789" | "/resource?name=0123456789"
         "/resource?name=-"          | "/resource?name=-"          | "/resource?name=%2D"
         "/resource?name=."          | "/resource?name=."          | "/resource?name=%2E"
         "/resource?name=_"          | "/resource?name=_"          | "/resource?name=%5F"
@@ -59,7 +59,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val@ue"     | "/resource?name=val@ue"     | "/resource?name=val%40ue"
         "/resource?name=val/ue"     | "/resource?name=val/ue"     | "/resource?name=val%2Fue"
         "/resource?name=val?ue"     | "/resource?name=val?ue"     | "/resource?name=val%3Fue"
-        "/resource?name=val%35ue"   | "/resource?name=val5ue"     | "/resource?name=val%35ue"
     }
 
     @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
@@ -77,27 +76,43 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
 
         where:
-        uri                       | expectedValue            | acceptableEncodedValue
-        "/resource?name=val%2Due" | "/resource?name=val-ue"  | "/resource?name=val%2Due"
-        "/resource?name=val%2Eue" | "/resource?name=val.ue"  | "/resource?name=val%2Eue"
-        "/resource?name=val%5Fue" | "/resource?name=val_ue"  | "/resource?name=val%5Fue"
-        "/resource?name=val%7Eue" | "/resource?name=val~ue"  | "/resource?name=val%7Eue"
-        "/resource?name=val%21ue" | "/resource?name=val!ue"  | "/resource?name=val%21ue"
-        "/resource?name=val%24ue" | "/resource?name=val\$ue" | "/resource?name=val%24ue"
-        "/resource?name=val%26ue" | "/resource?name=val&ue"  | "/resource?name=val%26ue"
-        "/resource?name=val%27ue" | "/resource?name=val\'ue" | "/resource?name=val%27ue"
-        "/resource?name=val%28ue" | "/resource?name=val(ue"  | "/resource?name=val%28ue"
-        "/resource?name=val%29ue" | "/resource?name=val)ue"  | "/resource?name=val%29ue"
-        "/resource?name=val%2Aue" | "/resource?name=val*ue"  | "/resource?name=val%2Aue"
-        "/resource?name=val%2Bue" | "/resource?name=val+ue"  | "/resource?name=val%2Bue"
-        "/resource?name=val%2Cue" | "/resource?name=val,ue"  | "/resource?name=val%2Cue"
-        "/resource?name=val%3Bue" | "/resource?name=val;ue"  | "/resource?name=val%3Bue"
-        "/resource?name=val%3Due" | "/resource?name=val=ue"  | "/resource?name=val%3Due"
-        "/resource?name=val%3Aue" | "/resource?name=val:ue"  | "/resource?name=val%3Aue"
-        "/resource?name=val%40ue" | "/resource?name=val@ue"  | "/resource?name=val%40ue"
-        "/resource?name=val%2Fue" | "/resource?name=val/ue"  | "/resource?name=val%2Fue"
-        "/resource?name=val%3Fue" | "/resource?name=val?ue"  | "/resource?name=val%3Fue"
-        "/resource?name=val%35ue" | "/resource?name=val5ue"  | "/resource?name=val%35ue"
+        uri                                | expectedValue              | acceptableEncodedValue
+        "/resource?name=val%30%31%32%33ue" | "/resource?name=val0123ue" | "/resource?name=val0123ue"
+        "/resource?name=val%34%35%36%37ue" | "/resource?name=val4567ue" | "/resource?name=val4567ue"
+        "/resource?name=val%38%39ue"       | "/resource?name=val89ue"   | "/resource?name=val89ue"
+        "/resource?name=val%61%62%63%64ue" | "/resource?name=valabcdue" | "/resource?name=valabcdue"
+        "/resource?name=val%65%66%67%68ue" | "/resource?name=valefghue" | "/resource?name=valefghue"
+        "/resource?name=val%69%6A%6B%6Cue" | "/resource?name=valijklue" | "/resource?name=valijklue"
+        "/resource?name=val%6D%6E%6F%70ue" | "/resource?name=valmnopue" | "/resource?name=valmnopue"
+        "/resource?name=val%71%72%73%74ue" | "/resource?name=valqrstue" | "/resource?name=valqrstue"
+        "/resource?name=val%75%76%77%78ue" | "/resource?name=valuvwxue" | "/resource?name=valuvwxue"
+        "/resource?name=val%79%7A%41%42ue" | "/resource?name=valyzABue" | "/resource?name=valyzABue"
+        "/resource?name=val%43%44%45%46ue" | "/resource?name=valCDEFue" | "/resource?name=valCDEFue"
+        "/resource?name=val%47%48%49%4Aue" | "/resource?name=valGHIJue" | "/resource?name=valGHIJue"
+        "/resource?name=val%4B%4C%4D%4Eue" | "/resource?name=valKLMNue" | "/resource?name=valKLMNue"
+        "/resource?name=val%4F%50%51%52ue" | "/resource?name=valOPQRue" | "/resource?name=valOPQRue"
+        "/resource?name=val%53%54%55%56ue" | "/resource?name=valSTUVue" | "/resource?name=valSTUVue"
+        "/resource?name=val%57%58%59%5Aue" | "/resource?name=valWXYZue" | "/resource?name=valWXYZue"
+        "/resource?name=val%2Due"          | "/resource?name=val-ue"    | "/resource?name=val%2Due"
+        "/resource?name=val%2Eue"          | "/resource?name=val.ue"    | "/resource?name=val%2Eue"
+        "/resource?name=val%5Fue"          | "/resource?name=val_ue"    | "/resource?name=val%5Fue"
+        "/resource?name=val%7Eue"          | "/resource?name=val~ue"    | "/resource?name=val%7Eue"
+        "/resource?name=val%21ue"          | "/resource?name=val!ue"    | "/resource?name=val%21ue"
+        "/resource?name=val%24ue"          | "/resource?name=val\$ue"   | "/resource?name=val%24ue"
+        "/resource?name=val%26ue"          | "/resource?name=val&ue"    | "/resource?name=val%26ue"
+        "/resource?name=val%27ue"          | "/resource?name=val\'ue"   | "/resource?name=val%27ue"
+        "/resource?name=val%28ue"          | "/resource?name=val(ue"    | "/resource?name=val%28ue"
+        "/resource?name=val%29ue"          | "/resource?name=val)ue"    | "/resource?name=val%29ue"
+        "/resource?name=val%2Aue"          | "/resource?name=val*ue"    | "/resource?name=val%2Aue"
+        "/resource?name=val%2Bue"          | "/resource?name=val+ue"    | "/resource?name=val%2Bue"
+        "/resource?name=val%2Cue"          | "/resource?name=val,ue"    | "/resource?name=val%2Cue"
+        "/resource?name=val%3Bue"          | "/resource?name=val;ue"    | "/resource?name=val%3Bue"
+        "/resource?name=val%3Due"          | "/resource?name=val=ue"    | "/resource?name=val%3Due"
+        "/resource?name=val%3Aue"          | "/resource?name=val:ue"    | "/resource?name=val%3Aue"
+        "/resource?name=val%40ue"          | "/resource?name=val@ue"    | "/resource?name=val%40ue"
+        "/resource?name=val%2Fue"          | "/resource?name=val/ue"    | "/resource?name=val%2Fue"
+        "/resource?name=val%3Fue"          | "/resource?name=val?ue"    | "/resource?name=val%3Fue"
+        "/resource?name=val%35ue"          | "/resource?name=val5ue"    | "/resource?name=val%35ue"
     }
 
     def "When there are two question marks in the URI, the first should indicate the beginning of the query component"() {
