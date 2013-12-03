@@ -95,7 +95,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         given: "Repose is up and the HTTPClientService has been configured"
         repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/onepool")
+                "features/services/httpconnectionpool/decommissioned/" + firstConfig)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -128,9 +128,9 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
                 println("Reconfiguring...")
                 sleep(16000) //TODO: better strategy to know when Repose has been reconfigured
                 if (reconfigureCount % 2) {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/" + secondConfig)
                 } else {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool")
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/" + firstConfig)
                 }
                 reconfigureCount++
             }
@@ -148,5 +148,10 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         cleanup:
         repose.stop()
+
+        where:
+        firstConfig | secondConfig
+        "onepool"   | "onepool_reconfig"
+        "twopool"   | "twopool_reconfig"
     }
 }

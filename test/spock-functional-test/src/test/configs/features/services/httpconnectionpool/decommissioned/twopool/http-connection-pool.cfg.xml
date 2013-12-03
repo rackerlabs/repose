@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-connection-pools xmlns="http://docs.rackspacecloud.com/repose/http-connection-pool/v1.0">
+
+    <!-- Configuration for the default pool.  Any users of the service will by default, retrieve HTTP connections
+        using this default pool configuration.
+    -->
+    <pool id="pool1"
+          default="true"
+          http.conn-manager.max-total="50"
+          http.conn-manager.max-per-route="2"
+          http.socket.timeout="30000"
+          http.socket.buffer-size="8192"
+          http.connection.timeout="30000"
+          http.connection.max-line-length="8192"
+          http.connection.max-header-count="100"
+          http.connection.max-status-line-garbage="100"
+          http.tcp.nodelay="true"
+          keepalive.timeout="0"/>
+
+    <pool id="pool2"
+          default="false"
+          http.conn-manager.max-total="50"
+          http.conn-manager.max-per-route="2"
+          http.socket.timeout="30000"
+          http.socket.buffer-size="8192"
+          http.connection.timeout="30000"
+          http.connection.max-line-length="8192"
+          http.connection.max-header-count="100"
+          http.connection.max-status-line-garbage="100"
+          http.tcp.nodelay="true"
+          keepalive.timeout="0"/>
+
+</http-connection-pools>
