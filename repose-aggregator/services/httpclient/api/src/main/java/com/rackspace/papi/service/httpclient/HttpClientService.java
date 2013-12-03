@@ -24,7 +24,7 @@ public interface HttpClientService<CFG, RSP extends HttpClientResponse> {
      * @return an HttpClient
      * @throws HttpClientNotFoundException if client identified by the provided name is not found.
      */
-    RSP getClient(String clientId) throws HttpClientNotFoundException;
+    HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException;
 
     /**
      * Used to release a client when the client is no longer in use.  Users of the HttpClientService users should
@@ -64,8 +64,7 @@ public interface HttpClientService<CFG, RSP extends HttpClientResponse> {
     void shutdown();
 
     /**
-     * Returns deault pool connection manager Size
+     * Returns the maximum number of connections available for the given clientId
      */
-    int getPoolSize(String poolID);
-
+    int getMaxConnections(String clientId);
 }

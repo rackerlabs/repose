@@ -8,10 +8,6 @@ import org.rackspace.deproxy.MessageChain
 
 class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
-    /*
-        TODO:    3. time spent on calls within connections,
-    */
-
     def setup() {
         cleanLogDirectory()
         deproxy = new Deproxy()
@@ -27,7 +23,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         given:
         repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/first")
+                "features/services/httpconnectionpool/decommissioned/onepool")
         repose.start()
 
         when: "Repose is up and the HTTPClientService has been configured"
@@ -45,7 +41,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         given:
         repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/first")
+                "features/services/httpconnectionpool/decommissioned/onepool")
         repose.start()
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
@@ -53,21 +49,24 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         def createdLog = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
 
         and: "The HttpClientService is reconfigured"
-        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/second")
+        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
 
         then: "The HttpClientService should log the first pool as destroyed"
         def uuid = createdLog.get(0).tokenize(" ").reverse().get(3) //reverse done to account for different log formatting
         def logLines = reposeLogSearch.searchByString("HTTP connection pool " + uuid + " has been destroyed.")
         logLines.size() == 1
+
+        cleanup:
+        repose.stop()
     }
 
     @Category(Slow)
-    def "active connections should stay alive during config changes"() {
+    def "active connections should stay alive during config changes and log an error"() {
         given:
         def MessageChain messageChain
 
         repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/first")
+                "features/services/httpconnectionpool/decommissioned/onepool")
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -77,19 +76,26 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         }
 
         and:
-        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/second")
+        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
         thread.join()
 
         then:
         messageChain.receivedResponse.code == "200"
+
+        and:
+        def logLines = reposeLogSearch.searchByString("Failed to shutdown connection pool client")
+        logLines.size() > 0
+
+        cleanup:
+        repose.stop()
     }
 
     @Category(Slow)
-    def "under heavy load and constant HTTPClientService reconfigures, should not drop inflight connections"() {
+    def "under heavy load and constant HTTPClientService reconfigures, should not drop in use connections"() {
 
         given: "Repose is up and the HTTPClientService has been configured"
         repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/first")
+                "features/services/httpconnectionpool/decommissioned/onepool")
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -122,9 +128,9 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
                 println("Reconfiguring...")
                 sleep(16000) //TODO: better strategy to know when Repose has been reconfigured
                 if (reconfigureCount % 2) {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/second")
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
                 } else {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/first")
+                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool")
                 }
                 reconfigureCount++
             }
@@ -139,24 +145,8 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         then: "All client calls should have succeeded"
         totalErrors == 0
+
+        cleanup:
+        repose.stop()
     }
-
-    /*
-   * need a user to do these actions
-   * what is considered inactive?
-   * what constitutes being decommissioned?
-   * config
-   * make a connection
-   * reconfig
-   * check connection liveliness (connection "leasing value")
-   * check new connection liveliness jic
-   * */
-
-    def "connections that have been decommissioned but still in use should log an error"() {
-/*
-* as above but also check logs for right error
-* */
-    }
-
-    /*probably test that connections close right when not in use jic*/
 }

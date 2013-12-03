@@ -199,7 +199,7 @@ public class ServiceClient {
     }
 
     public int getPoolSize(){
-        return httpClientService.getPoolSize(connectionPoolId);
+        return httpClientService.getMaxConnections(connectionPoolId);
     }
 
 }

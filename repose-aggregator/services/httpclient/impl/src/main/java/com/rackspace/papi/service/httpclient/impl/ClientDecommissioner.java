@@ -61,7 +61,8 @@ public class ClientDecommissioner implements Runnable {
                     String clientId = client.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
 
                     if (userManager.hasUsers(clientId)) {
-                        LOG.warn("Failed to shutdown client {} due to users still registered.", clientId);
+                        LOG.warn("Failed to shutdown connection pool client {} due to a connection still in " +
+                                "use after last reconfiguration of Repose.", clientId);
                         break;
                     }
 

@@ -1,6 +1,10 @@
 package com.rackspace.papi.service.httpclient.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HttpClientUserManager {
@@ -14,17 +18,16 @@ public class HttpClientUserManager {
         }
 
         String userId = UUID.randomUUID().toString();
+        final List<String> users;
 
         if (registeredClientUsers.containsKey(clientInstanceId)) {
-            List<String> users = registeredClientUsers.get(clientInstanceId);
-            users.addAll(Arrays.asList(userId));
-            registeredClientUsers.put(clientInstanceId, users);
+            users = registeredClientUsers.get(clientInstanceId);
         } else {
-            List<String> users = Collections.synchronizedList(new ArrayList<String>());
-            users.add(userId);
-            registeredClientUsers.put(clientInstanceId, users);
+            users = Collections.synchronizedList(new ArrayList<String>());
         }
 
+        users.add(userId);
+        registeredClientUsers.put(clientInstanceId, users);
         return userId;
     }
 

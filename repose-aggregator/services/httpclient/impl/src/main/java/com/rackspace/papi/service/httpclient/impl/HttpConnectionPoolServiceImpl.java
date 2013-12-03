@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.httpclient.impl;
 
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
+import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
@@ -36,7 +37,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     }
 
     @Override
-    public DefaultHttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
+    public HttpClientResponse getClient(String clientId) throws HttpClientNotFoundException {
 
         if (poolMap.isEmpty()) {
             defaultClientId = "DEFAULT_POOL";
@@ -115,17 +116,16 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
     }
 
     @Override
-    public int getPoolSize(String poolID) {
+    public int getMaxConnections(String clientId) {
 
-        if (poolMap.containsKey(poolID)) {
-            return ((PoolingClientConnectionManager) poolMap.get(poolID).getConnectionManager()).getMaxTotal();
+        if (poolMap.containsKey(clientId)) {
+            return ((PoolingClientConnectionManager) poolMap.get(clientId).getConnectionManager()).getMaxTotal();
         } else {
             return DEFAULT_POOL.getHttpConnManagerMaxTotal();
         }
     }
 
     private HttpClient clientGenerator(PoolType poolType) {
-        final HttpClient httpClient = HttpConnectionPoolProvider.genClient(poolType);
-        return httpClient;
+        return HttpConnectionPoolProvider.genClient(poolType);
     }
 }
