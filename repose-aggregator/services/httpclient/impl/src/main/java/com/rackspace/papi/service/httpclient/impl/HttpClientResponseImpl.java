@@ -6,14 +6,14 @@ import org.apache.http.client.HttpClient;
 /**
  *  An HttpClientResponse that generates a unique UUID
  */
-public class DefaultHttpClientResponse implements HttpClientResponse {
+public class HttpClientResponseImpl implements HttpClientResponse {
 
     private HttpClient httpClient;
     private String clientId;
     private String clientInstanceId;
     private String userId;
 
-    public DefaultHttpClientResponse(HttpClient httpClient, String clientId, String clientInstanceId, String userId) {
+    public HttpClientResponseImpl(HttpClient httpClient, String clientId, String clientInstanceId, String userId) {
         this.httpClient = httpClient;
         this.clientId = clientId;
         this.clientInstanceId = clientInstanceId;

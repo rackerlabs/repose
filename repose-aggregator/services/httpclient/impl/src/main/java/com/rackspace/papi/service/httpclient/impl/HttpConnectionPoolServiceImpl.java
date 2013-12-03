@@ -16,7 +16,7 @@ import java.util.Set;
 import static com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolProvider.CLIENT_INSTANCE_ID;
 
 
-public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, DefaultHttpClientResponse> {
+public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
 
     private static PoolType DEFAULT_POOL;
     private Map<String, HttpClient> poolMap;
@@ -65,11 +65,11 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
         String clientInstanceId = requestedClient.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
         String userId = httpClientUserManager.addUser(clientInstanceId);
 
-        return new DefaultHttpClientResponse(requestedClient, clientId, clientInstanceId, userId);
+        return new HttpClientResponseImpl(requestedClient, clientId, clientInstanceId, userId);
     }
 
     @Override
-    public void releaseClient(DefaultHttpClientResponse httpClientResponse) {
+    public void releaseClient(HttpClientResponseImpl httpClientResponse) {
         String clientInstanceId = httpClientResponse.getClientInstanceId();
         String userId = httpClientResponse.getUserId();
 
