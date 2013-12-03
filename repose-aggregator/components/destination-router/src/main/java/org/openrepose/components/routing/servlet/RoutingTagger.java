@@ -7,8 +7,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.DestinationRouter;
+import com.rackspace.papi.service.metrics.MeterByCategory;
 import com.rackspace.papi.service.metrics.MetricsService;
-import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
     private String id;
     private double quality;
     private MetricsService metricsService;
-    private MeterByCategorySum mbcsRoutedReponse;
+    private MeterByCategory mbcsRoutedReponse;
 
     public RoutingTagger(String id, double quality, MetricsService metricsService) {
         this.quality = quality;
@@ -28,7 +28,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
         this.metricsService = metricsService;
 
         if (metricsService != null) {
-            mbcsRoutedReponse = (MeterByCategorySum)metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router",
+            mbcsRoutedReponse = metricsService.newMeterByCategorySum(DestinationRouter.class, "destination-router",
                     "Routed Response", TimeUnit.SECONDS);
         }
     }
