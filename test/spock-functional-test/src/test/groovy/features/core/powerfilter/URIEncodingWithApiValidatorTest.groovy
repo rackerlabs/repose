@@ -315,6 +315,19 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         where:
         uri                       | _
+        "/resource?na%23me=value" | _
+        "/resource?na%5Bme=value" | _
+        "/resource?na%5Dme=value" | _
+        "/resource?na%25me=value" | _
+        "/resource?na%60me=value" | _
+        "/resource?na%5Eme=value" | _
+        "/resource?na%7Bme=value" | _
+        "/resource?na%7Dme=value" | _
+        "/resource?na%5Cme=value" | _
+        "/resource?na%7Cme=value" | _
+        "/resource?na%22me=value" | _
+        "/resource?na%3Cme=value" | _
+        "/resource?na%3Eme=value" | _
         "/resource?name=val%23ue" | _
         "/resource?name=val%5Bue" | _
         "/resource?name=val%5Due" | _
@@ -342,6 +355,10 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         where:
         uri                     | _
+        "/resource?na#me=value" | _
+        "/resource?na[me=value" | _
+        "/resource?na]me=value" | _
+        "/resource?na%me=value" | _
         "/resource?name=val#ue" | _
         "/resource?name=val[ue" | _
         "/resource?name=val]ue" | _
@@ -360,6 +377,15 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         where:
         uri                      | _
+        "/resource?na`me=value"  | _
+        "/resource?na^me=value"  | _
+        "/resource?na{me=value"  | _
+        "/resource?na}me=value"  | _
+        "/resource?na\\me=value" | _
+        "/resource?na|me=value"  | _
+        "/resource?na\"me=value" | _
+        "/resource?na<me=value"  | _
+        "/resource?na>me=value"  | _
         "/resource?name=val`ue"  | _
         "/resource?name=val^ue"  | _
         "/resource?name=val{ue"  | _
@@ -384,6 +410,15 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         where:
         uri                       | _
+        "/resource?na%60me=value" | _
+        "/resource?na%5Eme=value" | _
+        "/resource?na%7Bme=value" | _
+        "/resource?na%7Dme=value" | _
+        "/resource?na%5Cme=value" | _
+        "/resource?na%7Cme=value" | _
+        "/resource?na%22me=value" | _
+        "/resource?na%3Cme=value" | _
+        "/resource?na%3Eme=value" | _
         "/resource?name=val%60ue" | _
         "/resource?name=val%5Eue" | _
         "/resource?name=val%7Bue" | _
