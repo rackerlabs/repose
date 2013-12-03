@@ -141,8 +141,13 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     }
 
     private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
-        final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken, mCalls);
+        final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
         final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
+
+        if (mCalls != null)
+            mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
+                           // Solution: Implement metrics in AuthenticationServiceClient
+                           // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
 
         for (Endpoint ep : authorizedEndpoints) {
             serializable.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));

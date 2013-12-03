@@ -66,13 +66,21 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token, mCalls), account.getResult())
-              : authenticationService.validateToken(null, token, mCalls);
+      if (mCalls != null)
+          mCalls.mark(); // This metric may be inaccurate; getGroups may hit the auth service mutliple times
+                         // Solution: Implement metrics in AuthenticationServiceClient
+                         // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
+      return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
+              : authenticationService.validateToken(null, token);
    }
 
    @Override
    public AuthGroups getGroups(String group) {
-       return authenticationService.getGroups(group, mCalls);
+       if (mCalls != null)
+           mCalls.mark(); // This metric may be inaccurate; validateToken may hit the auth service mutliple times
+                          // Solution: Implement metrics in AuthenticationServiceClient
+                          // Blocker: Metrics are not defined in the scope of AuthenticationServiceClient
+       return authenticationService.getGroups(group);
    }
 
    @Override
