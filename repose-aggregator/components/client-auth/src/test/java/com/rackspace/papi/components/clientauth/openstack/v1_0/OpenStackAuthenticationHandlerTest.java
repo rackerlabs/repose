@@ -13,22 +13,31 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.clientauth.common.*;
+import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.AuthUserCache;
+import com.rackspace.papi.components.clientauth.common.Configurables;
+import com.rackspace.papi.components.clientauth.common.EndpointsCache;
+import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
+import com.rackspace.papi.components.clientauth.common.UriMatcher;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
-import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.yammer.metrics.core.Meter;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openstack.docs.identity.api.v2.*;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.RoleList;
+import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Token;
+import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -42,8 +51,12 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author zinic
@@ -226,7 +239,7 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldCheckCacheForCredentials() throws IOException {
             final AuthToken user = new OpenStackToken(authResponse);
             byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
@@ -241,14 +254,14 @@ public class OpenStackAuthenticationHandlerTest {
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should not be called if we found the token in the cache
-            verify(authService, times(0)).validateToken(anyString(), anyString(), (Meter)anyObject());
+            verify(authService, times(0)).validateToken(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -258,7 +271,7 @@ public class OpenStackAuthenticationHandlerTest {
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
 
             // Wait until token expires
@@ -267,7 +280,7 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should be called since token has expired
-            verify(authService, times(1)).validateToken(anyString(), anyString(), (Meter)anyObject());
+            verify(authService, times(1)).validateToken(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -278,13 +291,13 @@ public class OpenStackAuthenticationHandlerTest {
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(authService, times(1)).validateToken(anyString(), anyString(), (Meter)anyObject());
+            verify(authService, times(1)).validateToken(anyString(), anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
@@ -342,7 +355,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldCheckCacheForGroup() throws IOException {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -353,7 +366,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedGroupInfo() {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final AuthGroup authGroup = new OpenStackGroup(group);
             final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
@@ -369,14 +382,14 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
             // Service should not be called if we found the token in the cache
-            verify(authService, times(0)).getGroups(anyString(), (Meter)anyObject());
+            verify(authService, times(0)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
@@ -388,7 +401,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "."  + user.getTokenId()));
             // Service should be called since token has expired
-            verify(authService, times(1)).getGroups(anyString(), (Meter)anyObject());
+            verify(authService, times(1)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
@@ -441,7 +454,7 @@ public class OpenStackAuthenticationHandlerTest {
     @Test
     public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
         final AuthToken user = new OpenStackToken(authResponse);
-        when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(user);
+        when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
         StoredElement element = mock(StoredElement.class);
         when(element.elementIsNull()).thenReturn(false);
@@ -453,7 +466,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX +"." + user.getTokenId()));
         // Service should be called since token has expired
-        verify(authService, times(0)).getGroups(anyString(), (Meter)anyObject());
+        verify(authService, times(0)).getGroups(anyString());
         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
     }
     }
@@ -513,7 +526,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldPassValidCredentials() {
             final AuthToken token = generateCachableTokenInfo("", "", "", "12345");
-            when(authService.validateToken(anyString(), anyString(), (Meter)anyObject())).thenReturn(token);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(token);
 
             final FilterDirector director = handler.handleRequest(request, response);
 
