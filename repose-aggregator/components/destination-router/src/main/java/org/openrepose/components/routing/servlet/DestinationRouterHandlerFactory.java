@@ -2,7 +2,7 @@ package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import org.openrepose.components.routing.servlet.config.Target;
 import org.slf4j.Logger;

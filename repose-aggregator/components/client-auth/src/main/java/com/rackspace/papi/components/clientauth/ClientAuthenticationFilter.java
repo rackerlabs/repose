@@ -9,6 +9,7 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,7 @@ public class ClientAuthenticationFilter implements Filter {
     private ClientAuthenticationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
     private ConfigurationInformation configurationInformation;
+    private MetricsService metricsService;
 
     @Override
     public void destroy() {
@@ -50,8 +52,10 @@ public class ClientAuthenticationFilter implements Filter {
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()),ctx.httpConnectionPoolService(),ctx.akkaServiceClientService());
         configurationManager = ctx.configurationService();
+        metricsService = ctx.metricsService();
+        handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()),ctx.httpConnectionPoolService(),ctx.akkaServiceClientService(),
+                metricsService);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL , handlerFactory, ClientAuthConfig.class);
         

@@ -9,6 +9,7 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import com.yammer.metrics.core.Meter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.openstack.docs.identity.api.v2.*;
@@ -79,12 +80,10 @@ public class AuthenticationServiceClient implements AuthenticationService {
         requestBody = jaxbToString.transform(jaxbRequest);
     }
 
-    @Override
-    public AuthToken validateToken(String tenant, String userToken) { //this is where we ask auth service if token is valid
-
+    public AuthToken handleValidateToken(String tenant, String userToken, Meter calls) {
         OpenStackToken token = null;
 
-        ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
+        ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false, calls);
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
@@ -99,7 +98,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             case UNAUTHORIZED:
                 LOG.error("Unable to validate token: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
 
-                serviceResponse = validateUser(userToken, tenant, true);
+                serviceResponse = validateUser(userToken, tenant, true, calls);
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                     token = getOpenStackToken(serviceResponse);
@@ -120,11 +119,27 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return token;
     }
 
-    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant, boolean force) {
+    @Override
+    public AuthToken validateToken(String tenant, String userToken) { //this is where we ask auth service if token is valid
+        return handleValidateToken(tenant, userToken, null);
+    }
+
+    @Override
+    public AuthToken validateToken(String tenant, String userToken, Meter calls) { //this is where we ask auth service if token is valid
+        return handleValidateToken(tenant, userToken, calls);
+    }
+
+    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant, boolean force, Meter calls) {
         final Map<String, String> headers = new HashMap<String, String>();
+        final ServiceClientResponse response;
+
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
-        return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(force, calls));
+        response = akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
+        if (calls != null)
+            calls.mark();
+
+        return response;
     }
 
     private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {
@@ -135,17 +150,18 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return token;
     }
 
-    @Override
-    public List<Endpoint> getEndpointsForToken(String userToken) {
+    public List<Endpoint> handleGetEndpointsForToken(String userToken, Meter calls) {
         final Map<String, String> headers = new HashMap<String, String>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
 
 
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false, calls));
 
         ServiceClientResponse<EndpointList> endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken +
                 ENDPOINTS, headers);
+        if (calls != null)
+            calls.mark();
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
         switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
@@ -157,8 +173,10 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 LOG.error("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. " +
                         "Retrieving new admin token and retrying endpoints retrieval...");
 
-                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true, calls));
                 endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+                if (calls != null)
+                    calls.mark();
 
                 if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     endpointList = getEndpointList(endpointListResponse);
@@ -176,9 +194,17 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return endpointList;
     }
 
-    // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
     @Override
-    public String getBase64EndpointsStringForHeaders(String userToken, String format) {
+    public List<Endpoint> getEndpointsForToken(String userToken) {
+        return handleGetEndpointsForToken(userToken, null);
+    }
+
+    @Override
+    public List<Endpoint> getEndpointsForToken(String userToken, Meter calls) {
+        return handleGetEndpointsForToken(userToken, calls);
+    }
+
+    public String handleGetBase64EndpointsStringForHeaders(String userToken, String format, Meter calls) {
         final Map<String, String> headers = new HashMap<String, String>();
         String adminToken = "";
 
@@ -191,10 +217,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         //telling the service what format to send the endpoints to us in
         headers.put(ACCEPT_HEADER, format);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
-
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false, calls));
 
         ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+        if (calls != null)
+            calls.mark();
 
         String rawEndpointsData = "";
 
@@ -205,8 +232,10 @@ public class AuthenticationServiceClient implements AuthenticationService {
             case UNAUTHORIZED:
                 LOG.error("Unable to get endpoints for user: " + serviceClientResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
 
-                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true, calls));
                 serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
+                if (calls != null)
+                    calls.mark();
 
                 if (serviceClientResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     rawEndpointsData = convertStreamToBase64String(serviceClientResponse.getData());
@@ -222,6 +251,17 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
 
         return rawEndpointsData;
+    }
+
+    // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
+    @Override
+    public String getBase64EndpointsStringForHeaders(String userToken, String format) {
+        return handleGetBase64EndpointsStringForHeaders(userToken, format, null);
+    }
+
+    @Override
+    public String getBase64EndpointsStringForHeaders(String userToken, String format, Meter calls) {
+        return handleGetBase64EndpointsStringForHeaders(userToken, format, calls);
     }
 
     private String convertStreamToBase64String(InputStream inputStream) {
@@ -248,15 +288,15 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return endpointList;
     }
 
-    @Override
-    public AuthGroups getGroups(String userId) {
+    public AuthGroups handleGetGroups(String userId, Meter calls) {
         final Map<String, String> headers = new HashMap<String, String>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
-
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false, calls));
 
         ServiceClientResponse<Groups> serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+        if (calls != null)
+            calls.mark();
         AuthGroups authGroups = null;
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
@@ -266,10 +306,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
             case UNAUTHORIZED:
                 LOG.error("Unable to get groups for user: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
 
-
-                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true, calls));
 
                 serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId,targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+                if (calls != null)
+                    calls.mark();
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                     authGroups = getAuthGroups(serviceResponse);
@@ -287,6 +328,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
 
         return authGroups;
+    }
+
+    @Override
+    public AuthGroups getGroups(String userId) {
+        return handleGetGroups(userId, null);
+    }
+
+    @Override
+    public AuthGroups getGroups(String userId, Meter calls) {
+        return handleGetGroups(userId, calls);
     }
 
     private AuthGroups getAuthGroups(ServiceClientResponse<Groups> serviceResponse) {
@@ -308,12 +359,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private synchronized String getAdminToken(boolean force) {
+    private synchronized String getAdminToken(boolean force, Meter calls) {
 
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         if (adminToken == null) {
             final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.post(targetHostUri + "/tokens", requestBody, MediaType.APPLICATION_XML_TYPE);
+            if (calls != null)
+                calls.mark();
 
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:
