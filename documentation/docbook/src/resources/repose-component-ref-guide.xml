@@ -100,17 +100,17 @@
                 The most recent changes are described in the table below: </para>
             <?rax revhistory?>
         </section>
-        <xi:include href="chapters/available-doc.xml"/>
+       <xi:include href="chapters/available-doc.xml"/> 
     </chapter>
-   
-    <xi:include href="chapters/repose-logging-chapter.xml"/>
+   <xi:include href="chapters/repose-filterorder-chapter.xml"/>
+    
+    <xi:include href="chapters/repose-logging-chapter.xml"/> 
     <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
-   
-    <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>
-        
+    <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>  
     <xi:include href="chapters/repose-versioning-chapter.xml"/>
     <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
     <xi:include href="chapters/repose-translation-chapter.xml"/>
+    <xi:include href="chapters/repose-header_translation-chapter.xml"/>
     <xi:include href="chapters/repose-glossary-chapter.xml"/>
     <xi:include href="chapters/afterword.xml"/> 
     

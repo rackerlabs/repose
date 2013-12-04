@@ -16,62 +16,158 @@
     <itemizedlist>
         <listitem>
             <para>
-                <emphasis role="bold">Getting Started</emphasis>: This high-level introduction
-                provides an architectural overview and summarizes several deployment methods. </para>
+                <emphasis role="bold">Getting Started
+                Guide</emphasis>: This high-level introduction
+                provides an architectural overview and summarizes
+                several deployment methods. </para>
+        </listitem>
+        <listitem>
+            <para><guilabel>Deployment Guide</guilabel>:</para>
         </listitem>
         <listitem>
             <para>
-                <emphasis role="bold">Glossary</emphasis>: The &PRODNAME; glossary defines key terms as they are used in the context of &PRODABBREV; documentation. </para>
+                <emphasis role="bold">Glossary</emphasis>: The
+                &PRODNAME; glossary defines key terms as they are used
+                in the context of &PRODABBREV; documentation. </para>
         </listitem>
         <listitem>
             <para><guilabel>Component Reference Guide</guilabel>: The
-                Repose Component Reference Guide is a  non-procedural
+                Repose Component Reference Guide is a non-procedural
                 collection of key facts designed to be helpful in
-                preparing to use &PRODNAME; or specific components of
-                &PRODNAME;. This guide is available to assist with: <itemizedlist>
-                    <listitem>
-                        <para>&PRODNAME; Deployment </para>
-                    </listitem>
-                    <listitem>
-                        <para>&PRODNAME; Components:</para>
-                        <itemizedlist>
-                            <listitem>
-                                <para>HTTP Logging</para>
-                            </listitem>
-                            <listitem>
-                                <para>Authentication and
-                                   Authorization</para>
-                            </listitem>
-                            <listitem>
-                                <para>Rate Limiting</para>
-                            </listitem>
-                            <listitem>
-                                <para>Versioning</para>
-                            </listitem>
-                            <listitem>
-                                <para>API Validation</para>
-                            </listitem>
-                            <listitem>
-                                <para>Translation</para>
-                            </listitem>
-                        </itemizedlist>
-                    </listitem>
-                </itemizedlist>
-            </para>
-        </listitem> 
-    </itemizedlist> 
+                preparing to use specific components of &PRODNAME;.
+                This guide is available to assist you with the
+                following components. </para>
+        </listitem>
+    </itemizedlist>
+    <table rules="all">
+        <caption>Components by Category:</caption>
+        <col width="20%"/>
+        <col width="20%"/>
+        <col width="20%"/>
+        <col width="20%"/>
+        <col width="20%"/>
+        <thead>
+            <tr>
+                <th>Request Modification Filters</th>
+                <th>Rate Limiting  Filters</th>
+                <th>Authentication Filters</th>
+                <th>Routing Filters</th>
+                <th>Other Filters</th> 
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <para>Content Normalization</para>
+                </td>
+                <td>
+                    <para>Header Identity</para>
+                </td>
+                <td>
+                    <para>Client Authentication</para>
+                </td>
+                
+                <td>
+                    <para>Destination Router (v2)</para>
+                </td>
+                <td>
+                    <para>API (WADL/XSD) Validation</para>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <para>Header Normalization</para>
+                </td>
+                <td>
+                    <para>Header Identity Mapping</para>
+                </td>
+                <td>
+                    <para>Client Authorization</para>
+                </td>
+                <td>
+                    <para/>
+                </td>
+                <td>
+                    <para>Compression</para>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <para>Header Translation</para>
+                </td>
+                <td>
+                    <para>IP Identity</para>
+                </td>
+                <td>
+                    <para>Service Authentication</para>
+                </td>
+                <td>
+                    <para/>
+                </td>
+                <td>
+                    <para>Flush Output Stream</para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>URI Normalization</para>
+                </td>
+                <td>
+                    <para>Rate Limiting</para>
+                </td>
+                <td>
+                    <para/>
+                </td>
+                <td>
+                    <para/>
+                </td>
+                <td>
+                    <para>HTTP Logging</para>
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
+    
+    <para><emphasis role="italic"><guilabel>Alphabetized List of
+                Components:</guilabel></emphasis></para> 
+    <itemizedlist>
+        <listitem><para>API (WADL/XSD) Validation</para></listitem>
+        <listitem><para>Client Authentication</para></listitem>
+        <listitem><para>Client Authorization</para></listitem>
+        <listitem><para>Compression</para></listitem>
+        <listitem><para>Content Normalization</para></listitem>
+        <listitem><para>Destination Router (v2)</para></listitem>
+        <listitem><para>Flush Output Stream</para></listitem>
+        <listitem><para>Header Identity</para></listitem>
+        <listitem><para>Header Identity Mapping</para></listitem>
+        <listitem><para>Header Normalization</para></listitem>
+        <listitem><para>Header Translation</para></listitem>
+        <listitem><para>HTTP Logging</para></listitem>
+        <listitem><para>IP Identity</para></listitem>
+        <listitem><para>Rate Limiting</para></listitem>
+        <listitem><para>Service Authentication</para></listitem>
+        <listitem><para>URI Identity</para></listitem>
+        <listitem><para>URI Normalization</para></listitem>
+        <listitem><para>URI Stripper</para></listitem>
+        <listitem><para>Versioning</para></listitem>
+        
+        
+    </itemizedlist>
+    
+         
     <tip>
-        <para>
-            For the latest information about &PRODNAME;, 
-            visit 
-            the &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
-            and 
-            the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
-        </para>
-        <para> &PRODNAME; is an open-source project. You are
-            welcome to examine and contribute to our GitHub source
-            repository at <link
-                xlink:href="https://github.com/rackspace/repose/"
+        <para> For the latest information about &PRODNAME;, visit the
+            &PRODNAME; website at <link
+                xlink:href="http://openrepose.org/"
+                >http://openrepose.org/</link> and the &PRODNAME; wiki
+            at <link xlink:href="http://wiki.openrepose.org/"
+                >http://wiki.openrepose.org/</link>. </para>
+        <para> &PRODNAME; is an open-source project. You are welcome
+            to examine and contribute to our GitHub source repository
+            at <link xlink:href="https://github.com/rackspace/repose/"
                 >https://github.com/rackspace/repose/</link>. </para>
     </tip>
 </section>
