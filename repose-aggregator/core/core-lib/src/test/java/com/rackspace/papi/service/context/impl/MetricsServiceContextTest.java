@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceContextTest {
@@ -21,22 +23,22 @@ public class MetricsServiceContextTest {
 
         @Before
         public void setUp() {
-            serviceRegistry = Mockito.mock(ServiceRegistry.class);
-            configurationService = Mockito.mock(ConfigurationService.class);
-            metricsService = Mockito.mock(MetricsService.class);
+            serviceRegistry = mock(ServiceRegistry.class);
+            configurationService = mock(ConfigurationService.class);
+            metricsService = mock(MetricsService.class);
             metricsServiceContext = new MetricsServiceContext(serviceRegistry, configurationService, metricsService);
         }
 
         @Test
         public void testMetricsServiceEnabled() {
-            Mockito.when(metricsService.isEnabled()).thenReturn(true);
+            when(metricsService.isEnabled()).thenReturn(true);
 
             Assert.assertNotNull(metricsServiceContext.getService());
         }
 
         @Test
         public void testMetricsServiceDisabled() {
-            Mockito.when(metricsService.isEnabled()).thenReturn(false);
+            when(metricsService.isEnabled()).thenReturn(false);
 
             Assert.assertNull(metricsServiceContext.getService());
         }
