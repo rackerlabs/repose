@@ -8,8 +8,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.HeaderNormalization;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
 
         // TODO replace "header-normalization" with filter-id or name-number in sys-model
         if (metricsService != null) {
-            mbcsNormalizations = metricsService.newMeterByCategorySum(HeaderNormalization.class,
+            mbcsNormalizations = (MeterByCategorySum)metricsService.newMeterByCategorySum(HeaderNormalization.class,
                     "header-normalization", "Normalization", TimeUnit.SECONDS);
         }
     }

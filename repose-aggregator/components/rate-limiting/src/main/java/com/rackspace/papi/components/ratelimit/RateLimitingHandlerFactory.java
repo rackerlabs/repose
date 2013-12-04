@@ -2,25 +2,24 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
-
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-
+import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import com.rackspace.repose.service.ratelimit.RateLimitingServiceFactory;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.DatastoreType;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.repose.service.ratelimit.RateLimitingService;
-
-import java.util.*;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /* Responsible for creating rate limit handlers that provide datastoreservice and listener to rate limit configuration */
 public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
