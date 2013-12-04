@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" 
+      xml:id="Repose-FilterOrder">
+    
+    <title>Filter Ordering</title>
+   
+   
+    <para>The filters in Repose often interact with each other, so the ordering is important. 
+        Some filters gather information for third-party servers, which are then used by other filters. 
+        One example of this is the when the user's role is determined in the Client Authentication filter 
+        and then that role is used in the API Validation filter.</para>
+    
+        <para>While not all filters have strict dependencies, using the standard default order will 
+            prevent you from injecting unnecessary bugs into your deployment. Some deployments might 
+            require a different order from the standard ordering.  
+    </para>
+    <para>
+        <note>
+            <para> Not all filters are required for each deployment;
+                to simplify your deployment, use only the filters that
+                are necessary. </para>
+        </note>
+    </para>
+    <table rules="all" frame="box" border="1">
+        <caption>Filter Ordering Table</caption>
+        <col width="25%"/>
+        <col width="75%"/>
+        
+        <thead>
+            <tr>
+                <td>Filter</td>
+                <td>Notes</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <para>
+                        Datastore Filter
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Datastore filter at the top of the filter chain. 
+                        This filter intercepts datastore-specific http requests, 
+                        which the other filters do not need to process. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        HTTP Logging Filter
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the HTTP Logging filter behind the Datastore filter so 
+                        that it does not log datastore-specific HTTP requests. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Header Normalization Filter
+                    </para>
+                    <db:para>Content Normalization Filter</db:para>
+                    <db:para>URI Normalization Filter</db:para>
+                   
+                </td>
+                
+                <td>
+                    <para>
+                        Place the Normalization filters near the top.  
+                        These filters clean the request to prevent unexpected request headers and content. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Header Identity Filter
+                    </para>
+                    <db:para> Header Identity Mapping Filter </db:para>
+                    <db:para> IP Identity Filter </db:para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Identity filters next. These filters provide alternative methods of 
+                        setting the X-PP-User and X-PP-Groups headers </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Client Authorization Filter
+                        
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Client Authorization filter next to validate whether the user 
+                        has access to the requested endpoint. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Rate Limiting Filter
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Rate Limiting filter next. This filter uses the URI, X-PP-User 
+                        and X-PP-Groups to establish rate limits. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Versioning Filter
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Versioning filter before the Validation filter to finalize the URI.</para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para> Compression Filter (Added v2.7) </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the Compression filter before anything that looks at the request body. </para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        API (WADL/XSD) Validation Filter
+                    </para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place the API (WADL/XSD) Validation filter after the Compression filter.  
+                        API (WADL/XSD) Validation filter uses X-Roles to validate requests.</para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+                        Translation Filter
+                    </para>
+                    <db:para>Service Authentication Filter</db:para>
+                    <db:para>Destination Router Filter (v2)</db:para>
+                    <db:para>Header Translation Filter</db:para>
+                    <db:para>URI Stripper Filter</db:para>
+                    
+                </td>
+                <td>
+                    <para>
+                        Place theses filters and service last in the filter chain. 
+                        They do not need to go before any other filters.</para>
+                </td>
+            </tr>
+          
+        </tbody>
+    </table>
+            
+</chapter>
