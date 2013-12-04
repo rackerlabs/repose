@@ -14,8 +14,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.filters.ApiValidator;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.MeterByCategory;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    private Set<String> matchedRoles;
    private FilterChain chain;
    private boolean multiRoleMatch = false;
-   private MeterByCategorySum mbcsInvalidRequests;
+   private MeterByCategory mbcsInvalidRequests;
 
    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch,
            MetricsService metricsService) {

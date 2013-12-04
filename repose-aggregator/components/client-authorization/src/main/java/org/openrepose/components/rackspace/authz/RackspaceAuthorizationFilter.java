@@ -43,7 +43,7 @@ public class RackspaceAuthorizationFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore(),
-                ctx.httpConnectionPoolService(), ctx.akkaServiceClientService());
+                ctx.httpConnectionPoolService(), ctx.akkaServiceClientService(), ctx.metricsService());
         URL xsdURL = getClass().getResource("/META-INF/schema/config/openstack-authorization-configuration.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, RackspaceAuthorization.class);
     }

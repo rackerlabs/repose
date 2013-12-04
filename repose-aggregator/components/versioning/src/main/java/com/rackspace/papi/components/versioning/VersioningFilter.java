@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;
 
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import org.slf4j.Logger;
 
 /**

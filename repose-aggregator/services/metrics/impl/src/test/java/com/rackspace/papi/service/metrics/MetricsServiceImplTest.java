@@ -1,27 +1,24 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.metrics;
 
-import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
-import com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl;
-import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
+import com.rackspace.papi.service.metrics.impl.MeterByCategorySum;
+import com.rackspace.papi.service.metrics.impl.MetricsServiceImpl;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;
 import com.yammer.metrics.core.Timer;
 import com.yammer.metrics.core.TimerContext;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 
 import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
@@ -29,17 +26,14 @@ public class MetricsServiceImplTest {
     public static class Register {
 
         protected MetricsService metricsService;
-        protected ReposeJmxNamingStrategy reposeStrat;
+        protected Object reposeStrat;
 
         @Before
         public void setUp() {
 
-            ReposeInstanceInfo reposeInstanceInfo = new ReposeInstanceInfo();
-            reposeInstanceInfo.setNodeId( "node1" );
-            reposeInstanceInfo.setClusterId( "cluster1" );
+            reposeStrat = mock(Object.class);
 
-            reposeStrat = new ReposeJmxNamingStrategy( new AnnotationJmxAttributeSource(),
-                                                       reposeInstanceInfo );
+            when(reposeStrat.toString()).thenReturn("cluster1-node1");
 
             metricsService = new MetricsServiceImpl( reposeStrat );
 
@@ -62,7 +56,7 @@ public class MetricsServiceImplTest {
             //Set<ObjectName> set = ManagementFactory.getPlatformMBeanServer().queryNames(null, null);
 
             ObjectName on =
-                  new ObjectName( "\"" + reposeStrat.getDomainPrefix() + klass.getPackage().getName() + "\"", hash );
+                  new ObjectName( "\"" + reposeStrat.toString() + klass.getPackage().getName() + "\"", hash );
 
             return ManagementFactory.getPlatformMBeanServer().getAttribute( on, att );
         }
@@ -84,7 +78,7 @@ public class MetricsServiceImplTest {
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
 
-            assertEquals( (long) 3, l );
+            Assert.assertEquals((long) 3, l);
         }
 
         @Test
@@ -106,7 +100,7 @@ public class MetricsServiceImplTest {
 
             long l = (Long) getAttribute( this.getClass(), "counter1", "scope1", "Count" );
 
-            assertEquals( (long) 3, l );
+            Assert.assertEquals((long) 3, l);
         }
 
         @Test
@@ -125,13 +119,13 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update(1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "name1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "name1", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test
@@ -149,10 +143,10 @@ public class MetricsServiceImplTest {
             m.mark( "meter1" );
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            Assert.assertEquals((long) 2, l);
 
             l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            Assert.assertEquals((long) 4, l);
         }
 
         @Test
@@ -170,13 +164,13 @@ public class MetricsServiceImplTest {
             m.mark( "meter1" );
 
             long l = (Long) getAttribute( this.getClass(), "meter1", "scope1", "Count" );
-            assertEquals( (long) 2, l );
+            Assert.assertEquals((long) 2, l);
 
             l = (Long) getAttribute( this.getClass(), "meter2", "scope1", "Count" );
-            assertEquals( (long) 4, l );
+            Assert.assertEquals((long) 4, l);
 
             l = (Long) getAttribute( this.getClass(), MeterByCategorySum.ALL, "scope1", "Count" );
-            assertEquals( (long) 6, l );
+            Assert.assertEquals((long) 6, l);
         }
 
         @Test
@@ -195,8 +189,8 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             tc = t.time("key2");
             try {
@@ -204,18 +198,18 @@ public class MetricsServiceImplTest {
             } catch (InterruptedException ie) {}
             tc.stop();
 
-            assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(1L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key1", 1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "key1", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key1", "scope1", "Mean")).doubleValue() > 0);
 
             t.update("key2", 1000L, TimeUnit.MILLISECONDS);
 
-            assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
-            assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
+            Assert.assertEquals(2L, ((Long) getAttribute(this.getClass(), "key2", "scope1", "Count")).longValue());
+            Assert.assertTrue(((Double) getAttribute(this.getClass(), "key2", "scope1", "Mean")).doubleValue() > 0);
         }
 
         @Test( expected = IllegalArgumentException.class )
@@ -244,10 +238,10 @@ public class MetricsServiceImplTest {
                 InstanceNotFoundException {
 
             metricsService.setEnabled(false);
-            assertFalse(metricsService.isEnabled());
+            Assert.assertFalse(metricsService.isEnabled());
 
             metricsService.setEnabled(true);
-            assertTrue(metricsService.isEnabled());
+            Assert.assertTrue(metricsService.isEnabled());
         }
     }
 }

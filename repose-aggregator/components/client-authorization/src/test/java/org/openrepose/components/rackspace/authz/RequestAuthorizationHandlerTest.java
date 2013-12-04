@@ -70,6 +70,7 @@ public class RequestAuthorizationHandlerTest {
             mockedAuthService = mock(AuthenticationService.class);
             when(mockedAuthService.getEndpointsForToken(UNAUTHORIZED_TOKEN)).thenReturn(Collections.EMPTY_LIST);
             when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
+            when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN, null)).thenReturn(endpointList);
             when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);
 
             final ServiceEndpoint myServiceEndpoint = new ServiceEndpoint();
@@ -78,7 +79,7 @@ public class RequestAuthorizationHandlerTest {
             myServiceEndpoint.setName(NAME);
             myServiceEndpoint.setType(TYPE);
 
-            handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint);
+            handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
 
             mockedRequest = mock(HttpServletRequest.class);
         }
@@ -126,7 +127,7 @@ public class RequestAuthorizationHandlerTest {
         @Test
         public void shouldReturn500(){
             when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
-            when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenThrow(new RuntimeException("Service Exception"));
+            when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN, null)).thenThrow(new RuntimeException("Service Exception"));
 
             final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
@@ -142,7 +143,7 @@ public class RequestAuthorizationHandlerTest {
             handler.handleRequest(mockedRequest, null);
 
             verify(mockedCache, times(1)).getCachedEndpointsForToken(AUTHORIZED_TOKEN);
-            verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN);
+            verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN, null);
             verify(mockedCache, times(1)).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class));
         }
 

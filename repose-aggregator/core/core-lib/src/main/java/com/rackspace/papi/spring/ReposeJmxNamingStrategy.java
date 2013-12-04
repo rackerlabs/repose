@@ -58,4 +58,9 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
         ObjectName name = super.getObjectName(managedBean, beanKey);
         return new ObjectName(getDomainPrefix() +  name.getDomain(), name.getKeyPropertyList());
     }
+
+    @Override
+    public String toString() {
+        return getDomainPrefix();
+    }
 }
