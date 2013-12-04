@@ -384,6 +384,118 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
     }
 
 
+    @Unroll("Path components with allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Path components with allowed characters -> send to origin service"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                   | expectedValue         | acceptableEncodedValue
+        "/segment/resource"   | "/segment/resource"   | "/segment/resource"
+
+
+        "/segment/reso0123urce" | "/segment/reso0123urce" | "/segment/reso0123urce"
+        "/segment/reso4567urce" | "/segment/reso4567urce" | "/segment/reso4567urce"
+        "/segment/reso89urce"   | "/segment/reso89urce"   | "/segment/reso89urce"
+        "/segment/resoabcdurce" | "/segment/resoabcdurce" | "/segment/resoabcdurce"
+        "/segment/resoefghurce" | "/segment/resoefghurce" | "/segment/resoefghurce"
+        "/segment/resoijklurce" | "/segment/resoijklurce" | "/segment/resoijklurce"
+        "/segment/resomnopurce" | "/segment/resomnopurce" | "/segment/resomnopurce"
+        "/segment/resoqrsturce" | "/segment/resoqrsturce" | "/segment/resoqrsturce"
+        "/segment/resouvwxurce" | "/segment/resouvwxurce" | "/segment/resouvwxurce"
+        "/segment/resoyzABurce" | "/segment/resoyzABurce" | "/segment/resoyzABurce"
+        "/segment/resoCDEFurce" | "/segment/resoCDEFurce" | "/segment/resoCDEFurce"
+        "/segment/resoGHIJurce" | "/segment/resoGHIJurce" | "/segment/resoGHIJurce"
+        "/segment/resoKLMNurce" | "/segment/resoKLMNurce" | "/segment/resoKLMNurce"
+        "/segment/resoOPQRurce" | "/segment/resoOPQRurce" | "/segment/resoOPQRurce"
+        "/segment/resoSTUVurce" | "/segment/resoSTUVurce" | "/segment/resoSTUVurce"
+        "/segment/resoWXYZurce" | "/segment/resoWXYZurce" | "/segment/resoWXYZurce"
+
+        "/segment/reso-urce"   | "/segment/reso-urce"   | "/segment/reso%2Durce"
+        "/segment/reso.urce"   | "/segment/reso.urce"   | "/segment/reso%2Eurce"
+        "/segment/reso_urce"   | "/segment/reso_urce"   | "/segment/reso%5Furce"
+        "/segment/reso~urce"   | "/segment/reso~urce"   | "/segment/reso%7Eurce"
+
+        "/segment/reso!urce"   | "/segment/reso!urce"    | "/segment/reso%21urce"
+        "/segment/reso\$urce"  | "/segment/reso\$urce"   | "/segment/reso%24urce"
+        "/segment/reso&urce"   | "/segment/reso&urce"    | "/segment/reso%26urce"
+        "/segment/reso\'urce"  | "/segment/reso\'urce"   | "/segment/reso%27urce"
+        "/segment/reso(urce"   | "/segment/reso(urce"    | "/segment/reso%28urce"
+        "/segment/reso)urce"   | "/segment/reso)urce"    | "/segment/reso%29urce"
+        "/segment/reso*urce"   | "/segment/reso*urce"    | "/segment/reso%2Aurce"
+        "/segment/reso+urce"   | "/segment/reso+urce"    | "/segment/reso%2Burce"
+        "/segment/reso,urce"   | "/segment/reso,urce"    | "/segment/reso%2Curce"
+        "/segment/reso;urce"   | "/segment/reso;urce"    | "/segment/reso%3Burce"
+        "/segment/reso=urce"   | "/segment/reso=urce"    | "/segment/reso%3Durce"
+        "/segment/reso:urce"   | "/segment/reso:urce"    | "/segment/reso%3Aurce"
+        "/segment/reso@urce"   | "/segment/reso@urce"    | "/segment/reso%40urce"
+
+
+
+
+    }
+
+
+    @Unroll("Path components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Path components with percent-encoded allowed characters -> send to origin service"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                   | expectedValue         | acceptableEncodedValue
+        "/segment/reso%30%31%32%33urce" | "/segment/reso0123urce" | "/segment/reso0123urce"
+        "/segment/reso%34%35%36%37urce" | "/segment/reso4567urce" | "/segment/reso4567urce"
+        "/segment/reso%38%39urce"   | "/segment/reso89urce"   | "/segment/reso89urce"
+        "/segment/reso%61%62%63%64urce" | "/segment/resoabcdurce" | "/segment/resoabcdurce"
+        "/segment/reso%65%66%67%68urce" | "/segment/resoefghurce" | "/segment/resoefghurce"
+        "/segment/reso%69%6A%6B%6Curce" | "/segment/resoijklurce" | "/segment/resoijklurce"
+        "/segment/reso%6D%6E%6F%70urce" | "/segment/resomnopurce" | "/segment/resomnopurce"
+        "/segment/reso%71%72%73%74urce" | "/segment/resoqrsturce" | "/segment/resoqrsturce"
+        "/segment/reso%75%76%77%78urce" | "/segment/resouvwxurce" | "/segment/resouvwxurce"
+        "/segment/reso%79%7A%41%42urce" | "/segment/resoyzABurce" | "/segment/resoyzABurce"
+        "/segment/reso%43%44%45%46urce" | "/segment/resoCDEFurce" | "/segment/resoCDEFurce"
+        "/segment/reso%47%48%49%4Aurce" | "/segment/resoGHIJurce" | "/segment/resoGHIJurce"
+        "/segment/reso%4B%4C%4D%4Eurce" | "/segment/resoKLMNurce" | "/segment/resoKLMNurce"
+        "/segment/reso%4F%50%51%52urce" | "/segment/resoOPQRurce" | "/segment/resoOPQRurce"
+        "/segment/reso%53%54%55%56urce" | "/segment/resoSTUVurce" | "/segment/resoSTUVurce"
+        "/segment/reso%57%58%59%5Aurce" | "/segment/resoWXYZurce" | "/segment/resoWXYZurce"
+
+        "/segment/reso%2Durce"   | "/segment/reso-urce"   | "/segment/reso%2Durce"
+        "/segment/reso%2Eurce"   | "/segment/reso.urce"   | "/segment/reso%2Eurce"
+        "/segment/reso%5Furce"   | "/segment/reso_urce"   | "/segment/reso%5Furce"
+        "/segment/reso%7Eurce"   | "/segment/reso~urce"   | "/segment/reso%7Eurce"
+        "/segment/reso%21urce"   | "/segment/reso!urce"    | "/segment/reso%21urce"
+        "/segment/reso%24urce"  | "/segment/reso\$urce"   | "/segment/reso%24urce"
+        "/segment/reso%26urce"   | "/segment/reso&urce"    | "/segment/reso%26urce"
+        "/segment/reso%27urce"  | "/segment/reso\'urce"   | "/segment/reso%27urce"
+        "/segment/reso%28urce"   | "/segment/reso(urce"    | "/segment/reso%28urce"
+        "/segment/reso%29urce"   | "/segment/reso)urce"    | "/segment/reso%29urce"
+        "/segment/reso%2Aurce"   | "/segment/reso*urce"    | "/segment/reso%2Aurce"
+        "/segment/reso%2Burce"   | "/segment/reso+urce"    | "/segment/reso%2Burce"
+        "/segment/reso%2Curce"   | "/segment/reso,urce"    | "/segment/reso%2Curce"
+        "/segment/reso%3Burce"   | "/segment/reso;urce"    | "/segment/reso%3Burce"
+        "/segment/reso%3Durce"   | "/segment/reso=urce"    | "/segment/reso%3Durce"
+        "/segment/reso%3Aurce"   | "/segment/reso:urce"    | "/segment/reso%3Aurce"
+        "/segment/reso%40urce"   | "/segment/reso@urce"    | "/segment/reso%40urce"
+
+
+
+
+    }
+
+
 
     def cleanupSpec() {
 
