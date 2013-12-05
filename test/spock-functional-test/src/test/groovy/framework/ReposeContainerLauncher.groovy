@@ -1,6 +1,10 @@
 package framework
 
+import org.linkedin.util.clock.SystemClock
+
 import java.nio.charset.Charset
+
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeContainerLauncher extends AbstractReposeLauncher {
 
@@ -13,6 +17,9 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String containerJar
     String rootWarLocation
     String[] appWars
+
+    def clock = new SystemClock()
+    def Process process
 
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId = "cluster1", String nodeId = "node1",
@@ -43,7 +50,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         println("Starting repose: ${cmd}")
 
 
-        def th = new Thread({ cmd.execute() });
+        def th = new Thread({ this.process = cmd.execute() });
 
         th.run()
         th.join()
@@ -60,14 +67,22 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             out.write(("\r\n").getBytes(Charset.forName("UTF-8")));
             out.flush();
             s.close();
+
+            waitForCondition(clock, "4000", '1s', {
+                !isUp()
+            })
+
         } catch (IOException ioex) {
+
+            this.process.waitForOrKill(5000)
+
             println("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
         }
     }
 
     @Override
     boolean isUp() {
-        throw new UnsupportedOperationException("implement me")
+        return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
 }
