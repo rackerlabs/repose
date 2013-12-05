@@ -18,7 +18,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
 
-
         repose.applyConfigs("features/filters/clientauthn/common")
         repose.start()
 
@@ -52,10 +51,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         }
         repose.stop()
     }
-
-
-
-
 
     def "under heavy load should not drop validate token response"() {
 

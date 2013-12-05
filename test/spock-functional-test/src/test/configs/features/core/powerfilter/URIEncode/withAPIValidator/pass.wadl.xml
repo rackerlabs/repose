@@ -6,8 +6,13 @@
              xmlns:test="http://test.openrespose/test/v1.1">
 
     <resources base="http://localhost:${target_port}/">
-        <resource path="/messages/+add-nodes">
 
+        <resource path="/">
+            <method name="GET">
+            </method>
+        </resource>
+
+        <resource path="/messages/+add-nodes">
             <method name="GET">
                 <doc title="Add nodes to a deployment">
                     WRITEME
@@ -105,6 +110,21 @@
             </method>
         </resource>
 
+        <resource path="/+messages">
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
+        </resource>
+
+        <resource path="/:messages">
+            <method name="GET">
+                <doc title="Add nodes to a deployment">
+                    WRITEME
+                </doc>
+            </method>
+        </resource>
 
         <resource path="/resource">
             <method name="GET" />
@@ -119,6 +139,9 @@
             <method name="GET" />
         </resource>
         <resource path="/resource%3Fname=name">
+            <method name="GET" />
+        </resource>
+        <resource path="/resource?name=value">
             <method name="GET" />
         </resource>
         <resource path="/resource%3Fname%3Dname">

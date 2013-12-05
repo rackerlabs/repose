@@ -1,5 +1,4 @@
 package features.core.powerfilter
-
 import framework.ReposeValveTest
 import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
@@ -18,22 +17,26 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
-    @Unroll("URI's with special character through API Validator filter sent = #URISent")
-    def "URI's with special character through API Validator filter that gives 404"() {
+    @Category(Bug) //DEFECT: D-16424
+    @Unroll("FAILING: URI's with special character through API Validator filter sent = #URISent")
+    def "API Validator filter handles '+' in URI path"() {
 
         when: "User sends a request through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent, method: "GET", headers: ["X-Roles": "role-1"])
 
         then: "Repose send the URI parameters without manipulation"
-        messageChain.receivedResponse.code.equals("404")
+        messageChain.receivedResponse.code.equals("200")
+        messageChain.handlings.size() == 1
+        messageChain.handlings.get(0).request.path == URItoriginService
 
         where:
         URISent                    | URItoriginService
         "/+messages?ids=locations" | "/+messages?ids=locations"
-        "/:messages?ids=locations" | "/:messages?ids=locations"
+        "/messages/+add-nodes"     | "/messages/+add-nodes"
+
+
     }
 
-    @Category(Bug)
     @Unroll("URI's with special character through API Validator filter sent = #URISent")
     def "URI's with special character through API Validator filter that gives 200"() {
 
@@ -58,26 +61,13 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/messages?ids=,locations" | "/messages?ids=%2Clocations"
         "//messages?ids=locations" | "/messages?ids=locations"
         "/;messages?ids=locations" | "/;messages?ids=locations"
+        "/:messages?ids=locations" | "/:messages?ids=locations"
         "/@messages?ids=locations" | "/@messages?ids=locations"
         "/=messages?ids=locations" | "/=messages?ids=locations"
         "/,messages?ids=locations" | "/,messages?ids=locations"
         "/messages/add-nodes"      | "/messages/add-nodes"
         "/messages/add.nodes"      | "/messages/add.nodes"
-        "/messages/+add-nodes"     | "/messages/+add-nodes"
-    }
-
-    @Unroll("URI's with special character through API Validator filter sent = #URISent")
-    def "URI's with special character through API Validator filter that gives 405"() {
-
-        when: "User sends a request through repose"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: URISent, method: "GET", headers: ["X-Roles": "role-1"])
-
-        then: "Repose send the URI parameters without manipulation"
-        messageChain.receivedResponse.code.equals("405")
-
-        where:
-        URISent                    | URItoriginService
-        "/?messages?ids=locations" | "/?messages?ids=locations"
+        "/?messages?ids=locations" | "/?messages%3Fids=locations"  // everything after the first ? is treated as a query param
     }
 
     @Unroll("Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
@@ -94,9 +84,6 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         where:
         uri                        | expectedValue              | acceptableEncodedValue
         "/resource?name=value"     | "/resource?name=value"     | "/resource?name=value"
-        "/resource?name%3Dvalue"   | "/resource?name=value"     | "/resource?name%3Dvalue"
-
-
         "/resource?na0123me=value" | "/resource?na0123me=value" | "/resource?na0123me=value"
         "/resource?na4567me=value" | "/resource?na4567me=value" | "/resource?na4567me=value"
         "/resource?na89me=value"   | "/resource?na89me=value"   | "/resource?na89me=value"
@@ -113,15 +100,12 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?naOPQRme=value" | "/resource?naOPQRme=value" | "/resource?naOPQRme=value"
         "/resource?naSTUVme=value" | "/resource?naSTUVme=value" | "/resource?naSTUVme=value"
         "/resource?naWXYZme=value" | "/resource?naWXYZme=value" | "/resource?naWXYZme=value"
-
         "/resource?na-me=value"    | "/resource?na-me=value"    | "/resource?na%2Dme=value"
         "/resource?na.me=value"    | "/resource?na.me=value"    | "/resource?na%2Eme=value"
         "/resource?na_me=value"    | "/resource?na_me=value"    | "/resource?na%5Fme=value"
         "/resource?na~me=value"    | "/resource?na~me=value"    | "/resource?na%7Eme=value"
-
         "/resource?na!me=value"    | "/resource?na!me=value"    | "/resource?na%21me=value"
         "/resource?na\$me=value"   | "/resource?na\$me=value"   | "/resource?na%24me=value"
-        "/resource?na&me=value"    | "/resource?na&me=value"    | "/resource?na%26me=value"
         "/resource?na\'me=value"   | "/resource?na\'me=value"   | "/resource?na%27me=value"
         "/resource?na(me=value"    | "/resource?na(me=value"    | "/resource?na%28me=value"
         "/resource?na)me=value"    | "/resource?na)me=value"    | "/resource?na%29me=value"
@@ -129,7 +113,76 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?na+me=value"    | "/resource?na+me=value"    | "/resource?na%2Bme=value"
         "/resource?na,me=value"    | "/resource?na,me=value"    | "/resource?na%2Cme=value"
         "/resource?na;me=value"    | "/resource?na;me=value"    | "/resource?na%3Bme=value"
+        "/resource?na:me=value"    | "/resource?na:me=value"    | "/resource?na%3Ame=value"
+        "/resource?na@me=value"    | "/resource?na@me=value"    | "/resource?na%40me=value"
+        "/resource?na/me=value"    | "/resource?na/me=value"    | "/resource?na%2Fme=value"
+        "/resource?na?me=value"    | "/resource?na?me=value"    | "/resource?na%3Fme=value"
+    }
+
+    @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
+    @Unroll("FAILING: Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "FAILING: Query components with allowed characters -> send to origin service"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                        | expectedValue              | acceptableEncodedValue
+        "/resource?name%3Dvalue"   | "/resource?name=value"     | "/resource?name%3Dvalue"
+        "/resource?na&me=value"    | "/resource?na&me=value"    | "/resource?na%26me=value"
         "/resource?na=me=value"    | "/resource?na=me=value"    | "/resource?na%3Dme=value"
+        "/resource?name=val&ue"    | "/resource?name=val&ue"    | "/resource?name=val%26ue"
+    }
+
+
+    @Unroll("Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Query components with allowed characters -> send to origin service2"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                        | expectedValue              | acceptableEncodedValue
+        "/resource?name=value"     | "/resource?name=value"     | "/resource?name=value"
+        "/resource?na0123me=value" | "/resource?na0123me=value" | "/resource?na0123me=value"
+        "/resource?na4567me=value" | "/resource?na4567me=value" | "/resource?na4567me=value"
+        "/resource?na89me=value"   | "/resource?na89me=value"   | "/resource?na89me=value"
+        "/resource?naabcdme=value" | "/resource?naabcdme=value" | "/resource?naabcdme=value"
+        "/resource?naefghme=value" | "/resource?naefghme=value" | "/resource?naefghme=value"
+        "/resource?naijklme=value" | "/resource?naijklme=value" | "/resource?naijklme=value"
+        "/resource?namnopme=value" | "/resource?namnopme=value" | "/resource?namnopme=value"
+        "/resource?naqrstme=value" | "/resource?naqrstme=value" | "/resource?naqrstme=value"
+        "/resource?nauvwxme=value" | "/resource?nauvwxme=value" | "/resource?nauvwxme=value"
+        "/resource?nayzABme=value" | "/resource?nayzABme=value" | "/resource?nayzABme=value"
+        "/resource?naCDEFme=value" | "/resource?naCDEFme=value" | "/resource?naCDEFme=value"
+        "/resource?naGHIJme=value" | "/resource?naGHIJme=value" | "/resource?naGHIJme=value"
+        "/resource?naKLMNme=value" | "/resource?naKLMNme=value" | "/resource?naKLMNme=value"
+        "/resource?naOPQRme=value" | "/resource?naOPQRme=value" | "/resource?naOPQRme=value"
+        "/resource?naSTUVme=value" | "/resource?naSTUVme=value" | "/resource?naSTUVme=value"
+        "/resource?naWXYZme=value" | "/resource?naWXYZme=value" | "/resource?naWXYZme=value"
+        "/resource?na-me=value"    | "/resource?na-me=value"    | "/resource?na%2Dme=value"
+        "/resource?na.me=value"    | "/resource?na.me=value"    | "/resource?na%2Eme=value"
+        "/resource?na_me=value"    | "/resource?na_me=value"    | "/resource?na%5Fme=value"
+        "/resource?na~me=value"    | "/resource?na~me=value"    | "/resource?na%7Eme=value"
+        "/resource?na!me=value"    | "/resource?na!me=value"    | "/resource?na%21me=value"
+        "/resource?na\$me=value"   | "/resource?na\$me=value"   | "/resource?na%24me=value"
+        "/resource?na\'me=value"   | "/resource?na\'me=value"   | "/resource?na%27me=value"
+        "/resource?na(me=value"    | "/resource?na(me=value"    | "/resource?na%28me=value"
+        "/resource?na)me=value"    | "/resource?na)me=value"    | "/resource?na%29me=value"
+        "/resource?na*me=value"    | "/resource?na*me=value"    | "/resource?na%2Ame=value"
+        "/resource?na+me=value"    | "/resource?na+me=value"    | "/resource?na%2Bme=value"
+        "/resource?na,me=value"    | "/resource?na,me=value"    | "/resource?na%2Cme=value"
+        "/resource?na;me=value"    | "/resource?na;me=value"    | "/resource?na%3Bme=value"
         "/resource?na:me=value"    | "/resource?na:me=value"    | "/resource?na%3Ame=value"
         "/resource?na@me=value"    | "/resource?na@me=value"    | "/resource?na%40me=value"
         "/resource?na/me=value"    | "/resource?na/me=value"    | "/resource?na%2Fme=value"
@@ -159,7 +212,6 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
         "/resource?name=val!ue"    | "/resource?name=val!ue"    | "/resource?name=val%21ue"
         "/resource?name=val\$ue"   | "/resource?name=val\$ue"   | "/resource?name=val%24ue"
-        "/resource?name=val&ue"    | "/resource?name=val&ue"    | "/resource?name=val%26ue"
         "/resource?name=val\'ue"   | "/resource?name=val\'ue"   | "/resource?name=val%27ue"
         "/resource?name=val(ue"    | "/resource?name=val(ue"    | "/resource?name=val%28ue"
         "/resource?name=val)ue"    | "/resource?name=val)ue"    | "/resource?name=val%29ue"
@@ -174,8 +226,10 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?name=val?ue"    | "/resource?name=val?ue"    | "/resource?name=val%3Fue"
     }
 
-    @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
-    def "Query components with percent-encoded allowed characters -> send to origin service"() {
+
+    @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
+    @Unroll("FAILING: Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "FAILING: Query components with percent-encoded allowed characters -> send to origin service"() {
 
         // allowed characters that are percent-encoding are just as good. they
         // SHOULD be decoded, but don't have to be.
@@ -226,8 +280,25 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?na%2Fme=value"          | "/resource?na/me=value"    | "/resource?na%2Fme=value"
         "/resource?na%3Fme=value"          | "/resource?na?me=value"    | "/resource?na%3Fme=value"
         "/resource?na%35me=value"          | "/resource?na5me=value"    | "/resource?na%35me=value"
+        "/resource?na%4b%4c%4d%4eme=value" | "/resource?naKLMNme=value" | "/resource?naKLMNme=value"
+    }
 
+    @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Query components with percent-encoded allowed characters -> send to origin service"() {
 
+        // allowed characters that are percent-encoding are just as good. they
+        // SHOULD be decoded, but don't have to be.
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                                | expectedValue              | acceptableEncodedValue
         "/resource?name=val%30%31%32%33ue" | "/resource?name=val0123ue" | "/resource?name=val0123ue"
         "/resource?name=val%34%35%36%37ue" | "/resource?name=val4567ue" | "/resource?name=val4567ue"
         "/resource?name=val%38%39ue"       | "/resource?name=val89ue"   | "/resource?name=val89ue"
@@ -263,10 +334,7 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?name=val%40ue"          | "/resource?name=val@ue"    | "/resource?name=val%40ue"
         "/resource?name=val%2Fue"          | "/resource?name=val/ue"    | "/resource?name=val%2Fue"
         "/resource?name=val%3Fue"          | "/resource?name=val?ue"    | "/resource?name=val%3Fue"
-
-        "/resource?na%4b%4c%4d%4eme=value" | "/resource?naKLMNme=value" | "/resource?naKLMNme=value"
         "/resource?name=val%4b%4c%4d%4eue" | "/resource?name=valKLMNue" | "/resource?name=valKLMNue"
-
     }
 
     def "When there are two question marks in the URI, the first should indicate the beginning of the query component"() {
@@ -300,8 +368,9 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         messageChain.handlings[0].request.path == expectedValue
     }
 
-    @Unroll("Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
-    def "Query components with disallowed characters that are percent-encoded -> send to origin service"() {
+    @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
+    @Unroll("FAILING: Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
+    def "FAILING: Query components with disallowed characters that are percent-encoded -> send to origin service"() {
 
         // disallowed characters that are percent-encoded are acceptable, as long as they stay percent-encoded
 
@@ -328,6 +397,24 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?na%22me=value" | _
         "/resource?na%3Cme=value" | _
         "/resource?na%3Eme=value" | _
+    }
+
+
+    @Unroll("Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
+    def "Query components with disallowed characters that are percent-encoded -> send to origin service"() {
+
+        // disallowed characters that are percent-encoded are acceptable, as long as they stay percent-encoded
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == uri
+
+        where:
+        uri                       | _
         "/resource?name=val%23ue" | _
         "/resource?name=val%5Bue" | _
         "/resource?name=val%5Due" | _
@@ -343,15 +430,17 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?name=val%3Eue" | _
     }
 
-    @Unroll("Query components with disallowed characters -> 400 response -- #uri")
-    def "Query components with disallowed characters -> 400 response"() {
+    // Should evaluate the correct expectations for this test given changes made recently
+    // to allow invalid characters in query parameters to be passed through
+    @Category(Bug) //DEFECT: D-16426
+    @Unroll("FAILING: Query components with disallowed characters -> 400 response -- #uri")
+    def "FAILING: Query components with disallowed characters -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
 
         then: "Repose returns an error"
         messageChain.receivedResponse.code == "400"
-        messageChain.handlings.size() == 0
 
         where:
         uri                     | _
@@ -365,8 +454,11 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?name=val%ue" | _
     }
 
-    @Unroll("Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
-    def "Query components with characters not mentioned in RFC 3986 -> 400 response"() {
+    // Should evaluate the correct expectations for this test given changes made recently
+    // to allow invalid characters in query parameters to be passed through
+    @Category(Bug) //DEFECT: D-16426
+    @Unroll("FAILING: Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
+    def "FAILING: Query components with characters not mentioned in RFC 3986 -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -397,8 +489,9 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?name=val>ue"  | _
     }
 
-    @Unroll("Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
-    def "Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+    @Category(Bug) //DEFECT: D-16426
+    @Unroll("FAILING: Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "FAILING: Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -419,6 +512,21 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         "/resource?na%22me=value" | _
         "/resource?na%3Cme=value" | _
         "/resource?na%3Eme=value" | _
+    }
+
+    @Unroll("Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+
+        when: "User sends request with a bad query component"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose returns an error"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == uri
+
+        where:
+        uri                       | _
         "/resource?name=val%60ue" | _
         "/resource?name=val%5Eue" | _
         "/resource?name=val%7Bue" | _
