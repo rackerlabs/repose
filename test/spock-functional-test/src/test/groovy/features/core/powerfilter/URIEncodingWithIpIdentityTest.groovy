@@ -1,8 +1,9 @@
 package features.core.powerfilter
-
 import framework.ReposeValveTest
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
+import org.junit.experimental.categories.Category
 
 class URIEncodingWithIpIdentityTest extends ReposeValveTest {
 
@@ -15,6 +16,27 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         repose.applyConfigs("features/core/powerfilter/URIEncode/withIpIdentity")
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
+    }
+
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "DEFECT: D-16426: Query components with allowed characters -> send to origin service"() {
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                        | expectedValue              | acceptableEncodedValue
+        "/resource?name%3Dvalue"   | "/resource?name=value"     | "/resource?name%3Dvalue"
+        "/resource?na&me=value"    | "/resource?na&me=value"    | "/resource?na%26me=value"
+        "/resource?na=me=value"    | "/resource?na=me=value"    | "/resource?na%3Dme=value"
+        "/resource?name=val&ue"    | "/resource?name=val&ue"    | "/resource?name=val%26ue"
+
     }
 
     @Unroll("Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
@@ -31,9 +53,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         where:
         uri                        | expectedValue              | acceptableEncodedValue
         "/resource?name=value"     | "/resource?name=value"     | "/resource?name=value"
-        "/resource?name%3Dvalue"   | "/resource?name=value"     | "/resource?name%3Dvalue"
-
-
         "/resource?na0123me=value" | "/resource?na0123me=value" | "/resource?na0123me=value"
         "/resource?na4567me=value" | "/resource?na4567me=value" | "/resource?na4567me=value"
         "/resource?na89me=value"   | "/resource?na89me=value"   | "/resource?na89me=value"
@@ -58,7 +77,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
 
         "/resource?na!me=value"    | "/resource?na!me=value"    | "/resource?na%21me=value"
         "/resource?na\$me=value"   | "/resource?na\$me=value"   | "/resource?na%24me=value"
-        "/resource?na&me=value"    | "/resource?na&me=value"    | "/resource?na%26me=value"
         "/resource?na\'me=value"   | "/resource?na\'me=value"   | "/resource?na%27me=value"
         "/resource?na(me=value"    | "/resource?na(me=value"    | "/resource?na%28me=value"
         "/resource?na)me=value"    | "/resource?na)me=value"    | "/resource?na%29me=value"
@@ -66,7 +84,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?na+me=value"    | "/resource?na+me=value"    | "/resource?na%2Bme=value"
         "/resource?na,me=value"    | "/resource?na,me=value"    | "/resource?na%2Cme=value"
         "/resource?na;me=value"    | "/resource?na;me=value"    | "/resource?na%3Bme=value"
-        "/resource?na=me=value"    | "/resource?na=me=value"    | "/resource?na%3Dme=value"
         "/resource?na:me=value"    | "/resource?na:me=value"    | "/resource?na%3Ame=value"
         "/resource?na@me=value"    | "/resource?na@me=value"    | "/resource?na%40me=value"
         "/resource?na/me=value"    | "/resource?na/me=value"    | "/resource?na%2Fme=value"
@@ -96,7 +113,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
 
         "/resource?name=val!ue"    | "/resource?name=val!ue"    | "/resource?name=val%21ue"
         "/resource?name=val\$ue"   | "/resource?name=val\$ue"   | "/resource?name=val%24ue"
-        "/resource?name=val&ue"    | "/resource?name=val&ue"    | "/resource?name=val%26ue"
         "/resource?name=val\'ue"   | "/resource?name=val\'ue"   | "/resource?name=val%27ue"
         "/resource?name=val(ue"    | "/resource?name=val(ue"    | "/resource?name=val%28ue"
         "/resource?name=val)ue"    | "/resource?name=val)ue"    | "/resource?name=val%29ue"
@@ -111,8 +127,9 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val?ue"    | "/resource?name=val?ue"    | "/resource?name=val%3Fue"
     }
 
-    @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
-    def "Query components with percent-encoded allowed characters -> send to origin service"() {
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "DEFECT: D-16426: Query components with percent-encoded allowed characters -> send to origin service"() {
 
         // allowed characters that are percent-encoding are just as good. they
         // SHOULD be decoded, but don't have to be.
@@ -163,8 +180,25 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?na%2Fme=value"          | "/resource?na/me=value"    | "/resource?na%2Fme=value"
         "/resource?na%3Fme=value"          | "/resource?na?me=value"    | "/resource?na%3Fme=value"
         "/resource?na%35me=value"          | "/resource?na5me=value"    | "/resource?na%35me=value"
+        "/resource?na%4b%4c%4d%4eme=value" | "/resource?naKLMNme=value" | "/resource?naKLMNme=value"
+    }
 
+    @Unroll("Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Query components with percent-encoded allowed characters -> send to origin service"() {
 
+        // allowed characters that are percent-encoding are just as good. they
+        // SHOULD be decoded, but don't have to be.
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
+
+        where:
+        uri                                | expectedValue              | acceptableEncodedValue
         "/resource?name=val%30%31%32%33ue" | "/resource?name=val0123ue" | "/resource?name=val0123ue"
         "/resource?name=val%34%35%36%37ue" | "/resource?name=val4567ue" | "/resource?name=val4567ue"
         "/resource?name=val%38%39ue"       | "/resource?name=val89ue"   | "/resource?name=val89ue"
@@ -200,10 +234,7 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val%40ue"          | "/resource?name=val@ue"    | "/resource?name=val%40ue"
         "/resource?name=val%2Fue"          | "/resource?name=val/ue"    | "/resource?name=val%2Fue"
         "/resource?name=val%3Fue"          | "/resource?name=val?ue"    | "/resource?name=val%3Fue"
-
-        "/resource?na%4b%4c%4d%4eme=value" | "/resource?naKLMNme=value" | "/resource?naKLMNme=value"
         "/resource?name=val%4b%4c%4d%4eue" | "/resource?name=valKLMNue" | "/resource?name=valKLMNue"
-
     }
 
     def "When there are two question marks in the URI, the first should indicate the beginning of the query component"() {
@@ -237,8 +268,9 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         messageChain.handlings[0].request.path == expectedValue
     }
 
-    @Unroll("Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
-    def "Query components with disallowed characters that are percent-encoded -> send to origin service"() {
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
+    def "DEFECT: D-16426: Query components with disallowed characters that are percent-encoded -> send to origin service"() {
 
         // disallowed characters that are percent-encoded are acceptable, as long as they stay percent-encoded
 
@@ -265,6 +297,23 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?na%22me=value" | _
         "/resource?na%3Cme=value" | _
         "/resource?na%3Eme=value" | _
+    }
+
+    @Unroll("Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
+    def "Query components with disallowed characters that are percent-encoded -> send to origin service"() {
+
+        // disallowed characters that are percent-encoded are acceptable, as long as they stay percent-encoded
+
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == uri
+
+        where:
+        uri                       | _
         "/resource?name=val%23ue" | _
         "/resource?name=val%5Bue" | _
         "/resource?name=val%5Due" | _
@@ -280,8 +329,11 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val%3Eue" | _
     }
 
-    @Unroll("Query components with disallowed characters -> 400 response -- #uri")
-    def "Query components with disallowed characters -> 400 response"() {
+    // I think this behavior has changed based on a recent change in Repose to passthrough invalid characters in query
+    // parameters
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with disallowed characters -> 400 response -- #uri")
+    def "DEFECT: D-16426: Query components with disallowed characters -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -302,8 +354,12 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val%ue" | _
     }
 
-    @Unroll("Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
-    def "Query components with characters not mentioned in RFC 3986 -> 400 response"() {
+
+    // I think this behavior has changed based on a recent change in Repose to passthrough invalid characters in query
+    // parameters
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
+    def "DEFECT: D-16426: Query components with characters not mentioned in RFC 3986 -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -334,8 +390,9 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val>ue"  | _
     }
 
-    @Unroll("Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
-    def "Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "DEFECT: D-16426: Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -356,6 +413,21 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?na%22me=value" | _
         "/resource?na%3Cme=value" | _
         "/resource?na%3Eme=value" | _
+    }
+
+    @Unroll("Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+
+        when: "User sends request with a bad query component"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
+
+        then: "Repose returns an error"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == uri
+
+        where:
+        uri                       | _
         "/resource?name=val%60ue" | _
         "/resource?name=val%5Eue" | _
         "/resource?name=val%7Bue" | _
@@ -382,7 +454,6 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/resource?name=val ue" | _
         "/resource?na me=value" | _
     }
-
 
     @Unroll("Path components with allowed characters -> send to origin service -- #uri --> #expectedValue")
     def "Path components with allowed characters -> send to origin service"() {
@@ -441,9 +512,9 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
 
     }
 
-
-    @Unroll("Path components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
-    def "Path components with percent-encoded allowed characters -> send to origin service"() {
+    @Category(Bug)
+    @Unroll("DEFECT: D-16426: Path components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "DEFECT: D-16426: Path components with percent-encoded allowed characters -> send to origin service"() {
 
         when: "User sends a request through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -454,10 +525,10 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
 
         where:
-        uri                   | expectedValue         | acceptableEncodedValue
+        uri                             | expectedValue           | acceptableEncodedValue
         "/segment/reso%30%31%32%33urce" | "/segment/reso0123urce" | "/segment/reso0123urce"
         "/segment/reso%34%35%36%37urce" | "/segment/reso4567urce" | "/segment/reso4567urce"
-        "/segment/reso%38%39urce"   | "/segment/reso89urce"   | "/segment/reso89urce"
+        "/segment/reso%38%39urce"       | "/segment/reso89urce"   | "/segment/reso89urce"
         "/segment/reso%61%62%63%64urce" | "/segment/resoabcdurce" | "/segment/resoabcdurce"
         "/segment/reso%65%66%67%68urce" | "/segment/resoefghurce" | "/segment/resoefghurce"
         "/segment/reso%69%6A%6B%6Curce" | "/segment/resoijklurce" | "/segment/resoijklurce"
@@ -471,28 +542,38 @@ class URIEncodingWithIpIdentityTest extends ReposeValveTest {
         "/segment/reso%4F%50%51%52urce" | "/segment/resoOPQRurce" | "/segment/resoOPQRurce"
         "/segment/reso%53%54%55%56urce" | "/segment/resoSTUVurce" | "/segment/resoSTUVurce"
         "/segment/reso%57%58%59%5Aurce" | "/segment/resoWXYZurce" | "/segment/resoWXYZurce"
+    }
 
-        "/segment/reso%2Durce"   | "/segment/reso-urce"   | "/segment/reso%2Durce"
-        "/segment/reso%2Eurce"   | "/segment/reso.urce"   | "/segment/reso%2Eurce"
-        "/segment/reso%5Furce"   | "/segment/reso_urce"   | "/segment/reso%5Furce"
-        "/segment/reso%7Eurce"   | "/segment/reso~urce"   | "/segment/reso%7Eurce"
-        "/segment/reso%21urce"   | "/segment/reso!urce"    | "/segment/reso%21urce"
-        "/segment/reso%24urce"  | "/segment/reso\$urce"   | "/segment/reso%24urce"
-        "/segment/reso%26urce"   | "/segment/reso&urce"    | "/segment/reso%26urce"
-        "/segment/reso%27urce"  | "/segment/reso\'urce"   | "/segment/reso%27urce"
-        "/segment/reso%28urce"   | "/segment/reso(urce"    | "/segment/reso%28urce"
-        "/segment/reso%29urce"   | "/segment/reso)urce"    | "/segment/reso%29urce"
-        "/segment/reso%2Aurce"   | "/segment/reso*urce"    | "/segment/reso%2Aurce"
-        "/segment/reso%2Burce"   | "/segment/reso+urce"    | "/segment/reso%2Burce"
-        "/segment/reso%2Curce"   | "/segment/reso,urce"    | "/segment/reso%2Curce"
-        "/segment/reso%3Burce"   | "/segment/reso;urce"    | "/segment/reso%3Burce"
-        "/segment/reso%3Durce"   | "/segment/reso=urce"    | "/segment/reso%3Durce"
-        "/segment/reso%3Aurce"   | "/segment/reso:urce"    | "/segment/reso%3Aurce"
-        "/segment/reso%40urce"   | "/segment/reso@urce"    | "/segment/reso%40urce"
+    @Unroll("Path components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "Path components with percent-encoded allowed characters -> send to origin service"() {
 
+        when: "User sends a request through repose"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
 
+        then: "Repose send the URI parameters without manipulation"
+        messageChain.receivedResponse.code == "200"
+        messageChain.handlings.size() == 1
+        messageChain.handlings[0].request.path == expectedValue || messageChain.handlings[0].request.path == acceptableEncodedValue
 
-
+        where:
+        uri                    | expectedValue         | acceptableEncodedValue
+        "/segment/reso%2Durce" | "/segment/reso-urce"  | "/segment/reso%2Durce"
+        "/segment/reso%2Eurce" | "/segment/reso.urce"  | "/segment/reso%2Eurce"
+        "/segment/reso%5Furce" | "/segment/reso_urce"  | "/segment/reso%5Furce"
+        "/segment/reso%7Eurce" | "/segment/reso~urce"  | "/segment/reso%7Eurce"
+        "/segment/reso%21urce" | "/segment/reso!urce"  | "/segment/reso%21urce"
+        "/segment/reso%24urce" | "/segment/reso\$urce" | "/segment/reso%24urce"
+        "/segment/reso%26urce" | "/segment/reso&urce"  | "/segment/reso%26urce"
+        "/segment/reso%27urce" | "/segment/reso\'urce" | "/segment/reso%27urce"
+        "/segment/reso%28urce" | "/segment/reso(urce"  | "/segment/reso%28urce"
+        "/segment/reso%29urce" | "/segment/reso)urce"  | "/segment/reso%29urce"
+        "/segment/reso%2Aurce" | "/segment/reso*urce"  | "/segment/reso%2Aurce"
+        "/segment/reso%2Burce" | "/segment/reso+urce"  | "/segment/reso%2Burce"
+        "/segment/reso%2Curce" | "/segment/reso,urce"  | "/segment/reso%2Curce"
+        "/segment/reso%3Burce" | "/segment/reso;urce"  | "/segment/reso%3Burce"
+        "/segment/reso%3Durce" | "/segment/reso=urce"  | "/segment/reso%3Durce"
+        "/segment/reso%3Aurce" | "/segment/reso:urce"  | "/segment/reso%3Aurce"
+        "/segment/reso%40urce" | "/segment/reso@urce"  | "/segment/reso%40urce"
     }
 
 

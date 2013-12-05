@@ -17,8 +17,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
-    @Category(Bug) //DEFECT: D-16424
-    @Unroll("FAILING: URI's with special character through API Validator filter sent = #URISent")
+    @Category(Bug) //DEFECT: D-16293
+    @Unroll("DEFECT: D-16293: URI's with special character through API Validator filter sent = #URISent")
     def "API Validator filter handles '+' in URI path"() {
 
         when: "User sends a request through repose"
@@ -120,8 +120,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
     }
 
     @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
-    @Unroll("FAILING: Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
-    def "FAILING: Query components with allowed characters -> send to origin service"() {
+    @Unroll("DEFECT: D-16426: Query components with allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "DEFECT: D-16426: Query components with allowed characters -> send to origin service"() {
 
         when: "User sends a request through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -228,8 +228,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
 
 
     @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
-    @Unroll("FAILING: Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
-    def "FAILING: Query components with percent-encoded allowed characters -> send to origin service"() {
+    @Unroll("DEFECT: D-16426: Query components with percent-encoded allowed characters -> send to origin service -- #uri --> #expectedValue")
+    def "DEFECT: D-16426: Query components with percent-encoded allowed characters -> send to origin service"() {
 
         // allowed characters that are percent-encoding are just as good. they
         // SHOULD be decoded, but don't have to be.
@@ -369,8 +369,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
     }
 
     @Category(Bug) //DEFECT: D-16426 Improper handling per RFC3986
-    @Unroll("FAILING: Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
-    def "FAILING: Query components with disallowed characters that are percent-encoded -> send to origin service"() {
+    @Unroll("DEFECT: D-16426: Query components with disallowed characters that are percent-encoded -> send to origin service -- #uri ")
+    def "DEFECT: D-16426: Query components with disallowed characters that are percent-encoded -> send to origin service"() {
 
         // disallowed characters that are percent-encoded are acceptable, as long as they stay percent-encoded
 
@@ -433,8 +433,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
     // Should evaluate the correct expectations for this test given changes made recently
     // to allow invalid characters in query parameters to be passed through
     @Category(Bug) //DEFECT: D-16426
-    @Unroll("FAILING: Query components with disallowed characters -> 400 response -- #uri")
-    def "FAILING: Query components with disallowed characters -> 400 response"() {
+    @Unroll("DEFECT: D-16426: Query components with disallowed characters -> 400 response -- #uri")
+    def "DEFECT: D-16426: Query components with disallowed characters -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -457,8 +457,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
     // Should evaluate the correct expectations for this test given changes made recently
     // to allow invalid characters in query parameters to be passed through
     @Category(Bug) //DEFECT: D-16426
-    @Unroll("FAILING: Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
-    def "FAILING: Query components with characters not mentioned in RFC 3986 -> 400 response"() {
+    @Unroll("DEFECT: D-16426: Query components with characters not mentioned in RFC 3986-> 400 response -- #uri")
+    def "DEFECT: D-16426: Query components with characters not mentioned in RFC 3986 -> 400 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
@@ -490,8 +490,8 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
     }
 
     @Category(Bug) //DEFECT: D-16426
-    @Unroll("FAILING: Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
-    def "FAILING: Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
+    @Unroll("DEFECT: D-16426: Query components with encoded forms of characters not mentioned in RFC 3986-> 200 response -- #uri")
+    def "DEFECT: D-16426: Query components with encoded forms of characters not mentioned in RFC 3986 -> 200 response"() {
 
         when: "User sends request with a bad query component"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uri)
