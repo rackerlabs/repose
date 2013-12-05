@@ -1,7 +1,5 @@
 package features.services.datastore
 import framework.*
-import framework.category.Flaky
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -12,7 +10,6 @@ import spock.lang.Specification
  * Test the Distributed Datastore Service in 2 multinode containers
  */
 
-@Category(Flaky)
 class DistDatastoreServiceGlassfishTest extends Specification {
 
     static def reposeGlassfishEndpoint1

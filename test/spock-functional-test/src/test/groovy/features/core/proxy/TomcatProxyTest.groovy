@@ -1,17 +1,10 @@
 package features.core.proxy
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.TestProperties
-import framework.TestUtils
-import framework.category.Flaky
-import org.junit.experimental.categories.Category
+import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
-@Category(Flaky)
 class TomcatProxyTest extends Specification {
 
     static ReposeLauncher repose
