@@ -75,7 +75,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         } catch (IOException ioex) {
 
             this.process.waitForOrKill(5000)
-
+            process.destroy()
             println("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
         }
     }
