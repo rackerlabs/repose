@@ -1,4 +1,5 @@
 package com.rackspace.papi.service.httpclient.impl
+
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
@@ -84,10 +85,9 @@ class MultiThreadHttpClientUserTest {
                             totalErrors++
                         }
                     } catch (Exception e) {
-                            println("EXCEPTION ON RESPONSE: " + e)
-
+                        println("EXCEPTION ON RESPONSE: " + e)
+                        totalErrors++
                     }
-
                 }
             }
             clientThreads.add(thread)
