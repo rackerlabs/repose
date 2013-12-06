@@ -19,6 +19,7 @@ class TestProperties {
 
     int reposePort
     int reposeShutdownPort
+    int dynamicPortBase
 
     // Property settings that aren't set for every test
     String targetPort
@@ -48,6 +49,7 @@ class TestProperties {
             reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = properties.getProperty("repose.port").toInteger()
             reposeShutdownPort = properties.getProperty("repose.shutdown.port").toInteger()
+            dynamicPortBase = properties.getProperty("repose.dynamic.port.base").toInteger()
 
             glassfishJar = properties.getProperty("glassfish.jar")
             tomcatJar = properties.getProperty("tomcat.jar")

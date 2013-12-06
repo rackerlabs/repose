@@ -26,9 +26,9 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     def setupSpec() {
 
         def logFile
-
+        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
         // get ports
-        PortFinder pf = new PortFinder()
+        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
         int originServicePort = pf.getNextOpenPort()
 
@@ -49,7 +49,6 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                 "datastore2: " + dataStorePort2)
 
         // configure and start repose
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
         reposeGlassfishEndpoint1 = "http://localhost:${reposePort1}"
         reposeGlassfishEndpoint2 = "http://localhost:${reposePort2}"
