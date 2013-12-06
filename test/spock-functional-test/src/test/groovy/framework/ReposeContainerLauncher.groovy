@@ -68,17 +68,42 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             out.flush();
             s.close();
 
+            print("Waiting for Repose Container to shutdown")
             waitForCondition(clock, "4000", '1s', {
+                print(".")
                 !isUp()
             })
+            println()
 
         } catch (IOException ioex) {
 
             this.process.waitForOrKill(5000)
-            process.destroy()
+            killIfUp()
             println("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
         }
     }
+
+    private void killIfUp() {
+        String processes = TestUtils.getJvmProcesses()
+        def regex = /(\d*) ROOT.war -s ${shutdownPort} .*/
+        def matcher = (processes =~ regex)
+        if (matcher.size() > 0) {
+
+            for (int i=1;i<=matcher.size();i++){
+                String pid = matcher[0][i]
+
+                if (pid!=null && !pid.isEmpty()) {
+                    println("Killing running repose-valve process: " + pid)
+                    Runtime rt = Runtime.getRuntime();
+                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                        rt.exec("taskkill " + pid.toInteger());
+                    else
+                        rt.exec("kill -9 " + pid.toInteger());
+                }
+            }
+        }
+    }
+
 
     @Override
     boolean isUp() {
