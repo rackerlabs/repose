@@ -1,5 +1,7 @@
 package com.rackspace.papi.service.datastore.encoding;
 
+import com.rackspace.papi.commons.util.UUIDHelper;
+
 public final class UUIDEncodingProvider implements EncodingProvider {
 
    private static final UUIDEncodingProvider INSTANCE = new UUIDEncodingProvider();

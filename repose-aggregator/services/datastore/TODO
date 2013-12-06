@@ -1,13 +1,28 @@
 Modularize Dist Datastore
 
-[ ] 1. Maven modules
+[ ] Maven modules
     [X] services/datastore
     [X] services/datastore/api
     [ ] services/datastore/impl/distributed
     [ ] QUESTION: do we move the replicated over also???
 
-[ ] 2. API module
+
+[ ] API module
     [ ] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
     [ ] Document interfaces
     [ ] DatastoreManager
         [ ] move destroy()
+
+
+[ ] Remove duplicate classes
+    [X] UUIDHelper - 3 walk in, 1 walks out
+        [X] Move to commons/utilities: com.rackspace.papi.commons.util.UUIDHelper
+        [X] com.rackspace.papi.service.datastore.encoding.UUIDHelper
+            [X] change all references to commons/utilities
+            [X] remove it
+        [X] com.rackspace.papi.service.datastore.impl.distributed.hash.UUIDHelper
+            [X] change all references to commons/utilities
+            [X] remove it
+
+[ ] Remove unnecessary classes
+    [ ] DISCUSS: EncodingProvider and UUIDEncodingProvider

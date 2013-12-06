@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore;
+package com.rackspace.papi.components.datastore.integration;
 
 import java.io.Serializable;
 
