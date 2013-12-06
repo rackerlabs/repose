@@ -37,7 +37,7 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
-      xml:id="Repose-Translation">
+      xml:id="Repose-Translation-Chapter">
     <title>Translation Filter</title>
     <section xml:id="Introduction-500">
         <title>Introduction to the Translation Component of &PRODNAME;</title>

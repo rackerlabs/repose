@@ -87,7 +87,8 @@
             <tr>
                 <td>
                     <para>
-                        HTTP Logging Filter
+                        <link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link>
+                        
                     </para>
                     
                 </td>
@@ -99,9 +100,7 @@
             </tr>
             <tr>
                 <td>
-                    <para>
-                        Header Normalization Filter
-                    </para>
+                    <para>Header Normalization Filter </para>
                     <db:para>Content Normalization Filter</db:para>
                     <db:para>URI Normalization Filter</db:para>
                    
@@ -116,23 +115,38 @@
             <tr>
                 <td>
                     <para>
-                        Header Identity Filter
+                        <link linkend="Repose-AuthNZ-Chapter">Client Authentication Filter</link>
+                        
                     </para>
-                    <db:para> Header Identity Mapping Filter </db:para>
-                    <db:para> IP Identity Filter </db:para>
                     
                 </td>
                 <td>
-                    <para>
-                        Place the Identity filters next. These filters provide alternative methods of 
-                        setting the X-PP-User and X-PP-Groups headers </para>
+                    <para> Place the Client Authentication filter
+                        before the Identity filters. This filter sets
+                        the X-Roles, X-PP-User, and X-PP-Groups
+                        headers.</para>
                 </td>
             </tr>
             <tr>
                 <td>
                     <para>
-                        Client Authorization Filter
-                        
+                        Header Identity Filter
+                    </para>
+                    <db:para> Header Identity Mapping Filter </db:para>
+                    <db:para> IP Identity Filter </db:para>
+                    <db:para> URI Identity Filter </db:para>
+                </td>
+                <td>
+                    <para> Place the Identity filters next. These
+                        filters provide alternative methods of setting
+                        the X-PP-User and X-PP-Groups headers.</para>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <para>
+         <link linkend="Repose-AuthNZ-Chapter"> Client Authorization Filter</link>
+                      
                     </para>
                     
                 </td>
@@ -145,7 +159,8 @@
             <tr>
                 <td>
                     <para>
-                        Rate Limiting Filter
+                        
+                        <link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link>
                     </para>
                     
                 </td>
@@ -158,7 +173,8 @@
             <tr>
                 <td>
                     <para>
-                        Versioning Filter
+                        <link linkend="Repose-Versioning-Chapter">Versioning Filter</link>
+                        
                     </para>
                     
                 </td>
@@ -169,7 +185,11 @@
             </tr>
             <tr>
                 <td>
-                    <para> Compression Filter (Added v2.7) </para>
+                    <para> 
+                        
+                        <link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) 
+                        
+                    </para>
                     
                 </td>
                 <td>
@@ -180,7 +200,8 @@
             <tr>
                 <td>
                     <para>
-                        API (WADL/XSD) Validation Filter
+                       
+                        <link linkend="Repose-API-Validation-Chapter">API (WADL/XSD) Validation Filter</link>
                     </para>
                     
                 </td>
@@ -193,7 +214,8 @@
             <tr>
                 <td>
                     <para>
-                        Translation Filter
+                        <link linkend="Repose-Translation-Chapter">Translation Filter</link>
+                        
                     </para>
                     <db:para>Service Authentication Filter</db:para>
                     <db:para>Destination Router Filter (v2)</db:para>
