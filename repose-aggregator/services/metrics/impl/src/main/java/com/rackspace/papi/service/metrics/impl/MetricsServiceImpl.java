@@ -1,9 +1,8 @@
-package com.rackspace.papi.service.reporting.metrics.impl;
+package com.rackspace.papi.service.metrics.impl;
 
-import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
-import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
+import com.rackspace.papi.service.metrics.MeterByCategory;
+import com.rackspace.papi.service.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.TimerByCategory;
 import com.yammer.metrics.core.*;
 import com.yammer.metrics.reporting.JmxReporter;
 import com.yammer.metrics.reporting.GraphiteReporter;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * This factory class generates Yammer Metrics objects & exposes them through JMX & Graphite.  Any metric classes which
  * might be used by multiple components should have a factory method off this class.
  * <p>
- * To ensure no namespace collisions between clusters & nodes, the {@link com.rackspace.papi.spring.ReposeJmxNamingStrategy} object is used.  This object
+ * To ensure no namespace collisions between clusters & nodes, the ReposeJMXNamingStrategy object is used.  This object
  * also provides the ObjectName for any Spring-managed MBeans.
  * <p>
  * <h1>Custom MXBeans </h1>
@@ -51,12 +50,12 @@ public class MetricsServiceImpl implements MetricsService {
     private MetricsRegistry metrics;
     private JmxReporter jmx;
     private List<GraphiteReporter> listGraphite = new ArrayList<GraphiteReporter>();
-    private ReposeJmxNamingStrategy reposeStrat;
+    private Object reposeStrat;
 
     private boolean enabled;
 
     @Autowired
-    public MetricsServiceImpl( @Qualifier( "reposeJmxNamingStrategy" ) ReposeJmxNamingStrategy reposeStratP ) {
+    public MetricsServiceImpl( @Qualifier( "reposeJmxNamingStrategy" ) Object reposeStratP ) {
         this.metrics = new MetricsRegistry();
 
         this.jmx = new JmxReporter( metrics );
@@ -127,12 +126,12 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public MeterByCategorySum newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
+    public MeterByCategory newMeterByCategorySum( Class klass, String scope, String eventType, TimeUnit unit ) {
         return new MeterByCategorySum( this, klass, scope, eventType, unit );
     }
 
     @Override
-    public void destroy() {
+    public void shutdown() {
         metrics.shutdown();
         jmx.shutdown();
 
@@ -140,7 +139,7 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     private MetricName makeMetricName( Class klass, String name, String scope ) {
-        return new MetricName( reposeStrat.getDomainPrefix() + klass.getPackage().getName(),
+        return new MetricName( reposeStrat.toString() + klass.getPackage().getName(),
                                klass.getSimpleName(),
                                name, scope );
     }

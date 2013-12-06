@@ -4,7 +4,7 @@ import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.metrics.MetricsService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
 import org.slf4j.Logger;

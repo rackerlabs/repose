@@ -1,15 +1,14 @@
-package com.rackspace.papi.service.reporting.metrics;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.impl.MetricsServiceContext;
+import com.rackspace.papi.service.metrics.MetricsService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,14 +33,14 @@ public class MetricsServiceContextTest {
         public void testMetricsServiceEnabled() {
             when(metricsService.isEnabled()).thenReturn(true);
 
-            assertNotNull(metricsServiceContext.getService());
+            Assert.assertNotNull(metricsServiceContext.getService());
         }
 
         @Test
         public void testMetricsServiceDisabled() {
             when(metricsService.isEnabled()).thenReturn(false);
 
-            assertNull(metricsServiceContext.getService());
+            Assert.assertNull(metricsServiceContext.getService());
         }
     }
 }
