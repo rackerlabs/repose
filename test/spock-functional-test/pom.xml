@@ -37,10 +37,10 @@
 
         <repose_port>8888</repose_port>
         <repose_jmx_port>9001</repose_jmx_port>
-        <repose_shutdown_port>10009</repose_shutdown_port>
+        <repose_shutdown_port>20009</repose_shutdown_port>
         <target_hostname>localhost</target_hostname>
-        <target_port>10001</target_port>
-        <target_port2>10002</target_port2>
+        <target_port>20001</target_port>
+        <target_port2>20002</target_port2>
         <identity_port>12200</identity_port>
         <atom_port>12201</atom_port>
 

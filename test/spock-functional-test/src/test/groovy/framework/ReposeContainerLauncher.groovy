@@ -49,7 +49,6 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         }
         println("Starting repose: ${cmd}")
 
-
         def th = new Thread({ this.process = cmd.execute() });
 
         th.run()
