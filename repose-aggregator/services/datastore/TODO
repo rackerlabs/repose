@@ -14,7 +14,7 @@ Modularize Dist Datastore
         [ ] move destroy() - where does it belong?
 
 
-[ ] Remove duplicate classes
+[ ] Modularize code used by DD filter, DD service, and CLI DD library
     [X] UUIDHelper - 3 walk in, 1 walks out
         [X] Move to commons/utilities: com.rackspace.papi.commons.util.encoding.UUIDHelper
         [X] com.rackspace.papi.service.datastore.encoding.UUIDHelper
@@ -23,9 +23,12 @@ Modularize Dist Datastore
         [X] com.rackspace.papi.service.datastore.impl.distributed.hash.UUIDHelper
             [X] change all references to commons/utilities
             [X] remove it
-
-[ ] Refactoring
     [X] EncodingProvider and UUIDEncodingProvider
         [X] Move to commons/utilities
         [X] Collapse UUIDHelper behavior into UUIDEncodingProvider
         [ ] Should it be moved to datastore/api?
+    [ ] MessageDigestFactory
+        [X] Move to services/datastore/api
+        [X] Remove dead code
+        [ ] ??? Remove it and replace with MessageDigest or commons.util.digest
+
