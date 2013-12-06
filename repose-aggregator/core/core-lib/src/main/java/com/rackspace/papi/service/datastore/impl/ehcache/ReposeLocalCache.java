@@ -3,7 +3,7 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

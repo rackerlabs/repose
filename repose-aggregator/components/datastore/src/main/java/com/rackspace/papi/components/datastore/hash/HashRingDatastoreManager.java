@@ -4,7 +4,7 @@ import com.rackspace.papi.components.datastore.hash.remote.RemoteCommandExecutor
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
+import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 

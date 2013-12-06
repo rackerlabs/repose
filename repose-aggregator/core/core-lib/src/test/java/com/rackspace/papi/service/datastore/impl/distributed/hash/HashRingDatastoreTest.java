@@ -3,7 +3,7 @@ package com.rackspace.papi.service.datastore.impl.distributed.hash;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
