@@ -41,12 +41,6 @@
       xml:id="Repose-Ratelimiting-Chapter">
     <?rax pdf.url="../../repose-versioning-deploy.pdf"?>
     
-    <!-- I am commenting this out because I am unsure if it is needed
-        at this point.
-    
-      xml:base="file:/Users/becc5822/Documents/repose/documentation/docbook/src/resources/repose-ratelimiting-deploy*.xml">
-      -->
-    
     <title>Rate Limiting Filter</title>
     <section xml:id="Introduction-300">
         <title>What Is Rate Limiting?</title>
