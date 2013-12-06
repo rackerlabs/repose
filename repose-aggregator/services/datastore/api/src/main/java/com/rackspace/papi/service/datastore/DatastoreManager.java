@@ -1,8 +1,6 @@
 package com.rackspace.papi.service.datastore;
 
-import com.rackspace.papi.commons.util.Destroyable;
-
-public interface DatastoreManager extends Destroyable {
+public interface DatastoreManager {
 
    Datastore getDatastore() throws DatastoreUnavailableException;
 
@@ -11,4 +9,7 @@ public interface DatastoreManager extends Destroyable {
    boolean isDistributed();
    
    String getName();
+
+
+   void destroy();
 }
