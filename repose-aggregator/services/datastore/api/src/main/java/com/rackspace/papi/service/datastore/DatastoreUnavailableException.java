@@ -2,7 +2,6 @@ package com.rackspace.papi.service.datastore;
 
 /**
  *
- * @author zinic
  */
 public class DatastoreUnavailableException extends RuntimeException {
 

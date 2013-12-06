@@ -1,0 +1,13 @@
+Modularize Dist Datastore
+
+[ ] 1. Maven modules
+    [X] services/datastore
+    [X] services/datastore/api
+    [ ] services/datastore/impl/distributed
+    [ ] QUESTION: do we move the replicated over also???
+
+[ ] 2. API module
+    [ ] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
+    [ ] Document interfaces
+    [ ] DatastoreManager
+        [ ] move destroy()

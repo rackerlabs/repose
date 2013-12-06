@@ -48,6 +48,11 @@
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
+           <artifactId>datastore-api</artifactId>
+       </dependency>
+
+       <dependency>
+           <groupId>com.rackspace.papi.service</groupId>
            <artifactId>service-client-akka</artifactId>
            <version>${project.version}</version>
        </dependency>
