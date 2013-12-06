@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.encoding;
+package com.rackspace.papi.commons.util.encoding;
 
 public interface EncodingProvider {
 

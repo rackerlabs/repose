@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
@@ -13,15 +14,15 @@ import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collection;
-import javax.servlet.*;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collection;
 
 public class DistributedDatastoreFilter implements Filter {
 

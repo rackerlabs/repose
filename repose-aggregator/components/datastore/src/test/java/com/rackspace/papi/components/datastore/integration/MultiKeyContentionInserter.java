@@ -8,7 +8,7 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import com.rackspace.papi.service.proxy.httpcomponent.RequestProxyServiceImpl;

@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 /**
  *
- * @author zinic
  */
 public final class MD5MessageDigestFactory extends AbstractMessageDigestFactory {
 

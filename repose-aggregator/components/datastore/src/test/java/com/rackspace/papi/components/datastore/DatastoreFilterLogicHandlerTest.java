@@ -9,7 +9,7 @@ import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import org.junit.Before;
 import org.junit.Ignore;
