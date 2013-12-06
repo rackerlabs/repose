@@ -1,7 +1,5 @@
 package com.rackspace.papi.components.datastore.integration;
 
-import com.rackspace.papi.service.datastore.Coalescent;
-
 /**
  *
  * @author zinic

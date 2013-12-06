@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore.hash;
+package com.rackspace.papi.commons.util;
 
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import org.junit.Test;
@@ -28,4 +28,5 @@ public class UUIDHelperTest {
          assertTrue(new ByteArrayComparator(expectedBytes, actualBytes).arraysAreEqual());
       }
    }
+
 }
