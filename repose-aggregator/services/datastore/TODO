@@ -38,6 +38,10 @@ Modularize Dist Datastore
         [X] Move test (verify identical)
     [X] RemoteBehavior (DEDUPE)
         [X] Move class (verify identical)
+    [X] DatastoreAccessControl (DEDUPE)
 
+
+[ ] DEAD CODE
+    [ ] UnaddressableKeyException x2 (REMOVE)
 
 [ ] Fix commons -> services dependency

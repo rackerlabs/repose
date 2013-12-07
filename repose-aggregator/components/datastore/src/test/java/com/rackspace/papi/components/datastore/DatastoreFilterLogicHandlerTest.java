@@ -8,6 +8,7 @@ import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
 import com.rackspace.papi.service.datastore.impl.distributed.common.DatastoreHeader;
 import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;

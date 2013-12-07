@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
@@ -9,7 +10,7 @@ import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.openrepose.components.datastore.config.HostAccessControl;
 import org.slf4j.Logger;
@@ -18,11 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class configures and updates listeners for the DD and the DD filter.
