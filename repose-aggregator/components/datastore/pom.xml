@@ -36,6 +36,12 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastore-distributed</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     
         <dependency>
             <groupId>commons-codec</groupId>

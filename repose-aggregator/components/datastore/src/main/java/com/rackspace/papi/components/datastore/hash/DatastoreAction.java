@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.datastore.hash;
 
-import com.rackspace.papi.components.datastore.common.RemoteBehavior;
+
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
 
 import java.net.InetSocketAddress;
 
