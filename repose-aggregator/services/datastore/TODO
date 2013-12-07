@@ -39,7 +39,12 @@ Modularize Dist Datastore
     [X] RemoteBehavior (DEDUPE)
         [X] Move class (verify identical)
     [X] DatastoreAccessControl (DEDUPE)
-
+    [ ] remote classes (DEDUPE)
+        [ ] RemoteCommand
+        [ ] RemoteCommandExecutor
+        [X] RemoteConnectionException
+        [ ] AbstractRemoteCommand
+        [ ] Delete/Get/Put
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
