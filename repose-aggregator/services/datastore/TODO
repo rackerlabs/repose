@@ -42,6 +42,6 @@ Modularize Dist Datastore
 
 
 [ ] DEAD CODE
-    [ ] UnaddressableKeyException x2 (REMOVE)
+    [X] UnaddressableKeyException x2 (REMOVE)
 
 [ ] Fix commons -> services dependency
