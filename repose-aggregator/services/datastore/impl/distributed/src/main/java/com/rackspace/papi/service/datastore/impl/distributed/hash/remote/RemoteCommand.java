@@ -7,7 +7,6 @@ import java.io.IOException;
 
 /**
  *
- * @author zinic
  */
 public interface RemoteCommand {
 

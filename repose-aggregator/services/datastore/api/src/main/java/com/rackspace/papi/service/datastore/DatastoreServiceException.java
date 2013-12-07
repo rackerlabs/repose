@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.impl;
+package com.rackspace.papi.service.datastore;
 
 public class DatastoreServiceException extends RuntimeException {
 

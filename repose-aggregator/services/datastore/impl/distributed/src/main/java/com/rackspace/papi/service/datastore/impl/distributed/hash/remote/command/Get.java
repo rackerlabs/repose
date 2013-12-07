@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore.hash.remote.command;
+package com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
