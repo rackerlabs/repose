@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.datastore.hash;
 
-import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
 
 import java.util.concurrent.TimeUnit;
 

@@ -3,12 +3,12 @@ Modularize Dist Datastore
 [ ] Maven modules
     [X] services/datastore
     [X] services/datastore/api
-    [ ] services/datastore/impl/distributed
+    [X] services/datastore/impl/distributed
     [ ] QUESTION: do we move the replicated over also???
 
 
 [ ] API module
-    [ ] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
+    [X] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
     [ ] Document interfaces
     [ ] DatastoreManager
         [ ] move destroy() - where does it belong?
@@ -32,8 +32,12 @@ Modularize Dist Datastore
         [X] Remove dead code
         [ ] ??? Remove it and replace with MessageDigest or commons.util.digest
     [X] DatastoreHeader (DEDUPE)
-    [ ] MalformedCacheRequestException (DEDUPE)
-    [ ] CacheRequest (DEDUPE)
-        [ ] Move class and test
-    [ ] Remote Behavior (DEDUPE)
-        [ ] Move class and test
+    [X] MalformedCacheRequestException (DEDUPE)
+    [X] CacheRequest (DEDUPE)
+        [X] Move class (verify identical)
+        [X] Move test (verify identical)
+    [X] RemoteBehavior (DEDUPE)
+        [X] Move class (verify identical)
+
+
+[ ] Fix commons -> services dependency

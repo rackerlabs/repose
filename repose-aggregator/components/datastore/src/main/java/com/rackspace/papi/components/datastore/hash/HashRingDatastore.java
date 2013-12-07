@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.components.datastore.hash.remote.command.Delete;
@@ -11,9 +11,9 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
