@@ -11,10 +11,6 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- * @author zinic
- */
 public abstract class AbstractRemoteCommand implements RemoteCommand {
 
     private final InetSocketAddress remoteEndpoint;

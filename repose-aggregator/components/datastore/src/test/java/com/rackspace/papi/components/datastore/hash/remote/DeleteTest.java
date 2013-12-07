@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.datastore.hash.remote;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.components.datastore.hash.remote.command.Delete;
 import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Delete;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
