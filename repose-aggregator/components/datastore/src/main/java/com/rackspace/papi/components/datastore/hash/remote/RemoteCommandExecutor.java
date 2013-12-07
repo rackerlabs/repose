@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteConnectionException;
 
 import java.io.IOException;
 
