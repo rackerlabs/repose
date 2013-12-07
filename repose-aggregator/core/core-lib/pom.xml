@@ -48,7 +48,8 @@
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
-           <artifactId>datastore-api</artifactId>
+           <artifactId>datastore-distributed</artifactId>
+           <version>${project.version}</version>
        </dependency>
 
        <dependency>

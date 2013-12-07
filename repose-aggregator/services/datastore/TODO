@@ -31,4 +31,9 @@ Modularize Dist Datastore
         [X] Move to services/datastore/api
         [X] Remove dead code
         [ ] ??? Remove it and replace with MessageDigest or commons.util.digest
-
+    [X] DatastoreHeader (DEDUPE)
+    [ ] MalformedCacheRequestException (DEDUPE)
+    [ ] CacheRequest (DEDUPE)
+        [ ] Move class and test
+    [ ] Remote Behavior (DEDUPE)
+        [ ] Move class and test

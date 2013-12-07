@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore.common;
 
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
+import com.rackspace.papi.service.datastore.impl.distributed.common.DatastoreHeader;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
