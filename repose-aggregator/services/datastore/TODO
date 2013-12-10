@@ -39,12 +39,19 @@ Modularize Dist Datastore
     [X] RemoteBehavior (DEDUPE)
         [X] Move class (verify identical)
     [X] DatastoreAccessControl (DEDUPE)
-    [ ] remote classes (DEDUPE)
-        [ ] RemoteCommand
-        [ ] RemoteCommandExecutor
+
+    [X] com/rackspace/papi/service/datastore/impl/distributed/hash/remote (DEDUPE)
+        [X] RemoteCommand
+        [X] RemoteCommandExecutor
         [X] RemoteConnectionException
-        [ ] AbstractRemoteCommand
-        [ ] Delete/Get/Put
+        [X] AbstractRemoteCommand
+        [X] Delete/Get/Put
+
+    [ ] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
+        [X] ClusteredDatastore (DELETE - DEAD CODE)
+        [ ] DatastoreAction
+        [ ] HashRingDatastore
+        [ ] HashRingDatastoreManager
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
