@@ -62,6 +62,15 @@ Modularize Dist Datastore
 
 [ ] Fix commons -> services dependency
 
+[ ] TEST CLEANUP
+    [ ] DistDatastoreServiceTest
+        [ ] bad sleep during cleanup.  Fix this.
+        [ ] fix hardcoded datastore service endpoint
+
+
+[ ] FINAL STEPS
+    [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
+
 
 QUESTIONS FOR THE TEAM
 =================================================================

@@ -1,6 +1,7 @@
 package features.filters.datastore
 
 import framework.ReposeValveTest
+import framework.category.Smoke
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -86,6 +87,7 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
 
     }
 
+    @org.junit.experimental.categories.Category(Smoke.class)
     def "when deleting cache objects"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
