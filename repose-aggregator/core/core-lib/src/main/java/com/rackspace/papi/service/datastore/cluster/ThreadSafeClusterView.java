@@ -130,8 +130,4 @@ public class ThreadSafeClusterView implements MutableClusterView {
       return false;
    }
 
-   @Override
-   public ServicePorts getListenPorts() {
-      return listenPorts;
-   }
 }

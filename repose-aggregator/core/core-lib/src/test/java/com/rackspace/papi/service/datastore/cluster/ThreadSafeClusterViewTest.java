@@ -83,10 +83,5 @@ public class ThreadSafeClusterViewTest {
             assertEquals(threadSafeClusterView.members()[0], clusterMember.getMemberAddress());
         }
 
-        @Test
-        public void shouldReturnListenPorts() {
-            assertThat(threadSafeClusterView.getListenPorts(), is(instanceOf(ServicePorts.class)));
-            assertEquals(threadSafeClusterView.getListenPorts(), servicePorts);
-        }
     }
 }
