@@ -5,8 +5,6 @@
 package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;

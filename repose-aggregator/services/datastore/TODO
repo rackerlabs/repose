@@ -48,12 +48,13 @@ Modularize Dist Datastore
         [X] Delete/Get/Put
             [X] cleanup duplicate tests
 
-    [ ] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
+    [X] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
         [X] DatastoreAction
-        [ ] HashRingDatastore
-        [ ] HashRingDatastoreManager
-        [ ] MutableClusterView
+        [X] HashRingDatastore
+        [X] HashRingDatastoreManager
+        [X] MutableClusterView
             [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
+            [X] Refactored out ServicePorts and Port dependency, moved iface and impl classes
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
@@ -63,9 +64,12 @@ Modularize Dist Datastore
 [ ] Fix commons -> services dependency
 
 [ ] TEST CLEANUP
+    [X] components/datastore/src/test/java/com.rackspace.papi.components.datastore.integration
+        - Removed as none were used as actual tests
     [ ] DistDatastoreServiceTest
         [ ] bad sleep during cleanup.  Fix this.
         [ ] fix hardcoded datastore service endpoint
+    [ ] RemoteCommandExecutorTest (all ignored)
 
 [ ] Analyze impact to DDFilter
     [ ] Moving classes from filter package space to service package space (serialization issues???)

@@ -1,8 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
-import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.FilterConfigHelper;
@@ -16,6 +14,8 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
