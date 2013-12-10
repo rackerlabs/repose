@@ -46,6 +46,7 @@ Modularize Dist Datastore
         [X] RemoteConnectionException
         [X] AbstractRemoteCommand
         [X] Delete/Get/Put
+            [X] cleanup duplicate tests
 
     [ ] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
         [X] DatastoreAction
