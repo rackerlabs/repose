@@ -9,6 +9,7 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
 import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.DatastoreAction;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Delete;

@@ -48,12 +48,20 @@ Modularize Dist Datastore
         [X] Delete/Get/Put
 
     [ ] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
-        [X] ClusteredDatastore (DELETE - DEAD CODE)
-        [ ] DatastoreAction
+        [X] DatastoreAction
         [ ] HashRingDatastore
         [ ] HashRingDatastoreManager
+        [ ] MutableClusterView
+            [ ] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
+    [ ] ClusteredDatastore
+    [ ] AbstractMutableClusterView
 
 [ ] Fix commons -> services dependency
+
+
+QUESTIONS FOR THE TEAM
+=================================================================
+[ ] Should services be allowed to depend on core-lib ?
