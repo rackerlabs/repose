@@ -2,6 +2,7 @@ package features.services.datastore
 
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.category.Smoke
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -22,7 +23,6 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         if(!getIsFailedStart())
             repose.stop()
         setIsFailedStart(false)
-        sleep(5000)
     }
 
     def "when configured with DD service, repose should start and successfully execute calls" () {
@@ -147,4 +147,79 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.handlings.size() == 1
         logMatchesTrue.size() > logMatchesFalse.size()
     }
+
+    @org.junit.experimental.categories.Category(Smoke.class)
+    def "when deleting cache objects"(){
+
+        given:
+        cleanLogDirectory()
+        repose.applyConfigs("features/services/datastore")
+        repose.start()
+        waitUntilReadyToServiceRequests()
+
+        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
+        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def body = "test data"
+        def url = "http://localhost:4999/powerapi/dist-datastore/objects/" + objectkey
+
+        when: "Adding the object to the datastore"
+        MessageChain mc =
+            deproxy.makeRequest(
+                    [
+                            method: "PUT",
+                            url:url,
+                            headers:headers,
+                            requestBody: body
+                    ])
+
+        then: "should report success"
+        mc.receivedResponse.code == "202"
+        mc.receivedResponse.body == ""
+
+
+
+        when: "checking that it's there"
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: "GET",
+                            url:url,
+                            headers:headers
+                    ])
+
+        then: "should report that it is"
+        mc.receivedResponse.code == "200"
+        mc.receivedResponse.body == body
+
+
+
+        when: "deleting the object from the datastore"
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: "DELETE",
+                            url:url,
+                            headers:headers,
+                    ])
+
+        then: "should report that it was successfully deleted"
+        mc.receivedResponse.code == "202"
+        mc.receivedResponse.body == ""
+
+
+
+        when: "checking that it's gone"
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: "GET",
+                            url:url,
+                            headers:headers,
+                    ])
+
+        then: "should report it missing"
+        mc.receivedResponse.code == "404"
+        mc.receivedResponse.body == ""
+    }
+
 }
