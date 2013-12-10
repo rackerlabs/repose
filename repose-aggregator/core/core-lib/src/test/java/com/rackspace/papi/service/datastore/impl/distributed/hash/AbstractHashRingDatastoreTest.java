@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,9 +44,9 @@ public class AbstractHashRingDatastoreTest {
       protected Datastore mockedDatastore;
       protected TestingHashRingDatastore datastore;
 
-      private ServicePorts getHttpPortList(int port) {
-         ServicePorts ports = new ServicePorts();
-         ports.add(new Port("http", port));
+      private List<Integer> getHttpPortList(int port) {
+         List<Integer> ports = new ArrayList<Integer>();
+         ports.add(port);
          return ports;
       }
 

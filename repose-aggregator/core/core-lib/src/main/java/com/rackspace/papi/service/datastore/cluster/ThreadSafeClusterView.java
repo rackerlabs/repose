@@ -2,8 +2,6 @@ package com.rackspace.papi.service.datastore.cluster;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,20 +30,20 @@ public class ThreadSafeClusterView implements MutableClusterView {
    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final List<ClusterMember> clusterMembers;
-   private final ServicePorts listenPorts;
+   private final List<Integer> listenPorts;
 
-   public ThreadSafeClusterView(ServicePorts listenPorts) {
+   public ThreadSafeClusterView(List<Integer> listenPorts) {
       this(new LinkedList<ClusterMember>(), listenPorts);
    }
 
-   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, ServicePorts listenPorts) {
+   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, List<Integer> listenPorts) {
       this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<ClusterMember>(clusterMembers), listenPorts);
    }
 
-   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, ServicePorts listenPorts) {
-      this.networkInterfaceProvider = networkInterfaceProvider;
-      this.clusterMembers = clusterMembers;
-      this.listenPorts = listenPorts;
+   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, List<Integer> listenPorts) {
+       this.networkInterfaceProvider = networkInterfaceProvider;
+       this.clusterMembers = clusterMembers;
+       this.listenPorts = listenPorts;
    }
 
    private static void normalizeClusterMembers(List<ClusterMember> members) {
@@ -116,8 +114,8 @@ public class ThreadSafeClusterView implements MutableClusterView {
    @Override
    public boolean isLocal(InetSocketAddress addr) throws SocketException {
       boolean havePort = false;
-      for (Port port : listenPorts) {
-         if (addr.getPort() == port.getPort()) {
+      for (Integer port : listenPorts) {
+         if (addr.getPort() == port) {
             havePort = true;
             break;
          }

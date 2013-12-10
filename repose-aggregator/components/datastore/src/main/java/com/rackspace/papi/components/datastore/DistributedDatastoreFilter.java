@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
@@ -54,7 +55,8 @@ public class DistributedDatastoreFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         datastoreService = contextAdapter.datastoreService();
 
-        final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts());
+        final ServicePorts servicePorts = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
+        final MutableClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
         final HashRingDatastore hashRingDatastore;
         final ReposeInstanceInfo instanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
 

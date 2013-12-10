@@ -58,7 +58,7 @@ Modularize Dist Datastore
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
     [ ] ClusteredDatastore
-    [ ] AbstractMutableClusterView
+    [X] AbstractMutableClusterView
 
 [ ] Fix commons -> services dependency
 

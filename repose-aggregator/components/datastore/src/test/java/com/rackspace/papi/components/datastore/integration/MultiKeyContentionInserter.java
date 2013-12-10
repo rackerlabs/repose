@@ -16,6 +16,8 @@ import net.sf.ehcache.CacheManager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
@@ -121,10 +123,10 @@ public class MultiKeyContentionInserter {
       }
    }
 
-   private static ServicePorts getHttpPortList(int port) {
-      ServicePorts ports = new ServicePorts();
-      ports.add(new Port("http", port));
-      return ports;
+   private static List<Integer> getHttpPortList(int port) {
+       List<Integer> ports = new ArrayList<Integer>();
+       ports.add(port);
+       return ports;
    }
 
    public static void main(String[] args) throws Exception {
