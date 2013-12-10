@@ -53,7 +53,7 @@ Modularize Dist Datastore
         [ ] HashRingDatastore
         [ ] HashRingDatastoreManager
         [ ] MutableClusterView
-            [ ] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
+            [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
@@ -66,6 +66,9 @@ Modularize Dist Datastore
     [ ] DistDatastoreServiceTest
         [ ] bad sleep during cleanup.  Fix this.
         [ ] fix hardcoded datastore service endpoint
+
+[ ] Analyze impact to DDFilter
+    [ ] Moving classes from filter package space to service package space (serialization issues???)
 
 
 [ ] FINAL STEPS
