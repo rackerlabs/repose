@@ -23,7 +23,7 @@ public class ThreadSafeClusterViewTest {
     public static class TestParent {
 
         ThreadSafeClusterView threadSafeClusterView;
-        ServicePorts servicePorts;
+        List<Integer> servicePorts;
         List<ClusterMember> clusterMembers;
         ClusterMember clusterMember;
         InetSocketAddress inetSocketAddress;
@@ -32,7 +32,7 @@ public class ThreadSafeClusterViewTest {
 
         @Before
         public void setUp() throws Exception {
-            servicePorts = mock(ServicePorts.class);
+            servicePorts = mock(List.class);
             i = 1;
             inetSocketAddress = new InetSocketAddress(i);
             clusterMember = new ClusterMember(inetSocketAddress, i);
