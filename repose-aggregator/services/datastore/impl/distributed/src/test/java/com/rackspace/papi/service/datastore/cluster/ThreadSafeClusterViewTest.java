@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.datastore.cluster;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import org.junit.Before;
 import org.junit.Test;
