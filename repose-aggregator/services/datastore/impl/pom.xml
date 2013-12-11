@@ -11,9 +11,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datastore-impl-support</artifactId>
+    <name>Repose Services - Datastore Impl Support</name>
     <packaging>pom</packaging>
 
     <modules>
         <module>distributed</module>
+        <module>replicated</module>
     </modules>
 </project>

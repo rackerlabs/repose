@@ -39,7 +39,6 @@ Modularize Dist Datastore
     [X] RemoteBehavior (DEDUPE)
         [X] Move class (verify identical)
     [X] DatastoreAccessControl (DEDUPE)
-
     [X] com/rackspace/papi/service/datastore/impl/distributed/hash/remote (DEDUPE)
         [X] RemoteCommand
         [X] RemoteCommandExecutor
@@ -47,7 +46,6 @@ Modularize Dist Datastore
         [X] AbstractRemoteCommand
         [X] Delete/Get/Put
             [X] cleanup duplicate tests
-
     [X] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
         [X] DatastoreAction
         [X] HashRingDatastore
@@ -55,6 +53,7 @@ Modularize Dist Datastore
         [X] MutableClusterView
             [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
             [X] Refactored out ServicePorts and Port dependency, moved iface and impl classes
+    [X] Move replicated datastore impl to services/datastore/impl/replicated
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)

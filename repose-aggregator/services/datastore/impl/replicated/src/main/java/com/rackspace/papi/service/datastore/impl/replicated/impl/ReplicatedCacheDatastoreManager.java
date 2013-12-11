@@ -3,13 +3,14 @@ package com.rackspace.papi.service.datastore.impl.replicated.impl;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.UUID;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import org.slf4j.LoggerFactory;
 
 public class ReplicatedCacheDatastoreManager implements DatastoreManager {
 

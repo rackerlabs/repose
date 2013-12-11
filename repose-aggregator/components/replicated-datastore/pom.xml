@@ -41,7 +41,13 @@
          <groupId>commons-codec</groupId>
          <artifactId>commons-codec</artifactId>
       </dependency>
-        
+
+       <dependency>
+           <groupId>com.rackspace.papi.service</groupId>
+           <artifactId>datastore-replicated</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+
       <dependency>
          <groupId>com.rackspace.papi.commons</groupId>
          <artifactId>jetty-container</artifactId>

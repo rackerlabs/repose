@@ -4,6 +4,11 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Message;
 import com.rackspace.papi.service.datastore.impl.replicated.data.MessageQueueItem;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Operation;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -14,11 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
