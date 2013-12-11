@@ -19,14 +19,14 @@ class EmbeddedTomcatProxyTest extends Specification {
 
     def setupSpec() {
 
-        PortFinder pf = new PortFinder()
+        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
         int originServicePort = pf.getNextOpenPort()
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
         int reposePort = pf.getNextOpenPort()
         int shutdownPort = pf.getNextOpenPort()
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()

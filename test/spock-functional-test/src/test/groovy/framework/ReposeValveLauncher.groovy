@@ -255,20 +255,13 @@ class ReposeValveLauncher implements ReposeLauncher {
 
     }
 
-    private String getJvmProcesses() {
-        def runningJvms = "jps -v".execute()
-        runningJvms.waitFor()
-
-        return runningJvms.in.text
-    }
-
     @Override
     public boolean isUp() {
-        return getJvmProcesses().contains("repose-valve.jar")
+        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }
 
     private void killIfUp() {
-        String processes = getJvmProcesses()
+        String processes = TestUtils.getJvmProcesses()
         def regex = /(\d*) repose-valve.jar .*spocktest .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {

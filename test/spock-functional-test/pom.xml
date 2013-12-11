@@ -43,6 +43,7 @@
         <target_port2>10002</target_port2>
         <identity_port>12200</identity_port>
         <atom_port>12201</atom_port>
+        <dynamic_port_base>20000</dynamic_port_base>
 
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>

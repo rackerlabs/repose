@@ -1,7 +1,5 @@
 package features.services.datastore
 import framework.*
-import framework.category.Flaky
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -12,7 +10,6 @@ import spock.lang.Specification
  * Test the Distributed Datastore Service in 2 multinode containers
  */
 
-@Category(Flaky)
 class DistDatastoreServiceGlassfishTest extends Specification {
 
     static def reposeGlassfishEndpoint1
@@ -29,9 +26,9 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     def setupSpec() {
 
         def logFile
-
+        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
         // get ports
-        PortFinder pf = new PortFinder()
+        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
         int originServicePort = pf.getNextOpenPort()
 
@@ -52,7 +49,6 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                 "datastore2: " + dataStorePort2)
 
         // configure and start repose
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
         reposeGlassfishEndpoint1 = "http://localhost:${reposePort1}"
         reposeGlassfishEndpoint2 = "http://localhost:${reposePort2}"

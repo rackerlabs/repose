@@ -1,17 +1,10 @@
 package features.core.proxy
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.TestProperties
-import framework.TestUtils
-import framework.category.Flaky
-import org.junit.experimental.categories.Category
+import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
-@Category(Flaky)
 class TomcatProxyTest extends Specification {
 
     static ReposeLauncher repose
@@ -20,7 +13,8 @@ class TomcatProxyTest extends Specification {
 
     def setupSpec() {
 
-        PortFinder pf = new PortFinder()
+        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
         int originServicePort = pf.getNextOpenPort()
         deproxy = new Deproxy()
@@ -28,7 +22,6 @@ class TomcatProxyTest extends Specification {
 
         int reposePort = pf.getNextOpenPort()
         int shutdownPort = pf.getNextOpenPort()
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()

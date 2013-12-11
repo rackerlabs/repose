@@ -1,16 +1,10 @@
 package features.core.powerfilter
-
 import framework.ReposeValveTest
 import org.json.JSONArray
 import org.json.JSONTokener
-import org.json.JSONObject
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-/**
- * Created with IntelliJ IDEA.
- * User: dimi5963
- */
 class GraphiteTest extends ReposeValveTest {
     String GRAPHITE_SERVER = "http://graphite.staging.ord1.us.ci.rackspace.net/render?target=test.1.metrics.repose-node1-com.rackspace.papi.ResponseCode.Repose.2XX.count&format=json&from=-1min"
     String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""

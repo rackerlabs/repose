@@ -26,4 +26,12 @@ class TestUtils {
         })
     }
 
+    def static String getJvmProcesses() {
+        def runningJvms = "jps -v".execute()
+        runningJvms.waitFor()
+
+        return runningJvms.in.text
+    }
+
+
 }
