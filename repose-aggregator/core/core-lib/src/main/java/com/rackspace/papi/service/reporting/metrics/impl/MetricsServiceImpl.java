@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * <h1>Functional Tests for instrumented filters</h1>
  * The functional tests contained in
- * repose/test/spock-functional-test/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
+ * repose/repose-aggregator/functional-tests/spock-functional-test/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
  * provide an example on how you might verify your instrumentation.
  */
 @Component( "metricsService" )

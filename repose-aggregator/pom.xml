@@ -333,6 +333,12 @@
                 <configuration>
                     <testSources>
                         <fileset>
+                            <directory>${pom.basedir}/src/test/groovy</directory>
+                            <includes>
+                                <include>**/*.groovy</include>
+                            </includes>
+                        </fileset>
+                        <fileset>
                             <directory>${pom.basedir}/src/test/java</directory>
                             <includes>
                                 <include>**/*.groovy</include>

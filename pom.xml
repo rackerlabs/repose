@@ -34,7 +34,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>repose-aggregator</module>
-        <module>test/spock-functional-test</module>
     </modules>
     
     <profiles>

@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.papi</groupId>
-        <artifactId>papi</artifactId>
+        <groupId>com.rackspace.papi.test</groupId>
+        <artifactId>functional-test-support</artifactId>
         <version>2.13.1-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
@@ -24,7 +24,7 @@
 
         <repose.container>valve</repose.container>
 
-        <project.set.dir>${project.basedir}/../../repose-aggregator</project.set.dir>
+        <project.set.dir>${project.basedir}/../..</project.set.dir>
 
         <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filter-bundle/target</filter.dir>
@@ -447,6 +447,23 @@
                             <goal>compile</goal>
                             <goal>generateTestStubs</goal>
                             <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase />
+                    </execution>
+                    <execution>
+                        <id>functional-tests</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>test</goal>
                         </goals>
                     </execution>
                 </executions>
