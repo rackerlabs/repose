@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component("datastoreService")
-public class PowerApiDatastoreService implements DatastoreService {
+public class DatastoreServiceImpl implements DatastoreService {
 
    private final Map<String, DatastoreManager> localManagers;
    private final Map<String, DatastoreManager> distributedManagers;
 
-   public PowerApiDatastoreService() {
+   public DatastoreServiceImpl() {
       localManagers = new HashMap<String, DatastoreManager>();
       distributedManagers = new HashMap<String, DatastoreManager>();
    }
@@ -75,6 +75,6 @@ public class PowerApiDatastoreService implements DatastoreService {
    public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
 
-      registerTo.put(datastoreManagerName, new AvailablityGuard(manager));
+      registerTo.put(datastoreManagerName, new DatastoreManagerImpl(manager));
    }
 }

@@ -2,12 +2,10 @@ package com.rackspace.papi.service.datastore.impl;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
+
 import java.util.Collection;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
@@ -16,11 +14,11 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
-public class PowerApiDatastoreServiceTest {
+public class DatastoreServiceImplTest {
 
     public static class WhenGettingDatastores {
 
-        private PowerApiDatastoreService instance;
+        private DatastoreServiceImpl instance;
         private Datastore localDatastore;
         private DatastoreManager localManager;
         private Datastore remoteDatastore;
@@ -28,7 +26,7 @@ public class PowerApiDatastoreServiceTest {
 
         @Before
         public void setUp() {
-            instance = new PowerApiDatastoreService();
+            instance = new DatastoreServiceImpl();
             localDatastore = mock(Datastore.class);
             localManager = mock(DatastoreManager.class);
             when(localManager.getDatastore()).thenReturn(localDatastore);

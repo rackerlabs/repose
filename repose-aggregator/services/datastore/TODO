@@ -84,6 +84,10 @@ Modularize Dist Datastore
 [ ] DatastoreService interface
     [X] move back to core-lib and factored out DatastoreService from unnecessary class usage
     [ ] rename - confusing with "Datastore" and "DatastoreManager"
+    [ ] AvailabilityGuard - we removed getDatastore() and the throwing of a DatastoreUnavailabilityException.  Impact???
+    [X] AvailabilityGuard - renamed to DatastoreManagerImpl
+    [X] moved DatastoreService to Datastore service and renamed PowerApiDatastoreService to DatastoreServiceImpl and moved it to Datastore service
+
 
 
 [ ] FINAL STEPS
