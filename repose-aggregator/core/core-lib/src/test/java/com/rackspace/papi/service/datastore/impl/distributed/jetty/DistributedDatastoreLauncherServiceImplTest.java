@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
+import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
 import com.rackspace.papi.service.datastore.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import org.eclipse.jetty.server.Server;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class DistributedDatastoreLauncherServiceImplTest {
       @Before
       public void setUp() {
 
-         datastoreService = new PowerApiDatastoreService();
+         datastoreService = new DatastoreServiceImpl();
          instanceInfo = new ReposeInstanceInfo("repose", "node1");
       }
 

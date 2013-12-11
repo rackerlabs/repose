@@ -6,11 +6,11 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DatastoreUnavailableException;
 
 
-public final class AvailablityGuard implements DatastoreManager {
+public final class DatastoreManagerImpl implements DatastoreManager {
 
     private final DatastoreManager manager;
 
-    public AvailablityGuard(DatastoreManager manager) {
+    public DatastoreManagerImpl(DatastoreManager manager) {
         this.manager = manager;
     }
 
