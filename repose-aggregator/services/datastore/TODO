@@ -78,6 +78,12 @@ Modularize Dist Datastore
     [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
 
 
+
+TECHNICAL DEBT (out of scope)
+=================================================================
+[ ] Functional tests around Replicated Datastore Service
+[ ] Deprecate the Replicated Datastore Filter
+
 QUESTIONS FOR THE TEAM
 =================================================================
 [ ] Should services be allowed to depend on core-lib ?
