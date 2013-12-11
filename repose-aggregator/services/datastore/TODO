@@ -54,6 +54,11 @@ Modularize Dist Datastore
             [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
             [X] Refactored out ServicePorts and Port dependency, moved iface and impl classes
     [X] Move replicated datastore impl to services/datastore/impl/replicated
+    [ ] EHCACHE implementation
+        [X] Create maven module: services/datastore/impl/ehcache
+        [X] Move code from core-lib to services/datastore/impl/ehcache
+        [X] Remove dead code - EHCacheDatastoreMBean
+        [ ] Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)

@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>ehcache</module>
         <module>distributed</module>
         <module>replicated</module>
     </modules>
