@@ -7,15 +7,12 @@ import com.rackspace.papi.service.datastore.impl.replicated.SubscriptionListener
 import com.rackspace.papi.service.datastore.impl.replicated.data.Message;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Operation;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.*;
+import java.util.UUID;
 
 public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
