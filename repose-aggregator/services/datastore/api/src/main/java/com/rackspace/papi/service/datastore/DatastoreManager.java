@@ -10,6 +10,5 @@ public interface DatastoreManager {
    
    String getName();
 
-
    void destroy();
 }

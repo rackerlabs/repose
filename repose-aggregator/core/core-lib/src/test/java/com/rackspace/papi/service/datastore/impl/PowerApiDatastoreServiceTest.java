@@ -49,7 +49,7 @@ public class PowerApiDatastoreServiceTest {
 
         @Test
         public void shouldGetDefaultDatastore() {
-            instance.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, localManager);
+            instance.registerDatastoreManager(Datastore.DEFAULT_LOCAL, localManager);
             assertNotNull(instance.defaultDatastore());
         }
         

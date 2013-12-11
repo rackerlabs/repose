@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.impl;
 
+import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class PowerApiDatastoreService implements DatastoreService {
 
    @Override
    public DatastoreManager defaultDatastore() {
-      return localManagers.get(DatastoreService.DEFAULT_LOCAL);
+      return localManagers.get(Datastore.DEFAULT_LOCAL);
    }
 
    @Override
@@ -74,6 +75,6 @@ public class PowerApiDatastoreService implements DatastoreService {
    public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
 
-      registerTo.put(datastoreManagerName, new AvailablityGuard(manager, this));
+      registerTo.put(datastoreManagerName, new AvailablityGuard(manager));
    }
 }
