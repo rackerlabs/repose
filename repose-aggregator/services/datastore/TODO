@@ -4,7 +4,7 @@ Modularize Dist Datastore
     [X] services/datastore
     [X] services/datastore/api
     [X] services/datastore/impl/distributed
-    [ ] QUESTION: do we move the replicated over also???
+    [X] services/datastore/impl/replicated
 
 
 [ ] API module
@@ -62,7 +62,7 @@ Modularize Dist Datastore
 
 [ ] DEAD CODE
     [X] UnaddressableKeyException x2 (REMOVE)
-    [ ] ClusteredDatastore
+    [X] ClusteredDatastore
     [X] AbstractMutableClusterView
 
 [ ] Fix commons -> services dependency
@@ -78,6 +78,13 @@ Modularize Dist Datastore
 [ ] Analyze impact to DDFilter
     [ ] Moving classes from filter package space to service package space (serialization issues???)
 
+[ ] Evaluate core-lib/datastore classes for initializing dist datastore.  How can we refactor this to move
+    towards being able to easily change out implementations of a datastore.
+
+[ ] DatastoreService interface
+    [X] move back to core-lib and factored out DatastoreService from unnecessary class usage
+    [ ] rename - confusing with "Datastore" and "DatastoreManager"
+
 
 [ ] FINAL STEPS
     [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
@@ -91,4 +98,5 @@ TECHNICAL DEBT (out of scope)
 
 QUESTIONS FOR THE TEAM
 =================================================================
-[ ] Should services be allowed to depend on core-lib ?
+[X] Should services be allowed to depend on core-lib ?
+    ANSWER: No.  Let's try to keep services non-dependent on core-lib

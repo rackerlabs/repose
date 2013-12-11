@@ -56,7 +56,7 @@ public class ReposeLocalCacheTest {
             datastoreService = new PowerApiDatastoreService();
             cacheManager = new CacheManager();
             datastoreManager = new EHCacheDatastoreManager(cacheManager);
-            datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, datastoreManager);
+            datastoreService.registerDatastoreManager(Datastore.DEFAULT_LOCAL, datastoreManager);
             reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 
             final String key = "my element";

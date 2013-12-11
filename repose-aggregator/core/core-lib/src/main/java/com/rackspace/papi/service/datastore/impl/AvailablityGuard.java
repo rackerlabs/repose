@@ -5,18 +5,13 @@ import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DatastoreUnavailableException;
 
-/**
- *
- * @author zinic
- */
+
 public final class AvailablityGuard implements DatastoreManager {
 
     private final DatastoreManager manager;
-    private final DatastoreService service;
 
-    public AvailablityGuard(DatastoreManager manager, DatastoreService service) {
+    public AvailablityGuard(DatastoreManager manager) {
         this.manager = manager;
-        this.service = service;
     }
 
     @Override
@@ -42,7 +37,7 @@ public final class AvailablityGuard implements DatastoreManager {
     @Override
     public Datastore getDatastore() throws DatastoreUnavailableException {
         if (!isAvailable()) {
-            throw new DatastoreUnavailableException(service, "Datastore  " + manager.toString() + " is currently unavailable.");
+            throw new DatastoreUnavailableException("Datastore  " + manager.toString() + " is currently unavailable.");
         }
 
         return manager.getDatastore();

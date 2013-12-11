@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 public interface Datastore {
 
+    String DEFAULT_LOCAL = "local/default";
+
     StoredElement get(String key) throws DatastoreOperationException;
 
     boolean remove(String key) throws DatastoreOperationException;

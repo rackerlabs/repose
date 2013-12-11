@@ -2,6 +2,7 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
@@ -88,7 +89,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public void removeAllCacheData() {
-        datastoreService.getDatastore(DatastoreService.DEFAULT_LOCAL).getDatastore().removeAllCacheData();
+        datastoreService.getDatastore(Datastore.DEFAULT_LOCAL).getDatastore().removeAllCacheData();
     }
 
     private boolean removeWithUnencodedUser(String userId) {
