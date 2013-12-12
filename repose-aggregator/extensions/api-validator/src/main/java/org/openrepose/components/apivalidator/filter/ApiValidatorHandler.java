@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -113,7 +114,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
    //The exceptions thrown by the validator are all custom exceptions which extend throwable
    @SuppressWarnings("PMD.AvoidCatchingThrowable")
-   private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, ReadableHttpServletResponse response) {
+   private void sendMultiMatchErrorResponse(Result result, final FilterDirector myDirector, HttpServletResponse response) {
       try {
          ErrorResult error = getErrorResult(result);
          if (error != null) {

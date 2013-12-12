@@ -3,27 +3,49 @@
 <validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
    <validator
       enable-pre-process-extension="true"
-      role="admin"
-      default="false"
-      wadl="other.wadl"
+      role="xsd-check"
+      wadl="xsd_check.wadl"
       check-well-formed="false"
       check-elements="true"
       xsl-engine="XalanC"
       enable-rax-roles="true"
-      dot-output="/tmp/default.dot"
+      check-xsd-grammar="true"
       use-saxon="false"/>
 
    <validator
-      role="default"
+      role="param-check"
       enable-rax-roles="true"
-      default="true"
-      wadl="default.wadl"
+      wadl="param_check.wadl"
       check-well-formed="false"
       check-elements="true"
       xsl-engine="XalanC"
       enable-pre-process-extension="true"
       check-plain-params="true"
-      dot-output="/tmp/other.dot"
+      check-xsd-grammar="true"
+      use-saxon="false"/>
+
+   <validator
+      role="check-all"
+      enable-rax-roles="true"
+      wadl="check_all.wadl"
+      check-well-formed="false"
+      check-elements="true"
+      xsl-engine="XalanC"
+      enable-pre-process-extension="true"
+      check-plain-params="true"
+      check-xsd-grammar="true"
+      use-saxon="false"/>
+
+   <validator
+      role="pass"
+      enable-rax-roles="true"
+      wadl="pass.wadl"
+      check-well-formed="false"
+      check-elements="true"
+      xsl-engine="XalanC"
+      enable-pre-process-extension="true"
+      check-plain-params="true"
+      check-xsd-grammar="true"
       use-saxon="false"/>
 </validators>
 
