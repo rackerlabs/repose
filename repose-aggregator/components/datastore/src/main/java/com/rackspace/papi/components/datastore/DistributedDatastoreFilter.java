@@ -12,8 +12,6 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
-import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;

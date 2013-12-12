@@ -88,7 +88,7 @@ Modularize Dist Datastore
     [X] AvailabilityGuard - renamed to DatastoreManagerImpl
     [X] moved DatastoreService to Datastore service and renamed PowerApiDatastoreService to DatastoreServiceImpl and moved it to Datastore service
 
-
+[ ] DatastoreAccessControl - move from distributed impl to API
 
 [ ] DatastoreManager -
     [X] Review logic in deleted method: destroy().  Do we need to perform the cleanup logic that was coded there???
@@ -113,3 +113,7 @@ QUESTIONS FOR THE TEAM
 [ ] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
 
 [ ] Where do the implementations of "Datastore" belong???
+
+[ ] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
+    [ ] If yes, remove the filter
+    [ ] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
