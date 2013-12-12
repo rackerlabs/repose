@@ -15,33 +15,21 @@ import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastore;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.openstack.docs.identity.api.v2.*;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Role;
-import org.openstack.docs.identity.api.v2.RoleList;
-import org.openstack.docs.identity.api.v2.ServiceCatalog;
-import org.openstack.docs.identity.api.v2.ServiceForCatalog;
-import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Token;
-import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
 /**
  *
@@ -107,7 +95,8 @@ public class FeedListenerManagerTest {
 
       Token token = new Token();
       token.setId("tokenid");
-      GregorianCalendar cal = new GregorianCalendar(2013, 11, 12);
+      GregorianCalendar cal = new GregorianCalendar();
+      cal.add(Calendar.MONTH, 1);
       token.setExpires(new XMLGregorianCalendarImpl(cal));
       TenantForAuthenticateResponse tenantForAuthenticateResponse = new TenantForAuthenticateResponse();
       tenantForAuthenticateResponse.setId("tenantId");
