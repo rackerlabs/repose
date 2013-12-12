@@ -7,6 +7,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
+import com.rackspace.papi.service.datastore.DatastoreConfiguration;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.junit.Before;
@@ -65,6 +66,8 @@ public class DatastoreDatastoreFilterTest {
 
          when(datastoreService.defaultDatastore()).thenReturn(localManager);
 
+         when(datastoreService.getDatastore(DATASTORE_MANAGER_NAME)).thenReturn(localManager);
+
          filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
       }
    }
@@ -75,7 +78,7 @@ public class DatastoreDatastoreFilterTest {
       public void shouldRegisterDatastore() throws Exception {
          filter.init(mockFilterConfig);
 
-         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
+         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreConfiguration.class));
       }
 
       @Test
@@ -83,7 +86,7 @@ public class DatastoreDatastoreFilterTest {
          filter.init(mockFilterConfig);
          filter.destroy();
 
-         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
+         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreConfiguration.class));
          verify(datastoreService).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
       }
    }

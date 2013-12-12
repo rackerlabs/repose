@@ -2,10 +2,13 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
 import com.yammer.metrics.ehcache.InstrumentedEhcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 
 public class EHCacheDatastoreManager implements DatastoreManager {
 
@@ -14,15 +17,17 @@ public class EHCacheDatastoreManager implements DatastoreManager {
    private final String cacheName;
    private Ehcache instrumentedCache;
 
-   public EHCacheDatastoreManager(CacheManager cacheManagerInstance) {
-      this.cacheManagerInstance = cacheManagerInstance;
+   public EHCacheDatastoreManager(LocalDatastoreConfiguration configuration) {
+
+       Configuration defaultConfiguration = new Configuration();
+       defaultConfiguration.setName(configuration.getName());
+       defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+       defaultConfiguration.setUpdateCheck(false);
+
+       this.cacheManagerInstance = CacheManager.newInstance(defaultConfiguration);
 
       cacheName = CACHE_NAME_PREFIX + cacheManagerInstance.getName();
 
-      init();
-   }
-
-   private void init() {
       final Ehcache cache = new Cache(cacheName, 20000, false, false, 5, 2);
       cacheManagerInstance.addCache(cache);
 
@@ -34,7 +39,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
       return Datastore.DEFAULT_LOCAL;
    }
 
-   @Override
+    @Override
    public Datastore getDatastore() {
       return new EHCacheDatastore(instrumentedCache);
    }
@@ -42,5 +47,13 @@ public class EHCacheDatastoreManager implements DatastoreManager {
    @Override
    public boolean isDistributed() {
       return false;
+   }
+
+   @Override
+   public void destroy() {
+      if (cacheManagerInstance != null) {
+          cacheManagerInstance.removalAll();
+          cacheManagerInstance.shutdown();
+      }
    }
 }

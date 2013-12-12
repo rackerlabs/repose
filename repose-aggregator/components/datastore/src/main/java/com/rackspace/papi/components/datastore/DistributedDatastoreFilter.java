@@ -9,8 +9,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
@@ -57,33 +56,13 @@ public class DistributedDatastoreFilter implements Filter {
 
         final ServicePorts servicePorts = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
         final MutableClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
-        final HashRingDatastore hashRingDatastore;
+        DatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
+                clusterView);
+        datastoreService.registerDatastoreManager(datastoreId, configuration);
+        DatastoreManager manager = datastoreService.getDatastore(datastoreId);
+
+        final DistributedDatastore hashRingDatastore=(DistributedDatastore) manager.getDatastore();
         final ReposeInstanceInfo instanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
-
-        DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();
-
-        if (localDatastoreManager == null) {
-            final Collection<DatastoreManager> availableLocalDatstores = datastoreService.availableLocalDatastores();
-
-            if (!availableLocalDatstores.isEmpty()) {
-                localDatastoreManager = availableLocalDatstores.iterator().next();
-            } else {
-                throw new ServletException("Unable to start DistributedDatastoreFilter. Reason: no available local datastores to persist distributed data.");
-            }
-        }
-
-        final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager(
-                contextAdapter.requestProxyService(), 
-                "", 
-                UUIDEncodingProvider.getInstance(), 
-                MD5MessageDigestFactory.getInstance(), 
-                clusterView, 
-                localDatastoreManager.getDatastore());
-        
-        hashRingDatastore = (HashRingDatastore) hashRingDatastoreManager.getDatastore();
-
-        datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
-
         handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore, instanceInfo);
         configurationManager = contextAdapter.configurationService();
         URL sysModXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");

@@ -8,9 +8,9 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.datastore.DistributedDatastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.openrepose.components.datastore.config.HostAccessControl;
 import org.slf4j.Logger;
@@ -30,14 +30,14 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
    private final DatastoreAccessControl defaultDatastoreACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
    private final MutableClusterView clusterView;
-   private final HashRingDatastore hashRingDatastore;
+   private final DistributedDatastore hashRingDatastore;
    private DatastoreAccessControl hostACL;
    private ReposeInstanceInfo instanceInfo;
    private SystemModel curSystemModel;
    private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
    private final Object configLock = new Object();
 
-   public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, HashRingDatastore hashRingDatastore, ReposeInstanceInfo instanceInfo) {
+   public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, DistributedDatastore hashRingDatastore, ReposeInstanceInfo instanceInfo) {
       this.clusterView = clusterView;
       this.hashRingDatastore = hashRingDatastore;
       this.instanceInfo = instanceInfo;

@@ -34,4 +34,9 @@ public final class DatastoreManagerImpl implements DatastoreManager {
     public String getName() {
         return manager.getName();
     }
+
+    @Override
+    public void destroy() {
+        manager.destroy();
+    }
 }

@@ -3,6 +3,7 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
 import net.sf.ehcache.CacheManager;
 import org.junit.Before;
@@ -54,8 +55,7 @@ public class ReposeLocalCacheTest {
         @Test
         public void shouldRemoveCacheData() {
             datastoreService = new DatastoreServiceImpl();
-            cacheManager = new CacheManager();
-            datastoreManager = new EHCacheDatastoreManager(cacheManager);
+            datastoreManager = new EHCacheDatastoreManager(new LocalDatastoreConfiguration("foo"));
             datastoreService.registerDatastoreManager(Datastore.DEFAULT_LOCAL, datastoreManager);
             reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 

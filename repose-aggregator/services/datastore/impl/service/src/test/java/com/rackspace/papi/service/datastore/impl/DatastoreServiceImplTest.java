@@ -5,11 +5,13 @@ import com.rackspace.papi.service.datastore.DatastoreManager;
 
 import java.util.Collection;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import static org.mockito.Mockito.*;
 
 import static org.mockito.Mockito.*;
 

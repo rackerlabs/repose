@@ -18,5 +18,6 @@
         <module>ehcache</module>
         <module>distributed</module>
         <module>replicated</module>
+        <module>service</module>
     </modules>
 </project>

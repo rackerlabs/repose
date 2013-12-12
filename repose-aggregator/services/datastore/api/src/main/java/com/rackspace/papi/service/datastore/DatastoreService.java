@@ -18,5 +18,7 @@ public interface DatastoreService {
 
    void unregisterDatastoreManager(String datastoreManagerName);
 
+   void registerDatastoreManager(String datastoreManagerName, DatastoreConfiguration configuration);
+
    void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
 }

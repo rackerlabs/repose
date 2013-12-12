@@ -47,6 +47,11 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
         return REPLICATED_DISTRIBUTED;
     }
 
+    @Override
+    public void destroy() {
+        cacheManagerInstance.removeCache(cacheName);
+    }
+
     public void setMaxQueueSize(int maxQueueSize) {
         synchronized (this) {
             if (datastore == null) {

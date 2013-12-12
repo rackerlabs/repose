@@ -2,17 +2,12 @@ package com.rackspace.papi.service.datastore.impl.distributed.servlet;
 
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,22 +19,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 public class DistributedDatastoreServlet extends HttpServlet {
 
    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
    private DatastoreAccessControl hostAcl;
-   private HashRingDatastore hashRingDatastore;
+   private DistributedDatastore hashRingDatastore;
    private EncodingProvider encodingProvider;
-   DatastoreService datastore;
+   private DatastoreService datastoreService;
    private DistributedDatastoreServiceClusterViewService clusterView;
-   private static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
+   private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
 
    public DistributedDatastoreServlet(DatastoreService datastore) {
       hostAcl = new DatastoreAccessControl(null, false);
-      this.datastore = datastore;
+      this.datastoreService = datastore;
       encodingProvider = UUIDEncodingProvider.getInstance();
    }
 
@@ -70,25 +64,16 @@ public class DistributedDatastoreServlet extends HttpServlet {
    public void init(ServletConfig config) throws ServletException {
 
       super.init(config);
-      DatastoreManager localDatastoreManager = datastore.defaultDatastore();
 
-      if (localDatastoreManager == null) {
-         final Collection<DatastoreManager> availableLocalDatstores = datastore.availableLocalDatastores();
+       ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
+       clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
+       DatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), encodingProvider,
+               clusterView.getClusterView());
 
-         if (!availableLocalDatstores.isEmpty()) {
-            localDatastoreManager = availableLocalDatstores.iterator().next();
-         } else {
-            throw new ServletException("Unable to start Distributed Datastore Service");
-         }
-      }
-
-      ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
-      clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-      HashRingDatastoreManager manager = new HashRingDatastoreManager(contextAdapter.requestProxyService(), "", encodingProvider, MD5MessageDigestFactory.getInstance(),
-              clusterView.getClusterView(), localDatastoreManager.getDatastore());
-      hostAcl = clusterView.getAccessControl();
-      datastore.registerDatastoreManager(DATASTORE_MANAGER_NAME, manager);
-      hashRingDatastore = (HashRingDatastore) manager.getDatastore();
+       datastoreService.registerDatastoreManager(DISTRIBUTED_HASH_RING, configuration);
+       DatastoreManager manager = datastoreService.getDatastore(DISTRIBUTED_HASH_RING);
+       hashRingDatastore = (DistributedDatastore) manager.getDatastore();
+       hostAcl = clusterView.getAccessControl();
    }
 
    @Override
@@ -112,7 +97,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
       {
          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
-      //TODO: Move over hashring datastore and perform object remove
+      //TODO: Move over hashring datastoreService and perform object remove
       
    }
 
@@ -153,7 +138,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
    @Override
    public void destroy(){
       super.destroy();
-      LOG.info("Unregistering Datastore: " + DATASTORE_MANAGER_NAME);
-      datastore.unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
+      LOG.info("Unregistering Datastore: " + DISTRIBUTED_HASH_RING);
+      datastoreService.unregisterDatastoreManager(DISTRIBUTED_HASH_RING);
    }
 }

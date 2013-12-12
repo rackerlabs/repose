@@ -89,10 +89,14 @@ Modularize Dist Datastore
     [X] moved DatastoreService to Datastore service and renamed PowerApiDatastoreService to DatastoreServiceImpl and moved it to Datastore service
 
 
-[ ] DatastoreManager - nobody calling destroy() method.  Is there cleanup that was being missed???
+
+[ ] DatastoreManager -
+    [X] Review logic in deleted method: destroy().  Do we need to perform the cleanup logic that was coded there???
+    [ ] Review getName() and isDistributed() methods.  Not heavily used, but can likely be refactored.
 
 [ ] FINAL STEPS
     [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
+
 
 
 
@@ -107,3 +111,5 @@ QUESTIONS FOR THE TEAM
     ANSWER: No.  Let's try to keep services non-dependent on core-lib
 
 [ ] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
+
+[ ] Where do the implementations of "Datastore" belong???
