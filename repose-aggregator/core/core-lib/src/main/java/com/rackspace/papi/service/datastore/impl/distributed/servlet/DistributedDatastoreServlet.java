@@ -82,8 +82,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
          }
       }
 
-
-
       ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
       clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
       HashRingDatastoreManager manager = new HashRingDatastoreManager(contextAdapter.requestProxyService(), "", encodingProvider, MD5MessageDigestFactory.getInstance(),

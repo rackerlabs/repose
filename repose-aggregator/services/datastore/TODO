@@ -104,3 +104,5 @@ QUESTIONS FOR THE TEAM
 =================================================================
 [X] Should services be allowed to depend on core-lib ?
     ANSWER: No.  Let's try to keep services non-dependent on core-lib
+
+[ ] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
