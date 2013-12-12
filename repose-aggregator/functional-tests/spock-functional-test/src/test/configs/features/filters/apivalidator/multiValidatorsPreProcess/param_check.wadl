@@ -17,11 +17,6 @@
                               required="true"
                               path="not(/element/@blah)"
                               rax:message="blah should not be here"/>
-                        <param name="checkAttribute2"
-                               style="plain"
-                               required="true"
-                               path="not(/a/@blah)"
-                               rax:message="blah should not be here"/>
                     </representation>
                 </request>
             </method>
