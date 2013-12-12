@@ -1,0 +1,43 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf390
+{\fonttbl\f0\fnil\fcharset0 Consolas-Bold;\f1\fnil\fcharset0 Consolas;\f2\fnil\fcharset0 Consolas-Italic;
+}
+{\colortbl;\red255\green255\blue255;\red135\green135\blue135;\red38\green38\blue38;\red0\green0\blue109;
+\red14\green110\blue109;\red210\green0\blue53;\red135\green136\blue117;}
+\margl1440\margr1440\vieww18880\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sl360
+
+\f0\b\fs24 \cf2 <?xml version="1.0" encoding="UTF-8"?>
+\f1\b0 \cf3 \
+\
+\pard\pardeftab720\sl360
+\cf4 <system-model\cf3  \cf5 xmlns=\cf6 "http://docs.rackspacecloud.com/repose/system-model/v2.0"\cf4 >\cf3 \
+\'a0\'a0\cf4 <repose-cluster\cf3  \cf5 id=\cf6 "repose"\cf4 >\cf3 \
+\
+\'a0\'a0\'a0\'a0\cf4 <nodes>\cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0\cf4 <node\cf3  \cf5 id=\cf6 "node1"\cf3  \cf5 hostname=\cf6 "localhost"\cf3  \cf5 http-port=\cf6 "8088"\cf4 />\cf3  
+\f2\i \cf7 <!-- localhost service instance will be started on specified port -->
+\f1\i0 \cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0
+\f2\i \cf7 <!-- node id="node2" hostname="other-host" http-port="8088"/-->
+\f1\i0 \cf3  
+\f2\i \cf7 <!-- other hosts are not started, only commmunicated with -->
+\f1\i0 \cf3 \
+\'a0\'a0\'a0\'a0\cf4 </nodes>\cf3 \
+\
+\'a0\'a0\'a0\'a0\cf4 <filters>\cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0\cf4 <filter\cf3  \cf5 name=\cf6 "http-logging"\cf3  \cf4 />\cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0\cf4 <filter\cf3  \cf5 name=\cf6 "client-auth"\cf3  \cf5 uri-regex=\cf6 ".*/servers/([-|\\w]+)/?.*"\cf3  \cf4 />\cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0
+\f2\i \cf7 <!--filter name="api-validator" /-->
+\f1\i0 \cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0\cf4 <filter\cf3  \cf5 name=\cf6 "default-router"\cf4 />\cf3 \
+\'a0\'a0\'a0\'a0\cf4 </filters>\cf3 \
+\
+\'a0\'a0\'a0\'a0\cf4 <destinations>\cf3 \
+\'a0\'a0\'a0\'a0\'a0\'a0\cf4 <endpoint\cf3  \cf5 id=\cf6 "openrepose"\cf3  \cf5 protocol=\cf6 "http"\cf3  \cf5 hostname=\cf6 "www.openrepose.org"\cf3  \cf5 root-path=\cf6 "/"\cf3  \cf5 port=\cf6 "80"\cf3  \cf5 default=\cf6 "true"\cf4 />\cf3 \
+\'a0\'a0\'a0\'a0\cf4 </destinations>\cf3 \
+\
+\'a0\'a0\cf4 </repose-cluster>\cf3 \
+\cf4 </system-model>\cf3 \
+}

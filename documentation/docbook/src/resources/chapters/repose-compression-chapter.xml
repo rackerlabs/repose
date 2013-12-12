@@ -45,23 +45,23 @@
     <title>Compression Filter</title>
     <section xml:id="What-Is-Compression-10">
         <title>What Is Compression?</title>
-        <para>Compression is the process of reducing data size for 
-            storage or transmission. In addition, data may need to 
-            be expanded or decompressed to its original form. 
-            The Repose Compression filter can accomplish both of 
-            these tasks for you. </para> 
+        <para>Compression is the process of reducing data size for
+            storage or transmission. In addition to compressing data,
+            you may need to expand or decompress data to its original
+            form. The Repose Compression filter can accomplish these
+            tasks for you. </para> 
  </section>
     
 <section xml:id="What-Can-the-Compression-Filter-Do-20">
             <title> What Can the Compression Filter Do?</title>
-            <para> The Repose Compression filter can compress and/or
-            decompress request and response data. It is essentially a
-            wrapper for the PlanetJ CompressingFilter. </para>
+            <para> The Repose Compression filter can compress and
+            decompress request and response data. This filter operates
+            as a wrapper for the PlanetJ CompressingFilter. </para>
         <para>
             <note>
-                <para>This filter was added in Repose Release version
-                    2.7. Please upgrade to Repose version 2.7 or above
-                    to use this filter. </para>
+                <para>The Compression filter was added in the Repose
+                    release version 2.7. Please upgrade to Repose
+                    version 2.7 or above to use this filter. </para>
             </note>
         </para>
         <para> </para>
@@ -69,9 +69,9 @@
     
     <section xml:id="Compression-Prereqs-30">
         <title> What Are the Prerequisites?</title>
-        <para>There are no required incoming headers for this filter.
-            The Compression filter can be the first filter in the
-            filter list.</para>
+        <para>The Compression filter has no required incoming headers.
+            When ordering the filters, it should be placed before any
+            filter that looks at the request body.</para>
         
         
     </section>
@@ -83,7 +83,10 @@
         <para>You can configure your service to use the Repose
             Compression filter to compress and decompress request and
             response data. The Compression filter can be added to the
-            Repose deployment through the System Model Configuration.
+            Repose deployment through the 
+            <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">
+                System Model Configuration</link>.
+            
             All of the Compression filter configurations fall under
             the <code>&lt;compression&gt;</code>element as attributes. </para>
         
@@ -205,7 +208,7 @@
             back to the client. A typical Compression filter  decision
             flow is summarized in the drawing below: </para>
         <figure
-            xml:id="Compression-Filter-Figure">
+            xml:id="Compression-Filter-Diagram">
             <title>Request/Response Lifecycle for
                 the Compression Filter</title>
             <mediaobject>

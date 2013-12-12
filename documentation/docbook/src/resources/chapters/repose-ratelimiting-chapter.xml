@@ -921,17 +921,106 @@ application/xml"
         </section>
         <section xml:id="tracking_limits-d1e440">
             <title>Tracking Limits</title>
-            <para>This feature keeps track of the number of requests a
+            <para>This feature tracks the number of requests a
                 user has within a timetable defined by the rate
-                limiting configuration. </para>
+                limiting configuration. The Rate Limiting filter tracks limits by decrementing all rate-limits which
+                match the request URI and the verb as shown in the
+                example below. To track limits, specify a POST to <emphasis role="italic"
+                    >/servers </emphasis>.
+            </para>
+            
+            
+            <table rules="all">
+                
+                <caption>Tracking Limits Example:</caption>
+                <thead>
+                    <tr>
+                        <th>Verb</th>
+                        <th>URI</th>
+                        <th>Limit</th>
+                        <th>Remaining</th>
+                    </tr>
+                </thead>
+                    <tr>
+                        <td>POST</td>
+                        <td>.*</td>
+                        <td>10/min</td>
+                        <td>10/min</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>servers</td>
+                        <td>50/day</td>
+                        <td>50/day</td>
+                    </tr>
+              
+            </table>
+            
+            
+            <table rules="all">
+                <caption></caption>
+                
+                <thead>
+                    <tr>
+                        <th>Verb</th>
+                        <th>URI</th>
+                        <th>Limit</th>
+                        <th>Remaining</th>
+                    </tr>
+                </thead>
+                    <tr>
+                        <td>POST</td>
+                        <td>.*</td>
+                        <td>10/min</td>
+                        <td>9/min</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>servers</td>
+                        <td>50/day</td>
+                        <td>49/day</td>
+                    </tr>
+               
+            </table>
+            
+            <table rules="all">
+                <caption></caption>
+                
+                <thead>
+                    <tr>
+                        <th>Verb</th>
+                        <th>URI</th>
+                        <th>Limit</th>
+                        <th>Remaining</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>POST</td>
+                    <td>.*</td>
+                    <td>10/min</td>
+                    <td>8/min</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>servers</td>
+                    <td>50/day</td>
+                    <td>48/day</td>
+                </tr>
+                
+            </table>
+            
+         
             <para>Repose shares limits across nodes using the
                 Distributed Datastore filter. Look here for more
                 information about setting up the Distributed Datastore
                 filter for use with the Rate Limiting filter.</para>
+            <db:para/>
             
             <!--<link
                     linkend="distributed_datastore_NEED ID">Distributed
                     Datastore</link> -->
+            
+           
         </section>
     </section>
     <section xml:id="Limited-d1e731">
