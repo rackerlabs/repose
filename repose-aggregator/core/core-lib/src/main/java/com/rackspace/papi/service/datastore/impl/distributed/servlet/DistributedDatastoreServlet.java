@@ -72,7 +72,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
       super.init(config);
       DatastoreManager localDatastoreManager = datastore.defaultDatastore();
 
-      if (localDatastoreManager == null || !localDatastoreManager.isAvailable()) {
+      if (localDatastoreManager == null) {
          final Collection<DatastoreManager> availableLocalDatstores = datastore.availableLocalDatastores();
 
          if (!availableLocalDatstores.isEmpty()) {

@@ -31,13 +31,11 @@ public class DatastoreServiceImplTest {
             localManager = mock(DatastoreManager.class);
             when(localManager.getDatastore()).thenReturn(localDatastore);
             when(localManager.isDistributed()).thenReturn(false);
-            when(localManager.isAvailable()).thenReturn(true);
 
             remoteDatastore = mock(Datastore.class);
             remoteManager = mock(DatastoreManager.class);
             when(remoteManager.getDatastore()).thenReturn(remoteDatastore);
             when(remoteManager.isDistributed()).thenReturn(true);
-            when(remoteManager.isAvailable()).thenReturn(true);
         }
 
         @Test
@@ -75,19 +73,18 @@ public class DatastoreServiceImplTest {
         }
         
         @Test
-        public void shouldGetAvailableDistManagers() {
-            Datastore unavailableDatastore = mock(Datastore.class);
-            DatastoreManager unavailableManager = mock(DatastoreManager.class);
-            when(unavailableManager.getDatastore()).thenReturn(unavailableDatastore);
-            when(unavailableManager.isDistributed()).thenReturn(true);
-            when(unavailableManager.isAvailable()).thenReturn(false);
-            
-            instance.registerDatastoreManager("local", localManager);
+        public void shouldGetDistributedManagers() {
+            Datastore remoteDatastore = mock(Datastore.class);
+            DatastoreManager remoteManager2 = mock(DatastoreManager.class);
+            when(remoteManager2.getDatastore()).thenReturn(remoteDatastore);
+            when(remoteManager2.isDistributed()).thenReturn(true);
+
+            instance.registerDatastoreManager("local", this.localManager);
             instance.registerDatastoreManager("remote", remoteManager);
-            instance.registerDatastoreManager("unavail", unavailableManager);
+            instance.registerDatastoreManager("remote2", remoteManager2);
             Collection<DatastoreManager> availableDistributedDatastores = instance.availableDistributedDatastores();
             
-            assertEquals(1, availableDistributedDatastores.size());
+            assertEquals(2, availableDistributedDatastores.size());
             Collection<DatastoreManager> availableLocalDatastores = instance.availableLocalDatastores();
             
             assertEquals(1, availableLocalDatastores.size());

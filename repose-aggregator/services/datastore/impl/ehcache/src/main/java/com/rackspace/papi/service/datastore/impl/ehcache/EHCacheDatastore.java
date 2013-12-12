@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class EHCacheDatastore implements Datastore {
 
    private final Ehcache ehCacheInstance;
+   private boolean available;
 
    public EHCacheDatastore(Ehcache ehCacheInstance ) {
       this.ehCacheInstance = ehCacheInstance;

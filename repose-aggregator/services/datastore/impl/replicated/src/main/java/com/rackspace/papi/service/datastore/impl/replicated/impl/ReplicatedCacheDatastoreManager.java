@@ -19,7 +19,6 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
     private static final String CACHE_NAME_PREFIX = "PAPI_REDUNDANT_";
     private final CacheManager cacheManagerInstance;
     private final String cacheName;
-    private boolean available;
     private final Set<Subscriber> subscribers;
     private final String address;
     private final int port;
@@ -41,25 +40,11 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
     private void init() {
         final Cache cache = new Cache(cacheName, 20000, false, false, 5, 2);
         cacheManagerInstance.addCache(cache);
-
-        available = true;
     }
 
     @Override
     public String getName() {
         return REPLICATED_DISTRIBUTED;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return available;
-    }
-
-    @Override
-    public void destroy() {
-        available = false;
-
-        cacheManagerInstance.removeCache(cacheName);
     }
 
     public void setMaxQueueSize(int maxQueueSize) {

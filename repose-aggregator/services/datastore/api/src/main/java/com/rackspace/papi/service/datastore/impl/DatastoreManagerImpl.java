@@ -15,13 +15,14 @@ public final class DatastoreManagerImpl implements DatastoreManager {
     }
 
     @Override
-    public String getName() {
-        return manager.getName();
-    }
+    public Datastore getDatastore() throws DatastoreUnavailableException {
+        final Datastore datastore = manager.getDatastore();
 
-    @Override
-    public void destroy() {
-        manager.destroy();
+        if (datastore == null) {
+            throw new DatastoreUnavailableException("Datastore  " + manager.toString() + " is currently unavailable.");
+        }
+
+        return datastore;
     }
 
     @Override
@@ -30,16 +31,7 @@ public final class DatastoreManagerImpl implements DatastoreManager {
     }
 
     @Override
-    public boolean isAvailable() {
-        return manager.isAvailable();
-    }
-
-    @Override
-    public Datastore getDatastore() throws DatastoreUnavailableException {
-        if (!isAvailable()) {
-            throw new DatastoreUnavailableException("Datastore  " + manager.toString() + " is currently unavailable.");
-        }
-
-        return manager.getDatastore();
+    public String getName() {
+        return manager.getName();
     }
 }

@@ -62,7 +62,7 @@ public class DistributedDatastoreFilter implements Filter {
 
         DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();
 
-        if (localDatastoreManager == null || !localDatastoreManager.isAvailable()) {
+        if (localDatastoreManager == null) {
             final Collection<DatastoreManager> availableLocalDatstores = datastoreService.availableLocalDatastores();
 
             if (!availableLocalDatstores.isEmpty()) {

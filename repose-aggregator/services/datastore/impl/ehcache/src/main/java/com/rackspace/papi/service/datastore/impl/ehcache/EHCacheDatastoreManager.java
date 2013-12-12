@@ -12,7 +12,6 @@ public class EHCacheDatastoreManager implements DatastoreManager {
    private static final String CACHE_NAME_PREFIX = "PAPI_LOCAL";
    private final CacheManager cacheManagerInstance;
    private final String cacheName;
-   private boolean available;
    private Ehcache instrumentedCache;
 
    public EHCacheDatastoreManager(CacheManager cacheManagerInstance) {
@@ -28,26 +27,11 @@ public class EHCacheDatastoreManager implements DatastoreManager {
       cacheManagerInstance.addCache(cache);
 
       this.instrumentedCache = InstrumentedEhcache.instrument(cache);
-      available = true;
-      
    }
 
    @Override
    public String getName() {
       return Datastore.DEFAULT_LOCAL;
-   }
-
-   @Override
-   public boolean isAvailable() {
-      return available;
-   }
-
-   @Override
-   public void destroy() {
-      available = false;
-
-      cacheManagerInstance.removeCache(cacheName);
-
    }
 
    @Override

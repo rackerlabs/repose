@@ -13,7 +13,6 @@ public class HashRingDatastoreManager implements DatastoreManager {
     public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
     private static final String HOST_KEY = "temp-host-key";
     private final HashRingDatastore datastore;
-    private boolean available;
 
     public HashRingDatastoreManager(RequestProxyService proxyService, String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
         datastore = new HashRingDatastore(
@@ -23,7 +22,6 @@ public class HashRingDatastoreManager implements DatastoreManager {
                 localDatastore,
                 hashProvider,
                 encodingProvider);
-        available = true;
     }
 
     @Override
@@ -34,16 +32,6 @@ public class HashRingDatastoreManager implements DatastoreManager {
     @Override
     public Datastore getDatastore() {
         return datastore;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return available;
-    }
-
-    @Override
-    public void destroy() {
-        available = false;
     }
 
     @Override

@@ -64,7 +64,6 @@ public class DatastoreDatastoreFilterTest {
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
 
          when(datastoreService.defaultDatastore()).thenReturn(localManager);
-         when(localManager.isAvailable()).thenReturn(true);
 
          filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
       }

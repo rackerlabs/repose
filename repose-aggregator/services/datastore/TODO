@@ -89,6 +89,7 @@ Modularize Dist Datastore
     [X] moved DatastoreService to Datastore service and renamed PowerApiDatastoreService to DatastoreServiceImpl and moved it to Datastore service
 
 
+[ ] DatastoreManager - nobody calling destroy() method.  Is there cleanup that was being missed???
 
 [ ] FINAL STEPS
     [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService

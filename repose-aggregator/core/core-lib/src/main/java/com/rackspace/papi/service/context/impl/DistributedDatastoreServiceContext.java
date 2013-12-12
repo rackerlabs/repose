@@ -89,16 +89,6 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
       public void configurationUpdated(SystemModel configurationObject) {
 
          systemModel = configurationObject;
-//
-//         DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();
-//         if (localDatastoreManager == null || !localDatastoreManager.isAvailable()) {
-//            final Collection<DatastoreManager> availableLocalDatstores = datastoreService.availableLocalDatastores();
-//
-//            if (!availableLocalDatstores.isEmpty()) {
-//               localDatastoreManager = availableLocalDatstores.iterator().next();
-//            }
-//         }
-
 
          ReposeCluster cluster = findCluster(systemModel);
 
