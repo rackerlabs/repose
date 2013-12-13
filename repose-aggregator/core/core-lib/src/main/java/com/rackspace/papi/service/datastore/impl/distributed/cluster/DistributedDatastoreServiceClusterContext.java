@@ -23,6 +23,7 @@ import javax.servlet.ServletContextEvent;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -158,8 +159,8 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
       hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
       String ddPort = sce.getServletContext().getInitParameter("datastoreServicePort");
-      ServicePorts servicePorts = new ServicePorts();
-      servicePorts.add(new com.rackspace.papi.domain.Port("http", Integer.parseInt(ddPort)));
+      List<Integer> servicePorts = new ArrayList<Integer>();
+      servicePorts.add(Integer.parseInt(ddPort));
       clusterView = new ThreadSafeClusterView(servicePorts);
       service.initialize(clusterView, hostACL);
       systemModelUpdateListener = new SystemModelUpdateListener();

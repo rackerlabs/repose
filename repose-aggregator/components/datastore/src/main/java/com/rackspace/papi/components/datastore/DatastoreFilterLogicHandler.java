@@ -1,16 +1,17 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.common.MalformedCacheRequestException;
-import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.datastore.DistributedDatastore;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.common.MalformedCacheRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,18 +21,15 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- * @author Dan Daley
- */
+
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final EncodingProvider encodingProvider;
    private final DatastoreAccessControl hostAcl;
-   private HashRingDatastore hashRingDatastore;
+   private DistributedDatastore hashRingDatastore;
 
-   public DatastoreFilterLogicHandler(EncodingProvider encodingProvider, HashRingDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
+   public DatastoreFilterLogicHandler(EncodingProvider encodingProvider, DistributedDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
       this.encodingProvider = encodingProvider;
       this.hostAcl = hostAcl;
       this.hashRingDatastore = hashRingDatastore;

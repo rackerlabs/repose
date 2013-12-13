@@ -2,25 +2,22 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
-
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-
+import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import com.rackspace.repose.service.ratelimit.RateLimitingServiceFactory;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.DatastoreType;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.repose.service.ratelimit.RateLimitingService;
-
-import java.util.*;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /* Responsible for creating rate limit handlers that provide datastoreservice and listener to rate limit configuration */
 public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
@@ -49,27 +46,24 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
     private Datastore getDatastore(DatastoreType datastoreType) {
         Datastore targetDatastore;
 
-        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistributedDatastores();
-
         if (StringUtilities.isNotBlank(datastoreType.value())) {
             LOG.info("Requesting datastore " + datastoreType);
-            DatastoreManager datastore = datastoreService.getDatastore(datastoreType.value());
+            Datastore datastore = datastoreService.getDatastore(datastoreType.value());
 
             if (datastore != null) {
                 LOG.info("Using requested datastore " + datastoreType);
-                return datastore.getDatastore();
+                return datastore;
             }
 
             LOG.warn("Requested datastore not found");
         }
 
-        if (!distributedDatastores.isEmpty()) {
-            DatastoreManager manager = distributedDatastores.iterator().next();
-            LOG.info("Using distributed datastore " + manager.getName());
-            targetDatastore = manager.getDatastore();
+        targetDatastore = datastoreService.getDistributedDatastore();
+        if (targetDatastore != null) {
+            LOG.info("Using distributed datastore " + targetDatastore.getName());
         } else {
             LOG.warn("There were no distributed datastore managers available. Clustering for rate-limiting will be disabled.");
-            targetDatastore = datastoreService.defaultDatastore().getDatastore();
+            targetDatastore = datastoreService.getDefaultDatastore();
         }
 
         return targetDatastore;

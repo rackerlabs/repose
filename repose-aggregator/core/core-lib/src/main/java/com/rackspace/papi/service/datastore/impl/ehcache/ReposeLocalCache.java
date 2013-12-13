@@ -2,8 +2,9 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public boolean removeTokenAndRoles(String tenantId, String token) {
-        boolean removed = datastoreService.defaultDatastore().getDatastore()
+        boolean removed = datastoreService.getDefaultDatastore()
                 .remove(AUTH_TOKEN_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed token from cache: " + removed +
@@ -64,7 +65,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public boolean removeGroups(String tenantId, String token) {
-        boolean removed = datastoreService.defaultDatastore().getDatastore()
+        boolean removed = datastoreService.getDefaultDatastore()
                 .remove(AUTH_GROUP_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed groups from cache: " + removed +
@@ -88,18 +89,18 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public void removeAllCacheData() {
-        datastoreService.getDatastore(DatastoreService.DEFAULT_LOCAL).getDatastore().removeAllCacheData();
+        datastoreService.getDatastore(Datastore.DEFAULT_LOCAL).removeAllCacheData();
     }
 
     private boolean removeWithUnencodedUser(String userId) {
-        return datastoreService.defaultDatastore().getDatastore().remove(userId);
+        return datastoreService.getDefaultDatastore().remove(userId);
     }
 
     private boolean removeWithEncodedUser(String userId) {
         boolean removed = false;
 
         try {
-            removed = datastoreService.defaultDatastore().getDatastore().remove(getEncodedUserCacheKey(userId));
+            removed = datastoreService.getDefaultDatastore().remove(getEncodedUserCacheKey(userId));
 
             LOG.info("Removed rate limits from cache: " + removed +
                              (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));

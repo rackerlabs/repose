@@ -12,11 +12,15 @@ import com.rackspace.papi.service.datastore.impl.replicated.ReplicatedDatastore;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.service.datastore.impl.replicated.impl.ReplicatedCacheDatastoreManager;
 import com.rackspace.papi.service.datastore.impl.replicated.impl.ReplicatedDatastoreImpl;
-import java.util.*;
 import net.sf.ehcache.CacheManager;
 import org.openrepose.components.datastore.replicated.config.ReplicatedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ReplicatedDatastoreFilterHandler> {
 
@@ -68,7 +72,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
                 datastore.leaveGroup();
                 LOG.info("Unregistering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
-                service.unregisterDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+                service.destroyDatastore(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
             }
         }
     }
@@ -92,7 +96,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 if (replicatedDatastoreManager == null) {
                     LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
                     replicatedDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost), maxQueueSize);
-                    service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
+                    service.createDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
                 } else {
                     replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
                     replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));

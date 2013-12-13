@@ -17,6 +17,7 @@
         <module>service-client</module>
         <module>configuration</module>
         <module>httpclient</module>
+        <module>datastore</module>
     </modules>
 
 </project>

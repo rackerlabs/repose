@@ -3,8 +3,8 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
-import net.sf.ehcache.CacheManager;
+import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -25,7 +25,6 @@ public class ReposeLocalCacheTest {
         ReposeLocalCache reposeLocalCacheReal;
         DatastoreService datastoreService;
         DatastoreManager datastoreManager;
-        CacheManager cacheManager;
         Datastore datastore;
 
         @Before
@@ -53,23 +52,22 @@ public class ReposeLocalCacheTest {
 
         @Test
         public void shouldRemoveCacheData() {
-            datastoreService = new PowerApiDatastoreService();
-            cacheManager = new CacheManager();
-            datastoreManager = new EHCacheDatastoreManager(cacheManager);
-            datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, datastoreManager);
+            datastoreService = new DatastoreServiceImpl();
+            datastoreManager = new EHCacheDatastoreManager(new LocalDatastoreConfiguration("foo"));
+            datastoreService.createDatastoreManager(Datastore.DEFAULT_LOCAL, datastoreManager);
             reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 
             final String key = "my element";
             byte[] value = {1, 2, 3};
 
-            datastore = datastoreService.defaultDatastore().getDatastore();
+            datastore = datastoreService.getDefaultDatastore();
             datastore.put(key,value);
 
-            assertNotNull(datastoreService.defaultDatastore().getDatastore().get(key).elementBytes());
+            assertNotNull(datastoreService.getDefaultDatastore().get(key).elementBytes());
 
             reposeLocalCacheReal.removeAllCacheData();
 
-            assertNull(datastoreService.defaultDatastore().getDatastore().get(key).elementBytes());
+            assertNull(datastoreService.getDefaultDatastore().get(key).elementBytes());
         }
     }
 }

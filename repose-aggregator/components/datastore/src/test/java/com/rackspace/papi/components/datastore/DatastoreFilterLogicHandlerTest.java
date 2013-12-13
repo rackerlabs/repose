@@ -1,16 +1,17 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.common.DatastoreHeader;
-import com.rackspace.papi.components.datastore.common.RemoteBehavior;
-import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.common.DatastoreHeader;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
