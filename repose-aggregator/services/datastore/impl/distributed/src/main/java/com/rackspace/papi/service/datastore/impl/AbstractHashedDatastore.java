@@ -1,11 +1,10 @@
 package com.rackspace.papi.service.datastore.impl;
 
+import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
-import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.DistributedDatastore;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 
 import java.security.NoSuchAlgorithmException;
@@ -16,10 +15,12 @@ public abstract class AbstractHashedDatastore implements DistributedDatastore {
     private final EncodingProvider encodingProvider;
     private final MessageDigestFactory hashProvider;
     private final String datasetPrefix;
+    private final String name;
     private static final int DEFAULT_TTL = 5;
 
-    public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider,
+    public AbstractHashedDatastore(String name, String datasetPrefix, EncodingProvider encodingProvider,
             MessageDigestFactory digestProvider) {
+        this.name = name;
         this.encodingProvider = encodingProvider;
         this.hashProvider = digestProvider;
         this.datasetPrefix = datasetPrefix;
@@ -73,6 +74,11 @@ public abstract class AbstractHashedDatastore implements DistributedDatastore {
     @Override
     public void removeAllCacheData() {
         removeAllCachedData();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;

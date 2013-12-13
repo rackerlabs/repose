@@ -12,7 +12,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
-import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastoreManager;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 
 public class DistributedDatastoreFilter implements Filter {
 
@@ -33,7 +32,7 @@ public class DistributedDatastoreFilter implements Filter {
     private ConfigurationService configurationManager;
 
     public DistributedDatastoreFilter() {
-        this(HashRingDatastoreManager.DATASTORE_MANAGER_NAME);
+        this(HashRingDatastore.DATASTORE_NAME);
     }
 
     public DistributedDatastoreFilter(String datastoreId) {
@@ -50,29 +49,28 @@ public class DistributedDatastoreFilter implements Filter {
         final ContextAdapter contextAdapter = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
+
         datastoreService = contextAdapter.datastoreService();
 
         final ServicePorts servicePorts = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
         final MutableClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
-        DatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
+        DistDatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
                 clusterView);
-        datastoreService.registerDatastoreManager(datastoreId, configuration);
-        DatastoreManager manager = datastoreService.getDatastore(datastoreId);
-
-        final DistributedDatastore hashRingDatastore=(DistributedDatastore) manager.getDatastore();
+        final DistributedDatastore hashRingDatastore = datastoreService.createDatastore(datastoreId, configuration);
         final ReposeInstanceInfo instanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
+
+        URL sysModXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
+
         handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore, instanceInfo);
         configurationManager = contextAdapter.configurationService();
-        URL sysModXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-
         configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml",sysModXsdURL, handlerFactory, SystemModel.class);
-         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, DistributedDatastoreConfiguration.class);
     }
 
     @Override
     public void destroy() {
         configurationManager.unsubscribeFrom(config, handlerFactory);
-        datastoreService.unregisterDatastoreManager(datastoreId);
+        datastoreService.destroyDatastore(datastoreId);
     }
 }

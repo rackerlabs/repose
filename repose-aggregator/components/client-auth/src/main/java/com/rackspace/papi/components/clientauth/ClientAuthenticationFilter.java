@@ -41,7 +41,7 @@ public class ClientAuthenticationFilter implements Filter {
     }
 
     private Datastore getDatastore(DatastoreService datastoreService) {
-        return datastoreService.defaultDatastore().getDatastore();
+        return datastoreService.getDefaultDatastore();
     }
 
     @Override

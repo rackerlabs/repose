@@ -67,12 +67,10 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-       DatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), encodingProvider,
+       DistDatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), encodingProvider,
                clusterView.getClusterView());
 
-       datastoreService.registerDatastoreManager(DISTRIBUTED_HASH_RING, configuration);
-       DatastoreManager manager = datastoreService.getDatastore(DISTRIBUTED_HASH_RING);
-       hashRingDatastore = (DistributedDatastore) manager.getDatastore();
+       hashRingDatastore = datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
        hostAcl = clusterView.getAccessControl();
    }
 
@@ -139,6 +137,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
    public void destroy(){
       super.destroy();
       LOG.info("Unregistering Datastore: " + DISTRIBUTED_HASH_RING);
-      datastoreService.unregisterDatastoreManager(DISTRIBUTED_HASH_RING);
+      datastoreService.destroyDatastore(DISTRIBUTED_HASH_RING);
    }
 }

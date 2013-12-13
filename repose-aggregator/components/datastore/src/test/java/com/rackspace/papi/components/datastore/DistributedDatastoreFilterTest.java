@@ -7,9 +7,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
-import com.rackspace.papi.service.datastore.DatastoreConfiguration;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.datastore.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,9 +22,9 @@ import javax.servlet.ServletContext;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
-public class DatastoreDatastoreFilterTest {
+public class DistributedDatastoreFilterTest {
 
-   public static final String DATASTORE_MANAGER_NAME = "name";
+   public static final String DATASTORE_NAME = "name";
 
    @Ignore
    public static class TestParent {
@@ -48,6 +46,7 @@ public class DatastoreDatastoreFilterTest {
          final DatastoreServiceContext datastoreServiceContext = mock(DatastoreServiceContext.class);
          final DatastoreManager localManager = mock(DatastoreManager.class);
          final RequestProxyServiceContext proxyService = mock(RequestProxyServiceContext.class);
+         final Datastore datastore = mock(DistributedDatastore.class);
 
          ServletContextHelper instance = ServletContextHelper.configureInstance(servletContext, appContext);
          
@@ -64,11 +63,11 @@ public class DatastoreDatastoreFilterTest {
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
 
-         when(datastoreService.defaultDatastore()).thenReturn(localManager);
+         when(datastoreService.getDefaultDatastore()).thenReturn(datastore);
 
-         when(datastoreService.getDatastore(DATASTORE_MANAGER_NAME)).thenReturn(localManager);
+         when(datastoreService.getDatastore(DATASTORE_NAME)).thenReturn(datastore);
 
-         filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
+         filter = new DistributedDatastoreFilter(DATASTORE_NAME);
       }
    }
 
@@ -78,7 +77,7 @@ public class DatastoreDatastoreFilterTest {
       public void shouldRegisterDatastore() throws Exception {
          filter.init(mockFilterConfig);
 
-         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreConfiguration.class));
+         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistDatastoreConfiguration.class));
       }
 
       @Test
@@ -86,8 +85,8 @@ public class DatastoreDatastoreFilterTest {
          filter.init(mockFilterConfig);
          filter.destroy();
 
-         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreConfiguration.class));
-         verify(datastoreService).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
+         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistDatastoreConfiguration.class));
+         verify(datastoreService).destroyDatastore(DATASTORE_NAME);
       }
    }
 }

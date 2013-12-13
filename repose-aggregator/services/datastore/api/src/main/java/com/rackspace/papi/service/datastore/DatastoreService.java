@@ -1,24 +1,28 @@
 package com.rackspace.papi.service.datastore;
 
-import java.util.Collection;
-
 public interface DatastoreService {
 
-   /**
-    * Always returns the default, local (read L1) cache that has been registered
-    * with the datastore service.
-    */
-   DatastoreManager defaultDatastore();
+    /**
+     * Always returns the default, local (read L1) cache that has been registered
+     * with the datastore service.
+     */
+    Datastore getDefaultDatastore();
 
-   DatastoreManager getDatastore(String datastoreName);
+    Datastore getDatastore(String datastoreName);
 
-   Collection<DatastoreManager> availableLocalDatastores();
+    DistributedDatastore getDistributedDatastore();
 
-   Collection<DatastoreManager> availableDistributedDatastores();
+    void destroyDatastore(String datastoreName);
 
-   void unregisterDatastoreManager(String datastoreManagerName);
+    void createDatastore(String datastoreName, LocalDatastoreConfiguration configuration);
 
-   void registerDatastoreManager(String datastoreManagerName, DatastoreConfiguration configuration);
+    DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration);
 
-   void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    /**
+     * DEPRECATED: ReplicatedDatastoreFilter is currently using this method.  Once that is removed,
+     * we can remove this from the interface
+     * @param datastoreManagerName
+     * @param manager
+     */
+    void createDatastoreManager(String datastoreManagerName, DatastoreManager manager);
 }

@@ -2,18 +2,16 @@ package com.rackspace.papi.service.datastore.impl;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
-
-import java.util.Collection;
-
-import static org.junit.Assert.*;
+import com.rackspace.papi.service.datastore.DistributedDatastore;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class DatastoreServiceImplTest {
@@ -42,54 +40,51 @@ public class DatastoreServiceImplTest {
 
         @Test
         public void shouldGetNullDatastoreWhenNoneRegistered() {
-            assertNull(instance.defaultDatastore());
+            assertNull(instance.getDefaultDatastore());
         }
 
         @Test
         public void shouldGetDefaultDatastore() {
-            instance.registerDatastoreManager(Datastore.DEFAULT_LOCAL, localManager);
-            assertNotNull(instance.defaultDatastore());
+            instance.createDatastoreManager(Datastore.DEFAULT_LOCAL, localManager);
+            assertNotNull(instance.getDefaultDatastore());
         }
         
         @Test
         public void shouldGetLocalDatastoreByName() {
             final String name = "blah";
-            instance.registerDatastoreManager(name, localManager);
+            instance.createDatastoreManager(name, localManager);
             assertNotNull(instance.getDatastore(name));
         }
         
         @Test
         public void shouldUnregisterLocalDatastore() {
             final String name = "blah";
-            instance.registerDatastoreManager(name, localManager);
+            instance.createDatastoreManager(name, localManager);
             assertNotNull(instance.getDatastore(name));
-            instance.unregisterDatastoreManager(name);
+            instance.destroyDatastore(name);
             assertNull(instance.getDatastore(name));
         }
         
         @Test
         public void shouldGetRemoteDatastoreByName() {
             final String name = "blah";
-            instance.registerDatastoreManager(name, remoteManager);
+            instance.createDatastoreManager(name, remoteManager);
             assertNotNull(instance.getDatastore(name));
         }
         
         @Test
-        public void shouldGetDistributedManagers() {
-            Datastore remoteDatastore = mock(Datastore.class);
+        public void shouldGetDistributedDatastore() {
+            DistributedDatastore remoteDatastore = mock(DistributedDatastore.class);
             DatastoreManager remoteManager2 = mock(DatastoreManager.class);
             when(remoteManager2.getDatastore()).thenReturn(remoteDatastore);
             when(remoteManager2.isDistributed()).thenReturn(true);
 
-            instance.registerDatastoreManager("local", this.localManager);
-            instance.registerDatastoreManager("remote", remoteManager);
-            instance.registerDatastoreManager("remote2", remoteManager2);
-            Collection<DatastoreManager> availableDistributedDatastores = instance.availableDistributedDatastores();
+            instance.createDatastoreManager("local", this.localManager);
+            instance.createDatastoreManager("remote", remoteManager);
+            instance.createDatastoreManager("remote2", remoteManager2);
+            DistributedDatastore availableDistributedDatastores = instance.getDistributedDatastore();
             
-            assertEquals(2, availableDistributedDatastores.size());
-            Collection<DatastoreManager> availableLocalDatastores = instance.availableLocalDatastores();
-            
-            assertEquals(1, availableLocalDatastores.size());
+            assertNotNull(availableDistributedDatastores);
         }
         
     }

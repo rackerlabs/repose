@@ -55,6 +55,11 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     }
 
     @Override
+    public String getName() {
+        return ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED;
+    }
+
+    @Override
     public void joinGroup() {
         updateNotifier.startNotifications();
         updateListenerThread.start();

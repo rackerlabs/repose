@@ -5,8 +5,9 @@ import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatast
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component("datastoreService")
 public class DatastoreServiceImpl implements DatastoreService {
@@ -20,45 +21,42 @@ public class DatastoreServiceImpl implements DatastoreService {
    }
 
    @Override
-   public DatastoreManager defaultDatastore() {
-      return localManagers.get(Datastore.DEFAULT_LOCAL);
+   public Datastore getDefaultDatastore() {
+       final DatastoreManager defaultManager = localManagers.get(Datastore.DEFAULT_LOCAL);
+       return defaultManager == null ? null : defaultManager.getDatastore();
    }
 
    @Override
-   public DatastoreManager getDatastore(String datastoreName) {
-      final DatastoreManager localManager = getLocalDatastore(datastoreName);
+   public Datastore getDatastore(String datastoreName) {
+       if (localManagers.containsKey(datastoreName)) {
+           return localManagers.get(datastoreName).getDatastore();
+       }
 
-      return localManager == null ? getDistributedDatastore(datastoreName) : localManager;
-   }
+       if (distributedManagers.containsKey(datastoreName)) {
+           return distributedManagers.get(datastoreName).getDatastore();
+       }
 
-   private DatastoreManager getLocalDatastore(String datastoreName) {
-      return localManagers.get(datastoreName);
-   }
-
-   private DatastoreManager getDistributedDatastore(String datastoreName) {
-      return distributedManagers.get(datastoreName);
-   }
-
-   @Override
-   public Collection<DatastoreManager> availableLocalDatastores() {
-      return localManagers.values();
+       return null;
    }
 
    @Override
-   public Collection<DatastoreManager> availableDistributedDatastores() {
-      return distributedManagers.values();
+   public DistributedDatastore getDistributedDatastore() {
+       if (!distributedManagers.isEmpty()) {
+           return (DistributedDatastore) distributedManagers.values().iterator().next().getDatastore();
+       }
+      return null;
    }
 
    @Override
-   public void unregisterDatastoreManager(String datastoreManagerName) {
+   public void destroyDatastore(String datastoreName) {
        final DatastoreManager managerToUnregister;
 
-       if (localManagers.containsKey(datastoreManagerName)) {
-           managerToUnregister = localManagers.get(datastoreManagerName);
-           localManagers.remove(datastoreManagerName);
+       if (localManagers.containsKey(datastoreName)) {
+           managerToUnregister = localManagers.get(datastoreName);
+           localManagers.remove(datastoreName);
        } else {
-           managerToUnregister = distributedManagers.get(datastoreManagerName);
-           distributedManagers.remove(datastoreManagerName);
+           managerToUnregister = distributedManagers.get(datastoreName);
+           distributedManagers.remove(datastoreName);
        }
 
        if (managerToUnregister != null) {
@@ -67,31 +65,35 @@ public class DatastoreServiceImpl implements DatastoreService {
    }
 
    @Override
-   public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
+   public void createDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
       registerTo.put(datastoreManagerName, new DatastoreManagerImpl(manager));
    }
 
     @Override
-    public void registerDatastoreManager(String datastoreManagerName, DatastoreConfiguration configuration) {
-        if (datastoreManagerName.equals(Datastore.DEFAULT_LOCAL)) {
-            DatastoreManager manager = new EHCacheDatastoreManager((LocalDatastoreConfiguration) configuration);
-            registerDatastoreManager(Datastore.DEFAULT_LOCAL, manager);
-        } else {
-
-            DatastoreManager localDatastoreManager = defaultDatastore();
-
-            if (localDatastoreManager == null) {
-                final Collection<DatastoreManager> availableLocalDatstores = availableLocalDatastores();
-
-                if (!availableLocalDatstores.isEmpty()) {
-                    localDatastoreManager = availableLocalDatstores.iterator().next();
-                } else {
-                    throw new DatastoreServiceException("Unable to start Distributed Datastore Service");
-                }
-            }
-            DatastoreManager manager = new HashRingDatastoreManager((DistDatastoreConfiguration) configuration, localDatastoreManager.getDatastore());
-            registerDatastoreManager(datastoreManagerName, manager);
+    public void createDatastore(String datastoreName, LocalDatastoreConfiguration configuration) {
+        if (datastoreName.equals(Datastore.DEFAULT_LOCAL)) {
+            DatastoreManager manager = new EHCacheDatastoreManager(configuration);
+            createDatastoreManager(Datastore.DEFAULT_LOCAL, manager);
         }
+    }
+
+    @Override
+    public DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration) {
+
+        Datastore defaultDatastore = getDefaultDatastore();
+
+        if (defaultDatastore == null) {
+            final Collection<DatastoreManager> availableLocalDatstores = localManagers.values();
+
+            if (!availableLocalDatstores.isEmpty()) {
+                defaultDatastore = availableLocalDatstores.iterator().next().getDatastore();
+            } else {
+                throw new DatastoreServiceException("Unable to start Distributed Datastore Service");
+            }
+        }
+        DatastoreManager manager = new HashRingDatastoreManager(configuration, defaultDatastore);
+        createDatastoreManager(datastoreName, manager);
+        return (DistributedDatastore) manager.getDatastore();
     }
 }

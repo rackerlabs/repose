@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 public class HashRingDatastore extends AbstractHashedDatastore {
 
+    public static final String DATASTORE_NAME = "distributed/hash-ring";
     private static final int ADDRESS_TTL_MINUTES = 5;
     private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
     private final MutableClusterView clusterView;
@@ -36,7 +37,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
     public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, MutableClusterView clusterView,
             String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider,
             EncodingProvider encodingProvider) {
-        super(datastorePrefix, encodingProvider, hashProvider);
+        super(DATASTORE_NAME, datastorePrefix, encodingProvider, hashProvider);
 
         this.clusterView = clusterView;
         this.localDatastore = localDatastore;

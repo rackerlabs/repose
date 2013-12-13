@@ -21,4 +21,6 @@ public interface Datastore {
     void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException;
 
     void removeAllCacheData();
+
+    String getName();
 }

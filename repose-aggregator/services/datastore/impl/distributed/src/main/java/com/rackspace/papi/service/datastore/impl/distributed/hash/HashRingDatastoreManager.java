@@ -5,14 +5,9 @@ import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
-import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 
 public class HashRingDatastoreManager implements DatastoreManager {
 
-    public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
     private static final String HOST_KEY = "temp-host-key";
     private final HashRingDatastore datastore;
 
@@ -28,7 +23,7 @@ public class HashRingDatastoreManager implements DatastoreManager {
 
     @Override
     public String getName() {
-        return DATASTORE_MANAGER_NAME;
+        return datastore.getName();
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreConfiguration;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
 import org.slf4j.LoggerFactory;
@@ -52,15 +51,15 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         LOG.info("Destroying datastore service context");
-        datastoreService.unregisterDatastoreManager(Datastore.DEFAULT_LOCAL);
+        datastoreService.destroyDatastore(Datastore.DEFAULT_LOCAL);
      }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
         // Init our local default cache and a new service object to hold it
-        DatastoreConfiguration config = new LocalDatastoreConfiguration(instanceInfo.toString() + ":" + CACHE_MANAGER_NAME);
-        datastoreService.registerDatastoreManager(Datastore.DEFAULT_LOCAL, config);
+        LocalDatastoreConfiguration config = new LocalDatastoreConfiguration(instanceInfo.toString() + ":" + CACHE_MANAGER_NAME);
+        datastoreService.createDatastore(Datastore.DEFAULT_LOCAL, config);
 
         register();
     }

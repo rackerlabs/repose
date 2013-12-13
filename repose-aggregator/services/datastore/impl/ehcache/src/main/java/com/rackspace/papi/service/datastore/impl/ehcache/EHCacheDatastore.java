@@ -13,10 +13,15 @@ public class EHCacheDatastore implements Datastore {
 
    private final Ehcache ehCacheInstance;
 
-   public EHCacheDatastore(Ehcache ehCacheInstance ) {
+   public EHCacheDatastore(Ehcache ehCacheInstance) {
       this.ehCacheInstance = ehCacheInstance;
       
    }
+
+    @Override
+    public String getName() {
+        return Datastore.DEFAULT_LOCAL;
+    }
 
     @Override
     public StoredElement get(String key) throws DatastoreOperationException {
