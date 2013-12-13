@@ -1,5 +1,7 @@
 package framework
 
+import org.rackspace.deproxy.PortFinder
+
 class TestProperties {
 
     String configDirectory
@@ -47,8 +49,8 @@ class TestProperties {
 
             reposeJar = properties.getProperty("repose.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
-            reposePort = properties.getProperty("repose.port").toInteger()
-            reposeShutdownPort = properties.getProperty("repose.shutdown.port").toInteger()
+            reposePort = PortFinder.Singleton.getNextOpenPort()
+            reposeShutdownPort = PortFinder.Singleton.getNextOpenPort()
             dynamicPortBase = properties.getProperty("repose.dynamic.port.base").toInteger()
 
             glassfishJar = properties.getProperty("glassfish.jar")
