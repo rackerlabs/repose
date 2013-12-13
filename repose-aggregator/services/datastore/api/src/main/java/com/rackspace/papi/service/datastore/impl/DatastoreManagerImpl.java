@@ -2,7 +2,6 @@ package com.rackspace.papi.service.datastore.impl;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DatastoreUnavailableException;
 
 
@@ -28,11 +27,6 @@ public final class DatastoreManagerImpl implements DatastoreManager {
     @Override
     public boolean isDistributed() {
         return manager.isDistributed();
-    }
-
-    @Override
-    public String getName() {
-        return manager.getName();
     }
 
     @Override

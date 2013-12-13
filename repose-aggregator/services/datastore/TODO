@@ -97,8 +97,11 @@ Modularize Dist Datastore
 [ ] FINAL STEPS
     [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
 
+[ ] DatastoreServiceContext - should we shut down all datastores.
 
+[ ]ReplicatedDatastoreFilterTest - Evaluate tests
 
+[ ] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
 
 TECHNICAL DEBT (out of scope)
 =================================================================

@@ -5,7 +5,6 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +17,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceContext.class);
     public static final String SERVICE_NAME = "powerapi:/datastore/service";
-    private static final String CACHE_MANAGER_NAME = "LocalDatastoreCacheManager";
+
     private final DatastoreService datastoreService;
     private final ServiceRegistry registry;
     private ReposeInstanceInfo instanceInfo;
@@ -56,11 +55,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-
-        // Init our local default cache and a new service object to hold it
-        LocalDatastoreConfiguration config = new LocalDatastoreConfiguration(instanceInfo.toString() + ":" + CACHE_MANAGER_NAME);
-        datastoreService.createDatastore(Datastore.DEFAULT_LOCAL, config);
-
         register();
     }
 }

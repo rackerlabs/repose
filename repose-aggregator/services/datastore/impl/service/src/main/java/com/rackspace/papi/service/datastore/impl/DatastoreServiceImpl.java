@@ -16,8 +16,11 @@ public class DatastoreServiceImpl implements DatastoreService {
    private final Map<String, DatastoreManager> distributedManagers;
 
    public DatastoreServiceImpl() {
+      DatastoreManager manager = new EHCacheDatastoreManager();
+
       localManagers = new HashMap<String, DatastoreManager>();
       distributedManagers = new HashMap<String, DatastoreManager>();
+      registerDatastoreManager(Datastore.DEFAULT_LOCAL, manager);
    }
 
    @Override
@@ -65,20 +68,12 @@ public class DatastoreServiceImpl implements DatastoreService {
    }
 
    @Override
-   public void createDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
+   public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
       registerTo.put(datastoreManagerName, new DatastoreManagerImpl(manager));
    }
 
-    @Override
-    public void createDatastore(String datastoreName, LocalDatastoreConfiguration configuration) {
-        if (datastoreName.equals(Datastore.DEFAULT_LOCAL)) {
-            DatastoreManager manager = new EHCacheDatastoreManager(configuration);
-            createDatastoreManager(Datastore.DEFAULT_LOCAL, manager);
-        }
-    }
-
-    @Override
+   @Override
     public DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration) {
 
         Datastore defaultDatastore = getDefaultDatastore();
@@ -93,7 +88,7 @@ public class DatastoreServiceImpl implements DatastoreService {
             }
         }
         DatastoreManager manager = new HashRingDatastoreManager(configuration, defaultDatastore);
-        createDatastoreManager(datastoreName, manager);
+        registerDatastoreManager(datastoreName, manager);
         return (DistributedDatastore) manager.getDatastore();
     }
 }

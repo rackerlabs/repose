@@ -22,11 +22,6 @@ public class HashRingDatastoreManager implements DatastoreManager {
     }
 
     @Override
-    public String getName() {
-        return datastore.getName();
-    }
-
-    @Override
     public void destroy() {
     }
 

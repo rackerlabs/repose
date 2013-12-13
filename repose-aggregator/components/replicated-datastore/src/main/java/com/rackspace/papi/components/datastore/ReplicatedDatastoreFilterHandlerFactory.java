@@ -96,7 +96,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 if (replicatedDatastoreManager == null) {
                     LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
                     replicatedDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost), maxQueueSize);
-                    service.createDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
+                    service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
                 } else {
                     replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
                     replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));

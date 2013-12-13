@@ -207,5 +207,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       mockedRequest = mock(HttpServletRequest.class);
       mockedResponse = mock(ReadableHttpServletResponse.class);
     }
+
   }
 }

@@ -6,7 +6,5 @@ public interface DatastoreManager {
 
     boolean isDistributed();
 
-    String getName();
-
     void destroy();
 }

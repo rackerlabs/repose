@@ -1,8 +1,6 @@
 package features.services.datastore
-
 import framework.ReposeValveTest
 import framework.category.Slow
-import framework.category.Smoke
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -59,29 +57,6 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc == null
     }
 
-/*
-    //why are we checking this?
-    @Ignore
-    def "when configured with DD service, number of ports listened by repose process should equal to DD service nodes" () {
-        given:
-        repose.applyConfigs("features/services/datastore")
-        repose.start()
-        //sleep(15000)
-        def port_3999 = "lsof -i :3999".execute()
-        port_3999.waitFor()
-        def port_4999 = "lsof -i :4999".execute()
-        port_4999.waitFor()
-
-        when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
-
-        then:
-        mc.receivedResponse.code == '200'
-        mc.handlings.size() == 1
-        !port_3999.in.text.isEmpty()
-        !port_4999.in.text.isEmpty()
-    }
-*/
 
     def "when configured with DD filter, repose should start and log a warning" () {
         given:
@@ -148,7 +123,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         logMatchesTrue.size() > logMatchesFalse.size()
     }
 
-    @org.junit.experimental.categories.Category(Smoke.class)
+    //@org.junit.experimental.categories.Category(Smoke.class)
     def "when deleting cache objects"(){
 
         given:

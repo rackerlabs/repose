@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 
-public class DistDatastoreConfiguration implements DatastoreConfiguration {
+public class DistDatastoreConfiguration{
 
     private RequestProxyService proxyService;
     private EncodingProvider encodingProvider;

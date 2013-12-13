@@ -1,10 +1,9 @@
 package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.LocalDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -24,7 +23,6 @@ public class ReposeLocalCacheTest {
         ReposeLocalCache reposeLocalCacheMock;
         ReposeLocalCache reposeLocalCacheReal;
         DatastoreService datastoreService;
-        DatastoreManager datastoreManager;
         Datastore datastore;
 
         @Before
@@ -33,6 +31,12 @@ public class ReposeLocalCacheTest {
             token = "token";
             userId = "userId";
             reposeLocalCacheMock = mock(ReposeLocalCache.class);
+            datastoreService = new DatastoreServiceImpl();
+        }
+
+        @After
+        public void tearDown() {
+            datastoreService.destroyDatastore(Datastore.DEFAULT_LOCAL);
         }
 
         @Test
@@ -52,9 +56,6 @@ public class ReposeLocalCacheTest {
 
         @Test
         public void shouldRemoveCacheData() {
-            datastoreService = new DatastoreServiceImpl();
-            datastoreManager = new EHCacheDatastoreManager(new LocalDatastoreConfiguration("foo"));
-            datastoreService.createDatastoreManager(Datastore.DEFAULT_LOCAL, datastoreManager);
             reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 
             final String key = "my element";

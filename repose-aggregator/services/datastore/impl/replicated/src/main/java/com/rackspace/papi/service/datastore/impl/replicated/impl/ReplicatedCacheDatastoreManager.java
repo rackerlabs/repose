@@ -43,11 +43,6 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
     }
 
     @Override
-    public String getName() {
-        return REPLICATED_DISTRIBUTED;
-    }
-
-    @Override
     public void destroy() {
         cacheManagerInstance.removeCache(cacheName);
     }

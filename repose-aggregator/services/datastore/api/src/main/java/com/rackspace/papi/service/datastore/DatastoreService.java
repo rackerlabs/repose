@@ -14,8 +14,6 @@ public interface DatastoreService {
 
     void destroyDatastore(String datastoreName);
 
-    void createDatastore(String datastoreName, LocalDatastoreConfiguration configuration);
-
     DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration);
 
     /**
@@ -24,5 +22,5 @@ public interface DatastoreService {
      * @param datastoreManagerName
      * @param manager
      */
-    void createDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
 }

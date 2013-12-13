@@ -8,6 +8,7 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
 import com.rackspace.papi.service.datastore.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -69,6 +70,13 @@ public class DistributedDatastoreFilterTest {
 
          filter = new DistributedDatastoreFilter(DATASTORE_NAME);
       }
+
+
+
+    @After
+    public void tearDown() {
+        datastoreService.destroyDatastore(DATASTORE_NAME);
+    }
    }
 
    public static class WhenRegisteringDatastore extends TestParent {
