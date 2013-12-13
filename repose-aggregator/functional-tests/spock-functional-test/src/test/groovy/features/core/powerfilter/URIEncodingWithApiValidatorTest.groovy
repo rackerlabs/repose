@@ -135,7 +135,7 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         uri                        | expectedValue              | acceptableEncodedValue
         "/resource?name%3Dvalue"   | "/resource?name=value"     | "/resource?name%3Dvalue"
         "/resource?na&me=value"    | "/resource?na&me=value"    | "/resource?na%26me=value"
-        "/resource?na=me=value"    | "/resource?na=me=value"    | "/resource?na%3Dme=value"
+        "/resource?na=me=value"    | "/resource?na=me=value"    | "/resource?na=me%3Dvalue"
         "/resource?name=val&ue"    | "/resource?name=val&ue"    | "/resource?name=val%26ue"
     }
 
