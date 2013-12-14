@@ -38,4 +38,27 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+
+                <configuration>
+                    <schemaDirectory>${project.basedir}/src/main/resources/META-INF/schema/config</schemaDirectory>
+                    <specVersion>2.2</specVersion>
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

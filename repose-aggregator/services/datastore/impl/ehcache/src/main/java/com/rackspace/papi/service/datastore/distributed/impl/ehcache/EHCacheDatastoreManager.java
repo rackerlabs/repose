@@ -9,6 +9,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
+import java.util.UUID;
+
 public class EHCacheDatastoreManager implements DatastoreManager {
 
    private static final String CACHE_NAME_PREFIX = "PAPI_LOCAL";
@@ -26,7 +28,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
 
        this.cacheManagerInstance = CacheManager.newInstance(defaultConfiguration);
 
-      cacheName = CACHE_NAME_PREFIX + cacheManagerInstance.getName();
+      cacheName = CACHE_NAME_PREFIX + ":" + cacheManagerInstance.getName() + UUID.randomUUID().toString();
 
       final Ehcache cache = new Cache(cacheName, 20000, false, false, 5, 2);
       cacheManagerInstance.addCache(cache);

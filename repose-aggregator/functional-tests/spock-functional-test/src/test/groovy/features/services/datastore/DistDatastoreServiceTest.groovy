@@ -1,6 +1,7 @@
 package features.services.datastore
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.category.Smoke
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -123,7 +124,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         logMatchesTrue.size() > logMatchesFalse.size()
     }
 
-    //@org.junit.experimental.categories.Category(Smoke.class)
+    @org.junit.experimental.categories.Category(Smoke)
     def "when deleting cache objects"(){
 
         given:

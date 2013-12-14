@@ -1,15 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.DistributedDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.Port;
+import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.config.Port;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;

@@ -19,11 +19,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.DistributedDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.HostAccessControl;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.HostAccessControlList;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.Port;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.PortConfiguration;
+import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.config.HostAccessControl;
+import com.rackspace.papi.service.datastore.distributed.config.HostAccessControlList;
+import com.rackspace.papi.service.datastore.distributed.config.Port;
+import com.rackspace.papi.service.datastore.distributed.config.PortConfiguration;
 import java.util.ArrayList;
 
 @RunWith(Enclosed.class)

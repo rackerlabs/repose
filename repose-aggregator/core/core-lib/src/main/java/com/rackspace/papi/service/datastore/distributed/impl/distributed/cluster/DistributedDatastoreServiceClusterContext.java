@@ -11,7 +11,7 @@ import com.rackspace.papi.service.datastore.distributed.impl.ThreadSafeClusterVi
 import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.config.DistributedDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
