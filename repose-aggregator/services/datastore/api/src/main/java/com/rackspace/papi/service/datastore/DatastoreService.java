@@ -1,5 +1,8 @@
 package com.rackspace.papi.service.datastore;
 
+import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
+
 public interface DatastoreService {
 
     /**

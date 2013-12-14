@@ -3,7 +3,7 @@ package com.rackspace.papi.components.clientauth.common
 import com.rackspace.papi.commons.util.io.ObjectSerializer
 import com.rackspace.papi.service.datastore.Datastore
 import com.rackspace.papi.service.datastore.StoredElement
-import com.rackspace.papi.service.datastore.impl.StoredElementImpl
+import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl
 import spock.lang.Specification
 
 import static org.hamcrest.CoreMatchers.any

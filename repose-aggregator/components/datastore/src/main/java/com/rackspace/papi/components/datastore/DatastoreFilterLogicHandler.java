@@ -7,11 +7,11 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.service.datastore.DistributedDatastore;
+import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
-import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
-import com.rackspace.papi.service.datastore.impl.distributed.common.MalformedCacheRequestException;
+import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
+import com.rackspace.papi.service.datastore.distributed.impl.MalformedCacheRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

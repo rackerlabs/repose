@@ -10,15 +10,9 @@ public interface Datastore {
 
     boolean remove(String key) throws DatastoreOperationException;
 
-    boolean remove(String key, boolean notify) throws DatastoreOperationException;
-
     void put(String key, byte[] value) throws DatastoreOperationException;
 
-    void put(String key, byte[] value, boolean notify) throws DatastoreOperationException;
-
     void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
-
-    void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException;
 
     void removeAllCacheData();
 

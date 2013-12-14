@@ -1,6 +1,6 @@
 package com.rackspace.repose.management.cache;
 
-import com.rackspace.papi.service.datastore.impl.ehcache.ReposeLocalCacheMBean;
+import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;

@@ -8,6 +8,8 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
 import com.rackspace.papi.service.datastore.*;
+import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

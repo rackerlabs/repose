@@ -4,7 +4,7 @@ import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
