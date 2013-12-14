@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ThreadSafeClusterView implements MutableClusterView {
+public class ThreadSafeClusterView implements ClusterView {
 
    private static final Logger LOG = LoggerFactory.getLogger(ThreadSafeClusterView.class);
    private static final Comparator<ClusterMember> CLUSTER_MEMBER_COMPARATOR = new Comparator<ClusterMember>() {

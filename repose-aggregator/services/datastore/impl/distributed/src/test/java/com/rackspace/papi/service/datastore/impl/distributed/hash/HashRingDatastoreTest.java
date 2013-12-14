@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
@@ -29,7 +29,7 @@ public class HashRingDatastoreTest {
     public static class WhenPerformingAction {
 
         protected Datastore localDatastore;
-        protected MutableClusterView clusterView;
+        protected ClusterView clusterView;
         protected StoredElementImpl storedElement;
         protected DatastoreAction datastoreAction;
         protected HashRingDatastore hashRingDatastore;
@@ -42,7 +42,7 @@ public class HashRingDatastoreTest {
             inetSocketAddress = new InetSocketAddress(InetAddress.getByAddress(new byte[]{10, 1, 1, 11}), 2200);
 
             localDatastore = mock(Datastore.class);
-            clusterView = mock(MutableClusterView.class);
+            clusterView = mock(ClusterView.class);
             storedElement = mock(StoredElementImpl.class);
             datastoreAction = mock(DatastoreAction.class);
             remoteCommandExecutor = mock(RemoteCommandExecutor.class);

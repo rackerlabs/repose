@@ -70,7 +70,7 @@ public class DatastoreServiceImpl implements DatastoreService {
    @Override
    public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
-      registerTo.put(datastoreManagerName, new DatastoreManagerImpl(manager));
+      registerTo.put(datastoreManagerName, manager);
    }
 
    @Override

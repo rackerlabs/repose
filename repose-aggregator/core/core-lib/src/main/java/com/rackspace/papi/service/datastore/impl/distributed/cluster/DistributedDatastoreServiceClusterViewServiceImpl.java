@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.impl.distributed.cluster;
 
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Component("clusterViewService")
 public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService {
    
-   private MutableClusterView clusterView;
+   private ClusterView clusterView;
    private DatastoreAccessControl accessControl;
 
    
@@ -18,7 +18,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
    }
    
    @Override
-   public void initialize(MutableClusterView clusterView, DatastoreAccessControl accessControl){
+   public void initialize(ClusterView clusterView, DatastoreAccessControl accessControl){
       this.clusterView = clusterView;
       this.accessControl = accessControl;
    }
@@ -35,7 +35,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
    }
 
    @Override
-   public  MutableClusterView getClusterView() {
+   public ClusterView getClusterView() {
       return clusterView;
    }
 

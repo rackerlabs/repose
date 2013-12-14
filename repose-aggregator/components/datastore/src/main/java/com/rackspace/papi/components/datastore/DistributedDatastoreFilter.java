@@ -10,7 +10,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.*;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.impl.distributed.hash.HashRingDatastore;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
@@ -53,7 +53,7 @@ public class DistributedDatastoreFilter implements Filter {
         datastoreService = contextAdapter.datastoreService();
 
         final ServicePorts servicePorts = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
-        final MutableClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
+        final ClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
         DistDatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
                 clusterView);
         final DistributedDatastore hashRingDatastore = datastoreService.createDatastore(datastoreId, configuration);

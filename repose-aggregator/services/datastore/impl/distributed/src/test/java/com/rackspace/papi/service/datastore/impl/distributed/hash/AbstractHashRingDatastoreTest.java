@@ -6,7 +6,7 @@ package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
@@ -38,7 +38,7 @@ public class AbstractHashRingDatastoreTest {
    public static class WhenAddressingTargets {
 
       protected InetAddress[] addresses;
-      protected MutableClusterView clusterVew, singleNodeClusterView;
+      protected ClusterView clusterVew, singleNodeClusterView;
       protected Datastore mockedDatastore;
       protected TestingHashRingDatastore datastore;
 
@@ -57,7 +57,7 @@ public class AbstractHashRingDatastoreTest {
             InetAddress.getByAddress(new byte[]{10, 1, 1, 14})
          };
 
-         clusterVew = mock(MutableClusterView.class);
+         clusterVew = mock(ClusterView.class);
          
          final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
          when(networkInterfaceProvider.hasInterfaceFor(any(InetAddress.class))).thenReturn(true);
@@ -100,7 +100,7 @@ public class AbstractHashRingDatastoreTest {
    @Ignore
    public static class TestingHashRingDatastore extends HashRingDatastore {
 
-      public TestingHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
+      public TestingHashRingDatastore(ClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
          super(null, clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
       }
    }

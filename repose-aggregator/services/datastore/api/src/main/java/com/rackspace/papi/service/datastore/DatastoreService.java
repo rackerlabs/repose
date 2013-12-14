@@ -6,11 +6,11 @@ public interface DatastoreService {
      * Always returns the default, local (read L1) cache that has been registered
      * with the datastore service.
      */
-    Datastore getDefaultDatastore();
+    Datastore getDefaultDatastore() throws DatastoreUnavailableException;
 
-    Datastore getDatastore(String datastoreName);
+    Datastore getDatastore(String datastoreName) throws DatastoreUnavailableException;
 
-    DistributedDatastore getDistributedDatastore();
+    DistributedDatastore getDistributedDatastore() throws DatastoreUnavailableException;
 
     void destroyDatastore(String datastoreName);
 

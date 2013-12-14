@@ -2,12 +2,11 @@ package com.rackspace.papi.service.datastore.impl.distributed.cluster;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.impl.distributed.cluster.utils.AccessListDeterminator;
@@ -41,7 +40,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServiceClusterContext.class);
    private DatastoreAccessControl hostACL;
    private ConfigurationService configurationManager;
-   private MutableClusterView clusterView;
+   private ClusterView clusterView;
    private ReposeInstanceInfo reposeInstanceInfo;
    private ServiceRegistry registry;
 

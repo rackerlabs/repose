@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
@@ -28,13 +28,13 @@ public class HashRingDatastore extends AbstractHashedDatastore {
     public static final String DATASTORE_NAME = "distributed/hash-ring";
     private static final int ADDRESS_TTL_MINUTES = 5;
     private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
-    private final MutableClusterView clusterView;
+    private final ClusterView clusterView;
     private final Datastore localDatastore;
     private final RemoteCommandExecutor remoteCommandExecutor;
     private boolean clusterMemberWarning = false;
     private final Object lock = new Object();
 
-    public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, MutableClusterView clusterView,
+    public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, ClusterView clusterView,
             String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider,
             EncodingProvider encodingProvider) {
         super(DATASTORE_NAME, datastorePrefix, encodingProvider, hashProvider);
