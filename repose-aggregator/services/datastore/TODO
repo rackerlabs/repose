@@ -108,6 +108,9 @@ TECHNICAL DEBT (out of scope)
 [X] Functional tests around Replicated Datastore Service
 [ ] Deprecate the Replicated Datastore Filter
 
+[ ] NEW STORY: Cleanup package tangling between commons and services/httpclient.  Cleanup package tangling
+    workarounds from aggregator pom.
+
 QUESTIONS FOR THE TEAM
 =================================================================
 [X] Should services be allowed to depend on core-lib ?
@@ -116,10 +119,11 @@ QUESTIONS FOR THE TEAM
 [X] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
 
 [ ] Where do the implementations of "Datastore" belong???
+    TEAM: move components/datastores/api, components/datastores/ehcache, ...
 
-[ ] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
+[X] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
     PRODUCT WEIGH-IN: YES!
 
     [X] If yes, remove the filter
     [X] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
-    [ ] Document removal in release notes
+    [X] Document removal in release notes

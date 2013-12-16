@@ -31,8 +31,10 @@
 
     <modules>
         <module>external</module>
-        <module>services</module>
+        <module>services/httpclient</module>
         <module>commons</module>
+        <module>components/datastores</module>
+        <module>services</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>

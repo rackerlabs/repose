@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl;
 
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.service.datastore.DatastoreServiceException;
+import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 
 import java.io.Serializable;
@@ -23,7 +23,7 @@ public class StoredElementImpl implements StoredElement {
             try {
                 resolvedElement = ObjectSerializer.instance().readObject(elementBytes);
             } catch (Exception ex) {
-                throw new DatastoreServiceException("Unable to marshall a java object from stored element contents. Reason: " + ex.getMessage(), ex);
+                throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + ex.getMessage(), ex);
             }
         }
 

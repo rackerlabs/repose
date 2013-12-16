@@ -3,19 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datastore-service-support</artifactId>
-        <groupId>com.rackspace.papi.service</groupId>
+        <artifactId>datastores-support</artifactId>
+        <groupId>com.rackspace.papi.components</groupId>
         <version>2.13.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-
-    <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>datastore-api</artifactId>
-
-    <name>Repose Services - Datastore API</name>
-
-    <packaging>jar</packaging>
+    <artifactId>datastore-distributed</artifactId>
+    <name>Repose Components - Datastores - Distributed Impl</name>
 
     <dependencies>
         <dependency>
@@ -23,6 +18,13 @@
             <artifactId>datastore-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>

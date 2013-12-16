@@ -8,9 +8,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>datastore-support</artifactId>
+    <artifactId>datastore-service-support</artifactId>
 
-    <name>Repose Services - Datastore Support</name>
+    <name>Repose Services - Datastore POM</name>
 
     <packaging>pom</packaging>
 

@@ -1,9 +1,6 @@
 package com.rackspace.papi.service.datastore.hash;
 
-/**
- *
- */
-public final class MD5MessageDigestFactory extends AbstractMessageDigestFactory {
+public final class MD5MessageDigestFactory extends com.rackspace.papi.service.datastore.hash.AbstractMessageDigestFactory {
 
    private static final MessageDigestFactory INSTANCE = new MD5MessageDigestFactory();
 

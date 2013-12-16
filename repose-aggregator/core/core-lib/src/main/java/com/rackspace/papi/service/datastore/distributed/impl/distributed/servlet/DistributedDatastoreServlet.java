@@ -1,8 +1,9 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
+import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
