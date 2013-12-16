@@ -99,11 +99,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>replicated-datastore</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>translation</artifactId>
         </dependency>
 
@@ -226,11 +221,6 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>distributed-datastore</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>replicated-datastore</artifactId>
                         </jarModule>
 
                         <jarModule>

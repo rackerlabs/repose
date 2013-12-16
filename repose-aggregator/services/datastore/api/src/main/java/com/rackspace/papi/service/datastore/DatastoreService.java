@@ -17,13 +17,6 @@ public interface DatastoreService {
 
     void destroyDatastore(String datastoreName);
 
-    DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration);
-
-    /**
-     * DEPRECATED: ReplicatedDatastoreFilter is currently using this method.  Once that is removed,
-     * we can remove this from the interface
-     * @param datastoreManagerName
-     * @param manager
-     */
-    void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration)
+            throws DatastoreServiceException;
 }

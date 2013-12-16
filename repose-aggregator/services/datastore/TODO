@@ -101,11 +101,11 @@ Modularize Dist Datastore
 
 [ ]ReplicatedDatastoreFilterTest - Evaluate tests
 
-[ ] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
+[X] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
 
 TECHNICAL DEBT (out of scope)
 =================================================================
-[ ] Functional tests around Replicated Datastore Service
+[X] Functional tests around Replicated Datastore Service
 [ ] Deprecate the Replicated Datastore Filter
 
 QUESTIONS FOR THE TEAM
@@ -113,10 +113,13 @@ QUESTIONS FOR THE TEAM
 [X] Should services be allowed to depend on core-lib ?
     ANSWER: No.  Let's try to keep services non-dependent on core-lib
 
-[ ] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
+[X] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
 
 [ ] Where do the implementations of "Datastore" belong???
 
 [ ] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
-    [ ] If yes, remove the filter
-    [ ] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    PRODUCT WEIGH-IN: YES!
+
+    [X] If yes, remove the filter
+    [X] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    [ ] Document removal in release notes

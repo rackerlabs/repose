@@ -14,10 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class DatastoreServiceImplTest {
-
-    public static class WhenGettingDatastores {
 
         private DatastoreServiceImpl instance;
         private Datastore localDatastore;
@@ -79,6 +76,5 @@ public class DatastoreServiceImplTest {
             
             assertNotNull(availableDistributedDatastores);
         }
-        
-    }
+
 }

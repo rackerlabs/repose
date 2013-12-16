@@ -77,7 +77,7 @@ public class HashRingDatastore implements DistributedDatastore {
         return ringMembers[memberAddress];
     }
 
-    public boolean isRemoteTarget(InetSocketAddress target) {
+    private boolean isRemoteTarget(InetSocketAddress target) {
         try {
 
             if (localDatastore == null) {

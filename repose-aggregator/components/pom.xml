@@ -44,7 +44,6 @@
         <module>client-ip-identity</module>
         <module>header-normalization</module>
         <module>uri-normalization</module>
-        <module>replicated-datastore</module>
         <module>compression</module>
         <module>header-translation</module>
         <module>uri-stripper</module>
@@ -235,12 +234,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>distributed-datastore</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>replicated-datastore</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
