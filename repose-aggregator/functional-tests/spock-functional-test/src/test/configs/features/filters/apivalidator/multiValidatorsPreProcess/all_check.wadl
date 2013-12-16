@@ -17,7 +17,6 @@
                               required="true"
                               path="not(/element/@blah)"
                               rax:message="blah should not be here"/>
-                        <rax:preprocess href="remove-element.xsl"/>
                     </representation>
                 </request>
             </method>

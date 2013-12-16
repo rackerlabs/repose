@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
-   <validator
-      enable-pre-process-extension="true"
-      role="xsd-check"
-      wadl="xsd_check.wadl"
-      check-well-formed="false"
-      check-elements="true"
-      xsl-engine="XalanC"
-      enable-rax-roles="true"
-      check-xsd-grammar="true"
-      use-saxon="false"/>
+    <validator
+            enable-pre-process-extension="true"
+            role="check-xsd"
+            wadl="xsd_check.wadl"
+            check-well-formed="false"
+            check-elements="true"
+            xsl-engine="XalanC"
+            enable-rax-roles="true"
+            check-xsd-grammar="true"
+            use-saxon="false"/>
 
-   <validator
-      role="param-check"
-      enable-rax-roles="true"
-      wadl="param_check.wadl"
-      check-well-formed="false"
-      check-elements="true"
-      xsl-engine="XalanC"
-      enable-pre-process-extension="true"
-      check-plain-params="true"
-      check-xsd-grammar="true"
-      use-saxon="false"/>
+    <validator
+            role="check-param"
+            enable-rax-roles="true"
+            wadl="param_check.wadl"
+            check-well-formed="false"
+            check-elements="true"
+            xsl-engine="XalanC"
+            enable-pre-process-extension="true"
+            check-plain-params="true"
+            check-xsd-grammar="true"
+            use-saxon="false"/>
 
-   <validator
-      role="check-all"
-      enable-rax-roles="true"
-      wadl="check_all.wadl"
-      check-well-formed="false"
-      check-elements="true"
-      xsl-engine="XalanC"
-      enable-pre-process-extension="true"
-      check-plain-params="true"
-      check-xsd-grammar="true"
-      use-saxon="false"/>
+    <validator
+            role="check-all"
+            enable-rax-roles="true"
+            wadl="all_check.wadl"
+            check-well-formed="false"
+            check-elements="true"
+            xsl-engine="XalanC"
+            enable-pre-process-extension="true"
+            check-plain-params="true"
+            check-xsd-grammar="true"
+            use-saxon="false"/>
 
-   <validator
-      role="pass"
-      enable-rax-roles="true"
-      wadl="pass.wadl"
-      check-well-formed="false"
-      check-elements="true"
-      xsl-engine="XalanC"
-      enable-pre-process-extension="true"
-      check-plain-params="true"
-      check-xsd-grammar="true"
-      use-saxon="false"/>
+    <validator
+            role="pass"
+            enable-rax-roles="true"
+            wadl="pass.wadl"
+            check-well-formed="false"
+            check-elements="true"
+            xsl-engine="XalanC"
+            enable-pre-process-extension="true"
+            check-plain-params="true"
+            check-xsd-grammar="true"
+            use-saxon="false"/>
 </validators>
 
