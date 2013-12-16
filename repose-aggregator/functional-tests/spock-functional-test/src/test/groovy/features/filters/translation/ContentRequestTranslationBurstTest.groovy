@@ -1,12 +1,11 @@
 package features.filters.translation
 
 import framework.ReposeValveTest
-import framework.category.Slow
+import framework.category.Bug
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 
-
-@Category(Slow.class)
+@Category(Bug.class)
 class ContentRequestTranslationBurstTest extends ReposeValveTest {
 
     def static Map acceptXML = ["accept": "application/xml"]
