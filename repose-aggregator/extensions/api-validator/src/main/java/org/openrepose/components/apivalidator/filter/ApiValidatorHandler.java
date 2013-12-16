@@ -1,6 +1,8 @@
 package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
+import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
 import com.rackspace.com.papi.components.checker.step.ErrorResult;
 import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -144,6 +146,8 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
          matchedRoles.clear();
          List<ValidatorInfo> matchedValidators = getValidatorsForRole(roles);
          if (!matchedValidators.isEmpty()) {
+             CheckerServletRequest req = new CheckerServletRequest(request);
+             CheckerServletResponse resp = new CheckerServletResponse(response);
             for (ValidatorInfo validatorInfo : matchedValidators) {
 
                Validator validator = validatorInfo.getValidator();
@@ -151,9 +155,9 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                   LOG.warn("Validator not available for request:", validatorInfo.getUri());
                   myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
                } else {
-                  lastValidatorResult = validator.validate(request, response, chain);
+                  lastValidatorResult = validator.validate(req, resp, chain);
                   isValid = lastValidatorResult.valid();
-                  myDirector.setResponseStatusCode(response.getStatus());
+                  myDirector.setResponseStatusCode(resp.getStatus());
                   if (isValid) {
                      break;
                   }
@@ -167,7 +171,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                    }
                }
                if (multiRoleMatch) {
-                   sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+                   sendMultiMatchErrorResponse(lastValidatorResult, myDirector, resp);
                }
             }
          } else {

@@ -14,6 +14,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -76,13 +78,15 @@ public class ApiValidatorHandlerTest {
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
             instance.setFilterChain(chain);
 
+            when(request.getRequestURI()).thenReturn("/path/to/resource");
+
         }
         
         @Test
         public void shouldCallDefaultValidatorWhenNoRoleMatch() {
             
             instance.handleRequest(request, response);
-            verify(defaultValidator).validate(request, response, chain);
+            verify(defaultValidator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
         }
         
         @Test
@@ -93,7 +97,7 @@ public class ApiValidatorHandlerTest {
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             
             instance.handleRequest(request, response);
-            verify(role1Validator).validate(request, response, chain);
+            verify(role1Validator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
         }
 
         @Test
@@ -114,7 +118,7 @@ public class ApiValidatorHandlerTest {
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             
             FilterDirector director = instance.handleRequest(request, response);
-            verify(blowupValidator).validate(request, response, chain);
+            verify(blowupValidator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
             assertEquals(HttpStatusCode.BAD_GATEWAY, director.getResponseStatus());
         }
 
