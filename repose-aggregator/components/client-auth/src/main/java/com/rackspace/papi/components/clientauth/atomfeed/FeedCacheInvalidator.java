@@ -6,7 +6,7 @@ import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RsAuthCachePrefix;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

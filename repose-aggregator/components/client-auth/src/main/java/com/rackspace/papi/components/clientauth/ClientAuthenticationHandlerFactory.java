@@ -19,7 +19,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 

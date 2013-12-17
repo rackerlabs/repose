@@ -7,7 +7,7 @@ import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class ClientAuthenticationFilter implements Filter {
     }
 
     private Datastore getDatastore(DatastoreService datastoreService) {
-        return datastoreService.defaultDatastore().getDatastore();
+        return datastoreService.getDefaultDatastore();
     }
 
     @Override

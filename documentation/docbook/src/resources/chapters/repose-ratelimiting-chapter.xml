@@ -363,8 +363,7 @@
                         revert to using a local data store. Valid
                         values are: local/default
                         distributed/hash-ring (requires dist-datastore
-                        filter) distributed/replicated (requires
-                        replicated datastore filter)</db:td>
+                        filter)</db:td>
                     <db:td/>
                </tr> 
                 <tr>

@@ -16,7 +16,7 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdenti
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 
 import java.util.ArrayList;

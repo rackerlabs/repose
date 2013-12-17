@@ -8,7 +8,6 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
 
-@Category(Smoke.class)
 class ApiValidatorRunSmokeTest extends ReposeValveTest {
 
 

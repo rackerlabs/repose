@@ -12,7 +12,7 @@ import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 
 public final class RackspaceAuthenticationHandlerFactory {

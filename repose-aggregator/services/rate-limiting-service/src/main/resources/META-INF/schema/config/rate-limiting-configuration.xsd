@@ -30,7 +30,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="local/default" />
             <xs:enumeration value="distributed/hash-ring" />
-            <xs:enumeration value="distributed/replicated" />
         </xs:restriction>
     </xs:simpleType>
     
@@ -88,7 +87,6 @@
                     <html:ul>
                         <html:li>local/default</html:li>
                         <html:li>distributed/hash-ring (requires dist-datastore filter)</html:li>
-                        <html:li>distributed/replicated (required replicated-datastore filter)</html:li>                       
                     </html:ul>
                 </xs:documentation>
             </xs:annotation>

@@ -30,19 +30,10 @@
             <artifactId>auth</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>com.rackspace.cloud.services.clients</groupId>-->
-            <!--<artifactId>rackspace-auth-v1.1</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.rackspace.cloud.services.clients</groupId>-->
-            <!--<artifactId>openstack-ids</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

@@ -1,21 +1,20 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
-import com.rackspace.repose.service.ratelimit.cache.util.ObjectSerializer;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
-
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.StoredElement;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
-
-// TODO: still dependency on repose core here 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.repose.service.ratelimit.cache.util.ObjectSerializer;
+import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
+
+// TODO: still dependency on repose core here
 
 
 /* Responsible for updating and querying ratelimits in cache */

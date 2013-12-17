@@ -1,0 +1,127 @@
+Modularize Dist Datastore
+
+[X] Maven modules
+    [X] services/datastore
+    [X] services/datastore/api
+    [X] services/datastore/impl/distributed
+    [X] services/datastore/impl/replicated
+
+
+[X] API module
+    [X] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
+    [X] Document interfaces
+    [X] DatastoreManager
+        [-] move destroy() - where does it belong?
+            ANSWER: leaving it in the manager interface
+
+[X] Modularize code used by DD filter, DD service, and CLI DD library
+    [X] UUIDHelper - 3 walk in, 1 walks out
+        [X] Move to commons/utilities: com.rackspace.papi.commons.util.encoding.UUIDHelper
+        [X] com.rackspace.papi.service.datastore.encoding.UUIDHelper
+            [X] change all references to commons/utilities
+            [X] remove it
+        [X] com.rackspace.papi.service.datastore.impl.distributed.hash.UUIDHelper
+            [X] change all references to commons/utilities
+            [X] remove it
+    [X] EncodingProvider and UUIDEncodingProvider
+        [X] Move to commons/utilities
+        [X] Collapse UUIDHelper behavior into UUIDEncodingProvider
+        [X] Should it be moved to datastore/api?
+    [X] MessageDigestFactory
+        [X] Move to services/datastore/api
+        [X] Remove dead code
+        [-] ??? Remove it and replace with MessageDigest or commons.util.digest
+    [X] DatastoreHeader (DEDUPE)
+    [X] MalformedCacheRequestException (DEDUPE)
+    [X] CacheRequest (DEDUPE)
+        [X] Move class (verify identical)
+        [X] Move test (verify identical)
+    [X] RemoteBehavior (DEDUPE)
+        [X] Move class (verify identical)
+    [X] DatastoreAccessControl (DEDUPE)
+    [X] com/rackspace/papi/service/datastore/impl/distributed/hash/remote (DEDUPE)
+        [X] RemoteCommand
+        [X] RemoteCommandExecutor
+        [X] RemoteConnectionException
+        [X] AbstractRemoteCommand
+        [X] Delete/Get/Put
+            [X] cleanup duplicate tests
+    [X] com/rackspace/papi/service/datastore/impl/distributed/hash (DEDUPE)
+        [X] DatastoreAction
+        [X] HashRingDatastore
+        [X] HashRingDatastoreManager
+        [X] MutableClusterView
+            [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
+            [X] Refactored out ServicePorts and Port dependency, moved iface and impl classes
+    [X] Move replicated datastore impl to services/datastore/impl/replicated
+    [X] EHCACHE implementation
+        [X] Create maven module: services/datastore/impl/ehcache
+        [X] Move code from core-lib to services/datastore/impl/ehcache
+        [X] Remove dead code - EHCacheDatastoreMBean
+
+[X] DEAD CODE
+    [X] UnaddressableKeyException x2 (REMOVE)
+    [X] ClusteredDatastore
+    [X] AbstractMutableClusterView
+
+
+[ ] TEST CLEANUP
+    [X] components/datastore/src/test/java/com.rackspace.papi.components.datastore.integration
+        - Removed as none were used as actual tests
+    [ ] DistDatastoreServiceTest
+        [X] bad sleep during cleanup.  Fix this.
+        [ ] fix hardcoded datastore service endpoint
+    [ ] RemoteCommandExecutorTest (all ignored)
+
+[X] Analyze impact to DDFilter
+    [X] Moving classes from filter package space to service package space (serialization issues???)
+
+[X] Evaluate core-lib/datastore classes for initializing dist datastore.  How can we refactor this to move
+    towards being able to easily change out implementations of a datastore.
+
+[X] DatastoreService interface
+    [X] move back to core-lib and factored out DatastoreService from unnecessary class usage
+    [-] rename - confusing with "Datastore" and "DatastoreManager"
+    [-] AvailabilityGuard - we removed getDatastore() and the throwing of a DatastoreUnavailabilityException.  Impact???
+    [X] AvailabilityGuard - renamed to DatastoreManagerImpl
+    [X] moved DatastoreService to Datastore service and renamed PowerApiDatastoreService to DatastoreServiceImpl and moved it to Datastore service
+
+[X] DatastoreAccessControl - move from distributed impl to API
+
+[X] DatastoreManager -
+    [X] Review logic in deleted method: destroy().  Do we need to perform the cleanup logic that was coded there???
+    [X] Review getName() and isDistributed() methods.  Not heavily used, but can likely be refactored.
+
+[X] FINAL STEPS
+    [X] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
+
+[ ] DatastoreServiceContext - should we shut down all datastores.
+
+[X] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
+
+[X] Replicated Datastore Filter
+    [X] REMOVE: Functional tests around Replicated Datastore Service
+    [X] REMOVE: Deprecate the Replicated Datastore Filter
+    [-] ReplicatedDatastoreFilterTest - Evaluate tests
+
+TECHNICAL DEBT (out of scope)
+=================================================================
+[ ] NEW STORY: Cleanup package tangling between commons and services/httpclient.  Cleanup package tangling
+    workarounds from aggregator pom.
+[ ] NEW STORY: Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
+
+QUESTIONS FOR THE TEAM
+=================================================================
+[X] Should services be allowed to depend on core-lib ?
+    ANSWER: No.  Let's try to keep services non-dependent on core-lib
+
+[X] Who is responsible for initializing DatastoreManagers/Datastores?  Does this belong in the DatastoreServiceImpl?
+
+[X] Where do the implementations of "Datastore" belong???
+    TEAM: move components/datastores/api, components/datastores/ehcache, ...
+
+[X] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
+    PRODUCT WEIGH-IN: YES!
+    [X] If yes, remove the filter
+    [X] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
+    [X] Document removal in release notes
