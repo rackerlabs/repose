@@ -9,9 +9,12 @@ class TestProperties {
     String logFile
     String configSamples
     String connFramework
-    String reposeEndpoint
     String reposeContainer = "valve"
     String reposeHome
+
+    String getReposeEndpoint() {
+        return "http://localhost:${reposePort}"
+    }
 
     String reposeJar
     String glassfishJar
@@ -38,7 +41,6 @@ class TestProperties {
 
             configDirectory = properties.getProperty("repose.config.directory")
             configSamples = properties.getProperty("repose.config.samples")
-            reposeEndpoint = properties.getProperty("repose.endpoint")
             logFile = properties.getProperty("repose.log")
 
             connFramework = "jersey"
