@@ -4,10 +4,13 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
     boolean isFailedStart = false
+
+    static def distDatastoreEndpoint = "http://localhost:4999"
 
     def setup(){
         deproxy = new Deproxy()
@@ -123,18 +126,78 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         logMatchesTrue.size() > logMatchesFalse.size()
     }
 
-    def "when deleting cache objects"(){
-
+    def "when putting cache objects" () {
         given:
-        cleanLogDirectory()
         repose.applyConfigs("features/services/datastore")
         repose.start()
         waitUntilReadyToServiceRequests()
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def body = "test data"
 
+
+        when:
+        MessageChain mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'PUT',
+                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers,
+                            body: body
+                    ])
+
+        then:
+        mc.receivedResponse.code == '202'
+    }
+
+    def "when checking cache object time to live"(){
+        given:
+        repose.applyConfigs("features/services/datastore")
+        repose.start()
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def body = "test data"
+        MessageChain mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'PUT',
+                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers,
+                            requestBody: body
+                    ])
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'GET',
+                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers
+                    ])
+        mc.receivedResponse.code == '200'
+
+        when:
+        Thread.sleep(7500)
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'GET',
+                            url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers
+                    ])
+
+        then:
+        mc.receivedResponse.code == '404'
+
+    }
+
+    def "when deleting cache objects"(){
+        given:
+        repose.applyConfigs("features/services/datastore")
+        repose.start()
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
-        def url = "http://localhost:4999/powerapi/dist-datastore/objects/" + objectkey
+        def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
+
 
         when: "Adding the object to the datastore"
         MessageChain mc =
@@ -196,4 +259,28 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.receivedResponse.body == ""
     }
 
+    def "Should not split request headers according to rfc"() {
+        given:
+        repose.applyConfigs("features/services/datastore")
+        repose.start()
+        waitUntilReadyToServiceRequests()
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+            [
+                    "user-agent": userAgentValue,
+                    "x-pp-user": "usertest1, usertest2, usertest3",
+                    "accept": "application/xml;q=1 , application/json;q=0.5"
+            ]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/test", method: 'GET', headers: reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
+        mc.handlings[0].request.headers['user-agent'] == userAgentValue
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
+    }
 }

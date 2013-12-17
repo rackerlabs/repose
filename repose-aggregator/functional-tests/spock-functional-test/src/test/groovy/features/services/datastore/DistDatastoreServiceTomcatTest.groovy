@@ -10,12 +10,12 @@ import spock.lang.Specification
  * Test the Distributed Datastore Service in 2 multinode containers
  */
 
-class DistDatastoreServiceGlassfishTest extends Specification {
+class DistDatastoreServiceTomcatTest extends Specification {
 
-    static def reposeGlassfishEndpoint1
-    static def reposeGlassfishEndpoint2
-    static def datastoreGlassfishEndpoint1
-    static def datastoreGlassfishEndpoint2
+    static def reposeTomcatEndpoint1
+    static def reposeTomcatEndpoint2
+    static def datastoreTomcatEndpoint1
+    static def datastoreTomcatEndpoint2
 
     static Deproxy deproxy
 
@@ -52,11 +52,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         // configure and start repose
 
-        reposeGlassfishEndpoint1 = "http://localhost:${reposePort1}"
-        reposeGlassfishEndpoint2 = "http://localhost:${reposePort2}"
+        reposeTomcatEndpoint1 = "http://localhost:${reposePort1}"
+        reposeTomcatEndpoint2 = "http://localhost:${reposePort2}"
 
-        datastoreGlassfishEndpoint1 = "http://localhost:${dataStorePort1}"
-        datastoreGlassfishEndpoint2 = "http://localhost:${dataStorePort2}"
+        datastoreTomcatEndpoint1 = "http://localhost:${dataStorePort1}"
+        datastoreTomcatEndpoint2 = "http://localhost:${dataStorePort2}"
 
         def configDirectory = properties.getConfigDirectory()
         def configSamples = properties.getRawConfigDirectory()
@@ -80,16 +80,16 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
 
-        repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
+        repose1 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1,"401")
+        TestUtils.waitUntilReadyToServiceRequests(reposeTomcatEndpoint1,"401")
 
-        repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
+        repose2 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2,"401")
+        TestUtils.waitUntilReadyToServiceRequests(reposeTomcatEndpoint2,"401")
 
     }
 
@@ -105,14 +105,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
     }
 
-    def "when configured with DD service on Glassfish, repose should start and successfully execute calls"() {
+    def "when configured with DD service on Tomcat, repose should start and successfully execute calls"() {
 
         given:
         def xmlResp = { request -> return new Response(200, "OK", ['header':"blah"], "test") }
 
         when:
-        MessageChain mc1 = deproxy.makeRequest(url: reposeGlassfishEndpoint1 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
-        MessageChain mc2 = deproxy.makeRequest(url: reposeGlassfishEndpoint2 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
+        MessageChain mc1 = deproxy.makeRequest(url: reposeTomcatEndpoint1 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
+        MessageChain mc2 = deproxy.makeRequest(url: reposeTomcatEndpoint2 + "/cluster", headers: ['x-trace-request': 'true','x-pp-user':'usertest1'])
 
         then:
         mc1.receivedResponse.code == '200'
@@ -129,14 +129,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when:
         //rate limiting is set to 3 an hour
         for (int i = 0; i < 3; i++) {
-            MessageChain mc = deproxy.makeRequest(url: reposeGlassfishEndpoint1 + "/test", headers: ['X-PP-USER': user])
+            MessageChain mc = deproxy.makeRequest(url: reposeTomcatEndpoint1 + "/test", headers: ['X-PP-USER': user])
             if (mc.receivedResponse.code == 200) {
                 throw new SpockAssertionError("Expected 200 response from repose")
             }
         }
 
         //this call should rate limit when calling the second node
-        MessageChain mc = deproxy.makeRequest(url: reposeGlassfishEndpoint2 + "/test", headers: ['X-PP-USER': user])
+        MessageChain mc = deproxy.makeRequest(url: reposeTomcatEndpoint2 + "/test", headers: ['X-PP-USER': user])
 
         then:
         mc.receivedResponse.code == "413"
@@ -157,7 +157,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             deproxy.makeRequest(
                     [
                             method: 'PUT',
-                            url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
                             body: body
                     ])
@@ -175,7 +175,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             deproxy.makeRequest(
                     [
                             method: 'PUT',
-                            url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
                             requestBody: body
                     ])
@@ -183,7 +183,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             deproxy.makeRequest(
                     [
                             method: 'GET',
-                            url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers
                     ])
         mc.receivedResponse.code == '200'
@@ -194,7 +194,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             deproxy.makeRequest(
                     [
                             method: 'GET',
-                            url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
+                            url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers
                     ])
 
@@ -208,7 +208,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
-        def url = datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
+        def url = datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
 
 
 
@@ -286,7 +286,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
             ]
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeGlassfishEndpoint1 + "/test", method: 'GET', headers: reqHeaders)
+        MessageChain mc = deproxy.makeRequest(url: reposeTomcatEndpoint1 + "/test", method: 'GET', headers: reqHeaders)
 
         then:
         mc.handlings.size() == 1
