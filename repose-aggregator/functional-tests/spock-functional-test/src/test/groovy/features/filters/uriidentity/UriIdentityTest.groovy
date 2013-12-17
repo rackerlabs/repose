@@ -8,7 +8,6 @@ import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
-@Category(Slow.class)
 class UriIdentityTest extends ReposeValveTest {
 
     def setupSpec() {

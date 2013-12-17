@@ -17,7 +17,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 /*
  * Rate limiting tests ported over from python and JMeter
  */
-@Category(Slow.class)
 class RateLimitingTest extends ReposeValveTest {
     final handler = {return new Response(200, "OK")}
 
@@ -115,6 +114,7 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.handlings.size() == 0
     }
 
+    @Category(Slow.class)
     def "When a limit has been reached, the limit should reset after one minute"() {
         given: "the limit has been reached"
         useAllRemainingRequests("user","all-limits-small","/service/limits")

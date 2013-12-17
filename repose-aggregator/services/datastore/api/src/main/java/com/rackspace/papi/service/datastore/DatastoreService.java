@@ -46,4 +46,9 @@ public interface DatastoreService {
      */
     DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration)
             throws DatastoreServiceException;
+
+    /**
+     * Shutdown all datastores
+     */
+    void shutdown();
 }

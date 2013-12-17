@@ -6,6 +6,7 @@ import com.rackspace.papi.service.datastore.*;
 import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.distributed.impl.ehcache.EHCacheDatastoreManager;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -17,6 +18,8 @@ public class DatastoreServiceImpl implements DatastoreService {
 
    private final Map<String, DatastoreManager> localManagers;
    private final Map<String, DatastoreManager> distributedManagers;
+
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
 
    public DatastoreServiceImpl() {
       DatastoreManager manager = new EHCacheDatastoreManager();
@@ -66,7 +69,11 @@ public class DatastoreServiceImpl implements DatastoreService {
        }
 
        if (managerToUnregister != null) {
-           managerToUnregister.destroy();
+           try {
+               managerToUnregister.destroy();
+           } catch (Exception e) {
+               LOG.warn("Failed to shutdown datastore {} with exception {}", datastoreName, e.getMessage());
+           }
        }
    }
 
@@ -92,5 +99,15 @@ public class DatastoreServiceImpl implements DatastoreService {
         DatastoreManager manager = new HashRingDatastoreManager(configuration, defaultDatastore);
         registerDatastoreManager(datastoreName, manager);
         return (DistributedDatastore) manager.getDatastore();
+    }
+
+    @Override
+    public void shutdown() {
+        for (DatastoreManager manager : distributedManagers.values()) {
+            destroyDatastore(manager.getDatastore().getName());
+        }
+        for (DatastoreManager manager : localManagers.values()) {
+            destroyDatastore(manager.getDatastore().getName());
+        }
     }
 }

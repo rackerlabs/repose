@@ -24,7 +24,7 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-
+    @Category(Smoke)
     def "when request is sent check to make sure it goes through ip-identity and API-Validator filters"() {
 
         given:
