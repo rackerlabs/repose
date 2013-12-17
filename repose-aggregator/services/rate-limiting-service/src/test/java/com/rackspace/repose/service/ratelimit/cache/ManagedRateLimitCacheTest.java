@@ -6,8 +6,8 @@ import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 // TODO: Still depend on Repose core
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.StoredElementImpl;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

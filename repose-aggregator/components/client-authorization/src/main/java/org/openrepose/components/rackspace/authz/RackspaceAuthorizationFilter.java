@@ -5,7 +5,7 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.slf4j.Logger;

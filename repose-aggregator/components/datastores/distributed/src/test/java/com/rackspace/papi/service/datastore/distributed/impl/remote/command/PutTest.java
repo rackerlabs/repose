@@ -6,7 +6,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
 import java.io.ByteArrayInputStream;
 import java.net.InetAddress;

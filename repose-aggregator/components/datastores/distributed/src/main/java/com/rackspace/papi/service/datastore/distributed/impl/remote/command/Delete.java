@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import java.io.IOException;
 import java.net.InetSocketAddress;

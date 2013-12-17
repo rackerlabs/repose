@@ -1,9 +1,9 @@
-package com.rackspace.papi.service.datastore.distributed.impl;
+package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StoredElement;
 
 import java.io.Serializable;
 

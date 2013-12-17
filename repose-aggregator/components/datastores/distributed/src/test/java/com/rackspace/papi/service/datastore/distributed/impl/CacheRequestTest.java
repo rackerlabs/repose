@@ -2,10 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl;
 
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
-import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;
-import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
-import com.rackspace.papi.service.datastore.distributed.impl.DatastoreHeader;
-import com.rackspace.papi.service.datastore.distributed.impl.MalformedCacheRequestException;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

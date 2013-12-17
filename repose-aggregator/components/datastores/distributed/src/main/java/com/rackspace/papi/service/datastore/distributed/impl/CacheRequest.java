@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

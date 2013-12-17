@@ -1,8 +1,10 @@
 package com.rackspace.papi.service.datastore.distributed.impl;
 
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.*;
-import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
+import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.distributed.impl.ehcache.EHCacheDatastoreManager;
 import org.springframework.stereotype.Component;
 

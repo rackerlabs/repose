@@ -1,9 +1,9 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.StoredElementImpl;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
 

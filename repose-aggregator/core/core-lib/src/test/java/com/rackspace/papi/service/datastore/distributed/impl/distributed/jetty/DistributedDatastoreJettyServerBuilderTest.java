@@ -5,7 +5,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;

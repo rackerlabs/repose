@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.StoredElement;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;

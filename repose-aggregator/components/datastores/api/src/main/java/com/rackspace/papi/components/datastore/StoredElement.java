@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore;
+package com.rackspace.papi.components.datastore;
 
 /**
  * A Stored Element, consisting of a key, byte array of a value.

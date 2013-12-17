@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.replicated;
 
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
 
 import java.util.concurrent.TimeUnit;
 

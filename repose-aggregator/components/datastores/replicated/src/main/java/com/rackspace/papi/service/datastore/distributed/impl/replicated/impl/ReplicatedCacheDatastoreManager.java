@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.replicated.impl;
 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.distributed.impl.replicated.data.Subscriber;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

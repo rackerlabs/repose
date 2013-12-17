@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import com.rackspace.repose.service.ratelimit.RateLimitingServiceFactory;

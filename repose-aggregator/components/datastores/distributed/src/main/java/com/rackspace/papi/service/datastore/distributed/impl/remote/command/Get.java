@@ -4,9 +4,9 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl;
-import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StoredElementImpl;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 
 import java.io.IOException;
 import java.io.InputStream;

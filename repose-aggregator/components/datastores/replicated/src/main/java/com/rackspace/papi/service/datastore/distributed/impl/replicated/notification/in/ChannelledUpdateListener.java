@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.distributed.impl.replicated.NotifiableDatastore;
 import com.rackspace.papi.service.datastore.distributed.impl.replicated.UpdateListener;
 import com.rackspace.papi.service.datastore.distributed.impl.replicated.data.Message;

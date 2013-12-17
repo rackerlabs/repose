@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore;
+package com.rackspace.papi.components.datastore;
 
 /**
  * A manager for {@link Datastore}s that manages their creation and lifecycle.

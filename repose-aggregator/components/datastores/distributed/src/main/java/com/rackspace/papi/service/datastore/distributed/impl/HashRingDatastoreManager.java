@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.datastore.distributed.impl;
 
-import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
+import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.distributed.impl.remote.RemoteCommandExecutor;
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreManager;
 
 public class HashRingDatastoreManager implements DatastoreManager {
 

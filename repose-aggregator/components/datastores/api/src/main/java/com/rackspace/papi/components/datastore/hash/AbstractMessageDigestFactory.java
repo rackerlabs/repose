@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.hash;
+package com.rackspace.papi.components.datastore.hash;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

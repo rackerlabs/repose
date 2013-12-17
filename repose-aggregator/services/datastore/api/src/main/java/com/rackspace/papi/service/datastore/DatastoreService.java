@@ -1,10 +1,12 @@
 package com.rackspace.papi.service.datastore;
 
-import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreUnavailableException;
+import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 
 /**
- * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
+ * DatastoreService - service that manages the lifecycle and configuration of {@link com.rackspace.papi.components.datastore.Datastore}s
  */
 public interface DatastoreService {
 

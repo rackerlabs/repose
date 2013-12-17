@@ -1,8 +1,8 @@
-package com.rackspace.papi.service.datastore.distributed;
+package com.rackspace.papi.components.datastore.distributed;
 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StoredElement;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +25,7 @@ public interface DistributedDatastore extends Datastore {
      * @param ttl Duration to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param allowForwarding Whether or not to allow remote storage of this value
-     * @throws com.rackspace.papi.service.datastore.DatastoreOperationException if an exception occurs when
+     * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
     public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,

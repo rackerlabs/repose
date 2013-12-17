@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.distributed;
+package com.rackspace.papi.components.datastore.distributed;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;

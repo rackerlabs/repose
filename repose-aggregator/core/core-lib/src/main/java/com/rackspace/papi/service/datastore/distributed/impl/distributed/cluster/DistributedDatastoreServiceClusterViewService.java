@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
-import com.rackspace.papi.service.datastore.distributed.ClusterView;
+import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import java.net.InetSocketAddress;
 import java.util.List;

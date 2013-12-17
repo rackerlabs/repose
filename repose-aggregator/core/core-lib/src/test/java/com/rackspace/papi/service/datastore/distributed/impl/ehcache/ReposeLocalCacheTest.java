@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
 import org.junit.After;

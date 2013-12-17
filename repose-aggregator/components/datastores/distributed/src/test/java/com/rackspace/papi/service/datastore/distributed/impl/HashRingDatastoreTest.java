@@ -1,11 +1,12 @@
 package com.rackspace.papi.service.datastore.distributed.impl;
 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.distributed.ClusterView;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StoredElementImpl;
+import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.service.datastore.distributed.impl.remote.RemoteCommandExecutor;
 import com.rackspace.papi.service.datastore.distributed.impl.remote.RemoteConnectionException;
 import com.rackspace.papi.service.datastore.distributed.impl.remote.command.Get;

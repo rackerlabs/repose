@@ -1,13 +1,11 @@
 package com.rackspace.papi.service.datastore.distributed.impl;
 
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.DatastoreManager;
+import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.Test
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.distributed;
+package com.rackspace.papi.components.datastore.distributed;
 
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;

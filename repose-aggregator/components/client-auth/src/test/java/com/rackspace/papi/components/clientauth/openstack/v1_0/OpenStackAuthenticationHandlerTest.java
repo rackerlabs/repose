@@ -26,8 +26,8 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdenti
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.StoredElement;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

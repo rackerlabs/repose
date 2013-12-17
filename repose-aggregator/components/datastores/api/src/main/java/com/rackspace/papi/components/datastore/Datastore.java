@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore;
+package com.rackspace.papi.components.datastore;
 
 import java.util.concurrent.TimeUnit;
 
