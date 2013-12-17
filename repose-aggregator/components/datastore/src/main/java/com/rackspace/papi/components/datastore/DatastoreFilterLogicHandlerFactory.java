@@ -10,7 +10,7 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.distributed.ClusterView;
-import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.openrepose.components.datastore.config.HostAccessControl;
 import org.slf4j.Logger;

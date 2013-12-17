@@ -1,30 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils;
 
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
-import java.net.InetAddress;
-import java.util.List;
-
+import com.rackspace.papi.model.*;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.distributed.config.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
-import com.rackspace.papi.service.datastore.distributed.config.HostAccessControl;
-import com.rackspace.papi.service.datastore.distributed.config.HostAccessControlList;
-import com.rackspace.papi.service.datastore.distributed.config.Port;
-import com.rackspace.papi.service.datastore.distributed.config.PortConfiguration;
+
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class AccessListDeterminatorTest {

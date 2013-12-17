@@ -8,7 +8,7 @@ import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.distributed.DistDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.DistributedDatastore;
-import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
 import org.slf4j.Logger;

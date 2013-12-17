@@ -7,7 +7,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.distributed.impl.StoredElementImpl;
-import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
 import com.rackspace.papi.service.datastore.distributed.impl.DatastoreHeader;
 import com.rackspace.papi.service.datastore.distributed.RemoteBehavior;

@@ -8,7 +8,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.distributed.ClusterView;
 import com.rackspace.papi.service.datastore.distributed.impl.ThreadSafeClusterView;
-import com.rackspace.papi.service.datastore.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;

@@ -9,11 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-
     <groupId>com.rackspace.papi.service</groupId>
     <artifactId>datastore-api</artifactId>
 
-    <name>Repose Services - Datastore API</name>
+    <name>Repose Services - Datastore Service API</name>
 
     <packaging>jar</packaging>
 

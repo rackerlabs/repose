@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.datastore.distributed;
+package com.rackspace.papi.service.datastore;
 
 import java.net.InetAddress;
 import java.util.List;
