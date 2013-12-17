@@ -23,8 +23,14 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
     def "when cache offset is not configured then no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
-        repose.applyConfigs("features/filters/clientauthn/cacheoffset/common",
-                additionalConfigs)
+        def params = [
+                reposePort: properties.reposePort,
+                targetPort: properties.targetPort,
+                identityPort: properties.identityPort
+        ]
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/cacheoffset/common", params)
+        repose.configurationProvider.applyConfigsRuntime(additionalConfigs, params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
