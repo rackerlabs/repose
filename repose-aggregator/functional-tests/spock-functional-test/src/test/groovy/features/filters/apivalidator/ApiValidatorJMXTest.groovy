@@ -27,7 +27,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
                 "features/filters/apivalidator/jmx")
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

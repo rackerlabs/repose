@@ -9,7 +9,7 @@ class HttpClientServiceTest extends ReposeValveTest {
 
     def setup(){
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup(){

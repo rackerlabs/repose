@@ -20,7 +20,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
                 "features/filters/clientauthn/connectionpooling")
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(),'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
 
     }

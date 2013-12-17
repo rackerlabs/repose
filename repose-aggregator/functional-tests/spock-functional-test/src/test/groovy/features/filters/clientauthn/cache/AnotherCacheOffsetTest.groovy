@@ -33,7 +33,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigsRuntime(additionalConfigs, params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         Thread.sleep(2000)
 

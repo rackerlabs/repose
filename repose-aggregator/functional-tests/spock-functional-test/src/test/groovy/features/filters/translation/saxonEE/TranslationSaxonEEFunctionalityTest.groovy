@@ -30,7 +30,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
     def setupSpec() {
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         def saxonHome = System.getenv("SAXON_HOME")
 
@@ -44,7 +44,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
         )
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

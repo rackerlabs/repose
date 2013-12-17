@@ -30,7 +30,7 @@ class ClientRequestLogging extends ReposeValveTest {
     def setupSpec() {
         cleanLogDirectory()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

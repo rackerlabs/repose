@@ -17,7 +17,7 @@ class ReliabilityTest extends ReposeValveTest {
         repose.applyConfigs( "features/filters/headertranslation/common")
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         def missingHeaderErrorHandler = { Request request ->
             def headers = request.getHeaders()

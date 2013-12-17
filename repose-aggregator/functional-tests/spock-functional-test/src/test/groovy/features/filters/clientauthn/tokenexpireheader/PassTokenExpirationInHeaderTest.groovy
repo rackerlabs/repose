@@ -61,7 +61,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(),'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
         fakeIdentityService = new IdentityServiceResponseSimulator();
 

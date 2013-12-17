@@ -16,7 +16,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         repose.applyConfigs("features/services/datastore")
         repose.start()

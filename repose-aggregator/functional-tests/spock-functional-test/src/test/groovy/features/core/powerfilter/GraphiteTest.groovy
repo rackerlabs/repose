@@ -18,7 +18,7 @@ class GraphiteTest extends ReposeValveTest {
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup() {
