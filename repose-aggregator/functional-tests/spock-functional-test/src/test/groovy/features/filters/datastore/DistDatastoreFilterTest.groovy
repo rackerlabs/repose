@@ -78,7 +78,6 @@ class DistDatastoreFilterTest  extends ReposeValveTest {
 
     }
 
-    @org.junit.experimental.categories.Category(Smoke)
     def "when deleting cache objects"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']

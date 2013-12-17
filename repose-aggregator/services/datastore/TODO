@@ -92,8 +92,8 @@ Modularize Dist Datastore
     [X] Review logic in deleted method: destroy().  Do we need to perform the cleanup logic that was coded there???
     [X] Review getName() and isDistributed() methods.  Not heavily used, but can likely be refactored.
 
-[ ] FINAL STEPS
-    [ ] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
+[X] FINAL STEPS
+    [X] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
 
 [ ] DatastoreServiceContext - should we shut down all datastores.
 

@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>distributed-datastore</artifactId>
 
-    <name>Repose Components - Distributed Datastore</name>
+    <name>Repose Components - Distributed Datastore Filter</name>
     <description>DEPRECATED: Use Distributed Datastore Service</description>
 
     <packaging>jar</packaging>
@@ -39,7 +39,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.service</groupId>
-            <artifactId>datastore-api</artifactId>
+            <artifactId>datastoreservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     

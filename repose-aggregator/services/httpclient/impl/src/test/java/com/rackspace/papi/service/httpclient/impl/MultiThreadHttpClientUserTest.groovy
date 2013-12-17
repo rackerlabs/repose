@@ -38,7 +38,6 @@ class MultiThreadHttpClientUserTest {
                     socket.withStreams { input, output ->
                         def reader = input.newReader()
                         def buffer = reader.readLine()
-                        println "server received: $buffer"
                         output << "HTTP/1.1 200 OK\r\n"
                         output << "server:unittest\r\ncontent-length:6\r\ncontent-type:text/plain"
                         output << "status"

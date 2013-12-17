@@ -49,12 +49,6 @@
 
        <dependency>
            <groupId>com.rackspace.papi.service</groupId>
-           <artifactId>datastore-ehcache</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-
-       <dependency>
-           <groupId>com.rackspace.papi.service</groupId>
            <artifactId>service-client-akka</artifactId>
            <version>${project.version}</version>
        </dependency>
