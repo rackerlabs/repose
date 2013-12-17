@@ -74,24 +74,4 @@ class TestProperties {
         }
     }
 
-    // Writing this method to minimize test changes when converting from a java.util.Properties
-    // to this class
-    def getReposeProperty(String propertyName) {
-
-        switch (propertyName) {
-            case "target.port":
-                return targetPort.toString()
-                break
-            case "target.port2":
-                return targetPort2.toString()
-                break
-            case "identity.port":
-                return identityPort.toString()
-            case "atom.port":
-                return atomPort.toString()
-            default:
-                return null
-        }
-    }
-
 }
