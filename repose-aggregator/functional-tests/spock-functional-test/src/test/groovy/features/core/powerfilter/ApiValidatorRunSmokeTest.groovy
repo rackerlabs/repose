@@ -26,7 +26,12 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
     def "when request is sent check to make sure it goes through ip-identity and API-Validator filters"() {
 
         given:
-        repose.applyConfigs("/features/core/smoke")
+        def params = [
+                reposePort: properties.reposePort,
+                targetPort: properties.targetPort,
+        ]
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/smoke", params)
         repose.start()
        // def xmlResp = { request -> return new Response(200, "OK")}
 
