@@ -14,14 +14,13 @@ class TomcatProxyTest extends Specification {
     def setupSpec() {
 
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
-        int originServicePort = pf.getNextOpenPort()
+        int originServicePort = PortFinder.Singleton.getNextOpenPort()
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort = pf.getNextOpenPort()
-        int shutdownPort = pf.getNextOpenPort()
+        int reposePort = PortFinder.Singleton.getNextOpenPort()
+        int shutdownPort = PortFinder.Singleton.getNextOpenPort()
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
