@@ -40,7 +40,7 @@ class VersioningTest extends ReposeValveTest {
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        deproxy.addEndpoint(properties.getReposeProperty("target.port2").toInteger())
+        deproxy.addEndpoint(properties.targetPort2)
     }
 
     def cleanupSpec() {
@@ -115,11 +115,11 @@ class VersioningTest extends ReposeValveTest {
 
         where:
         reqHeaders            | requestUri         | host
-        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
-        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
-        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
-        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
-        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
         acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort
         acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort
         acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
