@@ -158,8 +158,8 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public StoredElement get(String name, byte[] id, RemoteBehavior initialBehavior) {
-        return (StoredElement) performAction(name, id, new DatastoreAction() {
+    public StoredElement get(String key, byte[] id, RemoteBehavior allowForwarding) {
+        return (StoredElement) performAction(key, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -175,7 +175,7 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "get";
             }
-        }, initialBehavior);
+        }, allowForwarding);
     }
 
     @Override
@@ -186,8 +186,8 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public boolean remove(String name, byte[] id, RemoteBehavior initialBehavior) {
-        return (Boolean) performAction(name, id, new DatastoreAction() {
+    public boolean remove(String key, byte[] id, RemoteBehavior allowForwarding) {
+        return (Boolean) performAction(key, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -203,7 +203,7 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "remove";
             }
-        }, initialBehavior);
+        }, allowForwarding);
     }
 
 
@@ -220,9 +220,9 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public void put(String name, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
-            RemoteBehavior initialBehavior) {
-        performAction(name, id, new DatastoreAction() {
+    public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+            RemoteBehavior allowForwarding) {
+        performAction(key, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -240,7 +240,7 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "put";
             }
-        }, initialBehavior);
+        }, allowForwarding);
     }
 
 
