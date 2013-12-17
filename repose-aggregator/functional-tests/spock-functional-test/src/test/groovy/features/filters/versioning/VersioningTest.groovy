@@ -39,8 +39,8 @@ class VersioningTest extends ReposeValveTest {
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        deproxy.addEndpoint(properties.getProperty("target.port2").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port2").toInteger())
     }
 
     def cleanupSpec() {
@@ -115,15 +115,15 @@ class VersioningTest extends ReposeValveTest {
 
         where:
         reqHeaders            | requestUri         | host
-        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptJSON            | "/v1/usertest1/ss" | "localhost:" + properties.getProperty("target.port").toInteger()
+        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port2").toInteger()
+        acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port").toInteger()
+        acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getReposeProperty("target.port").toInteger()
+        acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port").toInteger()
+        acceptJSON            | "/v1/usertest1/ss" | "localhost:" + properties.getReposeProperty("target.port").toInteger()
 
 
     }

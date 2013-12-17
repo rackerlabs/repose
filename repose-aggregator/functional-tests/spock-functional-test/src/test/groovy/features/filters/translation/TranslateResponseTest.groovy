@@ -4,7 +4,6 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import org.rackspace.deproxy.HeaderCollection
 import spock.lang.Unroll
 
 class TranslateResponseTest extends ReposeValveTest {
@@ -46,7 +45,7 @@ class TranslateResponseTest extends ReposeValveTest {
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
     }
 
     def cleanupSpec() {

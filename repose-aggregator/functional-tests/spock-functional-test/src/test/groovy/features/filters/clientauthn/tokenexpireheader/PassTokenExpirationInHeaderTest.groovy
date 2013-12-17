@@ -9,8 +9,7 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator;
 import framework.ReposeValveTest;
 import org.rackspace.deproxy.Deproxy;
 import org.rackspace.deproxy.MessageChain;
-import org.joda.time.DateTime;
-import java.text.SimpleDateFormat;
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.DateTimeZone;
@@ -62,14 +61,14 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(),'origin service')
 
         fakeIdentityService = new IdentityServiceResponseSimulator();
 
         def now = new DateTime();
         fakeIdentityService.tokenExpiresAt = now.plusDays(1);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler);
 
         repose.applyConfigs("features/filters/clientauthn/tokenexpireheader",

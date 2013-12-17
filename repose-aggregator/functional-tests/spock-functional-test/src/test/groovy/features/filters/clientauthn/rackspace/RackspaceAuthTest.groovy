@@ -22,9 +22,9 @@ class RackspaceAuthTest extends ReposeValveTest {
         repose.applyConfigs("features/filters/clientauthn/rackspace")
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(), 'origin service')
         fakeIdentityService = new RackspaceIdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
     }
 

@@ -23,9 +23,9 @@ class TenantedNonDelegableTest extends ReposeValveTest {
                 "features/filters/clientauthn/removetenant/tenantednondelegable")
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(), 'origin service')
         fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
 

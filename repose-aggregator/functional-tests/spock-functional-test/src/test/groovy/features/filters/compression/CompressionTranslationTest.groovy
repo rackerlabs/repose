@@ -52,7 +52,7 @@ class CompressionTranslationTest extends ReposeValveTest {
         repose.applyConfigs("features/filters/compression/translation")
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
     }
 
     def cleanupSpec() {

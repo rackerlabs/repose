@@ -4,7 +4,6 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Unroll
 
 /**
  * User: dimi5963
@@ -18,7 +17,7 @@ class ChunkedTranslationTest extends ReposeValveTest {
     def setupSpec() {
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
 
         repose.applyConfigs("features/filters/translation/common",
                 "features/filters/translation/request"

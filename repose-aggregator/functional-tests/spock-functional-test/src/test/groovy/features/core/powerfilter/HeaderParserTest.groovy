@@ -2,8 +2,6 @@ package features.core.powerfilter
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Header
-import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.Response
 
 
@@ -16,7 +14,7 @@ class HeaderParserTest extends ReposeValveTest {
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
     }
 
     def cleanupSpec() {

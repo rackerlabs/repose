@@ -20,7 +20,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
                 "features/filters/clientauthn/connectionpooling")
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger(),'origin service')
 
 
     }
@@ -41,7 +41,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
                 'identity service', null, fakeIdentityService.handler)
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"

@@ -19,7 +19,7 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
 
         repose.applyConfigs("features/filters/translation/common",
                 "features/filters/translation/missingContent/request")

@@ -11,7 +11,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     def setup() {
         cleanLogDirectory()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
     }
 
     def cleanup() {

@@ -1,8 +1,5 @@
 package features.core.connectionframework
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
-import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -14,7 +11,7 @@ class ConnectionFrameworkTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
 
         repose.applyConfigs("features/core/connectionframework/")
         repose.start()

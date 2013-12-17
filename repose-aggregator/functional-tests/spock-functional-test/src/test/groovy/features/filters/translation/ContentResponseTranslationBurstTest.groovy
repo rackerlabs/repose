@@ -22,7 +22,7 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
 
         def missingHeaderErrorHandler = { Request request ->
             def headers = request.getHeaders()

@@ -74,7 +74,7 @@ class TestProperties {
 
     // Writing this method to minimize test changes when converting from a java.util.Properties
     // to this class
-    def getProperty(String propertyName) {
+    def getReposeProperty(String propertyName) {
 
         switch (propertyName) {
             case "target.port":

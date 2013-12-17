@@ -2,7 +2,6 @@ package features.filters.translation
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
@@ -36,7 +35,7 @@ class TranslationHeadersQueriesTest extends ReposeValveTest {
         )
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
     }
 
     def cleanupSpec() {

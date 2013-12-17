@@ -5,7 +5,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 class TranslationRequestTest extends ReposeValveTest {
@@ -46,7 +45,7 @@ class TranslationRequestTest extends ReposeValveTest {
         )
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.getReposeProperty("target.port").toInteger())
 
     }
 
