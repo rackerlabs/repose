@@ -27,10 +27,10 @@ class TestProperties {
     int dynamicPortBase
 
     // Property settings that aren't set for every test
-    String targetPort
-    String targetPort2
-    String identityPort
-    String atomPort
+    int targetPort
+    int targetPort2
+    int identityPort
+    int atomPort
     String targetHostname
 
     TestProperties(InputStream propertiesStream) {
@@ -80,15 +80,15 @@ class TestProperties {
 
         switch (propertyName) {
             case "target.port":
-                return targetPort
+                return targetPort.toString()
                 break
             case "target.port2":
-                return targetPort2
+                return targetPort2.toString()
                 break
             case "identity.port":
-                return identityPort
+                return identityPort.toString()
             case "atom.port":
-                return atomPort
+                return atomPort.toString()
             default:
                 return null
         }
