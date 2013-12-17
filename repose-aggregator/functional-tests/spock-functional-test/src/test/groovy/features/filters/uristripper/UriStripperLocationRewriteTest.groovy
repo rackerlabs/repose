@@ -19,7 +19,7 @@ class UriStripperLocationRewriteTest extends ReposeValveTest {
         repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/locationrewrite")
         repose.start()
         waitUntilReadyToServiceRequests()
-        originServiceEndpoint = "${properties.getReposeProperty("targetHostname")}:${properties.getReposeProperty("targetPort")}"
+        originServiceEndpoint = "${properties.targetHostname}:${properties.targetPort}"
 
     }
 
