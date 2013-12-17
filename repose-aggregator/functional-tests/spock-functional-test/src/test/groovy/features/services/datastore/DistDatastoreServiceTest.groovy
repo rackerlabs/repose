@@ -12,15 +12,18 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     static def distDatastoreEndpoint = "http://localhost:4999"
 
-    def setup(){
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
 
-    def cleanup(){
+    def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
 
+    }
+
+    def cleanup(){
         if(!getIsFailedStart())
             repose.stop()
         setIsFailedStart(false)
@@ -154,6 +157,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         repose.applyConfigs("features/services/datastore")
         repose.start()
+        waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
@@ -193,6 +197,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         repose.applyConfigs("features/services/datastore")
         repose.start()
+        waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
         def body = "test data"
