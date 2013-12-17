@@ -91,7 +91,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        int atomPort = properties.getReposeProperty("atom.port").toInteger()
+        int atomPort = properties.atomPort
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
