@@ -9,6 +9,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
     def static badElementBody = "<a><testing>test</testing>Stuff</a>"
     def static badParamBody = "<element blah=\"something\"><testing>tests</testing></element>"
+    def static badParamBadBody =  "<a blah=\"something\"><testing>test</testing>Stuff</a>"
     def static contentTypeHeader = ["content-type": "application/xml"]
 
     def setupSpec() {
@@ -65,6 +66,6 @@ class MultipleValidatorsTest extends ReposeValveTest {
         where:
         requestBody  | headers                               | errorMessage
         badParamBody | ["x-roles": "check-xsd,check-param"]  | "<message>Bad Content: blah should not be here</message>"
-        badParamBody | ["x-roles": "check-param, check-all"] | "<message>Bad Content: blah should not be here</message>"
+        badParamBadBody | ["x-roles": "check-param, check-all"] | "<message>Bad Content: Expecting the root element to be: test:element</message>"
     }
 }
