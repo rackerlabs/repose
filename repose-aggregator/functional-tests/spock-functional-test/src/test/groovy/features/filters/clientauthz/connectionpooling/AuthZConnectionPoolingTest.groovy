@@ -38,12 +38,10 @@ class AuthZConnectionPoolingTest extends Specification {
     def setup() {
 
         // get ports
-        PortFinder pf = new PortFinder()
-
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort = pf.getNextOpenPort()
-        identityServicePort = pf.getNextOpenPort()
+        reposePort = PortFinder.Singleton.getNextOpenPort()
+        reposeStopPort = PortFinder.Singleton.getNextOpenPort()
+        originServicePort = PortFinder.Singleton.getNextOpenPort()
+        identityServicePort = PortFinder.Singleton.getNextOpenPort()
 
         identityService = new IdentityServiceResponseSimulator(identityServicePort, originServicePort)
 

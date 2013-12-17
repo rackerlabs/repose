@@ -41,12 +41,10 @@ class VersioningJMXTest extends Specification {
     def setup() {
 
         // get ports
-        PortFinder pf = new PortFinder()
-
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort1 = pf.getNextOpenPort()
-        originServicePort2 = pf.getNextOpenPort()
+        reposePort = PortFinder.Singleton.getNextOpenPort()
+        reposeStopPort = PortFinder.Singleton.getNextOpenPort()
+        originServicePort1 = PortFinder.Singleton.getNextOpenPort()
+        originServicePort2 = PortFinder.Singleton.getNextOpenPort()
 
         // start deproxy
         deproxy = new Deproxy()

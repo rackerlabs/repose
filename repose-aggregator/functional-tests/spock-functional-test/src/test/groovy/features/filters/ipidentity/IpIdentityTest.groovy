@@ -16,9 +16,8 @@ class IpIdentityTest extends ReposeValveTest {
     @Shared
     def url
     def setupSpec() {
-        PortFinder pf = new PortFinder()
-        int deproxyPort = pf.getNextOpenPort()
-        int reposePort = pf.getNextOpenPort()
+        int deproxyPort = PortFinder.Singleton.getNextOpenPort()
+        int reposePort = PortFinder.Singleton.getNextOpenPort()
         deproxy = new Deproxy()
         deproxy.addEndpoint(deproxyPort)
 

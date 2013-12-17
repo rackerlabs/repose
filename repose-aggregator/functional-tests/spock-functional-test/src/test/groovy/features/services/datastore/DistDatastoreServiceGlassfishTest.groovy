@@ -29,10 +29,9 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         def logFile
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        // get ports
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
-        int originServicePort = pf.getNextOpenPort()
+        // get ports
+        int originServicePort = PortFinder.Singleton.getNextOpenPort()
 
         println("Deproxy: " + originServicePort)
         // start deproxy
@@ -40,12 +39,12 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         deproxy.addEndpoint(originServicePort)
 
 
-        int reposePort1 = pf.getNextOpenPort()
-        int reposePort2 = pf.getNextOpenPort()
-        int dataStorePort1 = pf.getNextOpenPort()
-        int dataStorePort2 = pf.getNextOpenPort()
-        int shutdownPort1 = pf.getNextOpenPort()
-        int shutdownPort2 = pf.getNextOpenPort()
+        int reposePort1 = PortFinder.Singleton.getNextOpenPort()
+        int reposePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int shutdownPort1 = PortFinder.Singleton.getNextOpenPort()
+        int shutdownPort2 = PortFinder.Singleton.getNextOpenPort()
 
         println("repose1: " + reposePort1 + "\nrepose2: " + reposePort2 + "\ndatastore1: " + dataStorePort1 + "\n" +
                 "datastore2: " + dataStorePort2)

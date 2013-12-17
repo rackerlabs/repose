@@ -40,11 +40,9 @@ class HeaderNormalizationJMXTest extends Specification {
     def setup() {
 
         // get ports
-        PortFinder pf = new PortFinder()
-
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort = pf.getNextOpenPort()
+        reposePort = PortFinder.Singleton.getNextOpenPort()
+        reposeStopPort = PortFinder.Singleton.getNextOpenPort()
+        originServicePort = PortFinder.Singleton.getNextOpenPort()
 
         // start deproxy
         deproxy = new Deproxy()

@@ -27,10 +27,9 @@ class StartWithGoodConfigs extends Specification {
 
     def setup() {
 
-        PortFinder pf = new PortFinder()
-        this.reposePort = pf.getNextOpenPort() as int
-        this.stopPort = pf.getNextOpenPort() as int
-        this.targetPort = pf.getNextOpenPort() as int
+        this.reposePort = PortFinder.Singleton.getNextOpenPort() as int
+        this.stopPort = PortFinder.Singleton.getNextOpenPort() as int
+        this.targetPort = PortFinder.Singleton.getNextOpenPort() as int
         this.url = "http://localhost:${this.reposePort}/"
 
         params = [
