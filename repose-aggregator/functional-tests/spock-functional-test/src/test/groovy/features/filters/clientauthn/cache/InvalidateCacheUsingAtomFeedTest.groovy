@@ -102,7 +102,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
         fakeIdentityService = new IdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
     }

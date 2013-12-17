@@ -38,7 +38,7 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()

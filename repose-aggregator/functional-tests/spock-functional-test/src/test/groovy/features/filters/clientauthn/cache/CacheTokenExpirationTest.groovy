@@ -41,7 +41,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getReposeProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
