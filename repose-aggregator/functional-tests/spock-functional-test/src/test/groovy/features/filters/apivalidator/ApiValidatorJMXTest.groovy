@@ -22,9 +22,10 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/apivalidator/common",
-                "features/filters/apivalidator/jmx")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/jmx", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
