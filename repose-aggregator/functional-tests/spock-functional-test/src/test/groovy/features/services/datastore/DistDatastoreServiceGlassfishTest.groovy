@@ -146,7 +146,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     }
 
 
-    def "when putting cache objects" () {
+    def "PUT a new cache object should return 202 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'

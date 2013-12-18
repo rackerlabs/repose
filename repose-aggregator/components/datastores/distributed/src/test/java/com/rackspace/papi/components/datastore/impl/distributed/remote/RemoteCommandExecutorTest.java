@@ -25,13 +25,8 @@ public class RemoteCommandExecutorTest {
     RemoteCommandExecutor executor;
 
     @Before
-    public void standUp() throws Exception {
-        final HttpResponse mockedResponse = mock(HttpResponse.class);
-        final HttpClient mockedClient = mock(HttpClient.class);
+    public void setup() throws Exception {
         mockRequestProxyService = mock(RequestProxyService.class);
-
-        when(mockedClient.execute(any(HttpRequestBase.class))).thenReturn(mockedResponse);
-
         executor = new RemoteCommandExecutor(mockRequestProxyService, HOST_KEY);
     }
 
@@ -43,14 +38,12 @@ public class RemoteCommandExecutorTest {
 
     @Test(expected = DatastoreOperationException.class)
     public void shouldThrowDatastoreOperationExceptionsForIOExceptions() {
-        final Object result = executor.execute(new TestableRemoteCommand(true), RemoteBehavior.ALLOW_FORWARDING);
-        assertEquals("Executor must return the remote command's response", Boolean.TRUE, result);
+        executor.execute(new TestableRemoteCommand(true), RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Test(expected = RemoteConnectionException.class)
     public void shouldCatchProxyRequestExceptions() {
-        final Object result = executor.execute(new TestableRemoteCommand(new ProxyRequestException("foo", new IllegalArgumentException())), RemoteBehavior.ALLOW_FORWARDING);
-        assertEquals("Executor must return the remote command's response", Boolean.TRUE, result);
+        executor.execute(new TestableRemoteCommand(new ProxyRequestException("foo", new IllegalArgumentException())), RemoteBehavior.ALLOW_FORWARDING);
     }
 
     private class TestableRemoteCommand implements RemoteCommand {

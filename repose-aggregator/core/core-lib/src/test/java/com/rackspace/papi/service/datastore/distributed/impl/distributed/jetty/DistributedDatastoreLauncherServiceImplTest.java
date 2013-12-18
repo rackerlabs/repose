@@ -28,7 +28,7 @@ public class DistributedDatastoreLauncherServiceImplTest {
          instanceInfo = new ReposeInstanceInfo("repose", "node1");
       }
 
-       @Test
+      @Test
       public void shouldCreateNewServer() throws IllegalAccessException, InstantiationException {
 
          DistributedDatastoreJettyServerBuilder builder = new DistributedDatastoreJettyServerBuilder(8888, instanceInfo, "/etc/repose", DistributedDatastoreServletContextManager.class.newInstance());

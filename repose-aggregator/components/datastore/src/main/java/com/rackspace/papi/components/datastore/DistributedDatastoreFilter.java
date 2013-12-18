@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.components.datastore.distributed.DistributedDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.FilterConfigHelper;
@@ -15,6 +15,7 @@ import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.components.datastore.impl.distributed.ThreadSafeClusterView;
 import com.rackspace.papi.components.datastore.impl.distributed.HashRingDatastore;
+import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class DistributedDatastoreFilter implements Filter {
 
         final ServicePorts servicePorts = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
         final ClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
-        DistributedDatastoreConfiguration configuration = new DistributedDatastoreConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
+        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
                 clusterView);
         final DistributedDatastore hashRingDatastore = datastoreService.createDatastore(datastoreId, configuration);
         final ReposeInstanceInfo instanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();

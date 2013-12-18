@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.impl;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreManager;
-import com.rackspace.papi.components.datastore.distributed.DistributedDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.components.datastore.impl.distributed.HashRingDatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
@@ -63,7 +63,7 @@ public class DatastoreServiceImpl implements DatastoreService {
     }
 
     @Override
-    public DistributedDatastore createDatastore(String datastoreName, DistributedDatastoreConfiguration configuration) {
+    public DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration) {
         DatastoreManager manager = new HashRingDatastoreManager(configuration, localDatastoreManager.getDatastore());
         distributedManagers.put(datastoreName, manager);
         return (DistributedDatastore) manager.getDatastore();
