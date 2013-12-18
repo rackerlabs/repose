@@ -9,8 +9,8 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
-import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
-import com.rackspace.papi.service.datastore.distributed.impl.MalformedCacheRequestException;
+import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
+import com.rackspace.papi.components.datastore.impl.distributed.MalformedCacheRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

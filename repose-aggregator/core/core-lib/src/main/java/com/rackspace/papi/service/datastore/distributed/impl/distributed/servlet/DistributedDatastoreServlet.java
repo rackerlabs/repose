@@ -10,7 +10,7 @@ import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfigur
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
-import com.rackspace.papi.service.datastore.distributed.impl.CacheRequest;
+import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

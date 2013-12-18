@@ -4,8 +4,9 @@ import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreManager;
 import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
+import com.rackspace.papi.components.datastore.impl.distributed.HashRingDatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.ehcache.EHCacheDatastoreManager;
+import com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
