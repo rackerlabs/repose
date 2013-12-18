@@ -71,7 +71,7 @@ Modularize Dist Datastore
     [ ] DistDatastoreServiceTest
         [X] bad sleep during cleanup.  Fix this.
         [ ] fix hardcoded datastore service endpoint
-    [ ] RemoteCommandExecutorTest (all ignored)
+    [X] RemoteCommandExecutorTest (all ignored)
 
 [X] Analyze impact to DDFilter
     [X] Moving classes from filter package space to service package space (serialization issues???)
@@ -95,7 +95,7 @@ Modularize Dist Datastore
 [X] FINAL STEPS
     [X] Revert smoke test back to ApiValidatorRunSmokeTest from DistDatastoreFilter and DDService
 
-[ ] DatastoreServiceContext - should we shut down all datastores.
+[X] DatastoreServiceContext - should we shut down all datastores.
 
 [X] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
 
@@ -106,9 +106,9 @@ Modularize Dist Datastore
 
 TECHNICAL DEBT (out of scope)
 =================================================================
-[ ] NEW STORY: Cleanup package tangling between commons and services/httpclient.  Cleanup package tangling
+[X] NEW STORY: Cleanup package tangling between commons and services/httpclient.  Cleanup package tangling
     workarounds from aggregator pom.
-[ ] NEW STORY: Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
+[-] Added to technical.todo: Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
 
 QUESTIONS FOR THE TEAM
 =================================================================

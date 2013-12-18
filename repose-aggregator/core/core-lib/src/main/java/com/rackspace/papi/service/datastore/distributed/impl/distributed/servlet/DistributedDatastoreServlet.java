@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.components.datastore.StoredElement;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
@@ -70,7 +70,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-       DistDatastoreConfiguration configuration = new DistDatastoreConfiguration(contextAdapter.requestProxyService(), encodingProvider,
+       ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
                clusterView.getClusterView());
 
        hashRingDatastore = datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);

@@ -11,13 +11,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- *
- * @author zinic
- */
 @RunWith(Enclosed.class)
 public class DeleteTest {
 
@@ -27,7 +24,7 @@ public class DeleteTest {
       public void shouldTargetCorrectDeletionUrl() throws UnknownHostException {
          final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
-         Assert.assertEquals("Delete command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", deleteCommand.getUrl());
+         assertEquals("Delete command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", deleteCommand.getUrl());
       }
    }
 
@@ -41,7 +38,7 @@ public class DeleteTest {
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          when(response.getStatusCode()).thenReturn(202);
 
-         Assert.assertEquals("Delete command must communicate success on 202", Boolean.TRUE, deleteCommand.handleResponse(response));
+         assertEquals("Delete command must communicate success on 202", Boolean.TRUE, deleteCommand.handleResponse(response));
       }
 
       @Test
@@ -51,7 +48,7 @@ public class DeleteTest {
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          when(response.getStatusCode()).thenReturn(404);
 
-         Assert.assertEquals("Delete command must communicate failure on response != 202", Boolean.FALSE, deleteCommand.handleResponse(response));
+         assertEquals("Delete command must communicate failure on response != 202", Boolean.FALSE, deleteCommand.handleResponse(response));
       }
    }
 }

@@ -15,45 +15,45 @@ public interface DistributedDatastore extends Datastore {
     /**
      * Put an element in a local or remote datastore for a duration of time not to exceed the TimeUnit and duration
      * specified.
-     * <p/>
-     * <li>if the element already exists in the datastore, then ...
-     * </ul>
+     *
+     * If the element already exists in the datastore, then it should be replaced with the
+     * value provided.
      *
      * @param key Identifier for the value being stored
-     * @param id ???
+     * @param id Identifier for the cluster member where this value should be stored
      * @param value The value being stored
      * @param ttl Duration to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
-     * @param allowForwarding Whether or not to allow remote storage of this value
+     * @param remoteBehavior Whether or not to allow remote storage of this value
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
     public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
-                    RemoteBehavior allowForwarding) throws DatastoreOperationException;
+                    RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
      * Removes a StoredElement from the Datastore.
      *
      * @param key
-     * @param id ???
-     * @param allowForwarding Whether or not to allow remote removal of this value
+     * @param id Identifier for the cluster member where this value should be stored
+     * @param remoteBehavior Whether or not to allow remote removal of this value
      * @return true if the element was removed, false if it was not found in the Datastore
      * @throws DatastoreOperationException if an exception occurs when attempting to remove the
      * stored value
      */
-    public boolean remove(String key, byte[] id, RemoteBehavior allowForwarding);
+    public boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior);
 
     /**
      * Gets a StoredElement from the Datastore.  If there is no value found for the
      * provided key, a StoredElement object should be returned containing a null or empty element.
      *
      * @param key Key provided when the data was stored
-     * @param id ???
-     * @param allowForwarding Whether or not to allow remote retrieval of this value
+     * @param id Identifier for the cluster member where this value should be stored
+     * @param remoteBehavior Whether or not to allow remote retrieval of this value
      * @return StoredElement wrapper of the stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      * stored value
      */
-    public StoredElement get(String key, byte[] id, RemoteBehavior allowForwarding);
+    public StoredElement get(String key, byte[] id, RemoteBehavior remoteBehavior);
 
 }

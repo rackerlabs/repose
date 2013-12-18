@@ -1,5 +1,4 @@
-package com.rackspace.papi.service.datastore.distributed.impl
-
+package com.rackspace.papi.service.datastore.impl
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.datastore.DatastoreManager
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore

@@ -19,10 +19,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- *
- * @author zinic
- */
 @RunWith(Enclosed.class)
 public class GetTest {
 

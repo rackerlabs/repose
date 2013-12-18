@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreUnavailableException;
-import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 
 /**
@@ -44,7 +44,7 @@ public interface DatastoreService {
      * @return
      * @throws DatastoreServiceException if the datastore creation fails
      */
-    DistributedDatastore createDatastore(String datastoreName, DistDatastoreConfiguration configuration)
+    DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
             throws DatastoreServiceException;
 
     /**

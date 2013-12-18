@@ -6,13 +6,21 @@ import org.rackspace.deproxy.Response
 
 class DistDatastoreFilterTest extends ReposeValveTest {
 
+    String DD_URI
+    def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
+    def BODY = "test body"
+    def KEY
+
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/datastore/")
+        repose.applyConfigs("features/filters/datastore/")
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+    }
 
+    def setup() {
+        DD_URI = reposeEndpoint + "/powerapi/dist-datastore/objects/"
+        KEY = UUID.randomUUID().toString()
     }
 
     def cleanupSpec() {
@@ -20,24 +28,26 @@ class DistDatastoreFilterTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "when putting cache objects" () {
-        given:
-        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
-
+    def "PUT a new cache object should return 202 response" () {
         when:
-        MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PUT',
-                            url:reposeEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            body: body
-                    ])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, body: BODY])
 
         then:
         mc.receivedResponse.code == '202'
+    }
+
+    def "PUT a cache object to an existing key should overwrite the cached value"() {
+
+        when: "I make 2 PUT calls for 2 different values for the same key"
+        String newBody = "MY NEW VALUE"
+        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
+
+        and: "I get the value for the key"
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
+
+        then: "The body of the get response should be my second request body"
+        mc.receivedResponse.body == newBody
     }
 
     def "when checking cache object time to live"(){

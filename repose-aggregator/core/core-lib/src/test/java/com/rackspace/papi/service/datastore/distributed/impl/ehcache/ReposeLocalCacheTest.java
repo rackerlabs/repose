@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
+import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

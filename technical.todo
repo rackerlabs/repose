@@ -10,7 +10,15 @@
 - repose-aggregator/commons/classloader
 -- Break the dependency on external
 
+- Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
+
+[ ] Datastore Implementation Improvements
+    [ ] Improve error and null checks in datastore implementations
+    [ ] PUT behavior allows empty strings returns a 202, but doesn't actually store the value.  Is this correct?
 
 - TEST IMPROVEMENTS
 
 - ContentNormalization filter - 0% functional test coverage
+
+ [ ] DistDatastoreServiceTest
+        [ ] fix hardcoded datastore service endpoint

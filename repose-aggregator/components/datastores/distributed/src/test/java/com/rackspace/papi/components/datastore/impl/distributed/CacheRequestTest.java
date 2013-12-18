@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,6 +50,22 @@ public class CacheRequestTest {
 
          return mockedRequest;
       }
+   }
+
+   public static class WhenEvaluatingIfRequestIsACacheRequest extends TestParent {
+       HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+
+       @Test
+       public void shouldPassIfRequestPathStartsWithCacheURI() {
+           when(mockRequest.getRequestURI()).thenReturn(CacheRequest.CACHE_URI_PATH + "/foobar");
+           assertTrue(CacheRequest.isCacheRequest(mockRequest));
+       }
+
+       @Test
+       public void shouldNotMatchIfRequestPathDoesntStartWithCacheURI() {
+           when(mockRequest.getRequestURI()).thenReturn("/stuff/" + CacheRequest.CACHE_URI_PATH + "/foobar");
+           assertFalse(CacheRequest.isCacheRequest(mockRequest));
+       }
    }
 
    public static class WhenBuildingURLsForCacheRequests extends TestParent {

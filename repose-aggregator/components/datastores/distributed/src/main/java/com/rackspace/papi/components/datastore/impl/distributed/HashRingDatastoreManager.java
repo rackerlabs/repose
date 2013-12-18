@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.Datastore;
@@ -11,7 +11,7 @@ public class HashRingDatastoreManager implements DatastoreManager {
     private static final String HOST_KEY = "temp-host-key";
     private final HashRingDatastore datastore;
 
-    public HashRingDatastoreManager(DistDatastoreConfiguration configuration, Datastore localDatastore) {
+    public HashRingDatastoreManager(ClusterConfiguration configuration, Datastore localDatastore) {
         datastore = new HashRingDatastore(
                 new RemoteCommandExecutor(configuration.getProxyService(), HOST_KEY),
                 configuration.getClusterView(),
