@@ -9,8 +9,6 @@ import java.util.concurrent.TimeUnit;
  */
 public interface Datastore {
 
-    String DEFAULT_LOCAL = "local/default";
-
     /**
      * Gets the value associated with the key from the Datastore.  If there is no value found for the
      * provided key, a StoredElement object should be returned containing a null or empty element.

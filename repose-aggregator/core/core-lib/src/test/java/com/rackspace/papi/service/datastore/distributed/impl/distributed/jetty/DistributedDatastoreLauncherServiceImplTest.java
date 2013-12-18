@@ -1,12 +1,10 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import org.eclipse.jetty.server.Server;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -29,13 +27,6 @@ public class DistributedDatastoreLauncherServiceImplTest {
          datastoreService = new DatastoreServiceImpl();
          instanceInfo = new ReposeInstanceInfo("repose", "node1");
       }
-
-       @After
-       public void tearDown() {
-           datastoreService.destroyDatastore(Datastore.DEFAULT_LOCAL);
-
-       }
-
 
        @Test
       public void shouldCreateNewServer() throws IllegalAccessException, InstantiationException {

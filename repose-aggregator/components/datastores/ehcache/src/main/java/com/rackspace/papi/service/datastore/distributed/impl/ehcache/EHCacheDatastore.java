@@ -11,16 +11,16 @@ import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
 
-   private final Ehcache ehCacheInstance;
+    private final Ehcache ehCacheInstance;
+    private final static String NAME = "local/default";
 
-   public EHCacheDatastore(Ehcache ehCacheInstance) {
-      this.ehCacheInstance = ehCacheInstance;
-      
-   }
+    public EHCacheDatastore(Ehcache ehCacheInstance) {
+        this.ehCacheInstance = ehCacheInstance;
+    }
 
     @Override
     public String getName() {
-        return Datastore.DEFAULT_LOCAL;
+        return NAME;
     }
 
     @Override

@@ -1,11 +1,10 @@
 package features.filters.datastore
 import framework.ReposeValveTest
-import framework.category.Smoke
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
-class DistDatastoreFilterTest  extends ReposeValveTest {
+class DistDatastoreFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         repose.applyConfigs(

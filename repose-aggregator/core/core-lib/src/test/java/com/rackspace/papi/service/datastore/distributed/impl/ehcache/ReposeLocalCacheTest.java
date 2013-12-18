@@ -3,7 +3,6 @@ package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -32,11 +31,6 @@ public class ReposeLocalCacheTest {
             userId = "userId";
             reposeLocalCacheMock = mock(ReposeLocalCache.class);
             datastoreService = new DatastoreServiceImpl();
-        }
-
-        @After
-        public void tearDown() {
-            datastoreService.destroyDatastore(Datastore.DEFAULT_LOCAL);
         }
 
         @Test

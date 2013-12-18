@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
+    private static final String DEFAULT_DATASTORE_NAME = "local/default";
+
     private RateLimitCache rateLimitCache;
     //Volatile
     private Pattern describeLimitsUriRegex;
@@ -46,12 +48,20 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
     private Datastore getDatastore(DatastoreType datastoreType) {
         Datastore targetDatastore;
 
-        if (StringUtilities.isNotBlank(datastoreType.value())) {
+        String requestedDatastore = datastoreType.value();
+
+        if (StringUtilities.isNotBlank(requestedDatastore)) {
             LOG.info("Requesting datastore " + datastoreType);
-            Datastore datastore = datastoreService.getDatastore(datastoreType.value());
+            final Datastore datastore;
+
+            if (requestedDatastore.equals(DEFAULT_DATASTORE_NAME)) {
+                return datastoreService.getDefaultDatastore();
+            }
+
+            datastore = datastoreService.getDatastore(requestedDatastore);
 
             if (datastore != null) {
-                LOG.info("Using requested datastore " + datastoreType);
+                LOG.info("Using requested datastore " + requestedDatastore);
                 return datastore;
             }
 

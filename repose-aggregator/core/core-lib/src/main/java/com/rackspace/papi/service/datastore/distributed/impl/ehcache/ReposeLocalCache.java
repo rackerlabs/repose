@@ -1,11 +1,10 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
-import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +88,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public void removeAllCacheData() {
-        datastoreService.getDatastore(Datastore.DEFAULT_LOCAL).removeAllCacheData();
+        datastoreService.getDefaultDatastore().removeAllCacheData();
     }
 
     private boolean removeWithUnencodedUser(String userId) {

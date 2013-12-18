@@ -83,7 +83,6 @@ class MultiClusterMultiNodeTest extends Specification {
 
         def mc
 
-
         when: "send a request to node-1-1"
         mc = deproxy.makeRequest(url: "http://localhost:${port11}")
 
