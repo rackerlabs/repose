@@ -74,4 +74,15 @@ class TestProperties {
         }
     }
 
+    def getDefaultTemplateParams() {
+        return [
+                reposePort: reposePort,
+                targetPort: targetPort,
+                targetPort2: targetPort2,
+                identityPort: identityPort,
+                atomPort: atomPort,
+                targetHostname: targetHostname,
+        ]
+    }
+
 }
