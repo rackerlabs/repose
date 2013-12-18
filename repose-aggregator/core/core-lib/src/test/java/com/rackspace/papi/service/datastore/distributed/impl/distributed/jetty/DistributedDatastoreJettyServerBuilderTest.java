@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;

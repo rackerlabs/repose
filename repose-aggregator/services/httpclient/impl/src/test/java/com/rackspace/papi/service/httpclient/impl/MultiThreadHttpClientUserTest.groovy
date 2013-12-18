@@ -68,7 +68,6 @@ class MultiThreadHttpClientUserTest {
                         Thread.sleep(500 + rand.nextInt(3000))
                         rsp = httpClient.execute(get);
                     } catch (Exception e) {
-                        //println("Client: " + clientResponse.clientInstanceId + " got an exception: " + e)
                         totalErrors++
                     } finally {
                         get.releaseConnection()
