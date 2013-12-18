@@ -2,7 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.DatastoreServiceImpl;
+import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import org.eclipse.jetty.server.Server;
 import org.junit.Before;

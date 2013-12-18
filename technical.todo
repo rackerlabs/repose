@@ -10,6 +10,8 @@
 - repose-aggregator/commons/classloader
 -- Break the dependency on external
 
+- Evaluate usage of code - ReposeLocalCacheMBean, ReposeLocalCache
+
 
 - TEST IMPROVEMENTS
 
