@@ -94,6 +94,7 @@ public abstract class ValidatorConfigurator {
             Config configuration = createConfiguration(validatorItem,
                                                        validatorConfiguration.isMultiRoleMatch(),
                                                        configRoot);
+            configuration.setPreserveRequestBody(validatorConfiguration.isMultiRoleMatch());
             ValidatorInfo validator =
                   validatorItem.getAny() != null
                         ? new ValidatorInfo(validatorItem.getRole(),
