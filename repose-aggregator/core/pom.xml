@@ -47,13 +47,19 @@
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+            <version>${project.version}</version>
          </dependency>
 
           <dependency>
               <groupId>com.rackspace.papi.service</groupId>
               <artifactId>httpclient-connection-pool</artifactId>
-              <version>2.13.2-SNAPSHOT</version>
+              <version>${project.version}</version>
+          </dependency>
+
+          <dependency>
+              <groupId>com.rackspace.papi.service</groupId>
+              <artifactId>datastore-api</artifactId>
+              <version>${project.version}</version>
           </dependency>
 
          <dependency>
@@ -65,25 +71,25 @@
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+             <version>${project.version}</version>
          </dependency>
 
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+             <version>${project.version}</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>jetty-container</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+             <version>${project.version}</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>classloader</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+             <version>${project.version}</version>
          </dependency>
 
       </dependencies>

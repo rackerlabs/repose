@@ -38,7 +38,6 @@ class MultiThreadHttpClientUserTest {
                     socket.withStreams { input, output ->
                         def reader = input.newReader()
                         def buffer = reader.readLine()
-                        println "server received: $buffer"
                         output << "HTTP/1.1 200 OK\r\n"
                         output << "server:unittest\r\ncontent-length:6\r\ncontent-type:text/plain"
                         output << "status"
@@ -54,7 +53,6 @@ class MultiThreadHttpClientUserTest {
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         for (x in 1..50) {
-            println("Starting client: " + x)
             String threadName = "Thread:" + x
 
             Thread thread = Thread.start {
@@ -67,13 +65,9 @@ class MultiThreadHttpClientUserTest {
                     try {
                         get = new HttpGet(uri1);
                         get.addHeader("Thread", threadName)
-
-                        println("STARTED Thread: " + threadName + " Call: " + y)
                         Thread.sleep(500 + rand.nextInt(3000))
                         rsp = httpClient.execute(get);
-                        println("COMPLETED Thread: " + threadName + " Call: " + y)
                     } catch (Exception e) {
-                        println("Client: " + clientResponse.clientInstanceId + " got an exception: " + e)
                         totalErrors++
                     } finally {
                         get.releaseConnection()
@@ -85,7 +79,6 @@ class MultiThreadHttpClientUserTest {
                             totalErrors++
                         }
                     } catch (Exception e) {
-                        println("EXCEPTION ON RESPONSE: " + e)
                         totalErrors++
                     }
                 }
@@ -98,12 +91,10 @@ class MultiThreadHttpClientUserTest {
 
         Thread reconfigureThread = Thread.start {
             while (keepReconfiguring) {
-                println("Reconfiguring...")
                 sleep(500)
                 httpClientService.configure(poolCfg)
                 reconfigureCount++
             }
-            println("STOPPED RECONFIGURING")
         }
 
         // wait until all client threads have finished

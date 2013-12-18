@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.atomfeed;
 
 // Class that will manage atom feed pollers which will delete items from cache
-import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.components.datastore.Datastore;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 

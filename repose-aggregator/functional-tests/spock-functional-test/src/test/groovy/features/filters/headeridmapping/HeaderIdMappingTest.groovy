@@ -9,7 +9,6 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-@Category(Slow.class)
 class HeaderIdMappingTest extends ReposeValveTest {
 
     def static String user1 = "reposeuser1"

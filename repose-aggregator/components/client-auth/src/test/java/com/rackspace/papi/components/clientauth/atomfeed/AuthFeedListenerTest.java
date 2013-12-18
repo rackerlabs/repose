@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.components.clientauth.atomfeed;
 
 import com.rackspace.auth.AuthGroups;
@@ -12,8 +8,8 @@ import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix;
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastore;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

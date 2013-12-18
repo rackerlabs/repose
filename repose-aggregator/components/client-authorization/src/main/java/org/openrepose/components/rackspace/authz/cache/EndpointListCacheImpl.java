@@ -1,8 +1,8 @@
 package org.openrepose.components.rackspace.authz.cache;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.StoredElement;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.components.datastore.StoredElement;
 
 import java.io.IOException;
 import java.io.Serializable;

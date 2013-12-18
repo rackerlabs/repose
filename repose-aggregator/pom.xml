@@ -31,8 +31,10 @@
 
     <modules>
         <module>external</module>
-        <module>services</module>
+        <module>services/httpclient</module>
         <module>commons</module>
+        <module>components/datastores</module>
+        <module>services</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>
@@ -168,6 +170,31 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.4</version>
             </dependency>
+
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.yammer.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.yammer.metrics</groupId>
+                <artifactId>metrics-graphite</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.yammer.metrics</groupId>
+                <artifactId>metrics-ehcache</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>

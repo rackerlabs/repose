@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components.extensions</groupId>
             <artifactId>api-validator</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
        
     </dependencies>
@@ -62,28 +62,4 @@
 
         </plugins>
     </build>
-<!--
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.3.2</version>
-            <configuration>
-               <source>1.6</source>
-               <target>1.6</target>
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-ear-plugin</artifactId>
-            <version>2.6</version>
-            <configuration>
-               <version>6</version>
-               <defaultLibBundleDir>lib</defaultLibBundleDir>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
--->
 </project>

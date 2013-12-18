@@ -1,19 +1,10 @@
 package features.filters.datastore
-
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import spock.lang.Unroll
 
-/**
- * User: dimi5963
- * Date: 9/9/13
- * Time: 10:55 AM
- */
-class DistDatastoreFilterTest  extends ReposeValveTest {
-    boolean isFailedStart = false
-
+class DistDatastoreFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         repose.applyConfigs(
