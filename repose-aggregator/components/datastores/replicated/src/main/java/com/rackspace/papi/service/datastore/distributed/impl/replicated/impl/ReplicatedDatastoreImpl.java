@@ -203,7 +203,7 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
-    public void removeAllCacheData() {
+    public void removeAll() {
         cache.removeAll();
     }
 }

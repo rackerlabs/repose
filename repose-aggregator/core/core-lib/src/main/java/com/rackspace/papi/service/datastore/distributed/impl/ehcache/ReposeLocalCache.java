@@ -88,7 +88,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public void removeAllCacheData() {
-        datastoreService.getDefaultDatastore().removeAllCacheData();
+        datastoreService.getDefaultDatastore().removeAll();
     }
 
     private boolean removeWithUnencodedUser(String userId) {

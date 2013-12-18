@@ -10,8 +10,13 @@ import java.util.concurrent.TimeUnit;
 public interface Datastore {
 
     /**
-     * Gets the value associated with the key from the Datastore.  If there is no value found for the
-     * provided key, a StoredElement object should be returned containing a null or empty element.
+     * Gets the value associated with the key from the Datastore.  The value can be retrieved
+     * as a byte array from the StoredElement, or by calling the StoredElement elementAs() method
+     * to deserialize the value to the expected Java object.
+     *
+     * If there is no value found for the provided key, a StoredElement object should be returned
+     * containing an empty byte array.  The StoredElement elementIsNull() method should return false
+     * if the StoredElement is representing an unstored value.
      *
      * @param key Key provided when the data was stored
      * @return StoredElement wrapper of the stored value
@@ -22,9 +27,8 @@ public interface Datastore {
 
     /**
      * Put an element in the datastore.
-     * <p/>
-     * <li>if the element already exists in the datastore, then ...
-     * </ul>
+     * If the element already exists in the datastore, then it should be replaced with the
+     * value provided.
      *
      * @param key Identifier for the value being stored
      * @param value The value being stored
@@ -35,9 +39,9 @@ public interface Datastore {
     /**
      * Put an element in the datastore for a duration of time not to exceed the TimeUnit and duration
      * specified.
-     * <p/>
-     * <li>if the element already exists in the datastore, then ...
-     * </ul>
+     *
+     * If the element already exists in the datastore, then it should be replaced with the
+     * value provided.
      *
      * @param key Identifier for the value being stored
      * @param value The value being stored
@@ -60,7 +64,7 @@ public interface Datastore {
     /**
      * Remove all previously stored elements from the datastore
      */
-    void removeAllCacheData();
+    void removeAll();
 
     /**
      * Get the name of this datastore

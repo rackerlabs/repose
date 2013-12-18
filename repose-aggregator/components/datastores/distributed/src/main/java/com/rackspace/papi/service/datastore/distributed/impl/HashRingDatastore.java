@@ -245,8 +245,8 @@ public class HashRingDatastore implements DistributedDatastore {
 
 
     @Override
-    public void removeAllCacheData() {
-        localDatastore.removeAllCacheData();
+    public void removeAll() {
+        localDatastore.removeAll();
     }
 
     @Override

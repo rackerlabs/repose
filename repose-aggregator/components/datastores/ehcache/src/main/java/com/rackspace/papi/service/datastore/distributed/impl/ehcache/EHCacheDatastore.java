@@ -53,7 +53,7 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public void removeAllCacheData() {
+    public void removeAll() {
         ehCacheInstance.removeAll();
     }
 }
