@@ -151,14 +151,14 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public final StoredElement get(String key) throws DatastoreOperationException {
+    public StoredElement get(String key) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
         return get(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
-    public StoredElement get(String key, byte[] id, RemoteBehavior allowForwarding) {
+    public StoredElement get(String key, byte[] id, RemoteBehavior remoteBehavior) {
         return (StoredElement) performAction(key, id, new DatastoreAction() {
 
             @Override
@@ -175,18 +175,18 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "get";
             }
-        }, allowForwarding);
+        }, remoteBehavior);
     }
 
     @Override
-    public final boolean remove(String key) throws DatastoreOperationException {
+    public boolean remove(String key) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
         return remove(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
-    public boolean remove(String key, byte[] id, RemoteBehavior allowForwarding) {
+    public boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior) {
         return (Boolean) performAction(key, id, new DatastoreAction() {
 
             @Override
@@ -203,17 +203,17 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "remove";
             }
-        }, allowForwarding);
+        }, remoteBehavior);
     }
 
 
     @Override
-    public final void put(String key, byte[] value) throws DatastoreOperationException {
+    public void put(String key, byte[] value) throws DatastoreOperationException {
         put(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
     }
 
     @Override
-    public final void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
         put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
@@ -221,7 +221,7 @@ public class HashRingDatastore implements DistributedDatastore {
 
     @Override
     public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
-            RemoteBehavior allowForwarding) {
+            RemoteBehavior remoteBehavior) {
         performAction(key, id, new DatastoreAction() {
 
             @Override
@@ -240,7 +240,7 @@ public class HashRingDatastore implements DistributedDatastore {
             public String toString() {
                 return "put";
             }
-        }, allowForwarding);
+        }, remoteBehavior);
     }
 
 

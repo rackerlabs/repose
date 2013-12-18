@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.components.datastore.distributed.DistributedDatastoreConfiguration;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContextName;
@@ -8,7 +9,6 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
 import com.rackspace.papi.service.datastore.*;
-import com.rackspace.papi.components.datastore.distributed.DistDatastoreConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import org.junit.After;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class DistributedDatastoreFilterTest {
       public void shouldRegisterDatastore() throws Exception {
          filter.init(mockFilterConfig);
 
-         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistDatastoreConfiguration.class));
+         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistributedDatastoreConfiguration.class));
       }
 
       @Test
@@ -95,7 +95,7 @@ public class DistributedDatastoreFilterTest {
          filter.init(mockFilterConfig);
          filter.destroy();
 
-         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistDatastoreConfiguration.class));
+         verify(datastoreService).createDatastore(eq(DATASTORE_NAME), any(DistributedDatastoreConfiguration.class));
          verify(datastoreService).destroyDatastore(DATASTORE_NAME);
       }
    }
