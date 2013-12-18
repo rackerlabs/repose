@@ -14,7 +14,16 @@
 
 [ ] Datastore Implementation Improvements
     [ ] Improve error and null checks in datastore implementations
-    [ ] PUT behavior allows empty strings returns a 202, but doesn't actually store the value.  Is this correct?
+    [ ] Change Datastore exceptions to non-runtime exceptions
+    [ ] PUT behavior allows empty strings returns a 202, but a GET will return a 404.  Is this correct?
+    [ ] DELETE of a non-existent item currently returns a 202, what should it really do??? (Not a 202 IMHO)
+
+    [ ] Different behavior of DD Filter vs DD Service (DDService really should NOT be returning 500 on bad request data)
+        [ ] GET w/ bad data (no key, no X-PP-Host-Key header, invalid key) returns 400 in filter, 500 w/ msg in service
+        [ ] PUT w/ bad data (no key, no X-PP-Host-Key header, invalid key, large body) returns 400 in filter, 500 w/ msg in service
+
+    [ ] Additional scenarios
+        [ ] PUT with no TTL, what is our behavior?  Add a functional test.
 
 - TEST IMPROVEMENTS
 
