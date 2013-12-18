@@ -114,8 +114,10 @@ class MultipleRolesTest extends ReposeValveTest{
     def "When multiple roles are used (TestMultipleRoles)"() {
         setup:
         MessageChain messageChain
-        repose.applyConfigs("features/filters/apivalidator/common",
-                "features/filters/apivalidator/p{1,2}")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/p{1,2}", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -138,8 +140,10 @@ class MultipleRolesTest extends ReposeValveTest{
     def "When roles are ordered (TestRoleOrder)"() {
         setup:
         MessageChain messageChain
-        repose.applyConfigs("features/filters/apivalidator/common",
-                "features/filters/apivalidator/p{2}f4{1,2}")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/p{2}f4{1,2}", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

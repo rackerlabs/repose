@@ -68,8 +68,10 @@ class QValueTest extends ReposeValveTest {
     def "When single match q-value and all roles have same high q-value (TestSingleMatchQvalue and TestUseAllRolesWithSameHighQValue)"() {
         setup:
         MessageChain messageChain
-        repose.applyConfigs("features/filters/apivalidator/common",
-                "features/filters/apivalidator/f4f5p")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/f4f5p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -90,8 +92,10 @@ class QValueTest extends ReposeValveTest {
     def "When multi match q-value (TestMultiMatchQvalue)"() {
         setup:
         MessageChain messageChain
-        repose.applyConfigs("features/filters/apivalidator/common",
-                "features/filters/apivalidator/mf4p")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mf4p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

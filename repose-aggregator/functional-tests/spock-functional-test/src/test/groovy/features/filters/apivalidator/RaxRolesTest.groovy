@@ -15,7 +15,10 @@ class RaxRolesTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/apivalidator/common", "features/filters/apivalidator/raxroles")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/raxroles", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint)

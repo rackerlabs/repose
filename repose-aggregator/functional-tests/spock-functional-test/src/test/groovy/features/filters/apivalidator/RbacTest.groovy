@@ -14,7 +14,9 @@ class RbacTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/apivalidator/rbac")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/rbac", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
