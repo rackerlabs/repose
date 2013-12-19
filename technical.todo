@@ -25,6 +25,10 @@
     [ ] Additional scenarios
         [ ] PUT with no TTL, what is our behavior?  Add a functional test.
 
+    [ ] Pull request feedback of DD modularization story
+        [ ] ClusterView - modify members() to return a List vs an array
+        [ ] HashRingDatastore - appending original exception message, and also wrapping it
+        [ ] ThreadSafeClusterView - evalute whether to remove the reference copy
 - TEST IMPROVEMENTS
 
 - ContentNormalization filter - 0% functional test coverage

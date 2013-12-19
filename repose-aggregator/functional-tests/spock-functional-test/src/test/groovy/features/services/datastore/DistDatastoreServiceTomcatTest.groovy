@@ -146,7 +146,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
     }
 
 
-    def "when putting cache objects" () {
+    def "PUT a new cache object should return 202 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
@@ -166,7 +166,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
         mc.receivedResponse.code == '202'
     }
 
-    def "when checking cache object time to live"(){
+    def "GET of key after time to live has expired should return a 404"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
@@ -203,7 +203,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
 
     }
 
-    def "when deleting cache objects"(){
+    def "DELETE of existing item in datastore should return 202 and no longer be available"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
