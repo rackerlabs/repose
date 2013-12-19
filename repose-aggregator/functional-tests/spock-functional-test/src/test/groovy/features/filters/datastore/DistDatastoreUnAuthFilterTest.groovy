@@ -4,12 +4,14 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-/**
- * User: dimi5963
- * Date: 9/9/13
- * Time: 10:55 AM
- */
 class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
+
+    String DD_URI
+    def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'5000']
+    def BODY = "test body"
+    static def KEY
+    def DD_PATH = "/powerapi/dist-datastore/objects/"
+    def URL
 
     def host = { host ->
         Enumeration e=NetworkInterface.getNetworkInterfaces();
@@ -30,14 +32,20 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
 
     def tempEndpoint = reposeEndpoint.replaceAll("localhost",host)
 
+    def setup() {
+        DD_URI = reposeEndpoint + DD_PATH
+        KEY = UUID.randomUUID().toString()
+        URL = tempEndpoint + DD_PATH + KEY
+
+    }
+
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/datastore/authed/"
-        )
-        repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
 
+        repose.applyConfigs("features/filters/datastore/authed/")
+        repose.start()
+        waitUntilReadyToServiceRequests()
     }
 
     def cleanupSpec() {
@@ -45,71 +53,49 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "when putting cache objects" () {
-        given:
-        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'5000']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+    def "PUT with 10. or 192. should return a 403 UNAUTHORIZED when allowedHosts only accepts local calls" () {
+        given: "An endpoint with 10. or 192. that will not be resolved in DD Filter as localhost"
+        def url = tempEndpoint + DD_PATH + KEY
 
         when:
-
-        def url = tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
-        MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PUT',
-                            url: url,
-                            headers:headers,
-                            requestBody: body
-                    ])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: url, headers:DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '403'
     }
 
-    def "when checking cache object time to live"(){
-        given:
-        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'2']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
-        MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'PUT',
-                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers,
-                            requestBody: body
-                    ])
+    def "GET with 10. or 192. should return a 403 UNAUTHORIZED when allowedHosts only accepts local calls" () {
+
+        given: "An endpoint with 10. or 192. that will not be resolved in DD Filter as localhost"
+        def endpointThatWontResolveToLocalhost = tempEndpoint + DD_PATH + KEY
+
+        when: "I PUT a value for the key"
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+
+        then:
+        mc.receivedResponse.code == '202'
 
         when:
-        Thread.sleep(2500)
-        mc =
-            deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers
-                    ])
+        mc = deproxy.makeRequest([method: 'GET', url: endpointThatWontResolveToLocalhost, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '403'
 
     }
 
-    def "when deleting cache objects"(){
-        given:
-        def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'50']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+    def "DELETE with 10. or 192. should return a 403 UNAUTHORIZED when allowedHosts only accepts local calls" () {
+
+        given: "An endpoint with 10. or 192. that will not be resolved in DD Filter as localhost"
+        def endpointThatWontResolveToLocalhost = tempEndpoint + DD_PATH + KEY
+
+        when: "I PUT a value for the key"
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+
+        then:
+        mc.receivedResponse.code == '202'
 
         when:
-        MessageChain mc =
-            deproxy.makeRequest(
-                    [
-                            method: "DELETE",
-                            url:tempEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
-                            headers:headers
-                    ])
+        mc = deproxy.makeRequest([method: "DELETE", url:endpointThatWontResolveToLocalhost, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '403'
