@@ -6,8 +6,9 @@ import org.rackspace.deproxy.MessageChain
 
 class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
     boolean isFailedStart = false
+    def String warningLog = "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration."
 
-     def setupSpec() {
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
     }
@@ -66,23 +67,35 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         given:
         def List<String> logMatchesTrue
         def List<String> logMatchesFalse
+
         cleanLogDirectory()
+
+        when: "I start Repose with a DD Filter"
         repose.applyConfigs("features/filters/datastore")
         repose.start()
-        logMatchesFalse = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/services/datastore/badconfig")
-        logMatchesTrue = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        def user= UUID.randomUUID().toString();
 
-        when:
+        and: "I check for warning log messages"
+        logMatchesFalse = reposeLogSearch.searchByString(warningLog)
+
+        then: "I should not see a warning log about usage of filter and service"
+        logMatchesFalse.size() == 0
+
+        when: "I update Repose with a config that includes DD service and DD filter"
+        repose.updateConfigs("features/services/datastore/badconfig")
+
+        and: "I check for warning log messages"
+        logMatchesTrue = reposeLogSearch.searchByString(warningLog)
+
+        then: "I should have warning logs telling me the DD service and filter can't be used"
+        logMatchesTrue.size() > 1
+
+        when: "I make a request to Repose"
+        def user= UUID.randomUUID().toString();
         MessageChain mc = deproxy.makeRequest([url:reposeEndpoint,headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
 
-        then:
+        then: "Repose is still in a valid state and returns a 200"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        logMatchesTrue.size() > logMatchesFalse.size()
     }
 
     def "when configured with DD service and adding a filter, repose should log a warning and continue running with previous config" () {
@@ -90,22 +103,33 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         def List<String> logMatchesTrue
         def List<String> logMatchesFalse
         cleanLogDirectory()
+
+        when: "I start Repose with a DD Service"
         repose.applyConfigs("features/services/datastore")
         repose.start()
         waitUntilReadyToServiceRequests()
-        logMatchesFalse = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
+
+        and: "I check for warning log messages"
+        logMatchesFalse = reposeLogSearch.searchByString(warningLog)
+
+        then: "I should not see a warning log about usage of filter and service"
+        logMatchesFalse.size() == 0
+
+        when: "I update Repose with a config that includes DD service and DD filter"
         repose.updateConfigs("features/services/datastore/badconfig")
-        logMatchesTrue = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
+
+        and: "I check for warning log messages"
+        logMatchesTrue = reposeLogSearch.searchByString(warningLog)
+
+        then: "I should have warning logs telling me the DD service and filter can't be used"
+        logMatchesTrue.size() > 1
+
+        when: "I make a request to Repose"
         def user= UUID.randomUUID().toString();
+        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint,headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
 
-        when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
-
-        then:
+        then: "Repose is still in a valid state and returns a 200"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        logMatchesTrue.size() > logMatchesFalse.size()
     }
 }

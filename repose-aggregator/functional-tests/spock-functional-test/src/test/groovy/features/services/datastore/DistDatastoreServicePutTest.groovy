@@ -51,7 +51,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         when:
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then: "The body of the get response should be my second request body"
+        then:
         mc.receivedResponse.body == BODY
 
     }
@@ -80,7 +80,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         when: "I get the value for the key"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then: "The body of the get response should be my second request body"
+        then:
         mc.receivedResponse.body == BODY
     }
 
@@ -110,7 +110,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     def "PUT with missing X-PP-Host-Key should return a 500 INTERNAL SERVER ERROR and not be stored"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers: headers, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '500'
@@ -121,10 +121,6 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '404'
-
-        where:
-        headers         | scenario
-        ['X-TTL':'10']  | "missing X-PP-Host-Key"
     }
 
     def "PUT of invalid key with leading slashes should fail with 500 INTERNAL SERVER ERROR"() {
