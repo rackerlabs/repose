@@ -47,6 +47,7 @@ class TransitionBadToGoodConfigs extends Specification {
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
     }
 
+    @Unroll("start with bad #componentLabel configs, change to good, should get #expectedResponseCode")
     def "start with bad #componentLabel configs, change to good, should get #expectedResponseCode"() {
 
         given:
@@ -110,7 +111,7 @@ class TransitionBadToGoodConfigs extends Specification {
         "validator"               | 200
     }
 
-    @Unroll
+    @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
     def "start with bad #componentLabel configs, change to good (for configs that lead to connection errors)"() {
 
         given:
