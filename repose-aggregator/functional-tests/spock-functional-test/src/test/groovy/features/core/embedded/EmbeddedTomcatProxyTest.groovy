@@ -42,12 +42,12 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         config.applyConfigsRuntime("features/core/embedded",
                 [
-                        'repose_port': reposePort.toString(),
-                        'target_port': originServicePort.toString(),
+                        'reposePort': reposePort.toString(),
+                        'targetPort': originServicePort.toString(),
                         'repose.config.directory': configDirectory,
                         'repose.cluster.id': "repose1",
                         'repose.node.id': 'node1',
-                        'app_path':  mocksPath
+                        'appPath':  mocksPath
                 ]
         )
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,

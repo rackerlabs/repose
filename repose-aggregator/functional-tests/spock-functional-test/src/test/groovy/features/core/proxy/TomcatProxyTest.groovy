@@ -31,12 +31,12 @@ class TomcatProxyTest extends Specification {
 
         config.applyConfigsRuntime("features/core/proxy",
                 [
-                        'repose_port': reposePort.toString(),
-                        'target_port': originServicePort.toString(),
+                        'reposePort': reposePort.toString(),
+                        'targetPort': originServicePort.toString(),
                         'repose.config.directory': configDirectory,
                         'repose.cluster.id': "repose1",
                         'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
+                        'targetHostname': 'localhost',
                 ]
         )
         config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])

@@ -49,7 +49,7 @@ class RuntimeSysmodChangesTest extends Specification {
 
                 'proto': 'http',
                 'endpointPort': endpointPort,
-                'sysmod_port': port1,
+                'sysmodPort': port1,
 
         ]
         reposeConfigProvider.cleanConfigDirectory()
@@ -137,7 +137,7 @@ class RuntimeSysmodChangesTest extends Specification {
         params = [
             'proto': 'http',
             'endpointPort': endpointPort,
-            'sysmod_port': port2,
+            'sysmodPort': port2,
         ]
         reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/single-node-with-proto', params)
         sleep(sleep_duration)

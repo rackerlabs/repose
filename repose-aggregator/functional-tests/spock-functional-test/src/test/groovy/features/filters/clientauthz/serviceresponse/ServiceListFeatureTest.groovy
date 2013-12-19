@@ -63,7 +63,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
         fakeIdentityService.client_token = token
-        fakeIdentityService.origin_service_port = 99999
+        fakeIdentityService.originServicePort = 99999
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])

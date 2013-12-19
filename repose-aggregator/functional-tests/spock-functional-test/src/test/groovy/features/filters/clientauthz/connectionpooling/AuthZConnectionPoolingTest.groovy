@@ -77,13 +77,9 @@ class AuthZConnectionPoolingTest extends Specification {
 
         def params = [
             'reposePort': reposePort.toString(),
-            'repose_port': reposePort.toString(),
             'targetPort': originServicePort.toString(),
-            'target_port': originServicePort.toString(),
             'targetHostname': targetHostname.toString(),
-            'target_hostname': targetHostname.toString(),
             'identityPort': identityServicePort.toString(),
-            'identity_port': identityServicePort.toString()
         ]
         reposeConfigProvider.applyConfigsRuntime("common", params)
         reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthz/connectionpooling", params)
