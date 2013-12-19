@@ -14,22 +14,32 @@ import spock.lang.Unroll
 @Category(Slow.class)
 class TransitionBadToGoodConfigs extends Specification {
 
+    static int targetPort
+    static Deproxy deproxy
+
     int reposePort
     int stopPort
-    int targetPort
     String url
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeLogSearch reposeLogSearch
     ReposeValveLauncher repose
     Map params = [:]
-    Deproxy deproxy
+
+    def setupSpec() {
+
+        targetPort = PortFinder.Singleton.getNextOpenPort() as int
+
+        // start a deproxy
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(this.targetPort)
+
+    }
 
     def setup() {
 
         this.reposePort = PortFinder.Singleton.getNextOpenPort() as int
         this.stopPort = PortFinder.Singleton.getNextOpenPort() as int
-        this.targetPort = PortFinder.Singleton.getNextOpenPort() as int
         this.url = "http://localhost:${this.reposePort}/"
 
         params = [
@@ -37,10 +47,6 @@ class TransitionBadToGoodConfigs extends Specification {
                 'targetHostname': 'localhost',
                 'targetPort': targetPort,
         ]
-
-        // start a deproxy
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(this.targetPort)
 
         // setup config provider
         properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
@@ -170,6 +176,9 @@ class TransitionBadToGoodConfigs extends Specification {
         if (repose) {
             repose.stop()
         }
+    }
+
+    def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
