@@ -6,7 +6,7 @@
     <nodes>
       <node id="dd-node-1" hostname="localhost" http-port="${reposePort}"/>
       <!-- TODO use a dynamic port for these nodes -->
-      <node id="dd-node-2" hostname="localhost" http-port="8889"/>
+      <node id="dd-node-2" hostname="localhost" http-port="${reposePort2}"/>
     </nodes>
 
     <filters>
