@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+      xml:id="Repose-Compression-Chapter">
+    <?rax pdf.url="../../repose-versioning-deploy.pdf"?>
+    
+    
+    <title>Compression Filter</title>
+    <section xml:id="What-Is-Compression-10">
+        <title>What Is Compression?</title>
+        <para>Compression is the process of reducing data size for
+            storage or transmission. In addition to compressing data,
+            you may need to expand or decompress data to its original
+            form. The Repose Compression filter can accomplish these
+            tasks for you. </para> 
+ </section>
+    
+<section xml:id="What-Can-the-Compression-Filter-Do-20">
+            <title> What Can the Compression Filter Do?</title>
+            <para> The Repose Compression filter can compress and
+            decompress request and response data. This filter operates
+            as a wrapper for the PlanetJ CompressingFilter. </para>
+        <para>
+            <note>
+                <para>The Compression filter was added in the Repose
+                    release version 2.7. Please upgrade to Repose
+                    version 2.7 or above to use this filter. </para>
+            </note>
+        </para>
+        <para> </para>
+    </section>
+    
+    <section xml:id="Compression-Prereqs-30">
+        <title> What Are the Prerequisites?</title>
+        <para>The Compression filter has no required incoming headers.
+            When ordering the filters, it should be placed before any
+            filter that looks at the request body.</para>
+        
+        
+    </section>
+        
+    <section xml:id="Compression-Configuration-40">
+        <title>How Is the Compression Filter Configured?</title>
+<!-- Add link to System Model Config -->
+        
+        <para>You can configure your service to use the Repose
+            Compression filter to compress and decompress request and
+            response data. The Compression filter can be added to the
+            Repose deployment through the 
+            <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">
+                System Model Configuration</link>.
+            
+            All of the Compression filter configurations fall under
+            the <code>&lt;compression&gt;</code>element as attributes. </para>
+        
+        <para>
+            <guilabel>Your configuration in compression.cfg.xml will
+                resemble the following example: </guilabel></para>
+        <example><title>Sample Compression Configuration File</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-compression-cfg.txt" parse="text"/>
+                </programlisting>
+        </example>
+        <para><guilabel> Element/Attribute Glossary for
+                Compression</guilabel></para>
+        <para> </para>
+        <para> The elements and attributes used in the Compression
+            filter are described below. </para>
+        
+        <variablelist>
+            <varlistentry>
+                <term><guilabel>&lt;compression-threshold&gt;</guilabel>
+                </term>
+                <listitem><para>This attribute sets the size, using
+                    bytes, of the
+                    smallest response that will be compressed.</para>
+                    <para>If less than the amount of bytes specified in the
+                        compressionThreshold attribute are written 
+                        to the response, the request will not be
+                        compressed, and the response will 
+                        go to the client unmodified. If it is set to
+                        0, compression will begin immediately. 
+                        The default is number of bytes is 1024.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><guilabel>&lt;debug&gt;</guilabel></term>
+                
+                <listitem><para>This attribute </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><guilabel>&lt;exclude-content-types&gt;</guilabel></term>
+                <listitem><para>This attribute specifies a list of
+                    content types that should not be compressed;
+                    everything else will be compressed. Note that any content type 
+                    that indicates a compressed format (e.g. application/gzip, application/x-compress) 
+                    will not be compressed in any event.</para> 
+                </listitem>
+            </varlistentry>
+            
+            <varlistentry>
+                <term><guilabel>&lt;exclude-user-agent-patterns&gt;</guilabel></term>
+                <listitem><para>This attribute will not compress requests
+                    whose User-Agent header values match one of
+                    these patterns. 
+                </para> 
+                </listitem>
+            </varlistentry>
+            
+            <varlistentry>
+                <term><guilabel>&lt;include-content-types&gt;</guilabel></term>
+                <listitem><para>This attribute is treated as a space-separated list 
+                    of content types (e.g. text/html,text/xml). It attempts 
+                    to compress only the responses that specify one of these values 
+                    as its content type, such as ServletResponse.setContentType(String). </para>
+                    
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term><guilabel>&lt;include-user-agent-patterns&gt;</guilabel></term>
+                <listitem><para>This attribute only compresses
+                    requests with User-Agent headers whose 
+                    value matches one of these regular expressions.
+                    It cannot be specified if excludeUserAgentPatterns
+                    is specified.</para>
+                    <db:para>
+                        <note>
+                            <para>The following configurations of the
+                                Compression filter are not exposed
+                                through the Repose
+                                configuration:</para>
+                            <itemizedlist>
+                                <listitem>
+                                   <para>includePathPatterns/excludePathPatterns
+                                   - Path matching per filter can be
+                                   configured through the 'uri-regex'
+                                   attribute of the filter declaration
+                                   within the sytem-model.cfg.xml
+                                   file.</para>
+                                </listitem>
+                                <listitem>
+                                   <para>javaUtilLogger - Filter logs
+                                   will be printed through the Repose
+                                   system logs.</para>
+                                   
+                                   </listitem>
+                                <listitem>
+                                   <para>jakartaCommonsLogger - Filter
+                                   logs will be printed through the
+                                   Repose system logs.</para>
+                                   </listitem>
+                                   
+                             
+                            </itemizedlist>
+                        </note>
+                    </db:para> 
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+    
+    <section xml:id="How-Does-Compression-Work-50">
+        <title>How Does the Compression Filter Work?</title>
+        <para>Depending on your need, you can configure the Repose
+            Compression filter to either compress, decompress, or pass
+            the request data that it receives from the client before
+            sending it to the origin service. The Compression filter
+            then compresses, decompresses, or passes the response data
+            that it receives from the origin service before sending it
+            back to the client. A typical Compression filter  decision
+            flow is summarized in the drawing below: </para>
+        <figure
+            xml:id="Compression-Filter-Diagram">
+            <title>Request/Response Lifecycle for
+                the Compression Filter</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata
+                        fileref="../figures/repose-compression-figure.png"
+                        format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    
+    </section>
+    
+    <section xml:id="Supported-Compresions-60">
+        <title>What Type of Compressions Are Supported?</title>
+        <para> Currently, the Repose Compression filter supports these compression schemes:</para>
+        <itemizedlist>
+            <listitem><para>gzip</para></listitem>
+        </itemizedlist>
+        
+        <itemizedlist>
+            <listitem><para>x-gzip</para></listitem>
+        </itemizedlist>
+        
+        <itemizedlist>
+            <listitem><para>deflate</para></listitem>
+        </itemizedlist>
+        
+        <itemizedlist>
+            <listitem><para>identity (no compression)</para>
+                <db:para>
+                    <note>
+                        <para>The Repose Compression filter does not
+                            support the Compress and the X-Compress
+                            schemes that are supported by the PlanetJ
+                            CompressingFilter.</para>
+                    </note>
+                </db:para></listitem>
+        </itemizedlist>
+    </section>
+</chapter>

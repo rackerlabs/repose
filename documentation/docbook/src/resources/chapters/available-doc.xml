@@ -51,7 +51,6 @@
                 <th>Request Modification Filters</th>
                 <th>Rate Limiting  Filters</th>
                 <th>Authentication Filters</th>
-                <th>Routing Filters</th>
                 <th>Other Filters</th> 
             </tr>
         </thead>
@@ -65,10 +64,6 @@
                 </td>
                 <td>
                     <para>Client Authentication</para>
-                </td>
-                
-                <td>
-                    <para>Destination Router (v2)</para>
                 </td>
                 <td>
                     <para>API (WADL/XSD) Validation</para>
@@ -86,9 +81,6 @@
                     <para>Client Authorization</para>
                 </td>
                 <td>
-                    <para/>
-                </td>
-                <td>
                     <para>Compression</para>
                 </td>
             </tr>
@@ -104,9 +96,6 @@
                     <para>Service Authentication</para>
                 </td>
                 <td>
-                    <para/>
-                </td>
-                <td>
                     <para>Flush Output Stream</para>
                 </td>
             </tr>
@@ -117,15 +106,44 @@
                 <td>
                     <para>Rate Limiting</para>
                 </td>
-                <td>
-                    <para/>
-                </td>
+                
                 <td>
                     <para/>
                 </td>
                 <td>
                     <para>HTTP Logging</para>
                 </td>
+            </tr>
+            <tr>
+                <td/>
+                <td>URI Identity</td>
+                <td/>
+                <td>Datastore (Distributed, Replicated, and
+                    Local)</td>
+            </tr>
+            <tr>
+                <td/>
+                <td/>
+                <td/>
+                <td>Versioning</td>
+            </tr>
+            <tr>
+                <td/>
+                <td/>
+                <td/>
+                <td>Translation</td>
+            </tr>
+            <tr>
+                <td/>
+                <td/>
+                <td/>
+                <td>URI Stripper</td>
+            </tr>
+            <tr>
+                <td/>
+                <td/>
+                <td/>
+                <td>Destination Router (v2)</td>
             </tr>
             
         </tbody>

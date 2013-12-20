@@ -55,17 +55,7 @@
                         uses of &PRODNAME;.
                     </emphasis>
                 </para>
-                
-                
-                <glossentry xml:id="lollipop">
-                    <glossterm><emphasis role="bold">Lollipop</emphasis></glossterm>
-                    <glossdef>
-                        <para> All about lollipops.</para>
-                    </glossdef>
-                </glossentry>
-                
-                
-                
+                             
                 <glossentry xml:id="Client-AuthN-d1e015">
                 <glossterm><emphasis role="bold">Client Authentication</emphasis></glossterm>
                 <glossdef>
