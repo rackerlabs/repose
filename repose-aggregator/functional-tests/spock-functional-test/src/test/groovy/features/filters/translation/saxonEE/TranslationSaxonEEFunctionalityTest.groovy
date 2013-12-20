@@ -71,7 +71,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         where:
         reqHeaders             | respHeaders | reqBody   | method | bodyShouldContain
-        acceptXML + contentXML | contentXML  | jsonInXml | "POST" | ["<category term=\"DATACENTER=req1\"></category>", "<category term=\"REGION=req\"></category>"]
+        acceptXML + contentXML | contentXML  | jsonInXml | "POST" | ["<category term=\"DATACENTER=req1\"/>", "<category term=\"REGION=req\"/>"]
 
     }
 
