@@ -23,9 +23,9 @@ class HeaderNormalizationTest extends ReposeValveTest {
     ]
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/headerNormalization/"
-        )
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headerNormalization", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
