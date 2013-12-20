@@ -55,7 +55,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
-        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains('1.1 localhost:8888 (Repose/')
+        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
     }
 
@@ -77,7 +77,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
-        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains('1.1 localhost:8888 (Repose/')
+        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
 
     }
@@ -99,7 +99,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
-        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains('1.1 localhost:8888 (Repose/')
+        mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
     }
 
@@ -122,7 +122,7 @@ class HeaderNormalizationTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("x-second-filter") == 'secondValue'
         mc.handlings[0].request.headers.getFirstValue("x-third-filter") == 'thirdValue'
         mc.handlings[0].request.headers.getFirstValue("x-first-filter") == 'firstValue'
-        mc.handlings[0].request.headers.getFirstValue("via").contains('1.1 localhost:8888 (Repose/')
+        mc.handlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
     }
 
