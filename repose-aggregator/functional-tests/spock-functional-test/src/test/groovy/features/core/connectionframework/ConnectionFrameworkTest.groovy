@@ -13,7 +13,9 @@ class ConnectionFrameworkTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/connectionframework/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/connectionframework", params)
         repose.start()
 
         waitUntilReadyToServiceRequests()

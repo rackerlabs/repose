@@ -15,7 +15,9 @@ class RequestSizeTest extends ReposeValveTest {
     String charset = (('A'..'Z') + ('0'..'9')).join()
 
     def setupSpec() {
-        repose.applyConfigs("features/core/powerfilter/requestsize")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/requestsize", params)
         repose.start()
 
         deproxy = new Deproxy()

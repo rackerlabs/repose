@@ -10,7 +10,9 @@ class HeaderParserTest extends ReposeValveTest {
     def static String locations = "/v1/queues/mqueue/messages?ids=locationOne,locationTwo"
 
     def setupSpec() {
-        repose.applyConfigs( "features/core/powerfilter/common" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()

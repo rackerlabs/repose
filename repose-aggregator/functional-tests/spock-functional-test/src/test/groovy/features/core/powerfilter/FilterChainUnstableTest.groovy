@@ -13,8 +13,9 @@ class FilterChainUnstableTest extends ReposeValveTest{
     def handler5XX = { request -> return new Response(503, 'SERVICE UNAVAILABLE') }
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/badconfigs/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/badconfigs", params)
         try {
             repose.start()
         } catch(TimeoutException e){

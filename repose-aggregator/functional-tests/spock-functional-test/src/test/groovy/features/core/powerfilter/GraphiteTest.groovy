@@ -14,7 +14,9 @@ class GraphiteTest extends ReposeValveTest {
     String REPOSE_2XX = PREFIX + "Repose" + NAME_2XX
 
     def setup() {
-        repose.applyConfigs("features/core/powerfilter/graphite")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/graphite", params)
         repose.start()
 
         deproxy = new Deproxy()
