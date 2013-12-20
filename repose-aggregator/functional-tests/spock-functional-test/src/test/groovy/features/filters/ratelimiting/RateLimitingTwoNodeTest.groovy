@@ -3,6 +3,7 @@ package features.filters.ratelimiting
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
@@ -21,10 +22,20 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
     final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
 
     def setupSpec() {
+
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/ratelimiting/twonodes/")
+        reposePort2 = PortFinder.Singleton.getNextOpenPort()
+
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                reposePort2: reposePort2
+        ]
+
+
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/ratelimiting/twonodes", params)
         repose.start()
 
         sleep(5000)
