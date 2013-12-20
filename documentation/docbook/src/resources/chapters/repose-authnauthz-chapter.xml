@@ -37,7 +37,7 @@
     xmlns:m="http://www.w3.org/1998/Math/MathML"
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:db="http://docbook.org/ns/docbook"
-    xml:id="Repose-AuthNZ-Deployment-Guide">
+    xml:id="Repose-AuthNZ-Chapter"> 
     <?rax pdf.url="../../repose-authnauthz-deploy.pdf"?>
     <title>Authentication &amp; Authorization Filters</title>
        
@@ -301,11 +301,11 @@
                             user groups to Repose. </para>
                     </listitem>
                     <listitem>
-                        <para> Repose caches the user groups and sets
+                        <para>  Repose caches the user groups and sets
                             the headers. </para>
                     </listitem>
                     <listitem>
-                        <para> Repose forwards the request with the
+                        <para>  Repose forwards the request with the
                             following additional headers: </para>
                         <itemizedlist>
                             <listitem><para>X-Authorization</para></listitem>
@@ -320,16 +320,19 @@
                         </itemizedlist>
                     </listitem>
                     <listitem>
-                        <para> The origin service processes the request. </para>
+                        <para>  The origin service processes the
+                            request. </para>
                     </listitem>
                     <listitem>
-                        <para> The origin service returns the response. </para>
+                        <para>  The origin service returns the
+                            response. </para>
                     </listitem>
                     <listitem>
-                        <para> Repose passes the response. </para>
+                        <para>  Repose passes the response. </para>
                     </listitem>
                     <listitem>
-                        <para> Repose returns the response with the user token to the client. </para>
+                        <para>  Repose returns the response with the
+                            user token to the client. </para>
                     </listitem>
                     
                 </orderedlist>
@@ -897,11 +900,11 @@
         <figure xml:id="Authorization_Decisions-figure">
             <title>Decision Flow in the &PRODNAME; Client
                 Authorization component</title>
-            <!--this is now PNG from openrepose wiki; retry as SVG when I find John's email attachment-->
+           
             <mediaobject>
                 <imageobject>
                     <imagedata
-                        fileref="../figures/repose-authz-decisions.png"
+                        fileref="../figures/repose-decision-flow-authZ.png"
                         format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
