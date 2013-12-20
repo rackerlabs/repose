@@ -31,17 +31,26 @@ class ClientRequestLogging extends ReposeValveTest {
         cleanLogDirectory()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        params = properties.getDefaultTemplateParams()
+    }
+
+    static def params
+
+    def cleanup() {
+        if (repose) {
+            repose.stop()
+        }
     }
 
     def cleanupSpec() {
         deproxy.shutdown()
-        repose.stop()
     }
 
     def "test with client request logging true"(){
 
         given: "Repose configs are updated"
-        repose.updateConfigs("common","features/core/proxy/clientRequestLoggingTrue")
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingTrue", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
@@ -61,7 +70,8 @@ class ClientRequestLogging extends ReposeValveTest {
     def "test with client request logging false"() {
 
         given: "Repose configs are updated"
-        repose.updateConfigs("common","features/core/proxy/clientRequestLoggingFalse")
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingFalse", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
@@ -80,7 +90,8 @@ class ClientRequestLogging extends ReposeValveTest {
     def "test with client request logging missing"(){
 
         given: "Repose configs are updated"
-        repose.updateConfigs("common","features/core/proxy/clientRequestLoggingDNE")
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingDNE", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
