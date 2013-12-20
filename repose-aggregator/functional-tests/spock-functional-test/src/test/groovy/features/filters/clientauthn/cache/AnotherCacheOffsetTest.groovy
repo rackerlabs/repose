@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
+import spock.lang.Unroll
 
 @Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
@@ -20,6 +21,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         repose.stop()
     }
 
+    @Unroll("when cache offset is not configured then no cache offset is used - #id")
     def "when cache offset is not configured then no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
@@ -140,9 +142,9 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser |additionalConfigs
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero"
+        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"      | 1
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero" | 2
 
     }
 
