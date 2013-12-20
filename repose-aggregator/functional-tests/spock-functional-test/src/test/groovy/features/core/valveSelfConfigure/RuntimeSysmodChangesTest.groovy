@@ -109,6 +109,8 @@ class RuntimeSysmodChangesTest extends Specification {
         ]
         reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/two-nodes', params)
         sleep(sleep_duration)
+        repose.waitForNon500FromUrl("http://localhost:${port1}")
+        repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
         1 == 1
 
@@ -141,6 +143,7 @@ class RuntimeSysmodChangesTest extends Specification {
         ]
         reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/single-node-with-proto', params)
         sleep(sleep_duration)
+        repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
         1 == 1
 
@@ -176,6 +179,8 @@ class RuntimeSysmodChangesTest extends Specification {
         ]
         reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/three-nodes', params)
         sleep(sleep_duration)
+        repose.waitForNon500FromUrl("http://localhost:${port1}")
+        repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
         1 == 1
 
@@ -211,6 +216,8 @@ class RuntimeSysmodChangesTest extends Specification {
         ]
         reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/three-nodes', params)
         sleep(sleep_duration)
+        repose.waitForNon500FromUrl("http://localhost:${port2}")
+        repose.waitForNon500FromUrl("http://localhost:${port3}")
         then:
         1 == 1
 
