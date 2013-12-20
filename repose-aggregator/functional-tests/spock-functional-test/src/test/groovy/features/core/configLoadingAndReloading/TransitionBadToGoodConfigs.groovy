@@ -147,8 +147,7 @@ class TransitionBadToGoodConfigs extends Specification {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        sleep 15000
-        repose.waitForNon500FromUrl(url)
+        sleep 35000
 
 
         when: "starting Repose with bad configs should lead to a connection exception"
@@ -162,8 +161,7 @@ class TransitionBadToGoodConfigs extends Specification {
         reposeConfigProvider.applyConfigsRuntime(
                 "features/core/configLoadingAndReloading/${componentLabel}-good",
                 params)
-        sleep 15000
-        repose.waitForNon500FromUrl(url)
+        sleep 35000
 
         then: "Repose should start returning 200's"
         deproxy.makeRequest(url: url).receivedResponse.code == "200"
