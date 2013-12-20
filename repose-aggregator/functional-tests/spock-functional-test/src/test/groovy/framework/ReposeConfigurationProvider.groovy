@@ -26,43 +26,6 @@ class ReposeConfigurationProvider {
     }
 
     /**
-     * Prepare the configs using the configuration locations specified
-     * @param configLocations directories where Repose configuration files live
-     */
-    void applyConfigs(String[] configLocations) {
-
-        FileUtils.deleteDirectory(reposeConfigDir)
-
-        // set the common config files, like system model and container
-        FileUtils.copyDirectory(commonSamplesDir, reposeConfigDir)
-
-        // Apply all configurations found in each of the config locations to the REPOSE
-        // config directory
-        configLocations.each { configs ->
-            FileUtils.copyDirectory(new File(samplesDir.absolutePath + "/" + configs), reposeConfigDir)
-        }
-    }
-
-    void updateConfigs(String[] configLocations) {
-        configLocations.each { configs ->
-            FileUtils.copyDirectory(new File(samplesDir.absolutePath + "/" + configs), reposeConfigDir)
-        }
-        println("updating configs")
-
-        // TODO: add some conditional check here to only sleep until the configs have been reloaded
-        // For now, we know that configs get checked every 15 seconds, so sleep a bit longer than this... suckaroos
-        try {
-            waitForCondition(clock, '25s', '1s', {
-                false
-            })
-        } catch (TimeoutException e) {
-            // do nothing... eventually make this conditional wait actually check some condition
-        }
-
-        println("updated configs")
-    }
-
-    /**
      * Copies files from the designated source folder to Repose's config
      *   folder, and substitutes templates parameters as specified. This
      *   method acts recursively, copying and retaining the whole folder
@@ -72,8 +35,11 @@ class ReposeConfigurationProvider {
      * @param params A map for names to values to be substituted.
      *   eg: "Hello ${name}!" with params=["name":"world"] becomes
      *   "Hello world!"
+     * @param sleepTimeInSeconds Sleep for this many seconds after the
+     *   config files have been applied. Useful for waiting for Repose
+     *   to pick up the new changes.
      */
-    void applyConfigsRuntime(String sourceFolder, params=[:], sleepTimeInSeconds=null) {
+    void applyConfigsRuntime(String sourceFolder, Map params=[:], sleepTimeInSeconds=null) {
 
         def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
 
