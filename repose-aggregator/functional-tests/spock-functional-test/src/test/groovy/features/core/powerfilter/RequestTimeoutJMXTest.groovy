@@ -20,7 +20,9 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
     def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }
 
     def setupSpec() {
-        repose.applyConfigs("features/core/powerfilter/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()
