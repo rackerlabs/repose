@@ -54,8 +54,8 @@ class ContentIdentityTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/contentidentity", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/contentidentity", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

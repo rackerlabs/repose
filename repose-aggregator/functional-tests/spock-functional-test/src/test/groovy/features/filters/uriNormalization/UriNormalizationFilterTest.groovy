@@ -14,8 +14,8 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -61,7 +61,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
    @Unroll("URI Normalization of queryParameters #behaviorExpected")
    def "When target is empty in uri filter"(){
 
-       repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization/emtpyuritarget", params, /*sleepTime*/ 25)
+       repose.configurationProvider.applyConfigs("features/filters/uriNormalization/emtpyuritarget", params, /*sleepTime*/ 25)
 
         given:
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
@@ -85,7 +85,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When http method doesn't match the uri filter"(){
 
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization/withmedia", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/withmedia", params, /*sleepTime*/ 25)
 
 
         given:
@@ -116,7 +116,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri-regex is not specified"(){
 
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization/noregexwithmedia", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/noregexwithmedia", params, /*sleepTime*/ 25)
 
 
         given:
@@ -141,7 +141,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri filter does not have uri-regex and htt-methods"(){
 
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization/nohttpmethodswithmedia", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/nohttpmethodswithmedia", params, /*sleepTime*/ 25)
 
 
         given:
@@ -166,7 +166,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When no uri filters exist"(){
 
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriNormalization/onlymediavariant", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/onlymediavariant", params, /*sleepTime*/ 25)
 
         given:
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;

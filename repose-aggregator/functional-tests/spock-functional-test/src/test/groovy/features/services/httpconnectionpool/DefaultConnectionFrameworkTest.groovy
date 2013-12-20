@@ -20,8 +20,8 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
 
         given: "Repose is configured with no connection framework specified"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.connFramework = ""
 
         when: "Repose is started"
@@ -37,8 +37,8 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
 
         given: "Repose is configured with a connection framework specified on cmdline"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.connFramework = connFramework
 
         when: "Repose is started"

@@ -1,8 +1,6 @@
 package features.filters.uriidentity
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
@@ -15,8 +13,8 @@ class UriIdentityTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uriidentity", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uriidentity", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

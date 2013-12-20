@@ -199,8 +199,8 @@ class MultimatchTest extends ReposeValveTest {
     }
 
     def setup() {
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
     }
 
     def cleanup() {
@@ -216,7 +216,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When a request is made with role(s) matching a validator (TestSspnn)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/f4f4pf5f5", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/f4f4pf5f5", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -240,7 +240,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When a request is made with a role not matching a validator and no default validator (TestPAndS"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/p", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -261,7 +261,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When a request is made to a resource that is not defined in the wadl (TestF)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/f4", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/f4", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -281,7 +281,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When a request is made to a resource that is not defined in the wadl with multiple validators (TestSfn)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/pf4f5", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/pf4f5", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -301,7 +301,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When a request is made and a default validator is set (TestSingleMatchDefaults)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/s-default", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/s-default", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -322,7 +322,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set (TestMssfsffpnn)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mf4f4f5f4f5f5pf4f4", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/mf4f4f5f4f5f5pf4f4", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -345,7 +345,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and no validator matches (TestMpAndMs)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mp", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/mp", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -366,7 +366,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a fail validator matches the role (TestMf)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mf4", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/mf4", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -386,7 +386,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a pass validator matches the role (TestMsp)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mf4p", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/mf4p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -407,7 +407,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a default validator passes the request (TestMultimatchMatchDefaults1)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/m-default-1", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/m-default-1", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -428,7 +428,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a matching validator passes the request (TestMultimatchMatchDefaults2)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/m-default-2", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/m-default-2", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -449,7 +449,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a matching validator fails the request (TestMultimatchMatchDefaults3)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/m-default-3", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/m-default-3", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -470,7 +470,7 @@ class MultimatchTest extends ReposeValveTest {
     def "When multi-role-match is set and a default validator fails the request (TestMultimatchMatchDefaults4)"() {
         setup:
         MessageChain messageChain
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/m-default-4", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/m-default-4", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

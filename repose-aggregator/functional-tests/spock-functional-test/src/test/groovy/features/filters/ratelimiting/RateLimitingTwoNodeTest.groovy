@@ -39,8 +39,8 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         ]
 
 
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/ratelimiting/twonodes", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
         repose.start()
 
         sleep(5000)

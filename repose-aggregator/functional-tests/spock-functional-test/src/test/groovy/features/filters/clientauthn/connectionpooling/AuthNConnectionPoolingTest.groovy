@@ -80,9 +80,9 @@ class AuthNConnectionPoolingTest extends Specification {
                 'targetHostname': targetHostname.toString(),
                 'identityPort': identityServicePort.toString(),
         ]
-        reposeConfigProvider.applyConfigsRuntime("common", params)
-        reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling", params)
-        reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling2", params)
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
+        reposeConfigProvider.applyConfigs("features/filters/clientauthn/connectionpooling2", params)
         repose.start()
     }
 

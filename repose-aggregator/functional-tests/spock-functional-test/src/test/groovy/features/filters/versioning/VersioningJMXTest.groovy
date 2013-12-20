@@ -70,7 +70,7 @@ class VersioningJMXTest extends Specification {
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "common",
                 [   'reposePort': reposePort.toString(),
                     'targetPort1': originServicePort1.toString(),
@@ -81,7 +81,7 @@ class VersioningJMXTest extends Specification {
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/versioning/metrics",
                 [   'reposePort': reposePort.toString(),
                     'targetPort1': originServicePort1.toString(),

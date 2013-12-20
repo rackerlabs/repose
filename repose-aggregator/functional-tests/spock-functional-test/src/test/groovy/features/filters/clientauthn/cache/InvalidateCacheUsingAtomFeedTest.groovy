@@ -96,9 +96,9 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/atom", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/atom", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')

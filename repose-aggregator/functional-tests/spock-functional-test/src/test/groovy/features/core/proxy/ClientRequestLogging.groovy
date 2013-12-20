@@ -49,8 +49,8 @@ class ClientRequestLogging extends ReposeValveTest {
     def "test with client request logging true"(){
 
         given: "Repose configs are updated"
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingTrue", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/clientRequestLoggingTrue", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
@@ -70,8 +70,8 @@ class ClientRequestLogging extends ReposeValveTest {
     def "test with client request logging false"() {
 
         given: "Repose configs are updated"
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingFalse", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/clientRequestLoggingFalse", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")
@@ -90,8 +90,8 @@ class ClientRequestLogging extends ReposeValveTest {
     def "test with client request logging missing"(){
 
         given: "Repose configs are updated"
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/proxy/clientRequestLoggingDNE", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/clientRequestLoggingDNE", params)
         repose.start()
         List<String> wire_logs = reposeLogSearch.searchByString("org.apache.http.wire")
         List<String> headers_logs = reposeLogSearch.searchByString("org.apache.http.headers")

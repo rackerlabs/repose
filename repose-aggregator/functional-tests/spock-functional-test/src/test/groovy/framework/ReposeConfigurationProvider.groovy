@@ -39,7 +39,7 @@ class ReposeConfigurationProvider {
      *   config files have been applied. Useful for waiting for Repose
      *   to pick up the new changes.
      */
-    void applyConfigsRuntime(String sourceFolder, Map params=[:], sleepTimeInSeconds=null) {
+    void applyConfigs(String sourceFolder, Map params=[:], sleepTimeInSeconds=null) {
 
         def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
 

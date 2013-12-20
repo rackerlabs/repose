@@ -45,13 +45,13 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
 
         reposeConfigProvider.cleanConfigDirectory()
 
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/container-no-port",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/one-node",
                 params)
         repose = new ReposeValveLauncher(
@@ -85,7 +85,7 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
             'port': port,
             'endpointPort': endpointPort,
         ]
-        reposeConfigProvider.applyConfigsRuntime('features/core/valveSelfConfigure/one-node', params)
+        reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/one-node', params)
         sleep(sleep_duration)
         then:
         1 == 1

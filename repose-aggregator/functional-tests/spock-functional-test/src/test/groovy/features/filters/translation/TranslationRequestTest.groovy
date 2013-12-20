@@ -40,9 +40,9 @@ class TranslationRequestTest extends ReposeValveTest {
     def setupSpec() {
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/request", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/request", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

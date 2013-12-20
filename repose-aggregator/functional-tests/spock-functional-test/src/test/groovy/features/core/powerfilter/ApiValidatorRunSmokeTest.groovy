@@ -30,8 +30,8 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
                 reposePort: properties.reposePort,
                 targetPort: properties.targetPort,
         ]
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/smoke", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/smoke", params)
         repose.start()
        // def xmlResp = { request -> return new Response(200, "OK")}
 

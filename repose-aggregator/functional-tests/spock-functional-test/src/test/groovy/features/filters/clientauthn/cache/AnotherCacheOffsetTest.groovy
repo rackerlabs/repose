@@ -30,9 +30,9 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
                 targetPort: properties.targetPort,
                 identityPort: properties.identityPort
         ]
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/cacheoffset/common", params)
-        repose.configurationProvider.applyConfigsRuntime(additionalConfigs, params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/cacheoffset/common", params)
+        repose.configurationProvider.applyConfigs(additionalConfigs, params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

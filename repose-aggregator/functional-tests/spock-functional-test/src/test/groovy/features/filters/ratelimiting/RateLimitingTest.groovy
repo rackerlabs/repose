@@ -37,8 +37,8 @@ class RateLimitingTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/ratelimiting/onenodes", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
         repose.start()
     }
 

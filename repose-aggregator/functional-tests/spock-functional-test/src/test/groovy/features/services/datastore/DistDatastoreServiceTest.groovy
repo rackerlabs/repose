@@ -4,7 +4,6 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
 
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
@@ -16,8 +15,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/datastore", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

@@ -18,8 +18,8 @@ class DistDataShutdownTest extends ReposeValveTest {
     def "when configured with dist datastore as a service should shutdown nicely when asked" () {
         given: "repose is configured with dist datastore"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/datastore", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -33,8 +33,8 @@ class DistDataShutdownTest extends ReposeValveTest {
     def "when configured with dist datastore as a filter should shutdown nicely when asked" () {
         given:
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/datastore", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 

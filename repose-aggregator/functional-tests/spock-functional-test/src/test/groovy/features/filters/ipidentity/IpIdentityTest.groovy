@@ -24,11 +24,11 @@ class IpIdentityTest extends ReposeValveTest {
         url = "http://localhost:${reposePort}"
 
         repose.configurationProvider.cleanConfigDirectory()
-        repose.configurationProvider.applyConfigsRuntime(
+        repose.configurationProvider.applyConfigs(
                 "common",
                 ["reposePort": reposePort.toString(),
                         "targetPort": deproxyPort.toString()]);
-        repose.configurationProvider.applyConfigsRuntime(
+        repose.configurationProvider.applyConfigs(
                 "features/filters/ipidentity",
                 ["reposePort": reposePort.toString(),
                         "targetPort": deproxyPort.toString()]);

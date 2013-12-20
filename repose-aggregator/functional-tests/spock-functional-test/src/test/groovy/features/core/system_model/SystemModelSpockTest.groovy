@@ -9,8 +9,8 @@ class SystemModelSpockTest extends ReposeValveTest {
 
     def setup() {
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/system_model/dist_datastore_filter_and_service", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/system_model/dist_datastore_filter_and_service", params)
     }
 
     def cleanup() {

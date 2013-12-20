@@ -26,8 +26,8 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         deproxy = new Deproxy()
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/nogroups", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/nogroups", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

@@ -35,9 +35,9 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         given: "repose is started using a non-uri path for the wadl, in this case the path generic_pass.wadl"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/wadlpath/good", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/good", params)
         repose.start()
         sleep(10000)
         reposeLogSearch = new ReposeLogSearch(logFile);
@@ -56,9 +56,9 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         given: "repose is started using a non-uri path for the wadl, in this case the path does_not_exist.wadl"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/wadlpath/bad", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/bad", params)
         repose.start()
         sleep(15000)
         reposeLogSearch = new ReposeLogSearch(logFile);

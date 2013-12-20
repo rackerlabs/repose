@@ -72,9 +72,9 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityService.handler);
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/tokenexpireheader", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/tokenexpireheader", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/connectionpooling", params)
         repose.start()
     }
 

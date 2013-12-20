@@ -20,9 +20,9 @@ class HttpClientServiceTest extends ReposeValveTest {
     def "repose should use http conn pool service for origin service" () {
         given:
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/withconfig", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/withconfig", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 

@@ -29,7 +29,7 @@ class TomcatProxyTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config.applyConfigsRuntime("features/core/proxy",
+        config.applyConfigs("features/core/proxy",
                 [
                         'reposePort': reposePort.toString(),
                         'targetPort': originServicePort.toString(),
@@ -39,7 +39,7 @@ class TomcatProxyTest extends Specification {
                         'targetHostname': 'localhost',
                 ]
         )
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
+        config.applyConfigs("common", ['project.build.directory': buildDirectory])
 
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)

@@ -55,13 +55,13 @@ class MultiClusterMultiNodeTest extends Specification {
                 'endpointPort2': endpointPort2,
         ]
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/container-no-port",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/valveSelfConfigure/two-clusters-two-nodes-each",
                 params)
         repose = new ReposeValveLauncher(

@@ -37,10 +37,10 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
-        config.applyConfigsRuntime("features/filters/ipidentity", ['project.build.directory': buildDirectory])
+        config.applyConfigs("common", ['project.build.directory': buildDirectory])
+        config.applyConfigs("features/filters/ipidentity", ['project.build.directory': buildDirectory])
 
-        config.applyConfigsRuntime("features/core/embedded",
+        config.applyConfigs("features/core/embedded",
                 [
                         'reposePort': reposePort.toString(),
                         'targetPort': originServicePort.toString(),

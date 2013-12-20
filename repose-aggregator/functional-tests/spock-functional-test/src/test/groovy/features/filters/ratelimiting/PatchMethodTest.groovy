@@ -35,10 +35,10 @@ class PatchMethodTest extends Specification {
                 'endpointPort': endpointPort,
         ]
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/ratelimiting/oneNode",
                 params)
         repose = new ReposeValveLauncher(

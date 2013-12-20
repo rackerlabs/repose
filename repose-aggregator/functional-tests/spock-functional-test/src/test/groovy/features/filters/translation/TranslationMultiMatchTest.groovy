@@ -33,9 +33,9 @@ class TranslationMultiMatchTest extends ReposeValveTest {
     def setupSpec() {
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/multimatch", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/multimatch", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

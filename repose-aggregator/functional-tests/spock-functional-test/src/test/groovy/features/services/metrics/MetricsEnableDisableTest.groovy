@@ -36,9 +36,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         setup: "load the correct configuration file"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsenabled", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/metricsenabled", params)
         repose.start()
 
         when:
@@ -54,9 +54,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         setup: "load the correct configuration file"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsdisabled", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/metricsdisabled", params)
         repose.start()
 
         when:
@@ -72,9 +72,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         setup: "load the correct configuration file"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsenabled", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/metricsenabled", params)
         repose.start()
 
         when:
@@ -88,8 +88,8 @@ class MetricsEnableDisableTest extends ReposeValveTest {
 
         setup: "only load the common configuration files"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
         repose.start()
 
         when:

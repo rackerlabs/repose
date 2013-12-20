@@ -19,9 +19,9 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         deproxy = new Deproxy()
 
         def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/removetenant", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/removetenant/nontenanteddelegable", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant/nontenanteddelegable", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

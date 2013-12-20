@@ -4,7 +4,6 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
@@ -45,8 +44,8 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         ]
 
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime("common")
-        reposeConfigProvider.applyConfigsRuntime("features/core/headers", params)
+        reposeConfigProvider.applyConfigs("common")
+        reposeConfigProvider.applyConfigs("features/core/headers", params)
 
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)

@@ -38,8 +38,8 @@ class VersioningTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort2)
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/versioning", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/versioning", params)
         repose.start()
     }
 

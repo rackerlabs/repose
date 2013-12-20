@@ -69,9 +69,9 @@ class QValueTest extends ReposeValveTest {
         setup:
         MessageChain messageChain
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/f4f5p", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/f4f5p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -93,9 +93,9 @@ class QValueTest extends ReposeValveTest {
         setup:
         MessageChain messageChain
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/mf4p", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/mf4p", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

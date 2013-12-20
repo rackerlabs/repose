@@ -63,7 +63,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
 
         ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
-        config1.applyConfigsRuntime("features/services/datastore/multinode",
+        config1.applyConfigs("features/services/datastore/multinode",
                 [
                         'reposePort1': reposePort1.toString(),
                         'reposePort2': reposePort2.toString(),
@@ -77,7 +77,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                 ]
         )
 
-        config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
+        config1.applyConfigs("common", ['project.build.directory':buildDirectory])
 
         repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);

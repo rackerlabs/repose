@@ -37,10 +37,10 @@ class CaptureGroupsTest extends Specification {
                 'endpointPort': endpointPort,
         ]
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/ratelimiting/capturegroups",
                 params)
         repose = new ReposeValveLauncher(

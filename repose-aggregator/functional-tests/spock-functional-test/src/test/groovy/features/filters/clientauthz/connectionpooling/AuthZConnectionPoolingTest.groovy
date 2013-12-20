@@ -81,8 +81,8 @@ class AuthZConnectionPoolingTest extends Specification {
             'targetHostname': targetHostname.toString(),
             'identityPort': identityServicePort.toString(),
         ]
-        reposeConfigProvider.applyConfigsRuntime("common", params)
-        reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthz/connectionpooling", params)
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/clientauthz/connectionpooling", params)
         repose.start()
     }
 

@@ -18,9 +18,9 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
 
         when: "I make 1000 requests through the uri stripper filter"
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uristripper/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uristripper/nolocationrewrite", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/nolocationrewrite", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -29,9 +29,9 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
         deproxy.shutdown()
 
         and: "I make 1000 requests through translation filter"
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/uritranslation/perftest", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uritranslation/perftest", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

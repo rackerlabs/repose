@@ -11,8 +11,8 @@ class HeaderParserTest extends ReposeValveTest {
 
     def setupSpec() {
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/common", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()

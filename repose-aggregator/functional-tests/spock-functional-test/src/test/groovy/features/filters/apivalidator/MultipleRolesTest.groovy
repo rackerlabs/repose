@@ -115,9 +115,9 @@ class MultipleRolesTest extends ReposeValveTest{
         setup:
         MessageChain messageChain
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/p{1,2}", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/p{1,2}", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
@@ -141,9 +141,9 @@ class MultipleRolesTest extends ReposeValveTest{
         setup:
         MessageChain messageChain
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/apivalidator/p{2}f4{1,2}", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/p{2}f4{1,2}", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

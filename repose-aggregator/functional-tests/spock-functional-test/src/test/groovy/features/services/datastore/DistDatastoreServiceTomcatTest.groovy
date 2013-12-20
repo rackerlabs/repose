@@ -79,9 +79,9 @@ class DistDatastoreServiceTomcatTest extends Specification {
                 'project.build.directory':buildDirectory
         ]
 
-        config1.applyConfigsRuntime("features/services/datastore/multinode", params)
+        config1.applyConfigs("features/services/datastore/multinode", params)
 
-        config1.applyConfigsRuntime("common", params)
+        config1.applyConfigs("common", params)
 
         repose1 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);

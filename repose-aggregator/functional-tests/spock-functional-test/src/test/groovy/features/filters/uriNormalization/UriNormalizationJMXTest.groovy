@@ -65,7 +65,7 @@ class UriNormalizationJMXTest extends Specification {
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "common",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
@@ -75,7 +75,7 @@ class UriNormalizationJMXTest extends Specification {
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/uriNormalization/metrics/single",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
@@ -137,7 +137,7 @@ class UriNormalizationJMXTest extends Specification {
     def "when multiple filter instances are configured, each should add to the count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/uriNormalization/metrics/multiple",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])

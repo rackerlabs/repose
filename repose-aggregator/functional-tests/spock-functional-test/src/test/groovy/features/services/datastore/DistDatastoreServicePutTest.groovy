@@ -18,8 +18,8 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/services/datastore/", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

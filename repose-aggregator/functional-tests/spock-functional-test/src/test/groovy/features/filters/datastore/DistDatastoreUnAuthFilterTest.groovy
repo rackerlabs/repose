@@ -45,8 +45,8 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigsRuntime("common", params)
-        repose.configurationProvider.applyConfigsRuntime("features/filters/datastore/authed", params)
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore/authed", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

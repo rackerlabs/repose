@@ -67,7 +67,7 @@ class HeaderNormalizationJMXTest extends Specification {
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "common",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
@@ -77,7 +77,7 @@ class HeaderNormalizationJMXTest extends Specification {
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/headerNormalization/metrics/single",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])
@@ -145,7 +145,7 @@ class HeaderNormalizationJMXTest extends Specification {
     def "when multiple filter instances are configured, each should add to the count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/filters/headerNormalization/metrics/multiple",
                 [   'reposePort': reposePort.toString(),
                     'targetPort': originServicePort.toString()])

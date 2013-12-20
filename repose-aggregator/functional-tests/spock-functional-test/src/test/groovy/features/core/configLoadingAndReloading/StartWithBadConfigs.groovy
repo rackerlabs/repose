@@ -55,13 +55,13 @@ class StartWithBadConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
         expectCleanShutdown = true
@@ -109,13 +109,13 @@ class StartWithBadConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
         expectCleanShutdown = false

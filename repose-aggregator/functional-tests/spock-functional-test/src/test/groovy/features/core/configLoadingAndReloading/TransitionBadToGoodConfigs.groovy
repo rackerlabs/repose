@@ -59,13 +59,13 @@ class TransitionBadToGoodConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
 
@@ -90,7 +90,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-good",
                 params)
         sleep 15000
@@ -124,13 +124,13 @@ class TransitionBadToGoodConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-common",
                 params)
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-bad",
                 params)
 
@@ -158,7 +158,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigsRuntime(
+        reposeConfigProvider.applyConfigs(
                 "features/core/configLoadingAndReloading/${componentLabel}-good",
                 params)
         sleep 35000
