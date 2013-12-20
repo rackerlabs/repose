@@ -50,16 +50,6 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
 
     @Override
-    void applyConfigs(String[] configLocations) {
-        configurationProvider.applyConfigs(configLocations)
-    }
-
-    @Override
-    void updateConfigs(String[] configLocations) {
-        configurationProvider.updateConfigs(configLocations)
-    }
-
-    @Override
     void start() {
         this.start([:])
     }
