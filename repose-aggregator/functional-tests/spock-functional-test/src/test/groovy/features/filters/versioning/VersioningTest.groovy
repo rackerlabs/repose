@@ -48,7 +48,7 @@ class VersioningTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("request: #reqHeaders")
+    @Unroll("when retrieving all versions: #reqHeaders")
     def "when retrieving all versions"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint, method:'GET', headers:reqHeaders)
@@ -68,7 +68,7 @@ class VersioningTest extends ReposeValveTest {
 
     }
 
-    @Unroll("request: #reqHeaders - #requestUri")
+    @Unroll("when retrieving version details: #reqHeaders - #requestUri")
     def "when retrieving version details"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
@@ -102,7 +102,7 @@ class VersioningTest extends ReposeValveTest {
         acceptJSON            | '300'    | ['id="/v2"','id="/v1"']         | []               | "/v1xxx/usertest1/ss"
     }
 
-    @Unroll("request: #reqHeaders - #requestUri")
+    @Unroll("when retrieving version details with variant uri: #reqHeaders - #requestUri")
     def "when retrieving version details with variant uri"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
