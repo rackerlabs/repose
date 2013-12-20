@@ -360,6 +360,8 @@
                                    retrieved from damaged nodes, and
                                    are created fresh on the local
                                    datastore). </para>
+                                   are created fresh on the local
+                                   datastore). </db:para>
                             </listitem>
                         </itemizedlist>
                     </para>
