@@ -13,6 +13,9 @@ class RequestQueryParamTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         repose.applyConfigs( "features/core/proxy" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy", params)
         repose.start()
 
     }

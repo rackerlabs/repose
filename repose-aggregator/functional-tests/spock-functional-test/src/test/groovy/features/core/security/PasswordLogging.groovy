@@ -10,7 +10,9 @@ class PasswordLogging extends ReposeValveTest {
 
     def setupSpec() {
         cleanLogDirectory()
-        repose.applyConfigs("features/core/security/before")
+        params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/security/before", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -21,10 +23,12 @@ class PasswordLogging extends ReposeValveTest {
         repose.stop()
     }
 
+    static def params
+
     def "identity passwords in auth configs are not logged in plaintext"() {
 
         given: "Repose configs are updated"
-        repose.updateConfigs("features/core/security/after")
+        repose.configurationProvider.applyConfigsRuntime("features/core/security/after", params, /*sleepTime*/ 25)
 
         when: "I search for DEBUG logs for the configuration updated log entry"
         List<String> logs = reposeLogSearch.searchByString("Configuration Updated")

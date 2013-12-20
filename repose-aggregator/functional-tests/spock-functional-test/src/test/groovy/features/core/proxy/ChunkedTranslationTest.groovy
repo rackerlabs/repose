@@ -19,9 +19,11 @@ class ChunkedTranslationTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/request"
-                , "features/services/httpconnectionpool/chunkedfalse")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/request", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/chunkedfalse", params)
         repose.start()
     }
 

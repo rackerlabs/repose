@@ -13,7 +13,10 @@ class ContentLengthTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/proxy", "features/services/httpconnectionpool/chunkedfalse")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/chunkedfalse", params)
         repose.start()
     }
 

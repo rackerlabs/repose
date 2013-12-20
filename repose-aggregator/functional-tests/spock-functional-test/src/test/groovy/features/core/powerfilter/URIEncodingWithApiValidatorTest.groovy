@@ -10,7 +10,9 @@ class URIEncodingWithApiValidatorTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/powerfilter/URIEncode/withAPIValidator")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/powerfilter/URIEncode/withAPIValidator", params)
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }

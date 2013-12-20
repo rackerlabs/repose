@@ -12,7 +12,9 @@ class RequestVerbTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/proxy")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/core/proxy", params)
         repose.connFramework = "apache"
         repose.start()
         waitUntilReadyToServiceRequests()
