@@ -19,7 +19,9 @@ class RackspaceAuthTest extends ReposeValveTest {
 
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/rackspace")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/rackspace", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
