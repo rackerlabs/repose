@@ -346,9 +346,7 @@
                                    dist-datastore filter)</para>
                             </listitem>
                             <listitem>
-                                <para>distributed/replicated (requires
-                                   replicated-datastore filter)</para>
-                                <db:para>Note:  If the rate limiting
+                                <para>Note:  If the rate limiting
                                    filter is configured to use the
                                    distributed datastore, and the
                                    distributed datastore service is
