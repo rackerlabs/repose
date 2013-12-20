@@ -19,7 +19,8 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         deproxy = new Deproxy()
 
 
-        repose.applyConfigs("features/filters/clientauthn/common")
+        repose.configurationProvider.applyConfigsRuntime("common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/common", properties.defaultTemplateParams)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
