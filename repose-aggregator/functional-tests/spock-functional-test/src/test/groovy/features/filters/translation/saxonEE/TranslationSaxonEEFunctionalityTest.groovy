@@ -43,8 +43,6 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
                 "features/filters/translation/saxonEE"
         )
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {
