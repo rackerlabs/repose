@@ -21,6 +21,11 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups" : "customer"]
     final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
 
+    static int reposePort2
+    def getReposeEndpoint2() {
+        return "http://localhost:${reposePort2}"
+    }
+
     def setupSpec() {
 
         deproxy = new Deproxy()
@@ -52,9 +57,8 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         given: "load the configs for multiple nodes, and use all remaining requests"
         useAllRemainingRequests()
 
-        // TODO change reposeEndpoint to reposeEndpoint2 without the hacky port replacement
         when: "the user sends their request and the rate-limit has not been reached"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint.replaceFirst(":8888", ":8889"), method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint2, method: "GET",
                 headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler)
 
         then: "the request is rate-limited, and does not pass to the origin service"
