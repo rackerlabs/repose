@@ -336,7 +336,7 @@
                         distributed datastores are available, it will
                         revert to using a local datastore. Valid
                         values are:</para>
-                    <db:para>
+                    <para>
                         <itemizedlist>
                             <listitem>
                                 <para>local/default</para>
@@ -359,10 +359,10 @@
                                    tracked correctly (limits cannot be
                                    retrieved from damaged nodes, and
                                    are created fresh on the local
-                                   datastore). </db:para>
+                                   datastore). </para>
                             </listitem>
                         </itemizedlist>
-                    </db:para>
+                    </para>
                 </listitem>
             </varlistentry>
             
@@ -485,7 +485,7 @@
                         each capture group is allowed the number of
                         hits specified in the value attribute of the
                         limit element. </para>
-                    <db:para>For example, suppose the configuration
+                    <para>For example, suppose the configuration
                         specifies a regex of /v1/(.*) and with value
                         set to 100, make sure "use-capture-groups"
                         attribute is set to true or not set. With this
@@ -494,7 +494,7 @@
                         a URI of /v1/cake. Each user would be allowed
                         200 hits if the hits are evenly divided among
                         the two URIs: 100 hits for URI /v1/pan and 100
-                        hits for URI /v1/cake. </db:para>     
+                        hits for URI /v1/cake. </para>     
                 </listitem>
             </varlistentry>
             
@@ -511,7 +511,7 @@
                         rate limit with a <code>uri-regex</code> that
                         matches the request URI will be used to apply
                         the rate limit. </para>
-                    <db:para>For example, suppose the configuration
+                    <para>For example, suppose the configuration
                         specifies a rate limit with a uri-regex of 
                         /v1/(.*) with value set to 100. With
                         use-capture-groups set to
@@ -523,7 +523,7 @@
                         for URI  /v1/pan  and 50 hits for URI 
                         /v1/cake . With use-capture-groups set to
                             <literal>true</literal>, /v1/pan and
-                        /v1/cake will both be allowed 100 hits. </db:para> 
+                        /v1/cake will both be allowed 100 hits. </para> 
                 </listitem>
             </varlistentry>
             
@@ -703,7 +703,7 @@
                 been rate limited. In this case, there are two
                 possible results based on the contents of the
                     <code>X-PP-Groups</code> header: </para>
-            <db:para>
+            <para>
                 <itemizedlist>
                     <listitem>
                         <para>If the X-PP-Groups header containing
@@ -720,7 +720,7 @@
                         </para>
                     </listitem>
                 </itemizedlist>
-            </db:para>
+            </para>
 
         <para> As shown below, a request in which the user is
             identified via <code>X-PP-User</code> and the user's group
@@ -1012,7 +1012,7 @@ application/xml"
                 Distributed Datastore filter. Look here for more
                 information about setting up the Distributed Datastore
                 filter for use with the Rate Limiting filter.</para>
-            <db:para/>
+            <para/>
             
             <!--<link
                     linkend="distributed_datastore_NEED ID">Distributed
@@ -1071,9 +1071,9 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
             to configure the proper identity filter <emphasis role="italic">before</emphasis> the rate limiting
             filter in your system model. The examples below show the
             necessary order of the filters.  </para>
-        <db:para>
+        <para>
          <emphasis role="bold">Rate Limit by
-            User</emphasis>:</db:para>
+            User</emphasis>:</para>
         
        <para>       Client-auth filter <code> &lt;filter name=
                 "client-auth"/&gt;</code>
@@ -1081,7 +1081,7 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
         <para>       Rate Limiting filter  <code>&lt;filter name
                 ="rate-limiting/&gt; </code>
         </para>
-        <db:para/>
+        <para/>
         <para>
          <emphasis role="bold"> Rate Limit by
             URI</emphasis>
@@ -1093,7 +1093,7 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
         <para> Rate Limiting filter    <code> &lt;filter name=
                 "rate-limiting"/&gt;</code>
         </para>
-        <db:para/>
+        <para/>
         <para>
          <emphasis role="bold"> Rate Limit by
             Header</emphasis>
