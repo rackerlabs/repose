@@ -73,7 +73,7 @@ class ReposeConfigurationProvider {
      *   eg: "Hello ${name}!" with params=["name":"world"] becomes
      *   "Hello world!"
      */
-    void applyConfigsRuntime(String sourceFolder, params=[:]) {
+    void applyConfigsRuntime(String sourceFolder, params=[:], sleepTimeInSeconds=null) {
 
         def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
 
@@ -90,6 +90,13 @@ class ReposeConfigurationProvider {
             def relativePath = source.toURI().relativize(file.toURI()).path
             def destinationFilename = FilenameUtils.concat(reposeConfigDir.absolutePath, relativePath)
             FileUtils.writeStringToFile(new File(destinationFilename), processedContents)
+        }
+
+        if (sleepTimeInSeconds &&
+                sleepTimeInSeconds instanceof Number &&
+                sleepTimeInSeconds > 0) {
+
+            sleep(sleepTimeInSeconds * 1000)
         }
     }
 
