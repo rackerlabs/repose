@@ -15,7 +15,9 @@ class ServiceAuthenticationTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint( properties.targetPort )
 
-        repose.applyConfigs( "features/filters/serviceAuthentication" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/serviceAuthentication", params)
         repose.start()
     }
 

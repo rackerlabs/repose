@@ -49,7 +49,9 @@ class CompressionTranslationTest extends ReposeValveTest {
     }
 
     def setupSpec() {
-        repose.applyConfigs("features/filters/compression/translation")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/compression/translation", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

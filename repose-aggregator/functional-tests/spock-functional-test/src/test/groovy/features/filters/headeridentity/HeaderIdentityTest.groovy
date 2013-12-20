@@ -18,7 +18,9 @@ class HeaderIdentityTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/headeridentity")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headeridentity", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

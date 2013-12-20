@@ -22,8 +22,10 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     def "on startup, HttpClientService should log out when pools are created"() {
 
         given:
-        repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/onepool")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/onepool", params)
         repose.start()
 
         when: "Repose is up and the HTTPClientService has been configured"
@@ -40,8 +42,10 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     def "when Repose is reconfigured and a pool is decommissioned, then destroyed after no registered users"() {
 
         given:
-        repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/onepool")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/onepool", params)
         repose.start()
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
@@ -49,7 +53,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         def createdLog = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
 
         and: "The HttpClientService is reconfigured"
-        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/onepool_reconfig", params, /*sleepTime*/ 25)
 
         then: "The HttpClientService should log the first pool as destroyed"
         def uuid = createdLog.get(0).tokenize(" ").reverse().get(3) //reverse done to account for different log formatting
@@ -65,8 +69,10 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         given:
         def MessageChain messageChain
 
-        repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/onepool")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/onepool", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -76,7 +82,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         }
 
         and:
-        repose.updateConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig")
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/onepool_reconfig", params, /*sleepTime*/ 25)
         thread.join()
 
         then:
@@ -94,8 +100,10 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     def "under heavy load and constant HTTPClientService reconfigures, should not drop in use connections"() {
 
         given: "Repose is up and the HTTPClientService has been configured"
-        repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/decommissioned/" + firstConfig)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/" + firstConfig, params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -128,9 +136,9 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
                 println("Reconfiguring...")
                 sleep(16000) //TODO: better strategy to know when Repose has been reconfigured
                 if (reconfigureCount % 2) {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/" + secondConfig)
+                    repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/" + secondConfig, params, /*sleepTime*/ 25)
                 } else {
-                    repose.updateConfigs("features/services/httpconnectionpool/decommissioned/" + firstConfig)
+                    repose.configurationProvider.applyConfigsRuntime("features/services/httpconnectionpool/decommissioned/" + firstConfig, params, /*sleepTime*/ 25)
                 }
                 reconfigureCount++
             }

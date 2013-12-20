@@ -71,8 +71,10 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler);
 
-        repose.applyConfigs("features/filters/clientauthn/tokenexpireheader",
-                "features/filters/clientauthn/connectionpooling")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/tokenexpireheader", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling", params)
         repose.start()
     }
 

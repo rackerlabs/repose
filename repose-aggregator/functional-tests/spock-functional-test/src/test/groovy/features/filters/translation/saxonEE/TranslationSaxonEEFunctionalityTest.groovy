@@ -38,10 +38,10 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         repose.addToClassPath(saxonHome)
 
-        repose.applyConfigs(
-                "features/filters/translation/common",
-                "features/filters/translation/saxonEE"
-        )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/saxonEE", params)
         repose.start()
     }
 

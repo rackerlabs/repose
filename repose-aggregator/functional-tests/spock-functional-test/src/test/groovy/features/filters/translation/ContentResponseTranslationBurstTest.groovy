@@ -35,8 +35,10 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         deproxy.defaultHandler = missingHeaderErrorHandler
 
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/missingContent/response")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/missingContent/response", params)
         repose.start()
     }
 

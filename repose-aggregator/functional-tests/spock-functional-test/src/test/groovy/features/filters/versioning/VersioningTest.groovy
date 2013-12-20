@@ -33,14 +33,14 @@ class VersioningTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
-        repose.applyConfigs(
-                "features/filters/versioning"
-        )
-        repose.start()
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         deproxy.addEndpoint(properties.targetPort2)
+
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/versioning", params)
+        repose.start()
     }
 
     def cleanupSpec() {

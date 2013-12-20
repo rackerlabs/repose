@@ -14,7 +14,9 @@ class UriIdentityTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/uriidentity")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/uriidentity", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

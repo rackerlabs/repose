@@ -21,13 +21,16 @@ class PerformanceTest extends ReposeValveTest {
 
     def "performance test configs produce expected responses"() {
         when: "I make a request through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/common", params)
         repose.start()
         MessageChain mcHdrXlate = deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
         repose.stop()
 
         and: "I make a request through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/perftest")
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/perftest", params)
         repose.start()
         MessageChain mcTranslation = deproxy.makeRequest(url:reposeEndpoint, method:"GET", headers:["X-OneToMany-A":"12345", "X-OneToMany-B":"abcde"])
         repose.stop()
@@ -54,13 +57,16 @@ class PerformanceTest extends ReposeValveTest {
         int totalRequests = 1000
 
         when: "I make 100 requests through header translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/common", params)
         repose.start()
         def averageWithHdrXlate = makeRequests(totalRequests)
         repose.stop()
 
         and: "I make 100 requests through translation filter"
-        repose.applyConfigs( "features/filters/headertranslation/perftest")
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/perftest", params)
         repose.start()
         def averageWithTranslationFilter = makeRequests(totalRequests)
         repose.stop()

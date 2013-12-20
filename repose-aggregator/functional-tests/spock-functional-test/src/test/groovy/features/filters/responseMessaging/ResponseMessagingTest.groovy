@@ -19,7 +19,9 @@ class ResponseMessagingTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/responsemessaging")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/responsemessaging", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

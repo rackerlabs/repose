@@ -38,10 +38,10 @@ class TranslateResponseTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
-        repose.applyConfigs(
-                "features/filters/translation/common",
-                "features/filters/translation/response"
-        )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/response", params)
         repose.start()
 
         deproxy = new Deproxy()

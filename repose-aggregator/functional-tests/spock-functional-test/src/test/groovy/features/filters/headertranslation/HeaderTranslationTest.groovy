@@ -12,7 +12,9 @@ class HeaderTranslationTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/common", params)
         repose.start()
     }
 

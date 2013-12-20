@@ -14,7 +14,9 @@ class ReliabilityTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
     def setupSpec() {
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/headertranslation/common", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

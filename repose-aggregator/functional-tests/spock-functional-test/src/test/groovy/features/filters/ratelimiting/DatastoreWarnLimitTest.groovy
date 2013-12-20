@@ -9,8 +9,9 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
     static int WARN_LIMIT = 1
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/ratelimiting/datastore/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/ratelimiting/datastore", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)

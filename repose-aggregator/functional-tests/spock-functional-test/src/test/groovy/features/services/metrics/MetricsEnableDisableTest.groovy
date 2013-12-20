@@ -35,8 +35,10 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     def "when metrics are enabled, reporting should occur"() {
 
         setup: "load the correct configuration file"
-        repose.applyConfigs( "features/services/metrics/common",
-                "features/services/metrics/metricsenabled" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsenabled", params)
         repose.start()
 
         when:
@@ -51,8 +53,10 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     def "when metrics are disabled, reporting should not occur"() {
 
         setup: "load the correct configuration file"
-        repose.applyConfigs( "features/services/metrics/common",
-                "features/services/metrics/metricsdisabled" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsdisabled", params)
         repose.start()
 
         when:
@@ -67,8 +71,10 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     def "when 'enabled' is not specified, reporting should occur"() {
 
         setup: "load the correct configuration file"
-        repose.applyConfigs( "features/services/metrics/common",
-                "features/services/metrics/metricsenabled" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/metricsenabled", params)
         repose.start()
 
         when:
@@ -81,7 +87,9 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     def "when metrics config is missing, reporting should occur"() {
 
         setup: "only load the common configuration files"
-        repose.applyConfigs( "features/services/metrics/common" )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/metrics/common", params)
         repose.start()
 
         when:

@@ -19,7 +19,8 @@ class CacheOffsetTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        repose.applyConfigs("features/filters/clientauthn/cacheoffset")
+        repose.configurationProvider.applyConfigsRuntime("common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/cacheoffset", properties.defaultTemplateParams)
         repose.start()
         Thread.sleep(2000)
     }

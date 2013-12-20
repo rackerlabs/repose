@@ -9,10 +9,15 @@ import org.rackspace.deproxy.Response
 @Category(Slow.class)
 class DistDatastoreServiceTest extends ReposeValveTest {
 
+    static def params
+
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        repose.applyConfigs("features/services/datastore")
+
+        params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/services/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

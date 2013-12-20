@@ -64,21 +64,24 @@ class DistDatastoreServiceTomcatTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
 
         ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
-        config1.applyConfigsRuntime("features/services/datastore/multinode",
-                [
-                        'repose_port1': reposePort1.toString(),
-                        'repose_port2': reposePort2.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
-                        'datastore_port1' : dataStorePort1,
-                        'datastore_port2' : dataStorePort2
-                ]
-        )
 
-        config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'reposePort1': reposePort1.toString(),
+                'reposePort2': reposePort2.toString(),
+                'targetPort': originServicePort.toString(),
+                'repose.config.directory': configDirectory,
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'targetHostname': 'localhost',
+                'datastorePort1' : dataStorePort1,
+                'datastorePort2' : dataStorePort2,
+                'project.build.directory':buildDirectory
+        ]
+
+        config1.applyConfigsRuntime("features/services/datastore/multinode", params)
+
+        config1.applyConfigsRuntime("common", params)
 
         repose1 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);

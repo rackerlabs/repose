@@ -21,8 +21,10 @@ class ContentRequestTranslationBurstTest extends ReposeValveTest {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/missingContent/request")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/translation/missingContent/request", params)
         repose.start()
     }
 

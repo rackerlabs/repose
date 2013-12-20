@@ -16,8 +16,10 @@ class CacheTokenExpirationTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/common",
-                "features/filters/clientauthn/connectionpooling")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthn/connectionpooling", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
