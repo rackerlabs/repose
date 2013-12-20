@@ -19,7 +19,9 @@ class ClientAuthZTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthz/common")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigsRuntime("common", params)
+        repose.configurationProvider.applyConfigsRuntime("features/filters/clientauthz/common", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
