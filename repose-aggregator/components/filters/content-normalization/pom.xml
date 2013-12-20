@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>com.rackspace.papi.service</groupId>
-        <artifactId>httpclient-support</artifactId>
-        <version>2.13.2-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>httpclient-connection-pool</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>2.13.2-SNAPSHOT</version>
+    </parent>
 
-    <name>Repose Services - HttpClient Connection Pool Impl</name>
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>content-normalization</artifactId>
+
+    <name>Repose Components - Content Normalization</name>
+    <description>TODO</description>
 
     <packaging>jar</packaging>
+    
     <dependencies>
-
         <dependency>
-            <groupId>xerces</groupId>
-            <artifactId>xerces-xsd11</artifactId>
-            <version>2.12.0-rax</version>
-            <scope>test</scope>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
-            <artifactId>httpclient-api</artifactId>
-            <version>2.13.2-SNAPSHOT</version>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
@@ -41,20 +43,43 @@
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/config</dir>
-                            <stylesheet>../../../components/filters/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
                         </transformationSet>
                     </transformationSets>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
 
-                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
                     <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+
+            <!--
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+
+                <configuration>
+
+                    <specVersion>2.1</specVersion>
+
                     <schemaIncludes>
                         <include>**/*.xsd</include>
                     </schemaIncludes>
@@ -67,6 +92,7 @@
 
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 </project>

@@ -38,7 +38,7 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear</location>
+                                            <location>${basedir}/../../../components/filters/filter-bundle/target/filter-bundle-${project.version}.ear</location>
                                         </source>
                                     </sources>
                                 </mapping>

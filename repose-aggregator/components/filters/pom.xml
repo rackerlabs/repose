@@ -1,28 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.rackspace.papi</groupId>
-        <artifactId>profile-support</artifactId>
+        <artifactId>components-support</artifactId>
+        <groupId>com.rackspace.papi.components</groupId>
         <version>2.13.2-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>components-support</artifactId>
- 
-    <name>Repose Components - Components Support</name>
-    <description>
-        Repose filters except for:
-            cli-utils - Command Line Interface utilities
-            filter-bundle - packages all filters
-            xsl - stylesheet used by many filters during build
-    </description>
+    <artifactId>filters-support</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>filters</module>
-        <module>cli-utils</module>
+        <module>filter-bundle</module>
+        <module>datastore</module>
+        <module>http-logging</module>
+        <module>client-auth</module>
+        <module>header-identity</module>
+        <module>header-id-mapping</module>
+        <module>uri-identity</module>
+        <module>content-identity-auth-1.1</module>
+        <module>content-identity-auth-2.0</module>
+        <module>content-normalization</module>
+        <module>service-authentication</module>
+        <module>rate-limiting</module>
+        <module>versioning</module>
+        <module>translation</module>
+        <module>default-router</module>
+        <module>destination-router</module>
+        <module>flush-output</module>
+        <module>echo</module>
+        <module>client-authorization</module>
+        <module>client-ip-identity</module>
+        <module>header-normalization</module>
+        <module>uri-normalization</module>
+        <module>compression</module>
+        <module>header-translation</module>
+        <module>uri-stripper</module>
     </modules>
 
     <dependencyManagement>
@@ -245,4 +260,3 @@
         </dependencies>
     </dependencyManagement>
 </project>
-
