@@ -63,7 +63,8 @@
                     <para>Header Identity</para>
                 </td>
                 <td>
-                    <para>Client Authentication</para>
+                    <para><link linkend="Repose-AuthNZ-Chapter">Client
+                        Authentication Filter</link></para>
                 </td>
                 <td>
                     <para>API (WADL/XSD) Validation</para>
@@ -78,10 +79,11 @@
                     <para>Header Identity Mapping</para>
                 </td>
                 <td>
-                    <para>Client Authorization</para>
+                    <para><link linkend="Repose-AuthNZ-Chapter">Client
+                            Authorization Filter</link></para>
                 </td>
                 <td>
-                    <para>Compression</para>
+                    <para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para>
                 </td>
             </tr>
             
@@ -104,14 +106,14 @@
                     <para>URI Normalization</para>
                 </td>
                 <td>
-                    <para>Rate Limiting</para>
+                    <link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link>
                 </td>
                 
                 <td>
                     <para/>
                 </td>
                 <td>
-                    <para>HTTP Logging</para>
+                    <para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para>
                 </td>
             </tr>
             <tr>
@@ -125,13 +127,14 @@
                 <td/>
                 <td/>
                 <td/>
-                <td>Versioning</td>
+                <td><para>
+                    <link linkend="Repose-Versioning-Chapter">Versioning Filter</link></para></td>
             </tr>
             <tr>
                 <td/>
                 <td/>
                 <td/>
-                <td>Translation</td>
+                <td><para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para></td>
             </tr>
             <tr>
                 <td/>
@@ -153,9 +156,11 @@
                 Components:</guilabel></emphasis></para> 
     <itemizedlist>
         <listitem><para>API (WADL/XSD) Validation</para></listitem>
-        <listitem><para>Client Authentication</para></listitem>
-        <listitem><para>Client Authorization</para></listitem>
-        <listitem><para>Compression</para></listitem>
+        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
+            Authentication Filter</link></para></listitem>
+        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
+            Authorization Filter</link></para></listitem>
+        <listitem><para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para></listitem>
         <listitem><para>Content Normalization</para></listitem>
         <listitem><para>Destination Router (v2)</para></listitem>
         <listitem><para>Flush Output Stream</para></listitem>
@@ -163,14 +168,15 @@
         <listitem><para>Header Identity Mapping</para></listitem>
         <listitem><para>Header Normalization</para></listitem>
         <listitem><para>Header Translation</para></listitem>
-        <listitem><para>HTTP Logging</para></listitem>
+        <listitem><para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para></listitem>
         <listitem><para>IP Identity</para></listitem>
-        <listitem><para>Rate Limiting</para></listitem>
+        <listitem><para><link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link></para></listitem>
         <listitem><para>Service Authentication</para></listitem>
+        <listitem><para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para></listitem>
         <listitem><para>URI Identity</para></listitem>
         <listitem><para>URI Normalization</para></listitem>
         <listitem><para>URI Stripper</para></listitem>
-        <listitem><para>Versioning</para></listitem>
+        <listitem><para><link linkend="Repose-Versioning-Chapter">Versioning Filter</link></para></listitem>
         
         
     </itemizedlist>

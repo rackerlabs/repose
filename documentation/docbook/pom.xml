@@ -61,9 +61,9 @@
                             <failOnValidationError>no</failOnValidationError> -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
-                            <!-- to build everything found in <sourceDirectory>, comment out includes 
-                            <includes>repose-translation-deploy.xml</includes>
-                            -->
+                            <!-- to build everything found in <sourceDirectory>, comment out includes -->
+                            <includes>repose-component-ref-guide.xml</includes>
+                            
                         </configuration>
                     </execution>
                 </executions>
