@@ -320,10 +320,8 @@
         </informaltable>       
         
   <!--  END OF TABLE  -->
-        <para><guilabel> Element/Attribute Glossary </guilabel></para>
+        <para><guilabel> The elements and attributes used in the Rate Limiting filter are described as follows: </guilabel></para>
         <para> </para>
-        <para> The elements and attributes used in the Rate Limiting
-            filter are described below. </para>
         
         <variablelist>
             
