@@ -33,6 +33,12 @@ class TestProperties {
     int atomPort
     String targetHostname
 
+    TestProperties() {
+        this("test.properties")
+    }
+    TestProperties(String resourceName) {
+        this(ClassLoader.getSystemResource(resourceName).openStream())
+    }
     TestProperties(InputStream propertiesStream) {
 
         try {
