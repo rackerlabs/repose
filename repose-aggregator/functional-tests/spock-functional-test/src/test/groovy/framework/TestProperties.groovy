@@ -84,6 +84,8 @@ class TestProperties {
                 logFile: logFile,
                 reposeLog: logFile,
                 'repose.log': logFile,
+                reposeHome: reposeHome,
+                'repose.home': reposeHome,
         ]
     }
 
