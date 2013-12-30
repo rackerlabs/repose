@@ -53,7 +53,6 @@ class TestProperties {
             reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = PortFinder.Singleton.getNextOpenPort()
             reposeShutdownPort = PortFinder.Singleton.getNextOpenPort()
-            dynamicPortBase = properties.getProperty("repose.dynamic.port.base").toInteger()
 
             glassfishJar = properties.getProperty("glassfish.jar")
             tomcatJar = properties.getProperty("tomcat.jar")
@@ -68,7 +67,7 @@ class TestProperties {
             mocksWar = properties.getProperty("mocks.war")
 
         } catch (Exception e) {
-            throw new RuntimeException("Failure in setup of test: unable to read property files")
+            throw new RuntimeException("Failure in setup of test: unable to read property files", e)
         } finally {
             propertiesStream.close()
         }
