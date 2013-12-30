@@ -28,7 +28,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     def setupSpec() {
 
         def logFile
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        def TestProperties properties = new TestProperties()
 
         // get ports
         int originServicePort = PortFinder.Singleton.getNextOpenPort()

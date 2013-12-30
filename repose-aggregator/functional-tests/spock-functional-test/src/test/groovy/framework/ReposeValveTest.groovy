@@ -25,7 +25,7 @@ abstract class ReposeValveTest extends Specification {
 
     def setupSpec() {
 
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties()
 
         switch (properties.getReposeContainer().toLowerCase()) {
             case "valve":

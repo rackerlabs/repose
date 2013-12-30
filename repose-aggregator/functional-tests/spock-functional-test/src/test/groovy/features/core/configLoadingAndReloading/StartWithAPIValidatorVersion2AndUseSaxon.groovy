@@ -40,7 +40,7 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
         deproxy.addEndpoint(this.targetPort)
 
         // set initial config files
-        TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        TestProperties properties = new TestProperties()
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 

@@ -53,7 +53,7 @@ class VersioningJMXTest extends Specification {
 
 
         // configure and start repose
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties()
 
         def targetHostname = properties.getTargetHostname()
         urlBase = "http://${targetHostname}:${reposePort}"

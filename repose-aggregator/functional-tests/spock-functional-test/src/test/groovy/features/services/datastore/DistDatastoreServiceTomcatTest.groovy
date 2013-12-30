@@ -28,7 +28,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
     def setupSpec() {
 
         def logFile
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        def TestProperties properties = new TestProperties()
         // get ports
         PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 

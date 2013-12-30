@@ -43,7 +43,7 @@ class StartWithGoodConfigs extends Specification {
         deproxy.addEndpoint(this.targetPort)
 
         // setup config provider
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties()
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
     }

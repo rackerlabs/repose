@@ -13,7 +13,7 @@ class TomcatProxyTest extends Specification {
 
     def setupSpec() {
 
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        def TestProperties properties = new TestProperties()
 
         int originServicePort = PortFinder.Singleton.getNextOpenPort()
         deproxy = new Deproxy()

@@ -27,7 +27,7 @@ class NoCaptureGroupsTest extends Specification {
         reposePort = PortFinder.Singleton.getNextOpenPort()
         stopPort = PortFinder.Singleton.getNextOpenPort()
 
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
+        properties = new TestProperties()
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
         def params = [
