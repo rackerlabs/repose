@@ -81,6 +81,9 @@ class TestProperties {
                 identityPort: identityPort,
                 atomPort: atomPort,
                 targetHostname: targetHostname,
+                logFile: logFile,
+                reposeLog: logFile,
+                'repose.log': logFile,
         ]
     }
 
