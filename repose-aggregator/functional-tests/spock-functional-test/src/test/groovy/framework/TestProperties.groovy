@@ -83,6 +83,7 @@ class TestProperties {
         return [
                 reposePort: reposePort,
                 targetPort: targetPort,
+                targetPort1: targetPort,
                 targetPort2: targetPort2,
                 identityPort: identityPort,
                 atomPort: atomPort,
