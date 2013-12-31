@@ -27,7 +27,7 @@ class PassThruTest extends ReposeValveTest {
     def "should pass all '/' characters to origin service"(){
 
         when: "client passes a request through repose with extra '/' characters"
-        def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint + requestpath])
+        def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint, path: requestpath])
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "repose should preserve all '/' characters"
