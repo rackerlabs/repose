@@ -12,7 +12,7 @@ import spock.lang.Specification
 @org.junit.experimental.categories.Category(Slow.class)
 class StartWithZeroNodesTest extends Specification {
 
-    int endpointPort
+    int targetPort
     Deproxy deproxy
     DeproxyEndpoint endpoint
 
@@ -21,39 +21,32 @@ class StartWithZeroNodesTest extends Specification {
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
-    Map params = [:]
 
     int sleep_duration = 35000
 
     def setup() {
 
-        endpointPort = PortFinder.Singleton.getNextOpenPort()
-        deproxy = new Deproxy()
-        endpoint = deproxy.addEndpoint(endpointPort)
-
-        port = PortFinder.Singleton.getNextOpenPort()
-        stopPort = PortFinder.Singleton.getNextOpenPort()
-
         properties = new TestProperties()
+        targetPort = properties.targetPort
+        deproxy = new Deproxy()
+        endpoint = deproxy.addEndpoint(targetPort)
+
+        port = properties.reposePort
+        stopPort = properties.reposeShutdownPort
+
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
-        params = [
+        def params = properties.getDefaultTemplateParams()
+        params += [
                 'host': 'example.com',
                 'port': port,
-                'endpointPort': endpointPort,
         ]
 
         reposeConfigProvider.cleanConfigDirectory()
 
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/container-no-port",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/zero-nodes",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/zero-nodes", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),
@@ -80,10 +73,10 @@ class StartWithZeroNodesTest extends Specification {
 
 
         when: "change the configs while it's running - add a single localhost node"
-        params = [
+        def params = properties.getDefaultTemplateParams()
+        params += [
                 'host': 'localhost',
                 'port': port,
-                'endpointPort': endpointPort,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/one-node', params)
         sleep(sleep_duration)
