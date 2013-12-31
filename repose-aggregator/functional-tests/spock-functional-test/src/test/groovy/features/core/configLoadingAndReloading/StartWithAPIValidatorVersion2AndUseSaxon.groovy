@@ -24,36 +24,25 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
     Deproxy deproxy
 
     def setup() {
-        this.reposePort = PortFinder.Singleton.getNextOpenPort() as int
-        this.stopPort = PortFinder.Singleton.getNextOpenPort() as int
-        this.targetPort = PortFinder.Singleton.getNextOpenPort() as int
-        this.url = "http://localhost:${this.reposePort}/"
-
-        params = [
-                'reposePort': this.reposePort,
-                'targetHostname': 'localhost',
-                'targetPort': targetPort,
-        ]
+        TestProperties properties = new TestProperties()
+        this.reposePort = properties.reposePort
+        this.stopPort = properties.reposeShutdownPort
+        this.targetPort = properties.targetPort
+        this.url = properties.reposeEndpoint
 
         // start a deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
         // set initial config files
-        TestProperties properties = new TestProperties()
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
+        params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/validator-common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/validator-v2-use-saxon",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-v2-use-saxon", params)
 
         // start repose
         repose = new ReposeValveLauncher(
