@@ -12,28 +12,25 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/smoke", params)
+        repose.start()
+
     }
 
     def cleanup() {
-        repose.stop()
-    }
-
-    def cleanupSpec() {
-        deproxy.shutdown()
+        if (repose) {
+            repose.stop()
+        }
+        if (deproxy) {
+            deproxy.shutdown()
+        }
     }
 
     @Category(Smoke)
     def "when request is sent check to make sure it goes through ip-identity and API-Validator filters"() {
-
-        given:
-        def params = [
-                reposePort: properties.reposePort,
-                targetPort: properties.targetPort,
-        ]
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/smoke", params)
-        repose.start()
-       // def xmlResp = { request -> return new Response(200, "OK")}
 
         when:
 
