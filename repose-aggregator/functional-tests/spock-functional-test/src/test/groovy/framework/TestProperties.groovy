@@ -92,6 +92,8 @@ class TestProperties {
                 'repose.log': logFile,
                 reposeHome: reposeHome,
                 'repose.home': reposeHome,
+                configDirectory: configDirectory,
+                'repose.config.directory': configDirectory,
         ]
     }
 
