@@ -51,7 +51,6 @@ class PassThruTest extends ReposeValveTest {
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then: "repose should pass all headers through"
-//        sentRequest.request.getHeaders().getFirstValue(weirdHeader.keySet().iterator().next()).equals(weirdHeader.values().iterator().next())
         sentRequest.getRequest().getHeaders().getFirstValue("weirdheader").equals(weirdHeader)
 
         where:
@@ -61,6 +60,18 @@ class PassThruTest extends ReposeValveTest {
                 , "Mozilla/5.0 \\(X11; FreeBSD amd64; rv:17.0\\) Gecko/17.0 Firefox/17.0"
                 , "a;b=c=1"
         ]
+    }
+
+    def "should rewrite host header"(){
+
+        when: "client passes a request through repose"
+        def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint])
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+
+        then: "repose should not rewrite the host header"
+        !sentRequest.getRequest().getHeaders().getFirstValue("host").equals(respFromOrigin.getSentRequest().headers.getFirstValue("host"))
+
+
     }
 
 }
