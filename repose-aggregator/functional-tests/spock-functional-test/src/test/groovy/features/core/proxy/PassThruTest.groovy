@@ -3,6 +3,7 @@ package features.core.proxy
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
 
 class PassThruTest extends ReposeValveTest {
 
@@ -24,7 +25,8 @@ class PassThruTest extends ReposeValveTest {
         }
     }
 
-    def "should pass all '/' characters to origin service"(){
+    @Unroll("Should pass path #requestpath")
+    def "should pass all '/' characters to origin service"() {
 
         when: "client passes a request through repose with extra '/' characters"
         def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint, path: requestpath])
@@ -39,4 +41,26 @@ class PassThruTest extends ReposeValveTest {
 
 
     }
+
+    @Unroll("Header: #weirdHeader should be passed")
+    def "should pass all headers"() {
+
+
+        when: "client passes a request through repose with unusual headers"
+        def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint, headers: ["weirdheader" : weirdHeader]])
+        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+
+        then: "repose should pass all headers through"
+//        sentRequest.request.getHeaders().getFirstValue(weirdHeader.keySet().iterator().next()).equals(weirdHeader.values().iterator().next())
+        sentRequest.getRequest().getHeaders().getFirstValue("weirdheader").equals(weirdHeader)
+
+        where:
+        weirdHeader << [
+                "y"
+                , "z,abc"
+                , "Mozilla/5.0 \\(X11; FreeBSD amd64; rv:17.0\\) Gecko/17.0 Firefox/17.0"
+                , "a;b=c=1"
+        ]
+    }
+
 }
