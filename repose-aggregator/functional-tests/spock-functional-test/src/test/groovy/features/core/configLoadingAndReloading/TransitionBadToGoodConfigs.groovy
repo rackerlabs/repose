@@ -26,50 +26,27 @@ class TransitionBadToGoodConfigs extends Specification {
     ReposeValveLauncher repose
     Map params = [:]
 
-    def setupSpec() {
+    def setup() {
 
-        targetPort = PortFinder.Singleton.getNextOpenPort() as int
+        properties = new TestProperties()
+        this.reposePort = properties.reposePort
+        this.stopPort = properties.reposeShutdownPort
+        this.targetPort = properties.targetPort
+        this.url = properties.reposeEndpoint
+
+        params = properties.getDefaultTemplateParams()
 
         // start a deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
-    }
-
-    def setup() {
-
-        this.reposePort = PortFinder.Singleton.getNextOpenPort() as int
-        this.stopPort = PortFinder.Singleton.getNextOpenPort() as int
-        this.url = "http://localhost:${this.reposePort}/"
-
-        params = [
-                'reposePort': this.reposePort,
-                'targetHostname': 'localhost',
-                'targetPort': targetPort,
-        ]
-
         // setup config provider
-        properties = new TestProperties()
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
-    }
 
-    @Unroll("start with bad #componentLabel configs, change to good, should get #expectedResponseCode")
-    def "start with bad #componentLabel configs, change to good, should get #expectedResponseCode"() {
-
-        given:
-        // set the common and good configs
+        // set the common configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-bad",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
 
-        // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),
@@ -80,6 +57,17 @@ class TransitionBadToGoodConfigs extends Specification {
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
+    }
+
+    @Unroll("start with bad #componentLabel configs, change to good, should get #expectedResponseCode")
+    def "start with bad #componentLabel configs, change to good, should get #expectedResponseCode"() {
+
+        given:
+        // set the component-specific bad configs
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
+
+        // start repose
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
@@ -90,9 +78,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-good",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
         sleep 15000
         repose.waitForNon500FromUrl(url)
 
@@ -122,29 +108,11 @@ class TransitionBadToGoodConfigs extends Specification {
     def "start with bad #componentLabel configs, change to good (for configs that lead to connection errors)"() {
 
         given:
-        // set the common and good configs
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-bad",
-                params)
+        // set the component-specific bad configs
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
 
         // start repose
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                url,
-                properties.getConfigDirectory(),
-                reposePort,
-                stopPort
-        )
-        repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         sleep 35000
@@ -158,9 +126,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigs(
-                "features/core/configLoadingAndReloading/${componentLabel}-good",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
         sleep 35000
 
         then: "Repose should start returning 200's"
@@ -177,9 +143,6 @@ class TransitionBadToGoodConfigs extends Specification {
         if (repose) {
             repose.stop()
         }
-    }
-
-    def cleanupSpec() {
         if (deproxy) {
             deproxy.shutdown()
         }
