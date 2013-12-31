@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
 @Category(Slow.class)
 class RuntimeSysmodChangesTest extends Specification {
 
-    int endpointPort
+    int targetPort
     Deproxy deproxy
     DeproxyEndpoint endpoint
 
@@ -24,45 +24,40 @@ class RuntimeSysmodChangesTest extends Specification {
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
-    Map params = [:]
 
     int sleep_duration = 35000
 
     def setup() {
 
-        endpointPort = PortFinder.Singleton.getNextOpenPort()
-        deproxy = new Deproxy()
-        endpoint = deproxy.addEndpoint(endpointPort)
+        properties = new TestProperties()
 
-        port1 = PortFinder.Singleton.getNextOpenPort()
+        targetPort = properties.targetPort
+        deproxy = new Deproxy()
+        endpoint = deproxy.addEndpoint(targetPort)
+
+        port1 = properties.reposePort
         port2 = PortFinder.Singleton.getNextOpenPort()
         port3 = PortFinder.Singleton.getNextOpenPort()
-        stopPort = PortFinder.Singleton.getNextOpenPort()
+        stopPort = properties.reposeShutdownPort
 
-        properties = new TestProperties()
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
-        params = [
+        def params = properties.defaultTemplateParams
+        params += [
                 'port1': port1,
                 'port2': port2,
                 'port3': port3,
 
                 'proto': 'http',
-                'endpointPort': endpointPort,
+                'targetPort': targetPort,
                 'sysmodPort': port1,
 
         ]
         reposeConfigProvider.cleanConfigDirectory()
 
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/common",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/container-no-port",
-                params)
-        reposeConfigProvider.applyConfigs(
-                "features/core/valveSelfConfigure/single-node-with-proto",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/single-node-with-proto", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),
@@ -100,8 +95,9 @@ class RuntimeSysmodChangesTest extends Specification {
 
 
         when: "change the configs while it's running - two nodes"
-        params = [
-            'endpointPort': endpointPort,
+        def params = properties.getDefaultTemplateParams()
+        params += [
+            'targetPort': targetPort,
             'node1host': 'localhost',
             'node2host': 'localhost',
             'node1port': port1,
@@ -136,9 +132,10 @@ class RuntimeSysmodChangesTest extends Specification {
 
 
         when: "change the configs while it's running - one node on port 2"
-        params = [
+        params = properties.getDefaultTemplateParams()
+        params += [
             'proto': 'http',
-            'endpointPort': endpointPort,
+            'targetPort': targetPort,
             'sysmodPort': port2,
         ]
         reposeConfigProvider.applyConfigs('features/core/valveSelfConfigure/single-node-with-proto', params)
@@ -168,8 +165,9 @@ class RuntimeSysmodChangesTest extends Specification {
 
 
         when: "change the configs while it's running - two of three nodes"
-        params = [
-            'endpointPort': endpointPort,
+        params = properties.getDefaultTemplateParams()
+        params += [
+            'targetPort': targetPort,
             'node1host': 'localhost',
             'node2host': 'localhost',
             'node3host': 'example.com',
@@ -205,8 +203,9 @@ class RuntimeSysmodChangesTest extends Specification {
 
 
         when: "change the configs while it's running - two of three nodes again, but different hostnames"
-        params = [
-            'endpointPort': endpointPort,
+        params = properties.getDefaultTemplateParams()
+        params += [
+            'targetPort': targetPort,
             'node1host': 'example.com',
             'node2host': 'localhost',
             'node3host': 'localhost',
