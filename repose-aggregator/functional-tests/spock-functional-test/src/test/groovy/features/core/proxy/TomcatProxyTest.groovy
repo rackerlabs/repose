@@ -15,13 +15,13 @@ class TomcatProxyTest extends Specification {
 
         def TestProperties properties = new TestProperties()
 
-        int originServicePort = PortFinder.Singleton.getNextOpenPort()
+        int originServicePort = properties.targetPort
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort = PortFinder.Singleton.getNextOpenPort()
-        int shutdownPort = PortFinder.Singleton.getNextOpenPort()
-        tomcatEndpoint = "http://localhost:${reposePort}"
+        int reposePort = properties.reposePort
+        int shutdownPort = properties.reposeShutdownPort
+        tomcatEndpoint = properties.reposeEndpoint
 
         def configDirectory = properties.getConfigDirectory()
         def configSamples = properties.getRawConfigDirectory()
@@ -29,17 +29,14 @@ class TomcatProxyTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config.applyConfigs("features/core/proxy",
-                [
-                        'reposePort': reposePort.toString(),
-                        'targetPort': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'targetHostname': 'localhost',
-                ]
-        )
-        config.applyConfigs("common", ['project.build.directory': buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'targetHostname': 'localhost',
+        ]
+        config.applyConfigs("features/core/proxy", params)
+        config.applyConfigs("common", params)
 
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
