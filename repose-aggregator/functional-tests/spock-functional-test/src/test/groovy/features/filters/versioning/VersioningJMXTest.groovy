@@ -26,73 +26,53 @@ class VersioningJMXTest extends Specification {
     String VERSION_V1 = "${PREFIX},name=\"v1\""
     String VERSION_V2 = "${PREFIX},name=\"v2\""
 
-    int reposePort
-    int reposeStopPort
-    int originServicePort1
-    int originServicePort2
-    String urlBase
-
     Deproxy deproxy
 
     TestProperties properties
+    Map params
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
     def setup() {
 
-        // get ports
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        reposeStopPort = PortFinder.Singleton.getNextOpenPort()
-        originServicePort1 = PortFinder.Singleton.getNextOpenPort()
-        originServicePort2 = PortFinder.Singleton.getNextOpenPort()
+        properties = new TestProperties()
 
         // start deproxy
         deproxy = new Deproxy()
-        deproxy.addEndpoint(originServicePort1)
-        deproxy.addEndpoint(originServicePort2)
+        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort2)
 
 
         // configure and start repose
-        properties = new TestProperties()
 
-        def targetHostname = properties.getTargetHostname()
-        urlBase = "http://${targetHostname}:${reposePort}"
-
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configSamples)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
-                urlBase,
-                properties.getConfigDirectory(),
-                reposePort,
-                reposeStopPort
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigs(
-                "common",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort1': originServicePort1.toString(),
-                    'targetPort2': originServicePort2.toString()])
+        params = properties.getDefaultTemplateParams()
+        reposeConfigProvider.applyConfigs("common", params)
 
     }
 
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigs(
-                "features/filters/versioning/metrics",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort1': originServicePort1.toString(),
-                    'targetPort2': originServicePort2.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/versioning/metrics", params)
         repose.start()
         sleep(30000)
 
 
 
         when:
-        def mc = deproxy.makeRequest(url: "${urlBase}", method: "GET")
+        def mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
@@ -101,7 +81,7 @@ class VersioningJMXTest extends Specification {
 
 
         when:
-        mc = deproxy.makeRequest(url: "${urlBase}/v1/resource", method: "GET")
+        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v1/resource", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
@@ -110,7 +90,7 @@ class VersioningJMXTest extends Specification {
 
 
         when:
-        mc = deproxy.makeRequest(url: "${urlBase}/v2/resource", method: "GET")
+        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v2/resource", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
