@@ -13,7 +13,7 @@ class TestProperties {
     String reposeHome
 
     String getReposeEndpoint() {
-        return "http://localhost:${reposePort}"
+        return "http://${targetHostname}:${reposePort}"
     }
 
     String reposeJar
