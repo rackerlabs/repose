@@ -34,15 +34,18 @@ class HeaderNormalizationJMXTest extends Specification {
     Deproxy deproxy
 
     TestProperties  properties
+    Map params
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
     def setup() {
 
+        properties = new TestProperties()
+
         // get ports
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        reposeStopPort = PortFinder.Singleton.getNextOpenPort()
-        originServicePort = PortFinder.Singleton.getNextOpenPort()
+        reposePort = properties.reposePort
+        reposeStopPort = properties.reposeShutdownPort
+        originServicePort = properties.targetPort
 
         // start deproxy
         deproxy = new Deproxy()
@@ -50,10 +53,8 @@ class HeaderNormalizationJMXTest extends Specification {
 
 
         // configure and start repose
-        properties = new TestProperties()
 
-        def targetHostname = properties.getTargetHostname()
-        urlBase = "http://${targetHostname}:${reposePort}"
+        urlBase = properties.reposeEndpoint
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
 
@@ -67,20 +68,15 @@ class HeaderNormalizationJMXTest extends Specification {
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigs(
-                "common",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        params = properties.getDefaultTemplateParams()
+        reposeConfigProvider.applyConfigs("common", params)
 
     }
 
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigs(
-                "features/filters/headerNormalization/metrics/single",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/single", params)
         repose.start()
 
 
@@ -145,10 +141,7 @@ class HeaderNormalizationJMXTest extends Specification {
     def "when multiple filter instances are configured, each should add to the count"() {
 
         given:
-        reposeConfigProvider.applyConfigs(
-                "features/filters/headerNormalization/metrics/multiple",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/multiple", params)
         repose.start()
 
         when: "client makes a request that matches one filter's uri-regex attribute"
