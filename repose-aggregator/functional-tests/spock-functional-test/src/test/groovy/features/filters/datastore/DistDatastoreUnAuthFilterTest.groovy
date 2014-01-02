@@ -13,24 +13,9 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     def URL
 
-    def host = { host ->
-        Enumeration e=NetworkInterface.getNetworkInterfaces();
-        while(e.hasMoreElements())
-        {
-            NetworkInterface n=(NetworkInterface) e.nextElement();
-            Enumeration ee = n.getInetAddresses();
-            while(ee.hasMoreElements())
-            {
-                InetAddress i= (InetAddress) ee.nextElement();
-                if(i.getHostAddress().startsWith("10") || i.getHostAddress().startsWith("192"))
-                    return i.getHostAddress();
-            }
-        }
+    static def host
 
-        throw new Exception("cannot find valid address")
-    }
-
-    def tempEndpoint = reposeEndpoint.replaceAll("localhost",host)
+    static def tempEndpoint
 
     def setup() {
         DD_URI = reposeEndpoint + DD_PATH
@@ -40,6 +25,30 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
     }
 
     def setupSpec() {
+
+        boolean found = false
+        Enumeration e=NetworkInterface.getNetworkInterfaces();
+        while(e.hasMoreElements())
+        {
+            NetworkInterface n=(NetworkInterface) e.nextElement();
+            Enumeration ee = n.getInetAddresses();
+            while(ee.hasMoreElements())
+            {
+                InetAddress i= (InetAddress) ee.nextElement();
+                if(i.getHostAddress().startsWith("10") || i.getHostAddress().startsWith("192"))
+                {
+                    host = i.getHostAddress();
+                    found = true
+                    break
+                }
+            }
+        }
+
+        if (!found) {
+            throw new Exception("cannot find valid address")
+        }
+
+        tempEndpoint = "http://${host}:${properties.reposePort}"
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -61,7 +70,7 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
         def url = tempEndpoint + DD_PATH + KEY
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: url, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest(method: 'PUT', url: url, headers:DD_HEADERS, requestBody: BODY)
 
         then:
         mc.receivedResponse.code == '403'
@@ -73,13 +82,13 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
         def endpointThatWontResolveToLocalhost = tempEndpoint + DD_PATH + KEY
 
         when: "I PUT a value for the key"
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest(method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY)
 
         then:
         mc.receivedResponse.code == '202'
 
         when:
-        mc = deproxy.makeRequest([method: 'GET', url: endpointThatWontResolveToLocalhost, headers:DD_HEADERS])
+        mc = deproxy.makeRequest(method: 'GET', url: endpointThatWontResolveToLocalhost, headers:DD_HEADERS)
 
         then:
         mc.receivedResponse.code == '403'
@@ -92,13 +101,13 @@ class DistDatastoreUnAuthFilterTest extends ReposeValveTest {
         def endpointThatWontResolveToLocalhost = tempEndpoint + DD_PATH + KEY
 
         when: "I PUT a value for the key"
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest(method: 'PUT', url: DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY)
 
         then:
         mc.receivedResponse.code == '202'
 
         when:
-        mc = deproxy.makeRequest([method: "DELETE", url:endpointThatWontResolveToLocalhost, headers:DD_HEADERS])
+        mc = deproxy.makeRequest(method: "DELETE", url:endpointThatWontResolveToLocalhost, headers:DD_HEADERS)
 
         then:
         mc.receivedResponse.code == '403'
