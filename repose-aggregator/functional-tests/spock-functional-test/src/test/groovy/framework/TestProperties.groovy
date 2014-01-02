@@ -11,6 +11,7 @@ class TestProperties {
     String connFramework
     String reposeContainer = "valve"
     String reposeHome
+    String projectBuildDirectory
 
     String getReposeEndpoint() {
         return "http://${targetHostname}:${reposePort}"
@@ -24,7 +25,6 @@ class TestProperties {
 
     int reposePort
     int reposeShutdownPort
-    int dynamicPortBase
 
     // Property settings that aren't set for every test
     int targetPort
@@ -45,6 +45,7 @@ class TestProperties {
             Properties properties = new Properties()
             properties.load(propertiesStream)
 
+            projectBuildDirectory = properties.getProperty("project.build.directory")
             configDirectory = properties.getProperty("repose.config.directory")
             configSamples = properties.getProperty("repose.config.samples")
             logFile = properties.getProperty("repose.log")
@@ -95,6 +96,7 @@ class TestProperties {
                 'repose.home': reposeHome,
                 configDirectory: configDirectory,
                 'repose.config.directory': configDirectory,
+                'project.build.directory': projectBuildDirectory,
         ]
     }
 
