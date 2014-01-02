@@ -37,8 +37,12 @@
     xmlns:m="http://www.w3.org/1998/Math/MathML"
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:db="http://docbook.org/ns/docbook"
+    
     xml:id="Repose-Header-Translation-Chapter">
+    
+    
     <title>Header Translation Filter</title>
+    
     <section xml:id="What-Is-Header-Translation">
         <title>What Is Header Translation?</title>
         <para> Header translation is the process of converting the

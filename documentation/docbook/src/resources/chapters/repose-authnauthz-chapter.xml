@@ -253,7 +253,8 @@
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para> The request/response lifecycle is: <orderedlist>
+                <para> The request/response lifecycle is: 
+                    <orderedlist>
                     <listitem>
                         <para> The client sends a request with the
                             user token to the Repose Authentication

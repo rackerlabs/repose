@@ -268,7 +268,7 @@
             </tr>
             <tr>
                 <td>
-                    <link linkend="id"><code>&lt;id&gt;</code></link>
+                    <link linkend="id-d1e02"><code>&lt;id&gt;</code></link>
                 </td>
             </tr>
             <tr>
@@ -403,7 +403,7 @@
                 </listitem>
             </varlistentry>
                 
-            <varlistentry xml:id="id">
+            <varlistentry xml:id="id-d1e02">
                 <term><guilabel>&lt;id&gt;</guilabel></term>
                 <listitem><para>This attribute defines the unique identifier for a given limit group.</para> 
                 </listitem>
