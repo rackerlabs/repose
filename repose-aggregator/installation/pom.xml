@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.repose.installation</groupId>
     <artifactId>installation</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
 
     <name>Repose - Installation</name>
 

@@ -10,7 +10,6 @@
 
     <artifactId>pjl-compressingFilter</artifactId>
     <groupId>com.rackspace.papi.external</groupId>
-    <version>2.13.2-SNAPSHOT</version>
 
     <name>PlanetJ CompressingFilter</name>
 

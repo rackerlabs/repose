@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.repose.installation.rpm</groupId>
     <artifactId>rpm</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
 
     <name>Repose - Installation RPM</name>
 
