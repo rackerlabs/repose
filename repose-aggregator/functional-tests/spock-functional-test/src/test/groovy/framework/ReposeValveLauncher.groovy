@@ -6,6 +6,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
+import org.rackspace.deproxy.PortFinder
 
 import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
@@ -27,7 +28,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
-    def int debugPort = 8011
+    def debugPort = null
     def classPaths =[]
 
     Process process
@@ -91,6 +92,10 @@ class ReposeValveLauncher implements ReposeLauncher {
         def classPath = ""
 
         if (debugEnabled) {
+
+            if (!debugPort) {
+                debugPort = PortFinder.Singleton.getNextOpenPort()
+            }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
@@ -283,5 +288,6 @@ class ReposeValveLauncher implements ReposeLauncher {
             } catch (ClientProtocolException ignored) {
             }
         }
+        println()
     }
 }
