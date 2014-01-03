@@ -19,6 +19,9 @@ class ReposeConfigurationProvider {
     def File commonSamplesDir
     def clock = new SystemClock()
 
+    ReposeConfigurationProvider(TestProperties properties) {
+        this(properties.configDirectory, properties.configSamples)
+    }
     ReposeConfigurationProvider(String reposeConfigDir, String samplesDir) {
         this.reposeConfigDir = new File(reposeConfigDir)
         this.samplesDir = new File(samplesDir)

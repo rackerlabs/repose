@@ -37,6 +37,16 @@ class ReposeValveLauncher implements ReposeLauncher {
     def ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
+                        TestProperties properties) {
+        this(configurationProvider,
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
+        )
+    }
+    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         String reposeJar,
                         String reposeEndpoint,
                         String configDir,
