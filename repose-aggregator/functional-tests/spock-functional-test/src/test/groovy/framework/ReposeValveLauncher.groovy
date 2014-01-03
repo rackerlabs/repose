@@ -28,6 +28,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
+    def jmxPort = null
     def debugPort = null
     def classPaths =[]
 
@@ -99,7 +100,9 @@ class ReposeValveLauncher implements ReposeLauncher {
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
-        int jmxPort = nextAvailablePort()
+        if (!jmxPort) {
+            jmxPort = PortFinder.Singleton.getNextOpenPort()
+        }
         jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if(!classPaths.isEmpty()){
@@ -135,23 +138,6 @@ class ReposeValveLauncher implements ReposeLauncher {
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
         //sleep(10000)
-    }
-
-    def nextAvailablePort() {
-
-        def socket
-        int port
-        try {
-            socket = new ServerSocket(0);
-            port = socket.getLocalPort()
-        } catch (IOException e) {
-            fail("Failed to find an open port")
-        } finally {
-            if (socket != null && !socket.isClosed()) {
-                socket.close()
-            }
-        }
-        return port
     }
 
     def connectViaJmxRemote(jmxUrl) {
