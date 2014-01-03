@@ -355,7 +355,7 @@
 
             <testResource>
                 <directory>${project.basedir}/src/test/configs</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <targetPath>${project.build.directory}/configs</targetPath>
             </testResource>
 
