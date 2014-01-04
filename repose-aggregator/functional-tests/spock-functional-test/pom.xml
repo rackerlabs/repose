@@ -34,15 +34,7 @@
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
-        <repose_port>8888</repose_port>
-        <repose_jmx_port>9001</repose_jmx_port>
-        <repose_shutdown_port>10009</repose_shutdown_port>
         <target_hostname>localhost</target_hostname>
-        <target_port>10001</target_port>
-        <target_port2>10002</target_port2>
-        <identity_port>12200</identity_port>
-        <atom_port>12201</atom_port>
-        <dynamic_port_base>20000</dynamic_port_base>
 
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
