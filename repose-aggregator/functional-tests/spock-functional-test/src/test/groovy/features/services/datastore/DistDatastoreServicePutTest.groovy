@@ -135,7 +135,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '500'
 
-        when: "I attempt to get the value from cache"
+        when: "I attempt to get the value from cache, GET ignores leading slashes"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
