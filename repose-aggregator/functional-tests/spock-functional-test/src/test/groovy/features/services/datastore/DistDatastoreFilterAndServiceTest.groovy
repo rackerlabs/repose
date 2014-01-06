@@ -1,8 +1,9 @@
 package features.services.datastore
-
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
+import java.util.concurrent.TimeoutException
 
 class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
     boolean isFailedStart = false
@@ -30,19 +31,11 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         repose.applyConfigs("features/services/datastore/badconfig")
         setIsFailedStart(true)
 
-        def MessageChain mc
-
-
         when:
-        try{
-            repose.start()
-            mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
-        } catch(Exception e){
-
-        }
+        repose.start()
 
         then:
-        mc == null
+        thrown TimeoutException
     }
 
     def "when configured with DD filter, repose should start and log a warning" () {
