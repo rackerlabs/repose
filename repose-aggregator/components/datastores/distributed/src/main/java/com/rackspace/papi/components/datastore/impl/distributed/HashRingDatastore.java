@@ -14,6 +14,7 @@ import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteCon
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Delete;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Get;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Put;
+import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Patch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,6 +231,42 @@ public class HashRingDatastore implements DistributedDatastore {
             @Override
             public String toString() {
                 return "remove";
+            }
+        }, remoteBehavior);
+    }
+
+    @Override
+    public void patch(String key, byte[] value) throws DatastoreOperationException {
+        patch(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        final byte[] keyHash = getHash(key);
+
+        patch(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
+    }
+
+    @Override
+    public void patch(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+                    RemoteBehavior remoteBehavior) {
+        performAction(key, id, new DatastoreAction() {
+
+            @Override
+            public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
+                return remoteCommandExecutor.execute(new Patch(timeUnit, value, ttl, name, target), remoteBehavior);
+            }
+
+            @Override
+            public Object performLocal(String name) {
+                localDatastore.patch(name, value, ttl, timeUnit);
+
+                return null;
+            }
+
+            @Override
+            public String toString() {
+                return "patch";
             }
         }, remoteBehavior);
     }

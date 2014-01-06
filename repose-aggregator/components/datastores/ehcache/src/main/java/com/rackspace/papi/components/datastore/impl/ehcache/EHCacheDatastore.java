@@ -50,6 +50,18 @@ public class EHCacheDatastore implements Datastore {
         ehCacheInstance.put(putMe);
     }
 
+    //TODO: update with proper implementation
+    @Override
+    public void patch(String key, byte[] value) throws DatastoreOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    //TODO: update with the proper implementation
+    @Override
+    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public void removeAll() {
         ehCacheInstance.removeAll();

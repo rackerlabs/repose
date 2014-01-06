@@ -121,4 +121,48 @@ public class EHCacheDatastoreTest {
     public void getName_getName() throws Exception {
         assertThat(datastore.getName(), equalTo("local/default"));
     }
+
+    @Test
+    public void shouldPatchNewElement(){
+        String key = "my element";
+        byte[] value = { 1, 2, 3};
+        datastore.patch(key, value);
+        StoredElement element = datastore.get(key);
+        assertNotNull(element);
+        assertEquals(value, element.elementBytes());
+    }
+
+    @Test
+    public void shouldPatchNewElementWithTTL(){
+        String key = "my element";
+        byte[] value = { 1, 2, 3};
+        datastore.patch(key, value, 5, TimeUnit.DAYS);
+        StoredElement element = datastore.get(key);
+        assertNotNull(element);
+        assertEquals(value, element.elementBytes());
+    }
+
+    @Test
+    public void shouldPatchExistingElement(){
+        String key = "my element";
+        byte[] value = { 1, 2, 3};
+        byte[] newValue = { 4 };
+        datastore.patch(key, value);
+        datastore.patch(key, newValue);
+        StoredElement element = datastore.get(key);
+        assertNotNull(element);
+        assertEquals(new byte[] {1,2,3,4}, element.elementBytes());
+    }
+
+    @Test
+    public void shouldPatchExistingElementWithTTL(){
+        String key = "my element";
+        byte[] value = { 1, 2, 3};
+        byte[] newValue = { 4 };
+        datastore.patch(key, value, 5, TimeUnit.DAYS);
+        datastore.patch(key, newValue, 5, TimeUnit.DAYS);
+        StoredElement element = datastore.get(key);
+        assertNotNull(element);
+        assertEquals(new byte[] {1,2,3,4}, element.elementBytes());
+    }
 }

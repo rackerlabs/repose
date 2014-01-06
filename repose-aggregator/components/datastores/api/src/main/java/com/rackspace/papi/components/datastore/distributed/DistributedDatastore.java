@@ -32,6 +32,25 @@ public interface DistributedDatastore extends Datastore {
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
+     * Patch (update) an element in a local or remote datastore for a duration of time not to exceed the TimeUnit and
+     * duration specified.
+     *
+     * If the element already exists in the datastore, then it should update based on the value provided
+     * (not a complete replacement).
+     *
+     * @param key Identifier for the value being patched (update)
+     * @param id Identifier for the cluster member where this value should be patched (update)
+     * @param value The value being stored
+     * @param ttl Duration to store the value for
+     * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
+     * @param remoteBehavior Whether or not to allow remote storage of this value
+     * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
+     *         attempting to store the value
+     */
+    public void patch(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+                    RemoteBehavior remoteBehavior) throws DatastoreOperationException;
+
+    /**
      * Removes an object from the Datastore.
      *
      * @param key

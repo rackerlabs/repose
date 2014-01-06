@@ -1,6 +1,7 @@
 package features.services.datastore
 import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.*
+import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -150,6 +151,65 @@ class DistDatastoreServiceTomcatTest extends Specification {
 
 //        def List<String> logMatches = reposeLogSearch1.searchByString("damaged node");
 //        logMatches.size() == 0
+    }
+
+    @org.junit.experimental.categories.Category(Bug.class)
+    def "PATCH a new cache object should return 201 response" () {
+        given:
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def body = "test data"
+
+        when:
+        MessageChain mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'PATCH',
+                            url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
+                            headers:headers,
+                            body: body
+                    ])
+
+        then:
+        mc.receivedResponse.code == '201'
+    }
+
+    @org.junit.experimental.categories.Category(Bug.class)
+    def "PATCH a cache object to an existing key should overwrite the cached value"() {
+        given:
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
+        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def body = "test data"
+        def newBody = "MY NEW VALUE"
+
+        when: "I make 2 PATCH calls for 2 different values for the same key"
+        MessageChain mc1 = deproxy.makeRequest(
+                [
+                        method: 'PATCH',
+                        url:datastoreTomcatEndpoint1  + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers:headers,
+                        body: body
+                ])
+        MessageChain mc2 = deproxy.makeRequest(
+                [
+                        method: 'PATCH',
+                        url:datastoreTomcatEndpoint1  + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers:headers,
+                        body: newBody
+                ])
+
+        and: "I get the value for the key"
+        MessageChain mc3 = deproxy.makeRequest(
+                [
+                        method: 'GET',
+                        url:datastoreTomcatEndpoint1  + "/powerapi/dist-datastore/objects/" + objectkey,
+                        headers:headers
+                ])
+
+        then: "The body of the get response should be my second request body"
+        mc3.receivedResponse.body == newBody
+        mc1.receivedResponse.code == "201"
+        mc2.receivedResponse.code == "200"
     }
 
 

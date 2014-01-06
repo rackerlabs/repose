@@ -183,6 +183,16 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
+    public void patch(String key, byte[] value) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("PATCH is unsupported for " + this.getName());
+    }
+
+    @Override
+    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("PATCH is unsupported for " + this.getName());
+    }
+
+    @Override
     public boolean remove(String key) throws DatastoreOperationException {
         return remove(key, true);
     }

@@ -48,6 +48,32 @@ public interface Datastore {
     void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
+     * Patch (update) an element in the datastore.
+     * If the element already exists in the datastore, then it should be updated with the new value (not a full
+     * replacement).
+     *
+     * @param key Identifier for the value being patched
+     * @param value The value being patched
+     * @throws DatastoreOperationException if an exception occurs when attempting to store the value
+     */
+    void patch(String key, byte[] value) throws DatastoreOperationException;
+
+    /**
+     * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
+     * specified.
+     *
+     * If the element already exists in the datastore, then it should be updated with the new value (not a full
+     * replacement).
+     *
+     * @param key Identifier for the value being patched (updated)
+     * @param value The value being patched (updated)
+     * @param ttl Duration (time to live) to store the value for
+     * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
+     * @throws DatastoreOperationException if an exception occurs when attempting to store the value
+     */
+    void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+
+    /**
      * Removes a value from the Datastore.
      *
      * @param key

@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -88,6 +89,35 @@ public class HashRingDatastoreTest {
     @Test
     public void getName_returnsExpectedName() throws Exception {
         assertThat(hashRingDatastore.getName(), equalTo(HashRingDatastore.DATASTORE_NAME));
+    }
 
+    @Test
+    public void shouldPatchNewElement(){
+        String key = "key-one";
+        byte[] id = new byte[] { 1, 2, 3};
+        byte[] value = new byte[] { 1, 2, 3};
+
+        when(clusterView.members()).thenReturn(
+                new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
+        when(localDatastore.get(any(String.class))).thenReturn(storedElement);
+        hashRingDatastore.patch(key, id, value, 5, TimeUnit.DAYS, RemoteBehavior.ALLOW_FORWARDING);
+        StoredElement element = hashRingDatastore.get(key);
+        assertEquals(value, element.elementBytes());
+    }
+
+    @Test
+    public void shouldPatchExistingElement(){
+        String key = "key-one";
+        byte[] id = new byte[] { 1, 2, 3};
+        byte[] value = new byte[] { 1, 2, 3};
+        byte[] newValue = new byte[] { 4, 5};
+
+        when(clusterView.members()).thenReturn(
+                new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
+        when(localDatastore.get(any(String.class))).thenReturn(storedElement);
+        hashRingDatastore.patch(key, id, value, 5, TimeUnit.DAYS, RemoteBehavior.ALLOW_FORWARDING);
+        hashRingDatastore.patch(key, id, newValue, 5, TimeUnit.DAYS, RemoteBehavior.ALLOW_FORWARDING);
+        StoredElement element = hashRingDatastore.get(key);
+        assertEquals(new byte[] {1, 2, 3, 4, 5}, element.elementBytes());
     }
 }

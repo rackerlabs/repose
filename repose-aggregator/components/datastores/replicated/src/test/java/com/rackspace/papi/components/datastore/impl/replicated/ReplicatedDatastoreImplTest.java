@@ -8,6 +8,8 @@ import net.sf.ehcache.config.Configuration;
 import org.junit.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class ReplicatedDatastoreImplTest {
@@ -100,6 +102,15 @@ public class ReplicatedDatastoreImplTest {
     @Test
     public void getName_returnsExpectedName() throws Exception {
         assertThat(datastore.getName(), equalTo(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED));
+    }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void shouldThrowUnsupportedExceptionOnPatchWith2Parameters(){
+        datastore.patch("key",new byte[] {1,2,3});
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void shouldThrowUnsupportedExceptionOnPatchWith4Parameters(){
+        datastore.patch("key",new byte[] {1,2,3}, 10, TimeUnit.DAYS);
     }
 }
