@@ -119,26 +119,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then:
-        mc.receivedResponse.code == '404'
-    }
-
-    def "PUT of invalid key with leading slashes should fail with 500 INTERNAL SERVER ERROR"() {
-
-        given:
-        def badKey = "////////" + KEY
-
-        when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: distDatastoreEndpoint, path: DD_PATH + badKey,
-                headers: DD_HEADERS, requestBody: BODY])
-
-        then:
-        mc.receivedResponse.code == '500'
-
-        when: "I attempt to get the value from cache, GET ignores leading slashes"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
-
-        then:
+        then: "The key is valid but does not exist, so should return a 404 NOT FOUND"
         mc.receivedResponse.code == '404'
     }
 
@@ -152,18 +133,20 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         mc.receivedResponse.code == '500'
 
         when: "I attempt to get the value from cache"
-        mc = deproxy.makeRequest([method: 'GET', url:DD_URI + key, headers:DD_HEADERS])
+        mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
+                headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '500'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
 
         where:
-        key                                 | scenario
-        UUID.randomUUID().toString() +"///" | "unnecessary slashes on path"
-        "foo/bar/?assd=adff"                | "includes query parameters"
-        "foo"                               | "less than 36 chars"
-        UUID.randomUUID().toString() + "a"  | "more than 36 chars"
+        key                                       | scenario
+        UUID.randomUUID().toString() +"///"       | "unnecessary slashes on path"
+        "foo/bar/?assd=adff"                      | "includes query parameters"
+        "foo"                                     | "less than 36 chars"
+        UUID.randomUUID().toString() + "a"        | "more than 36 chars"
+        "////////" + UUID.randomUUID().toString() | "leading slashes on path"
     }
 
 
