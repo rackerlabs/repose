@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.repose</groupId>
     <artifactId>management</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
 
     <name>Repose - Management</name>
 

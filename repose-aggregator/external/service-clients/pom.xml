@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.papi.external.clients</groupId>
     <artifactId>service-client-support</artifactId>
-    <version>2.13.2-SNAPSHOT</version>
 
     <name>Repose Service Clients - Service Clients Support</name>
     
