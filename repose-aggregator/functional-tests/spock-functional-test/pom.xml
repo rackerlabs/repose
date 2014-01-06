@@ -34,7 +34,7 @@
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
-        <target_hostname>localhost</target_hostname>
+        <target.hostname>localhost</target.hostname>
 
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
