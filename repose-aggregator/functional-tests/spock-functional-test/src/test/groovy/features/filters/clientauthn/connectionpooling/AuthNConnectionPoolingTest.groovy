@@ -59,8 +59,8 @@ class AuthNConnectionPoolingTest extends Specification {
         logFile = properties.logFile
 
         def configDirectory = properties.configDirectory
-        def configSamples = properties.configSamples
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        def configTemplates = properties.configTemplates
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

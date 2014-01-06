@@ -4,7 +4,6 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class NoCaptureGroupsTest extends Specification {
@@ -21,7 +20,7 @@ class NoCaptureGroupsTest extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()

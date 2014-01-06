@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -44,7 +43,7 @@ class UriNormalizationJMXTest extends Specification {
         // configure and start repose
         def targetHostname = properties.getTargetHostname()
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

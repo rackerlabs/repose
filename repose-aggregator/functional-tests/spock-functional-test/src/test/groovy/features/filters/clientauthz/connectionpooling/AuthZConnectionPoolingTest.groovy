@@ -8,7 +8,6 @@ import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.DeproxyEndpoint
 import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**
@@ -62,8 +61,8 @@ class AuthZConnectionPoolingTest extends Specification {
         logFile = properties.logFile
 
         def configDirectory = properties.configDirectory
-        def configSamples = properties.configSamples
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        def configTemplates = properties.configTemplates
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

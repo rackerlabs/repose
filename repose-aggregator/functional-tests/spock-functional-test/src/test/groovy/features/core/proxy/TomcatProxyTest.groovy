@@ -24,10 +24,10 @@ class TomcatProxyTest extends Specification {
         tomcatEndpoint = properties.reposeEndpoint
 
         def configDirectory = properties.getConfigDirectory()
-        def configSamples = properties.getRawConfigDirectory()
+        def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
-        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
+        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
         def params = properties.getDefaultTemplateParams()
         params += [

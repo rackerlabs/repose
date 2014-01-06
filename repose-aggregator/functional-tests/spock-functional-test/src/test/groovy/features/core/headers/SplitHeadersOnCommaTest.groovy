@@ -5,7 +5,6 @@ import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
@@ -27,7 +26,7 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         shutdownPort = properties.reposeShutdownPort
         url = "http://localhost:${reposePort}"
 
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),

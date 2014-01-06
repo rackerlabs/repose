@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.DeproxyEndpoint
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @org.junit.experimental.categories.Category(Slow.class)
@@ -34,7 +33,7 @@ class StartWithZeroNodesTest extends Specification {
         port = properties.reposePort
         stopPort = properties.reposeShutdownPort
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         def params = properties.getDefaultTemplateParams()
         params += [

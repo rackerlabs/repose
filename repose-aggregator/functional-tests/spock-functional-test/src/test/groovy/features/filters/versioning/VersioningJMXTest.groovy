@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**
@@ -45,7 +44,7 @@ class VersioningJMXTest extends Specification {
 
         // configure and start repose
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

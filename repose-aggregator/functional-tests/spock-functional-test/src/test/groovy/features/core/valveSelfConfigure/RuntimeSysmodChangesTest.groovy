@@ -40,7 +40,7 @@ class RuntimeSysmodChangesTest extends Specification {
         port3 = PortFinder.Singleton.getNextOpenPort()
         stopPort = properties.reposeShutdownPort
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         def params = properties.defaultTemplateParams
         params += [

@@ -40,7 +40,7 @@
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-        <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
+        <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
 
         <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>

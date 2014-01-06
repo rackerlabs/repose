@@ -45,7 +45,7 @@ class MultiClusterMultiNodeTest extends Specification {
         port22 = PortFinder.Singleton.getNextOpenPort()
         stopPort = properties.reposeShutdownPort
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         params = properties.getDefaultTemplateParams()
         params += [

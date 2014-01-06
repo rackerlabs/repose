@@ -60,7 +60,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         datastoreGlassfishEndpoint2 = "http://localhost:${dataStorePort2}"
 
         def configDirectory = properties.getConfigDirectory()
-        def configSamples = properties.getRawConfigDirectory()
+        def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
 
@@ -77,7 +77,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                 'datastorePort2' : dataStorePort2
         ]
 
-        ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
+        ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
         config1.applyConfigs("features/services/datastore/multinode", params)
         config1.applyConfigs("common", params)

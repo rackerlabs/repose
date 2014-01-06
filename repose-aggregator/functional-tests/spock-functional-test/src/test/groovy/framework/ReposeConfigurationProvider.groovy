@@ -5,27 +5,23 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.text.StrSubstitutor
 import org.linkedin.util.clock.SystemClock
 
-import java.util.concurrent.TimeoutException
-
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-
 /**
  * Responsible for applying and updating configuration files for an instance of Repose
  */
 class ReposeConfigurationProvider {
 
     def File reposeConfigDir
-    def File samplesDir
-    def File commonSamplesDir
+    def File configTemplatesDir
+    def File commonTemplatesDir
     def clock = new SystemClock()
 
     ReposeConfigurationProvider(TestProperties properties) {
-        this(properties.configDirectory, properties.configSamples)
+        this(properties.configDirectory, properties.configTemplates)
     }
-    ReposeConfigurationProvider(String reposeConfigDir, String samplesDir) {
+    ReposeConfigurationProvider(String reposeConfigDir, String configTemplatesDir) {
         this.reposeConfigDir = new File(reposeConfigDir)
-        this.samplesDir = new File(samplesDir)
-        this.commonSamplesDir = new File(samplesDir + "/common")
+        this.configTemplatesDir = new File(configTemplatesDir)
+        this.commonTemplatesDir = new File(configTemplatesDir + "/common")
     }
 
     /**
@@ -44,7 +40,7 @@ class ReposeConfigurationProvider {
      */
     void applyConfigs(String sourceFolder, Map params=[:], sleepTimeInSeconds=null) {
 
-        def source = new File(samplesDir.absolutePath + "/" + sourceFolder)
+        def source = new File(configTemplatesDir.absolutePath + "/" + sourceFolder)
 
         if (!source.exists()) { throw new IllegalArgumentException("\"${source.toString()}\" not found")}
         if (!source.isDirectory()) { throw new IllegalArgumentException("\"${source.toString()}\" is not a directory") }

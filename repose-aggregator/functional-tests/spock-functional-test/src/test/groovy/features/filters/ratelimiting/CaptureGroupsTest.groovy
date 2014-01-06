@@ -26,7 +26,7 @@ class CaptureGroupsTest extends Specification {
 
         properties.reposePort = PortFinder.Singleton.getNextOpenPort()
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()

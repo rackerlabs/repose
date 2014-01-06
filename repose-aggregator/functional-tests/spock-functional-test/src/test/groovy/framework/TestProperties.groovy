@@ -7,7 +7,7 @@ class TestProperties {
     String configDirectory
     String rawConfigDirectory
     String logFile
-    String configSamples
+    String configTemplates
     String connFramework
     String reposeContainer = "valve"
     String reposeHome
@@ -47,7 +47,7 @@ class TestProperties {
 
             projectBuildDirectory = properties.getProperty("project.build.directory")
             configDirectory = properties.getProperty("repose.config.directory")
-            configSamples = properties.getProperty("repose.config.samples")
+            configTemplates = properties.getProperty("repose.config.templates")
             logFile = properties.getProperty("repose.log")
 
             connFramework = "jersey"

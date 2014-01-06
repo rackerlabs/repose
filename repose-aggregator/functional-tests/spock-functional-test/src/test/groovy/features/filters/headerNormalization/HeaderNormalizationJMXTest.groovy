@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -56,7 +55,7 @@ class HeaderNormalizationJMXTest extends Specification {
 
         urlBase = properties.reposeEndpoint
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,

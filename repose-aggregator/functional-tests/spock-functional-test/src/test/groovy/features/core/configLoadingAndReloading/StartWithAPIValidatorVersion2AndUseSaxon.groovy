@@ -7,7 +7,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -36,7 +35,7 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
 
         // set initial config files
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()

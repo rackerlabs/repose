@@ -95,8 +95,8 @@ abstract class ReposeValveTest extends Specification {
         return properties.getConnFramework()
     }
 
-    def getConfigSamples() {
-        return properties.getConfigSamples()
+    def getConfigTemplates() {
+        return properties.getConfigTemplates()
     }
 
     def getConfigDirectory() {

@@ -7,7 +7,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -41,7 +40,7 @@ class TransitionBadToGoodConfigs extends Specification {
         deproxy.addEndpoint(this.targetPort)
 
         // setup config provider
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         // set the common configs
         reposeConfigProvider.cleanConfigDirectory()
