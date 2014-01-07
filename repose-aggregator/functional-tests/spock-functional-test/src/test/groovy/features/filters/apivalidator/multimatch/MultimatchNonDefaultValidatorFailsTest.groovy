@@ -4,7 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class MultimatchDefaults1Test extends ReposeValveTest {
+class MultimatchNonDefaultValidatorFailsTest extends ReposeValveTest {
 
     static def params
 
@@ -17,14 +17,14 @@ class MultimatchDefaults1Test extends ReposeValveTest {
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/multimatch/m-default-1", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/multimatch/m-default-3", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")
     }
 
-    // This TestCase checks that the default runs after skips and failures.
-    def "When multi-role-match is set and a default validator passes the request (MF5(P)F4\\3 = MPF5PF4\\1,4 -> MPNNN -> P)"() {
+    // This TestCase checks that the default is tried before anything else.
+    def "When multi-role-match is set and a matching validator fails the request (MP(F4)F5\\3 = MF4PF4F5\\1,4 -> MF4SSF5 -> F5)"() {
         setup:
         MessageChain messageChain
 
@@ -37,7 +37,7 @@ class MultimatchDefaults1Test extends ReposeValveTest {
 
         where:
         roles    | responseCode | numHandlings
-        "role-3" | "200"        | 1
+        "role-3" | "405"        | 0
     }
 
     def cleanupSpec() {
