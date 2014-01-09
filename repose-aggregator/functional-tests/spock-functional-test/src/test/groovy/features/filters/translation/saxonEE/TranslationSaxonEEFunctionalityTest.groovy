@@ -3,17 +3,15 @@ package features.filters.translation.saxonEE
 import framework.ReposeValveTest
 import framework.category.SaxonEE
 import org.junit.experimental.categories.Category
-import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
+import org.rackspace.deproxy.*
 
 @Category(SaxonEE.class)
 class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a>test</a>"
     def static String jsonPayload = "{\"a\":\"1\",\"b\":\"2\"}"
-    def static String jsonInXml = "<entry xml:lang=\"en\" xmlns=\"http://www.w3.org/2005/Atom\">    <category term=\"image.upload\"/>    <category term=\"DATACENTER=ord1\"/>    <category term=\"REGION=preprod-ord\"/>    <content type=\"application/json\"> {  \"event_type\": \"image.upload\",  \"timestamp\": \"2013-04-09 23:18:57.557571\",  \"message_id\": \"b\",  \"payload\": {    \"updated_at\": \"2013-04-09T23:18:57\",    \"id\": \"9\"    } }    </content> </entry>"
+    def static String jsonInXmlId9 = "<entry xml:lang=\"en\" xmlns=\"http://www.w3.org/2005/Atom\">    <category term=\"image.upload\"/>    <category term=\"DATACENTER=ord1\"/>    <category term=\"REGION=preprod-ord\"/>    <content type=\"application/json\"> {  \"event_type\": \"image.upload\",  \"timestamp\": \"2013-04-09 23:18:57.557571\",  \"message_id\": \"b\",  \"payload\": {    \"updated_at\": \"2013-04-09T23:18:57\",    \"id\": \"9\"    } }    </content> </entry>"
+    def static String jsonInXmlId8 = "<entry xml:lang=\"en\" xmlns=\"http://www.w3.org/2005/Atom\">    <category term=\"image.upload\"/>    <category term=\"DATACENTER=ord1\"/>    <category term=\"REGION=preprod-ord\"/>    <content type=\"application/json\"> {  \"event_type\": \"image.upload\",  \"timestamp\": \"2013-04-09 23:18:57.557571\",  \"message_id\": \"b\",  \"payload\": {    \"updated_at\": \"2013-04-09T23:18:57\",    \"id\": \"8\"    } }    </content> </entry>"
 
 
 
@@ -55,7 +53,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
     def "when translating json within xml in the request body"() {
 
         given: "Repose is configured to translate request headers"
-        def xmlResp = { request -> return new Response(200, "OK", respHeaders) }
+        def xmlResp = { request -> return new Response(200, "OK", respHeaders, "") }
 
 
         when: "User passes a request through repose"
@@ -71,7 +69,7 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         where:
         reqHeaders             | respHeaders | reqBody   | method | bodyShouldContain
-        acceptXML + contentXML | contentXML  | jsonInXml | "POST" | ["<category term=\"DATACENTER=req1\"/>", "<category term=\"REGION=req\"/>"]
+        acceptXML + contentXML | contentXML  | jsonInXmlId9 | "POST" | ["<category term=\"DATACENTER=req1\"/>", "<category term=\"REGION=req\"/>"]
 
     }
 
@@ -94,8 +92,9 @@ class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
         where:
         reqHeaders | respHeaders | respBody  | respCode | shouldContain
-        acceptXML  | contentXML  | jsonInXml | 200      | ["<category term=\"REGION=req\"></category>","<category term=\"DATACENTER=req1\"></category>"]
+        acceptXML  | contentXML  | jsonInXmlId8 | 200      | ["<category term=\"REGION=resp\"/>","<category term=\"DATACENTER=resp1\"/>"]
 
 
     }
+
 }
