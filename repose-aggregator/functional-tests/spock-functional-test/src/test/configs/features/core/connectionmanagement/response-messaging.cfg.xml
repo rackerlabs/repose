@@ -126,7 +126,7 @@
     </status-code>
 
     <status-code id="5xx" code-regex="5\d\d" overwrite="ALWAYS">
-        <message media-type="*/*" href="file:///etc/repose/node3/responsefor5xx" />
+        <message media-type="*/*" href="file://${repose.config.directory}/responsefor5xx" />
 
     </status-code>
 
