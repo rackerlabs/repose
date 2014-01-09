@@ -39,7 +39,11 @@ class ConnectionManagementTest extends ReposeValveTest{
 
 
         where:
-        reqMethod << ["POST", "PUT", "DELETE", "PATCH"]
+        reqMethod | _
+        "POST"    | _
+        "PUT"     | _
+        "DELETE"  | _
+        "PATCH"   | _
     }
 
     def "Should return response body configured in response-messaging.cfg.xml file"(){
@@ -51,6 +55,8 @@ class ConnectionManagementTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: handler401)
 
         then: "Repose should change response to one configured in rms"
+        mc.handlings.size() == 1
+        mc.handlings[0].response.body == "Original Message"
         mc.receivedResponse.body.equals("You are not authorized... Did you drop your ID?")
 
     }
@@ -63,7 +69,9 @@ class ConnectionManagementTest extends ReposeValveTest{
         when: "Request goes through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: handler301)
 
-        then: "Repose should change response to one configured in rms"
+        then: "Repose should not change response"
+        mc.handlings.size() == 1
+        mc.handlings[0].response.body == "Original Message"
         mc.receivedResponse.body.equals("Original Message")
 
     }
@@ -74,7 +82,9 @@ class ConnectionManagementTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: ["content-encoding" : "gzip"])
 
         then: "repose should not remove header"
+        mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("content-encoding") == 1
+        mc.handlings[0].request.headers["content-encoding"] == "gzip"
 
     }
 }
