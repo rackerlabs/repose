@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore.distributed;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.Patch;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -40,14 +41,15 @@ public interface DistributedDatastore extends Datastore {
      *
      * @param key Identifier for the value being patched (update)
      * @param id Identifier for the cluster member where this value should be patched (update)
-     * @param value The value being stored
+     * @param patch The patch to be applied to the stored value
      * @param ttl Duration to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param remoteBehavior Whether or not to allow remote storage of this value
+     * @return StoredElement wrapper of the updated stored value
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public void patch(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+    public StoredElement patch(String key, byte[] id, final Patch patch, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
