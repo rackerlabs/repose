@@ -12,16 +12,24 @@ class ConnectionManagementTest extends ReposeValveTest{
     String charset = (('A'..'Z') + ('0'..'9')).join()
 
     def setupSpec() {
-        repose.applyConfigs("features/core/powerfilter/requestsize", "features/core/connectionmanagement")
-        repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
+
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/requestsize", params)
+        repose.configurationProvider.applyConfigs("features/core/connectionmanagement", params)
+        repose.start()
     }
 
     def cleanupSpec() {
-        deproxy.shutdown()
-        repose.stop()
+        if (repose) {
+            repose.stop()
+        }
+        if (deproxy) {
+            deproxy.shutdown()
+        }
     }
 
     @Unroll("When sending a #reqMethod through repose")
