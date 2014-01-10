@@ -1,8 +1,9 @@
 package com.rackspace.papi.components.datastore.impl.ehcache;
 
 import com.rackspace.papi.components.datastore.Datastore;
-import net.sf.ehcache.Ehcache;
+import com.rackspace.papi.components.datastore.*;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -50,16 +51,16 @@ public class EHCacheDatastore implements Datastore {
         ehCacheInstance.put(putMe);
     }
 
-    //TODO: update with proper implementation
     @Override
-    public void patch(String key, byte[] value) throws DatastoreOperationException {
-        throw new UnsupportedOperationException();
+    public StoredElement patch(String key, Patch patch) throws DatastoreOperationException {
+        //todo: Write me
+        throw new UnsupportedOperationException("com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore.patch hasn't been written yet");
     }
 
-    //TODO: update with the proper implementation
     @Override
-    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        throw new UnsupportedOperationException();
+    public StoredElement patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        //todo: Write me
+        throw new UnsupportedOperationException("com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore.patch hasn't been written yet");
     }
 
     @Override
