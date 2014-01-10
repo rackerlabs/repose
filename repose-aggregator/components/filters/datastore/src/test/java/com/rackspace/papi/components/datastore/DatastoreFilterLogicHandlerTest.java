@@ -42,12 +42,12 @@ public class DatastoreFilterLogicHandlerTest {
       protected ReadableHttpServletResponse mockResponse;
       protected DatastoreFilterLogicHandler logicHandler;
       protected DatastoreAccessControl dac;
-      protected HashRingDatastore hashedDatastore;
+      protected Datastore localDatastore;
 
       @Before
       public void beforeAny() throws Exception {
-         hashedDatastore = mock(HashRingDatastore.class);
-         when(hashedDatastore.get(anyString(), any(byte[].class), any(RemoteBehavior.class))).thenReturn(new StoredElementImpl("", null));
+         localDatastore = mock(Datastore.class);
+         when(localDatastore.get(anyString())).thenReturn(new StoredElementImpl("", null));
 
          mockResponse = mock(ReadableHttpServletResponse.class);
 
@@ -55,7 +55,7 @@ public class DatastoreFilterLogicHandlerTest {
          allowedAddresses.add(InetAddress.getByName("10.1.1.1"));
 
          dac = new DatastoreAccessControl(allowedAddresses, false);
-         logicHandler = new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashedDatastore, dac);
+         logicHandler = new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), localDatastore, dac);
       }
 
       public HttpServletRequest mockRequestWithMethod(String method, String remoteHost) {
@@ -79,7 +79,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockGetRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).get(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.ALLOW_FORWARDING));
+         verify(localDatastore, times(1)).get(eq(RESOURCE));
       }
 
       @Test
@@ -92,7 +92,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockPutRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).put(eq(RESOURCE), any(byte[].class), any(byte[].class), eq(60), eq(TimeUnit.SECONDS), eq(RemoteBehavior.ALLOW_FORWARDING));
+         verify(localDatastore, times(1)).put(eq(RESOURCE),  any(byte[].class), eq(60), eq(TimeUnit.SECONDS));
       }
 
       @Test
@@ -101,7 +101,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockGetRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).remove(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.ALLOW_FORWARDING));
+         verify(localDatastore, times(1)).remove(eq(RESOURCE));
       }
 
       @Test
@@ -180,7 +180,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockGetRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).get(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.DISALLOW_FORWARDING));
+         verify(localDatastore, times(1)).get(eq(RESOURCE));
       }
    }
 }

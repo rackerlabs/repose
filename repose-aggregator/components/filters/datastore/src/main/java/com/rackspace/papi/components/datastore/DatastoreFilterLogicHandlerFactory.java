@@ -30,16 +30,16 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
    private final DatastoreAccessControl defaultDatastoreACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
    private final ClusterView clusterView;
-   private final DistributedDatastore hashRingDatastore;
+   private final Datastore localDatastore;
    private DatastoreAccessControl hostACL;
    private ReposeInstanceInfo instanceInfo;
    private SystemModel curSystemModel;
    private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
    private final Object configLock = new Object();
 
-   public DatastoreFilterLogicHandlerFactory(ClusterView clusterView, DistributedDatastore hashRingDatastore, ReposeInstanceInfo instanceInfo) {
+   public DatastoreFilterLogicHandlerFactory(ClusterView clusterView, Datastore localDatastore, ReposeInstanceInfo instanceInfo) {
       this.clusterView = clusterView;
-      this.hashRingDatastore = hashRingDatastore;
+      this.localDatastore = localDatastore;
       this.instanceInfo = instanceInfo;
 
       hostACL = defaultDatastoreACL;
@@ -149,7 +149,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
          return null;
       }
       synchronized (configLock) {
-         return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashRingDatastore, hostACL);
+         return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), localDatastore, hostACL);
       }
    }
 

@@ -58,13 +58,14 @@ public class DistributedDatastoreFilter implements Filter {
         final ClusterView clusterView = new ThreadSafeClusterView(servicePorts.getPorts());
         ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), UUIDEncodingProvider.getInstance(),
                 clusterView);
-        final DistributedDatastore hashRingDatastore = datastoreService.createDatastore(datastoreId, configuration);
+        datastoreService.createDatastore(datastoreId, configuration);
+        final Datastore localDatastore = datastoreService.getDefaultDatastore();
         final ReposeInstanceInfo instanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
 
         URL sysModXsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
 
-        handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore, instanceInfo);
+        handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, localDatastore, instanceInfo);
         configurationManager = contextAdapter.configurationService();
         configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml",sysModXsdURL, handlerFactory, SystemModel.class);
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, DistributedDatastoreConfiguration.class);

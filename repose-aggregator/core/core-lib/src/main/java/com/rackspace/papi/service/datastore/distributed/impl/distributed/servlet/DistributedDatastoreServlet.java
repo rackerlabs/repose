@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.components.datastore.StoredElement;
@@ -28,7 +29,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
    private DatastoreAccessControl hostAcl;
-   private DistributedDatastore hashRingDatastore;
+   private Datastore localDatastore;
    private EncodingProvider encodingProvider;
    private DatastoreService datastoreService;
    private DistributedDatastoreServiceClusterViewService clusterView;
@@ -37,6 +38,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
    public DistributedDatastoreServlet(DatastoreService datastore) {
       hostAcl = new DatastoreAccessControl(null, false);
       this.datastoreService = datastore;
+      localDatastore = datastore.getDefaultDatastore();
       encodingProvider = UUIDEncodingProvider.getInstance();
    }
 
@@ -45,8 +47,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
       if (isRequestValid(req,resp)) {
          CacheRequest cacheGet = CacheRequest.marshallCacheRequest(req);
-         final StoredElement element = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
-
+         final StoredElement element = localDatastore.get(cacheGet.getCacheKey());
          if (!element.elementIsNull()) {
             try {
                resp.getOutputStream().write(element.elementBytes());
@@ -73,7 +74,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
                clusterView.getClusterView());
 
-       hashRingDatastore = datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
+       datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
        hostAcl = clusterView.getAccessControl();
    }
 
@@ -81,7 +82,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
       if (CacheRequest.isCacheRequest(req)) {
          final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(req);
-         hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
+         localDatastore.put(cachePut.getCacheKey(),cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS) ;
          resp.setStatus(HttpServletResponse.SC_ACCEPTED);
       } else {
          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -92,14 +93,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
       if (CacheRequest.isCacheRequest(req)) {
          final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
-         hashRingDatastore.remove(cacheDelete.getCacheKey(), encodingProvider.decode(cacheDelete.getCacheKey()), cacheDelete.getRequestedRemoteBehavior());
+         localDatastore.remove(cacheDelete.getCacheKey());
          resp.setStatus(HttpServletResponse.SC_ACCEPTED);
       }else
       {
          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
-      //TODO: Move over hashring datastoreService and perform object remove
-      
+
    }
 
    public boolean isAllowed(HttpServletRequest request) {

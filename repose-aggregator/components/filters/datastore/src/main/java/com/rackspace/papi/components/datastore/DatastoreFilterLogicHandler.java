@@ -26,12 +26,12 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final EncodingProvider encodingProvider;
    private final DatastoreAccessControl hostAcl;
-   private DistributedDatastore hashRingDatastore;
+   private Datastore localDatastore;
 
-   public DatastoreFilterLogicHandler(EncodingProvider encodingProvider, DistributedDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
+   public DatastoreFilterLogicHandler(EncodingProvider encodingProvider, Datastore localDatastore, DatastoreAccessControl hostAcl) {
       this.encodingProvider = encodingProvider;
       this.hostAcl = hostAcl;
-      this.hashRingDatastore = hashRingDatastore;
+      this.localDatastore = localDatastore;
    }
 
    @Override
@@ -106,7 +106,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    public void onCacheDelete(HttpServletRequest request, final FilterDirector director) {
       final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(request);
-      hashRingDatastore.remove(cacheDelete.getCacheKey(), encodingProvider.decode(cacheDelete.getCacheKey()), cacheDelete.getRequestedRemoteBehavior());
+      localDatastore.remove(cacheDelete.getCacheKey()) ;
 
       director.setResponseStatus(HttpStatusCode.ACCEPTED);
       director.setFilterAction(FilterAction.RETURN);
@@ -114,14 +114,14 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    public void onCachePut(HttpServletRequest request, final FilterDirector director) {
       final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
-      hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
+      localDatastore.put(cachePut.getCacheKey(),cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
 
       director.setResponseStatus(HttpStatusCode.ACCEPTED);
       director.setFilterAction(FilterAction.RETURN);
    }
 
    public void onCacheGet(CacheRequest cacheGet, FilterDirector director) {
-      final StoredElement element = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
+        final StoredElement element= localDatastore.get(cacheGet.getCacheKey());
 
       if (!element.elementIsNull()) {
          try {
