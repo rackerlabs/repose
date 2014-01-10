@@ -17,19 +17,24 @@ class UriTranslationPerformanceTest extends ReposeValveTest {
         int totalThreads = 10
 
         when: "I make 1000 requests through the uri stripper filter"
-        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/nolocationrewrite")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/nolocationrewrite", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
         def averageWithHdrXlate = makeRequests(totalThreads)
         repose.stop()
         deproxy.shutdown()
 
         and: "I make 1000 requests through translation filter"
-        repose.applyConfigs("features/filters/translation/common", "features/filters/uritranslation/perftest")
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uritranslation/perftest", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
         def averageWithTranslationFilter = makeRequests(totalThreads)
         repose.stop()
         deproxy.shutdown()

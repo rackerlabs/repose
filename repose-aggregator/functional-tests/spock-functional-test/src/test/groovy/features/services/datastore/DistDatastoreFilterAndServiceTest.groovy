@@ -11,7 +11,7 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {
@@ -28,7 +28,9 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
 
     def "when configured with DD service and filter, repose should not start" () {
         given:
-        repose.applyConfigs("features/services/datastore/badconfig")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params)
         setIsFailedStart(true)
 
         when:
@@ -41,7 +43,9 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
     def "when configured with DD filter, repose should start and log a warning" () {
         given:
         cleanLogDirectory()
-        repose.applyConfigs("features/filters/datastore")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore", params)
         repose.start()
         def user= UUID.randomUUID().toString();
 
@@ -64,7 +68,9 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         cleanLogDirectory()
 
         when: "I start Repose with a DD Filter"
-        repose.applyConfigs("features/filters/datastore")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore", params)
         repose.start()
 
         and: "I check for warning log messages"
@@ -74,7 +80,7 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         logMatchesFalse.size() == 0
 
         when: "I update Repose with a config that includes DD service and DD filter"
-        repose.updateConfigs("features/services/datastore/badconfig")
+        repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params, /*sleepTime*/ 25)
 
         and: "I check for warning log messages"
         logMatchesTrue = reposeLogSearch.searchByString(warningLog)
@@ -98,7 +104,9 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         cleanLogDirectory()
 
         when: "I start Repose with a DD Service"
-        repose.applyConfigs("features/services/datastore")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -109,7 +117,7 @@ class DistDatastoreFilterAndServiceTest extends ReposeValveTest {
         logMatchesFalse.size() == 0
 
         when: "I update Repose with a config that includes DD service and DD filter"
-        repose.updateConfigs("features/services/datastore/badconfig")
+        repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params, /*sleepTime*/ 25)
 
         and: "I check for warning log messages"
         logMatchesTrue = reposeLogSearch.searchByString(warningLog)

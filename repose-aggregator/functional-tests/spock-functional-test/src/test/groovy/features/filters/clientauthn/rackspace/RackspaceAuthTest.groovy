@@ -19,12 +19,14 @@ class RackspaceAuthTest extends ReposeValveTest {
 
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthn/rackspace")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/rackspace", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new RackspaceIdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }
 
@@ -50,7 +52,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-auth-user") == user
-        request2.headers.getFirstValue("host") == "localhost:10001"
+        request2.headers.getFirstValue("host") == "localhost:${properties.targetPort}"
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         request2.headers.getFirstValue("x-auth-token") == token
         request2.headers.contains("x-pp-groups")
@@ -65,7 +67,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         mc.handlings[0].request.headers.getFirstValue("X-auth-user") == user
-        mc.handlings[0].request.headers.getFirstValue("host") == "localhost:10001"
+        mc.handlings[0].request.headers.getFirstValue("host") == "localhost:${properties.targetPort}"
         mc.handlings[0].request.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         mc.handlings[0].request.headers.getFirstValue("x-auth-token") == token
         mc.handlings[0].request.headers.contains("x-pp-groups")

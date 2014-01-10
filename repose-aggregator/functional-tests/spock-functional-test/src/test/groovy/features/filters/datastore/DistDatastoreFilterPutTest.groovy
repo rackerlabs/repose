@@ -13,10 +13,12 @@ class DistDatastoreFilterPutTest extends ReposeValveTest {
     def DD_PATH = "/powerapi/dist-datastore/objects/"
 
     def setupSpec() {
-        repose.applyConfigs("features/filters/datastore/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore/", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def setup() {

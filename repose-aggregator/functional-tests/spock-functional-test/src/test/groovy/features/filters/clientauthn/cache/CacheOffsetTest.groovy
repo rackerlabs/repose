@@ -9,7 +9,6 @@ import org.joda.time.Period
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import spock.lang.Ignore
 
 @Category(Slow.class)
 class CacheOffsetTest extends ReposeValveTest {
@@ -19,8 +18,9 @@ class CacheOffsetTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        repose.applyConfigs("features/filters/clientauthn/cacheoffset")
+        deproxy.addEndpoint(properties.targetPort)
+        repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/cacheoffset", properties.defaultTemplateParams)
         repose.start()
         Thread.sleep(2000)
     }
@@ -39,7 +39,7 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()

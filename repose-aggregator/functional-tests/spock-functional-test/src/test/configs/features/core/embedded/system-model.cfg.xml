@@ -4,7 +4,7 @@
   <repose-cluster id="repose">
 
     <nodes>
-        <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
     </nodes>
 
     <filters>
@@ -12,7 +12,7 @@
     </filters>
 
     <destinations>
-        <endpoint id="target" root-path="/${app_path}" default="true" />
+        <endpoint id="target" root-path="/${appPath}" default="true" />
     </destinations>
 
   </repose-cluster>

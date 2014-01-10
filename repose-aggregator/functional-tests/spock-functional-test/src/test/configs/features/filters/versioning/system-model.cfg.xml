@@ -4,7 +4,7 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="config-test" hostname="localhost" http-port="${repose_port}"/>
+      <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
     </nodes>
 
     <filters>
@@ -12,8 +12,8 @@
     </filters>
 
     <destinations>
-        <endpoint id="target1" protocol="http" hostname="${target_hostname}" port="${target_port}" root-path="/" default="true"/>
-        <endpoint id="target2" protocol="http" hostname="${target_hostname}" port="${target_port2}" root-path="/" default="false"/>
+        <endpoint id="target1" protocol="http" hostname="localhost" port="${targetPort}" root-path="/" default="true"/>
+        <endpoint id="target2" protocol="http" hostname="localhost" port="${targetPort2}" root-path="/" default="false"/>
     </destinations>
 
   </repose-cluster>

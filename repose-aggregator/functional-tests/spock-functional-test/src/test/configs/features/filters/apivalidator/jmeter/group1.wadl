@@ -8,7 +8,7 @@
     <grammars>
         <include href="test.xsd" />
     </grammars>
-    <resources base="http://localhost:8088/">
+    <resources base="http://localhost:${targetPort}/">
         <resource path="/wadl/group1">
             <!--
             <method name="GET" id="getContainers">

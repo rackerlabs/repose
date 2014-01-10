@@ -91,18 +91,20 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     def setup() {
         deproxy = new Deproxy()
 
-        int atomPort = properties.getProperty("atom.port").toInteger()
+        int atomPort = properties.atomPort
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
-        repose.applyConfigs("features/filters/clientauthn/common", "features/filters/clientauthn/atom"
-                )
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/atom", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(),'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
         fakeIdentityService = new IdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
     }

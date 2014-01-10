@@ -14,11 +14,13 @@ class GraphiteTest extends ReposeValveTest {
     String REPOSE_2XX = PREFIX + "Repose" + NAME_2XX
 
     def setup() {
-        repose.applyConfigs("features/core/powerfilter/graphite")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/graphite", params)
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup() {

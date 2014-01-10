@@ -22,13 +22,16 @@ class ApiValidatorJMXTest extends ReposeValveTest {
     String API_VALIDATOR_ALL = PREFIX + "api-validator" + NAME_ROLE_ALL
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/apivalidator/common",
-                "features/filters/apivalidator/jmx")
+        params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmx", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
+
+    static def params
 
     def cleanupSpec() {
         deproxy.shutdown()
@@ -70,7 +73,7 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         def beforeUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 3)
 
         when: "I update the Repose API Validator filter with 2 new validators"
-        repose.updateConfigs("features/filters/apivalidator/jmxupdate")
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
 
         and: "I send a request to Repose to ensure that the filter registers the new validator MBeans"
         def afterUpdateBeans = repose.jmx.getMBeans(validatorBeanDomain, validatorClassName, 2)

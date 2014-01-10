@@ -33,14 +33,14 @@ class VersioningTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
-        repose.applyConfigs(
-                "features/filters/versioning"
-        )
-        repose.start()
-
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
-        deproxy.addEndpoint(properties.getProperty("target.port2").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort2)
+
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/versioning", params)
+        repose.start()
     }
 
     def cleanupSpec() {
@@ -48,7 +48,7 @@ class VersioningTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("request: #reqHeaders")
+    @Unroll("when retrieving all versions: #reqHeaders")
     def "when retrieving all versions"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint, method:'GET', headers:reqHeaders)
@@ -68,7 +68,7 @@ class VersioningTest extends ReposeValveTest {
 
     }
 
-    @Unroll("request: #reqHeaders - #requestUri")
+    @Unroll("when retrieving version details: #reqHeaders - #requestUri")
     def "when retrieving version details"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
@@ -102,7 +102,7 @@ class VersioningTest extends ReposeValveTest {
         acceptJSON            | '300'    | ['id="/v2"','id="/v1"']         | []               | "/v1xxx/usertest1/ss"
     }
 
-    @Unroll("request: #reqHeaders - #requestUri")
+    @Unroll("when retrieving version details with variant uri: #reqHeaders - #requestUri")
     def "when retrieving version details with variant uri"() {
         when: "User sends requests through repose"
         def mc = deproxy.makeRequest(url:(String) reposeEndpoint + requestUri, method:'GET', headers:reqHeaders)
@@ -115,15 +115,15 @@ class VersioningTest extends ReposeValveTest {
 
         where:
         reqHeaders            | requestUri         | host
-        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.getProperty("target.port2").toInteger()
-        acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.getProperty("target.port").toInteger()
-        acceptJSON            | "/v1/usertest1/ss" | "localhost:" + properties.getProperty("target.port").toInteger()
+        acceptV2VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptV2VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort2
+        acceptHtml            | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXHtml           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptXMLWQ           | "/v2/usertest1/ss" | "localhost:" + properties.targetPort2
+        acceptV1VendorJSON    | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptV1VendorXML     | "/usertest1/ss"    | "localhost:" + properties.targetPort
+        acceptXML             | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
+        acceptJSON            | "/v1/usertest1/ss" | "localhost:" + properties.targetPort
 
 
     }

@@ -19,7 +19,9 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
     def "DEPRECATED: jersey as default connection framework"() {
 
         given: "Repose is configured with no connection framework specified"
-        repose.applyConfigs("features/services/httpconnectionpool/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.connFramework = ""
 
         when: "Repose is started"
@@ -34,7 +36,9 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
     def "DEPRECATED: ability to specify the connection framework"() {
 
         given: "Repose is configured with a connection framework specified on cmdline"
-        repose.applyConfigs("features/services/httpconnectionpool/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.connFramework = connFramework
 
         when: "Repose is started"

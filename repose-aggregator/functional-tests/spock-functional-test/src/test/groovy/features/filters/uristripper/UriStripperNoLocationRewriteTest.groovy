@@ -14,12 +14,15 @@ class UriStripperNoLocationRewriteTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/uristripper/common", "features/filters/uristripper/nolocationrewrite")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/uristripper/nolocationrewrite", params)
         repose.start()
         waitUntilReadyToServiceRequests()
-        originServiceEndpoint = "${properties.getProperty("targetHostname")}:${properties.getProperty("targetPort")}"
+        originServiceEndpoint = "${properties.targetHostname}:${properties.targetPort}"
 
     }
 

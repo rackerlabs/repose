@@ -25,14 +25,15 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     static ReposeLogSearch reposeLogSearch1
     static ReposeLogSearch reposeLogSearch2
 
+    static def params
+
     def setupSpec() {
 
-        def logFile
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        // get ports
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
+        def TestProperties properties = new TestProperties()
+        def logFile = properties.logFile
 
-        int originServicePort = pf.getNextOpenPort()
+        // get ports
+        int originServicePort = properties.targetPort
 
         println("Deproxy: " + originServicePort)
         // start deproxy
@@ -40,12 +41,12 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         deproxy.addEndpoint(originServicePort)
 
 
-        int reposePort1 = pf.getNextOpenPort()
-        int reposePort2 = pf.getNextOpenPort()
-        int dataStorePort1 = pf.getNextOpenPort()
-        int dataStorePort2 = pf.getNextOpenPort()
-        int shutdownPort1 = pf.getNextOpenPort()
-        int shutdownPort2 = pf.getNextOpenPort()
+        int reposePort1 = properties.reposePort
+        int reposePort2 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+        int shutdownPort1 = properties.reposeShutdownPort
+        int shutdownPort2 = PortFinder.Singleton.getNextOpenPort()
 
         println("repose1: " + reposePort1 + "\nrepose2: " + reposePort2 + "\ndatastore1: " + dataStorePort1 + "\n" +
                 "datastore2: " + dataStorePort2)
@@ -59,26 +60,27 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         datastoreGlassfishEndpoint2 = "http://localhost:${dataStorePort2}"
 
         def configDirectory = properties.getConfigDirectory()
-        def configSamples = properties.getRawConfigDirectory()
+        def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
 
-        ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configSamples)
-        config1.applyConfigsRuntime("features/services/datastore/multinode",
-                [
-                        'repose_port1': reposePort1.toString(),
-                        'repose_port2': reposePort2.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
-                        'datastore_port1' : dataStorePort1,
-                        'datastore_port2' : dataStorePort2
-                ]
-        )
+        params = properties.getDefaultTemplateParams()
+        params += [
+                'reposePort1': reposePort1,
+                'reposePort2': reposePort2,
+                'targetPort': originServicePort,
+                'repose.config.directory': configDirectory,
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'targetHostname': 'localhost',
+                'datastorePort1' : dataStorePort1,
+                'datastorePort2' : dataStorePort2
+        ]
 
-        config1.applyConfigsRuntime("common", ['project.build.directory':buildDirectory])
+        ReposeConfigurationProvider config1 = new ReposeConfigurationProvider(configDirectory, configTemplates)
+
+        config1.applyConfigs("features/services/datastore/multinode", params)
+        config1.applyConfigs("common", params)
 
         repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
         reposeLogSearch1 = new ReposeLogSearch(logFile);
@@ -155,12 +157,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when:
         MessageChain mc =
             deproxy.makeRequest(
-                    [
                             method: 'PUT',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
                             body: body
-                    ])
+                    )
 
         then:
         mc.receivedResponse.code == '202'
@@ -173,30 +174,27 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         def body = "test data"
         MessageChain mc =
             deproxy.makeRequest(
-                    [
                             method: 'PUT',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
                             requestBody: body
-                    ])
+                    )
         mc =
             deproxy.makeRequest(
-                    [
                             method: 'GET',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers
-                    ])
+                    )
         mc.receivedResponse.code == '200'
 
         when:
         Thread.sleep(7500)
         mc =
             deproxy.makeRequest(
-                    [
                             method: 'GET',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers
-                    ])
+                    )
 
         then:
         mc.receivedResponse.code == '404'
@@ -215,12 +213,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when: "Adding the object to the datastore"
         MessageChain mc =
             deproxy.makeRequest(
-                    [
                             method: "PUT",
                             url:url,
                             headers:headers,
                             requestBody: body
-                    ])
+                    )
 
         then: "should report success"
         mc.receivedResponse.code == "202"
@@ -231,11 +228,10 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when: "checking that it's there"
         mc =
             deproxy.makeRequest(
-                    [
                             method: "GET",
                             url:url,
                             headers:headers
-                    ])
+                    )
 
         then: "should report that it is"
         mc.receivedResponse.code == "200"
@@ -246,12 +242,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when: "deleting the object from the datastore"
         mc =
             deproxy.makeRequest(
-                    [
                             method: "DELETE",
                             url:url,
                             headers:headers,
 //                            body: body
-                    ])
+                    )
 
         then: "should report that it was successfully deleted"
         mc.receivedResponse.code == "202"
@@ -262,12 +257,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         when: "checking that it's gone"
         mc =
             deproxy.makeRequest(
-                    [
                             method: "GET",
                             url:url,
                             headers:headers,
 //                            body: body
-                    ])
+                    )
 
         then: "should report it missing"
         mc.receivedResponse.code == "404"
@@ -278,8 +272,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-            [
+        def reqHeaders = [
                     "user-agent": userAgentValue,
                     "x-pp-user": "usertest1, usertest2, usertest3",
                     "accept": "application/xml;q=1 , application/json;q=0.5"

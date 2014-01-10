@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -34,17 +33,18 @@ class HeaderNormalizationJMXTest extends Specification {
     Deproxy deproxy
 
     TestProperties  properties
+    Map params
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
     def setup() {
 
-        // get ports
-        PortFinder pf = new PortFinder()
+        properties = new TestProperties()
 
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort = pf.getNextOpenPort()
+        // get ports
+        reposePort = properties.reposePort
+        reposeStopPort = properties.reposeShutdownPort
+        originServicePort = properties.targetPort
 
         // start deproxy
         deproxy = new Deproxy()
@@ -52,12 +52,10 @@ class HeaderNormalizationJMXTest extends Specification {
 
 
         // configure and start repose
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
-        def targetHostname = properties.getTargetHostname()
-        urlBase = "http://${targetHostname}:${reposePort}"
+        urlBase = properties.reposeEndpoint
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
@@ -69,20 +67,15 @@ class HeaderNormalizationJMXTest extends Specification {
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigsRuntime(
-                "common",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        params = properties.getDefaultTemplateParams()
+        reposeConfigProvider.applyConfigs("common", params)
 
     }
 
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/filters/headerNormalization/metrics/single",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/single", params)
         repose.start()
 
 
@@ -147,10 +140,7 @@ class HeaderNormalizationJMXTest extends Specification {
     def "when multiple filter instances are configured, each should add to the count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/filters/headerNormalization/metrics/multiple",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort': originServicePort.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/headerNormalization/metrics/multiple", params)
         repose.start()
 
         when: "client makes a request that matches one filter's uri-regex attribute"

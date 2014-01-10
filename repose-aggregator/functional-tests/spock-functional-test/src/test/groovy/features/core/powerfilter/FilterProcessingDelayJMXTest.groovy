@@ -15,9 +15,11 @@ class FilterProcessingDelayJMXTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/powerfilter/multifilters")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/multifilters", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint + "/")

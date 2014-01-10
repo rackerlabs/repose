@@ -7,7 +7,7 @@ class DistDataShutdownTest extends ReposeValveTest {
 
     def setupSpec(){
          deproxy = new Deproxy()
-         deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+         deproxy.addEndpoint(properties.targetPort)
      }
 
      def cleanupSpec(){
@@ -17,7 +17,9 @@ class DistDataShutdownTest extends ReposeValveTest {
 
     def "when configured with dist datastore as a service should shutdown nicely when asked" () {
         given: "repose is configured with dist datastore"
-        repose.applyConfigs("features/services/datastore/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -30,7 +32,9 @@ class DistDataShutdownTest extends ReposeValveTest {
 
     def "when configured with dist datastore as a filter should shutdown nicely when asked" () {
         given:
-        repose.applyConfigs("features/filters/datastore/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/datastore", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 

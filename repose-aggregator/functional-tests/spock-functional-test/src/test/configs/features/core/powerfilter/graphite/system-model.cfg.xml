@@ -4,7 +4,7 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="node1" hostname="localhost" http-port="${repose_port}"/>
+      <node id="node1" hostname="localhost" http-port="${reposePort}"/>
      </nodes>
 
     <filters>
@@ -13,7 +13,7 @@
     </filters>
 
     <destinations>
-        <endpoint id="endpoint" protocol="http" hostname="${target_hostname}" root-path="/root_path" port="${target_port}" default="true"/>
+        <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}" default="true"/>
         <target id="mocks-cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster" default="false"/>
     </destinations>
 
@@ -21,7 +21,7 @@
 
   <service-cluster id="mocks-cluster">
     <nodes>
-        <node id="mock-node" hostname="${target_hostname}" http-port="${target_port}" />
+        <node id="mock-node" hostname="localhost" http-port="${targetPort}" />
     </nodes>
   </service-cluster>
 

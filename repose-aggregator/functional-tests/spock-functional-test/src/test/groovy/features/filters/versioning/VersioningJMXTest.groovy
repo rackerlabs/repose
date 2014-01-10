@@ -6,7 +6,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**
@@ -26,75 +25,53 @@ class VersioningJMXTest extends Specification {
     String VERSION_V1 = "${PREFIX},name=\"v1\""
     String VERSION_V2 = "${PREFIX},name=\"v2\""
 
-    int reposePort
-    int reposeStopPort
-    int originServicePort1
-    int originServicePort2
-    String urlBase
-
     Deproxy deproxy
 
     TestProperties properties
+    Map params
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
     def setup() {
 
-        // get ports
-        PortFinder pf = new PortFinder()
-
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort1 = pf.getNextOpenPort()
-        originServicePort2 = pf.getNextOpenPort()
+        properties = new TestProperties()
 
         // start deproxy
         deproxy = new Deproxy()
-        deproxy.addEndpoint(originServicePort1)
-        deproxy.addEndpoint(originServicePort2)
+        deproxy.addEndpoint(properties.targetPort)
+        deproxy.addEndpoint(properties.targetPort2)
 
 
         // configure and start repose
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
-        def targetHostname = properties.getTargetHostname()
-        urlBase = "http://${targetHostname}:${reposePort}"
-
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
-                urlBase,
-                properties.getConfigDirectory(),
-                reposePort,
-                reposeStopPort
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
         )
         repose.enableDebug()
 
-        reposeConfigProvider.applyConfigsRuntime(
-                "common",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort1': originServicePort1.toString(),
-                    'targetPort2': originServicePort2.toString()])
+        params = properties.getDefaultTemplateParams()
+        reposeConfigProvider.applyConfigs("common", params)
 
     }
 
     def "when a client makes requests, jmx should keep accurate count"() {
 
         given:
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/filters/versioning/metrics",
-                [   'reposePort': reposePort.toString(),
-                    'targetPort1': originServicePort1.toString(),
-                    'targetPort2': originServicePort2.toString()])
+        reposeConfigProvider.applyConfigs("features/filters/versioning/metrics", params)
         repose.start()
         sleep(30000)
 
 
 
         when:
-        def mc = deproxy.makeRequest(url: "${urlBase}", method: "GET")
+        def mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
@@ -103,7 +80,7 @@ class VersioningJMXTest extends Specification {
 
 
         when:
-        mc = deproxy.makeRequest(url: "${urlBase}/v1/resource", method: "GET")
+        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v1/resource", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1
@@ -112,7 +89,7 @@ class VersioningJMXTest extends Specification {
 
 
         when:
-        mc = deproxy.makeRequest(url: "${urlBase}/v2/resource", method: "GET")
+        mc = deproxy.makeRequest(url: "${properties.reposeEndpoint}/v2/resource", method: "GET")
 
         then:
         repose.jmx.getMBeanAttribute(VERSION_UNVERSIONED, "Count") == 1

@@ -32,13 +32,13 @@ class TranslateResponseDoctypefalseTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
 
-        repose.applyConfigs(
-                "features/filters/translation/responsedocfalse"
-        )
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/responsedocfalse", params)
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

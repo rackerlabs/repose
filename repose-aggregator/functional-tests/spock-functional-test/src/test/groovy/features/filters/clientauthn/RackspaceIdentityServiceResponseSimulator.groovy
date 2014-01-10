@@ -22,7 +22,7 @@ class RackspaceIdentityServiceResponseSimulator {
     boolean isTokenAuthenticated = true;
 
     def port = 12200
-    def origin_service_port = 10001
+    def originServicePort = 10001
 
     def client_token = 'token';
     def client_username = 'username';

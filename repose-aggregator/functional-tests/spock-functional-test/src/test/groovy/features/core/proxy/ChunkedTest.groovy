@@ -12,9 +12,12 @@ class ChunkedTest extends ReposeValveTest {
     def setupSpec() {
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/proxy", "features/services/httpconnectionpool/withconfig")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/withconfig", params)
         repose.start()
     }
 

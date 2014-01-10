@@ -7,7 +7,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 @Category(Slow.class)
@@ -24,37 +23,25 @@ class StartWithAPIValidatorVersion2AndUseSaxon extends Specification {
     Deproxy deproxy
 
     def setup() {
-        PortFinder pf = new PortFinder()
-        this.reposePort = pf.getNextOpenPort() as int
-        this.stopPort = pf.getNextOpenPort() as int
-        this.targetPort = pf.getNextOpenPort() as int
-        this.url = "http://localhost:${this.reposePort}/"
-
-        params = [
-                'reposePort': this.reposePort,
-                'targetHostname': 'localhost',
-                'targetPort': targetPort,
-        ]
+        TestProperties properties = new TestProperties()
+        this.reposePort = properties.reposePort
+        this.stopPort = properties.reposeShutdownPort
+        this.targetPort = properties.targetPort
+        this.url = properties.reposeEndpoint
 
         // start a deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
         // set initial config files
-        TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
 
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
+        params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/validator-common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/validator-v2-use-saxon",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-v2-use-saxon", params)
 
         // start repose
         repose = new ReposeValveLauncher(

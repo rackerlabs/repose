@@ -33,7 +33,7 @@ class AtomFeedResponseSimulator {
         def now = new DateTime()
 
         def params = [
-                'atom_port': atomPort,
+                'atomPort': atomPort,
                 'time': now.toString(DATE_FORMAT),
                 'token': client_token,
                 'tenant': client_tenant,
@@ -53,13 +53,13 @@ class AtomFeedResponseSimulator {
     def String atomEmptyXml =
 """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atom_port}/feed/"
+    <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
-    <link href="http://localhost:\${atom_port}/feed/"
+    <link href="http://localhost:\${atomPort}/feed/"
         rel="self"/>
     <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
     <title type="text">feed</title>
-    <link href="http://localhost:\${atom_port}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward"
+    <link href="http://localhost:\${atomPort}/feed/?marker=last&amp;limit=25&amp;search=&amp;direction=backward"
           rel="last"/>
     <updated>\${time}</updated>
 </feed>
@@ -68,13 +68,13 @@ class AtomFeedResponseSimulator {
     def String atomWithEntryXml =
 """<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <link href="http://localhost:\${atom_port}/feed/"
+    <link href="http://localhost:\${atomPort}/feed/"
         rel="current"/>
-    <link href="http://localhost:\${atom_port}/feed/"
+    <link href="http://localhost:\${atomPort}/feed/"
         rel="self"/>
     <id>urn:uuid:12345678-9abc-def0-1234-56789abcdef0</id>
     <title type="text">feed</title>
-    <link href="http://localhost:\${atom_port}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
+    <link href="http://localhost:\${atomPort}/feed/?marker=urn:uuid:1&amp;limit=25&amp;search=&amp;direction=forward"
           rel="previous"/>
     <updated>\${time}</updated>
     <atom:entry xmlns:atom="http://www.w3.org/2005/Atom"

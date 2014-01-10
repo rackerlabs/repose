@@ -14,10 +14,12 @@ class ReliabilityTest extends ReposeValveTest {
 
     //Start repose once for this particular translation test
     def setupSpec() {
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/headertranslation/common", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         def missingHeaderErrorHandler = { Request request ->
             def headers = request.getHeaders()

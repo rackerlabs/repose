@@ -1,8 +1,6 @@
 package features.filters.headeridmapping
 
 import framework.ReposeValveTest
-import framework.category.Slow
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
@@ -18,9 +16,11 @@ class HeaderIdMappingTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/headeridmapping")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/headeridmapping", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

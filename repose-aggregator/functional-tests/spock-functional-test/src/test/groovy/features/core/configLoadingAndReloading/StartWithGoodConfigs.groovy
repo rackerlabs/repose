@@ -7,7 +7,6 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -27,43 +26,32 @@ class StartWithGoodConfigs extends Specification {
 
     def setup() {
 
-        PortFinder pf = new PortFinder()
-        this.reposePort = pf.getNextOpenPort() as int
-        this.stopPort = pf.getNextOpenPort() as int
-        this.targetPort = pf.getNextOpenPort() as int
-        this.url = "http://localhost:${this.reposePort}/"
+        properties = new TestProperties()
+        this.reposePort = properties.reposePort
+        this.stopPort = properties.reposeShutdownPort
+        this.targetPort = properties.targetPort
+        this.url = properties.reposeEndpoint
 
-        params = [
-                'reposePort': this.reposePort,
-                'targetHostname': 'localhost',
-                'targetPort': targetPort,
-        ]
+        params = properties.getDefaultTemplateParams()
 
         // start a deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
         // setup config provider
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
     }
 
-    @Unroll
+    @Unroll("start with good #componentLabel configs, should get #expectedResponseCode")
     def "start with good #componentLabel configs, should get #expectedResponseCode"() {
 
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/${componentLabel}-common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/configLoadingAndReloading/${componentLabel}-good",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
 
         // start repose
         repose = new ReposeValveLauncher(

@@ -8,6 +8,6 @@
                     xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username"
                           password="admin_password"
-                          uri="http://localhost:${identity_port}" />
+                          uri="http://localhost:${identityPort}" />
     </openstack-auth>
 </client-auth>

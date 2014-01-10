@@ -13,8 +13,9 @@ class FilterChainUnstableTest extends ReposeValveTest{
     def handler5XX = { request -> return new Response(503, 'SERVICE UNAVAILABLE') }
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/badconfigs/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/badconfigs", params)
         try {
             repose.start()
         } catch(TimeoutException e){
@@ -22,7 +23,7 @@ class FilterChainUnstableTest extends ReposeValveTest{
         }
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
     }
 

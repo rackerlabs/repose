@@ -2,10 +2,7 @@ package features.filters.headertranslation
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
@@ -13,9 +10,11 @@ class HeaderTranslationTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs( "features/filters/headertranslation/common")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/headertranslation/common", params)
         repose.start()
     }
 

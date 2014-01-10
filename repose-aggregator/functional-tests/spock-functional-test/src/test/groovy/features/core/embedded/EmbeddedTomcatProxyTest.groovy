@@ -19,38 +19,38 @@ class EmbeddedTomcatProxyTest extends Specification {
 
     def setupSpec() {
 
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
-        int originServicePort = pf.getNextOpenPort()
+        def TestProperties properties = new TestProperties()
+        int originServicePort = properties.targetPort
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort = pf.getNextOpenPort()
-        int shutdownPort = pf.getNextOpenPort()
+        int reposePort = properties.reposePort
+        int shutdownPort = properties.reposeShutdownPort
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
-        def configSamples = properties.getRawConfigDirectory()
+        def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()
         def mocksPath = MocksUtil.getServletPath(mocksWar)
 
-        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
+        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
-        config.applyConfigsRuntime("features/filters/ipidentity", ['project.build.directory': buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'reposePort': reposePort,
+                'targetPort': originServicePort,
+                'repose.config.directory': configDirectory,
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'appPath':  mocksPath
+        ]
+        config.applyConfigs("common", params)
+        config.applyConfigs("features/filters/ipidentity", params)
 
-        config.applyConfigsRuntime("features/core/embedded",
-                [
-                        'repose_port': reposePort.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'app_path':  mocksPath
-                ]
-        )
+        config.applyConfigs("features/core/embedded", params)
+
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
                 reposePort, shutdownPort, mocksWar)
         repose.clusterId = "repose"
