@@ -16,11 +16,13 @@ class DestinationRouterJMXTest extends ReposeValveTest{
     String DESTINATION_ROUTER_ALL = PREFIX + "destination-router" + NAME_TARGET_ALL
 
     def setup() {
-        repose.applyConfigs("features/core/powerfilter/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup() {

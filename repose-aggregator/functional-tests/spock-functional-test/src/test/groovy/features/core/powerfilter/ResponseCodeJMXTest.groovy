@@ -24,11 +24,13 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     def handler5XX = { request -> return new Response(502, 'WIZARD FAIL') }
 
     def setupSpec() {
-        repose.applyConfigs("features/core/powerfilter/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

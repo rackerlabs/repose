@@ -2,7 +2,6 @@ package features.filters.ratelimiting
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 
@@ -10,11 +9,12 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
     static int WARN_LIMIT = 1
 
     def setupSpec() {
-        repose.applyConfigs(
-                "features/filters/ratelimiting/datastore/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/datastore", params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
     }
 

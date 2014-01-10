@@ -8,6 +8,7 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
+import spock.lang.Unroll
 
 @Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
@@ -20,14 +21,17 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         repose.stop()
     }
 
+    @Unroll("when cache offset is not configured then no cache offset is used - #id")
     def "when cache offset is not configured then no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
-        repose.applyConfigs("features/filters/clientauthn/cacheoffset/common",
-                additionalConfigs)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/cacheoffset/common", params)
+        repose.configurationProvider.applyConfigs(additionalConfigs, params)
         repose.start()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         Thread.sleep(2000)
 
@@ -36,7 +40,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
@@ -134,9 +138,9 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser |additionalConfigs
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero"
+        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"      | 1
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero" | 2
 
     }
 

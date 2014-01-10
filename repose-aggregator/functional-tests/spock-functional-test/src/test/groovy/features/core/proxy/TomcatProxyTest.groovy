@@ -13,34 +13,30 @@ class TomcatProxyTest extends Specification {
 
     def setupSpec() {
 
-        def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
+        def TestProperties properties = new TestProperties()
 
-        int originServicePort = pf.getNextOpenPort()
+        int originServicePort = properties.targetPort
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort = pf.getNextOpenPort()
-        int shutdownPort = pf.getNextOpenPort()
-        tomcatEndpoint = "http://localhost:${reposePort}"
+        int reposePort = properties.reposePort
+        int shutdownPort = properties.reposeShutdownPort
+        tomcatEndpoint = properties.reposeEndpoint
 
         def configDirectory = properties.getConfigDirectory()
-        def configSamples = properties.getRawConfigDirectory()
+        def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
         def buildDirectory = properties.getReposeHome() + "/.."
-        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
+        ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
-        config.applyConfigsRuntime("features/core/proxy",
-                [
-                        'repose_port': reposePort.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
-                ]
-        )
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'targetHostname': 'localhost',
+        ]
+        config.applyConfigs("features/core/proxy", params)
+        config.applyConfigs("common", params)
 
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)

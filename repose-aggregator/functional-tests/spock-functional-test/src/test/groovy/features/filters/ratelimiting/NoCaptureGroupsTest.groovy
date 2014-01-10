@@ -4,55 +4,40 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class NoCaptureGroupsTest extends Specification {
 
     static Deproxy deproxy
-    static int endpointPort
 
-    static int reposePort
-    static int stopPort
     static TestProperties properties
     static ReposeConfigurationProvider reposeConfigProvider
     static ReposeValveLauncher repose
 
     def setupSpec() {
 
-        endpointPort = PortFinder.Singleton.getNextOpenPort()
+        properties = new TestProperties()
         deproxy = new Deproxy()
-        deproxy.addEndpoint(endpointPort)
+        deproxy.addEndpoint(properties.targetPort)
 
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        stopPort = PortFinder.Singleton.getNextOpenPort()
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
-
-        def params = [
-                'reposePort': reposePort,
-                'endpointPort': endpointPort,
-        ]
+        def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/filters/ratelimiting/nocapturegroups",
-                params)
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/ratelimiting/nocapturegroups", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
-                "http://localhost:${reposePort}",
-                properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl("http://localhost:${reposePort}")
+        repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
     def "Urls that match the same pattern should go in the same bucket"() {
@@ -60,8 +45,8 @@ class NoCaptureGroupsTest extends Specification {
         given:
 
         def mc
-        String url1 = "http://localhost:${reposePort}/objects/abc/things/123"
-        String url2 = "http://localhost:${reposePort}/objects/def/things/456"
+        String url1 = "${properties.reposeEndpoint}/objects/abc/things/123"
+        String url2 = "${properties.reposeEndpoint}/objects/def/things/456"
         def headers = ['X-PP-User': 'user5', 'X-PP-Groups': 'no-captures']
 
 
@@ -97,8 +82,8 @@ class NoCaptureGroupsTest extends Specification {
         given:
 
         def mc
-        String url1 = "http://localhost:${reposePort}/servers/abc/instances/123"
-        String url2 = "http://localhost:${reposePort}/servers/def/instances/456"
+        String url1 = "${properties.reposeEndpoint}/servers/abc/instances/123"
+        String url2 = "${properties.reposeEndpoint}/servers/def/instances/456"
         def headers = ['X-PP-User': 'user5', 'X-PP-Groups': 'captures']
 
 

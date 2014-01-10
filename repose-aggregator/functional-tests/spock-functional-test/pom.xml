@@ -34,21 +34,13 @@
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
-        <repose_port>8888</repose_port>
-        <repose_jmx_port>9001</repose_jmx_port>
-        <repose_shutdown_port>10009</repose_shutdown_port>
-        <target_hostname>localhost</target_hostname>
-        <target_port>10001</target_port>
-        <target_port2>10002</target_port2>
-        <identity_port>12200</identity_port>
-        <atom_port>12201</atom_port>
-        <dynamic_port_base>20000</dynamic_port_base>
+        <target.hostname>localhost</target.hostname>
 
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
         <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
-        <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
+        <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
 
         <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
         <repose.root.war>ROOT.war</repose.root.war>
@@ -355,7 +347,7 @@
 
             <testResource>
                 <directory>${project.basedir}/src/test/configs</directory>
-                <filtering>true</filtering>
+                <filtering>false</filtering>
                 <targetPath>${project.build.directory}/configs</targetPath>
             </testResource>
 

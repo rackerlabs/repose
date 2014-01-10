@@ -21,9 +21,11 @@ class ApiValidatorTest extends ReposeValveTest{
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/apivalidator/jmeter/")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmeter", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }

@@ -4,9 +4,7 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
@@ -21,15 +19,14 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        PortFinder finder = new PortFinder()
-        originServicePort = finder.getNextOpenPort()
+        originServicePort = properties.targetPort
         deproxy.addEndpoint(originServicePort)
 
-        reposePort = finder.getNextOpenPort()
-        shutdownPort = finder.getNextOpenPort()
+        reposePort = properties.reposePort
+        shutdownPort = properties.reposeShutdownPort
         url = "http://localhost:${reposePort}"
 
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),
@@ -40,14 +37,11 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         )
         repose.enableDebug()
 
-        def params = [
-                'targetPort': originServicePort,
-                'reposePort': reposePort,
-        ]
+        def params = properties.getDefaultTemplateParams()
 
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime("common")
-        reposeConfigProvider.applyConfigsRuntime("features/core/headers", params)
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/core/headers", params)
 
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)

@@ -19,12 +19,13 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         deproxy = new Deproxy()
 
 
-        repose.applyConfigs("features/filters/clientauthn/common")
+        repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/common", properties.defaultTemplateParams)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new IdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]

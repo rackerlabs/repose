@@ -7,7 +7,7 @@
 
     <grammars>
     </grammars>
-    <resources base="http://localhost:${target_port}/">
+    <resources base="http://localhost:${targetPort}/">
         <resource path="resource">
         </resource>
     </resources>

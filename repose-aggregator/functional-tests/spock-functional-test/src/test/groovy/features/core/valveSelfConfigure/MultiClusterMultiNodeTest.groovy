@@ -13,8 +13,8 @@ import spock.lang.Specification
 @org.junit.experimental.categories.Category(Slow.class)
 class MultiClusterMultiNodeTest extends Specification {
 
-    int endpointPort1
-    int endpointPort2
+    int targetPort1
+    int targetPort2
     Deproxy deproxy
     DeproxyEndpoint endpoint1
     DeproxyEndpoint endpoint2
@@ -31,39 +31,33 @@ class MultiClusterMultiNodeTest extends Specification {
 
     def setup() {
 
-        endpointPort1 = PortFinder.Singleton.getNextOpenPort()
-        endpointPort2 = PortFinder.Singleton.getNextOpenPort()
-        deproxy = new Deproxy()
-        endpoint1 = deproxy.addEndpoint(endpointPort1)
-        endpoint2 = deproxy.addEndpoint(endpointPort2)
+        properties = new TestProperties()
 
-        port11 = PortFinder.Singleton.getNextOpenPort()
+        targetPort1 = properties.targetPort
+        targetPort2 = properties.targetPort2
+        deproxy = new Deproxy()
+        endpoint1 = deproxy.addEndpoint(targetPort1)
+        endpoint2 = deproxy.addEndpoint(targetPort2)
+
+        port11 = properties.reposePort
         port12 = PortFinder.Singleton.getNextOpenPort()
         port21 = PortFinder.Singleton.getNextOpenPort()
         port22 = PortFinder.Singleton.getNextOpenPort()
-        stopPort = PortFinder.Singleton.getNextOpenPort()
+        stopPort = properties.reposeShutdownPort
 
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
-        params = [
+        params = properties.getDefaultTemplateParams()
+        params += [
                 'port11': port11,
                 'port12': port12,
                 'port21': port21,
                 'port22': port22,
-                'endpointPort1': endpointPort1,
-                'endpointPort2': endpointPort2,
         ]
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/valveSelfConfigure/common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/valveSelfConfigure/container-no-port",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/core/valveSelfConfigure/two-clusters-two-nodes-each",
-                params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
+        reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
                 properties.getReposeJar(),

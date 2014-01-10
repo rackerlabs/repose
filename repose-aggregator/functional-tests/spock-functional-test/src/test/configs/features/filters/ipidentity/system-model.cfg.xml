@@ -11,7 +11,7 @@
         </filters>
 
         <destinations>
-            <endpoint id="openrepose" protocol="http" hostname="${target_hostname}" root-path="/" port="${targetPort}"
+            <endpoint id="openrepose" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
                       default="true"/>
         </destinations>
 

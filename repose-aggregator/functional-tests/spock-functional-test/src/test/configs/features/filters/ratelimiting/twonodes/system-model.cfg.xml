@@ -4,9 +4,9 @@
   <repose-cluster id="repose">
 
     <nodes>
-      <node id="dd-node-1" hostname="localhost" http-port="${repose_port}"/>
+      <node id="dd-node-1" hostname="localhost" http-port="${reposePort}"/>
       <!-- TODO use a dynamic port for these nodes -->
-      <node id="dd-node-2" hostname="localhost" http-port="8889"/>
+      <node id="dd-node-2" hostname="localhost" http-port="${reposePort2}"/>
     </nodes>
 
     <filters>
@@ -15,7 +15,7 @@
     </filters>
 
     <destinations>
-        <endpoint id="target" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true" />
+        <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
     </destinations>
 
   </repose-cluster>

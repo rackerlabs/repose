@@ -46,7 +46,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
 
     def port = 12200
-    def origin_service_port = 10001
+    def originServicePort = 10001
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
@@ -292,13 +292,13 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
         }
 
         def params = [
-                'identity_port': this.port,
+                'identityPort': this.port,
                 token: request.getHeaders().getFirstValue("X-Auth-Token"),
                 'expires': getExpires(),
                 'userid': this.client_userid,
                 'username': this.client_username,
                 'tenant': this.client_tenant,
-                'origin_service_port': this.origin_service_port,
+                'originServicePort': this.originServicePort,
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
@@ -655,30 +655,30 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
         """{
     "endpoints_links": [
         {
-            "href": "http://localhost:\${identity_port}/tokens/\${token}/endpoints?'marker=5&limit=10'",
+            "href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?'marker=5&limit=10'",
             "rel": "next"
         }
     ],
     "endpoints": [
         {
-            "internalURL": "http://localhost:\${origin_service_port}/v1/AUTH_1",
+            "internalURL": "http://localhost:\${originServicePort}/v1/AUTH_1",
             "name": "swift",
-            "adminURL": "http://localhost:\${origin_service_port}/",
+            "adminURL": "http://localhost:\${originServicePort}/",
             "region": "RegionOne",
             "tenantId": 1,
             "type": "object-store",
             "id": 1,
-            "publicURL": "http://localhost:\${origin_service_port}/"
+            "publicURL": "http://localhost:\${originServicePort}/"
         },
         {
-            "internalURL": "http://localhost:\${origin_service_port}/",
+            "internalURL": "http://localhost:\${originServicePort}/",
             "name": "nova_compat",
-            "adminURL": "http://localhost:\${origin_service_port}/",
+            "adminURL": "http://localhost:\${originServicePort}/",
             "region": "RegionOne",
             "tenantId": 1,
             "type": "compute",
             "id": 2,
-            "publicURL": "http://localhost:\${origin_service_port}/"
+            "publicURL": "http://localhost:\${originServicePort}/"
         }
     ]
 }"""
@@ -696,17 +696,17 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
             type="object-store"
             name="swift"
             region="RegionOne"
-            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
-            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
-            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            publicURL="http://localhost:\${originServicePort}/\${tenant}"
+            internalURL="http://localhost:\${originServicePort}/\${tenant}"
+            adminURL="http://localhost:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
   <endpoint id="2"
             type="compute"
             name="nova_compat"
             region="RegionOne"
-            publicURL="http://localhost:\${origin_service_port}/\${tenant}"
-            internalURL="http://localhost:\${origin_service_port}/\${tenant}"
-            adminURL="http://localhost:\${origin_service_port}/\${tenant}"
+            publicURL="http://localhost:\${originServicePort}/\${tenant}"
+            internalURL="http://localhost:\${originServicePort}/\${tenant}"
+            adminURL="http://localhost:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
 </endpoints>"""
 

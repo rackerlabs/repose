@@ -6,6 +6,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
+import org.rackspace.deproxy.PortFinder
 
 import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
@@ -27,13 +28,24 @@ class ReposeValveLauncher implements ReposeLauncher {
     def int reposePort
 
     def JmxClient jmx
-    def int debugPort = 8011
+    def jmxPort = null
+    def debugPort = null
     def classPaths =[]
 
     Process process
 
     def ReposeConfigurationProvider configurationProvider
 
+    ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
+                        TestProperties properties) {
+        this(configurationProvider,
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
+        )
+    }
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         String reposeJar,
                         String reposeEndpoint,
@@ -47,16 +59,6 @@ class ReposeValveLauncher implements ReposeLauncher {
         this.reposePort = reposePort
         this.shutdownPort = shutdownPort
         this.configDir = configDir
-    }
-
-    @Override
-    void applyConfigs(String[] configLocations) {
-        configurationProvider.applyConfigs(configLocations)
-    }
-
-    @Override
-    void updateConfigs(String[] configLocations) {
-        configurationProvider.updateConfigs(configLocations)
     }
 
     @Override
@@ -101,10 +103,16 @@ class ReposeValveLauncher implements ReposeLauncher {
         def classPath = ""
 
         if (debugEnabled) {
+
+            if (!debugPort) {
+                debugPort = PortFinder.Singleton.getNextOpenPort()
+            }
             debugProps = "-Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
-        int jmxPort = nextAvailablePort()
+        if (!jmxPort) {
+            jmxPort = PortFinder.Singleton.getNextOpenPort()
+        }
         jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if(!classPaths.isEmpty()){
@@ -140,23 +148,6 @@ class ReposeValveLauncher implements ReposeLauncher {
         // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
         // ready to receive requests without actually sending a request through (skews the metrics if we do)
         //sleep(10000)
-    }
-
-    def nextAvailablePort() {
-
-        def socket
-        int port
-        try {
-            socket = new ServerSocket(0);
-            port = socket.getLocalPort()
-        } catch (IOException e) {
-            fail("Failed to find an open port")
-        } finally {
-            if (socket != null && !socket.isClosed()) {
-                socket.close()
-            }
-        }
-        return port
     }
 
     def connectViaJmxRemote(jmxUrl) {
@@ -282,13 +273,17 @@ class ReposeValveLauncher implements ReposeLauncher {
     }
 
     def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
+
+        print("Waiting for repose to start at ${url} ")
         waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
+                print(".")
                 HttpClient client = new DefaultHttpClient()
                 client.execute(new HttpGet(url)).statusLine.statusCode != 500
             } catch (IOException ignored) {
             } catch (ClientProtocolException ignored) {
             }
         }
+        println()
     }
 }

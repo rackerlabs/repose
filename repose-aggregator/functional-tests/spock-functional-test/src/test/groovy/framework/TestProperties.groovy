@@ -1,15 +1,21 @@
 package framework
 
+import org.rackspace.deproxy.PortFinder
+
 class TestProperties {
 
     String configDirectory
     String rawConfigDirectory
     String logFile
-    String configSamples
+    String configTemplates
     String connFramework
-    String reposeEndpoint
     String reposeContainer = "valve"
     String reposeHome
+    String projectBuildDirectory
+
+    String getReposeEndpoint() {
+        return "http://${targetHostname}:${reposePort}"
+    }
 
     String reposeJar
     String glassfishJar
@@ -19,24 +25,29 @@ class TestProperties {
 
     int reposePort
     int reposeShutdownPort
-    int dynamicPortBase
 
     // Property settings that aren't set for every test
-    String targetPort
-    String targetPort2
-    String identityPort
-    String atomPort
+    int targetPort
+    int targetPort2
+    int identityPort
+    int atomPort
     String targetHostname
 
+    TestProperties() {
+        this("test.properties")
+    }
+    TestProperties(String resourceName) {
+        this(ClassLoader.getSystemResource(resourceName).openStream())
+    }
     TestProperties(InputStream propertiesStream) {
 
         try {
             Properties properties = new Properties()
             properties.load(propertiesStream)
 
+            projectBuildDirectory = properties.getProperty("project.build.directory")
             configDirectory = properties.getProperty("repose.config.directory")
-            configSamples = properties.getProperty("repose.config.samples")
-            reposeEndpoint = properties.getProperty("repose.endpoint")
+            configTemplates = properties.getProperty("repose.config.templates")
             logFile = properties.getProperty("repose.log")
 
             connFramework = "jersey"
@@ -47,47 +58,46 @@ class TestProperties {
 
             reposeJar = properties.getProperty("repose.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
-            reposePort = properties.getProperty("repose.port").toInteger()
-            reposeShutdownPort = properties.getProperty("repose.shutdown.port").toInteger()
-            dynamicPortBase = properties.getProperty("repose.dynamic.port.base").toInteger()
+            reposePort = PortFinder.Singleton.getNextOpenPort()
+            reposeShutdownPort = PortFinder.Singleton.getNextOpenPort()
 
             glassfishJar = properties.getProperty("glassfish.jar")
             tomcatJar = properties.getProperty("tomcat.jar")
 
-            targetPort = properties.getProperty("target.port")
-            targetPort2 = properties.getProperty("target.port2")
-            identityPort = properties.getProperty("identity.port")
-            atomPort = properties.getProperty("atom.port")
+            targetPort = PortFinder.Singleton.getNextOpenPort()
+            targetPort2 = PortFinder.Singleton.getNextOpenPort()
+            identityPort = PortFinder.Singleton.getNextOpenPort()
+            atomPort = PortFinder.Singleton.getNextOpenPort()
             targetHostname = properties.getProperty("target.hostname")
             rawConfigDirectory = properties.getProperty("repose.raw.config.directory")
             reposeHome = properties.getProperty("repose.home")
             mocksWar = properties.getProperty("mocks.war")
 
         } catch (Exception e) {
-            throw new RuntimeException("Failure in setup of test: unable to read property files")
+            throw new RuntimeException("Failure in setup of test: unable to read property files", e)
         } finally {
             propertiesStream.close()
         }
     }
 
-    // Writing this method to minimize test changes when converting from a java.util.Properties
-    // to this class
-    def getProperty(String propertyName) {
-
-        switch (propertyName) {
-            case "target.port":
-                return targetPort
-                break
-            case "target.port2":
-                return targetPort2
-                break
-            case "identity.port":
-                return identityPort
-            case "atom.port":
-                return atomPort
-            default:
-                return null
-        }
+    def getDefaultTemplateParams() {
+        return [
+                reposePort: reposePort,
+                targetPort: targetPort,
+                targetPort1: targetPort,
+                targetPort2: targetPort2,
+                identityPort: identityPort,
+                atomPort: atomPort,
+                targetHostname: targetHostname,
+                logFile: logFile,
+                reposeLog: logFile,
+                'repose.log': logFile,
+                reposeHome: reposeHome,
+                'repose.home': reposeHome,
+                configDirectory: configDirectory,
+                'repose.config.directory': configDirectory,
+                'project.build.directory': projectBuildDirectory,
+        ]
     }
 
 }

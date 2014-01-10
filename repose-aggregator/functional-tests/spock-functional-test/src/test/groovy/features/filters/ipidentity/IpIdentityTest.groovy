@@ -16,23 +16,19 @@ class IpIdentityTest extends ReposeValveTest {
     @Shared
     def url
     def setupSpec() {
-        PortFinder pf = new PortFinder()
-        int deproxyPort = pf.getNextOpenPort()
-        int reposePort = pf.getNextOpenPort()
+
+        int deproxyPort = properties.targetPort
+        int reposePort = properties.reposePort
         deproxy = new Deproxy()
         deproxy.addEndpoint(deproxyPort)
 
         url = "http://localhost:${reposePort}"
 
+        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
-        repose.configurationProvider.applyConfigsRuntime(
-                "common",
-                ["reposePort": reposePort.toString(),
-                        "targetPort": deproxyPort.toString()]);
-        repose.configurationProvider.applyConfigsRuntime(
-                "features/filters/ipidentity",
-                ["reposePort": reposePort.toString(),
-                        "targetPort": deproxyPort.toString()]);
+        repose.configurationProvider.applyConfigs("common", params);
+        repose.configurationProvider.applyConfigs("features/filters/ipidentity", params);
+
         repose.start()
         repose.waitForNon500FromUrl(url)
 //        waitUntilReadyToServiceRequests()

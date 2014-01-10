@@ -5,7 +5,7 @@
              xmlns="http://wadl.dev.java.net/2009/02"
              xmlns:test="http://test.openrespose/test/v1.1">
 
-    <resources base="http://localhost:${target_port}/">
+    <resources base="http://localhost:${targetPort}/">
 
         <resource path="/">
             <method name="GET">

@@ -2,7 +2,7 @@
 <distributed-datastore xmlns='http://openrepose.org/repose/distributed-datastore/v1.0'>
     <allowed-hosts allow-all="true"/>
     <port-config>
-        <port port="${datastore_port1}" cluster="repose1" node="node1"/>
-        <port port="${datastore_port2}" cluster="repose1" node="node2" />
+        <port port="${datastorePort1}" cluster="repose1" node="node1"/>
+        <port port="${datastorePort2}" cluster="repose1" node="node2" />
     </port-config>
 </distributed-datastore>

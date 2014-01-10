@@ -11,7 +11,7 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
 
     String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"RequestTimeout\",scope=\""
 
-    String NAME_OPENREPOSE_ENDPOINT = "\",name=\"localhost:10001/root_path\""
+    String NAME_OPENREPOSE_ENDPOINT = "\",name=\"localhost:${properties.targetPort}/root_path\""
     String ALL_ENDPOINTS = "\",name=\"All Endpoints\""
 
     String TIMEOUT_TO_ORIGIN = PREFIX + "TimeoutToOrigin" + NAME_OPENREPOSE_ENDPOINT
@@ -20,11 +20,13 @@ class RequestTimeoutJMXTest extends ReposeValveTest {
     def handlerTimeout = { request -> return new Response(408, 'WIZARD FAIL') }
 
     def setupSpec() {
-        repose.applyConfigs("features/core/powerfilter/common")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.start()
 
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanupSpec() {

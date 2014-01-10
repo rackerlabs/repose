@@ -4,62 +4,48 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class PatchMethodTest extends Specification {
 
     Deproxy deproxy
-    int endpointPort
 
-    int reposePort
-    int stopPort
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
 
     def setup() {
 
-        endpointPort = PortFinder.Singleton.getNextOpenPort()
+        properties = new TestProperties()
+
         deproxy = new Deproxy()
-        deproxy.addEndpoint(endpointPort)
+        deproxy.addEndpoint(properties.targetPort)
 
-        reposePort = PortFinder.Singleton.getNextOpenPort()
-        stopPort = PortFinder.Singleton.getNextOpenPort()
+        reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
-        properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigSamples())
-
-        def params = [
-                'reposePort': reposePort,
-                'endpointPort': endpointPort,
-        ]
+        def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigsRuntime(
-                "common",
-                params)
-        reposeConfigProvider.applyConfigsRuntime(
-                "features/filters/ratelimiting/oneNode",
-                params)
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/ratelimiting/oneNode", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
-                "http://localhost:${reposePort}",
-                properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                properties.reposeJar,
+                properties.reposeEndpoint,
+                properties.configDirectory,
+                properties.reposePort,
+                properties.reposeShutdownPort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl("http://localhost:${reposePort}")
+        repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
     def "PATCH requests should be limited by limit-groups marked as 'PATCH'"() {
 
         given:
         def mc
-        String url = "http://localhost:${reposePort}/patchmethod/resource"
+        String url = "${properties.reposeEndpoint}/patchmethod/resource"
         def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'patchmethod']
 
 
@@ -103,7 +89,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url ="http://localhost:${reposePort}/allmethods/resource"
+        String url ="${properties.reposeEndpoint}/allmethods/resource"
         def headers = ['X-PP-User': 'user', 'X-PP-Groups': 'allmethods']
 
         when: "we make some requests with mixed methods"
@@ -147,7 +133,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "http://localhost:${reposePort}/patchmethod/resource"
+        String url = "${properties.reposeEndpoint}/patchmethod/resource"
         def headers1 = ['X-PP-User': 'user1', 'X-PP-Groups': 'patchmethod']
         def headers2 = ['X-PP-User': 'user2', 'X-PP-Groups': 'patchmethod']
 
@@ -192,7 +178,7 @@ class PatchMethodTest extends Specification {
 
         given:
         def mc
-        String url = "http://localhost:${reposePort}/patchmethod/resource"
+        String url = "${properties.reposeEndpoint}/patchmethod/resource"
         def headers1 = ['X-PP-User': 'user1', 'X-PP-Groups': 'patchmethod', 'random-header': 'testtest']
 
         when: "we make a PATCH request"

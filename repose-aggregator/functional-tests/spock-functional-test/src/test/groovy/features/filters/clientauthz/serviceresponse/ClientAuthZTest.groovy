@@ -19,12 +19,14 @@ class ClientAuthZTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
 
-        repose.applyConfigs("features/filters/clientauthz/common")
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", params)
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.getProperty("target.port").toInteger(), 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
-        identityEndpoint = deproxy.addEndpoint(properties.getProperty("identity.port").toInteger(),
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }
 
@@ -98,7 +100,7 @@ class ClientAuthZTest extends ReposeValveTest {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         def token = UUID.randomUUID().toString()
         fakeIdentityService.client_token = token
-        fakeIdentityService.origin_service_port = 99999
+        fakeIdentityService.originServicePort = 99999
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/v1/"+token+"/ss", method:'GET', headers:['X-Auth-Token': token])

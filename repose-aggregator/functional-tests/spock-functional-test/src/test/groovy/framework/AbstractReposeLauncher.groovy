@@ -23,17 +23,6 @@ abstract class AbstractReposeLauncher implements ReposeLauncher {
 
     def ReposeConfigurationProvider configurationProvider
 
-    @Override
-    void applyConfigs(String[] configLocations) {
-        configurationProvider.applyConfigs(configLocations)
-    }
-
-    @Override
-    void updateConfigs(String[] configLocations) {
-        configurationProvider.updateConfigs(configLocations)
-    }
-
-
     def nextAvailablePort() {
 
         def socket

@@ -2,7 +2,6 @@ package features.filters.translation
 
 import framework.ReposeValveTest
 import framework.category.Bug
-import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
@@ -22,7 +21,7 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
     //Start repose once for this particular translation test
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
         def missingHeaderErrorHandler = { Request request ->
             def headers = request.getHeaders()
@@ -35,8 +34,10 @@ class ContentResponseTranslationBurstTest extends ReposeValveTest {
 
         deproxy.defaultHandler = missingHeaderErrorHandler
 
-        repose.applyConfigs("features/filters/translation/common",
-                "features/filters/translation/missingContent/response")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/missingContent/response", params)
         repose.start()
     }
 

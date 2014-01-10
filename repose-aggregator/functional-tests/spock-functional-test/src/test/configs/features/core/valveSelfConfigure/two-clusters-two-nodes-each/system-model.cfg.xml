@@ -12,7 +12,7 @@
     </filters>
 
     <destinations>
-      <endpoint id="target" protocol="http" hostname="localhost" port="${endpointPort1}" root-path="/" default="true"/>
+      <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/" default="true"/>
     </destinations>
 
   </repose-cluster>
@@ -28,7 +28,7 @@
     </filters>
 
     <destinations>
-      <endpoint id="target" protocol="http" hostname="localhost" port="${endpointPort2}" root-path="/" default="true"/>
+      <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort2}" root-path="/" default="true"/>
     </destinations>
 
   </repose-cluster>

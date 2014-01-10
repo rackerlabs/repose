@@ -4,10 +4,10 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
+import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.DeproxyEndpoint
 import org.rackspace.deproxy.Handling
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 /**
@@ -29,7 +29,7 @@ class AuthZConnectionPoolingTest extends Specification {
     DeproxyEndpoint originEndpoint
     DeproxyEndpoint identityEndpoint
 
-    Properties properties
+    TestProperties properties
     def logFile
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
@@ -38,12 +38,12 @@ class AuthZConnectionPoolingTest extends Specification {
     def setup() {
 
         // get ports
-        PortFinder pf = new PortFinder()
+        properties = new TestProperties()
 
-        reposePort = pf.getNextOpenPort()
-        reposeStopPort = pf.getNextOpenPort()
-        originServicePort = pf.getNextOpenPort()
-        identityServicePort = pf.getNextOpenPort()
+        reposePort = properties.reposePort
+        reposeStopPort = properties.reposeShutdownPort
+        originServicePort = properties.targetPort
+        identityServicePort = properties.identityPort
 
         identityService = new IdentityServiceResponseSimulator(identityServicePort, originServicePort)
 
@@ -55,20 +55,18 @@ class AuthZConnectionPoolingTest extends Specification {
 
 
         // configure and start repose
-        properties = new Properties()
-        properties.load(ClassLoader.getSystemResource("test.properties").openStream())
 
-        def targetHostname = properties.getProperty("target.hostname")
+        def targetHostname = properties.targetHostname
         urlBase = "http://${targetHostname}:${reposePort}"
-        logFile = properties.getProperty("repose.log")
+        logFile = properties.logFile
 
-        def configDirectory = properties.getProperty("repose.config.directory")
-        def configSamples = properties.getProperty("repose.config.samples")
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        def configDirectory = properties.configDirectory
+        def configTemplates = properties.configTemplates
+        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getProperty("repose.jar"),
+                properties.reposeJar,
                 urlBase,
                 configDirectory,
                 reposePort,
@@ -77,18 +75,9 @@ class AuthZConnectionPoolingTest extends Specification {
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);
 
-        def params = [
-            'reposePort': reposePort.toString(),
-            'repose_port': reposePort.toString(),
-            'targetPort': originServicePort.toString(),
-            'target_port': originServicePort.toString(),
-            'targetHostname': targetHostname.toString(),
-            'target_hostname': targetHostname.toString(),
-            'identityPort': identityServicePort.toString(),
-            'identity_port': identityServicePort.toString()
-        ]
-        reposeConfigProvider.applyConfigsRuntime("common", params)
-        reposeConfigProvider.applyConfigsRuntime("features/filters/clientauthz/connectionpooling", params)
+        def params = properties.getDefaultTemplateParams()
+        reposeConfigProvider.applyConfigs("common", params)
+        reposeConfigProvider.applyConfigs("features/filters/clientauthz/connectionpooling", params)
         repose.start()
     }
 

@@ -9,7 +9,7 @@ class HttpClientServiceTest extends ReposeValveTest {
 
     def setup(){
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup(){
@@ -19,8 +19,10 @@ class HttpClientServiceTest extends ReposeValveTest {
 
     def "repose should use http conn pool service for origin service" () {
         given:
-        repose.applyConfigs("features/services/httpconnectionpool/common",
-                "features/services/httpconnectionpool/withconfig")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/withconfig", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 

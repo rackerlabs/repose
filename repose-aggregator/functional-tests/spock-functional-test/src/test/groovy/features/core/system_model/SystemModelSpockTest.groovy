@@ -8,7 +8,9 @@ import org.junit.experimental.categories.Category
 class SystemModelSpockTest extends ReposeValveTest {
 
     def setup() {
-        repose.applyConfigs("features/core/system_model/dist_datastore_filter_and_service")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/system_model/dist_datastore_filter_and_service", params)
     }
 
     def cleanup() {
