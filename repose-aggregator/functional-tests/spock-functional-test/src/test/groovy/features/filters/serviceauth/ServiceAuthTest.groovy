@@ -22,14 +22,14 @@ class ServiceAuthTest extends Specification {
     def setupSpec() {
 
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
+        PortFinder pf = new PortFinder()
 
-        int originServicePort = pf.getNextOpenPort()
+        int originServicePort = properties.getTargetPort()
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
 
-        int reposePort = pf.getNextOpenPort()
-        int shutdownPort = pf.getNextOpenPort()
+        int reposePort = properties.getReposePort()
+        int shutdownPort = properties.getReposeShutdownPort()
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
@@ -38,18 +38,18 @@ class ServiceAuthTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config.applyConfigsRuntime("features/filters/serviceauth",
-                [
-                        'repose_port': reposePort.toString(),
-                        'target_port': originServicePort.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
-                ]
-        )
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'target_hostname': 'localhost',
+                'repose_port': reposePort.toString(),
+                'target_port': originServicePort.toString(),
+                'repose.config.directory': configDirectory,
+        ]
 
+        config.applyConfigs("features/filters/serviceauth", params)
+        config.applyConfigs("common", params)
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
         repose.clusterId = "repose"
