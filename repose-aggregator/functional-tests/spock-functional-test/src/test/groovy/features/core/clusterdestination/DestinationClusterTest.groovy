@@ -1,13 +1,7 @@
 package features.core.clusterdestination
-
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.TestProperties
-import framework.TestUtils
+import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class DestinationClusterTest extends Specification {
@@ -19,16 +13,15 @@ class DestinationClusterTest extends Specification {
     def setupSpec() {
 
         def TestProperties properties = new TestProperties(ClassLoader.getSystemResource("test.properties").openStream())
-        PortFinder pf = new PortFinder(properties.getDynamicPortBase())
 
-        int originServicePort1 = pf.getNextOpenPort()
-        int originServicePort2 = pf.getNextOpenPort()
+        int originServicePort1 = properties.targetPort
+        int originServicePort2 = properties.targetPort2
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort1)
         deproxy.addEndpoint(originServicePort2)
 
-        int reposePort = pf.getNextOpenPort()
-        int shutdownPort = pf.getNextOpenPort()
+        int reposePort = properties.getReposePort()
+        int shutdownPort = properties.getReposeShutdownPort()
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
@@ -37,19 +30,20 @@ class DestinationClusterTest extends Specification {
         def buildDirectory = properties.getReposeHome() + "/.."
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
-        config.applyConfigsRuntime("features/core/proxy/clusterdestination",
-                [
-                        'repose_port': reposePort.toString(),
-                        'dst_port1': originServicePort1.toString(),
-                        'dst_port2': originServicePort2.toString(),
-                        'repose.config.directory': configDirectory,
-                        'repose.cluster.id': "repose1",
-                        'repose.node.id': 'node1',
-                        'target_hostname': 'localhost',
-                ]
-        )
-        config.applyConfigsRuntime("common", ['project.build.directory': buildDirectory])
+        def params = properties.getDefaultTemplateParams()
+        params += [
+                'repose_port': reposePort.toString(),
+                'dst_port1': originServicePort1.toString(),
+                'dst_port2': originServicePort2.toString(),
+                'repose.config.directory': configDirectory,
+                'repose.cluster.id': "repose1",
+                'repose.node.id': 'node1',
+                'target_hostname': 'localhost',
+                'project.build.directory': buildDirectory
+        ]
 
+        config.applyConfigs("features/core/proxy/clusterdestination", params)
+        config.applyConfigs("common", params)
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
         repose.clusterId = "repose"
