@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
-    <filter>
-        <filter-name>dist-datastore</filter-name>
-        <filter-class>com.rackspace.papi.components.datastore.DistributedDatastoreFilter</filter-class>
-    </filter>
 
     <filter>
         <filter-name>default-router</filter-name>

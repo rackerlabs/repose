@@ -7,7 +7,7 @@
         </nodes>
 
         <filters>
-            <filter name="dist-datastore"/>
+            <filter name="fake-filter"/>
         </filters>
 
         <services>

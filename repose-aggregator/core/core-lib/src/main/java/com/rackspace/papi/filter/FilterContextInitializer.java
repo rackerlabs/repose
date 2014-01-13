@@ -43,12 +43,6 @@ public class FilterContextInitializer {
        if (domain.getFilters() != null && domain.getFilters().getFilter() != null) {
            for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
 
-               //Message to let users know DD filter is deprecated.
-               if (!StringUtilities.isBlank(papiFilter.getName()) && papiFilter.getName().equals("dist-datastore")) {
-                   LOG.warn(
-                           "Use of the dist-datastore filter is deprecated. Please use the distributed datastore service.");
-               }
-
                if (StringUtilities.isBlank(papiFilter.getName())) {
                    LOG.error(
                            "Filter declaration has a null or empty name value - please check your system model configuration");
