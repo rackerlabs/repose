@@ -29,11 +29,11 @@ class NoHostHeaderRewriteTest extends ReposeValveTest {
     def "should not rewrite host header"(){
 
         when: "client passes a request through repose"
-        def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint])
-        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint)
+        def requestAtOriginService = messageChain.handlings[0].request
 
         then: "repose should rewrite the host header"
-        sentRequest.getRequest().getHeaders().getFirstValue("host").equals(respFromOrigin.getSentRequest().headers.getFirstValue("host"))
+        requestAtOriginService.headers["host"].equals(messageChain.sentRequest.headers["host"])
 
 
     }
