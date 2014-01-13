@@ -8,9 +8,11 @@ class NoHostHeaderRewriteTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/core/noHostRewrite")
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/noHostRewrite", params)
         repose.start()
     }
 
