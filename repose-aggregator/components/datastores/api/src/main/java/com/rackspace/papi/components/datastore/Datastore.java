@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -10,20 +11,15 @@ import java.util.concurrent.TimeUnit;
 public interface Datastore {
 
     /**
-     * Gets the value associated with the key from the Datastore.  The value can be retrieved
-     * as a byte array from the StoredElement, or by calling the StoredElement elementAs() method
-     * to deserialize the value to the expected Java object.
-     *
-     * If there is no value found for the provided key, a StoredElement object should be returned
-     * containing an empty byte array.  The StoredElement elementIsNull() method should return false
-     * if the StoredElement is representing an unstored value.
+     * Gets the value associated with the key from the Datastore.
+     * If no value is found will return null.
      *
      * @param key Key provided when the data was stored
-     * @return StoredElement wrapper of the stored value
+     * @return stored value or null
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      * stored value
      */
-    StoredElement get(String key) throws DatastoreOperationException;
+    Serializable get(String key) throws DatastoreOperationException;
 
     /**
      * Put an element in the datastore.
@@ -34,7 +30,7 @@ public interface Datastore {
      * @param value The value being stored
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    void put(String key, byte[] value) throws DatastoreOperationException;
+    void put(String key, Serializable value) throws DatastoreOperationException;
 
     /**
      * Put an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -49,7 +45,7 @@ public interface Datastore {
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Removes a value from the Datastore.
