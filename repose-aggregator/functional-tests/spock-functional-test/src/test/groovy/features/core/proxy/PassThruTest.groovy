@@ -11,6 +11,7 @@ class PassThruTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.getTargetPort())
+        repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
         repose.start()
     }
