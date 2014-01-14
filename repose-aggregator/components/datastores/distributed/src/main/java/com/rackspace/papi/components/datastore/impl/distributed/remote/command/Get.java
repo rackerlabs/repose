@@ -2,10 +2,10 @@ package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.StoredElementImpl;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 
 import java.io.IOException;
@@ -34,11 +34,15 @@ public class Get extends AbstractRemoteCommand {
       if (statusCode == HttpStatusCode.OK.intValue()) {
          final InputStream internalStreamReference = response.getData();
 
-         return new StoredElementImpl(getCacheObjectKey(), RawInputStreamReader.instance().readFully(internalStreamReference));
-      } else if (statusCode != HttpStatusCode.NOT_FOUND.intValue()) {
-         throw new DatastoreOperationException("Remote request failed with: " + statusCode);
+          try {
+              return ObjectSerializer.instance().readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
+          } catch (ClassNotFoundException cnfe) {
+              throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
+          }
+      } else if (statusCode == HttpStatusCode.NOT_FOUND.intValue()) {
+         return null;
       }
-      
-      return new StoredElementImpl(getCacheObjectKey(), null);
+
+      throw new DatastoreOperationException("Remote request failed with: " + statusCode);
    }
 }
