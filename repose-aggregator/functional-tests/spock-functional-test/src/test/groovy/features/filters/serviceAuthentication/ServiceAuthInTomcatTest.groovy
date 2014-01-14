@@ -1,4 +1,4 @@
-package features.filters.serviceauth
+package features.filters.serviceAuthentication
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
