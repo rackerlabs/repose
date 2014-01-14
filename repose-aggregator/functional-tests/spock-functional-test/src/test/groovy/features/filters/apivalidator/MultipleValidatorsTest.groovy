@@ -14,9 +14,12 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.getProperty("target.port").toInteger())
+        deproxy.addEndpoint(properties.targetPort)
 
-        repose.applyConfigs("features/filters/apivalidator/common", "features/filters/apivalidator/multiValidatorsPreProcess/")
+        def params = properties.getDefaultTemplateParams()
+
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/multiValidatorsPreProcess/", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
