@@ -12,7 +12,7 @@ import org.rackspace.deproxy.Response
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ServiceAuthTest extends Specification {
+class ServiceAuthInTomcatTest extends Specification {
 
     static ReposeLauncher repose
     static Deproxy deproxy
