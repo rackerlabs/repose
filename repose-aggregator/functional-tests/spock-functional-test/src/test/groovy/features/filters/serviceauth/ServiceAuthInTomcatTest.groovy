@@ -4,10 +4,8 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.TestProperties
-import framework.TestUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -48,6 +46,7 @@ class ServiceAuthInTomcatTest extends Specification {
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()
+        repose.waitForNon500FromUrl(tomcatEndpoint, 120)
     }
 
     def cleanupSpec() {
@@ -62,7 +61,6 @@ class ServiceAuthInTomcatTest extends Specification {
     def "should pass basic auth credentials"() {
 
         when: "Request is sent through Repose/Tomcat"
-        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: headersPassed)
 
         then: "Repose Should Send Authorization header with basic auth credentials"
@@ -82,7 +80,6 @@ class ServiceAuthInTomcatTest extends Specification {
         def resp = { request -> return new Response(originServiceResponse) }
 
         when: "Request is sent through Repose/Tomcat"
-        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", defaultHandler: resp)
 
         then: "Repose Should Send Authorization header with basic auth credentials"
