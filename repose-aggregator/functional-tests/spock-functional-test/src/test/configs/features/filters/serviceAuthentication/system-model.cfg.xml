@@ -2,6 +2,7 @@
 
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
     <repose-cluster id="repose">
+
         <nodes>
             <node id="simple-node" hostname="localhost" http-port="${reposePort}"/>
         </nodes>
@@ -11,8 +12,9 @@
         </filters>
 
         <destinations>
-            <endpoint id="service" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
-                      default="true"/>
+            <endpoint id="target" protocol="http" hostname="${targetHostname}" root-path="/" port="${targetPort}"
+                      default="true" />
         </destinations>
+
     </repose-cluster>
 </system-model>
