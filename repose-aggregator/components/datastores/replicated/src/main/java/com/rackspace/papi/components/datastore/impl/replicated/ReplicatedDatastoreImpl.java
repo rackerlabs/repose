@@ -2,8 +2,6 @@ package com.rackspace.papi.components.datastore.impl.replicated;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.StoredElement;
-import com.rackspace.papi.components.datastore.StoredElementImpl;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Operation;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.components.datastore.impl.replicated.notification.in.ChannelledUpdateListener;
@@ -15,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -94,35 +93,6 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
-    public StoredElement get(String key) throws DatastoreOperationException {
-        final Element element = cache.get(key);
-
-        if (element != null) {
-            return new StoredElementImpl(key, (byte[]) element.getValue());
-        }
-
-        return new StoredElementImpl(key, null);
-    }
-
-    @Override
-    public boolean remove(String key) throws DatastoreOperationException {
-        return remove(key, true);
-    }
-
-    @Override
-    public boolean remove(String key, boolean notify) throws DatastoreOperationException {
-        try {
-            boolean result = cache.remove(key);
-            if (notify) {
-                updateNotifier.notifyAllNodes(Operation.REMOVE, key);
-            }
-            return result;
-        } catch (IOException ex) {
-            throw new DatastoreOperationException("Error removing key: " + key, ex);
-        }
-    }
-
-    @Override
     public void sync(Subscriber subscriber) throws IOException {
         cache.evictExpiredElements();
         Map<Object, Element> all = cache.getAll(cache.getKeysWithExpiryCheck());
@@ -159,12 +129,23 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
-    public void put(String key, byte[] value) throws DatastoreOperationException {
+    public Serializable get(String key) throws DatastoreOperationException {
+        final Element element = cache.get(key);
+
+        if (element != null) {
+            return element.getValue();
+        }
+
+        return null;
+    }
+
+    @Override
+    public void put(String key, Serializable value) throws DatastoreOperationException {
         put(key, value, true);
     }
 
     @Override
-    public void put(String key, byte[] value, boolean notify) throws DatastoreOperationException {
+    public void put(String key, Serializable value, boolean notify) throws DatastoreOperationException {
         try {
             cache.put(new Element(key, value));
             if (notify) {
@@ -176,12 +157,12 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         put(key, value, ttl, timeUnit, true);
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify)
+    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit, boolean notify)
             throws DatastoreOperationException {
         try {
             final Element putMe = new Element(key, value);
@@ -198,6 +179,24 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
             }
         } catch (IOException ex) {
             throw new DatastoreOperationException("Error adding key: " + key, ex);
+        }
+    }
+
+    @Override
+    public boolean remove(String key) throws DatastoreOperationException {
+        return remove(key, true);
+    }
+
+    @Override
+    public boolean remove(String key, boolean notify) throws DatastoreOperationException {
+        try {
+            boolean result = cache.remove(key);
+            if (notify) {
+                updateNotifier.notifyAllNodes(Operation.REMOVE, key);
+            }
+            return result;
+        } catch (IOException ex) {
+            throw new DatastoreOperationException("Error removing key: " + key, ex);
         }
     }
 

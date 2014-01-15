@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.datastore.impl.replicated.data;
 
 import com.rackspace.papi.components.datastore.impl.replicated.data.Message.KeyValue;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -15,15 +15,11 @@ public class MessageTest {
 
     public static class WhenCreatingMessages {
 
-        @Before
-        public void setUp() {
-        }
-
         @Test
         public void shouldStoreBasicData() {
             String key = "key";
             int ttl = 42;
-            byte[] data = new byte[]{0, 1, 2};
+            String data = "0, 1, 2";
 
             Message message = new Message(Operation.JOINING, key, data, ttl);
 
@@ -31,9 +27,7 @@ public class MessageTest {
             assertEquals("*", message.getTargetId());
             assertEquals(key, message.getKey());
 
-            for (int i = 0; i < message.getData().length; i++) {
-                assertEquals("Should return our data", data[i], message.getData()[i]);
-            }
+            assertEquals("Should return our data", data, (String)message.getData());
         }
 
         @Test
@@ -44,20 +38,15 @@ public class MessageTest {
             Operation[] operation = new Operation[ROWS];
             String[] keys = new String[ROWS];
             int[] ttl = new int[ROWS];
-            byte[][] data = new byte[ROWS][];
+            Serializable[] data = new Serializable[ROWS];
 
-            for (int i = 0; i < ROWS * COLS; i++) {
-                int row = i % ROWS;
-                int col = i / ROWS;
+            for (int i = 0; i < ROWS; i++) {
+                keys[i] = "key" + i;
+                ttl[i] = i;
+                operation[i] = Operation.JOINING;
+                data[i] = new byte[COLS];
 
-                if (data[row] == null) {
-                    keys[row] = "key" + i;
-                    ttl[row] = i;
-                    operation[row] = Operation.JOINING;
-                    data[row] = new byte[COLS];
-                }
-
-                data[row][col] = (byte)i;
+                data[i] = Integer.toString(i);
             }
 
             Message message = new Message(operation, keys, data, ttl);
@@ -74,9 +63,7 @@ public class MessageTest {
                 assertEquals(keys[i], value.getKey());
                 assertEquals(ttl[i], value.getTtl());
                 
-                for (int j = 0; j < value.getData().length; j++) {
-                    assertEquals("Should return our data", data[i][j], value.getData()[j]);
-                }
+                assertEquals("Should return our data", data[i], value.getData());
                 i++;
             }
         }

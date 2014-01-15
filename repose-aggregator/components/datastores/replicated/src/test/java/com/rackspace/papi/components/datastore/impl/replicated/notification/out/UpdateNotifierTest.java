@@ -93,7 +93,7 @@ public class UpdateNotifierTest {
             
             Operation op = Operation.LISTENING;
             String key = "key";
-            byte[] data = new byte[] {1,2,3};
+            String data = "1,2,3";
             int ttl = 10;
             
             instance.notifyAllNodes(op, key, data, ttl);
@@ -108,7 +108,7 @@ public class UpdateNotifierTest {
             
             Operation op = Operation.LISTENING;
             String key = "key";
-            byte[] data = new byte[] {1,2,3};
+            String data = "1,2,3";
             int ttl = 10;
             
             instance.notifyNode(op, subscriber1, key, data, ttl);

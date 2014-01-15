@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
@@ -131,21 +132,21 @@ public class UpdateNotifier implements Notifier {
     }
 
     @Override
-    public void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) {
+    public void notifyNode(Operation operation, Subscriber subscriber, String key, Serializable data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
         queueItem(new MessageQueueItem(subscriber, message));
 
     }
 
     @Override
-    public void notifyNode(Operation[] operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) {
+    public void notifyNode(Operation[] operation, Subscriber subscriber, String[] keys, Serializable[] data, int[] ttl) {
         Message message = new Message(operation, keys, data, ttl);
         queueItem(new MessageQueueItem(subscriber, message));
 
     }
 
     @Override
-    public void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) {
+    public void notifyAllNodes(Operation operation, String key, Serializable data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
         List<Subscriber> invalid = new ArrayList<Subscriber>();
         synchronized (subscribers) {
@@ -162,7 +163,7 @@ public class UpdateNotifier implements Notifier {
     }
 
     @Override
-    public void notifyAllNodes(Operation operation, String key, byte[] data) {
+    public void notifyAllNodes(Operation operation, String key, Serializable data) {
         notifyAllNodes(operation, key, data, 0);
     }
 

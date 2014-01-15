@@ -101,34 +101,18 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     public void join(String host, int port) {
         this.tcpHost = host;
         this.tcpPort = port;
-        try {
-            byte[] subscriberData = ObjectSerializer.instance().writeObject(new Subscriber(host, port, this.socketAddress.getPort()));
-            announce(new Message(Operation.JOINING, id.toString(), subscriberData, 0));
-        } catch (IOException ex) {
-            LOG.error(UNABLE_TO_SERIALIZE, ex);
-        }
+        Subscriber subscriberData = new Subscriber(host, port, this.socketAddress.getPort());
+        announce(new Message(Operation.JOINING, id.toString(), subscriberData, 0));
     }
 
     public void sendSyncRequest(String targetId) {
-        try {
-            Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
-            byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
-            announce(new Message(targetId, Operation.SYNC, id.toString(), subscriberData, 0));
-        } catch (IOException ex) {
-            LOG.error(UNABLE_TO_SERIALIZE, ex);
-        }
-
+        Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
+        announce(new Message(targetId, Operation.SYNC, id.toString(), subscriber, 0));
     }
 
     public void listening() {
-        try {
-            Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
-            byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
-            announce(new Message(Operation.LISTENING, id.toString(), subscriberData, 0));
-        } catch (IOException ex) {
-            LOG.error(UNABLE_TO_SERIALIZE, ex);
-        }
-
+        Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
+        announce(new Message(Operation.LISTENING, id.toString(), subscriber, 0));
     }
 
     public long ping() {
@@ -137,14 +121,8 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     }
 
     public void leaving() {
-        try {
-            Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
-            byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
-            announce(new Message(Operation.LEAVING, id.toString(), subscriberData, 0));
-        } catch (IOException ex) {
-            LOG.error(UNABLE_TO_SERIALIZE, ex);
-        }
-
+        Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
+        announce(new Message(Operation.LEAVING, id.toString(), subscriber, 0));
     }
 
     void receivedAnnouncement(String key, String targetId, Operation operation, Subscriber subscriber) {
@@ -200,7 +178,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 DatagramPacket recv = new DatagramPacket(buffer, BUFFER_SIZE);
                 socket.receive(recv);
                 Message message = (Message) ObjectSerializer.instance().readObject(recv.getData());
-                receivedAnnouncement(message.getTargetId(), message.getKey(), message.getOperation(), (Subscriber) ObjectSerializer.instance().readObject(message.getData()));
+                receivedAnnouncement(message.getTargetId(), message.getKey(), message.getOperation(), (Subscriber) message.getData());
             } catch (SocketTimeoutException ex) {
                 // ignore
             } catch (ClassNotFoundException ex) {
