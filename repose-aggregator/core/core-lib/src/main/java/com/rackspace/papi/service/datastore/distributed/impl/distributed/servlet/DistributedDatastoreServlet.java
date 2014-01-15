@@ -1,16 +1,17 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
-import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
-import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.components.datastore.StoredElement;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
-import com.rackspace.papi.service.datastore.DatastoreAccessControl;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +47,11 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
       if (isRequestValid(req,resp)) {
          CacheRequest cacheGet = CacheRequest.marshallCacheRequest(req);
-         final StoredElement element = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
+         final Serializable value = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
 
-         if (!element.elementIsNull()) {
+         if (value != null) {
             try {
-               resp.getOutputStream().write(element.elementBytes());
+               resp.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
                resp.setStatus(HttpServletResponse.SC_OK);
 
             } catch (IOException ioe) {
@@ -81,8 +83,18 @@ public class DistributedDatastoreServlet extends HttpServlet {
    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
       if (CacheRequest.isCacheRequest(req)) {
          final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(req);
-         hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
-         resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+         try {
+             hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), ObjectSerializer.instance().readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
+             resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+         }
+         catch (IOException ioe) {
+             LOG.error(ioe.getMessage(), ioe);
+             throw new DatastoreOperationException("Failed to write payload.", ioe);
+         }
+         catch (ClassNotFoundException cnfe) {
+             LOG.error(cnfe.getMessage(), cnfe);
+             throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+         }
       } else {
          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }

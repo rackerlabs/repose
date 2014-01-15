@@ -251,12 +251,9 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedUserInfo() {
             final AuthToken user = new OpenStackToken(authResponse);
-            StoredElement element = mock(StoredElement.class);
-            when(element.elementIsNull()).thenReturn(false);
-            when(element.elementAs(AuthToken.class)).thenReturn(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(element);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -268,11 +265,8 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
             final AuthToken user = new OpenStackToken(authResponse);
-            StoredElement element = mock(StoredElement.class);
-            when(element.elementIsNull()).thenReturn(false);
-            when(element.elementAs(AuthToken.class)).thenReturn(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
             // Wait until token expires
             Thread.sleep(1000);
@@ -288,12 +282,9 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldNotUseCachedUserInfoForBadTokenId() {
             authResponse.getToken().setId("differentId");
             final AuthToken user = new OpenStackToken(authResponse);
-            StoredElement element = mock(StoredElement.class);
-            when(element.elementIsNull()).thenReturn(false);
-            when(element.elementAs(AuthToken.class)).thenReturn(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -373,11 +364,7 @@ public class OpenStackAuthenticationHandlerTest {
             authGroupList.add(authGroup);
             final AuthGroups groups = new AuthGroups(authGroupList);
 
-            StoredElement element = mock(StoredElement.class);
-            when(element.elementIsNull()).thenReturn(false);
-            when(element.elementAs(AuthGroups.class)).thenReturn(groups);
-
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(element);
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(groups);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -394,8 +381,6 @@ public class OpenStackAuthenticationHandlerTest {
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthGroups.class)).thenReturn(null);
-
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"))).thenReturn(null);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -455,12 +440,6 @@ public class OpenStackAuthenticationHandlerTest {
     public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
         final AuthToken user = new OpenStackToken(authResponse);
         when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-
-        StoredElement element = mock(StoredElement.class);
-        when(element.elementIsNull()).thenReturn(false);
-        //when(element.elementAs(AuthGroups.class)).thenReturn(null);
-
-        when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + user.getTokenId()))).thenReturn(null);
 
         final FilterDirector director = handlerWithCache.handleRequest(request, response);
 

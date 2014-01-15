@@ -1,8 +1,6 @@
 package com.rackspace.papi.components.clientauth.common;
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -24,12 +22,8 @@ public class EndpointsCache implements DeleteableCache{
         this.cachePrefix = cachePrefix;
     }
 
-    private String getElementAsType(StoredElement element) {
-        return element == null || element.elementIsNull() ? null : element.elementAs(String.class);
-    }
-
     public String getEndpoints(String token) {
-        String candidate = getElementAsType(store.get(cachePrefix + "." + token));
+        String candidate = (String)store.get(cachePrefix + "." + token);
 
         return candidate;
     }
@@ -40,9 +34,7 @@ public class EndpointsCache implements DeleteableCache{
             return;
         }
 
-        byte[] data = ObjectSerializer.instance().writeObject(endpoints);
-
-        store.put(cachePrefix + "." + tokenId, data, ttl, TimeUnit.MILLISECONDS);
+        store.put(cachePrefix + "." + tokenId, endpoints, ttl, TimeUnit.MILLISECONDS);
     }
 
    @Override

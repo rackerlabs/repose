@@ -53,16 +53,16 @@ public class ReposeLocalCacheTest {
             reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 
             final String key = "my element";
-            byte[] value = {1, 2, 3};
+            String value = "1, 2, 3";
 
             datastore = datastoreService.getDefaultDatastore();
             datastore.put(key,value);
 
-            assertNotNull(datastoreService.getDefaultDatastore().get(key).elementBytes());
+            assertNotNull(datastoreService.getDefaultDatastore().get(key));
 
             reposeLocalCacheReal.removeAllCacheData();
 
-            assertNull(datastoreService.getDefaultDatastore().get(key).elementBytes());
+            assertNull(datastoreService.getDefaultDatastore().get(key));
         }
     }
 }

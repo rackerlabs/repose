@@ -1,13 +1,12 @@
 package org.openrepose.components.rackspace.authz.cache;
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElementImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,8 +42,7 @@ public class EndpointListCacheImplTest {
          endpointList.add(new CachedEndpoint(PUBLIC_URL, REGION, NAME, TYPE));
 
          mockedDatastore = mock(Datastore.class);
-         when(mockedDatastore.get(eq(CACHED_TOKEN_FULLNAME))).thenReturn(new StoredElementImpl(CACHED_TOKEN, ObjectSerializer.instance().writeObject(endpointList)));
-         when(mockedDatastore.get(eq(NON_CACHED_TOKEN_FULLNAME))).thenReturn(new StoredElementImpl(NON_CACHED_TOKEN, null));
+         when(mockedDatastore.get(eq(CACHED_TOKEN_FULLNAME))).thenReturn(endpointList);
 
          cache = new EndpointListCacheImpl(mockedDatastore, 300);
       }
@@ -76,7 +74,7 @@ public class EndpointListCacheImplTest {
          
          cache.cacheEndpointsForToken(NON_CACHED_TOKEN, endpointList);
          
-         verify(mockedDatastore, times(1)).put(eq(NON_CACHED_TOKEN_FULLNAME), any(byte[].class), anyInt(), eq(TimeUnit.SECONDS));
+         verify(mockedDatastore, times(1)).put(eq(NON_CACHED_TOKEN_FULLNAME), any(Serializable.class), anyInt(), eq(TimeUnit.SECONDS));
       }
    }
 }
