@@ -18,23 +18,20 @@ import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.reporting.ReportingService;
+import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.rackspace.papi.service.headers.response.ResponseHeaderService;
-import com.rackspace.papi.service.reporting.ReportingService;
-
+import java.io.IOException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
-
-import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads
@@ -158,6 +155,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 LOG.error("Unable to initialize filter chain builder", ex);
             }
         }
+        LOG.info("Repose ready");
     }
 
     protected SystemModel getCurrentSystemModel() {
