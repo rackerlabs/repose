@@ -14,8 +14,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +84,7 @@ public class ApiValidatorHandlerTest {
         public void shouldCallDefaultValidatorWhenNoRoleMatch() {
             
             instance.handleRequest(request, response);
-            verify(defaultValidator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+            verify(defaultValidator).validate(request, response, chain);
         }
         
         @Test
@@ -95,9 +93,8 @@ public class ApiValidatorHandlerTest {
             roles.add(new HeaderValueImpl("role1"));
             
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
-            
             instance.handleRequest(request, response);
-            verify(role1Validator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+            verify(role1Validator).validate(request, response, chain);
         }
 
         @Test
@@ -118,7 +115,7 @@ public class ApiValidatorHandlerTest {
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
             
             FilterDirector director = instance.handleRequest(request, response);
-            verify(blowupValidator).validate(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+            verify(blowupValidator).validate(request, response, chain);
             assertEquals(HttpStatusCode.BAD_GATEWAY, director.getResponseStatus());
         }
 
@@ -132,9 +129,7 @@ public class ApiValidatorHandlerTest {
             validators.add(role2ValidatorInfo);
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
-
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
-
             assertEquals(validatorsForRole.get(0), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(1), role1ValidatorInfo);
         }
