@@ -102,6 +102,7 @@
         </section>
        <xi:include href="chapters/available-doc.xml"/> 
     </chapter>
+    
    <xi:include href="chapters/repose-filterorder-chapter.xml"/> 
     
     <xi:include href="chapters/repose-logging-chapter.xml"/> 

@@ -42,7 +42,7 @@
     <title>Filter Ordering</title>
    
    
-    <para>The filters in Repose often interact with each other, so the ordering is important. 
+    <para>The placement of the Repose filters is important because the filters interact with each other differently depending on the order. 
         Some filters gather information for third-party servers, which are then used by other filters. 
         One example of this is the when the user's role is determined in the Client Authentication filter 
         and then that role is used in the API Validation filter.</para>
@@ -70,20 +70,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>
-                    <para>
-                        Datastore Filter
-                    </para>
-                    
-                </td>
-                <td>
-                    <para>
-                        Place the Datastore filter at the top of the filter chain. 
-                        This filter intercepts datastore-specific http requests, 
-                        which the other filters do not need to process. </para>
-                </td>
-            </tr>
+           
             <tr>
                 <td>
                     <para>

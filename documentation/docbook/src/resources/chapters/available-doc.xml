@@ -13,147 +13,29 @@
     <title>Available Documentation</title>
     <para>The following &PRODNAME; documentation is available as of
         v1.0:</para>
-    <itemizedlist>
-        <listitem>
+    
             <para>
                 <emphasis role="bold">Getting Started
                 Guide</emphasis>: This high-level introduction
                 provides an architectural overview and summarizes
                 several deployment methods. </para>
-        </listitem>
-        <listitem>
+        
             <para><guilabel>Deployment Guide</guilabel>:</para>
-        </listitem>
-        <listitem>
+        
             <para>
                 <emphasis role="bold">Glossary</emphasis>: The
                 &PRODNAME; glossary defines key terms as they are used
                 in the context of &PRODABBREV; documentation. </para>
-        </listitem>
-        <listitem>
+       
             <para><guilabel>Component Reference Guide</guilabel>: The
                 Repose Component Reference Guide is a non-procedural
                 collection of key facts designed to be helpful in
                 preparing to use specific components of &PRODNAME;.
                 This guide is available to assist you with the
                 following components. </para>
-        </listitem>
-    </itemizedlist>
-    <table rules="all">
-        <caption>Components by Category:</caption>
-        <col width="20%"/>
-        <col width="20%"/>
-        <col width="20%"/>
-        <col width="20%"/>
-        <col width="20%"/>
-        <thead>
-            <tr>
-                <th>Request Modification Filters</th>
-                <th>Rate Limiting  Filters</th>
-                <th>Authentication Filters</th>
-                <th>Other Filters</th> 
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <para>Content Normalization</para>
-                </td>
-                <td>
-                    <para>Header Identity</para>
-                </td>
-                <td>
-                    <para><link linkend="Repose-AuthNZ-Chapter">Client
-                        Authentication Filter</link></para>
-                </td>
-                <td>
-                    <para>API (WADL/XSD) Validation</para>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>
-                    <para>Header Normalization</para>
-                </td>
-                <td>
-                    <para>Header Identity Mapping</para>
-                </td>
-                <td>
-                    <para><link linkend="Repose-AuthNZ-Chapter">Client
-                            Authorization Filter</link></para>
-                </td>
-                <td>
-                    <para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>
-                    <para>Header Translation</para>
-                </td>
-                <td>
-                    <para>IP Identity</para>
-                </td>
-                <td>
-                    <para>Service Authentication</para>
-                </td>
-                <td>
-                    <para>Flush Output Stream</para>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <para>URI Normalization</para>
-                </td>
-                <td>
-                    <link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link>
-                </td>
-                
-                <td>
-                    <para/>
-                </td>
-                <td>
-                    <para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para>
-                </td>
-            </tr>
-            <tr>
-                <td/>
-                <td>URI Identity</td>
-                <td/>
-                <td>Datastore (Distributed, Replicated, and
-                    Local)</td>
-            </tr>
-            <tr>
-                <td/>
-                <td/>
-                <td/>
-                <td><para>
-                    <link linkend="Repose-Versioning-Chapter">Versioning Filter</link></para></td>
-            </tr>
-            <tr>
-                <td/>
-                <td/>
-                <td/>
-                <td><para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para></td>
-            </tr>
-            <tr>
-                <td/>
-                <td/>
-                <td/>
-                <td>URI Stripper</td>
-            </tr>
-            <tr>
-                <td/>
-                <td/>
-                <td/>
-                <td>Destination Router (v2)</td>
-            </tr>
-            
-        </tbody>
-    </table>
+      
     
-    <para><emphasis role="italic"><guilabel>Alphabetized List of
-                Components:</guilabel></emphasis></para> 
+   
     <itemizedlist>
         <listitem><para>API (WADL/XSD) Validation</para></listitem>
         <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
@@ -167,7 +49,7 @@
         <listitem><para>Header Identity</para></listitem>
         <listitem><para>Header Identity Mapping</para></listitem>
         <listitem><para>Header Normalization</para></listitem>
-        <listitem><para>Header Translation</para></listitem>
+        <listitem><para><link linkend="Repose-Header-Translation-Chapter">Header Translation</link></para></listitem>
         <listitem><para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para></listitem>
         <listitem><para>IP Identity</para></listitem>
         <listitem><para><link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link></para></listitem>
