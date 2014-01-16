@@ -3,6 +3,7 @@ package features.services.datastore
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 
 
 class DistDatastoreServiceDeleteTest extends ReposeValveTest {
@@ -12,13 +13,21 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
     def BODY = "test body"
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    static def distDatastoreEndpoint = "http://localhost:4999"
+    static def distDatastoreEndpoint
 
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+
+        distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 
         def params = properties.getDefaultTemplateParams()
+        params += [
+                'datastorePort1' : dataStorePort1,
+                'datastorePort2' : dataStorePort2
+        ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
         repose.start()
