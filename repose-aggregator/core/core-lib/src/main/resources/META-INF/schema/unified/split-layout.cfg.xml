@@ -12,12 +12,15 @@
       <filters>
          <filter name="client-authentication" />
          <filter name="client-authorization" />
-         <filter name="dist-datastore" />
          <filter name="rate-limiting" />
          <filter name="default-router" />
       </filters>
-      
-      <destinations>
+
+       <services>
+           <service name="dist-datastore" />
+       </services>
+
+       <destinations>
          <target id="nova-domain" cluster="nova-api" protocol="http" default="true" />
       </destinations>
    </repose-cluster>

@@ -10,11 +10,14 @@
     </nodes>
 
     <filters>
-      <filter name="dist-datastore" />
       <filter name="rate-limiting" />
     </filters>
 
-    <destinations>
+      <services>
+          <service name="dist-datastore" />
+      </services>
+
+      <destinations>
         <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
     </destinations>
 

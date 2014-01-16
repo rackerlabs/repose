@@ -25,10 +25,13 @@
       </nodes>      
 
       <filters>
-         <filter name="dist-datastore" />
          <filter name="rate-limiting" />
          <filter name="default-router" />
       </filters>
+
+       <services>
+           <service name="dist-datastore" />
+       </services>
    
       <destinations>
          <target id="nova" cluster="nova-api" protocol="http" default="true"/>

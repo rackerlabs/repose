@@ -80,16 +80,6 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <xs:assert vc:minVersion="1.1" test="if(mod:filters/mod:filter[@name='dist-datastore']) then not(mod:services/mod:service[@name='dist-datastore']) else true()"
-                           xerces:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration."
-                           saxon:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.">
-                </xs:assert>
-
-                <xs:assert vc:minVersion="1.1" test="if(mod:services/mod:service[@name='dist-datastore']) then not(mod:filters/mod:filter[@name='dist-datastore']) else true()"
-                           xerces:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration."
-                           saxon:message="The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.">
-                </xs:assert>
-
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

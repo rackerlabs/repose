@@ -8,10 +8,13 @@
     </nodes>
 
     <filters>
-      <filter name="dist-datastore" />
     </filters>
 
-    <destinations>
+      <services>
+          <service name="dist-datastore" />
+      </services>
+
+      <destinations>
       <endpoint id="mock-service" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="true"/>
     </destinations>
 
