@@ -43,89 +43,116 @@
     
     <title>Header Translation Filter</title>
     
-    <section xml:id="What-Is-Header-Translation">
-        <title>What Is Header Translation?</title>
-        <para> Header translation is the process of converting the
-            name of one header name into a new header name or into
-            multiple new header names without changing the
-            functionality of the request. </para>
+    <section xml:id="Header-Translation-Intro">
+        <title>Introduction</title>
+        <para>Header translation is the process of converting the one header name to a new header name or 
+            to multiple new header names without changing the functionality of the request. The Header Translation 
+            filter performs this process. </para>
     </section>
-    <section xml:id="What-Header-Translation-Does">
-        <title> What Can the Header Translation Filter Do?</title>
-        <para> The Header Translation filter allows you to translate
-            one header name into a new header name or one header name
-            to multiple new header names. </para>
-    </section>
-    <section xml:id="Request-Prereqs">
-        <title> What Are the Request Prerequisites?</title>
+    
+    <section xml:id="Header-Translation-Request-Prereqs">
+        <title>Header Translation Request Prerequisites</title>
         <para> The Header Translation filter has no request
             prerequisites. </para>
     </section>
     <section xml:id="Header-Translation-Configuration">
-        <title>How Is the Header Translation Filter
-            Configured?</title>
+        <title>Header Translation
+            Configuration Options</title>
         <para>The Header Translation filter can be configured by
             editing the <code>header-translation.cfg.xml</code>file.
-            To change your header translation configuration, edit
-            header-translation.cfg.xml at any time. Within
-                <code>header-translation.cfg.xml</code>, you can
-            specify the following element:</para>
+            The filter can be added to the Repose deployment through
+            the System Model Configuration. The user can edit the
+            following element: </para>
+        
         <para><code>&lt;header
-                original-name=""new-name=""remove-original=""/&gt;</code></para>
-        <para>The elements and attributes used in the Header
-            Translation filter are described below:</para>
+            original-name=""new-name=""remove-original=""/&gt;</code></para>
+        <para><guilabel>Elements and Attributes Used in the Header
+            Translation Filter</guilabel>
+        </para>
+        
         <variablelist>
             <varlistentry xml:id="original-name">
-                <term>&lt;original-name&gt;</term>
+                <term>original-name</term>
                 <listitem>
                     <para> This attribute contains the name of an
-                        already present header that you would like to
+                        already present header that you want to
                         translate. The header is evaluated in a
-                        case-sensitive manner. </para>
-                    <para>
-                        <note>
-                            <para>You may not have duplicate
-                                   <code>&lt;original-names></code>
-                                between different
-                                   <code>&lt;header></code>
-                                names.</para>
-                        </note>
-                    </para>
+                        case-sensitive manner. Each
+                        <code>&lt;header></code> element must have
+                        a unique value for the
+                        <code>&lt;original-name></code>
+                        attribute.</para>
+                    
                 </listitem>
             </varlistentry>
             <varlistentry xml:id="new-name">
-                <term>&lt;original-name&gt;</term>
+                <term>new-name</term>
                 <listitem>
-                    <para>This attribute is a space-delimited list of
-                        names that you would like the
-                            <code>&lt;original-name></code> translated
+                    <para>This attribute contains a space-delimited
+                        list of names that you would like the
+                        <code>&lt;original-name></code> translated
                         into. </para>
                 </listitem>
             </varlistentry>
             <varlistentry xml:id="remove-original">
-                <term>&lt;remove-original&gt; (optional)</term>
+                <term>remove-original (optional)</term>
                 <listitem>
                     <para>This attribute removes the original headers.
                         The default value is set to <emphasis
                             role="italic">false</emphasis>.</para>
                 </listitem>
             </varlistentry>
-        </variablelist>
+        </variablelist> 
+        <db:para/>
+        <db:para><emphasis role="italic">Your header
+            translation configuration in
+            header-translation.cfg.xml will resemble
+            the following
+            example:</emphasis></db:para>
+        <example><title>Sample Authentication Configuration File</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-header-translation-cfg.xml" parse="text"/>
+                </programlisting>
+        </example>
+        
     </section>
-    <section xml:id="How-Header-Translation-Works">
-        <title>How Does the Header Translation Filter Work?</title>
-        <para>When a request hits the Header Translation filter, it
-            will look for any existing header names that match
-                the <code>&lt;original-name></code> attribute of
-                the <code>&lt;header></code> element. The value of
-                that <code>&lt;original-name></code> will be added to
-            new headers using the list of <code>&lt;new-name></code>
-            for the new header names. In addition, if
-                the <code>&lt;remove-original></code> attribute is set
-            to <emphasis role="italic">true</emphasis>, the header
-            matching the <code>&lt;original-name></code> will be
-            removed.</para>
-        <para>A typical Header Translation filter decision flow is summarized in the drawing below:</para>
+    <section xml:id="Header-Translation-Process">
+        <title>Header Translation Process</title>
+        <orderedlist>
+            <listitem>
+                <para>When a request enters the Header Translation
+                    filter, it will look for any header names that
+                    match the <code>&lt;original-name></code>
+                    attribute of the <code>&lt;header></code>
+                    element.</para>
+            </listitem>
+            
+            <listitem>
+                <para>If a request has a header that matches the value
+                    of an <code>&lt;original-header></code> attribute
+                    in the filter, then the filter adds headers to the
+                    request that correspond to the value or values in
+                    the <code>&lt;new-name></code> attribute. </para>
+            </listitem>
+            
+            <listitem>
+                <para>If the <code>&lt;remove-original></code>
+                    attribute is set to false, the request retains the
+                    original header so that the request is sent to the
+                    origin service with the original header and the
+                    new header or headers. </para>
+            </listitem>
+            
+            <listitem>
+                <para>If the <code>&lt;remove-original></code>
+                    attribute is set to true, the request is sent with
+                    just the new headers.</para>
+            </listitem>
+            
+        </orderedlist>
+        
+        <para>A typical Header Translation filter process is
+            summarized in the following diagram:</para>
         <figure
             xml:id="Header-Translation-Diagram">
             <title>Request/Response Lifecycle for
@@ -139,12 +166,29 @@
             </mediaobject>
         </figure>
     </section>
+    
     <section xml:id="Header-Translation-Tests">
-        <title>What Are Some Header Translation Filter Tests</title>
+        <title> Header Translation Tests</title>
         <para>
             Some tests go here.
         </para>
     </section>
-        
-   
+    
+    <section xml:id="Header-Translation-Error-Scenarios">
+        <title> Header Translation Error Scenarios</title>
+        <orderedlist>
+            <listitem>
+                <para>The Header Translation filter will never return an error code. 
+                    The request will simply pass through to the next filter or the origin service.</para>
+            </listitem>
+            
+            <listitem>
+                <para>If the header to be translated is not included in the request, 
+                    the header is ignored, and the request is passed through to the origin service. 
+                    The filter does not expect the header to be present every time.</para>
+            </listitem>
+            
+        </orderedlist>
+    </section>
+    
 </chapter>

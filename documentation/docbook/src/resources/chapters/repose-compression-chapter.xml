@@ -269,7 +269,7 @@
         
       <example><title>Sample system-model.cfg.xml Filter List</title>
             <programlisting language="xml">
-       <xi:include href="../samples/repose-compression-xxe-injection-prevention.txt" parse="text"/>
+       <xi:include href="../samples/repose-compression-xxe-injection-prevention.xml" parse="text"/>
                 </programlisting> 
         </example>  
         
