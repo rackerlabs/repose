@@ -174,6 +174,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
                 response.sendError(HttpStatusCode.FORBIDDEN.intValue());
             }
+            //TODO: Look back into this to see if we can avoid catching throwable
         } catch (Throwable t) {
             LOG.error("Error processing validation", t);
             myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
