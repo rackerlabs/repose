@@ -32,7 +32,7 @@ public interface DistributedDatastore extends Datastore {
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
-     * Removes a StoredElement from the Datastore.
+     * Removes an object from the Datastore.
      *
      * @param key
      * @param id Identifier for the cluster member where this value should be stored

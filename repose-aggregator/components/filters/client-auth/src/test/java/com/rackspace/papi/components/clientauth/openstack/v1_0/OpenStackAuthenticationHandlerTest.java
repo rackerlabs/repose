@@ -13,31 +13,20 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
-import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
-import com.rackspace.papi.components.clientauth.common.AuthUserCache;
-import com.rackspace.papi.components.clientauth.common.Configurables;
-import com.rackspace.papi.components.clientauth.common.EndpointsCache;
-import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
-import com.rackspace.papi.components.clientauth.common.UriMatcher;
-import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
+import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
+import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.RoleList;
-import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Token;
-import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
+import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -51,12 +40,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author zinic
@@ -377,10 +361,6 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-
-            StoredElement element = mock(StoredElement.class);
-            when(element.elementIsNull()).thenReturn(false);
-            when(element.elementAs(AuthGroups.class)).thenReturn(null);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
