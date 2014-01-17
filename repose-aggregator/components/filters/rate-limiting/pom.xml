@@ -21,9 +21,11 @@
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>rate-limiting-service</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>distributed-datastore</artifactId>
+            <artifactId>datastore-distributed</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
