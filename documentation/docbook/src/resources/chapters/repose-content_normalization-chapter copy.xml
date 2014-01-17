@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" 
+      
+      
+      xml:id="Repose-Content-Normalization-Chapter">
+    <?rax pdf.url="../../repose-content_normalization-chapter.pdf"?>
+    <title>Versioning Filter</title>
+   
+  
+        
+    <section xml:id="Content-Normalization">
+        <title>Content Normalization</title>
+        <para>
+            Content normalization is the process of modifying or standardizing content to optimize the flow of information. </para>
+    </section>
+    <section xml:id="Content-Normalization-Filter">
+        <title>Content Normalization Filter</title>
+        <para>
+            The Content Normalization filter allows normalization of the headers and media-type of the request by performing 
+            three separate functions. The filter prevents specific requests from passing to the origin service using blacklisting, 
+            it passes only approved headers to the origin service using whitelisting, or it normalizes accept headers using media-typing.
+        </para>
+    </section>
+    <section xml:id="Content-Normalization-Request-Prerequisites">
+        <title>Content Normalization Request Prerequisites</title>
+        <para> The Content Normalization filter has no required request headers. When ordering Repose filters, the Content Normalization 
+            filter should be placed near the top of the sequence to clean the request. This order sequence prevents unexpected request 
+            headers and content to pass to the origin service.
+        </para>
+    </section>
+    
+    <section xml:id="Content-Normalization-Configuration-Options">
+        <title>Content Normalization Configuration Options</title>
+        
+        
+        <para> You can configure your service to use the Content
+            Normalization filter by specifying the headers and/or the
+            media types to be normalized. The filter can be added to
+            the Repose deployment through the System Model
+            Configuration. All Content Normalization filter
+            configurations fall under the &lt;header-filters> or
+            &lt;media-types> elements. </para>
+        
+        <!-- TABLES -->
+        <!-- Elements Table -->
+        <table rules="all" width="500">
+            <caption>Customizable Options of the Content Normalization
+                Configuration</caption>
+            <col width="100%"/>
+            
+            
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    
+                </tr>
+            </thead>
+            <tr>
+                <td>
+                    <link linkend="header-filters"><code>&lt;header-filters&gt;</code></link>
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Sub-Elements Table -->
+        <table rules="all" width="1000">
+            <caption>Customizable Options of the Content Normalization
+                Configuration</caption>
+            <col width="50%"/>
+            <col width="50%"/>
+            
+            <thead>
+                <tr>
+                    <th>Sub-elements of the &lt;header-filter>
+                        Element</th>
+                    <th>Attribute</th>
+                </tr>
+            </thead>
+            <tr>
+                <td>
+                    <link linkend="blacklist"><code>&lt;blacklist&gt;</code></link>
+                </td>
+                <td rowspan="2">
+                    
+                    <link linkend="id"><code>&lt;id&gt;</code></link>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <link linkend="whitelist"><code>&lt;whitelist&gt;</code></link>
+                </td>
+                
+            </tr>
+        </table>   
+        
+        <!-- Element Table -->
+        
+        <table rules="all" width="1000">
+            <caption>Customizable Options of the Content Normalization
+                Configuration</caption>
+            <col width="50%"/>
+            <col width="50%"/>
+            
+            <thead>
+                <tr>
+                    <th>Sub-elements of the &lt;header-filter>
+                        Element</th>
+                    <th>Attribute</th>
+                </tr>
+            </thead>
+            <tr>
+                <td rowspan="3">
+                    <link linkend="media-types"
+                            ><code>&lt;media-types&gt;</code></link>
+                </td>
+                
+                <td>
+                    
+                    <link linkend="name"><code>&lt;name&gt;</code></link>
+                </td>
+                
+            </tr>
+            <tr>
+                <td><link linkend="media-type"><code>&lt;media-type&gt;</code></link></td>
+            </tr>
+        </table>   
+        <!-- End of TABLES -->
+        
+        <para><guilabel> The elements and attributes used in the Rate Limiting filter are described as follows: </guilabel></para>
+        <para> </para>
+        
+        <variablelist>
+            
+            <varlistentry xml:id="blacklist">
+                <term><guilabel>&lt;blacklist&gt;</guilabel></term>
+                <listitem>
+                    <para>This element defines the list of headers that are extracted from the request.</para>
+                </listitem>
+            </varlistentry>
+            
+            
+            <varlistentry xml:id="header-filters">
+                <term><guilabel>&lt;header-filters&gt;</guilabel></term>
+                
+                <listitem>
+                    <para>This element uses the accompanying sub-elements and attributes to define your content normalization configuration.</para>
+                </listitem>
+            </varlistentry>
+                
+            <varlistentry xml:id="id">
+                <term><guilabel>&lt;id&gt;</guilabel></term>
+                <listitem>
+                    <para>This attribute defines the unique identifier of the given group.</para>
+                </listitem>
+            </varlistentry>  
+            
+            <varlistentry xml:id="media-types">
+                <term><guilabel>&lt;media-types&gt;</guilabel></term>
+                <listitem>
+                    <para>This element defines a list of accept headers for the URIs that match a configured variant-extension.</para>
+                </listitem>
+            </varlistentry>
+                
+            <varlistentry xml:id="name">
+                <term><guilabel>&lt;name&gt;</guilabel></term>
+                <listitem>
+                    <para>This attribute names the media-type.</para>
+                </listitem>
+            </varlistentry>
+            
+            <varlistentry xml:id="whitelist">
+                <term><guilabel>&lt;whitelist&gt;</guilabel></term>
+                <listitem>
+                    <para>This element defines the list of request headers that are allowed to pass to the origin service.</para>
+                </listitem>
+            </varlistentry>
+            
+        </variablelist>
+        
+    </section>
+    
+    
+    
+            <section xml:id="Content-Normalization-Features">  <!-- NEED TO FINISH from here down -->
+                <title>Content Normalization Features</title>
+            
+                <para>The Content Normalization filter has three features that perform separate functions. 
+                    The features, which are described below, include blacklist, whitelist, and media type.  </para> 
+            </section>
+    
+    <section xml:id="Content-Normalization-Use-Cases">
+        <title>Content Normalization Use Cases </title>
+        <para></para>
+    </section>
+    
+    <section xml:id="Content-Normalization-Error-Scenarios">
+        <title>Content Normalization Error Scenarios</title>
+        <para></para>
+    </section>
+    
+    
+    
+</chapter>
