@@ -94,11 +94,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>distributed-datastore</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>translation</artifactId>
         </dependency>
 
@@ -218,11 +213,6 @@
                             <artifactId>flush-output</artifactId>
                         </jarModule>
                             
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>distributed-datastore</artifactId>
-                        </jarModule>
-
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>translation</artifactId>
