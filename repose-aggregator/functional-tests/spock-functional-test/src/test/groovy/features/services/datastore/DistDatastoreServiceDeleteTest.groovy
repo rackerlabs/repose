@@ -1,5 +1,6 @@
 package features.services.datastore
 
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -10,7 +11,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
 
     def DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
-    def BODY = "test body"
+    def BODY = ObjectSerializer.instance().writeObject('test body')
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     static def distDatastoreEndpoint

@@ -1,4 +1,6 @@
 package features.services.datastore
+
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -152,7 +154,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
 
         when:
         MessageChain mc =
@@ -171,7 +173,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
         MessageChain mc =
             deproxy.makeRequest(
                             method: 'PUT',
@@ -205,7 +207,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
         def url = datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
 
 

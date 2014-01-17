@@ -1,10 +1,9 @@
 package features.services.datastore
-
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
-import org.rackspace.deproxy.Response
 
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
@@ -76,15 +75,16 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     def "GET of key after time to live has expired should return a 404"(){
 
+        def body = ObjectSerializer.instance().writeObject('foo')
         given:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp', 'X-TTL':'2'], requestBody: "foo"])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp', 'X-TTL':'2'], requestBody: body])
 
         when:
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.body == "foo"
+        mc.receivedResponse.body == body
 
         when: "I wait long enough for the TTL of the item to expire"
         Thread.sleep(3000)
