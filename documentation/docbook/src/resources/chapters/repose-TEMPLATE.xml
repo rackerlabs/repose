@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="Template-Chapter">
+    <title>TITLE</title>
+    
+    
+    <section xml:id="Filter-Introduction">
+        <title>Filter Introduction</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Filter-Prerequisites">
+        <title>Filter Prerequisites</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Filter-Configuration-Options">
+        <title>Filter Configuration Options</title>
+        
+        <para> </para>
+        
+        
+        
+        <para><guilabel> Elements and Attributes Used in the Filter</guilabel></para>
+        
+    </section>
+    
+    
+    <section xml:id="Filter-Features">  
+        <title>Filter Features</title>
+        <para> </para> 
+        
+        
+        
+        <section xml:id="Feature-1">
+            <title>Feature 1</title>
+            <para> </para>
+            
+            <example>
+                <title>Example Goes Here</title>
+                <programlisting language="xml">
+&lt;header-filters&gt;
+    &lt;blacklist id="rate-limit-headers"&gt;
+    &lt;header id="x-Black-Listed1" /&gt;
+    &lt;header id="x-Black-Listed2" /&gt;
+    &lt;/blacklist &gt;
+&lt;/header-filters&gt;
+                </programlisting>
+            </example>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Request
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
+                            -H "black-listed2:disappear" -H "nonblacklisted:should"   
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table rules="all" width="500"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Headers Passed to Origin Service
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            X-Auth-Token
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            non-blacklisted
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </section>  
+        
+        
+        
+        
+        <section xml:id="Feature-2">
+            <title>Feature 2</title>
+            <para>  </para>
+        </section>
+    </section>
+    
+    
+    
+    <section xml:id="Filter-Process">  
+        <title>Filter Process</title>
+        <orderedlist>
+            
+            <listitem>
+                <para>
+                    The client sends the request.
+                </para>
+            </listitem>
+            
+            
+            <listitem>
+                <para>
+                    The request is processed ...
+                </para>
+            </listitem>
+            
+            
+            <listitem>
+                <para>
+                    Repose sends the request to the origin service.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service processes the request.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service returns the response.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service processes the request.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    Repose passes the response.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    Repose returns the response to the client.
+                </para>
+            </listitem>
+            
+        </orderedlist>
+        
+        <figure
+            xml:id="Content-Normalization-Lifecycle">
+            <title>Request/Response Lifecycle for
+                Content Normalization</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata
+                        fileref="../figures/repose-content-normalization-lifecycle.png"
+                        format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        
+    </section>
+</chapter>
