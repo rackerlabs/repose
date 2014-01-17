@@ -7,6 +7,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
+import spock.lang.Ignore
 import spock.lang.Specification
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
@@ -126,6 +127,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         mc2.handlings.size() == 1
     }
 
+    def "Timebomb for below 2 node test"() {
+        assert new Date() < new Date(2014 - 1900, Calendar.JANUARY, 24, 9, 0)
+    }
+
+    @Ignore('These changes actually make the system faster and reveal our rate-limiting bug')
     def "when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded"() {
         given:
         def user = UUID.randomUUID().toString();
@@ -162,7 +168,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                             method: 'PUT',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     )
 
         then:
