@@ -54,10 +54,10 @@ public interface Datastore {
      *
      * @param key Identifier for the value being patched
      * @param patch The patch to apply to the existing value
-     * @return StoredElement wrapper of the updated stored value
+     * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    StoredElement patch(String key, Patch patch) throws DatastoreOperationException;
+    Serializable patch(String key, Patch patch) throws DatastoreOperationException;
 
     /**
      * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -70,10 +70,10 @@ public interface Datastore {
      * @param patch The patch to apply to the existing value
      * @param ttl Duration (time to live) to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
-     * @return StoredElement wrapper of the updated stored value
+     * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    StoredElement patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Removes a value from the Datastore.

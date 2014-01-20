@@ -45,11 +45,11 @@ public interface DistributedDatastore extends Datastore {
      * @param ttl Duration to store the value for
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param remoteBehavior Whether or not to allow remote storage of this value
-     * @return StoredElement wrapper of the updated stored value
+     * @return the patched and stored value
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public StoredElement patch(String key, byte[] id, final Patch patch, final int ttl, final TimeUnit timeUnit,
+    public Serializable patch(String key, byte[] id, final Patch patch, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
