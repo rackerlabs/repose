@@ -1,0 +1,9 @@
+#!/bin/sh
+
+CONFIG_DIR=/etc/repose
+SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
+
+#if grep 'filter.*dist-datastore' $SYSTEM_MODEL
+
+echo "Unable to upgrade. system-model.cfg.xml file contains the depricated dist-datastore filter. Please remove and re-run upgrade"
+exit 1
