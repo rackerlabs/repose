@@ -143,6 +143,10 @@
                             </postinstallScriptlet>
                             <preinstallScriptlet>
                                 <script>
+
+                                    echo "Checking for depricated Dist-Datastore Filter"
+                                    exit 1
+
                                     getent group repose &gt;/dev/null || groupadd -r repose
                                     getent passwd repose &gt;/dev/null || \
                                         useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
