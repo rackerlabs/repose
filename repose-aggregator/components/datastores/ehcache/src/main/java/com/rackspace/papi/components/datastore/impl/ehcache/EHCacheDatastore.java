@@ -52,15 +52,31 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public StoredElement patch(String key, Patch patch) throws DatastoreOperationException {
-        //todo: Write me
-        throw new UnsupportedOperationException("com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore.patch hasn't been written yet");
+    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
+        return patch(key, patch, -1, TimeUnit.MINUTES);
     }
 
     @Override
-    public StoredElement patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        //todo: Write me
-        throw new UnsupportedOperationException("com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore.patch hasn't been written yet");
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        Serializable potentialNewValue = (Serializable)patch.newFromPatch();
+        Element element = new Element(key, potentialNewValue);
+        if(ttl != -1) {
+            element.setTimeToLive((int)TimeUnit.SECONDS.convert(ttl, timeUnit));
+        }
+        Element currentElement = ehCacheInstance.putIfAbsent(element);
+        if(currentElement == null) {
+            return potentialNewValue;
+        }
+        else {
+            currentElement = ehCacheInstance.get(key);
+            try {
+                Element returnElement = (Element)currentElement.clone();
+                ((Patchable)currentElement.getValue()).applyPatch(patch);
+                return (Serializable)((Patchable)returnElement.getValue()).applyPatch(patch);
+            } catch (CloneNotSupportedException cnse) {
+                throw new DatastoreOperationException("Failed to clone datastore stored version", cnse);
+            }
+        }
     }
 
     @Override
