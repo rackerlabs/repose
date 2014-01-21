@@ -82,7 +82,7 @@ class ReposeStartup extends ReposeValveTest {
 
         server.deploymentSteps.each {
             i ->
-                def execution = "ssh root@${server.ip} ${i}"
+                def execution = "ssh ${server.ip} ${i}"
                 println execution
                 def proc = """${execution}""".execute()
                 proc.waitFor()
@@ -115,7 +115,7 @@ class ReposeStartup extends ReposeValveTest {
         cleanup:
         server.cleanupSteps.each {
             i ->
-                def execution = "ssh root@${server.ip} ${i}"
+                def execution = "ssh ${server.ip} ${i}"
                 println execution
                 def proc = """${execution}""".execute()
                 proc.waitFor()
@@ -129,25 +129,25 @@ class ReposeStartup extends ReposeValveTest {
 
     static def deployDeb(){
         return [
-                'wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -',
-                'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list',
+                'sudo wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -',
+                'sudo echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list',
                 'sudo apt-get update',
                 'sudo apt-get install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle',
-                '/etc/init.d/repose-valve start'
+                'sudo /etc/init.d/repose-valve start'
         ]
     }
 
     static def deployRpm(){
         return [
-                'wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo',
-                'yum install -y repose-valve repose-filters repose-filters repose-extension-filters',
-                '/etc/init.d/repose-valve start'
+                'sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo',
+                'sudo yum install -y repose-valve repose-filters repose-filters repose-extension-filters',
+                'sudo /etc/init.d/repose-valve start'
         ]
     }
 
     static def cleanupDeb(){
         return [
-                'killall java',
+                'sudo killall java',
                 'sudo apt-get -y purge repose-valve',
                 'sudo rm -rf /usr/share/repose',
                 'sudo rm -rf /etc/repose/*'
@@ -156,7 +156,7 @@ class ReposeStartup extends ReposeValveTest {
 
     static def cleanupRpm(){
         return [
-                'killall java',
+                'sudo killall java',
                 'sudo yum -y remove repose-valve',
                 'sudo rm -rf /usr/share/repose',
                 'sudo rm -rf /etc/repose/*'
