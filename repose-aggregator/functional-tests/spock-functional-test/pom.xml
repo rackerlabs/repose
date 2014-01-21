@@ -318,6 +318,10 @@
             <id>release</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>IS_M2RELEASEBUILD</name>
+                    <value>true</value>
+                </property>
             </activation>
 
             <build>
