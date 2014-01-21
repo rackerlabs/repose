@@ -71,7 +71,7 @@ class ReposeStartup extends ReposeValveTest {
         //TODO: retention policy
     }
 
-    @Category([Release, Slow])
+    @Category(Release)
     def "deploy and start repose - release"() {
         //1. create and deploy repose with configurations - RELEASE
         //2. call until get back a 200
