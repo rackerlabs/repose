@@ -11,6 +11,9 @@ class MultipleValidatorsTest extends ReposeValveTest {
     def static badParamBody = "<element blah=\"something\"><testing>tests</testing></element>"
     def static badParamBadBody =  "<a blah=\"something\"><testing>test</testing>Stuff</a>"
     def static contentTypeHeader = ["content-type": "application/xml"]
+    def static goodFirstBadSecondElementBody = "<test:element " +
+            "xmlns:test=\"http://docs.openrepose.org/common/api/v1.0\" blah=\"boblaw\">" +
+            "</test:element>"
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -50,6 +53,22 @@ class MultipleValidatorsTest extends ReposeValveTest {
         badElementBody | ["x-roles": "check-xsd, pass"]   | """<a>"""
         badElementBody | ["x-roles": "check-all,pass"]    | """<a>"""
 
+    }
+
+    def whenRequestPassesOnFirstValidatorButFailsSecond() {
+        when:
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "POST",
+                requestBody: goodFirstBadSecondElementBody,
+                headers: ["x-roles": "check-all, check-param"] + contentTypeHeader)
+
+        then: "Request should be approved (will never reach 2nd validator)"
+        messageChain.getReceivedResponse().code == "200"
+        def sentRequest = messageChain.getHandlings()[0]
+
+        and: "Origin service should receive request"
+        sentRequest.getRequest().body.toString().
+                contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<test:element xmlns:test=\"http://docs.openrepose.org/common/api/v1.0\" blah=\"boblaw\"/>")
     }
 
     @Unroll("Roles of #headers with request body of #requestBody should cause error #errorMessage")
