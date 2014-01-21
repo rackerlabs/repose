@@ -3,6 +3,7 @@ package features.core.startup
 import framework.ReposeValveTest
 import framework.category.Bug
 import framework.category.Slow
+import framework.category.Release
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -70,7 +71,7 @@ class ReposeStartup extends ReposeValveTest {
         //TODO: retention policy
     }
 
-    @Category(Slow)
+    @Category([Release, Slow])
     def "deploy and start repose - release"() {
         //1. create and deploy repose with configurations - RELEASE
         //2. call until get back a 200
