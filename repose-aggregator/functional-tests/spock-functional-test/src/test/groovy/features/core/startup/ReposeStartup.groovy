@@ -1,6 +1,7 @@
 package features.core.startup
 
 import framework.ReposeValveTest
+import framework.category.Bug
 import framework.category.Slow
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
@@ -38,6 +39,7 @@ class ReposeStartup extends ReposeValveTest {
 
     static def params
 
+    @Category(Bug)
     def "start repose with installation configs"(){
         given:
         def params = properties.getDefaultTemplateParams()
