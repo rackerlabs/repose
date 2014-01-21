@@ -22,6 +22,9 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
     final Map<String, String> acceptHeaderDefault = ["Accept" : "application/xml"]
 
     static int reposePort2
+    static int distDatastorePort
+    static int distDatastorePort2
+
     def getReposeEndpoint2() {
         return "http://localhost:${reposePort2}"
     }
@@ -32,10 +35,14 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         reposePort2 = PortFinder.Singleton.getNextOpenPort()
+        distDatastorePort = PortFinder.Singleton.getNextOpenPort()
+        distDatastorePort2 = PortFinder.Singleton.getNextOpenPort()
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                reposePort2: reposePort2
+                reposePort2: reposePort2,
+                distDatastorePort: distDatastorePort,
+                distDatastorePort2: distDatastorePort2
         ]
 
 

@@ -181,8 +181,4 @@
         </application>
     </validator>
 
-
-
-
-    <!--validator wadl="generic_pass.wadl" default="true" enable-rax-roles="true"/-->
 </validators>
