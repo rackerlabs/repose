@@ -2,8 +2,8 @@ package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.StoredElement;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +15,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,13 +43,12 @@ public class GetTest {
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          final String responseData = "Response Data";
 
-         ByteArrayInputStream bt = new ByteArrayInputStream(responseData.getBytes("UTF-8"));
+         ByteArrayInputStream bt = new ByteArrayInputStream(ObjectSerializer.instance().writeObject(responseData));
 
          when(response.getData()).thenReturn(bt);
          when(response.getStatusCode()).thenReturn(200);
 
-         assertTrue("Get command must retrieve new StoredElement ", getCommand.handleResponse(response) instanceof StoredElement);
-//         assertEquals("Get command must communicate success on 200", Boolean.TRUE, getCommand.handleResponse(response));
+         assertThat((String)getCommand.handleResponse(response), equalTo(responseData));
       }
 
       @Test(expected = DatastoreOperationException.class)

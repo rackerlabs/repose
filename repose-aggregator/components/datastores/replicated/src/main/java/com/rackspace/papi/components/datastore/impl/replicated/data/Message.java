@@ -9,15 +9,15 @@ public class Message implements Serializable {
     private final String targetId;
     private final Set<KeyValue> values;
 
-    public Message(Operation operation, String key, byte[] data, int ttl) {
+    public Message(Operation operation, String key, Serializable data, int ttl) {
         this("*", operation, key, data, ttl);
     }
 
-    public Message(String targetId, Operation operation, String key, byte[] data, int ttl) {
-        this(targetId, operation != null? new Operation[] {operation}: null, key != null ? new String[]{key} : null, data != null ? new byte[][]{data} : null, new int[]{ttl});
+    public Message(String targetId, Operation operation, String key, Serializable data, int ttl) {
+        this(targetId, operation != null? new Operation[] {operation}: null, key != null ? new String[]{key} : null, data != null ? new Serializable[]{data} : null, new int[]{ttl});
     }
 
-    public Message(Operation[] operation, String[] keys, byte[][] data, int[] ttl) {
+    public Message(Operation[] operation, String[] keys, Serializable[] data, int[] ttl) {
         this("*", operation, keys, data, ttl);
     }
     
@@ -29,12 +29,11 @@ public class Message implements Serializable {
         this.values = new LinkedHashSet<KeyValue>(values);
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-    public Message(String targetId, Operation[] operation, String[] keys, byte[][] data, int[] ttl) {
+    public Message(String targetId, Operation[] operation, String[] keys, Serializable[] data, int[] ttl) {
         this.values = new LinkedHashSet<KeyValue>();
         
         if (keys != null && data != null && ttl != null) {
-            if (keys.length != data.length || keys.length != ttl.length) {
+            if ((keys.length != data.length) || (keys.length != ttl.length)) {
                 throw new IllegalArgumentException("Length of array arguments must match");
             }
             
@@ -49,12 +48,11 @@ public class Message implements Serializable {
     public static final class KeyValue implements Serializable {
 
         private final String key;
-        private final byte[] data;
+        private final Serializable data;
         private final int ttl;
         private final Operation operation;
 
-        @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-        private KeyValue(Operation operation, String key, byte[] data, int ttl) {
+        private KeyValue(Operation operation, String key, Serializable data, int ttl) {
             this.operation = operation;
             this.key = key;
             this.data = data;
@@ -69,8 +67,8 @@ public class Message implements Serializable {
             return key;
         }
 
-        public byte[] getData() {
-            return (byte[])data.clone();
+        public Serializable getData() {
+            return data;
         }
 
         public int getTtl() {
@@ -112,7 +110,7 @@ public class Message implements Serializable {
         return !values.isEmpty()? values.iterator().next().getOperation(): null;
     }
 
-    public byte[] getData() {
+    public Serializable getData() {
         return !values.isEmpty()? values.iterator().next().getData(): null;
     }
 

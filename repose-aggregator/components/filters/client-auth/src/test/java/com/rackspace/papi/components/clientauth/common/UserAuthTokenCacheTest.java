@@ -1,10 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthToken;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
-import com.rackspace.papi.components.datastore.StoredElementImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -41,8 +38,7 @@ public class UserAuthTokenCacheTest {
          
          final String cacheFullName =CACHE_PREFIX + "." + VALID_USER; 
          
-         final StoredElement storedElement = new StoredElementImpl(cacheFullName, ObjectSerializer.instance().writeObject(originalUser));
-         when(mockedDatastore.get(eq(cacheFullName))).thenReturn(storedElement);
+         when(mockedDatastore.get(eq(cacheFullName))).thenReturn(originalUser);
          
          infoCache = new AuthTokenCache(mockedDatastore, "prefix") {
 

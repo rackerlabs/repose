@@ -1,9 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthGroups;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -19,12 +17,8 @@ public class AuthGroupCache implements DeleteableCache{
         this.cachePrefix = cachePrefix;
     }
 
-    private AuthGroups getElementAsType(StoredElement element) {
-        return element == null || element.elementIsNull() ? null : element.elementAs(AuthGroups.class);
-    }
-
     public AuthGroups getUserGroup(String tenantId) {
-        AuthGroups candidate = getElementAsType(store.get(cachePrefix + "." + tenantId));
+        AuthGroups candidate = (AuthGroups)store.get(cachePrefix + "." + tenantId);
 
         return validateGroup(candidate) ? candidate : null;
     }
@@ -35,9 +29,7 @@ public class AuthGroupCache implements DeleteableCache{
             return;
         }
 
-        byte[] data = ObjectSerializer.instance().writeObject(groups);
-
-        store.put(cachePrefix + "." + tenantId, data, ttl, TimeUnit.MILLISECONDS);
+        store.put(cachePrefix + "." + tenantId, groups, ttl, TimeUnit.MILLISECONDS);
     }
     
     @Override

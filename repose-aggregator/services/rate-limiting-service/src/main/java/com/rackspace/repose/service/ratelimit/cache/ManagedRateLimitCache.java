@@ -1,21 +1,17 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.ratelimit.cache.util.ObjectSerializer;
 import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-// TODO: still dependency on repose core here
-
 
 /* Responsible for updating and querying ratelimits in cache */
 public class ManagedRateLimitCache implements RateLimitCache {
@@ -36,9 +32,9 @@ public class ManagedRateLimitCache implements RateLimitCache {
    }
 
    private Map<String, CachedRateLimit> getUserRateLimitMap(String user) {
-      final StoredElement element = datastore.get(user);
+      final Serializable element = datastore.get(user);
 
-      return element.elementIsNull() ? new HashMap<String, CachedRateLimit>() : element.elementAs(HashMap.class);
+      return (element == null) ? new HashMap<String, CachedRateLimit>() : (HashMap) element;
    }
 
    @Override
@@ -61,7 +57,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
       if (hasRequests) {
          currentLimit.logHit(method, rateCfg.getUnit());
-         datastore.put(user, ObjectSerializer.instance().writeObject((HashMap<String, CachedRateLimit>)userRateLimitMap), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
+         datastore.put(user, (HashMap<String, CachedRateLimit>)userRateLimitMap, 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
       }
 
       return new NextAvailableResponse(hasRequests, new Date(currentLimit.getEarliestExpirationTime(method)), currentLimitAmount);

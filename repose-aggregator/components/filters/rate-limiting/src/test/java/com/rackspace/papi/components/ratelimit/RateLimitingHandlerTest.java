@@ -4,11 +4,10 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
-import com.rackspace.papi.components.datastore.StoredElementImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,7 +21,8 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
@@ -199,7 +199,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       final DatastoreService service = mock(DatastoreService.class);
 
       when(service.getDistributedDatastore()).thenReturn(distDatastoreMock);
-      when(distDatastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
 
       handlerFactory = new RateLimitingHandlerFactory(service);
       handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());

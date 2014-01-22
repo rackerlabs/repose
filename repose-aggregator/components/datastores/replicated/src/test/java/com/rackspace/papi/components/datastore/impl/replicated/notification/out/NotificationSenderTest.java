@@ -9,10 +9,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -99,18 +96,18 @@ public class NotificationSenderTest {
             Subscriber subscriber2 = new Subscriber("host2", -1, 2);
 
             String key1 = "key1";
-            byte[] data1 = new byte[]{1, 2, 3};
+            String data1 = "1, 2, 3";
             int ttl1 = 10;
             
             Message message1 = new Message(Operation.PUT, key1, data1, ttl1);
             
-            byte[] data2 = new byte[]{1, 2, 3, 4};
+            String data2 = "1, 2, 3, 4";
             int ttl2 = 11;
             
             Message message2 = new Message(Operation.PUT, key1, data2, ttl2);
             
             String key3 = "key3";
-            byte[] data3 = new byte[]{1, 2, 3, 4, 5};
+            String data3 = "1, 2, 3, 4, 5";
             int ttl3 = 11;
             
             Message message3 = new Message(Operation.PUT, key3, data3, ttl3);
@@ -168,13 +165,10 @@ public class NotificationSenderTest {
             checkValue(Operation.REMOVE, key1, data2, it.next());
         }
         
-        private void checkValue(Operation op, String key, byte[] data, Message.KeyValue actual) {
+        private void checkValue(Operation op, String key, Serializable data, Message.KeyValue actual) {
             assertEquals(key, actual.getKey());
             assertEquals(op, actual.getOperation());
-            assertEquals(data.length, actual.getData().length);
-            for (int i = 0; i < data.length; i++) {
-                assertEquals(data[i], actual.getData()[i]);
-            }
+            assertEquals(data, actual.getData());
         }
     }
 }
