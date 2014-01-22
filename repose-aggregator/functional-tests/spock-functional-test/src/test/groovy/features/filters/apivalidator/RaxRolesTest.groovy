@@ -325,4 +325,25 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a/b" | ["x-roles": "test_user11"]                      | "403"
         "PUT"    | "/a/b" | ["x-roles": "test_user11, observer"]            | "403"
     }
+
+    @Unroll("User12:method=#method,headers=#headers,expected response=#responseCode path=#path")
+    def "hrefs to methods outside of the resource should be adhered to"() {
+
+        given:
+        MessageChain messageChain
+
+        when:
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + path, method: method, headers: headers)
+
+        then:
+        messageChain.getReceivedResponse().getCode().equals(responseCode)
+
+        where:
+        method   | path   | headers                                         | responseCode
+        "GET"    | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+        "POST"   | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+        "DELETE" | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+    }
 }
