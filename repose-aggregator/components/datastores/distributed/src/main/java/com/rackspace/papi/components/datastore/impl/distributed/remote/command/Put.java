@@ -5,8 +5,9 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -16,23 +17,15 @@ import java.util.concurrent.TimeUnit;
 public class Put extends AbstractRemoteCommand {
 
     private final TimeUnit timeUnit;
-    private final byte[] value;
+    private final Serializable value;
     private final int ttl;
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Put(TimeUnit timeUnit, Serializable value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         super(cacheObjectKey, remoteEndpoint);
-        byte[] defer;
-
         this.timeUnit = timeUnit;
         this.ttl = ttl;
-
-        try{
-            defer = ObjectSerializer.instance().writeObject(value);
-        } catch (IOException ioe) {
-            defer = null;
-        }
-        this.value = defer;
+        this.value = value;
     }
 
     @Override
@@ -44,7 +37,11 @@ public class Put extends AbstractRemoteCommand {
     
     @Override
     protected byte[] getBody() {
-        return value;
+        try {
+            return ObjectSerializer.instance().writeObject(value);
+        } catch (IOException ioe) {
+            throw new DatastoreOperationException("Failed to serialize value to be put", ioe);
+        }
     }
     
     @Override
@@ -58,7 +55,7 @@ public class Put extends AbstractRemoteCommand {
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.put(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), value);
+        return proxyService.put(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getBody());
     }
 
 }
