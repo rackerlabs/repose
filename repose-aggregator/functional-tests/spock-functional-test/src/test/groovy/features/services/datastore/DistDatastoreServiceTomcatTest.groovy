@@ -84,12 +84,12 @@ class DistDatastoreServiceTomcatTest extends Specification {
         reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeTomcatEndpoint1,"401")
+        repose1.waitForNon500FromUrl(reposeTomcatEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeTomcatEndpoint2,"401")
+        repose2.waitForNon500FromUrl(reposeTomcatEndpoint2, 120)
 
     }
 
