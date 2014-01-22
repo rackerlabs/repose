@@ -69,7 +69,7 @@ class TransitionBadToGoodConfigs extends Specification {
         // start repose
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(url)
+        repose.waitForNon500FromUrl(url, 120)
 
 
         expect: "starting Repose with good configs should yield 503's"
@@ -79,7 +79,7 @@ class TransitionBadToGoodConfigs extends Specification {
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
         reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
         sleep 15000
-        repose.waitForNon500FromUrl(url)
+        repose.waitForNon500FromUrl(url, 120)
 
         then: "Repose should start returning #expectedResponseCode"
         deproxy.makeRequest(url: url).receivedResponse.code == "${expectedResponseCode}"
