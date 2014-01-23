@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore.impl.replicated;
+package com.rackspace.papi.components.datastore.distributed;
 
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 

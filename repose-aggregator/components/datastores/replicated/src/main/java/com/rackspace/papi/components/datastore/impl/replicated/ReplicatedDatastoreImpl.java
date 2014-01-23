@@ -2,6 +2,8 @@ package com.rackspace.papi.components.datastore.impl.replicated;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.Patch;
+import com.rackspace.papi.components.datastore.distributed.NotifiableDatastore;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Operation;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.components.datastore.impl.replicated.notification.in.ChannelledUpdateListener;
@@ -183,12 +185,12 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore, 
     }
 
     @Override
-    public void patch(String key, byte[] value) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
         throw new UnsupportedOperationException("PATCH is unsupported for " + this.getName());
     }
 
     @Override
-    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         throw new UnsupportedOperationException("PATCH is unsupported for " + this.getName());
     }
 

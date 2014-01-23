@@ -1,15 +1,19 @@
 package com.rackspace.papi.components.datastore.impl.replicated;
 
+import com.rackspace.papi.components.datastore.Patch;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.components.datastore.impl.replicated.notification.out.UpdateNotifier;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
 public class ReplicatedDatastoreImplTest {
@@ -43,10 +47,6 @@ public class ReplicatedDatastoreImplTest {
         datastore.leaveGroup();
         subscriber1 = new Subscriber("host1", 1, 1);
         subscriber2 = new Subscriber("host2", 2, 2);
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -106,11 +106,18 @@ public class ReplicatedDatastoreImplTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void shouldThrowUnsupportedExceptionOnPatchWith2Parameters(){
-        datastore.patch("key",new byte[] {1,2,3});
+        datastore.patch("key", new TestPatch());
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void shouldThrowUnsupportedExceptionOnPatchWith4Parameters(){
-        datastore.patch("key",new byte[] {1,2,3}, 10, TimeUnit.DAYS);
+        datastore.patch("key", new TestPatch(), 10, TimeUnit.DAYS);
+    }
+
+    private static class TestPatch implements Patch {
+        @Override
+        public Object newFromPatch() {
+            throw new UnsupportedOperationException("Shouldn't be called");
+        }
     }
 }
