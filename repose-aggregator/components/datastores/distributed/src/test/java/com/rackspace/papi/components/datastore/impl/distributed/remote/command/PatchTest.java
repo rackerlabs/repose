@@ -2,12 +2,12 @@ package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
@@ -18,59 +18,56 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class PatchTest {
 
-   public static class WhenCreatingHttpRequestBase {
+    @Test
+    public void getUrl_shouldTargetCorrectPatchUrl() throws UnknownHostException {
+        //final Patch patchCommand = new Patch("object-key",
+        // new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+        final int ttl = 30;
+        final String key = "someKey";
+        final Patch patchCommand = new Patch(TimeUnit.MINUTES,
+             new TestPatch(), ttl, key,
+             new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
-      @Test
-      public void shouldTargetCorrectPatchUrl() throws UnknownHostException {
-         //final Patch patchCommand = new Patch("object-key",
-         // new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
-         final String patchData = "Patch data";
-         final int ttl = 30;
-         final String key = "someKey";
-         final Patch patchCommand = new Patch(TimeUnit.MINUTES,
-                 patchData.getBytes(), ttl, key,
-                 new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+        Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" +
+             CacheRequest.CACHE_URI_PATH + key, patchCommand.getUrl());
+    }
 
-         Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" +
-                 CacheRequest.CACHE_URI_PATH + key, patchCommand.getUrl());
-      }
-   }
+    @Test
+    public void processResponse_shouldReturnPatchedValueOnSuccess() throws Exception {
+        final int ttl = 30;
+        final Patch patchCommand = new Patch(TimeUnit.MINUTES, new TestPatch(),
+             ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
-   public static class WhenProcessingResponse {
+        // RemoteBehavior.ALLOW_FORWARDING
+        final ServiceClientResponse response = mock(ServiceClientResponse.class);
+        final byte[] responseData = ObjectSerializer.instance().writeObject("Response Data");
 
-      @Test
-      public void shouldReturnTrueOnSuccess() throws Exception {
-         final String patchData = "Patch data";
-         final int ttl = 30;
-         final Patch patchCommand = new Patch(TimeUnit.MINUTES, patchData.getBytes(),
-                 ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+        ByteArrayInputStream bt = new ByteArrayInputStream(responseData);
 
-         // RemoteBehavior.ALLOW_FORWARDING
-         final ServiceClientResponse response = mock(ServiceClientResponse.class);
-         final String responseData = "Response Data";
+        when(response.getData()).thenReturn(bt);
+        when(response.getStatusCode()).thenReturn(200);
 
-         ByteArrayInputStream bt = new ByteArrayInputStream(responseData.getBytes("UTF-8"));
+        Assert.assertEquals("Patch command must return value on 200", "Response Data",
+             patchCommand.handleResponse(response));
+    }
 
-         when(response.getData()).thenReturn(bt);
-         when(response.getStatusCode()).thenReturn(201);
+    @Test(expected = DatastoreOperationException.class)
+    public void processResponse_shouldThrowExeptionOnUnauthorized() throws Exception {
+        final int ttl = 30;
+        final Patch patchCommand = new Patch(TimeUnit.MINUTES, new TestPatch(),
+             ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
+        final ServiceClientResponse response = mock(ServiceClientResponse.class);
+        when(response.getStatusCode()).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue());
 
-         Assert.assertEquals("Patch command must communicate success on 201", Boolean.TRUE,
-                 patchCommand.handleResponse(response));
-      }
+        patchCommand.handleResponse(response);
+    }
 
-      @Test(expected = DatastoreOperationException.class)
-      public void shouldThrowExeptionOnUnauthorized() throws Exception {
-         final String patchData = "Patch data";
-         final int ttl = 30;
-         final Patch patchCommand = new Patch(TimeUnit.MINUTES, patchData.getBytes(),
-                 ttl, "somekey", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
-         final ServiceClientResponse response = mock(ServiceClientResponse.class);
-         when(response.getStatusCode()).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue());
-
-         patchCommand.handleResponse(response);
-      }
-   }
+    public static class TestPatch implements SerializablePatch<String> {
+        @Override
+        public String newFromPatch() {
+            throw new UnsupportedOperationException("com.rackspace.papi.components.datastore.impl.distributed.remote.command.PatchTest.TestPatch.newFromPatch hasn't been written yet");
+        }
+    }
 }

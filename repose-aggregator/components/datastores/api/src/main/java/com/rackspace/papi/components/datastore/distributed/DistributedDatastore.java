@@ -2,7 +2,6 @@ package com.rackspace.papi.components.datastore.distributed;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.Patch;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +48,7 @@ public interface DistributedDatastore extends Datastore {
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public Serializable patch(String key, byte[] id, final Patch patch, final int ttl, final TimeUnit timeUnit,
+    public Serializable patch(String key, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**

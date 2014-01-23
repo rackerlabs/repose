@@ -3,11 +3,15 @@ package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,11 +29,17 @@ public class Patch extends AbstractRemoteCommand {
     private final int ttl;
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-    public Patch(TimeUnit timeUnit, byte[] value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
+    public Patch(TimeUnit timeUnit, SerializablePatch patch, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         super(cacheObjectKey, remoteEndpoint);
         this.timeUnit = timeUnit;
-        this.value = value;
         this.ttl = ttl;
+        byte[] deferredValue = null;
+        try {
+            deferredValue = ObjectSerializer.instance().writeObject(patch);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        this.value = deferredValue;
     }
 
     @Override
@@ -46,17 +56,23 @@ public class Patch extends AbstractRemoteCommand {
 
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException {
-        if (response.getStatusCode() != HttpStatusCode.CREATED.intValue() &&
-                response.getStatusCode() != HttpStatusCode.OK.intValue()) {
+        if (response.getStatusCode() == HttpStatusCode.OK.intValue()) {
+            final InputStream internalStreamReference = response.getData();
+
+             try {
+                 return ObjectSerializer.instance().readObject(RawInputStreamReader.instance().readFully(internalStreamReference));
+             } catch (ClassNotFoundException cnfe) {
+                 throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
+             }
+        }
+        else {
             throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
         }
-
-        return Boolean.TRUE;
     }
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.put(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), value);
+        return proxyService.patch(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), getBody());
     }
 
 }

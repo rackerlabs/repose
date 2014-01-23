@@ -1,20 +1,20 @@
-
 package com.rackspace.papi.components.datastore.impl.distributed;
 
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.Patch;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
 import com.rackspace.papi.components.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteConnectionException;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Delete;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Get;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Put;
-import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Patch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,32 +236,30 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public void patch(String key, byte[] value) throws DatastoreOperationException {
-        patch(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
+    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
+        return patch(key, patch, DEFAULT_TTL, TimeUnit.MINUTES);
     }
 
     @Override
-    public void patch(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
-        patch(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
+        return patch(encodingProvider.encode(keyHash), keyHash, (SerializablePatch)patch, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
-    public void patch(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+    public Serializable patch(String hashedKey, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) {
-        performAction(key, id, new DatastoreAction() {
+        return (Serializable)performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new Patch(timeUnit, value, ttl, name, target), remoteBehavior);
+                return remoteCommandExecutor.execute(new com.rackspace.papi.components.datastore.impl.distributed.remote.command.Patch(timeUnit, patch, ttl, name, target), remoteBehavior);
             }
 
             @Override
             public Object performLocal(String name) {
-                localDatastore.patch(name, value, ttl, timeUnit);
-
-                return null;
+                return localDatastore.patch(name, patch, ttl, timeUnit);
             }
 
             @Override
