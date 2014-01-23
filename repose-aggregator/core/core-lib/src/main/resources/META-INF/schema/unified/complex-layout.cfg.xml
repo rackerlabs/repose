@@ -49,12 +49,15 @@
       </nodes>      
       
       <filter-chain name="nova-rate-limiting">
-         <filter name="dist-datastore" />
          <filter name="rate-limiting" />
          <filter name="default-router" />
       </filter-chain>
-   
-      <!-- only destination available is NOVA API -->
+
+       <services>
+           <service name="dist-datastore" />
+       </services>
+
+       <!-- only destination available is NOVA API -->
       <destinations>
          <target id="nova" cluster="nova-api" protocol="http" default="true"/>
       </destinations>

@@ -2,8 +2,8 @@ package com.rackspace.papi.components.datastore.distributed;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.StoredElement;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,37 +23,37 @@ public interface DistributedDatastore extends Datastore {
      * @param id Identifier for the cluster member where this value should be stored
      * @param value The value being stored
      * @param ttl Duration to store the value for
-     * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
+     * @param timeUnit Unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param remoteBehavior Whether or not to allow remote storage of this value
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
+    public void put(String key, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
-     * Removes a StoredElement from the Datastore.
+     * Removes an object from the Datastore.
      *
      * @param key
      * @param id Identifier for the cluster member where this value should be stored
      * @param remoteBehavior Whether or not to allow remote removal of this value
-     * @return true if the element was removed, false if it was not found in the Datastore
+     * @return True if the element was removed, false if it was not found in the Datastore
      * @throws DatastoreOperationException if an exception occurs when attempting to remove the
      * stored value
      */
     public boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior);
 
     /**
-     * Gets a StoredElement from the Datastore.  If there is no value found for the
-     * provided key, a StoredElement object should be returned containing a null or empty element.
+     * Gets a value from the Datastore.  If there is no value found for the
+     * provided key, a null object should be returned.
      *
      * @param key Key provided when the data was stored
      * @param id Identifier for the cluster member where this value should be stored
      * @param remoteBehavior Whether or not to allow remote retrieval of this value
-     * @return StoredElement wrapper of the stored value
+     * @return The stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      * stored value
      */
-    public StoredElement get(String key, byte[] id, RemoteBehavior remoteBehavior);
+    public Serializable get(String key, byte[] id, RemoteBehavior remoteBehavior);
 
 }

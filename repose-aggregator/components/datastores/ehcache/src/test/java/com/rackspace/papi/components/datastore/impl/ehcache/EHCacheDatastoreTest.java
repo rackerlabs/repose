@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.datastore.impl.ehcache;
 
-import com.rackspace.papi.components.datastore.StoredElement;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -9,80 +8,117 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
+import java.io.Serializable;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
-@RunWith(Enclosed.class)
 public class EHCacheDatastoreTest {
 
-    public static class WhenAccessingItems {
-        private static CacheManager cacheManager;
-        private Cache cache;
-        private EHCacheDatastore instance;
-        private static final String CACHE_NAME = "TEST";
+    private static CacheManager cacheManager;
+    private Cache cache;
+    private EHCacheDatastore datastore;
+    private static final String CACHE_NAME = "TEST";
 
-        @BeforeClass
-        public static void setUpClass() {
-            Configuration defaultConfiguration = new Configuration();
-            defaultConfiguration.setName("TestCacheManager");
-            defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
-            defaultConfiguration.setUpdateCheck(false);
+    @BeforeClass
+    public static void setUpClass() {
+        Configuration defaultConfiguration = new Configuration();
+        defaultConfiguration.setName("TestCacheManager");
+        defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+        defaultConfiguration.setUpdateCheck(false);
 
-            cacheManager = CacheManager.newInstance(defaultConfiguration);
-        }
+        cacheManager = CacheManager.newInstance(defaultConfiguration);
+    }
 
-        @AfterClass
-        public static void tearDownClass() {
-            cacheManager.removalAll();
-            cacheManager.shutdown();
-        }
+    @AfterClass
+    public static void tearDownClass() {
+        cacheManager.removalAll();
+        cacheManager.shutdown();
+    }
 
-        @Before
-        public void setUp() {
-            cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
-            cacheManager.addCache(cache);
-            instance = new EHCacheDatastore(cache);
-        }
-        
-        @Test
-        public void shouldGetNullElement() {
-            final String key = "doesn't exitst";
-            StoredElement element = instance.get(key);
-            assertNotNull(element);
-            assertTrue(element instanceof StoredElement);
-            assertTrue(element.elementIsNull());
-        }
-        
-        @Test
-        public void shouldGetExistingElement() {
-            final String key = "my element";
-            byte[] value = { 1, 2, 3};
-            
-            instance.put(key, value);
-            
-            StoredElement element = instance.get(key);
-            assertNotNull(element);
-            assertTrue(element instanceof StoredElement);
-            assertFalse(element.elementIsNull());
-            
-        }
+    @Before
+    public void setUp() {
+        cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
+        cacheManager.addCache(cache);
+        datastore = new EHCacheDatastore(cache);
+    }
 
-        @Test
-        public void shouldRemoveExistingElement() {
-            final String key = "my element";
-            byte[] value = { 1, 2, 3};
-            
-            instance.put(key, value);
-            instance.remove(key);
-            
-            StoredElement element = instance.get(key);
-            assertNotNull(element);
-            assertTrue(element instanceof StoredElement);
-            assertTrue(element.elementIsNull());
-        }
+    @Test
+    public void get_getsNullElement() {
+        final String key = "doesn't exist";
+        Serializable element = datastore.get(key);
+        assertNull(element);
+    }
+
+    @Test
+    public void put_getsExistingElement() {
+        final String key = "my element";
+        String value = "1, 2, 3";
+
+        datastore.put(key, value);
+
+        Serializable element = datastore.get(key);
+        assertNotNull(element);
+        assertThat((String)element, equalTo(value));
+    }
+
+    @Test
+    public void remove_removesExistingElement() {
+        final String key = "my other element";
+        String value = "1, 2, 3";
+
+        datastore.put(key, value);
+        datastore.remove(key);
+
+        Serializable element = datastore.get(key);
+        assertNull(element);
+    }
+
+    @Test
+    public void put_removesExistingElementPastTTL() throws Exception {
+        final String key = "my other element";
+        String value = "1, 2, 3";
+        int ttl = 10;
+
+        datastore.put(key, value, ttl, TimeUnit.MILLISECONDS);
+
+        Serializable element = datastore.get(key);
+        assertNotNull(element);
+        assertThat((String) element, equalTo(value));
+
+        Thread.sleep(10);
+
+        element = datastore.get(key);
+        assertNull(element);
+    }
+
+    @Test
+    public void removeAll_removesAllEntries() throws Exception {
+        String key1 = "a key";
+        String key2 = "a different key";
+        String value = "some value";
+
+        datastore.put(key1, value);
+        datastore.put(key2, value);
+
+        Serializable element = datastore.get(key1);
+        assertNotNull(element);
+        element = datastore.get(key2);
+        assertNotNull(element);
+
+        datastore.removeAll();
+
+        element = datastore.get(key1);
+        assertNull(element);
+        element = datastore.get(key2);
+        assertNull(element);
+    }
+
+    @Test
+    public void getName_getName() throws Exception {
+        assertThat(datastore.getName(), equalTo("local/default"));
     }
 }

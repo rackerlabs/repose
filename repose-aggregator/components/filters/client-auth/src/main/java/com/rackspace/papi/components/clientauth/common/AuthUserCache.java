@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Set;
@@ -21,19 +20,13 @@ public class AuthUserCache implements DeleteableCache {
       this.cachePrefix = cachePrefix;
    }
    
-   private Set<String> getElementAsType(StoredElement element) {
-      return element == null || element.elementIsNull() ? null : element.elementAs(Set.class);
-   }
-   
    public void storeUserTokenList(String userId, Set<String> tokens, int ttl) throws IOException {
       if (userId == null || tokens == null || ttl < 0) {
          // TODO Should we throw an exception here?
          return;
       }
-      
-      byte[] data = ObjectSerializer.instance().writeObject((Serializable)tokens);
-      
-      store.put(cachePrefix + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
+
+      store.put(cachePrefix + "." + userId, (Serializable)tokens, ttl, TimeUnit.MILLISECONDS);
    }
    
    @Override
@@ -42,7 +35,7 @@ public class AuthUserCache implements DeleteableCache {
    }
    
    public Set<String> getUserTokenList(String userId) {
-      Set<String> candidate = getElementAsType(store.get(cachePrefix + "." + userId));
+      Set<String> candidate = (Set<String>)store.get(cachePrefix + "." + userId);
       return candidate;
    }
 }

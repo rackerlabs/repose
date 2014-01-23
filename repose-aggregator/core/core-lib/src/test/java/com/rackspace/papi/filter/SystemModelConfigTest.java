@@ -45,31 +45,6 @@ public class SystemModelConfigTest {
         }
 
         @Test
-        public void shouldNotValidateWhenDDServiceAndDDFilterBothPresent() throws Exception {
-            String xml =
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
-                            "    <repose-cluster id=\"repose\">\n" +
-                            "        <nodes>\n" +
-                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
-                            "        </nodes>\n" +
-                            "        <filters>\n" +
-                            "            <filter name=\"dist-datastore\"/>\n" +
-                            "        </filters>\n" +
-                            "        <services>\n" +
-                            "            <service name=\"dist-datastore\"/>\n" +
-                            "        </services>\n" +
-                            "        <destinations>\n" +
-                            "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"\n" +
-                            "                      default=\"true\"/>\n" +
-                            "        </destinations>\n" +
-                            "    </repose-cluster>\n" +
-                            "</system-model>\n";
-
-            assertInvalidConfig(xml, "The distributed datastore filter and service can not");
-        }
-
-        @Test
         public void shouldValidateWhenDDServiceOnlyPresent() throws Exception {
             String xml =
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -81,28 +56,6 @@ public class SystemModelConfigTest {
                             "        <services>\n" +
                             "            <service name=\"distributed-datastore\"/>\n" +
                             "        </services>\n" +
-                            "        <destinations>\n" +
-                            "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"\n" +
-                            "                      default=\"true\"/>\n" +
-                            "        </destinations>\n" +
-                            "    </repose-cluster>\n" +
-                            "</system-model>\n";
-
-            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
-        }
-
-        @Test
-        public void shouldValidateWhenDDFilterOnlyPresent() throws Exception {
-            String xml =
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
-                            "    <repose-cluster id=\"repose\">\n" +
-                            "        <nodes>\n" +
-                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
-                            "        </nodes>\n" +
-                            "        <filters>\n" +
-                            "            <filter name=\"dist-datastore\"/>\n" +
-                            "        </filters>\n" +
                             "        <destinations>\n" +
                             "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"\n" +
                             "                      default=\"true\"/>\n" +

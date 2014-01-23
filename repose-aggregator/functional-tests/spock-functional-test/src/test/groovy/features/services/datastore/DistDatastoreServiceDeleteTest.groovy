@@ -1,24 +1,34 @@
 package features.services.datastore
 
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 
 
 class DistDatastoreServiceDeleteTest extends ReposeValveTest {
 
     def DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
-    def BODY = "test body"
+    def BODY = ObjectSerializer.instance().writeObject('test body')
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    static def distDatastoreEndpoint = "http://localhost:4999"
+    static def distDatastoreEndpoint
 
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+
+        distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
 
         def params = properties.getDefaultTemplateParams()
+        params += [
+                'datastorePort1' : dataStorePort1,
+                'datastorePort2' : dataStorePort2
+        ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
         repose.start()

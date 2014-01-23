@@ -232,6 +232,31 @@
                     </glossdef>
                 </glossentry>
             </glossary>
+        
+        
+        <glossary>
+            <title>Elements and Attributes</title>
+            <para>
+                <emphasis>
+                    Understanding these ideas will help you follow the explanations and examples in &PRODNAME; documentation and more fully appreciate the possibilities of &PRODNAME;.
+                </emphasis>
+            </para>
+            <glossentry xml:id="Artifact-d1e100">
+                <glossterm><emphasis role="bold">Endpoint</emphasis>
+                    <code>&lt;request-endpoint&gt;</code></glossterm>
+                <glossdef>
+                    <para>Sets the endpoint and format with which the
+                        user can query limits. </para>
+                </glossdef>
+            </glossentry>
+        </glossary>
+        
+        
+        
+        
+        
+        
+        
             <glossary>
                 <title>Other Key Ideas</title>
                 <para>

@@ -29,20 +29,4 @@ class DistDataShutdownTest extends ReposeValveTest {
         then: "the process should not be running"
         repose.isUp() == false
     }
-
-    def "when configured with dist datastore as a filter should shutdown nicely when asked" () {
-        given:
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/datastore", params)
-        repose.start()
-        waitUntilReadyToServiceRequests()
-
-        when:
-        repose.stop()
-
-        then:
-        repose.isUp() == false
-    }
-
 }

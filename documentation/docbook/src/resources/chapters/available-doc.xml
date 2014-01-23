@@ -13,65 +13,67 @@
     <title>Available Documentation</title>
     <para>The following &PRODNAME; documentation is available as of
         v1.0:</para>
-    <itemizedlist>
-        <listitem>
+    
             <para>
-                <emphasis role="bold">Getting Started</emphasis>: This high-level introduction
-                provides an architectural overview and summarizes several deployment methods. </para>
-        </listitem>
-        <listitem>
+                <emphasis role="bold">Getting Started
+                Guide</emphasis>: This high-level introduction
+                provides an architectural overview and summarizes
+                several deployment methods. </para>
+        
+            <para><guilabel>Deployment Guide</guilabel>:</para>
+        
             <para>
-                <emphasis role="bold">Glossary</emphasis>: The &PRODNAME; glossary defines key terms as they are used in the context of &PRODABBREV; documentation. </para>
-        </listitem>
-        <listitem>
+                <emphasis role="bold">Glossary</emphasis>: The
+                &PRODNAME; glossary defines key terms as they are used
+                in the context of &PRODABBREV; documentation. </para>
+       
             <para><guilabel>Component Reference Guide</guilabel>: The
-                Repose Component Reference Guide is a  non-procedural
+                Repose Component Reference Guide is a non-procedural
                 collection of key facts designed to be helpful in
-                preparing to use &PRODNAME; or specific components of
-                &PRODNAME;. This guide is available to assist with: <itemizedlist>
-                    <listitem>
-                        <para>&PRODNAME; Deployment </para>
-                    </listitem>
-                    <listitem>
-                        <para>&PRODNAME; Components:</para>
-                        <itemizedlist>
-                            <listitem>
-                                <para>HTTP Logging</para>
-                            </listitem>
-                            <listitem>
-                                <para>Authentication and
-                                   Authorization</para>
-                            </listitem>
-                            <listitem>
-                                <para>Rate Limiting</para>
-                            </listitem>
-                            <listitem>
-                                <para>Versioning</para>
-                            </listitem>
-                            <listitem>
-                                <para>API Validation</para>
-                            </listitem>
-                            <listitem>
-                                <para>Translation</para>
-                            </listitem>
-                        </itemizedlist>
-                    </listitem>
-                </itemizedlist>
-            </para>
-        </listitem> 
-    </itemizedlist> 
+                preparing to use specific components of &PRODNAME;.
+                This guide is available to assist you with the
+                following components. </para>
+      
+    
+   
+    <itemizedlist>
+        <listitem><para>API (WADL/XSD) Validation</para></listitem>
+        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
+            Authentication Filter</link></para></listitem>
+        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
+            Authorization Filter</link></para></listitem>
+        <listitem><para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para></listitem>
+        <listitem><para>Content Normalization</para></listitem>
+        <listitem><para>Destination Router (v2)</para></listitem>
+        <listitem><para>Flush Output Stream</para></listitem>
+        <listitem><para>Header Identity</para></listitem>
+        <listitem><para>Header Identity Mapping</para></listitem>
+        <listitem><para>Header Normalization</para></listitem>
+        <listitem><para><link linkend="Repose-Header-Translation-Chapter">Header Translation</link></para></listitem>
+        <listitem><para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para></listitem>
+        <listitem><para>IP Identity</para></listitem>
+        <listitem><para><link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link></para></listitem>
+        <listitem><para>Service Authentication</para></listitem>
+        <listitem><para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para></listitem>
+        <listitem><para>URI Identity</para></listitem>
+        <listitem><para>URI Normalization</para></listitem>
+        <listitem><para>URI Stripper</para></listitem>
+        <listitem><para><link linkend="Repose-Versioning-Chapter">Versioning Filter</link></para></listitem>
+        
+        
+    </itemizedlist>
+    
+         
     <tip>
-        <para>
-            For the latest information about &PRODNAME;, 
-            visit 
-            the &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
-            and 
-            the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
-        </para>
-        <para> &PRODNAME; is an open-source project. You are
-            welcome to examine and contribute to our GitHub source
-            repository at <link
-                xlink:href="https://github.com/rackspace/repose/"
+        <para> For the latest information about &PRODNAME;, visit the
+            &PRODNAME; website at <link
+                xlink:href="http://openrepose.org/"
+                >http://openrepose.org/</link> and the &PRODNAME; wiki
+            at <link xlink:href="http://wiki.openrepose.org/"
+                >http://wiki.openrepose.org/</link>. </para>
+        <para> &PRODNAME; is an open-source project. You are welcome
+            to examine and contribute to our GitHub source repository
+            at <link xlink:href="https://github.com/rackspace/repose/"
                 >https://github.com/rackspace/repose/</link>. </para>
     </tip>
 </section>

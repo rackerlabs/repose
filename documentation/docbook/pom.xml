@@ -51,7 +51,7 @@
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
                             <enableDisqus>intranet</enableDisqus>
                             <disqusShortname>rc-integration</disqusShortname>
-                            <feedbackEmail>rose.coste@rackspace.com</feedbackEmail>
+                            <feedbackEmail>repose-development@lists.openrepose.org</feedbackEmail>
                             <!-- to open Webhelp at the front matter (copyright page, list of tables, list of figures, list of examples) <webhelpDefaultTopic>index.html</webhelpDefaultTopic> -->
                             <!-- otherwise, specify a starting page found in all the books -->
                             <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic>
@@ -61,9 +61,9 @@
                             <failOnValidationError>no</failOnValidationError> -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
-                            <!-- to build everything found in <sourceDirectory>, comment out includes 
-                            <includes>repose-translation-deploy.xml</includes>
-                            -->
+                            <!-- to build everything found in <sourceDirectory>, comment out includes -->
+                           <includes>repose-component-ref-guide.xml</includes> 
+                            
                         </configuration>
                     </execution>
                 </executions>

@@ -76,6 +76,8 @@ public class ApiValidatorHandlerTest {
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false, null);
             instance.setFilterChain(chain);
 
+            when(request.getRequestURI()).thenReturn("/path/to/resource");
+
         }
         
         @Test
@@ -91,7 +93,6 @@ public class ApiValidatorHandlerTest {
             roles.add(new HeaderValueImpl("role1"));
             
             when(request.getPreferredHeaderValues(eq(OpenStackServiceHeader.ROLES.toString()), any(HeaderValueImpl.class))).thenReturn(roles);
-            
             instance.handleRequest(request, response);
             verify(role1Validator).validate(request, response, chain);
         }
@@ -128,9 +129,7 @@ public class ApiValidatorHandlerTest {
             validators.add(role2ValidatorInfo);
 
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators, true, null);
-
             List<ValidatorInfo> validatorsForRole = instance.getValidatorsForRole(roles);
-
             assertEquals(validatorsForRole.get(0), defaultValidatorInfo);
             assertEquals(validatorsForRole.get(1), role1ValidatorInfo);
         }

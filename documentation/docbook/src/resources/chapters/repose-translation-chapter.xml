@@ -37,7 +37,7 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
-      xml:id="Repose-Translation">
+      xml:id="Repose-Translation-Chapter">
     <title>Translation Filter</title>
     <section xml:id="Introduction-500">
         <title>Introduction to the Translation Component of &PRODNAME;</title>
@@ -91,10 +91,10 @@
                 translation configuration, edit
                     <code>translation.cfg.xml</code>. You can see an
                 annotated example of <code>translation.cfg.xml</code>
-                in <xref linkend="Configuration-d1e3659"/>. </para>
+                in <xref linkend="Configuration-d1e3590"/>. </para>
         </tip>
     </section>
-    <section xml:id="Configuration-d1e3659">
+    <section xml:id="Configuration-d1e3590">
         <title>Configuration</title>
         <tip>
             <para> Before attempting to customize your translation

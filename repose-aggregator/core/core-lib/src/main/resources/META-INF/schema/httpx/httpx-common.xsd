@@ -206,6 +206,7 @@
             <xs:enumeration value="HEAD" />
             <xs:enumeration value="POST" />
             <xs:enumeration value="PUT" />
+            <xs:enumeration value="PATCH" />
             <xs:enumeration value="DELETE" />
             <xs:enumeration value="TRACE" />
             <xs:enumeration value="CONNECT" />

@@ -1,12 +1,6 @@
 package com.rackspace.papi.components.clientauth.common
-
-import com.rackspace.papi.commons.util.io.ObjectSerializer
 import com.rackspace.papi.components.datastore.Datastore
-import com.rackspace.papi.components.datastore.StoredElement
-import com.rackspace.papi.components.datastore.StoredElementImpl
 import spock.lang.Specification
-
-import static org.hamcrest.CoreMatchers.any
 
 class EndpointsCacheTest extends Specification {
 
@@ -20,15 +14,12 @@ class EndpointsCacheTest extends Specification {
         String cacheLoc = cachePrefix + "." + tokenId;
         EndpointsCache endpointsCache = new EndpointsCache(datastore, cachePrefix)
         endpointsCache.storeEndpoints(tokenId, endpointsData, ttl)
-        StoredElement element = new StoredElementImpl(cacheLoc, ObjectSerializer.instance().writeObject(endpointsData));
-        datastore.get(cacheLoc) >> element
-        endpointsCache.getElementAsType(any(StoredElement.class)) >> endpointsData
+        datastore.get(cacheLoc) >> endpointsData
 
         when:
         String v = endpointsCache.getEndpoints(tokenId)
 
         then:
         v == endpointsData
-        //v.is(instanceOf(String.class))
     }
 }

@@ -1,8 +1,6 @@
 package org.openrepose.components.rackspace.authz.cache;
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.StoredElement;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,9 +30,7 @@ public class EndpointListCacheImpl implements EndpointListCache {
    @Override
    public List<CachedEndpoint> getCachedEndpointsForToken(String token) {
       final String cacheName = getCacheNameForToken(token);
-      final StoredElement cacheResult = cacheInstance.get(cacheName);
-
-      return cacheResult.elementIsNull() ? null : cacheResult.elementAs(List.class);
+      return (List<CachedEndpoint>)cacheInstance.get(cacheName);
    }
 
    @Override
@@ -43,6 +39,6 @@ public class EndpointListCacheImpl implements EndpointListCache {
       final Serializable serializable = endpoints instanceof Serializable ? (Serializable) endpoints : new LinkedList(endpoints);
       final String cacheName = getCacheNameForToken(token);
 
-      cacheInstance.put(cacheName, ObjectSerializer.instance().writeObject(serializable), ttlInSeconds, TimeUnit.SECONDS);
+      cacheInstance.put(cacheName, serializable, ttlInSeconds, TimeUnit.SECONDS);
    }
 }

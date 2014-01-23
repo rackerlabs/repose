@@ -10,13 +10,16 @@
       <filters>
          <filter name="client-authentication" />
          <filter name="client-authorization" />
-         <filter name="dist-datastore" />
          <filter name="rate-limiting" />
          <!-- default router will look for a destination that has default="true" -->
          <filter name="default-router" />
       </filters>
-      
-      <destinations>
+
+       <services>
+           <service name="dist-datastore" />
+       </services>
+
+       <destinations>
          <endpoint id="internal" root-path="/somecontext" default="true" />
       </destinations>
    </repose-cluster>

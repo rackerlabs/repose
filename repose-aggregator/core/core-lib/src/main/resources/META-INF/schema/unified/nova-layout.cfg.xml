@@ -10,12 +10,15 @@
       <filters>
          <filter name="client-authentication" />
          <filter name="client-authorization" />
-         <filter name="dist-datastore" />
          <filter name="rate-limiting" />
          <filter name="default-router" />
       </filters>
 
-      <destinations>
+       <services>
+           <service name="dist-datastore" />
+       </services>
+
+       <destinations>
          <!-- hostname will default to localhost if not specified -->
          <endpoint id="local" protocol="http" port="8774" default="true"/>
       </destinations>

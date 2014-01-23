@@ -1,9 +1,9 @@
 package features.services.datastore
-
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
+import org.rackspace.deproxy.PortFinder
 
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
@@ -11,12 +11,21 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    static def distDatastoreEndpoint = "http://localhost:4999"
+    static def distDatastoreEndpoint
 
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
+        int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
+
+        distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
+
         def params = properties.getDefaultTemplateParams()
+        params += [
+                'datastorePort1' : dataStorePort1,
+                'datastorePort2' : dataStorePort2
+        ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
         repose.start()
@@ -66,15 +75,16 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     def "GET of key after time to live has expired should return a 404"(){
 
+        def body = ObjectSerializer.instance().writeObject('foo')
         given:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp', 'X-TTL':'2'], requestBody: "foo"])
+        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp', 'X-TTL':'2'], requestBody: body])
 
         when:
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.body == "foo"
+        mc.receivedResponse.body == body
 
         when: "I wait long enough for the TTL of the item to expire"
         Thread.sleep(3000)

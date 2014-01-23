@@ -1,15 +1,14 @@
+
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.StoredElement;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
-import com.rackspace.papi.components.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
+import com.rackspace.papi.components.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteConnectionException;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.command.Delete;
@@ -18,7 +17,7 @@ import com.rackspace.papi.components.datastore.impl.distributed.remote.command.P
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -85,17 +84,10 @@ public class HashRingDatastore implements DistributedDatastore {
             }
 
             synchronized (lock) {
-                StoredElement value = localDatastore.get(target.toString());
-                Boolean isLocal = value != null && !value.elementIsNull() ? value.elementAs(Boolean.class) : null;
+                Boolean isLocal = (Boolean)localDatastore.get(target.toString());
                 if (isLocal == null) {
                     isLocal = clusterView.isLocal(target);
-                    byte[] bytes;
-                    try {
-                        bytes = ObjectSerializer.instance().writeObject(isLocal);
-                        localDatastore.put(target.toString(), bytes, DEFAULT_TTL, TimeUnit.MINUTES);
-                    } catch (IOException ex) {
-                        LOG.warn("Unable to cache target address", ex);
-                    }
+                    localDatastore.put(target.toString(), isLocal, DEFAULT_TTL, TimeUnit.MINUTES);
                 }
                 return !isLocal;
             }
@@ -138,7 +130,6 @@ public class HashRingDatastore implements DistributedDatastore {
         return action.performLocal(name);
     }
 
-
     private byte[] getHash(String key) {
         final byte[] stringBytes = (datasetPrefix + key).getBytes(CharacterSets.UTF_8);
 
@@ -151,15 +142,15 @@ public class HashRingDatastore implements DistributedDatastore {
     }
 
     @Override
-    public StoredElement get(String key) throws DatastoreOperationException {
+    public Serializable get(String key) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
         return get(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
-    public StoredElement get(String key, byte[] id, RemoteBehavior remoteBehavior) {
-        return (StoredElement) performAction(key, id, new DatastoreAction() {
+    public Serializable get(String hashedKey, byte[] id, RemoteBehavior remoteBehavior) {
+        return (Serializable)performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -178,51 +169,23 @@ public class HashRingDatastore implements DistributedDatastore {
         }, remoteBehavior);
     }
 
+    //todo: make this, remove and get do the hash consistently. if we need another method to deal only in pre-hashed versions write it
     @Override
-    public boolean remove(String key) throws DatastoreOperationException {
-        final byte[] keyHash = getHash(key);
-
-        return remove(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
-    }
-
-    @Override
-    public boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior) {
-        return (Boolean) performAction(key, id, new DatastoreAction() {
-
-            @Override
-            public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-                return remoteCommandExecutor.execute(new Delete(name, target), remoteBehavior);
-            }
-
-            @Override
-            public Object performLocal(String name) {
-                return localDatastore.remove(name);
-            }
-
-            @Override
-            public String toString() {
-                return "remove";
-            }
-        }, remoteBehavior);
-    }
-
-
-    @Override
-    public void put(String key, byte[] value) throws DatastoreOperationException {
+    public void put(String key, Serializable value) throws DatastoreOperationException {
         put(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         final byte[] keyHash = getHash(key);
 
         put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
     }
 
     @Override
-    public void put(String key, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit,
-            RemoteBehavior remoteBehavior) {
-        performAction(key, id, new DatastoreAction() {
+    public void put(String hashedKey, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
+                    RemoteBehavior remoteBehavior) throws DatastoreOperationException {
+        performAction(hashedKey, id, new DatastoreAction() {
 
             @Override
             public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
@@ -243,6 +206,33 @@ public class HashRingDatastore implements DistributedDatastore {
         }, remoteBehavior);
     }
 
+    @Override
+    public boolean remove(String key) throws DatastoreOperationException {
+        final byte[] keyHash = getHash(key);
+
+        return remove(encodingProvider.encode(keyHash), keyHash, RemoteBehavior.ALLOW_FORWARDING);
+    }
+
+    @Override
+    public boolean remove(String hashedKey, byte[] id, RemoteBehavior remoteBehavior) {
+        return (Boolean) performAction(hashedKey, id, new DatastoreAction() {
+
+            @Override
+            public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
+                return remoteCommandExecutor.execute(new Delete(name, target), remoteBehavior);
+            }
+
+            @Override
+            public Object performLocal(String name) {
+                return localDatastore.remove(name);
+            }
+
+            @Override
+            public String toString() {
+                return "remove";
+            }
+        }, remoteBehavior);
+    }
 
     @Override
     public void removeAll() {

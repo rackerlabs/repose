@@ -31,7 +31,7 @@ public class UdpSubscriptionListenerTest {
         private static final int BUFFER_SIZE = 1024;
         private ReplicatedDatastore datastore;
         private Notifier notifier;
-        private UdpSubscriptionListener instance;
+        private UdpSubscriptionListener subscriptionListener;
         private InetSocketAddress socketAddress;
         private DatagramSocket socket;
         private Subscriber subscriber;
@@ -41,7 +41,7 @@ public class UdpSubscriptionListenerTest {
         public void setUp() throws IOException {
             datastore = mock(ReplicatedDatastore.class);
             notifier = mock(Notifier.class);
-            instance = new UdpSubscriptionListener(datastore, notifier, "127.0.0.1", 0);
+            subscriptionListener = new UdpSubscriptionListener(datastore, notifier, "127.0.0.1", 0);
             socketAddress = new InetSocketAddress("127.0.0.1", 0);
             socket = new DatagramSocket(socketAddress);
             subscriber = new Subscriber("127.0.0.1", -1, socket.getLocalPort());
@@ -53,18 +53,18 @@ public class UdpSubscriptionListenerTest {
 
         @After
         public void cleanUp() {
-            instance.getSocket().close();
+            subscriptionListener.getSocket().close();
             socket.close();
         }
 
         @Test
         public void shouldSendAnnouncement() throws IOException, ClassNotFoundException {
             String key = "key";
-            byte[] data = new byte[]{1, 2, 3};
+            String data = "1, 2, 3";
             int ttl = 100;
 
             Message message = new Message(Operation.LISTENING, key, data, ttl);
-            instance.announce(message);
+            subscriptionListener.announce(message);
             DatagramPacket recv = new DatagramPacket(buffer, BUFFER_SIZE);
             socket.receive(recv);
             Message received = (Message) ObjectSerializer.instance().readObject(recv.getData());
@@ -73,10 +73,7 @@ public class UdpSubscriptionListenerTest {
             assertEquals(Operation.LISTENING, received.getOperation());
             assertEquals(key, received.getKey());
             assertEquals(ttl, received.getTtl());
-            assertEquals(data.length, received.getData().length);
-            for (int i = 0; i < data.length; i++) {
-                assertEquals(data[i], received.getData()[i]);
-            }
+            assertEquals(data, (String)received.getData());
         }
         
         private void receiveAnnouncement(Operation op, String host, int port) throws IOException, ClassNotFoundException {
@@ -86,9 +83,9 @@ public class UdpSubscriptionListenerTest {
             
             assertNotNull(received);
             assertEquals(op, received.getOperation());
-            assertEquals(instance.getId(), received.getKey());
+            assertEquals(subscriptionListener.getId(), received.getKey());
             
-            Subscriber s = (Subscriber)ObjectSerializer.instance().readObject(received.getData());
+            Subscriber s = (Subscriber)received.getData();
             assertNotNull(s);
             
             assertEquals(host, s.getHost());
@@ -100,7 +97,7 @@ public class UdpSubscriptionListenerTest {
         public void shouldSendJoinAnnouncement() throws IOException, ClassNotFoundException {
             String host = "host";
             int port = 1;
-            instance.join(host, port);
+            subscriptionListener.join(host, port);
             receiveAnnouncement(Operation.JOINING, host, port);
         }
 
@@ -109,9 +106,9 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
-            instance.listening();
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
+            subscriptionListener.listening();
             receiveAnnouncement(Operation.LISTENING, host, port);
         }
 
@@ -120,12 +117,12 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
             
             String key = "key";
             
-            instance.receivedAnnouncement(key, "", Operation.JOINING, subscriber);
+            subscriptionListener.receivedAnnouncement(key, "", Operation.JOINING, subscriber);
             receiveAnnouncement(Operation.LISTENING, host, port);
         }
         
@@ -134,12 +131,12 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
             
             String key = "key";
             
-            instance.receivedAnnouncement(key, instance.getId(), Operation.SYNC, subscriber);
+            subscriptionListener.receivedAnnouncement(key, subscriptionListener.getId(), Operation.SYNC, subscriber);
             verify(datastore).sync(eq(subscriber));
         }
         
@@ -149,12 +146,12 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
             
             String key = "key";
             
-            instance.receivedAnnouncement(key, "", Operation.LISTENING, subscriber);
+            subscriptionListener.receivedAnnouncement(key, "", Operation.LISTENING, subscriber);
             receiveAnnouncement(Operation.SYNC, host, port);
         }
         
@@ -163,9 +160,9 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
-            instance.sendSyncRequest(host);
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
+            subscriptionListener.sendSyncRequest(host);
             receiveAnnouncement(Operation.SYNC, host, port);
         }
 
@@ -174,9 +171,9 @@ public class UdpSubscriptionListenerTest {
             String host = "host";
             int port = 1;
 
-            instance.setTcpHost(host);
-            instance.setTcpPort(port);
-            instance.leaving();
+            subscriptionListener.setTcpHost(host);
+            subscriptionListener.setTcpPort(port);
+            subscriptionListener.leaving();
             receiveAnnouncement(Operation.LEAVING, host, port);
         }
     }

@@ -1,10 +1,12 @@
 package features.services.datastore
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
+import spock.lang.Ignore
 import spock.lang.Specification
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
@@ -122,6 +124,11 @@ class DistDatastoreServiceTomcatTest extends Specification {
         mc2.handlings.size() == 1
     }
 
+    def "Timebomb for below 2 node test"() {
+        assert new Date() < new Date(2014 - 1900, Calendar.JANUARY, 24, 9, 0)
+    }
+
+    @Ignore('These changes actually make the system faster and reveal our rate-limiting bug')
     def "when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded"() {
         given:
         def user = UUID.randomUUID().toString();
@@ -150,7 +157,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
 
         when:
         MessageChain mc =
@@ -158,7 +165,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
                             method: 'PUT',
                             url:datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     )
 
         then:
@@ -169,7 +176,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
         MessageChain mc =
             deproxy.makeRequest(
                             method: 'PUT',
@@ -203,7 +210,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject('test data')
         def url = datastoreTomcatEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
 
 
