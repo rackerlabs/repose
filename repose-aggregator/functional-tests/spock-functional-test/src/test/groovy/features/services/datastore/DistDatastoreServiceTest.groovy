@@ -1,7 +1,9 @@
 package features.services.datastore
 
+import com.rackspace.papi.commons.util.io.ObjectSerializer
+import com.rackspace.papi.components.datastore.Patchable
+import com.rackspace.papi.components.datastore.distributed.SerializablePatch
 import framework.ReposeValveTest
-import framework.category.Bug
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
@@ -125,12 +127,11 @@ class DistDatastoreServiceTest extends ReposeValveTest {
     }
 
 
-    @org.junit.experimental.categories.Category(Bug.class)
-    def "PATCH a new cache object should return 201 response" () {
+    def "PATCH a new cache object should return 200 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
 
         when:
         MessageChain mc =
@@ -143,16 +144,15 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                     ])
 
         then:
-        mc.receivedResponse.code == '201'
+        mc.receivedResponse.code == '200'
     }
 
-    @org.junit.experimental.categories.Category(Bug.class)
-    def "PATCH a cache object to an existing key should overwrite the cached value"() {
+    def "PATCH a cache object to an existing key should patch the cached value"() {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
-        def newBody = "MY NEW VALUE"
+        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("original value"))
+        def newBody = ObjectSerializer.instance().writeObject(new TestValue.Patch(" patched on value"))
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
         MessageChain mc1 = deproxy.makeRequest(
@@ -179,9 +179,10 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                 ])
 
         then: "The body of the get response should be my second request body"
-        mc3.receivedResponse.body == newBody
-        mc1.receivedResponse.code == "201"
+        mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
+        ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
+        ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
     }
 
     def "when putting cache objects" () {
@@ -339,4 +340,37 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
+
+    public static class TestValue implements Patchable<TestValue, TestValue.Patch>, Serializable {
+        private String value;
+
+        public TestValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public TestValue applyPatch(Patch patch) {
+            String originalValue = value;
+            value = value + patch.newFromPatch().getValue();
+            return new TestValue(originalValue + patch.newFromPatch().getValue());
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public static class Patch implements SerializablePatch<TestValue> {
+            private String value;
+
+            public Patch(String value) {
+                this.value = value;
+            }
+
+            @Override
+            public TestValue newFromPatch() {
+                return new TestValue(value);
+            }
+        }
+    }
+
 }
