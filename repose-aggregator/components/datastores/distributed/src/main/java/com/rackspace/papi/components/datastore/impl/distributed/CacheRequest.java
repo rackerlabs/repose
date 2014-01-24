@@ -74,7 +74,7 @@ public class CacheRequest {
       return new CacheRequest(cacheKey, getHostKey(request), -1, null, getRequestedRemoteBehavior(request));
    }
 
-   public static CacheRequest marshallCachePutRequest(HttpServletRequest request) throws MalformedCacheRequestException {
+   public static CacheRequest marshallCacheRequestWithPayload(HttpServletRequest request) throws MalformedCacheRequestException {
       final String cacheKey = getCacheKey(request);
       final String hostKey = getHostKey(request);
 
@@ -95,6 +95,7 @@ public class CacheRequest {
          throw new MalformedCacheRequestException("Unable to read content", ioe);
       }
    }
+
    private final RemoteBehavior requestedRemoteBehavior;
    private final String cacheKey, hostKey;
    private final int ttlInSeconds;

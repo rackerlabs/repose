@@ -152,7 +152,7 @@ public class CacheRequestTest {
          final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
          when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("nan");
 
-         CacheRequest.marshallCachePutRequest(request);
+         CacheRequest.marshallCacheRequestWithPayload(request);
       }
 
       @Test(expected = MalformedCacheRequestException.class)
@@ -160,7 +160,7 @@ public class CacheRequestTest {
          final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
          when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("-1");
 
-         CacheRequest.marshallCachePutRequest(request);
+         CacheRequest.marshallCacheRequestWithPayload(request);
       }
 
       @Test(expected = MalformedCacheRequestException.class)
@@ -168,7 +168,7 @@ public class CacheRequestTest {
          final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
          when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[CacheRequest.TWO_MEGABYTES_IN_BYTES + 10])));
 
-         CacheRequest.marshallCachePutRequest(request);
+         CacheRequest.marshallCacheRequestWithPayload(request);
       }
 
       @Test
@@ -176,7 +176,7 @@ public class CacheRequestTest {
          final HttpServletRequest request = mockRequestWithMethod("PUT", "localhost");
          when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{1})));
 
-         final CacheRequest cacheRequest = CacheRequest.marshallCachePutRequest(request);
+         final CacheRequest cacheRequest = CacheRequest.marshallCacheRequestWithPayload(request);
 
          assertEquals("Cache request must correctly parse desired cache object TTL", CacheRequest.DEFAULT_TTL_IN_SECONDS, cacheRequest.getTtlInSeconds());
       }
@@ -187,7 +187,7 @@ public class CacheRequestTest {
          when(request.getHeader(ExtendedHttpHeader.X_TTL.toString())).thenReturn("5");
          when(request.getInputStream()).thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{1})));
 
-         final CacheRequest cacheRequest = CacheRequest.marshallCachePutRequest(request);
+         final CacheRequest cacheRequest = CacheRequest.marshallCacheRequestWithPayload(request);
 
          assertEquals("Cache request must correctly identify the cache key", RESOURCE, cacheRequest.getCacheKey());
          assertEquals("Cache request must correctly parse desired cache object TTL", 5, cacheRequest.getTtlInSeconds());
