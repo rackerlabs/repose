@@ -130,7 +130,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
     def "PATCH a new cache object should return 200 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
 
         when:
@@ -150,7 +150,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
     def "PATCH a cache object to an existing key should patch the cached value"() {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("original value"))
         def newBody = ObjectSerializer.instance().writeObject(new TestValue.Patch(" patched on value"))
 
@@ -191,7 +191,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.start()
         waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = "test data"
 
 
@@ -215,7 +215,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.start()
         waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = "test data"
         MessageChain mc =
             deproxy.makeRequest(
@@ -255,7 +255,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         repose.start()
         waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = "test data"
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
 
