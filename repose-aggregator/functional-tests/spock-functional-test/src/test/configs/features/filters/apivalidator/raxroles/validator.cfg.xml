@@ -115,8 +115,6 @@
         </application>
     </validator>
 
-
-
     <validator role="test_user8" default="false" enable-rax-roles="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
             <resources base="https://test.api.openstack.com">
@@ -125,7 +123,7 @@
                     <method name="GET" rax:roles="#all"/>
                     <method name="PUT"/>
                 </resource>
-                <resource path="/b" >
+                <resource path="/b">
                     <method name="GET"/>
                     <resource path="/c">
                         <method name="POST"/>
@@ -178,6 +176,26 @@
                     </resource>
                 </resource>
             </resources>
+        </application>
+    </validator>
+
+    <validator role="test_user12" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/a">
+                    <method href="#getSomething"/>
+                    <method href="#postSomething"/>
+                    <method href="#putSomething"/>
+                    <method href="#deleteSomething"/>
+                    <method href="#patchSomething"/>
+                </resource>
+            </resources>
+
+            <method id="getSomething" name="GET" rax:roles="a:hrefRole"/>
+            <method id="postSomething" name="POST" rax:roles="a:hrefRole"/>
+            <method id="putSomething" name="PUT" rax:roles="a:hrefRole"/>
+            <method id="deleteSomething" name="DELETE" rax:roles="a:hrefRole"/>
+            <method id="patchSomething" name="PATCH" rax:roles="a:hrefRole"/>
         </application>
     </validator>
 
