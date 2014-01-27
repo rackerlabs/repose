@@ -327,7 +327,7 @@ class RaxRolesTest extends ReposeValveTest {
     }
 
     @Unroll("User12:method=#method,headers=#headers,expected response=#responseCode path=#path")
-    def "hrefs to methods outside of the resource should be adhered to"() {
+    def "hrefs to methods outside of the resource should be adhered to when appropriate"() {
 
         given:
         MessageChain messageChain
@@ -345,5 +345,20 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
         "DELETE" | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
         "PATCH"  | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
+        "GET"    | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
+        "GET"    | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
+        "GET"    | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
+        "POST"   | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
+        "POST"   | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
+        "POST"   | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
+        "PUT"    | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
+        "PUT"    | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
+        "PUT"    | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
+        "DELETE" | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
+        "DELETE" | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
+        "DELETE" | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
+        "PATCH"  | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
+        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
+        "PATCH"  | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
     }
 }
