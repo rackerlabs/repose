@@ -1,4 +1,4 @@
-package features.filters.clientauthz.burst
+package features.filters.clientauthn.burst
 
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
@@ -6,10 +6,11 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
-class GetEndpointsBurstTest extends ReposeValveTest {
+class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -20,7 +21,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
 
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", properties.defaultTemplateParams)
+        repose.configurationProvider.applyConfigs("features/filters/clientauthn/nogroupsendpointsheader", properties.defaultTemplateParams)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -35,14 +36,18 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         def missingResponseErrorHandler = { Request request ->
             def headers = request.getHeaders()
 
-            if (!headers.contains("X-Auth-Token")) {
+            if (!headers.contains("X-Auth-Token") ) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
-            return new Response(200, "OK", header1 + acceptXML)
+
+
+            return new Response(200, "OK",header1+acceptXML)
+
         }
 
         deproxy.defaultHandler = missingResponseErrorHandler
     }
+
 
     def cleanupSpec() {
         if (deproxy) {
@@ -51,7 +56,11 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def "under heavy load should not drop get endpoints response"() {
+
+
+
+
+    def "under heavy load should not drop endpoints in headers"() {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
@@ -66,7 +75,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         def expiresString = fmt.print(fakeIdentityService.tokenExpiresAt);
 
         def missingAuthResponse = false
-        def Bad403Response = false
+        def missingAuthHeader = false
         List<String> badRequests = new ArrayList()
         List<String> requests = new ArrayList()
 
@@ -76,18 +85,21 @@ class GetEndpointsBurstTest extends ReposeValveTest {
                 def threadNum = x
 
                 for (i in 1..callsPerClient) {
-                    requests.add('spock-thread-' + threadNum + '-request-' + i)
+                    requests.add('spock-thread-'+threadNum+'-request-'+i)
 
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true
-                        badRequests.add('500-spock-thread-' + threadNum + '-request-' + i)
+                        badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)
                     }
 
-                    if (messageChain.receivedResponse.code.equalsIgnoreCase("403")) {
-                        Bad403Response = true
-                        badRequests.add('403-spock-thread-' + threadNum + '-request-' + i)
+
+                    def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
+
+                    if (sentToOrigin.request.headers.findAll("x-roles").empty) {
+                        badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
+                        missingAuthHeader = true
                     }
 
                 }
@@ -99,17 +111,21 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
+        fakeIdentityService.validateTokenCount == 1
+
+        and:
         fakeIdentityService.endpointsCount == 1
 
         and:
-        Bad403Response == false
+        missingAuthHeader == false
 
         and:
         missingAuthResponse == false
 
         where:
         numClients | callsPerClient
-        10         | 5
+        10 | 5
+
     }
 
 }
