@@ -22,6 +22,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
         int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
 
+        distDatastoreEndpoint = "http://localhost:${dataStorePort1}"
+
         params = properties.getDefaultTemplateParams()
         params += [
                 'datastorePort1' : dataStorePort1,
@@ -47,92 +49,6 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-    }
-
-    def "when configured with DD service and filter, repose should not start" () {
-        given:
-        repose.applyConfigs("features/services/datastore/badconfig")
-        setIsFailedStart(true)
-
-        def MessageChain mc
-
-
-        when:
-        try{
-            repose.start()
-            mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['x-trace-request': 'true']])
-        } catch(Exception e){
-
-        }
-
-        then:
-        mc == null
-    }
-
-
-    def "when configured with DD filter, repose should start and log a warning" () {
-        given:
-        cleanLogDirectory()
-        repose.applyConfigs("features/filters/datastore")
-        repose.start()
-        def user= UUID.randomUUID().toString();
-
-        when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint,headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
-
-        then:
-        mc.receivedResponse.code == '200'
-        mc.handlings.size() == 1
-        def List<String> logMatches = reposeLogSearch.searchByString(
-                "Use of the dist-datastore filter is deprecated. Please use the distributed datastore service.");
-        logMatches.size() == 1
-    }
-
-    def "when configured with DD filter and adding a service, repose should log a warning and continue running with previous config" () {
-        given:
-        def List<String> logMatchesTrue
-        def List<String> logMatchesFalse
-        cleanLogDirectory()
-        repose.applyConfigs("features/filters/datastore")
-        repose.start()
-        logMatchesFalse = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/services/datastore/badconfig")
-        logMatchesTrue = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        def user= UUID.randomUUID().toString();
-
-        when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint,headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
-
-        then:
-        mc.receivedResponse.code == '200'
-        mc.handlings.size() == 1
-        logMatchesTrue.size() > logMatchesFalse.size()
-    }
-
-    def "when configured with DD service and adding a filter, repose should log a warning and continue running with previous config" () {
-        given:
-        def List<String> logMatchesTrue
-        def List<String> logMatchesFalse
-        cleanLogDirectory()
-        repose.applyConfigs("features/services/datastore")
-        repose.start()
-        waitUntilReadyToServiceRequests()
-        logMatchesFalse = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        repose.updateConfigs("features/services/datastore/badconfig")
-        logMatchesTrue = reposeLogSearch.searchByString(
-                "The distributed datastore filter and service can not be used at the same time, within the same cluster. Please check your configuration.");
-        def user= UUID.randomUUID().toString();
-
-        when:
-        MessageChain mc = deproxy.makeRequest([url:reposeEndpoint + "/cluster",headers:['X-PP-USER': user, 'X-PP-Groups' : "BETA_Group"]])
-
-        then:
-        mc.receivedResponse.code == '200'
-        mc.handlings.size() == 1
-        logMatchesTrue.size() > logMatchesFalse.size()
     }
 
     def "PATCH a new cache object should return 200 response" () {
@@ -195,12 +111,9 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when putting cache objects" () {
         given:
-        repose.applyConfigs("features/services/datastore")
-        repose.start()
-        waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
 
 
         when:
@@ -219,12 +132,9 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when checking cache object time to live"(){
         given:
-        repose.applyConfigs("features/services/datastore")
-        repose.start()
-        waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
         MessageChain mc =
             deproxy.makeRequest(
                     [
@@ -259,12 +169,9 @@ class DistDatastoreServiceTest extends ReposeValveTest {
 
     def "when deleting cache objects"(){
         given:
-        repose.applyConfigs("features/services/datastore")
-        repose.start()
-        waitUntilReadyToServiceRequests()
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = UUID.randomUUID().toString();
-        def body = "test data"
+        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
 
 
