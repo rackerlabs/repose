@@ -1,8 +1,7 @@
 package features.services.datastore
-
 import com.rackspace.papi.commons.util.io.ObjectSerializer
+import com.rackspace.papi.components.datastore.StringValue
 import framework.*
-import framework.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -129,7 +128,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     }
 
     def "Timebomb for below 2 node test"() {
-        assert new Date() < new Date(2014 - 1900, Calendar.JANUARY, 24, 9, 0)
+        assert new Date() < new Date(2014 - 1900, Calendar.JANUARY, 31, 9, 0)
     }
 
     @Ignore('These changes actually make the system faster and reveal our rate-limiting bug')
@@ -157,12 +156,11 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     }
 
 
-    @org.junit.experimental.categories.Category(Bug.class)
-    def "PATCH a new cache object should return 201 response" () {
+    def "PATCH a new cache object should return 200 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
+        def objectkey = UUID.randomUUID().toString();
+        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
 
         when:
         MessageChain mc =
@@ -171,20 +169,19 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                             method: 'PATCH',
                             url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         then:
-        mc.receivedResponse.code == '201'
+        mc.receivedResponse.code == '200'
     }
 
-    @org.junit.experimental.categories.Category(Bug.class)
     def "PATCH a cache object to an existing key should overwrite the cached value"() {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
-        def body = "test data"
-        def newBody = "MY NEW VALUE"
+        def objectkey = UUID.randomUUID().toString();
+        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("original value"))
+        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(" patched on value"))
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
         MessageChain mc1 = deproxy.makeRequest(
@@ -192,14 +189,14 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                         method: 'PATCH',
                         url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                         headers:headers,
-                        body: body
+                        requestBody: body
                 ])
         MessageChain mc2 = deproxy.makeRequest(
                 [
                         method: 'PATCH',
                         url:datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey,
                         headers:headers,
-                        body: newBody
+                        requestBody: newBody
                 ])
 
         and: "I get the value for the key"
@@ -210,17 +207,18 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                         headers:headers
                 ])
 
-        then: "The body of the get response should be my second request body"
-        mc3.receivedResponse.body == newBody
-        mc1.receivedResponse.code == "201"
+        then: "The body of the get response should be the patched value"
+        mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
+        ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
+        ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
     }
 
 
     def "PUT a new cache object should return 202 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = ObjectSerializer.instance().writeObject('test data')
 
         when:
@@ -239,7 +237,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     def "GET of key after time to live has expired should return a 404"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = ObjectSerializer.instance().writeObject('test data')
         MessageChain mc =
             deproxy.makeRequest(
@@ -273,7 +271,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
     def "DELETE of existing item in datastore should return 202 and no longer be available"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
-        def objectkey = '8e969a44-990b-de49-d894-cf200b7d4c11'
+        def objectkey = UUID.randomUUID().toString();
         def body = ObjectSerializer.instance().writeObject('test data')
         def url = datastoreGlassfishEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey
 
