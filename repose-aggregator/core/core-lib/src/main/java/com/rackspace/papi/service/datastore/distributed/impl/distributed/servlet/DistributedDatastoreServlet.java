@@ -127,9 +127,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     private void doPatch(HttpServletRequest request, HttpServletResponse response) {
         if (CacheRequest.isCacheRequest(request)) {
-            final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(request);
+            final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
             try {
-                Serializable value = localDatastore.patch(cachePut.getCacheKey(), (Patch) ObjectSerializer.instance().readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS) ;
+                Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) ObjectSerializer.instance().readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS) ;
                 response.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
                 response.setStatus(HttpServletResponse.SC_OK);
             }

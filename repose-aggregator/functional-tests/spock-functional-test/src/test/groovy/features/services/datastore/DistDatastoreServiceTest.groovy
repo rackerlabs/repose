@@ -63,7 +63,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                             method: 'PATCH',
                             url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         then:
@@ -83,14 +83,14 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                         method: 'PATCH',
                         url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                         headers:headers,
-                        body: body
+                        requestBody: body
                 ])
         MessageChain mc2 = deproxy.makeRequest(
                 [
                         method: 'PATCH',
                         url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                         headers:headers,
-                        body: newBody
+                        requestBody: newBody
                 ])
 
         and: "I get the value for the key"
@@ -122,7 +122,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
                             method: 'PUT',
                             url:distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey,
                             headers:headers,
-                            body: body
+                            requestBody: body
                     ])
 
         then:
