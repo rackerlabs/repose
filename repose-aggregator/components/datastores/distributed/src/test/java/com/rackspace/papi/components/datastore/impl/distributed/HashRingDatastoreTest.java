@@ -3,10 +3,9 @@ package com.rackspace.papi.components.datastore.impl.distributed;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.components.datastore.Patchable;
+import com.rackspace.papi.components.datastore.StringValue;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
-import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.impl.distributed.remote.RemoteConnectionException;
@@ -14,7 +13,6 @@ import com.rackspace.papi.components.datastore.impl.distributed.remote.command.G
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -105,11 +103,11 @@ public class HashRingDatastoreTest {
         when(clusterView.members()).thenReturn(
                 new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
         when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
-        TestValue.Patch patch = new TestValue.Patch(value);
-        when(localDatastore.patch(eq(key), same(patch), eq(5), eq(DAYS))).thenReturn(new TestValue(value));
-        TestValue patchedValue = (TestValue)hashRingDatastore.patch(key, id, patch, 5, DAYS, ALLOW_FORWARDING);
+        StringValue.Patch patch = new StringValue.Patch(value);
+        when(localDatastore.patch(eq(key), same(patch), eq(5), eq(DAYS))).thenReturn(new StringValue(value));
+        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, patch, 5, DAYS, ALLOW_FORWARDING);
         verifyZeroInteractions(remoteCommandExecutor);
-        verify(localDatastore).patch(any(String.class), any(TestValue.Patch.class), anyInt(), any(TimeUnit.class));
+        verify(localDatastore).patch(any(String.class), any(StringValue.Patch.class), anyInt(), any(TimeUnit.class));
         assertThat(patchedValue.getValue(), equalTo(value));
     }
 
@@ -119,47 +117,15 @@ public class HashRingDatastoreTest {
         byte[] id = new byte[] { 1, 2, 3};
         String value = "1, 2, 3";
         String newValue = ", 4, 5";
-        TestValue.Patch secondPatch = new TestValue.Patch(newValue);
+        StringValue.Patch secondPatch = new StringValue.Patch(newValue);
 
         when(clusterView.members()).thenReturn(
                 new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
         when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
-        when(localDatastore.patch(eq(key), same(secondPatch), eq(5), eq(DAYS))).thenReturn(new TestValue("1, 2, 3, 4, 5"));
-        hashRingDatastore.patch(key, id, new TestValue.Patch(value), 5, DAYS, ALLOW_FORWARDING);
-        TestValue patchedValue = (TestValue)hashRingDatastore.patch(key, id, secondPatch, 5, DAYS, ALLOW_FORWARDING);
+        when(localDatastore.patch(eq(key), same(secondPatch), eq(5), eq(DAYS))).thenReturn(new StringValue("1, 2, 3, 4, 5"));
+        hashRingDatastore.patch(key, id, new StringValue.Patch(value), 5, DAYS, ALLOW_FORWARDING);
+        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, secondPatch, 5, DAYS, ALLOW_FORWARDING);
         verifyZeroInteractions(remoteCommandExecutor);
         assertThat(patchedValue.getValue(), equalTo("1, 2, 3, 4, 5"));
-    }
-
-    public static class TestValue implements Patchable<TestValue, TestValue.Patch>, Serializable {
-        private String value;
-
-        public TestValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public TestValue applyPatch(Patch patch) {
-            String originalValue = value;
-            value = value + patch.newFromPatch().getValue();
-            return new TestValue(originalValue + patch.newFromPatch().getValue());
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static class Patch implements SerializablePatch<TestValue> {
-            private String value;
-
-            public Patch(String value) {
-                this.value = value;
-            }
-
-            @Override
-            public TestValue newFromPatch() {
-                return new TestValue(value);
-            }
-        }
     }
 }

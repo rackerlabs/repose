@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.ehcache;
 
-import com.rackspace.papi.components.datastore.Patchable;
+import com.rackspace.papi.components.datastore.StringValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -128,8 +128,8 @@ public class EHCacheDatastoreTest {
     public void shouldPatchNewElement() {
         String key = "my element";
         String value = "1, 2, 3";
-        datastore.patch(key, new TestValue.Patch(value));
-        TestValue element = (TestValue) datastore.get(key);
+        datastore.patch(key, new StringValue.Patch(value));
+        StringValue element = (StringValue) datastore.get(key);
         assertNotNull(element);
         assertEquals(value, element.getValue());
     }
@@ -138,8 +138,8 @@ public class EHCacheDatastoreTest {
     public void shouldPatchNewElementWithTTL(){
         String key = "my element";
         String value = "1, 2, 3";
-        datastore.patch(key, new TestValue.Patch(value), 5, DAYS);
-        TestValue element = (TestValue)datastore.get(key);
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        StringValue element = (StringValue)datastore.get(key);
         assertNotNull(element);
         assertEquals(value, element.getValue());
     }
@@ -149,9 +149,9 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new TestValue.Patch(value));
-        datastore.patch(key, new TestValue.Patch(newValue));
-        TestValue element = (TestValue)datastore.get(key);
+        datastore.patch(key, new StringValue.Patch(value));
+        datastore.patch(key, new StringValue.Patch(newValue));
+        StringValue element = (StringValue)datastore.get(key);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
     }
@@ -161,9 +161,9 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new TestValue.Patch(value), 5, DAYS);
-        datastore.patch(key, new TestValue.Patch(newValue), 5, DAYS);
-        TestValue element = (TestValue)datastore.get(key);
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
+        StringValue element = (StringValue)datastore.get(key);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
     }
@@ -173,41 +173,9 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new TestValue.Patch(value), 5, DAYS);
-        TestValue element = (TestValue)datastore.patch(key, new TestValue.Patch(newValue), 5, DAYS);
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        StringValue element = (StringValue)datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
-    }
-
-    public static class TestValue implements Patchable<TestValue, TestValue.Patch>, Serializable {
-        private String value;
-
-        public TestValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public TestValue applyPatch(Patch patch) {
-            String originalValue = value;
-            value = value + patch.newFromPatch().getValue();
-            return new TestValue(originalValue + patch.newFromPatch().getValue());
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static class Patch implements com.rackspace.papi.components.datastore.Patch<TestValue> {
-            private String value;
-
-            public Patch(String value) {
-                this.value = value;
-            }
-
-            @Override
-            public TestValue newFromPatch() {
-                return new TestValue(value);
-            }
-        }
     }
 }

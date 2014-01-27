@@ -1,8 +1,7 @@
 package features.services.datastore
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer
-import com.rackspace.papi.components.datastore.Patchable
-import com.rackspace.papi.components.datastore.distributed.SerializablePatch
+import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
@@ -55,7 +54,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
+        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
 
         when:
         MessageChain mc =
@@ -75,8 +74,8 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("original value"))
-        def newBody = ObjectSerializer.instance().writeObject(new TestValue.Patch(" patched on value"))
+        def body = ObjectSerializer.instance().writeObject(new StringValue.Patch("original value"))
+        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(" patched on value"))
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
         MessageChain mc1 = deproxy.makeRequest(
@@ -113,7 +112,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
+        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
 
 
         when:
@@ -134,7 +133,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
+        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
         MessageChain mc =
             deproxy.makeRequest(
                     [
@@ -171,7 +170,7 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = UUID.randomUUID().toString();
-        def body = ObjectSerializer.instance().writeObject(new TestValue.Patch("test data"))
+        def body = ObjectSerializer.instance().writeObject(new StringValue("test data"))
         def url = distDatastoreEndpoint + "/powerapi/dist-datastore/objects/" + objectkey
 
 
@@ -255,37 +254,4 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
-
-    public static class TestValue implements Patchable<TestValue, TestValue.Patch>, Serializable {
-        private String value;
-
-        public TestValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public TestValue applyPatch(Patch patch) {
-            String originalValue = value;
-            value = value + patch.newFromPatch().getValue();
-            return new TestValue(originalValue + patch.newFromPatch().getValue());
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static class Patch implements SerializablePatch<TestValue> {
-            private String value;
-
-            public Patch(String value) {
-                this.value = value;
-            }
-
-            @Override
-            public TestValue newFromPatch() {
-                return new TestValue(value);
-            }
-        }
-    }
-
 }
