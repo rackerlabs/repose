@@ -91,7 +91,7 @@ public class EHCacheDatastoreTest {
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
 
-        Thread.sleep(10);
+        Thread.sleep(12);
 
         element = datastore.get(key);
         assertNull(element);

@@ -135,7 +135,6 @@ class DistDatastoreServiceTest extends ReposeValveTest {
         logMatchesTrue.size() > logMatchesFalse.size()
     }
 
-
     def "PATCH a new cache object should return 200 response" () {
         given:
         def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'5']
