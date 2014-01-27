@@ -69,13 +69,7 @@ public class EHCacheDatastore implements Datastore {
         }
         else {
             currentElement = ehCacheInstance.get(key);
-            try {
-                Element returnElement = (Element)currentElement.clone();
-                ((Patchable)currentElement.getValue()).applyPatch(patch);
-                return (Serializable)((Patchable)returnElement.getValue()).applyPatch(patch);
-            } catch (CloneNotSupportedException cnse) {
-                throw new DatastoreOperationException("Failed to clone datastore stored version", cnse);
-            }
+            return (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
         }
     }
 
