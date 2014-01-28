@@ -17,18 +17,14 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-
-
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
         repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", properties.defaultTemplateParams)
         repose.start()
-
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new IdentityServiceResponseSimulator()
         fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
-
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
         Map acceptXML = ["accept": "application/xml"]
 
@@ -40,7 +36,6 @@ class GetEndpointsBurstTest extends ReposeValveTest {
             }
             return new Response(200, "OK", header1 + acceptXML)
         }
-
         deproxy.defaultHandler = missingResponseErrorHandler
     }
 

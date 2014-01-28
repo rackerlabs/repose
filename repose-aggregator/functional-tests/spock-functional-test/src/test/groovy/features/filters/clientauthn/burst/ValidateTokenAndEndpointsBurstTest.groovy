@@ -18,12 +18,9 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-
-
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/nogroupsendpointsheader", properties.defaultTemplateParams)
         repose.start()
-
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new IdentityServiceResponseSimulator()
         fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
@@ -36,18 +33,13 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         def missingResponseErrorHandler = { Request request ->
             def headers = request.getHeaders()
 
-            if (!headers.contains("X-Auth-Token") ) {
+            if (!headers.contains("X-Auth-Token")) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
-
-
-            return new Response(200, "OK",header1+acceptXML)
-
+            return new Response(200, "OK", header1 + acceptXML)
         }
-
         deproxy.defaultHandler = missingResponseErrorHandler
     }
-
 
     def cleanupSpec() {
         if (deproxy) {
@@ -55,10 +47,6 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         }
         repose.stop()
     }
-
-
-
-
 
     def "under heavy load should not drop endpoints in headers"() {
 
@@ -85,20 +73,18 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
                 def threadNum = x
 
                 for (i in 1..callsPerClient) {
-                    requests.add('spock-thread-'+threadNum+'-request-'+i)
+                    requests.add('spock-thread-' + threadNum + '-request-' + i)
 
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true
-                        badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)
+                        badRequests.add('500-spock-thread-' + threadNum + '-request-' + i)
                     }
-
-
                     def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
 
                     if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                        badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
+                        badRequests.add('header-spock-thread-' + threadNum + '-request-' + i)
                         missingAuthHeader = true
                     }
 
@@ -124,8 +110,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        10 | 5
-
+        10         | 5
     }
 
 }
