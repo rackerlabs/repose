@@ -34,32 +34,18 @@ public class ManagedRateLimitCache implements RateLimitCache {
    private Map<String, CachedRateLimit> getUserRateLimitMap(String user) {
       final Serializable element = datastore.get(user);
 
-      return (element == null) ? new HashMap<String, CachedRateLimit>() : (HashMap) element;
+      return (element == null) ? new HashMap<String, CachedRateLimit>() : ((UserRateLimit) element).getLimitMap();
    }
 
    @Override
    public NextAvailableResponse updateLimit(HttpMethod method, String user, String limitKey, ConfiguredRatelimit rateCfg, int datastoreWarnLimit) throws IOException {
-      final Map<String, CachedRateLimit> userRateLimitMap = getUserRateLimitMap(user);
- 
-      if(userRateLimitMap.keySet().size() >= datastoreWarnLimit){
-          LOG.warn("Large amount of limits recorded.  Repose Rate Limited may be misconfigured, keeping track of rate limits for user: "+ user +". Please review capture groups in your rate limit configuration.  If using clustered datastore, you may experience network latency.");
-      }
-      
-      CachedRateLimit currentLimit = userRateLimitMap != null ? userRateLimitMap.get(limitKey) : null;
+        UserRateLimitResult patchResult = (UserRateLimitResult)datastore.patch(user, new UserRateLimit.Patch(), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
 
-      if (currentLimit == null) {
-         currentLimit = new CachedRateLimit(rateCfg.getUriRegex());
-         userRateLimitMap.put(limitKey, currentLimit);
-      }
+        if(patchResult.getLimitMap().keySet().size() >= datastoreWarnLimit){
+            LOG.warn("Large amount of limits recorded.  Repose Rate Limited may be misconfigured, keeping track of rate limits for user: "+ user +". Please review capture groups in your rate limit configuration.  If using clustered datastore, you may experience network latency.");
+        }
 
-      final int currentLimitAmount = currentLimit.amount(method);
-      final boolean hasRequests = currentLimitAmount < rateCfg.getValue();
-
-      if (hasRequests) {
-         currentLimit.logHit(method, rateCfg.getUnit());
-         datastore.put(user, (HashMap<String, CachedRateLimit>)userRateLimitMap, 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
-      }
-
-      return new NextAvailableResponse(hasRequests, new Date(currentLimit.getEarliestExpirationTime(method)), currentLimitAmount);
+        CachedRateLimit rateLimit = patchResult.getLimitMap().get(limitKey);
+        return new NextAvailableResponse(patchResult.getSuccess(), new Date(rateLimit.getEarliestExpirationTime(method)), rateLimit.amount(method));
    }
 }

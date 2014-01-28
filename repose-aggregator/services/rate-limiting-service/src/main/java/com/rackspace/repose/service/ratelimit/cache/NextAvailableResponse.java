@@ -29,4 +29,13 @@ public class NextAvailableResponse {
    public int getCurrentLimitAmount() {
       return currentLimitAmount;
    }
+
+    @Override
+    public String toString() {
+        return "NextAvailableResponse{" +
+                "hasRequests=" + hasRequests +
+                ", resetTime=" + resetTime.getTime() +
+                ", currentLimitAmount=" + currentLimitAmount +
+                '}';
+    }
 }
