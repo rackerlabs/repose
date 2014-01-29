@@ -152,6 +152,11 @@
             <artifactId>utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>datastore-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 

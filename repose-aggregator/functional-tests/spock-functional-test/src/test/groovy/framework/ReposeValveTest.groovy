@@ -70,6 +70,22 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
+    def waitUntilReadyToServiceRequests(String responseCode) {
+        def clock = new SystemClock()
+        def innerDeproxy = new Deproxy()
+        MessageChain mc
+        waitForCondition(clock, '35s', '1s', {
+            try {
+                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
+            } catch (Exception e) {}
+            if (mc != null) {
+                return mc.receivedResponse.code.equals(responseCode)
+            } else {
+                return false
+            }
+        })
+    }
+
     def waitUntilReadyToServiceRequests() {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()

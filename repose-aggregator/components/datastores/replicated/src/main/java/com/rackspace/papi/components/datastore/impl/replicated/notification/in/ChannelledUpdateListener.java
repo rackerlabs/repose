@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.components.datastore.impl.replicated.NotifiableDatastore;
+import com.rackspace.papi.components.datastore.distributed.NotifiableDatastore;
 import com.rackspace.papi.components.datastore.impl.replicated.UpdateListener;
 import com.rackspace.papi.components.datastore.impl.replicated.data.Message;
 import org.slf4j.Logger;

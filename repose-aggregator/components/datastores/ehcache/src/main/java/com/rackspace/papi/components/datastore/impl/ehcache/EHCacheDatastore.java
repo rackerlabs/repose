@@ -1,8 +1,9 @@
 package com.rackspace.papi.components.datastore.impl.ehcache;
 
 import com.rackspace.papi.components.datastore.Datastore;
-import net.sf.ehcache.Ehcache;
+import com.rackspace.papi.components.datastore.*;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +49,28 @@ public class EHCacheDatastore implements Datastore {
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
 
         ehCacheInstance.put(putMe);
+    }
+
+    @Override
+    public Serializable patch(String key, Patch patch) throws DatastoreOperationException {
+        return patch(key, patch, -1, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        Serializable potentialNewValue = (Serializable)patch.newFromPatch();
+        Element element = new Element(key, potentialNewValue);
+        if(ttl != -1) {
+            element.setTimeToLive((int)TimeUnit.SECONDS.convert(ttl, timeUnit));
+        }
+        Element currentElement = ehCacheInstance.putIfAbsent(element);
+        if(currentElement == null) {
+            return potentialNewValue;
+        }
+        else {
+            currentElement = ehCacheInstance.get(key);
+            return (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
+        }
     }
 
     @Override

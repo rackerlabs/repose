@@ -14,10 +14,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
@@ -186,6 +183,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return execute(put);
     }
 
+    //todo: chain these
     @Override
     public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
         HttpPut put = new HttpPut(StringUriUtilities.appendPath(baseUri, path));
@@ -194,6 +192,16 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             put.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
         }
         return execute(put);
+    }
+
+    @Override
+    public ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body) {
+        HttpPatch patch = new HttpPatch(StringUriUtilities.appendPath(baseUri, path));
+        setHeaders(patch, headers);
+        if (body != null && body.length > 0) {
+            patch.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
+        }
+        return execute(patch);
     }
 
     @Override

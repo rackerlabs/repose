@@ -1,10 +1,11 @@
 package com.rackspace.papi.commons.util.proxy;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import java.io.IOException;
-import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
 
 public interface RequestProxyService {
 
@@ -15,4 +16,5 @@ public interface RequestProxyService {
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
     ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body);
     ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body);
+    ServiceClientResponse patch(String baseUri, String path, Map<String, String> headers, byte[] body);
 }

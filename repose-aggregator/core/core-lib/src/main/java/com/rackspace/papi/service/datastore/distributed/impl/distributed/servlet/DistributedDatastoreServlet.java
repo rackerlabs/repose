@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.Patch;
 import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -43,7 +44,31 @@ public class DistributedDatastoreServlet extends HttpServlet {
       encodingProvider = UUIDEncodingProvider.getInstance();
    }
 
-   @Override
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+
+       super.init(config);
+
+        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
+        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
+        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
+                clusterView.getClusterView());
+
+        datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
+        hostAcl = clusterView.getAccessControl();
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if("PATCH".equals(request.getMethod()))  {
+            doPatch(request, response);
+        }
+        else {
+            super.service(request, response);
+        }
+    }
+
+    @Override
    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
       if (isRequestValid(req,resp)) {
@@ -67,23 +92,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
    }
 
    @Override
-   public void init(ServletConfig config) throws ServletException {
-
-      super.init(config);
-
-       ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
-       clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-       ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
-               clusterView.getClusterView());
-
-       datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
-       hostAcl = clusterView.getAccessControl();
-   }
-
-   @Override
    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
       if (CacheRequest.isCacheRequest(req)) {
-         final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(req);
+         final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
          try {
              localDatastore.put(cachePut.getCacheKey(),ObjectSerializer.instance().readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS) ;
              resp.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -112,8 +123,28 @@ public class DistributedDatastoreServlet extends HttpServlet {
       {
          resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
-
    }
+
+    private void doPatch(HttpServletRequest request, HttpServletResponse response) {
+        if (CacheRequest.isCacheRequest(request)) {
+            final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
+            try {
+                Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) ObjectSerializer.instance().readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS) ;
+                response.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
+            catch (IOException ioe) {
+                LOG.error(ioe.getMessage(), ioe);
+                throw new DatastoreOperationException("Failed to write payload.", ioe);
+            }
+            catch (ClassNotFoundException cnfe) {
+                LOG.error(cnfe.getMessage(), cnfe);
+                throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
    public boolean isAllowed(HttpServletRequest request) {
       boolean allowed = hostAcl.shouldAllowAll();

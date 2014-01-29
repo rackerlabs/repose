@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.ehcache;
 
+import com.rackspace.papi.components.datastore.StringValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -11,8 +12,9 @@ import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 
@@ -62,7 +64,7 @@ public class EHCacheDatastoreTest {
 
         Serializable element = datastore.get(key);
         assertNotNull(element);
-        assertThat((String)element, equalTo(value));
+        assertThat((String) element, equalTo(value));
     }
 
     @Test
@@ -83,13 +85,13 @@ public class EHCacheDatastoreTest {
         String value = "1, 2, 3";
         int ttl = 10;
 
-        datastore.put(key, value, ttl, TimeUnit.MILLISECONDS);
+        datastore.put(key, value, ttl, MILLISECONDS);
 
         Serializable element = datastore.get(key);
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
 
-        Thread.sleep(10);
+        Thread.sleep(12);
 
         element = datastore.get(key);
         assertNull(element);
@@ -120,5 +122,60 @@ public class EHCacheDatastoreTest {
     @Test
     public void getName_getName() throws Exception {
         assertThat(datastore.getName(), equalTo("local/default"));
+    }
+
+    @Test
+    public void shouldPatchNewElement() {
+        String key = "my element";
+        String value = "1, 2, 3";
+        datastore.patch(key, new StringValue.Patch(value));
+        StringValue element = (StringValue) datastore.get(key);
+        assertNotNull(element);
+        assertEquals(value, element.getValue());
+    }
+
+    @Test
+    public void shouldPatchNewElementWithTTL(){
+        String key = "my element";
+        String value = "1, 2, 3";
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        StringValue element = (StringValue)datastore.get(key);
+        assertNotNull(element);
+        assertEquals(value, element.getValue());
+    }
+
+    @Test
+    public void shouldPatchExistingElement(){
+        String key = "my element";
+        String value = "1, 2, 3";
+        String newValue = ", 4";
+        datastore.patch(key, new StringValue.Patch(value));
+        datastore.patch(key, new StringValue.Patch(newValue));
+        StringValue element = (StringValue)datastore.get(key);
+        assertNotNull(element);
+        assertEquals("1, 2, 3, 4", element.getValue());
+    }
+
+    @Test
+    public void shouldPatchExistingElementWithTTL(){
+        String key = "my element";
+        String value = "1, 2, 3";
+        String newValue = ", 4";
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
+        StringValue element = (StringValue)datastore.get(key);
+        assertNotNull(element);
+        assertEquals("1, 2, 3, 4", element.getValue());
+    }
+
+    @Test
+    public void patch_shouldReturnUpdatedValue() throws Exception {
+        String key = "my element";
+        String value = "1, 2, 3";
+        String newValue = ", 4";
+        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
+        StringValue element = (StringValue)datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
+        assertNotNull(element);
+        assertEquals("1, 2, 3, 4", element.getValue());
     }
 }

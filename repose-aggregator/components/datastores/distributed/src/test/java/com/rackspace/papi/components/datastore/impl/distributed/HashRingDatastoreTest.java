@@ -3,6 +3,7 @@ package com.rackspace.papi.components.datastore.impl.distributed;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.papi.components.datastore.StringValue;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
@@ -14,7 +15,10 @@ import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
+import static com.rackspace.papi.components.datastore.distributed.RemoteBehavior.ALLOW_FORWARDING;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -53,7 +57,7 @@ public class HashRingDatastoreTest {
                 new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
         when(localDatastore.get(any(String.class))).thenThrow(new DatastoreOperationException("")).thenReturn(Boolean.FALSE);
 
-        hashRingDatastore.get("", new byte[]{0}, RemoteBehavior.ALLOW_FORWARDING);
+        hashRingDatastore.get("", new byte[]{0}, ALLOW_FORWARDING);
 
         verify(remoteCommandExecutor, never()).execute(any(Get.class), any(RemoteBehavior.class));
         verify(clusterView).memberDamaged(eq(inetSocketAddress), any(String.class));
@@ -67,7 +71,7 @@ public class HashRingDatastoreTest {
         when(remoteCommandExecutor.execute(any(Get.class), any(RemoteBehavior.class))).
                 thenThrow(new DatastoreOperationException(""));
 
-        hashRingDatastore.get("", new byte[]{0}, RemoteBehavior.ALLOW_FORWARDING);
+        hashRingDatastore.get("", new byte[]{0}, ALLOW_FORWARDING);
 
         verify(clusterView).memberDamaged(eq(inetSocketAddress), any(String.class));
     }
@@ -80,7 +84,7 @@ public class HashRingDatastoreTest {
         when(remoteCommandExecutor.execute(any(Get.class), any(RemoteBehavior.class))).
                 thenThrow(new RemoteConnectionException("", new RuntimeException()));
 
-        hashRingDatastore.get("", new byte[]{0}, RemoteBehavior.ALLOW_FORWARDING);
+        hashRingDatastore.get("", new byte[]{0}, ALLOW_FORWARDING);
 
         verify(clusterView).memberDamaged(eq(inetSocketAddress), any(String.class));
     }
@@ -88,6 +92,40 @@ public class HashRingDatastoreTest {
     @Test
     public void getName_returnsExpectedName() throws Exception {
         assertThat(hashRingDatastore.getName(), equalTo(HashRingDatastore.DATASTORE_NAME));
+    }
 
+    @Test
+    public void shouldPatchNewElement() throws Exception {
+        String key = "key-one";
+        byte[] id = new byte[] { 1, 2, 3};
+        String value = "1, 2, 3";
+
+        when(clusterView.members()).thenReturn(
+                new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
+        when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
+        StringValue.Patch patch = new StringValue.Patch(value);
+        when(localDatastore.patch(eq(key), same(patch), eq(5), eq(DAYS))).thenReturn(new StringValue(value));
+        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, patch, 5, DAYS, ALLOW_FORWARDING);
+        verifyZeroInteractions(remoteCommandExecutor);
+        verify(localDatastore).patch(any(String.class), any(StringValue.Patch.class), anyInt(), any(TimeUnit.class));
+        assertThat(patchedValue.getValue(), equalTo(value));
+    }
+
+    @Test
+    public void shouldPatchExistingElement() throws Exception {
+        String key = "key-one";
+        byte[] id = new byte[] { 1, 2, 3};
+        String value = "1, 2, 3";
+        String newValue = ", 4, 5";
+        StringValue.Patch secondPatch = new StringValue.Patch(newValue);
+
+        when(clusterView.members()).thenReturn(
+                new InetSocketAddress[]{inetSocketAddress}, new InetSocketAddress[]{});
+        when(clusterView.isLocal(any(InetSocketAddress.class))).thenReturn(true);
+        when(localDatastore.patch(eq(key), same(secondPatch), eq(5), eq(DAYS))).thenReturn(new StringValue("1, 2, 3, 4, 5"));
+        hashRingDatastore.patch(key, id, new StringValue.Patch(value), 5, DAYS, ALLOW_FORWARDING);
+        StringValue patchedValue = (StringValue)hashRingDatastore.patch(key, id, secondPatch, 5, DAYS, ALLOW_FORWARDING);
+        verifyZeroInteractions(remoteCommandExecutor);
+        assertThat(patchedValue.getValue(), equalTo("1, 2, 3, 4, 5"));
     }
 }
