@@ -4,6 +4,7 @@ import com.rackspace.papi.components.datastore.Patchable;
 import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -37,9 +38,16 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
     }
 
     @Override
-    public UserRateLimit applyPatch(Patch in) {
-        //todo: Write me
-        throw new UnsupportedOperationException("com.rackspace.repose.service.ratelimit.cache.UserRateLimit.applyPatch hasn't been written yet");
+    public UserRateLimit applyPatch(Patch patch) {
+        boolean insideLimit = false;
+        HashMap<String, CachedRateLimit> limitMapCopy = SerializationUtils.clone(limitMap);
+        CachedRateLimit cachedRateLimit = limitMap.get(patch.getLimitKey());
+        if (cachedRateLimit.amount(patch.getMethod()) < patch.getConfiguredRateLimit().getValue()){
+            insideLimit = true;
+            cachedRateLimit.logHit(patch.getMethod(), patch.getConfiguredRateLimit().getUnit());
+            limitMapCopy.get(patch.getLimitKey()).logHit(patch.getMethod(), patch.getConfiguredRateLimit().getUnit());
+        }
+        return new UserRateLimit(limitMapCopy, insideLimit);
     }
 
     public static class Patch implements SerializablePatch<UserRateLimit> {
@@ -65,6 +73,18 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
             }
             newLimitMap.put(limitKey, cachedRateLimit);
             return new UserRateLimit(newLimitMap, withinLimit);
+        }
+
+        public String getLimitKey() {
+            return limitKey;
+        }
+
+        public HttpMethod getMethod() {
+            return method;
+        }
+
+        public ConfiguredRatelimit getConfiguredRateLimit() {
+            return configuredRateLimit;
         }
     }
 }
