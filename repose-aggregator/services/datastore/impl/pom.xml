@@ -36,6 +36,13 @@
             <artifactId>datastore-ehcache</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xerces-xsd11</artifactId>
+            <version>2.12.0-rax</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,7 +52,7 @@
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
-                    <schemaDirectory>${project.basedir}/src/main/resources/META-INF/schema/config</schemaDirectory>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
                     <specVersion>2.2</specVersion>
                     <schemaIncludes>
                         <include>**/*.xsd</include>
@@ -57,6 +64,21 @@
                     <strict>true</strict>
                     <verbose>false</verbose>
 
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/config</dir>
+                            <stylesheet>../../../components/filters/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
+                        </transformationSet>
+                    </transformationSets>
                 </configuration>
             </plugin>
         </plugins>

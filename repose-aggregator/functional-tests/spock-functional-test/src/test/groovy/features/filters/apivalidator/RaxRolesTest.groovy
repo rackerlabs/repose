@@ -267,7 +267,7 @@ class RaxRolesTest extends ReposeValveTest {
         messageChain.getReceivedResponse().getCode().equals(responseCode)
 
         where:
-        method   | path   | headers                                        | responseCode
+        method   | path   | headers                                         | responseCode
         "PUT"    | "/a"   | ["x-roles": "test_user10, a:admin"]             | "200"
         "PUT"    | "/a"   | ["x-roles": "test_user10, a:observer"]          | "200"
         "PUT"    | "/a"   | ["x-roles": "test_user10, a:admin, a:observer"] | "200"
