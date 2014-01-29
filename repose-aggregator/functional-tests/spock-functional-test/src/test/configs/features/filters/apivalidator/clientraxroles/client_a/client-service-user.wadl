@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="wadl.xsl"?>
+
+<!-- (C) 2012 Rackspace Hosting, All Rights Reserved -->
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:rax="http://docs.rackspace.com/api"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:papi="http://payment.api.rackspacecloud.com/v1"
+             xmlns:common="http://docs.openstack.org/common/api/v1.0"
+             xmlns:fault="http://fault.common.api.rackspacecloud.com/v1.0"
+             xmlns:xhtml="http://www.w3.org/1999/xhtml"
+             xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        >
+    <!-- ALL RESOURCES -->
+    <resources base="http://localhost:${targetPort}" >
+        <resource id="versionNumber" path="v1" rax:roles="admin client_a:admin identity:user-admin identity:admin">
+            <resource id="wadl" path="/application.wadl">
+                <method name="GET" id="getWadl">
+
+                </method>
+            </resource>
+            <method name="GET" id="versionDetails">
+
+            </method>
+
+            <resource id="methods" path="methods">
+                <method name="POST" id="createMethod">
+
+                </method>
+                <resource id="method" path="{methodId}">
+                    <param name="methodId" style="template" required="true">
+                        <doc>Identifies a Payment Method. </doc>
+                    </param>
+                    <method name="GET" id="getMethod" rax:roles="random_observer client_a:observer">
+
+                    </method>
+                </resource>
+                <resource id="default" path="default">
+                    <method name="PUT" id="setDefault">
+
+                    </method>
+                    <method name="GET" id="getDefault" rax:roles="random_observer client_a:observer">
+
+                    </method>
+
+                    <method name="DELETE" id="deleteDefault">
+
+                    </method>
+                </resource>
+            </resource>
+
+            <resource id="methodList" path="methods">
+                <param type="xsd:integer" style="query" name="limit">
+                    <doc>An integer between 1 and 100 to specify the number of records to return.  Defaults to 100.</doc>
+                </param>
+                <param type="xsd:integer" style="query" name="marker">
+                    <doc>A zero based index value that marks the start index of this List.</doc>
+                </param>
+                <method name="GET" id="getMethods" rax:roles="random_observer client_a:observer">
+
+                </method>
+            </resource>
+            <resource id="supportedMethodList" path="supportedMethods">
+                <method name="GET" id="getSupportedMethods">
+
+                </method>
+            </resource>
+        </resource>
+    </resources>
+</application>
