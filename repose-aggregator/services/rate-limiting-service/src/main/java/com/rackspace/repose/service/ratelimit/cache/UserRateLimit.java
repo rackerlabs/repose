@@ -58,9 +58,13 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
         public UserRateLimit newFromPatch() {
             HashMap<String, CachedRateLimit> newLimitMap = new HashMap<String, CachedRateLimit>();
             CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRateLimit.getUriRegex());
-            cachedRateLimit.logHit(method, configuredRateLimit.getUnit());
+            boolean withinLimit = false;
+            if(configuredRateLimit.getValue() > 0) {
+                cachedRateLimit.logHit(method, configuredRateLimit.getUnit());
+                withinLimit = true;
+            }
             newLimitMap.put(limitKey, cachedRateLimit);
-            return new UserRateLimit(newLimitMap, false);
+            return new UserRateLimit(newLimitMap, withinLimit);
         }
     }
 }

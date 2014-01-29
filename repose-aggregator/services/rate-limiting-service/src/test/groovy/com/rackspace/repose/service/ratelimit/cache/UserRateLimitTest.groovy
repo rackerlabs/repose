@@ -8,6 +8,7 @@ import org.junit.Test
 
 import java.util.concurrent.TimeUnit
 
+import static org.hamcrest.CoreMatchers.equalTo
 import static org.junit.Assert.assertThat
 /**
  * Created with IntelliJ IDEA.
@@ -17,15 +18,27 @@ import static org.junit.Assert.assertThat
  */
 class UserRateLimitTest {
     @Test
-    void "newFromPatch should create a correct rate limit"() {
+    void "newFromPatch should create a correct rate limit when within limit"() {
         long now = System.currentTimeMillis()
 
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.uriRegex = "foo"
         configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
+        configuredRatelimit.value = 5
         UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", HttpMethod.GET, configuredRatelimit)
         UserRateLimit userRateLimit = patch.newFromPatch()
+        assertThat(userRateLimit.withinLimit, equalTo(true))
         assertThat(userRateLimit, containsLimit("testKey", HttpMethod.GET, now, TimeUnit.MINUTES, "foo"))
+    }
+
+    @Test
+    void "newFromPatch should create a correct rate limit  when outside limit"() {
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
+        configuredRatelimit.uriRegex = "foo"
+        configuredRatelimit.value = 0
+        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", HttpMethod.GET, configuredRatelimit)
+        UserRateLimit userRateLimit = patch.newFromPatch()
+        assertThat(userRateLimit.withinLimit, equalTo(false))
     }
 
     static Matcher<UserRateLimit> containsLimit(String limitKey, HttpMethod method, long startTime, TimeUnit timeUnit, String uriRegex) {
