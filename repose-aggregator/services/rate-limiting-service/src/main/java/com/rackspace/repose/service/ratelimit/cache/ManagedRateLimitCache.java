@@ -39,13 +39,13 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
    @Override
    public NextAvailableResponse updateLimit(HttpMethod method, String user, String limitKey, ConfiguredRatelimit rateCfg, int datastoreWarnLimit) throws IOException {
-        UserRateLimitResult patchResult = (UserRateLimitResult)datastore.patch(user, new UserRateLimit.Patch(limitKey, method, rateCfg), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
+        UserRateLimit patchResult = (UserRateLimit)datastore.patch(user, new UserRateLimit.Patch(limitKey, method, rateCfg), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
 
         if(patchResult.getLimitMap().keySet().size() >= datastoreWarnLimit){
             LOG.warn("Large amount of limits recorded.  Repose Rate Limited may be misconfigured, keeping track of rate limits for user: "+ user +". Please review capture groups in your rate limit configuration.  If using clustered datastore, you may experience network latency.");
         }
 
         CachedRateLimit rateLimit = patchResult.getLimitMap().get(limitKey);
-        return new NextAvailableResponse(patchResult.getSuccess(), new Date(rateLimit.getEarliestExpirationTime(method)), rateLimit.amount(method));
+        return new NextAvailableResponse(patchResult.getWithinLimit(), new Date(rateLimit.getEarliestExpirationTime(method)), rateLimit.amount(method));
    }
 }

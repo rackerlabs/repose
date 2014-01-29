@@ -16,14 +16,24 @@ import java.util.HashMap;
  */
 public class UserRateLimit implements Serializable, Patchable<UserRateLimit, UserRateLimit.Patch> {
 
+    private boolean withinLimit;
     private HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
 
-    public UserRateLimit(HashMap<String, CachedRateLimit> limitMap) {
+    public UserRateLimit(HashMap<String, CachedRateLimit> limitMap, boolean withinLimit) {
         this.limitMap = limitMap;
+        this.withinLimit = withinLimit;
     }
 
     public HashMap<String, CachedRateLimit> getLimitMap() {
         return limitMap;
+    }
+
+    /**
+     * Used when a patch has been done to describe if the patch was still within the limit.
+     * @return true is the patch was successful
+     */
+    public boolean getWithinLimit() {
+        return withinLimit;
     }
 
     @Override
@@ -50,7 +60,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
             CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRateLimit.getUriRegex());
             cachedRateLimit.logHit(method, configuredRateLimit.getUnit());
             newLimitMap.put(limitKey, cachedRateLimit);
-            return new UserRateLimit(newLimitMap);
+            return new UserRateLimit(newLimitMap, false);
         }
     }
 }
