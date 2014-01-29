@@ -65,7 +65,7 @@ public class EHCacheDatastore implements Datastore {
         }
         Element currentElement = ehCacheInstance.putIfAbsent(element);
         if(currentElement == null) {
-            return potentialNewValue;
+            return potentialNewValue; //todo: crap, i think this needs to be copied. otherwise we have the potential for multiple changes to be reflected. the copy is taken care of in the patch for all other cases
         }
         else {
             currentElement = ehCacheInstance.get(key);

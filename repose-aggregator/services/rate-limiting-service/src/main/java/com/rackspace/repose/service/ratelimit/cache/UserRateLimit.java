@@ -2,6 +2,8 @@ package com.rackspace.repose.service.ratelimit.cache;
 
 import com.rackspace.papi.components.datastore.Patchable;
 import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -31,10 +33,24 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
     }
 
     public static class Patch implements SerializablePatch<UserRateLimit> {
+
+        private String limitKey;
+        private ConfiguredRatelimit configuredRateLimit;
+        private HttpMethod method;
+
+        public Patch(String limitKey, HttpMethod method, ConfiguredRatelimit configuredRateLimit) {
+            this.limitKey = limitKey;
+            this.configuredRateLimit = configuredRateLimit;
+            this.method = method;
+        }
+
         @Override
         public UserRateLimit newFromPatch() {
-            //todo: Write me
-            throw new UnsupportedOperationException("com.rackspace.repose.service.ratelimit.cache.UserRateLimit.Patch.newFromPatch hasn't been written yet");
+            HashMap<String, CachedRateLimit> newLimitMap = new HashMap<String, CachedRateLimit>();
+            CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRateLimit.getUriRegex());
+            cachedRateLimit.logHit(method, configuredRateLimit.getUnit());
+            newLimitMap.put(limitKey, cachedRateLimit);
+            return new UserRateLimit(newLimitMap);
         }
     }
 }

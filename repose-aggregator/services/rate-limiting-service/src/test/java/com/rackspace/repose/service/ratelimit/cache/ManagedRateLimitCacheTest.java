@@ -81,7 +81,10 @@ public class ManagedRateLimitCacheTest {
         return new TypeSafeMatcher<NextAvailableResponse>() {
             @Override
             protected boolean matchesSafely(NextAvailableResponse item) {
-                return (item.hasRequestsRemaining() == hasRequests) && (item.getResetTime().getTime() > resetTime) && (item.getResetTime().getTime() < (resetTime + 120000)) && (item.getCurrentLimitAmount() == currentLimitAmount);
+                return (item.hasRequestsRemaining() == hasRequests) &&
+                       (item.getResetTime().getTime() > resetTime) &&
+                       (item.getResetTime().getTime() < (resetTime + 120000)) &&
+                       (item.getCurrentLimitAmount() == currentLimitAmount);
             }
 
             @Override
