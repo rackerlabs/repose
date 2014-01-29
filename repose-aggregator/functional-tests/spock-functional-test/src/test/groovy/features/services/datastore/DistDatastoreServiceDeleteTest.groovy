@@ -32,7 +32,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
         repose.start()
-        waitUntilReadyToServiceRequests()
+        repose.waitForNon500FromUrl(reposeEndpoint, 120)
     }
 
     def setup() {

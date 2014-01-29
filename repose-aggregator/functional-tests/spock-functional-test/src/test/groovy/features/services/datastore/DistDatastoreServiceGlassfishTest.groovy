@@ -51,8 +51,10 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         int shutdownPort1 = properties.reposeShutdownPort
         int shutdownPort2 = PortFinder.Singleton.getNextOpenPort()
 
-        println("repose1: " + reposePort1 + "\nrepose2: " + reposePort2 + "\ndatastore1: " + dataStorePort1 + "\n" +
-                "datastore2: " + dataStorePort2)
+        println("repose1: ${reposePort1}")
+        println("repose2: ${reposePort2}")
+        println("datastore1: ${dataStorePort1}")
+        println("datastore2: ${dataStorePort2}")
 
         // configure and start repose
 
@@ -65,17 +67,13 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         def configDirectory = properties.getConfigDirectory()
         def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
-        def buildDirectory = properties.getReposeHome() + "/.."
 
         params = properties.getDefaultTemplateParams()
         params += [
                 'reposePort1': reposePort1,
                 'reposePort2': reposePort2,
-                'targetPort': originServicePort,
-                'repose.config.directory': configDirectory,
                 'repose.cluster.id': "repose1",
                 'repose.node.id': 'node1',
-                'targetHostname': 'localhost',
                 'datastorePort1' : dataStorePort1,
                 'datastorePort2' : dataStorePort2
         ]
@@ -89,13 +87,16 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1,"401")
+        repose1.waitForNon500FromUrl(reposeGlassfishEndpoint1, 120)
+        repose1.waitForNon500FromUrl(datastoreGlassfishEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
         reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2,"401")
+        repose1.waitForNon500FromUrl(reposeGlassfishEndpoint2, 120)
+        repose1.waitForNon500FromUrl(datastoreGlassfishEndpoint2, 120)
 
+        sleep(5000)
     }
 
     def cleanupSpec() {
