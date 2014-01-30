@@ -5,6 +5,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
+import org.rackspace.deproxy.PortFinder
 
 import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
@@ -22,6 +23,9 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String containerJar
     String rootWarLocation
     String[] appWars
+    String debugPort
+
+    def boolean  debugEnabled = true
 
     def clock = new SystemClock()
     def Process process
@@ -44,6 +48,16 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
         String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
+
+        if (debugEnabled) {
+
+            if (!debugPort) {
+                debugPort = PortFinder.Singleton.getNextOpenPort()
+            }
+            webXmlOverrides = webXmlOverrides +  " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+        }
+
+
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
 
