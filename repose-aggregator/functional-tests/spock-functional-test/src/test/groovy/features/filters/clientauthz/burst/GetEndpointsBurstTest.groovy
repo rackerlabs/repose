@@ -8,6 +8,7 @@ import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 class GetEndpointsBurstTest extends ReposeValveTest {
 
@@ -46,6 +47,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
+    @Unroll("Testing with #numClients clients for #callsPerClient clients")
     def "under heavy load should not drop get endpoints response"() {
 
         given:
@@ -105,6 +107,9 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         where:
         numClients | callsPerClient
         10         | 5
+        20         | 10
+        50         | 10
+        100        | 5
     }
 
 }
