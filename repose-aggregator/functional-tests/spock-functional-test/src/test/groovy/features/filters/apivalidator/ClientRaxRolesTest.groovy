@@ -11,12 +11,19 @@ import spock.lang.Unroll
  */
 class ClientRaxRolesTest extends ReposeValveTest {
 
-    def setup() {
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        def params = properties.getDefaultTemplateParams()
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/clientraxroles/client_a", params)
+        repose.start()
+
+        repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    def cleanup() {
+    def cleanupSpec() {
         if (repose)
             repose.stop()
         if (deproxy)
@@ -26,13 +33,6 @@ class ClientRaxRolesTest extends ReposeValveTest {
     @Unroll("client_a:method=#method,headers=#headers,request=#request expected response=#responseCode")
     def "when enable-rax-roles is true, validate with wadl method level roles"() {
         given:
-        def params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/clientraxroles/client_a", params)
-        repose.start()
-
-        repose.waitForNon500FromUrl(reposeEndpoint)
         MessageChain messageChain
 
         when:
@@ -42,36 +42,151 @@ class ClientRaxRolesTest extends ReposeValveTest {
         messageChain.getReceivedResponse().getCode().equals(responseCode)
 
         where:
-        method | request                 | headers                                                       | responseCode
-        "GET"  | "/v1/application.wadl"  | ["x-roles": "default,client_a:admin"]                           | "200"
-        /*"GET"    | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "403"
-        "GET"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "403"
-        "GET"    | null                                                | "403"
-        "PUT"    | ["x-roles": "raxRolesEnabled"]                      | "200"
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar"]               | "200"
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "200"
-        "PUT"    | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"
-        "POST"   | ["x-roles": "raxRolesEnabled"]                      | "403"
-        "POST"   | ["x-roles": "raxRolesEnabled, a:observer"]          | "403"
-        "POST"   | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar"]               | "403"
-        "POST"   | ["x-roles": "raxRolesEnabled, a:bar, a:observer"]   | "403"
-        "POST"   | null                                                | "403"
-        "DELETE" | ["x-roles": "raxRolesEnabled"]                      | "403"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:bar"]   | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin, a:bar"]      | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:admin"]      | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer, a:admin"] | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:observer"]          | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:admin"]             | "200"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar"]               | "403"
-        "DELETE" | ["x-roles": "raxRolesEnabled, a:bar, a:jawsome"]    | "403"
-        "DELETE" | ["x-roles": "raxRolesEnabled, observer, creator"]   | "403"
-        "DELETE" | null                                                | "403"  */
+        method   | request                 | headers                                       | responseCode
+        "GET"    | "/v1"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1"  | ["x-roles": "random_observer"]                | "403"
+        "GET"    | "/v1"  | ["x-roles": "client_a:observer"]              | "403"
+        "GET"    | "/v1"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PUT"    | "/v1"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "random_observer"]                | "403"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "client_a:observer"]              | "403"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/application.wadl"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/application.wadl"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PUT"    | "/v1/application.wadl"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/application.wadl"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/application.wadl"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/methods"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/methods"  | ["x-roles": "random_observer"]                | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "client_a:observer"]              | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/methods"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/methods"  | ["x-roles": "client_a:admin"]                 | "200"
+        "POST"   | "/v1/methods"  | ["x-roles": "random_observer"]                | "403"
+        "POST"   | "/v1/methods"  | ["x-roles": "client_a:observer"]              | "403"
+        "PUT"    | "/v1/methods"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/methods"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/methods"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/methods/test"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "random_observer"]                | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "client_a:observer"]              | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/methods/test"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/methods/test"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PUT"    | "/v1/methods/test"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/methods/test"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/methods/test"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/methods/default"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "random_observer"]                | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "client_a:observer"]              | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/methods/default"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/methods/default"  | ["x-roles": "client_a:admin"]                 | "405"
+        "POST"   | "/v1/methods/default"  | ["x-roles": "random_observer"]                | "405"
+        "POST"   | "/v1/methods/default"  | ["x-roles": "client_a:observer"]              | "405"
+        "PUT"    | "/v1/methods/default"  | ["x-roles": "client_a:admin"]                 | "200"
+        "PUT"    | "/v1/methods/default"  | ["x-roles": "random_observer"]                | "403"
+        "PUT"    | "/v1/methods/default"  | ["x-roles": "client_a:observer"]              | "403"
+        "DELETE" | "/v1/methods/default"  | ["x-roles": "client_a:admin"]                 | "200"
+        "DELETE" | "/v1/methods/default"  | ["x-roles": "random_observer"]                | "403"
+        "DELETE" | "/v1/methods/default"  | ["x-roles": "client_a:observer"]              | "403"
+        "PATCH"  | "/v1/methods/default"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/methods/default"  | ["x-roles": "random_observer"]                | "405"
+        "PATCH"  | "/v1/methods/default"  | ["x-roles": "client_a:observer"]              | "405"
+
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "random_observer"]                | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "client_a:observer"]              | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/methods?limit=101"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/methods?limit=101"  | ["x-roles": "client_a:admin"]                 | "200"
+        "POST"   | "/v1/methods?limit=101"  | ["x-roles": "random_observer"]                | "403"
+        "POST"   | "/v1/methods?limit=101"  | ["x-roles": "client_a:observer"]              | "403"
+        "PUT"    | "/v1/methods?limit=101"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/methods?limit=101"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/methods?limit=101"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "random_observer"]                | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "client_a:observer"]              | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/methods?marker=101"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/methods?marker=101"  | ["x-roles": "client_a:admin"]                 | "200"
+        "POST"   | "/v1/methods?marker=101"  | ["x-roles": "random_observer"]                | "403"
+        "POST"   | "/v1/methods?marker=101"  | ["x-roles": "client_a:observer"]              | "403"
+        "PUT"    | "/v1/methods?marker=101"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/methods?marker=101"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/methods?marker=101"  | ["x-roles": "client_a:admin"]                 | "405"
+
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "default,client_a:admin"]         | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "default,admin"]                  | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "default,identity:user-admin"]    | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "default,identity:admin"]         | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "default"]                        | "403"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "random_observer"]                | "403"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "client_a:observer"]              | "403"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "client_a:admin"]                 | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "admin"]                          | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "identity:user-admin"]            | "200"
+        "GET"    | "/v1/supportedMethods"  | ["x-roles": "identity:admin"]                 | "200"
+        "POST"   | "/v1/supportedMethods"  | ["x-roles": "client_a:admin"]                 | "405"
+        "POST"   | "/v1/supportedMethods"  | ["x-roles": "random_observer"]                | "405"
+        "POST"   | "/v1/supportedMethods"  | ["x-roles": "client_a:observer"]              | "405"
+        "PUT"    | "/v1/supportedMethods"  | ["x-roles": "client_a:admin"]                 | "405"
+        "DELETE" | "/v1/supportedMethods"  | ["x-roles": "client_a:admin"]                 | "405"
+        "PATCH"  | "/v1/supportedMethods"  | ["x-roles": "client_a:admin"]                 | "405"
+
     }
 
 }
