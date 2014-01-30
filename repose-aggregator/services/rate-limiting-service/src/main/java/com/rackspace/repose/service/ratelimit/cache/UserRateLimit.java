@@ -42,6 +42,12 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
         boolean insideLimit = false;
         HashMap<String, CachedRateLimit> limitMapCopy = SerializationUtils.clone(limitMap);
         CachedRateLimit cachedRateLimit = limitMap.get(patch.getLimitKey());
+        if (cachedRateLimit == null) {
+            cachedRateLimit = new CachedRateLimit(patch.getConfiguredRateLimit().getUriRegex());
+            limitMap.put(patch.getLimitKey(), cachedRateLimit);
+            limitMapCopy.put(patch.getLimitKey(), new CachedRateLimit(patch.getConfiguredRateLimit().getUriRegex()));
+        }
+
         if (cachedRateLimit.amount(patch.getMethod()) < patch.getConfiguredRateLimit().getValue()){
             insideLimit = true;
             cachedRateLimit.logHit(patch.getMethod(), patch.getConfiguredRateLimit().getUnit());

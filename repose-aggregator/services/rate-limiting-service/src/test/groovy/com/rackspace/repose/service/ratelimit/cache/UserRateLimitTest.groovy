@@ -61,6 +61,24 @@ class UserRateLimitTest {
     }
 
     @Test
+    void "patch should work when the limit key isn't yet in map"() {
+        String limitKey = "testKey"
+        HttpMethod method = HttpMethod.GET
+        String uriRegex = "foo"
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
+        configuredRatelimit.uriRegex = uriRegex
+        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.SECOND
+        configuredRatelimit.value = 1
+        HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
+
+        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap, false)
+        long now = System.currentTimeMillis()
+        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, method, configuredRatelimit))
+        assertThat(patchedLimit.withinLimit, equalTo(true))
+        assertThat(patchedLimit, containsLimit(limitKey, method, now, TimeUnit.SECONDS, uriRegex))
+    }
+
+    @Test
     void "patch should be returning a copy of the object"() {
         String limitKey = "testKey"
         HttpMethod method = HttpMethod.GET
