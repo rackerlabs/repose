@@ -57,8 +57,6 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             webXmlOverrides = webXmlOverrides +  " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
-
-
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
 
         if (appWars != null || appWars.length != 0) {
