@@ -327,7 +327,7 @@ class RaxRolesTest extends ReposeValveTest {
     }
 
     @Unroll("User12:method=#method,headers=#headers,expected response=#responseCode path=#path")
-    def "hrefs to methods outside of the resource should be adhered to when appropriate"() {
+    def "when enable-rax-roles is true, hrefs to methods outside of the resource should be adhered to when appropriate"() {
 
         given:
         MessageChain messageChain
@@ -360,5 +360,6 @@ class RaxRolesTest extends ReposeValveTest {
         "PATCH"  | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
         "PATCH"  | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
         "PATCH"  | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
+        "GET"    | "/a"   | ["x-roles": "test_user12"]                      | "403"
     }
 }
