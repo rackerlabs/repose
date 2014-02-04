@@ -20,6 +20,7 @@
         <module>datastore</module>
         <module>httpclient</module>
         <module>rate-limiting-service</module>
+        <module>health-check</module>
     </modules>
 
 </project>
