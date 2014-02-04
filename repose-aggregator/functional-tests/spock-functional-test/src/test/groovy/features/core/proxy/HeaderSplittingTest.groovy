@@ -1,4 +1,5 @@
 package features.core.proxy
+
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -37,9 +38,9 @@ class HeaderSplittingTest extends ReposeValveTest {
         def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
 
         then:
-        assert sentRequest.request.getHeaders().findAll("user-agent").size() == 1
-        assert sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
-        assert sentRequest.request.getHeaders().findAll("accept").size() == 2
+        sentRequest.request.headers.getCountByName("user-agent") == 1
+        sentRequest.request.headers.getCountByName("x-pp-user") == 4
+        sentRequest.request.headers.getCountByName("accept") == 2
     }
 
     def "Should not split response headers according to rfc"() {
@@ -52,9 +53,7 @@ class HeaderSplittingTest extends ReposeValveTest {
         def respFromOrigin = deproxy.makeRequest([url: reposeEndpoint, defaultHandler: xmlResp])
 
         then:
-        assert respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
-        assert respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
+        respFromOrigin.receivedResponse.headers.getCountByName("location") == 1
+        respFromOrigin.receivedResponse.headers.getCountByName("via") == 1
     }
-
-
 }
