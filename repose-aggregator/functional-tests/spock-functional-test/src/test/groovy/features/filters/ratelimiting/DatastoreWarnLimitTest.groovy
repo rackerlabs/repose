@@ -42,8 +42,8 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         where:
 
         totalRequests  | expectedWarnings
-        WARN_LIMIT + 1 | 1
-        WARN_LIMIT + 2 | 2
+        WARN_LIMIT + 1 | 2
+        WARN_LIMIT + 2 | 3
 
     }
 
