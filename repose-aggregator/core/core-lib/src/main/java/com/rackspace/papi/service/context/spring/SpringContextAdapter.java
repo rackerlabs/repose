@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.spring;
 
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -169,5 +170,10 @@ public class SpringContextAdapter implements ContextAdapter {
    public DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService() {
       return getService(ServiceContextName.DISTRIBUTED_DATASTORE_SERVICE_CLUSTER_CONTEXT);
    }
-   
+
+    @Override
+    public HealthCheckService healthCheckService() {
+        return getService(ServiceContextName.HEALTH_CHECK_SERVICE_CONTEXT);
+    }
+
 }

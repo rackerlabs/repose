@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -43,6 +44,7 @@ public interface ContextAdapter {
     ResponseHeaderService responseHeaderService();
     DistributedDatastoreLauncherService distributedDatastoreService();
     DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService();
+    HealthCheckService healthCheckService();
     <T> T filterChainBuilder();
     <T> T  reposeConfigurationInformation();
     

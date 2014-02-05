@@ -196,7 +196,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         PowerFilterChain requestFilterChain = null;
         try {
             synchronized (internalLock) {
-                if (powerFilterChainBuilder == null) {
+                if (powerFilterChainBuilder == null || !papiContext.healthCheckService().isHealthy()) {
                     mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
                 } else {
                     requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
