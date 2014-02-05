@@ -78,4 +78,10 @@ class HealthCheckServiceImplTest {
         assert healthCheckService.repordIds.contains(id5)
         assert !healthCheckService.repordIds.contains("NotAnId")
     }
+
+    @Test
+    void shouldProvideHealthyResponseWhenNoIssuesReported() {
+
+        assert healthCheckService.isHealthy()
+    }
 }
