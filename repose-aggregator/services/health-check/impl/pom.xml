@@ -3,16 +3,24 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>health-check-service</artifactId>
+        <artifactId>health-check-service-support</artifactId>
         <groupId>com.rackspace.papi.service</groupId>
         <version>2.13.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.service</groupId>
-    <artifactId>health-check-service-impl</artifactId>
+    <artifactId>health-check-service</artifactId>
 
     <name>Repose Services - Health Check Impl</name>
 
     <modelVersion>4.0.0</modelVersion>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>health-check-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
