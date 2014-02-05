@@ -156,7 +156,6 @@ class PassThruTest extends ReposeValveTest {
         'X-Extension-Header'  | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
     }
 
-    @Category(Bug.class) // Defect D-11822
     def "Should not interfere with semicolons and equals signs in Via - request"() {
 
         // The Via header has a field-value that consists of comma-separated values.
@@ -264,7 +263,6 @@ class PassThruTest extends ReposeValveTest {
         'X-Extension-Header'  | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
     }
 
-    @Category(Bug.class) // Defect D-11822
     def "Should not interfere with semicolons and equals signs in Via - response"() {
 
         // The Via header has a field-value that consists of comma-separated values.
@@ -286,6 +284,4 @@ class PassThruTest extends ReposeValveTest {
         count >= 1 && count <= 2
         (count == 2 && firstValue == value) || (count == 1 && firstValue.startsWith(value))
     }
-
-
 }
