@@ -9,6 +9,7 @@ import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.UserRateLimit;
 import org.junit.Before;
@@ -104,8 +105,10 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
       when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
       HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
-      limitMap.put("252423958:46792755", new CachedRateLimit(""));
-      when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap, true));
+      CachedRateLimit cachedRateLimit = new CachedRateLimit("");
+      cachedRateLimit.getUsageMap().put(HttpMethod.GET, new LinkedList<Long>());
+      limitMap.put("252423958:46792755", cachedRateLimit);
+      when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
 
       final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
