@@ -78,7 +78,7 @@ class PassThruTest extends ReposeValveTest {
     @Unroll("Should not interfere with semicolons and equals signs in request: #name - #value")
     def "Should not interfere with semicolons and equals signs in request"() {
 
-        //This test checks that Repose is not trying to look for qvalues in the
+        // This test checks that Repose is not trying to look for qvalues in the
         // field values of headers that don't accept qvalues.
 
         // Substituting test values for the Host and Expect headers generally breaks
@@ -97,6 +97,9 @@ class PassThruTest extends ReposeValveTest {
         // TE, Trailer, Transfer-Encoding, Upgrade, and trailers in the entity
         // body are "hop-by-hop" headers. These should not be naively forwarded
         // by a proxy, and are thus not subject to the requirement.
+
+        // The Via header has additional semantics, and is treated in a separate
+        // test method below.
 
         // All other headers that are defined in RFC 2616 but not mentioned
         // above are tested, as well as some example extension headers not
@@ -146,7 +149,6 @@ class PassThruTest extends ReposeValveTest {
         'Server'              | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'User-Agent'          | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Vary'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Via'                 | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Warning'             | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'WWW-Authenticate'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
 
@@ -155,10 +157,32 @@ class PassThruTest extends ReposeValveTest {
     }
 
     @Category(Bug.class) // Defect D-11822
+    def "Should not interfere with semicolons and equals signs in Via - request"() {
+
+        // The Via header has a field-value that consists of comma-separated values.
+        // Repose will add a new value to the list, or add a separate header
+
+        given:
+        String value = 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
+        def headers = [Via: value]
+
+        when:
+        def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        def count = mc.handlings[0].request.headers.getCountByName("Via")
+        def firstValue = mc.handlings[0].request.headers.getFirstValue("Via")
+        count >= 1 && count <= 2
+        (count == 2 && firstValue == value) || (count == 1 && firstValue.startsWith(value))
+    }
+
+    @Category(Bug.class) // Defect D-11822
     @Unroll("Should not interfere with semicolons and equals signs in response: #name - #value")
     def "Should not interfere with semicolons and equals signs in response"() {
 
-        //This test checks that Repose is not trying to look for qvalues in the
+        // This test checks that Repose is not trying to look for qvalues in the
         // field values of headers that don't accept qvalues.
 
         // Substituting test values for the Host and Expect headers generally breaks
@@ -177,6 +201,9 @@ class PassThruTest extends ReposeValveTest {
         // TE, Trailer, Transfer-Encoding, Upgrade, and trailers in the entity
         // body are "hop-by-hop" headers. These should not be naively forwarded
         // by a proxy, and are thus not subject to the requirement.
+
+        // The Via header has additional semantics, and is treated in a separate
+        // test method below.
 
         // All other headers that are defined in RFC 2616 but not mentioned
         // above are tested, as well as some example extension headers not
@@ -230,12 +257,34 @@ class PassThruTest extends ReposeValveTest {
         'Server'              | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'User-Agent'          | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Vary'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Via'                 | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Warning'             | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'WWW-Authenticate'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
 
         'Extension-Header'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'X-Extension-Header'  | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
+    }
+
+    @Category(Bug.class) // Defect D-11822
+    def "Should not interfere with semicolons and equals signs in Via - response"() {
+
+        // The Via header has a field-value that consists of comma-separated values.
+        // Repose will add a new value to the list, or add a separate header
+
+        given:
+        String value = 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
+        def headers = [Via: value]
+
+        when:
+        def mc = deproxy.makeRequest(
+                url: reposeEndpoint,
+                defaultHandler: { request -> new Response(200, "OK", headers) })
+
+        then:
+        mc.receivedResponse.code == "200"
+        def count = mc.receivedResponse.headers.getCountByName("Via")
+        def firstValue = mc.receivedResponse.headers.getFirstValue("Via")
+        count >= 1 && count <= 2
+        (count == 2 && firstValue == value) || (count == 1 && firstValue.startsWith(value))
     }
 
 
