@@ -47,7 +47,7 @@ public class ManagedRateLimitCacheTest {
         HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
         limitMap.put("12345", new CachedRateLimit(".*"));
 
-        when(datastore.get(ACCOUNT)).thenReturn(new UserRateLimit(limitMap, false));
+        when(datastore.get(ACCOUNT)).thenReturn(new UserRateLimit(limitMap));
 
         assertFalse("Should return a non-empty set", rateLimitCache.getUserRateLimits(ACCOUNT).isEmpty());
     }
@@ -56,10 +56,11 @@ public class ManagedRateLimitCacheTest {
     public void updateLimit_shouldSendPatchToDatastore() throws Exception {
         HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
         limitMap.put("testKey", new CachedRateLimit("foo"));
-        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap, true));
+        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit();
         configuredRatelimit.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
-        rateLimitCache.updateLimit(HttpMethod.GET, "bob", "testKey", configuredRatelimit, 5);
+        configuredRatelimit.getHttpMethods().add(HttpMethod.GET);
+        rateLimitCache.updateLimit("bob", "testKey", configuredRatelimit, 5);
         verify(datastore).patch(eq("bob"), any(UserRateLimit.Patch.class), eq(1), eq(TimeUnit.MINUTES));
     }
 
@@ -70,10 +71,11 @@ public class ManagedRateLimitCacheTest {
         cachedRateLimit.logHit(HttpMethod.GET, com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
         HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
         limitMap.put("testKey", cachedRateLimit);
-        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap, true));
+        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit();
         configuredRatelimit.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
-        NextAvailableResponse response = rateLimitCache.updateLimit(HttpMethod.GET, "bob", "testKey", configuredRatelimit, 5);
+        configuredRatelimit.getHttpMethods().add(HttpMethod.GET);
+        NextAvailableResponse response = rateLimitCache.updateLimit("bob", "testKey", configuredRatelimit, 5);
         assertThat(response, hasValues(true, now, 1));
     }
 

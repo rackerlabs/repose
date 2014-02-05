@@ -24,20 +24,16 @@ class UserRateLimitTest {
         String limitKey = "testKey"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
-        configuredRatelimit.uriRegex = uriRegex
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.SECOND
-        configuredRatelimit.value = 1
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
         cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
-        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap, false)
+        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
         long now = System.currentTimeMillis()
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, method, configuredRatelimit))
-        assertThat(patchedLimit.withinLimit, equalTo(true))
-        assertThat(patchedLimit, containsLimit(limitKey, method, now, TimeUnit.SECONDS, uriRegex))
+        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, configuredRatelimit))
+        assertThat(patchedLimit, containsLimit(limitKey, [method], now, TimeUnit.SECONDS, uriRegex))
     }
 
     @Test
@@ -45,19 +41,15 @@ class UserRateLimitTest {
         String limitKey = "testKey"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
-        configuredRatelimit.uriRegex = uriRegex
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.SECOND
-        configuredRatelimit.value = 0
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 0)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
         cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
-        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap, false)
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, method, configuredRatelimit))
-        assertThat(patchedLimit.withinLimit, equalTo(false))
-        assertThat(patchedLimit.limitMap.get(limitKey).usageMap.get(method).isEmpty(), equalTo(true))
+        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
+        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, configuredRatelimit))
+        assertThat(patchedLimit.limitMap.get(limitKey).usageMap.isEmpty(), equalTo(true))
     }
 
     @Test
@@ -65,35 +57,28 @@ class UserRateLimitTest {
         String limitKey = "testKey"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
-        configuredRatelimit.uriRegex = uriRegex
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.SECOND
-        configuredRatelimit.value = 1
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
 
-        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap, false)
+        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
         long now = System.currentTimeMillis()
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, method, configuredRatelimit))
-        assertThat(patchedLimit.withinLimit, equalTo(true))
-        assertThat(patchedLimit, containsLimit(limitKey, method, now, TimeUnit.SECONDS, uriRegex))
+        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, configuredRatelimit))
+        assertThat(patchedLimit, containsLimit(limitKey, [method], now, TimeUnit.SECONDS, uriRegex))
     }
 
     @Test
-    void "patch should be returning a copy of the object"() {
+    void "patch should be returning a different object than the one in the datastore"() {
         String limitKey = "testKey"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
-        configuredRatelimit.uriRegex = uriRegex
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.SECOND
-        configuredRatelimit.value = 1
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
         cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
-        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap, false)
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, method, configuredRatelimit))
+        UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
+        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(limitKey, configuredRatelimit))
         assertThat(patchedLimit, not(sameInstance(rateLimit)))
     }
 
@@ -105,10 +90,24 @@ class UserRateLimitTest {
         configuredRatelimit.uriRegex = "foo"
         configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
         configuredRatelimit.value = 5
-        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", HttpMethod.GET, configuredRatelimit)
+        configuredRatelimit.httpMethods = [HttpMethod.GET]
+        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", configuredRatelimit)
         UserRateLimit userRateLimit = patch.newFromPatch()
-        assertThat(userRateLimit.withinLimit, equalTo(true))
-        assertThat(userRateLimit, containsLimit("testKey", HttpMethod.GET, now, TimeUnit.MINUTES, "foo"))
+        assertThat(userRateLimit, containsLimit("testKey", [HttpMethod.GET], now, TimeUnit.MINUTES, "foo"))
+    }
+
+    @Test
+    void "newFromPatch should create a correct rate limit with multiple http methods when within limit"() {
+        long now = System.currentTimeMillis()
+
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
+        configuredRatelimit.uriRegex = "foo"
+        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
+        configuredRatelimit.value = 5
+        configuredRatelimit.httpMethods = [HttpMethod.GET, HttpMethod.POST]
+        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", configuredRatelimit)
+        UserRateLimit userRateLimit = patch.newFromPatch()
+        assertThat(userRateLimit, containsLimit("testKey", [HttpMethod.GET, HttpMethod.POST], now, TimeUnit.MINUTES, "foo"))
     }
 
     @Test
@@ -116,31 +115,42 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.uriRegex = "foo"
         configuredRatelimit.value = 0
-        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", HttpMethod.GET, configuredRatelimit)
+        configuredRatelimit.httpMethods = [HttpMethod.GET]
+        UserRateLimit.Patch patch = new UserRateLimit.Patch("testKey", configuredRatelimit)
         UserRateLimit userRateLimit = patch.newFromPatch()
-        assertThat(userRateLimit.withinLimit, equalTo(false))
+        assertThat(userRateLimit.limitMap.get("testKey").usageMap.size(), equalTo(0))
     }
 
-    static Matcher<UserRateLimit> containsLimit(String limitKey, HttpMethod method, long startTime, TimeUnit timeUnit, String uriRegex) {
+    private ConfiguredRatelimit validConfiguredRateLimit(String uriRegex, List<HttpMethod> methods, com.rackspace.repose.service.limits.schema.TimeUnit unit, int value) {
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
+        configuredRatelimit.uriRegex = uriRegex
+        configuredRatelimit.httpMethods = methods
+        configuredRatelimit.unit = unit
+        configuredRatelimit.value = value
+        configuredRatelimit
+    }
+
+    static Matcher<UserRateLimit> containsLimit(String limitKey, List<HttpMethod> methods, long startTime, TimeUnit timeUnit, String uriRegex) {
         return new TypeSafeMatcher<UserRateLimit>() {
             @Override
             protected boolean matchesSafely(UserRateLimit item) {
                 HashMap<String,CachedRateLimit> limitMap = item.getLimitMap()
                 boolean containsKey = limitMap.containsKey(limitKey)
                 boolean containsUriRegex = limitMap.get(limitKey).regexHashcode == uriRegex.hashCode()
-                boolean containsMethod = limitMap.get(limitKey).usageMap.containsKey(method)
-                long expiration = limitMap.get(limitKey).usageMap.get(method).last
-                boolean expectedExpiration = (expiration >= (TimeUnit.MILLISECONDS.convert(1, timeUnit) + startTime)) &&
-                                             (expiration < (TimeUnit.MILLISECONDS.convert(2, timeUnit) + startTime))
+                boolean containsMethods = limitMap.get(limitKey).usageMap.keySet().containsAll(methods)
+                boolean expiration = limitMap.get(limitKey).usageMap.entrySet.every {
+                    (it.value.last >= (TimeUnit.MILLISECONDS.convert(1, timeUnit) + startTime)) &&
+                    (it.value.last < (TimeUnit.MILLISECONDS.convert(2, timeUnit) + startTime))
+                }
                 return containsKey &&
                        containsUriRegex &&
-                       containsMethod &&
-                       expectedExpiration;
+                       containsMethods &&
+                       expiration;
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("An UserRateLimit with a limit key:" + limitKey + " method: " + method + " a time stamp near:" + startTime + " plus 1 " + timeUnit)
+                description.appendText("An UserRateLimit with a limit key:" + limitKey + " methods: " + methods + " a time stamp near:" + startTime + " plus 1 " + timeUnit)
             }
         };
     }

@@ -1,6 +1,5 @@
 package com.rackspace.repose.service.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
@@ -41,20 +40,19 @@ public class RateLimiterTest {
 
          final RateLimiter rateLimiter = new RateLimiter(mockedCache);
 
-         when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+         when(mockedCache.updateLimit(any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
 
          key = LimitKey.getLimitKey(uriMatcher, false);
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit, datastoreWarnLimit);
       }
 
-
       @Test(expected=OverLimitException.class)
       public void shouldThrowOverLimitException() throws IOException, OverLimitException {
 
          final RateLimiter rateLimiter = new RateLimiter(mockedCache);
 
-         when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+         when(mockedCache.updateLimit(any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
 
 
@@ -65,7 +63,7 @@ public class RateLimiterTest {
       public void shouldThrowCacheException() throws OverLimitException, IOException {
          final RateLimiter rateLimiter = new RateLimiter(mockedCache);
 
-         when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+         when(mockedCache.updateLimit(any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class), anyInt())).thenThrow(new IOException("uh oh"));
 
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit, datastoreWarnLimit);
@@ -76,7 +74,7 @@ public class RateLimiterTest {
       public void shouldUpdateLimitWithoutExceptions() throws IOException, OverLimitException {
          final RateLimiter rateLimiter = new RateLimiter(mockedCache);
 
-         when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class), any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+         when(mockedCache.updateLimit(any(String.class), any(String.class), any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
 
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit, datastoreWarnLimit);
       }

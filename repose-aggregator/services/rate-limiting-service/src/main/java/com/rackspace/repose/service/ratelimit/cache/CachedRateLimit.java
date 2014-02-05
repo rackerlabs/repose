@@ -30,6 +30,10 @@ public class CachedRateLimit implements Serializable {
         return regexHashcode;
     }
 
+    public Map<HttpMethod, LinkedList<Long>> getUsageMap() {
+        return usageMap;
+    }
+
     private void vacuum() {
         final long now = now();
 
