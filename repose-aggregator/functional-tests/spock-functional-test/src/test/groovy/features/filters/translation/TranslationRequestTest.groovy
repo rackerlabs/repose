@@ -56,6 +56,15 @@ class TranslationRequestTest extends ReposeValveTest {
             repose.stop()
     }
 
+    def "Timebomb to deal with saxon-ee dependency for translation filter"() {
+
+        when:
+        1
+
+        then:
+        assert new Date() < new Date(2014 - 1900, Calendar.FEBRUARY, 12, 9, 0)
+    }
+
     @Unroll("response: xml, request: #reqHeaders - #reqBody")
     def "when translating requests"() {
 
