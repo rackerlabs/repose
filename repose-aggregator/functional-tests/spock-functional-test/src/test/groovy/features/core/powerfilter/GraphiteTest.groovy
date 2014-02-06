@@ -14,7 +14,7 @@ class GraphiteTest extends ReposeValveTest {
     static String METRIC_NAME = "repose-node1-com.rackspace.papi.ResponseCode.Repose.2XX.count"
 
     int graphitePort;
-    def reader
+    MockGraphite mockGraphite
     int lastCount = -1
 
     def setup() {
@@ -31,7 +31,7 @@ class GraphiteTest extends ReposeValveTest {
                 lastCount = m.group(1).toInteger()
             }
         }
-        reader = new MockGraphite(graphitePort, lineProc)
+        mockGraphite = new MockGraphite(graphitePort, lineProc)
 
         def params = properties.getDefaultTemplateParams() + [graphitePort: graphitePort]
         repose.configurationProvider.applyConfigs("common", params)
@@ -41,9 +41,15 @@ class GraphiteTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        if (deproxy)
+        if (deproxy) {
             deproxy.shutdown()
-        repose.stop()
+        }
+        if (repose) {
+            repose.stop()
+        }
+        if (mockGraphite) {
+            mockGraphite.stop()
+        }
     }
 
     def "when sending requests, data should be logged to graphite"() {
