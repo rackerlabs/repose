@@ -1,20 +1,12 @@
 package features.services.datastore
-
-import framework.ReposeConfigurationProvider
-import framework.ReposeContainerLauncher
-import framework.ReposeLauncher
-import framework.ReposeValveLauncher
 import framework.ReposeValveTest
-import framework.TestProperties
-import framework.TestUtils
-import framework.category.Slow
 import framework.category.Bug
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
-import spock.lang.Specification
 
-@Category(Slow.class)
+@Category(Bug.class)
+//@Category(Slow.class)
 class DistDatastoreServiceBurstTest extends ReposeValveTest {
     static def datastoreEndpoint1
 
@@ -44,7 +36,6 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
 
     }
 
-    @Category(Bug.class)
     def "under heavy load should not go over specified rate limit"() {
 
         given:
