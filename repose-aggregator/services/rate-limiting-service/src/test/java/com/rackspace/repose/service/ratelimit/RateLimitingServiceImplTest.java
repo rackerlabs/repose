@@ -2,9 +2,6 @@ package com.rackspace.repose.service.ratelimit;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
-import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.COMPLEX_URI;
-import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.COMPLEX_URI_REGEX;
-import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.newLimitFor;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse;
@@ -13,17 +10,15 @@ import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -113,13 +108,11 @@ public class RateLimitingServiceImplTest {
            List<String> groups = new ArrayList<String>();
            groups.add("configure-limit-group");
 
-              when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+              when(cache.updateLimit(any(String.class), any(String.class),
                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
 
               rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
          }
-      
-      
       
       @Test
       public void shouldThrowOverLimits() throws IOException, OverLimitException{
@@ -128,7 +121,7 @@ public class RateLimitingServiceImplTest {
          
          Date nextAvail = new Date();
 
-         when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+         when(cache.updateLimit(any(String.class), any(String.class),
                  any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, nextAvail, 0));
          
          try{
@@ -146,7 +139,7 @@ public class RateLimitingServiceImplTest {
          List<String> groups = new ArrayList<String>();
          groups.add("configure-limit-group");
 
-         when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+         when(cache.updateLimit(any(String.class), any(String.class),
                  any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
          
          rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
@@ -159,7 +152,7 @@ public class RateLimitingServiceImplTest {
            config.setUseCaptureGroups(Boolean.FALSE);
            groups.add("configure-limit-group");
 
-              when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+              when(cache.updateLimit(any(String.class), any(String.class),
                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
 
               rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);

@@ -4,6 +4,7 @@ import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.*;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,7 @@ public class EHCacheDatastore implements Datastore {
         }
         Element currentElement = ehCacheInstance.putIfAbsent(element);
         if(currentElement == null) {
-            return potentialNewValue;
+            return SerializationUtils.clone(potentialNewValue);
         }
         else {
             currentElement = ehCacheInstance.get(key);

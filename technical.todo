@@ -1,6 +1,7 @@
 - Replace StringUtils with apache commons lang
 -- Evaluate any of the other utils to see if they can also be replaced
-
+- remove own timeunit enum
+- replace object serializer with commons serialization utils
 
 - repose-aggregator/commons/utilities
 -- Make spring dependencies optional.  The user of utilities will need to explicitly

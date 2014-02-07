@@ -4,10 +4,14 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.datastore.Patch;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
+import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
+import com.rackspace.repose.service.ratelimit.cache.UserRateLimit;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,9 +22,12 @@ import org.mockito.stubbing.Answer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +56,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
   public static class WhenMakingValidRequests extends TestParent {
 
     @Before
-    public void standUp() {
+    public void setup() {
       List<String> headerNames = new ArrayList<String>();
       headerNames.add(PowerApiHeader.GROUPS.toString());
       headerNames.add(PowerApiHeader.USER.toString());
@@ -97,6 +104,11 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
       when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
       when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
+      HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+      CachedRateLimit cachedRateLimit = new CachedRateLimit("");
+      cachedRateLimit.getUsageMap().put(HttpMethod.GET, new LinkedList<Long>());
+      limitMap.put("252423958:46792755", cachedRateLimit);
+      when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
 
       final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
@@ -192,13 +204,14 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     protected RateLimitingHandlerFactory handlerFactory;
     protected HttpServletRequest mockedRequest;
     protected ReadableHttpServletResponse mockedResponse;
+    protected DistributedDatastore datastore;
 
-    @Before
+      @Before
     public void beforeAny() {
-      final DistributedDatastore distDatastoreMock = mock(DistributedDatastore.class);
+      datastore = mock(DistributedDatastore.class);
       final DatastoreService service = mock(DatastoreService.class);
 
-      when(service.getDistributedDatastore()).thenReturn(distDatastoreMock);
+      when(service.getDistributedDatastore()).thenReturn(datastore);
 
       handlerFactory = new RateLimitingHandlerFactory(service);
       handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());

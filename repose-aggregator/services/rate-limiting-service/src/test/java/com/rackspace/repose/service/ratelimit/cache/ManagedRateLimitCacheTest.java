@@ -2,17 +2,20 @@ package com.rackspace.repose.service.ratelimit.cache;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 // TODO: Still depend on Repose core
@@ -21,79 +24,75 @@ import static org.mockito.Mockito.*;
  *
  * @author jhopper
  */
-@RunWith(Enclosed.class)
 public class ManagedRateLimitCacheTest {
 
-    public static final String ACCOUNT = "12345";
-    public static final int datastoreWarnLimit= 1000;
+    private String ACCOUNT = "12345";
+    private int datastoreWarnLimit= 1000;
+    private Datastore datastore;
+    private ManagedRateLimitCache rateLimitCache;
 
-
-    public static class WhenRetrievingAccountLimitKeys {
-
-        @Test
-        public void shouldReturnEmptySetsWhenNoLimitKeysExist() {
-            final Datastore cacheMock = mock(Datastore.class);
-            
-            final ManagedRateLimitCache cache = new ManagedRateLimitCache(cacheMock);
-            assertTrue("Should have an empty map when no limits have been registered for an account", cache.getUserRateLimits("key").isEmpty());
-        }
-
-        @Test
-        public void shouldReturnCachedKeySets() throws Exception {
-            final Datastore cacheMock = mock(Datastore.class);
-            final HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
-            limitMap.put("12345", new CachedRateLimit(".*"));
-            
-            when(cacheMock.get(ACCOUNT)).thenReturn(limitMap);
-            
-            final ManagedRateLimitCache cache = new ManagedRateLimitCache(cacheMock);
-            assertFalse("Should return a non-empty set", cache.getUserRateLimits(ACCOUNT).isEmpty());
-        }
+    @Before
+    public void setUp() throws Exception {
+        datastore = mock(Datastore.class);
+        rateLimitCache = new ManagedRateLimitCache(datastore);
     }
 
-    public static class WhenUpdatingRateLimits {
+    @Test
+    public void getUserRateLimits_shouldReturnEmptySetsWhenNoLimitKeysExist() {
+        assertTrue("Should have an empty map when no limits have been registered for an account", rateLimitCache.getUserRateLimits("key").isEmpty());
+    }
 
-        private ManagedRateLimitCache cache;
+    @Test
+    public void getUserRateLimits_shouldReturnCachedKeySets() throws Exception {
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        limitMap.put("12345", new CachedRateLimit(".*"));
 
-        @Test
-        public void shouldAddNewLimit() throws Exception {
-            final String user = "12345", key = "variant";
-            final ConfiguredRatelimit rate = new ConfiguredRatelimit();
-            rate.setUriRegex(".*");
-            rate.setUnit(TimeUnit.HOUR);
-            rate.setValue(3);
-            
-            final HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
-            
-            final Datastore cacheMock = mock(Datastore.class);
-            when(cacheMock.get(user)).thenReturn(limitMap);
-            
-            cache = new ManagedRateLimitCache(cacheMock);
+        when(datastore.get(ACCOUNT)).thenReturn(new UserRateLimit(limitMap));
 
-            cache.updateLimit(HttpMethod.GET, user, key, rate, datastoreWarnLimit);
-            
-            verify(cacheMock).put(eq(user), any(Serializable.class), eq(1), eq(java.util.concurrent.TimeUnit.HOURS));
-        }
+        assertFalse("Should return a non-empty set", rateLimitCache.getUserRateLimits(ACCOUNT).isEmpty());
+    }
 
-        @Test
-        public void shouldReturnValidNextAvailableResponse() throws Exception {
-            final String account = "12345", key = "variant";
-            final ConfiguredRatelimit rate = new ConfiguredRatelimit();
-            rate.setUriRegex(".*");
-            rate.setValue(2);
-            rate.setUnit(TimeUnit.HOUR);
-         
-            final HashMap<String, CachedRateLimit> liveLimitMap = new HashMap<String, CachedRateLimit>();
-            liveLimitMap.put(key, new CachedRateLimit(".*"));
+    @Test
+    public void updateLimit_shouldSendPatchToDatastore() throws Exception {
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        limitMap.put("testKey", new CachedRateLimit("foo"));
+        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit();
+        configuredRatelimit.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+        configuredRatelimit.getHttpMethods().add(HttpMethod.GET);
+        rateLimitCache.updateLimit("bob", "testKey", configuredRatelimit, 5);
+        verify(datastore).patch(eq("bob"), any(UserRateLimit.Patch.class), eq(1), eq(TimeUnit.MINUTES));
+    }
 
-            final Datastore cacheMock = mock(Datastore.class);
-            when(cacheMock.get(account)).thenReturn(liveLimitMap);
-            
-            cache = new ManagedRateLimitCache(cacheMock);
+    @Test
+    public void updateLimit_usesReturnedValues_toPopulateResultObject() throws Exception {
+        long now = System.currentTimeMillis();
+        CachedRateLimit cachedRateLimit = new CachedRateLimit("foo");
+        cachedRateLimit.logHit(HttpMethod.GET, com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+        HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+        limitMap.put("testKey", cachedRateLimit);
+        when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
+        ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit();
+        configuredRatelimit.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+        configuredRatelimit.getHttpMethods().add(HttpMethod.GET);
+        NextAvailableResponse response = rateLimitCache.updateLimit("bob", "testKey", configuredRatelimit, 5);
+        assertThat(response, hasValues(true, now, 1));
+    }
 
-            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
-            assertTrue(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
-            assertFalse(cache.updateLimit(HttpMethod.GET, account, key, rate, datastoreWarnLimit).hasRequestsRemaining());
-        }
+    private Matcher<NextAvailableResponse> hasValues(final boolean hasRequests, final long resetTime, final int currentLimitAmount) {
+        return new TypeSafeMatcher<NextAvailableResponse>() {
+            @Override
+            protected boolean matchesSafely(NextAvailableResponse item) {
+                return (item.hasRequestsRemaining() == hasRequests) &&
+                       (item.getResetTime().getTime() > resetTime) &&
+                       (item.getResetTime().getTime() < (resetTime + 120000)) &&
+                       (item.getCurrentLimitAmount() == currentLimitAmount);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Response with success: " + hasRequests + " reset time greater than: " + resetTime + "and less than: " + (resetTime + 120000) + " current limit amount: " + currentLimitAmount);
+            }
+        };
     }
 }

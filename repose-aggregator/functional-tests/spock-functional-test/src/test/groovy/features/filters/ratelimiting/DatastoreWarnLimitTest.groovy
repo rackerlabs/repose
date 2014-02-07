@@ -1,8 +1,7 @@
 package features.filters.ratelimiting
-
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-
+import spock.lang.Unroll
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 
 class DatastoreWarnLimitTest extends ReposeValveTest{
@@ -23,7 +22,8 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         deproxy.shutdown()
     }
 
-    def "when sending requests that match capture group with different cache keys should warn when exceeds limit"() {
+    @Unroll
+    def "when sending requests that match capture group with different cache keys should warn when exceeds #totalRequests"() {
 
         given:
         def user= UUID.randomUUID().toString();
@@ -42,8 +42,8 @@ class DatastoreWarnLimitTest extends ReposeValveTest{
         where:
 
         totalRequests  | expectedWarnings
-        WARN_LIMIT + 1 | 1
-        WARN_LIMIT + 2 | 2
+        WARN_LIMIT + 1 | 2
+        WARN_LIMIT + 2 | 3
 
     }
 

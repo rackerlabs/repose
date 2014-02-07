@@ -1,11 +1,8 @@
 package com.rackspace.repose.service.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 import org.slf4j.Logger;
@@ -27,10 +24,7 @@ public class RateLimiter {
       // Get the next, shortest available time that a user has to wait for
       try {
          // update the cache for each method in single rate limit
-         NextAvailableResponse nextAvailable = null;
-         for (HttpMethod configuredMethod : rateLimit.getHttpMethods()) {
-            nextAvailable = cache.updateLimit(configuredMethod, user, limitKey, rateLimit, datastoreWarnLimit);
-         }
+         NextAvailableResponse nextAvailable = cache.updateLimit(user, limitKey, rateLimit, datastoreWarnLimit);
 
          if (nextAvailable != null && !nextAvailable.hasRequestsRemaining()) {
             throw new OverLimitException("User rate limited!", user, nextAvailable.getResetTime(), nextAvailable.getCurrentLimitAmount(), rateLimit.toString());

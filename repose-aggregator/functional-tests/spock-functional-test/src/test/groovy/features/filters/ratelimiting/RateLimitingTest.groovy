@@ -49,6 +49,10 @@ class RateLimitingTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
+    def cleanup() {
+        waitForLimitReset()
+    }
+
     def "When a limit is tested, method should not make a difference"() {
         given: "the rate-limit has not been reached"
         waitForLimitReset()
