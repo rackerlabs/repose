@@ -30,7 +30,7 @@
         </inlinemediaobject>'>
 ]> 
 
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:svg="http://www.w3.org/2000/svg"
@@ -51,27 +51,30 @@
     
     
     
-    <section xml:id="Filter-Prerequisites">
-        <title>Filter Prerequisites</title>
+    <section xml:id="Filter-use-cases">
+        <title>Filter Use Cases</title>
         <para> </para>
     </section>
     
     
     
     
-    <section xml:id="Filter-Configuration-Options">
-        <title>Filter Configuration Options</title>
+    <section xml:id="Filter-process">
+        <title>Filter Process</title>
         
         <para> </para>
         
+    </section>
+    
+    <section xml:id="Filter-request-prerequisites">
+        <title>Filter Request Prerequisites</title>
         
-        
-        <para><guilabel> Elements and Attributes Used in the Filter</guilabel></para>
+        <para> </para>
         
     </section>
     
     
-    <section xml:id="Filter-Features">  
+    <section xml:id="Filter-features">  
         <title>Filter Features</title>
         <para> </para> 
         
@@ -148,8 +151,8 @@
     
     
     
-    <section xml:id="Filter-Process">  
-        <title>Filter Process</title>
+    <section xml:id="Filter-configuration-options">  
+        <title>Filter Configuration Options</title>
         <orderedlist>
             
             <listitem>
@@ -218,4 +221,11 @@
         </figure>
         
     </section>
-</chapter>
+    
+    <section xml:id="filter-error-scenarios">
+        <title>Filter Error Scenarios</title>
+        
+        <para> </para>
+        
+    </section>
+</section>
