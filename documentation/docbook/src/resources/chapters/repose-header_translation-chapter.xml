@@ -30,7 +30,7 @@
         </inlinemediaobject>'>
 ]>
 
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:svg="http://www.w3.org/2000/svg"
@@ -109,7 +109,7 @@
             header-translation.cfg.xml will resemble
             the following
             example:</emphasis></db:para>
-        <example><title>Sample Authentication Configuration File</title>
+        <example><title>Sample Header Translation Configuration File</title>
             <programlisting language="xml">
 <xi:include href="../samples/repose-header-translation-cfg.xml" parse="text"/>
                 </programlisting>
@@ -172,6 +172,7 @@
         <para>
             Some tests go here.
         </para>
+        
     </section>
     
     <section xml:id="Header-Translation-Error-Scenarios">
@@ -191,4 +192,4 @@
         </orderedlist>
     </section>
     
-</chapter>
+</section>

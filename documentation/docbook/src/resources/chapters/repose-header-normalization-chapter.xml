@@ -30,7 +30,7 @@
         </inlinemediaobject>'>
 ]> 
 
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:svg="http://www.w3.org/2000/svg"
@@ -60,6 +60,17 @@
         <para>The Header Normalization filter has no required request headers. When you set the order of Repose filters, 
             place the Header Normalization filter near the top of the sequence to clean the request. This order sequence 
             prevents unexpected request headers and content from passing to the origin service.</para>
+        
+     <!--   
+         <sidebar>
+            <title>Some clever blog post</title>
+            <para>ipsum lorem</para>
+        </sidebar>
+        -->
+        
+        
+        
+        
     </section>
     
     
@@ -257,4 +268,4 @@
         </figure>
         
     </section>
-</chapter>
+</section>
