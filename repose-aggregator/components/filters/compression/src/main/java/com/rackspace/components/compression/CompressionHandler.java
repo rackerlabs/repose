@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.EOFException;
 import java.io.IOException;
 
 public class CompressionHandler extends AbstractFilterLogicHandler {
@@ -47,33 +48,32 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
       }
 
       try {
-
          filter.doFilter(mutableHttpRequest, response, chain);
          myDirector.setResponseStatusCode(response.getStatus());
-      } catch (IOException ex) {
-
-         if (isUserGzipError(ex)) {
+      } catch (IOException ioe) {
+         if (isUserGzipError(ioe)) {
             LOG.warn("Unable to decompress message. Bad request body or content-encoding");
-            LOG.debug("Gzip Error:",ex);
+            LOG.debug("Gzip Error: ", ioe);
+            myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+         } else if(ioe.getClass() == EOFException.class) {
+            LOG.warn("Unable to decompress message. Bad request body or content-encoding");
+            LOG.debug("EOF Error: ", ioe);
             myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
          } else {
-            LOG.error("IOException with Compression filter" + ex.getClass(), ex);
-            myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+            LOG.error("IOException with Compression filter " + ioe.getClass(), ioe);
+            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
          }
-      } catch (ServletException ex) {
-         LOG.error("Servlet error within Compression Filter", ex);
+      } catch (ServletException se) {
+         LOG.error("Servlet error within Compression filter ", se);
          myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
-      return myDirector;
 
+      return myDirector;
    }
 
    //What we receive from the compressing filter is an IOException. This method will parse the message to see if the error
    //was caused by a bad request body + content-encoding
-   private boolean isUserGzipError(IOException ex) {
-
-
-      return StringUtilities.nullSafeEqualsIgnoreCase(ex.getMessage(), "Not in GZIP format") ? true : false;
-
+   private boolean isUserGzipError(IOException ioe) {
+      return StringUtilities.nullSafeEqualsIgnoreCase(ioe.getMessage(), "Not in GZIP format") ? true : false;
    }
 }
