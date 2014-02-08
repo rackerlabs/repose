@@ -129,7 +129,6 @@ class DistDatastoreServiceTomcatTest extends Specification {
         assert new Date() < new Date(2014 - 1900, Calendar.JANUARY, 31, 9, 0)
     }
 
-    @Ignore('These changes actually make the system faster and reveal our rate-limiting bug')
     def "when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded"() {
         given:
         def user = UUID.randomUUID().toString();

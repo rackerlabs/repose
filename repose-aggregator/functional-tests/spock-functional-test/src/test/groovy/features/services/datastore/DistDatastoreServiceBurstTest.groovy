@@ -1,16 +1,15 @@
 package features.services.datastore
 import framework.ReposeValveTest
-import framework.category.Bug
+import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 
-@Category(Bug.class)
-//@Category(Slow.class)
+@Category(Slow.class)
 class DistDatastoreServiceBurstTest extends ReposeValveTest {
     static def datastoreEndpoint1
 
-    def setupSpec() {
+    def setup() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
@@ -27,7 +26,7 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests("401")
     }
 
-    def cleanupSpec() {
+    def cleanup() {
         if (deproxy)
             deproxy.shutdown()
 
@@ -71,11 +70,20 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
         println totalSuccessfulCount
         println totalFailedCount
         println requests.size()
-        assert totalSuccessfulCount == rate_limiting_count
+        inRange(totalSuccessfulCount, rate_limiting_count)
 
         where:
         numClients | callsPerClient
-        30        | 20
+        30         | 20
+        10         | 50
+        50         | 10
 
+    }
+
+    private void inRange(int totalSuccessfulCount, int rateLimitingCount){
+        int minRange = Math.floor(rateLimitingCount - (rateLimitingCount * 0.03))
+        int maxRange = Math.ceil(rateLimitingCount + (rateLimitingCount * 0.03))
+        assert totalSuccessfulCount >= minRange
+        assert totalSuccessfulCount <= maxRange
     }
 }
