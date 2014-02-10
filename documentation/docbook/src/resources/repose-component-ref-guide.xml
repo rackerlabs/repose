@@ -132,16 +132,26 @@
             <tbody>
                 <tr>
                     <td>
-                        <para>Header Normalization</para>
+                        <para>
+                            <link linkend="Header-Normalization-Chapter">Header Normalization</link>
+                        </para>
+                        
+                    </td> 
+                    <td>
+                        
+                        <para>
+                            header-normalization
+                        </para>
+                    </td>
+                    
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-normalization/src/main/resources/META-INF/schema/config/header-normalization-configuration.xsd"> 
+                            header-normalization.xsd</link>
+                        
                     </td>
                     <td>
-                        <para>header-normalization</para>
-                    </td>
-                    <td>
-                        <para>header-normalization.xsd</para>
-                    </td>
-                    <td>
-                        <para>header-normalization.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-normalization/src/main/resources/META-INF/schema/examples/header-normalization.cfg.xml"> 
+                            header-normalization.cfg.xml</link>  
                     </td>
                     <td>
                         <para>Cleans the request to prevent unexpected request headers.</para>
@@ -150,16 +160,22 @@
                 
                 <tr>
                     <td>
-                        <para>Content Normalization</para>
-                    </td>
+                        <para>
+                            <link linkend="Repose-Content-Normalization-Chapter">Content Normalization</link>
+                        </para>
+                        
+                    </td> 
                     <td>
                         <para>content-normalization</para>
                     </td>
                     <td>
-                        <para>content-normalization.xsd</para>
+                        
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/content-normalization/src/main/resources/META-INF/schema/config/normalization-configuration.xsd"> 
+                            content-normalization.xsd</link>  
                     </td>
                     <td>
-                        <para>content-normalization.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/content-normalization/src/main/resources/META-INF/schema/examples/content-normalization.cfg.xml"> 
+                            content-normalization.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Allows normalization of the headers and
@@ -178,7 +194,8 @@
                         <para>uri-normalization.xsd</para>
                     </td>
                     <td>
-                        <para>uri-normalization.cfg.xml</para>
+                        
+                            <para>uri-normalization.cfg.xml</para> 
                     </td>
                     <td>
                         <para>Allows normalization of a request's
@@ -188,16 +205,20 @@
                 
                 <tr>
                     <td>
-                        <para>Header Translation</para>
+                        <para>
+                            <link linkend="Repose-Header-Translation-Chapter">Header Translation</link>
+                        </para>
                     </td>
                     <td>
                         <para>header-translation</para>
                     </td>
                     <td>
-                        <para>header-translation.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            header-translation.xsd</link>  
                     </td>
                     <td>
-                        <para>header-translation.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            header-translation.xsd</link> 
                     </td>
                     <td>
                         <para>Translates a request header to one or
@@ -208,15 +229,18 @@
                 </tr>
                 
                 <tr>
-                    <td>Translation</td>
+                    <td><para><link linkend="Repose-Translation-Chapter"
+                        >Translation</link></para></td>
                     <td>
                         <para>translation</para>
                     </td>
                     <td>
-                        <para>translation-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            translation.xsd</link> 
                     </td>
                     <td>
-                        <para>translation.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/translation/src/main/resources/META-INF/schema/examples/translation.cfg.xml"> 
+                            translation.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Translates requests and responses so
@@ -359,19 +383,21 @@
                 </tr>
                 
                 <tr>
-                    <td>Rate Limiting</td>
+                    <td><para><link linkend="Repose-Ratelimiting-Chapter"
+                        >Ratelimiting</link></para></td>
+                    
                     <td>
-                        <para>rate-limiting</para>
+                        
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml"> 
+                            rate-limiting.cfg.xml</link> 
                     </td>
                     <td>
-                        <para>rate-limiting-configuration.xsd</para>
-                    </td>
-                    <td>
-                        <para>rate-limiting.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml"> 
+                            rate-limiting.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Gives configurable control over the
-                            amount of traffic to the origin service. </para>
+                            amount of traffic to the origin service.</para>
                     </td>
                 </tr>
                 
@@ -408,17 +434,18 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <para>Client Authentication</para>
-                    </td>
+                    <td><para><link linkend="Repose-AuthNZ-Chapter"
+                        >Client Authentication</link></para></td>
                     <td>
                         <para>client-auth</para>
                     </td>
                     <td>
-                        <para>client-auth-n-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-auth/src/main/resources/META-INF/schema/config/client-auth-n-configuration.xsd"> 
+                            client-auth-n-configuration.xsd</link> 
                     </td>
                     <td>
-                        <para>client-auth-n.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-auth/src/main/resources/META-INF/schema/examples/openstack/client-auth-n.cfg.xml"> 
+                            client-auth-n.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Acting as a reverse proxy, this filter
@@ -551,7 +578,11 @@
             <tbody>
                 <tr>
                     <td>
-                        <para>API (WADL/XSD) Validation</para>
+                        <para>
+                            <link linkend="Repose-API-Validation-Chapter"
+                                >API (WADL/XSD) Validation</link>
+                        </para>
+                       
                     </td>
                     <td>
                         <para>api-validator</para>
@@ -570,7 +601,11 @@
                 
                 <tr>
                     <td>
-                        <para>HTTP Logging</para>
+                        <para>
+                            <link linkend="HTTP-Logging-Filter">HTTP
+                                Logging</link>
+                        </para>
+                        
                     </td>
                     <td>
                         <para>http-logging</para>
@@ -587,8 +622,12 @@
                 </tr>
                 
                 <tr>
+                   
                     <td>
-                        <para>Compression</para>
+                    <para>
+                        <link linkend="Repose-Compression-Chapter"
+                        >Compression</link>
+                    </para>
                     </td>
                     <td>
                         <para>compression</para>
@@ -609,7 +648,11 @@
                 
                 <tr>
                     <td>
-                        <para>Versioning</para>
+                        <para>
+                            <link linkend="Repose-Versioning-Chapter"
+                                >Versioning </link>
+                        </para>
+                        
                     </td>
                     <td>
                         <para>versioning</para>

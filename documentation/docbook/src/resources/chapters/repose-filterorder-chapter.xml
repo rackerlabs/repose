@@ -92,12 +92,14 @@
             </tr>
             <tr>
                 <td>
+                        <para>
+                            <link linkend="Header-Normalization-Chapter">Header Normalization</link>
+                        </para>
+                
+                    <para>
+                        <link linkend="Repose-Content-Normalization-Chapter">Content Normalization</link>
+                    </para>
                     
-                    <para>Header Normalization</para>
-                   
-                    
-                    
-                    <db:para>Content Normalization</db:para>
                     <db:para>URI Normalization</db:para>
                    
                 </td>
@@ -208,7 +210,9 @@
                             >Translation</link></para>
                     <db:para>Service Authentication</db:para>
                     <db:para>Destination Router</db:para>
-                    <db:para>Header Translation </db:para>
+                    <para>
+                        <link linkend="Repose-Header-Translation-Chapter">Header Translation</link>
+                    </para>
                     <db:para>URI Stripper </db:para>
                     
                 </td>
