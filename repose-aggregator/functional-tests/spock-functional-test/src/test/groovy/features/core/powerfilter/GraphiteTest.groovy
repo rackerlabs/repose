@@ -1,71 +1,68 @@
 package features.core.powerfilter
+
 import framework.ReposeValveTest
-import org.json.JSONArray
-import org.json.JSONTokener
+import framework.mocks.MockGraphite
+import groovy.util.logging.Log4j
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.PortFinder
 
+@Log4j
 class GraphiteTest extends ReposeValveTest {
-    String GRAPHITE_SERVER = "http://graphite.staging.ord1.us.ci.rackspace.net/render?target=test.1.metrics.repose-node1-com.rackspace.papi.ResponseCode.Repose.2XX.count&format=json&from=-1min"
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""
 
-    String NAME_2XX = "\",name=\"2XX\""
-    String ALL_2XX = PREFIX + "All Endpoints" + NAME_2XX
-    String REPOSE_2XX = PREFIX + "Repose" + NAME_2XX
+    static String METRIC_PREFIX = "test.1.metrics"
+    static String METRIC_NAME = "repose-node1-com.rackspace.papi.ResponseCode.Repose.2XX.count"
+
+    int graphitePort;
+    MockGraphite mockGraphite
+    int lastCount = -1
 
     def setup() {
-        def params = properties.getDefaultTemplateParams()
+
+        graphitePort = PortFinder.Singleton.getNextOpenPort()
+
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
+
+        lastCount = -1
+        def lineProc = { line ->
+            def m = (line =~ /${METRIC_PREFIX}\.${METRIC_NAME}\s+(\d+)/)
+            if (m) {
+                lastCount = m.group(1).toInteger()
+            }
+        }
+        mockGraphite = new MockGraphite(graphitePort, lineProc)
+
+        def params = properties.getDefaultTemplateParams() + [graphitePort: graphitePort]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/graphite", params)
         repose.start()
 
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
     }
 
     def cleanup() {
-        if (deproxy)
+        if (deproxy) {
             deproxy.shutdown()
-        repose.stop()
+        }
+        if (repose) {
+            repose.stop()
+        }
+        if (mockGraphite) {
+            mockGraphite.stop()
+        }
     }
 
     def "when sending requests, data should be logged to graphite"() {
-        given:
-        def responses = []
 
         when:
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/endpoint"))
-        responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
+        def mc1 = deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
+        def mc2 = deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
+        def mc3 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
+        sleep(2000)
 
         then:
-        boolean isFound = false
-        InputStream is = new URI(GRAPHITE_SERVER).toURL().openStream()
-        try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is))
-            String jsonText = rd.readLine()
-            JSONArray results = new JSONArray(new JSONTokener(jsonText))
-            results != null
-            for(int i = 0; i < results.length(); i ++){
-                JSONArray datapoints = results.get(i).getJSONArray("datapoints")
-                datapoints != null
-                for(JSONArray datapoint : datapoints){
-                    if(datapoint.getString(0) != "null"){
-                        datapoint.getString(0).equals("3.0")
-                        isFound = true
-                        break
-                    }
-                }
-            }
-        } finally {
-            is.close()
-        }
-
-        isFound == true
-
-        responses.each { MessageChain mc ->
-            assert(mc.receivedResponse.code == "200")
-        }
+        lastCount == 3
+        mc1.receivedResponse.code == "200"
+        mc2.receivedResponse.code == "200"
+        mc3.receivedResponse.code == "200"
     }
-
 }
