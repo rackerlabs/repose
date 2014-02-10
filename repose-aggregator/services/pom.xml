@@ -4,7 +4,7 @@
     <parent>
         <artifactId>profile-support</artifactId>
         <groupId>com.rackspace.papi</groupId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.services</groupId>
