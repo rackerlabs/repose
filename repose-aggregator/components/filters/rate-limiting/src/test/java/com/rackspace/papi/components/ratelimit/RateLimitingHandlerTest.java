@@ -106,7 +106,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
       HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
       CachedRateLimit cachedRateLimit = new CachedRateLimit("");
-      cachedRateLimit.getUsageMap().put(HttpMethod.GET, new LinkedList<Long>());
+      cachedRateLimit.getUsageMap().put(HttpMethod.GET, new Vector<Long>());
       limitMap.put("252423958:46792755", cachedRateLimit);
       when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
 

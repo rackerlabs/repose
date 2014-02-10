@@ -6,20 +6,20 @@ import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
 
 import java.io.Serializable;
 import java.util.EnumMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  *
  * @author jhopper
  */
 public class CachedRateLimit implements Serializable {
-    private final Map<HttpMethod, LinkedList<Long>> usageMap;
+    private final Map<HttpMethod, Vector<Long>> usageMap;
     private final int regexHashcode;
 
     public CachedRateLimit(String regex) {
         this.regexHashcode = regex.hashCode();
-        this.usageMap = new EnumMap<HttpMethod, LinkedList<Long>>(HttpMethod.class);
+        this.usageMap = new EnumMap<HttpMethod, Vector<Long>>(HttpMethod.class);
     }
 
     public long now() {
@@ -30,27 +30,27 @@ public class CachedRateLimit implements Serializable {
         return regexHashcode;
     }
 
-    public Map<HttpMethod, LinkedList<Long>> getUsageMap() {
+    public Map<HttpMethod, Vector<Long>> getUsageMap() {
         return usageMap;
     }
 
     private void vacuum() {
         final long now = now();
 
-        for (Map.Entry<HttpMethod, LinkedList<Long>> entry : usageMap.entrySet()) {
-            final LinkedList<Long> usageQueue = entry.getValue();
+        for (Map.Entry<HttpMethod, Vector<Long>> entry : usageMap.entrySet()) {
+            final Vector<Long> usageQueue = entry.getValue();
 
-            while (!usageQueue.isEmpty() && usageQueue.peek() < now) {
-                usageQueue.poll();
+            while (!usageQueue.isEmpty() && usageQueue.get(0) < now) {
+                usageQueue.remove(0);
             }
         }
     }
 
     public void logHit(HttpMethod method, long time) {
-        LinkedList<Long> usageQueue = usageMap.get(method);
+        Vector<Long> usageQueue = usageMap.get(method);
 
         if (usageQueue == null) {
-            usageQueue = new LinkedList<Long>();
+            usageQueue = new Vector<Long>();
             usageMap.put(method, usageQueue);
         }
 
@@ -66,21 +66,14 @@ public class CachedRateLimit implements Serializable {
     public int amount(HttpMethod method) {
         vacuum();
 
-        final LinkedList<Long> usageQueue = usageMap.get(method);
+        final Vector<Long> usageQueue = usageMap.get(method);
         return usageQueue != null ? usageQueue.size() : 0;
     }
 
     public long getEarliestExpirationTime(HttpMethod method) {
         vacuum();
 
-        final LinkedList<Long> usageQueue = usageMap.get(method);
-        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peek() : now();
-    }
-
-    public long getLatestExpirationTime(HttpMethod method) {
-        vacuum();
-
-        final LinkedList<Long> usageQueue = usageMap.get(method);
-        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.peekLast() : now();
+        final Vector<Long> usageQueue = usageMap.get(method);
+        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.get(0) : now();
     }
 }
