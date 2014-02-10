@@ -7,7 +7,7 @@ import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Vector;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,7 +42,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
         for(HttpMethod method : patch.getConfiguredRateLimit().getHttpMethods()) {
             if(cachedRateLimit.amount(method) < patch.getConfiguredRateLimit().getValue()) {
                 cachedRateLimit.logHit(method, patch.getConfiguredRateLimit().getUnit());
-                returnedRateLimit.getUsageMap().put(method, new LinkedList<Long>(cachedRateLimit.getUsageMap().get(method)));
+                returnedRateLimit.getUsageMap().put(method, new Vector<Long>(cachedRateLimit.getUsageMap().get(method)));
             }
         }
 

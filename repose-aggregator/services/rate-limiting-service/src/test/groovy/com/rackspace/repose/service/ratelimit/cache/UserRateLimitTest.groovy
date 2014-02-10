@@ -27,7 +27,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
-        cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
+        cachedRateLimit.usageMap.put(method, new Vector<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
         UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
@@ -44,7 +44,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 0)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
-        cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
+        cachedRateLimit.usageMap.put(method, new Vector<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
         UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
@@ -74,7 +74,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.SECOND, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(uriRegex)
-        cachedRateLimit.usageMap.put(method, new LinkedList<Long>())
+        cachedRateLimit.usageMap.put(method, new Vector<Long>())
         startingLimitMap.put(limitKey, cachedRateLimit)
 
         UserRateLimit rateLimit = new UserRateLimit(startingLimitMap)
