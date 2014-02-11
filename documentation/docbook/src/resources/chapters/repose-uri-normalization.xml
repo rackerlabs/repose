@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="uri-normalization-chapter">
+    <title>URI Normalization Filter</title>
+    
+    
+    <section xml:id="uri-normalization-introduction">
+        <title>Introduction</title>
+        <para>Normalization is the process of modifying or standardizing content to 
+            optimize the flow of information. The URI Normalization filter normalizes 
+            requests by performing two separate functions. The filter uses the whitelist 
+            element to prevent cache busting and uses the media-type element to normalize 
+            accept headers.</para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="uri-normalization-use-cases">
+        <title>URI Normalization Use Cases</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>As an administrator, I want to prevent cache
+                        busting to alleviate load on the API node for
+                        better performance.</para>
+                </listitem>
+                <listitem>
+                    <para>As an administrator, I want my service to
+                        support requests with multiple media types in
+                        the URL extensions. </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="uri-normalization-process">
+        <title>URI Normalization Process</title>
+        <!-- Need description here of what happens in the diagram. -->
+        <para> </para>
+        <figure
+            xml:id="URI-Normalization-Lifecycle">
+            <title>Request/Response Lifecycle for
+                URI Normalization</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata
+                        fileref="../figures/repose-uri-normalization-diagram.png"
+                        format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        
+    </section>
+    
+    <section xml:id="uri-normalization--request-prerequisites">
+        <title>URI Normalization Request Prerequisites</title>
+        
+        <para>The URI Normalization filter has no required request headers. 
+            When you set the order of Repose filters, place the URI Normalization 
+            filter near the top of the sequence to clean the request. This sequence 
+            prevents unexpected request headers and content from passing to the origin service.</para>
+        
+    </section>
+    
+    
+    <section xml:id="uri-normalization-features">  
+        <title>URI Normalization Features</title>
+        <para>The URI Normalization filter has two features that perform separate functions. The features are whitelist and media type. </para> 
+        
+        
+        
+        <section xml:id="Whitelist-uri-norm">
+            <title>Whitelist</title>
+            <para>Prevent cache busting by whitelisting the query parameters and controlling the number of times a query parameter appears. 
+                This normalizes the requests coming from the client so that cache busting cannot occur.</para>
+            
+            <!-- Real example goes here.  -->
+            
+            <!--
+            <example>
+              <title>URI Normalization Configuration Using Whitelist to Prevent Cache Busting</title>
+                
+                
+                
+                <programlisting language="xml">
+&lt;header-filters&gt;
+    &lt;blacklist id="rate-limit-headers"&gt;
+    &lt;header id="x-Black-Listed1" /&gt;
+    &lt;header id="x-Black-Listed2" /&gt;
+    &lt;/blacklist &gt;
+&lt;/header-filters&gt;
+                </programlisting>
+            </example>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Request
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
+                            -H "black-listed2:disappear" -H "nonblacklisted:should"   
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table rules="all" width="500"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Headers Passed to Origin Service
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            X-Auth-Token
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            non-blacklisted
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+            </example>
+            </example>
+            -->
+        </section>  
+        
+        
+        
+        
+        <section xml:id="media-type-uri-norm">
+            <title>Media Type</title>
+            <para>Use the media-type feature to normalize the accept header by mapping a media-type to a URI extension. 
+                If the media-type extension of the URI matches a configured variant extension, the URI Normalization 
+                filter strips the extension out of the URI and sets the configured media-type name. The filter sets 
+                the accept header but does not change the content body of the request. </para>
+            
+            <!-- Examples go here. -->
+        </section>
+    </section>
+    
+    
+    
+    <section xml:id="uri-normalization-config-options">  
+        <title>URI Normalization Configuration Options</title>
+        <para>Configure the URI Normalization filter by editing the uri-normalization.cfg.xml specifying the headers to be normalized. 
+            Add the filter to the Repose deployment through the System Model Configuration by editing the following elements and attributes.</para>
+        <db:para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;media-variants&gt;</emphasis>: lists
+                        the media types to apply to specific media
+                        variants from the request URI.</para>
+                </listitem>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;media-type&gt;:</emphasis>  defines
+                        the media type that is normalized. </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >name</emphasis>: names the media
+                                   type to apply to the accept header
+                                   of the request.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >variant-extension</emphasis>:
+                                   defines the variant extension that
+                                   the configured media type applies
+                                   to.</para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <emphasis role="bold"
+                                   >preferred</emphasis> : defines the
+                                   default media type to apply to the
+                                   request if no media type variation
+                                   or accept type is supplied. </para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </db:para>
+        <db:para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;uri-filters&gt;</emphasis>: lists the
+                        targets for which to apply normalization to
+                        the query parameters.</para>
+                </listitem>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;target&gt;</emphasis> : specifies the
+                        endpoint and http-method for a given uri-regex
+                        or http-method to act against.  </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >uri-regex</emphasis>: defines a
+                                   regular expression that is matched
+                                   against incoming requests.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >http-methods</emphasis>: lists the
+                                   method or methods that this
+                                   target matches against. Valid
+                                   values are GET, DELETE, POST, PUT,
+                                   HEAD, OPTIONS, CONNECT, TRACE, and
+                                   ALL.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >alphabetize</emphasis>: rearranges
+                                   the query parameters in
+                                   alphabetical order.</para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </db:para>
+        <db:para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;whitelist&gt;</emphasis>: lists the
+                        set of parameters that are allowed to pass to
+                        the origin service.</para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis role="bold"
+                            >&lt;parameter&gt;</emphasis> : lists the
+                        multiplicity and the case-sensitive
+                        parameters. </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >name</emphasis>: indicates the
+                                   value of the query
+                                   parameter.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >multiplicity</emphasis>: indicates
+                                   the number of times the parameter
+                                   can be repeated in the query
+                                   string. If you do not set the
+                                   number of allowed occurrences,
+                                   multiplicity is set to the default
+                                   0. If more than the number of
+                                   allowed occurrences is provided,
+                                   all occurrences after the maximum
+                                   are stripped.  If the alphabetize
+                                   attribute is set to true, the query
+                                   parameters are first alphabetized
+                                   and then evaluated for
+                                   multiplicity. Multiplicity is
+                                   unlimited in a given
+                                   parameter.</para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >case-sensitive</emphasis>: controls
+                                   whether or not to remove parameters
+                                   of a different case.</para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </db:para>
+        
+        
+    </section>
+    
+    <section xml:id="uri-normalization-error-scenarios">
+        <title>URI Normalization Error Scenarios</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>The URI Normalization filter never returns
+                        error codes. The request simply passes through
+                        to the next filter or to the origin
+                        service.</para>
+                </listitem>
+                <listitem>
+                    <para> If you use an HTTP method other than GET,
+                        DELETE, POST, PUT, HEAD, OPTIONS, CONNECT,
+                        TRACE, or ALL, you get a configuration error.
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+</section>

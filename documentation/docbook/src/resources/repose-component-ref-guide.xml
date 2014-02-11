@@ -112,7 +112,7 @@
     <chapter xml:id="request-response-modification-filters">
         <title>Request-Response Modification Filters</title>
         <para>The Request-Response Modification filters modify requests or responses in various ways. 
-            These filters translate, normalize, strip, or remove media types, headers, or query parameters. 
+            Use these filters remove or modify the headers, the query parameters, or the body of requests and responses. 
             To see the basic functions that these filters perform, read through each filter description in 
             the table below.</para>
         
@@ -185,8 +185,12 @@
                 
                 <tr>
                     <td>
-                        <para>URI Normalization</para>
-                    </td>
+                        <para>
+                            <link linkend="uri-normalization-chapter">Content Normalization</link>
+                        </para>
+                        
+                    </td> 
+                    
                     <td>
                         <para>uri-normalization</para>
                     </td>
@@ -274,6 +278,7 @@
                 
         
     <xi:include href="chapters/repose-content_normalization-chapter.xml"/> 
+    <xi:include href="chapters/repose-uri-normalization.xml"/> 
     <xi:include href="chapters/repose-header-normalization-chapter.xml"/>
     <xi:include href="chapters/repose-header_translation-chapter.xml"/>
     <xi:include href="chapters/repose-translation-chapter.xml"/>
@@ -284,11 +289,10 @@
     <!-- RATELIMITING MODIFICATION FILTERS --> 
     
     <chapter xml:id="ratelimiting-filters">
-        <title>Ratelimiting Filters</title>
-        <para>The Ratelimiting filters examine, set, and rate limit requests in various ways. 
-            These filters introspect request headers and source IPs, set X-PP-User and X-PP-Groups 
-            headers, and rate limit the amount of traffic to the origin service. To see the basic 
-            functions that these filters perform, read through each filter description in the 
+        <title>Ratelimiting Filters and Filters Commonly Used with Rate Limiting</title>
+        <para>The Ratelimiting filter gives you configurable control to rate-limit requests that are set by the Identity filters. 
+            Use the Identity filters to introspect request headers and source IPs and to set X-PP-User and X-PP-Groups 
+            headers. To see the basic functions that these filters perform, read through each filter description in the 
             table below.</para>
         <table rules="all" frame="box" border="1">
             <?dbfo keep-together="always"?>
