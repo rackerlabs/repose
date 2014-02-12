@@ -23,12 +23,6 @@
         <profile>
             <id>build-system-packages</id>
 
-            <activation>
-                <property>
-                    <name>Build Command Line Utilities DEB</name>
-                </property>
-            </activation>
-
             <build>
                 <plugins>
                     <plugin>

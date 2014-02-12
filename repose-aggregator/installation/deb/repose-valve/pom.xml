@@ -22,12 +22,6 @@
         <profile>
             <id>build-system-packages</id>
 
-            <activation>
-                <property>
-                    <name>Build Repose Valve DEB</name>
-                </property>
-            </activation>
-
             <build>
                 <plugins>
                     <plugin>

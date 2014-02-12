@@ -16,11 +16,7 @@
     <profiles>
         <profile>
             <id>build-system-packages</id>
-            <activation>
-                <property>
-                    <name>Build ROOT Web Application RPM</name>
-                </property>
-            </activation>
+
             <build>
                 <plugins>
                     <plugin>
