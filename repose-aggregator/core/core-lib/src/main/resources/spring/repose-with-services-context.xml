@@ -34,7 +34,4 @@
         <constructor-arg index="1" ref="akkaServiceClientService"/>
     </bean>
 
-    <bean name="healthCheckService"
-          class="com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl"/>
-
 </beans>

@@ -33,7 +33,6 @@
         <constructor-arg type="java.lang.String" value="${reposeVersion}"/>
     </bean>
 
-
     <!-- Service Contexts -->
     <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
         <constructor-arg index="0" ref="artifactManager"/>
@@ -58,6 +57,13 @@
     <bean name="log4jLoggingService" class="com.rackspace.papi.service.logging.LoggingServiceImpl">
         <constructor-arg index="0" value="LOG4J"/>
     </bean>
+
+
+    <bean name="healthCheckServiceContext"
+          class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
+
+    <bean name="healthCheckService" scope="singleton" lazy-init="true"
+          class="com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl"/>
 
     <bean name="distributedDatastoreServiceContext"
           class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
