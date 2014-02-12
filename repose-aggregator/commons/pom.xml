@@ -1,109 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-   <parent>
-      <groupId>com.rackspace.papi</groupId>
-      <artifactId>profile-support</artifactId>
-      <version>3.0.1-SNAPSHOT</version>
-   </parent>
+    <parent>
+        <groupId>com.rackspace.papi</groupId>
+        <artifactId>profile-support</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
-   <groupId>com.rackspace.papi.commons</groupId>
-   <artifactId>commons-support</artifactId>
+    <groupId>com.rackspace.papi.commons</groupId>
+    <artifactId>commons-support</artifactId>
 
-   <name>Repose Commons - Commons Support</name>
+    <name>Repose Commons - Commons Support</name>
 
-   <description>Common libraries used by Repose modules.
-       Commons should not have dependencies on other Repose modules.
-   </description>
+    <description>Common libraries used by Repose modules.
+        Commons should not have dependencies on other Repose modules.
+    </description>
 
-   <packaging>pom</packaging>
+    <packaging>pom</packaging>
 
-   <modules>
-      <module>utilities</module>
-      <module>configuration</module>
-      <module>classloader</module>
-      <module>jetty</module>
-   </modules>
+    <modules>
+        <module>utilities</module>
+        <module>configuration</module>
+        <module>classloader</module>
+        <module>jetty</module>
+    </modules>
 
-   <dependencyManagement>
-      <dependencies>
+    <dependencyManagement>
+        <dependencies>
 
-         <dependency>
-            <groupId>com.rackspace.papi.external</groupId>
-            <artifactId>jee6-schemas</artifactId>
-            <version>${project.version}</version>
-         </dependency>
-            
-         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-         </dependency>
+            <dependency>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>jee6-schemas</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-         <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-            <version>${project.version}</version>
-         </dependency>
-            
-         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.5</version>
-         </dependency>
-            
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>configuration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
-      </dependencies>
-   </dependencyManagement>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.5</version>
+            </dependency>
 
-   <build>
-      <plugins>
-         <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>8.0.1.v20110908</version>
+            </dependency>
 
-            <executions>
-               <execution>
-                  <id>doxygen-generate</id>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>8.0.1.v20110908</version>
+            </dependency>
 
-                  <phase>generate-resources</phase>
-                  <inherited>false</inherited>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>8.0.1.v20110908</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-                  <goals>
-                     <goal>run</goal>
-                  </goals>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>doxygen-generate</id>
+
+                        <phase>generate-resources</phase>
+                        <inherited>false</inherited>
+
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
 
                         <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
 
-                  <configuration>
-                     <target>
-                        <mkdir dir="${project.basedir}/target" />
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.basedir}/target"/>
 
-                        <exec dir="${project.basedir}" executable="doxygen">
-                           <arg value="rc-commons-doxygen.config" />
-                        </exec>
-                     </target>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-   </build>
+                                <exec dir="${project.basedir}" executable="doxygen">
+                                    <arg value="rc-commons-doxygen.config"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
 

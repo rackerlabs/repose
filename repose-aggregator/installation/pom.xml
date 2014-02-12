@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>com.rackspace.papi</groupId>
-      <artifactId>profile-support</artifactId>
-      <version>3.0.1-SNAPSHOT</version>
-   </parent>
+        <groupId>com.rackspace.papi</groupId>
+        <artifactId>profile-support</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
     <groupId>com.rackspace.repose.installation</groupId>
     <artifactId>installation</artifactId>
@@ -14,7 +15,7 @@
     <name>Repose - Installation</name>
 
     <description>
-        Parent module for the Repose RPM and Debian installation files. 
+        Parent module for the Repose RPM and Debian installation files.
     </description>
 
     <packaging>pom</packaging>
@@ -70,5 +71,5 @@
             </plugins>
         </pluginManagement>
     </build>
-    
+
 </project>

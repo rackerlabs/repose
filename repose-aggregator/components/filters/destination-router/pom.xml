@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-   <parent>
-      <groupId>com.rackspace.papi.components</groupId>
-      <artifactId>filters-support</artifactId>
-      <version>3.0.1-SNAPSHOT</version>
-   </parent>
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>filters-support</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
-   <groupId>com.rackspace.papi.components</groupId>
-   <artifactId>destination-router</artifactId>
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>destination-router</artifactId>
 
-   <name>Repose Components - Destination Router</name>
-   <description>TODO</description>
+    <name>Repose Components - Destination Router</name>
+    <description>TODO</description>
 
-   <packaging>jar</packaging>
-    
-   <dependencies>
-      <dependency>
-         <groupId>com.rackspace.papi.core</groupId>
-         <artifactId>core-lib</artifactId>
-      </dependency>
+    <packaging>jar</packaging>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>configuration</artifactId>
-      </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>utilities</artifactId>
-      </dependency>
-   </dependencies>
-    
-   <build>
-      <plugins>
-          <plugin>
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
@@ -54,7 +55,7 @@
                     <verbose>false</verbose>
 
                 </configuration>
-            </plugin>                 
-      </plugins>
-   </build>
+            </plugin>
+        </plugins>
+    </build>
 </project>

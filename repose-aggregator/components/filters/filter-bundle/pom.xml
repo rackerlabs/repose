@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +11,7 @@
 
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>filter-bundle</artifactId>
-    
+
     <name>Repose Components - EAR Bundle</name>
     <description>TODO</description>
 
@@ -61,7 +62,7 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-identity</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-identity-auth-1.1</artifactId>
@@ -71,7 +72,7 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-identity-auth-2.0</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-auth</artifactId>
@@ -106,7 +107,7 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-authorization</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-ip-identity</artifactId>
@@ -140,10 +141,10 @@
                 <artifactId>maven-ear-plugin</artifactId>
                 <version>2.5</version>
 
-                <extensions>true</extensions>                    
+                <extensions>true</extensions>
 
                 <executions>
-                    <execution>                           
+                    <execution>
                         <id>Package Ear Contents</id>
 
                         <phase>package</phase>
@@ -152,7 +153,7 @@
                             <goal>ear</goal>
                         </goals>
                     </execution>
-                </executions>                   
+                </executions>
 
                 <configuration>
                     <generateApplicationXml>false</generateApplicationXml>
@@ -163,7 +164,7 @@
                             <artifactId>default-router</artifactId>
                         </jarModule>
 
-                       <jarModule>
+                        <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>versioning</artifactId>
                         </jarModule>
@@ -191,7 +192,7 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>http-logging</artifactId>
-                        </jarModule>                            
+                        </jarModule>
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
@@ -207,12 +208,12 @@
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>destination-router</artifactId>
                         </jarModule>
-                            
+
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>flush-output</artifactId>
                         </jarModule>
-                            
+
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>translation</artifactId>
