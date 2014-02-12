@@ -26,37 +26,26 @@
         <module>repose-valve</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>DEB Build Support</id>
+    <build>
+        <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.vafer</groupId>
+                    <artifactId>jdeb</artifactId>
+                    <version>0.9</version>
 
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <build>
-                <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.vafer</groupId>
-                            <artifactId>jdeb</artifactId>
-                            <version>0.9</version>
-
-                            <executions>
-                                <execution>
-                                    <phase>package</phase>
-                                    <goals>
-                                        <goal>jdeb</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-
-    </profiles>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jdeb</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
