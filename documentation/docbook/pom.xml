@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
@@ -14,22 +15,22 @@
 
     <name>Repose - Documentation</name>
     <packaging>jar</packaging>
-    
+
     <build>
         <plugins>
-	  <plugin>
-            <groupId>com.rackspace.cloud.api</groupId>
-            <artifactId>olink-maven-plugin</artifactId>
-            <version>1.0</version>
-            <executions>
-              <execution>
-		<phase>initialize</phase>
-		<goals>
-		  <goal>olink</goal>
-		</goals>
-              </execution>
-            </executions>
-	  </plugin>
+            <plugin>
+                <groupId>com.rackspace.cloud.api</groupId>
+                <artifactId>olink-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>olink</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.rackspace.cloud.api</groupId>
                 <artifactId>clouddocs-maven-plugin</artifactId>
@@ -47,7 +48,7 @@
                             <!-- set branding to OPENSTACK or RACKSPACE or REPOSE -->
                             <branding>repose</branding>
                             <!-- for WebHelp: -->
-                            <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review --> 
+                            <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review -->
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
                             <enableDisqus>intranet</enableDisqus>
                             <disqusShortname>rc-integration</disqusShortname>
@@ -59,11 +60,12 @@
                             <sourceDirectory>src/resources</sourceDirectory>
                             <!-- if Maven build fails but oXygen says all source is green, use <failOnValidationError>no</failOnValidationError> to ignore Maven's complaints 
                             <failOnValidationError>no</failOnValidationError> -->
-                            <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
+                            <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml
+                            </glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
                             <!-- to build everything found in <sourceDirectory>, comment out includes -->
-                           <includes>repose-component-ref-guide.xml</includes> 
-                            
+                            <includes>repose-component-ref-guide.xml</includes>
+
                         </configuration>
                     </execution>
                 </executions>
