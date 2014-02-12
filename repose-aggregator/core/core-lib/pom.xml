@@ -25,21 +25,25 @@
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>classloader</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.service</groupId>
             <artifactId>httpclient-connection-pool</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
