@@ -119,13 +119,11 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             try {
                 datastorePort = determinePort();
                 initialized = true;
-            } catch (Exception ex) {
-                try {
-                    healthCheckService.reportIssue(healthServiceUID, issueId,
-                            new HealthCheckReport("Dist-Datastore Configuration Issue:" + ex.getMessage(), Severity.BROKEN));
-                } catch (NotRegisteredException nre) {
-                    LOG.error(nre.getMessage());
+                if(!healthCheckService.getReportIds(healthServiceUID).isEmpty()){
+                    healthCheckService.solveIssue(healthServiceUID, issueId);
                 }
+            } catch (Exception ex) {
+                reportError(ex.getMessage());
             }
         }
 
@@ -156,6 +154,16 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             }
 
             return port;
+        }
+
+        private void reportError(String message){
+            try {
+                healthCheckService.reportIssue(healthServiceUID, issueId,
+                        new HealthCheckReport("Dist-Datastore Configuration Issue:" + message, Severity.BROKEN));
+            } catch (NotRegisteredException nre) {
+                LOG.error(nre.getMessage());
+            }
+
         }
     }
 }
