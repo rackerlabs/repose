@@ -97,4 +97,5 @@ public class HealthCheckServiceImpl implements HealthCheckService {
             throw new NotRegisteredException(UID);
         }
     }
+
 }

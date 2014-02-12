@@ -87,6 +87,26 @@ class HealthCheckServiceImplTest {
     }
 
     @Test
+    void shouldReturnReportsAssociatedWithUid(){
+
+        String uid = healthCheckService.register(this.class);
+        healthCheckService.reportIssue(uid, "id1", h1);
+        healthCheckService.reportIssue(uid, "id2", h2);
+        healthCheckService.reportIssue(uid, "id3", h3);
+
+        String uid2 = healthCheckService.register(String.class)
+
+        healthCheckService.reportIssue(uid2, "id4", h4);
+        healthCheckService.reportIssue(uid2, "id5", h5);
+
+        assert healthCheckService.getReports(uid).containsKey("id1")
+        assert healthCheckService.getReports(uid).containsKey("id2")
+        assert !healthCheckService.getReports(uid).containsKey("id4")
+        assert !healthCheckService.getReports(uid).containsKey("id5")
+
+    }
+
+    @Test
     void shouldProvideHealthyResponseWhenNoIssuesReported() {
 
         assert healthCheckService.isHealthy()
@@ -114,6 +134,24 @@ class HealthCheckServiceImplTest {
 
         healthCheckService.reportIssue(uid+"blah", "id", h1)
     }
+
+    @Test(expected = NotRegisteredException.class)
+    void shouldThrowNotRegisteredExceptionWhenRetrievingReportsOfUnregisteredUID(){
+
+        String uid = healthCheckService.register(this.class)
+
+        healthCheckService.getReports(uid+"blah")
+    }
+
+    @Test(expected = NotRegisteredException.class)
+    void shouldThrowNotRegisteredExceptionWhenSolvingIssuesOfUnregisteredUID(){
+
+        String uid = healthCheckService.register(this.class)
+
+        healthCheckService.solveIssue(uid+"blah", "notThere")
+    }
+
+
 
 
 }
