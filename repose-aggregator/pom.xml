@@ -28,18 +28,18 @@
         <gmaven.version>1.5</gmaven.version>
         <akka.version>2.2.3</akka.version>
         <powermock.version>1.5.4</powermock.version>
+        <jersey.version>1.16</jersey.version>
+        <jackson.version>1.9.13</jackson.version>
+        <yammer.version>2.2.0</yammer.version>
     </properties>
 
     <modules>
         <module>external</module>
-        <module>services/httpclient</module>
         <module>commons</module>
-        <module>components/datastores</module>
         <module>services</module>
         <module>core</module>
         <module>components</module>
         <module>extensions</module>
-        <module>services/rate-limiting-service</module>
         <module>installation</module>
         <module>management</module>
         <module>functional-tests</module>
@@ -105,12 +105,12 @@
             <dependency>
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-client</artifactId>
-                <version>1.16</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>1.16</version>
+                <version>${jersey.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.jersey.test.framework</groupId>
@@ -123,22 +123,22 @@
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-lgpl</artifactId>
-                <version>1.9.13</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-lgpl</artifactId>
-                <version>1.9.13</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
-                <version>1.9.13</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-jaxrs</artifactId>
-                <version>1.9.13</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fge</groupId>
@@ -181,19 +181,19 @@
             <dependency>
                 <groupId>com.yammer.metrics</groupId>
                 <artifactId>metrics-core</artifactId>
-                <version>2.2.0</version>
+                <version>${yammer.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.yammer.metrics</groupId>
                 <artifactId>metrics-graphite</artifactId>
-                <version>2.2.0</version>
+                <version>${yammer.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.yammer.metrics</groupId>
                 <artifactId>metrics-ehcache</artifactId>
-                <version>2.2.0</version>
+                <version>${yammer.version}</version>
             </dependency>
 
             <dependency>
@@ -253,6 +253,7 @@
         </dependency>
 
         <!--For slf4j logging support-->
+        <!-- todo: should these be mismatched? -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -263,6 +264,8 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.6</version>
         </dependency>
+
+        <!--todo: Ugh utlilites really needs these? -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.servlet</artifactId>
@@ -277,6 +280,7 @@
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
         </dependency>
+        <!-- todo: related to the schema class generation stuff below move along with it -->
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
@@ -288,6 +292,7 @@
         <pluginManagement>
             <plugins>
 
+                <!-- todo: figure out how these work and move them to where they belong -->
                 <!--For JAXB Schema Compilation Support-->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -382,20 +387,6 @@
                 <artifactId>gmaven-plugin</artifactId>
                 <version>${gmaven.version}</version>
                 <configuration>
-                    <testSources>
-                        <fileset>
-                            <directory>${pom.basedir}/src/test/groovy</directory>
-                            <includes>
-                                <include>**/*.groovy</include>
-                            </includes>
-                        </fileset>
-                        <fileset>
-                            <directory>${pom.basedir}/src/test/java</directory>
-                            <includes>
-                                <include>**/*.groovy</include>
-                            </includes>
-                        </fileset>
-                    </testSources>
                     <providerSelection>1.8</providerSelection>
                     <source/>
                 </configuration>
