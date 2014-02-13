@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="Destination-Router-Chapter">
+    <title>Destination Router Filter</title>
+    
+    
+    <section xml:id="Destination-Router-Introduction">
+        <title>Introduction</title>
+        <para>The destination router will add a possible routing destination at a configured quality.  
+            After all filters in the filter chain have finished processing the request, REPOSE will 
+            choose the destination which has the highest quality. </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Destination-Router-use-cases">
+        <title>Destination Router Use Cases</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Destination-Router-process">
+        <title>Destination Router Process</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    <section xml:id="Destination-Router-request-prerequisites">
+        <title>Destination Router Request Prerequisites</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    
+    <section xml:id="Destination-Router-features">  
+        <title>Destination Router Features</title>
+        <para> </para> 
+        
+        
+        
+        <section xml:id="Destination-Router-Feature-1">
+            <title>Feature 1</title>
+            <para> </para>
+        </section>  
+        
+    </section>
+    
+    
+    
+    <section xml:id="Destination-Router-configuration-options">  
+        <title>Destination Router Configuration Options</title>
+        <para>The destination router configuration contains a target element with two attributes: id and quality.  
+            The id specified must match an id of a destination for this service domain.  The router will add this 
+            id at the specified quality to the list of possible routing destinations for this request.</para>
+        <para><guilabel>Quality Factors</guilabel></para>
+            <para>Quality factors are used when determining the best routing destination. For more information on quality factors, 
+                see Header Value Quality. The quality factor of a target is a decimal number that must be greater than 0 and less than or equal to 1.0.</para>
+        
+        <!-- EXAMPLE goes here.  -->
+        <para><guilabel>Routing Logic</guilabel></para>
+        <para>In the configuration above, we assign the target destination id to be "openrepose" with a quality of 0.5. The destination router will add this id to 
+        the list of possible routing destinations with a quality of 0.5 for this request.</para>
+        
+    </section>
+    
+    <section xml:id="Destination-Router-error-scenarios">
+        <title>Destination Router Error Scenarios</title>
+        
+        <para> </para>
+        
+    </section>
+</section>

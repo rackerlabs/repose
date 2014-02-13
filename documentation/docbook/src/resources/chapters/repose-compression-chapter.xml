@@ -81,22 +81,6 @@
         
         
         
-        
-        
-   <!--   Play sample #1 to try to get the XSD to make a pretty graphic. -->     
-        
-     <!--   <example><title>Compression XSD File</title>
-            <programlisting language="xml">
-<xi:include href="../../../../../repose-aggregator/components/compression/src/main/resources/META-INF/schema/config/content-compression-configuration.xsd" parse="text"/>
-                </programlisting>
-            
-        </example> -->
-        
-        
-        
-        
-        
-        
         <para><guilabel> Elements and Attributes Used in the
                 Compression Filter</guilabel></para>
         <para><guilabel>&lt;content-compression></guilabel>:  This

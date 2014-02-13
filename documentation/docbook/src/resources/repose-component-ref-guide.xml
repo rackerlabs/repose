@@ -291,11 +291,11 @@
     
    
    
-    <!-- RATELIMITING MODIFICATION FILTERS --> 
+    <!-- RATELIMITING FILTERS --> 
     
     <chapter xml:id="ratelimiting-filters">
-        <title>Ratelimiting Filters and Filters Commonly Used with Rate Limiting</title>
-        <para>The Ratelimiting filter gives you configurable control to rate-limit requests that are set by the Identity filters. 
+        <title>Rate Limiting Filters</title>
+        <para>The Rate Limiting filter gives you configurable control to rate-limit requests that are set by the Identity filters. 
             Use the Identity filters to introspect request headers and source IPs and to set X-PP-User and X-PP-Groups 
             headers. To see the basic functions that these filters perform, read through each filter description in the 
             table below.</para>
@@ -377,17 +377,20 @@
                 </tr>
                 
                 <tr>
-                    <td>
-                        <para>URI Identity</para>
-                    </td>
+                    <td><para><link linkend="Repose-Ratelimiting-Chapter"
+                        >Ratelimiting</link></para></td>
+                    
                     <td>
                         <para>uri-identity</para>
                     </td>
                     <td>
-                        <para>uri-identity-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-identity/src/main/resources/META-INF/schema/config/uri-identity-configuration.xsd"> 
+                            uri-identity-configuration.xsd</link> 
+                       
                     </td>
                     <td>
-                        <para>uri-identity.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-identity/src/main/resources/META-INF/schema/examples/uri-identity.cfg.xml"> 
+                            uri-identity.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Enables Repose to  inspect a request URI
@@ -415,17 +418,15 @@
                         <para>Gives configurable control over the
                             amount of traffic to the origin service.</para>
                     </td>
-                    
-                    
                 </tr>
-                
-                
-                
             </tbody>
         </table>
+        
+        
     <xi:include href="chapters/repose-header-identity-chapter.xml"/>
     <xi:include href="chapters/repose-header-identity-mapping-chapter.xml"/>
-        <xi:include href="chapters/repose-ip-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-ip-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-uri-identity-chapter.xml"/>
     <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>
     </chapter>
     
@@ -528,10 +529,10 @@
                         <para>client-authorization</para>
                     </td>
                     <td>
-                        <para>openstack-authorization-configuration.xsd</para>
+                        <para>client-authorization-configuration.xsd</para>
                     </td>
                     <td>
-                        <para>openstack-authorization.cfg.xml</para>
+                        <para>client-authorization-configuration.cfg.xml</para>
                     </td>
                     <td>
                         <para>This filter can be configured to
@@ -547,15 +548,18 @@
                 </tr>
                 
                 <tr>
-                    <td>Service Authentication</td>
+                    <td><para><link linkend="Service-Authentication-Chapter"
+                        >Service Authentication</link></para></td>
                     <td>
                         <para>service-authentication</para>
                     </td>
                     <td>
-                        <para>service-auth-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/service-authentication/src/main/resources/META-INF/schema/config/service-auth-configuration.xsd"> 
+                            service-auth-configuration.xsd</link> 
                     </td>
                     <td>
-                        <para>service-authentication.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/service-authentication/src/main/resources/META-INF/schema/examples/service-authentication.cfg.xml"> 
+                            service-auth-configuration.cfg.xml</link> 
                     </td>
                     <td>
                         <para>This filter sends basic authentication
@@ -568,6 +572,7 @@
             </tbody>
         </table>
     <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
+        <xi:include href="chapters/repose-service-authn-chapter.xml"/>
 </chapter>
     
    
@@ -609,10 +614,14 @@
                         <para>api-validator</para>
                     </td>
                     <td>
-                        <para>validator-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd"> 
+                            validator-configuration.xsd</link>
+                        
                     </td>
                     <td>
-                        <para>validator.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/extensions/api-validator/src/main/resources/META-INF/schema/examples/validator.cfg.xml"> 
+                            validator.cfg.xml</link>
+                        
                     </td>
                     <td>
                         <para>Validates all requests based on an XSD
@@ -632,10 +641,14 @@
                         <para>http-logging</para>
                     </td>
                     <td>
-                        <para>http-logging-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/http-logging/src/main/resources/META-INF/schema/config/http-logging-configuration.xsd"> 
+                            http-logging-configuration.xsd</link> 
                     </td>
                     <td>
-                        <para>http-logging.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/http-logging/src/main/resources/META-INF/schema/examples/http-logging.cfg.xml"> 
+                            http-logging.cfg.xml</link> 
+                        
+                        
                     </td>
                     <td>Allows logging of information in HTTP requests
                         that are sent to Repose and responses from
@@ -654,10 +667,13 @@
                         <para>compression</para>
                     </td>
                     <td>
-                        <para>content-compression-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/compression/src/main/resources/META-INF/schema/config/content-compression-configuration.xsd"> 
+                            content-compression-configuration.xsd</link> 
+                        
                     </td>
                     <td>
-                        <para>compression.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/compression/src/main/resources/META-INF/schema/examples/compression.cfg.xml"> 
+                            compression.cfg.xml</link> 
                     </td>
                     <td>
                         <para>With this filter, Repose supports
@@ -679,10 +695,13 @@
                         <para>versioning</para>
                     </td>
                     <td>
-                        <para>versioning-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/versioning/src/main/resources/META-INF/schema/config/versioning-configuration.xsd"> 
+                            versioning-configuration.xsd</link>  
+                        
                     </td>
                     <td>
-                        <para>versioning.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml"> 
+                            versioning.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Enables REST services to version updates
@@ -691,15 +710,21 @@
                 </tr>
                 
                 <tr>
-                    <td> Destination Router</td>
+                    <td>
+                    <link linkend="Destination-Router-Chapter"
+                        >Destination Router </link>
+                    </td>
                     <td>
                         <para>destination-router</para>
                     </td>
                     <td>
-                        <para>destination-router-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/destination-router/src/main/resources/META-INF/schema/config/destination-router-configuration.xsd"> 
+                            destination-router-configuration.xsd</link> 
+                       
                     </td>
                     <td>
-                        <para>destination-router.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/destination-router/src/main/resources/META-INF/schema/examples/destination-router.cfg.xml"> 
+                            destination-router-configuration.cfg.xml</link> 
                     </td>
                     <td>Adds a routing destination at a configured
                         quality. After the request has been processed
@@ -709,7 +734,10 @@
                 </tr>
                 
                 <tr>
-                    <td> Flush Output Stream</td>
+                    <td>
+                    <link linkend="Flush-Output-Stream-Chapter"
+                        >Flush Output Stream </link>
+                    </td>
                     <td>
                         <para> flush-output </para>
                     </td>
@@ -733,6 +761,8 @@
     <xi:include href="chapters/repose-versioning-chapter.xml"/>
     <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
     <xi:include href="chapters/repose-compression-chapter.xml"/>  
+    <xi:include href="chapters/repose-destination-router-chapter.xml"/>
+    <xi:include href="chapters/repose-flush-output-stream-chapter.xml"/>
     </chapter>
    
    

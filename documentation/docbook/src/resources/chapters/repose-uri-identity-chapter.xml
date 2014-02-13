@@ -45,7 +45,7 @@
     
     <section xml:id="URI-Identity-Introduction">
         <title>Introduction</title>
-        <para> With the URI Identity Filter,  Repose can inspect a request URI and set the 
+        <para> With the URI Identity Filter, Repose can inspect a request URI and set the 
             X-PP-User and X-PP-Group headers accordingly.  These headers get consumed by the 
             Repose Rate Limiting Filter.</para>
     </section>
