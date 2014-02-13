@@ -13,7 +13,7 @@ class HealthCheckServiceTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params)
-        repose.start()
+        repose.start(true, false)
         TestUtils.waitUntilReadyToServiceRequests(reposeEndpoint, "503")
 
     }
