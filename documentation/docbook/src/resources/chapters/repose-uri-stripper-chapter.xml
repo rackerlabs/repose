@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="URI-Stripper-Chapter">
+    <title>URI Stripper Filter</title>
+    
+    
+    <section xml:id="URI-Stripper-Introduction">
+        <title>Introduction</title>
+        <para> The URI Stripper filter allows Repose to strip out a specific section of the request URI. 
+            It also allows some logic to edit the 'Location' if there is one present in the response.</para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="URI-Stripper-use-cases">
+        <title>URI Stripper Use Cases</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="URI-Stripper-process">
+        <title>URI Stripper Process</title>
+        <para></para>
+        
+        
+    </section>
+    
+    <section xml:id="URI-Stripper-request-prerequisites">
+        <title>URI Stripper Request Prerequisites</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    
+    <section xml:id="URI-Stripper-features">  
+        <title>URI Stripper Features</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    <section xml:id="URI-Stripper-configuration-options">  
+        <title>URI Stripper Configuration Options</title>
+        
+        <para>The URI Stripper filter is added to a Repose deployment
+            as a filter (uri-stripper). An example configuration is
+            provided: uri-stripper.cfg.xml. The URI Stripper filter
+            can be configured by editing the uri-stripper.cfg.xml. The
+            user can specify the following element:</para>
+        
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption/>
+            <thead>
+                <tr>
+                    <td>uri-stripper.cfg.xml</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>&lt;uri-stripper
+                        xmlns="http://docs.api.rackspacecloud.com/repose/uri-stripper/v1.0"
+                        rewrite-location="true"
+                        token-index="1"/></td>
+                </tr>
+            </tbody>
+            
+        </table>
+            
+           <para>token-index : When the URI Stripper filter receives a
+            request it will parse the request path using the '/'
+            character as the delimiter and break the path into indexed
+            tokens. Starting from index '0' the URI Stripper will take
+            the element in configured token-index and remove it from
+            the request path. </para> 
+            
+            
+            
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption/>
+            <thead>
+                <tr>
+                    <td>Resource Path</td>
+                    <td>Token Index</td>
+                    <td>Value</td>
+                    <td>Stripped Resource Path</td>
+                </tr>
+            </thead>
+            
+            <tbody>
+                <tr>
+                    <td>/v1/12345/some/resource</td> 
+                    <td>1</td>
+                    <td>12345</td>
+                    <td>/v1/some/resource</td>
+                </tr>
+                <tr>
+                    <td>/path/to/some/resource/here</td>
+                    <td>3</td>
+                    <td>resource</td>
+                    <td>/path/to/some/here</td>
+                </tr>
+                <tr>
+                    <td>/</td>
+                    <td>1</td>
+                    <td></td>
+                    <td>/</td>
+                </tr>
+            </tbody>
+        </table>
+        <para>rewrite-locaiton : If configured, the URI Stripper
+            filter will try to put the removed token back into the
+            resource path of the Location Header. To do this, the URI
+            Stripper will attempt to preserve the tokens which
+            preceded and succeeded the token that was stripped from
+            the original URI. If the token which preceded the stripped
+            value is present then the stripped value is added after
+            the preceded value. If succeeded token is present instead
+            then the stripped token will be inserted before the
+            succeeded value. If neither, preceded or succeeded, values
+            are present then the URI stripper will not attempt to
+            insert the stripped value into the Location header. </para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption/>
+            <thead>
+                <tr>
+                    <td>Resource Path</td>
+                    <td>Token Index</td>
+                    <td>Value</td>
+                    <td>Stripped Resource Path</td>
+                    <td>Original Location Header Path</td>
+                    <td>Updated Location Header Path</td>
+                </tr>
+            </thead>
+            
+            <tbody>
+                <tr>
+                    <td>/v1/12345/some/resource</td> 
+                    <td>1</td>
+                    <td>12345</td>
+                    <td>/v1/some/resource</td>
+                    <td>/totally/new/resource/path</td>
+                    <td>/totally/new/resource/path</td>
+                </tr>
+                <tr>
+                    <td>/v1/12345/some/resource</td>
+                    <td>1</td>
+                    <td>12345</td>
+                    <td>/v1/some/resource</td>
+                    <td> /v1/new/resource </td>
+                    <td>/v1/12345/new/resource</td>
+                </tr>
+                <tr>
+                    <td>/v1/12345/some/resource</td>
+                    <td>1</td>
+                    <td>12345</td>
+                    <td>/v1/some/resource</td>
+                    <td> /v1/some/resource </td>
+                    <td>/v1/12345/some/resource</td>
+                </tr>
+                <tr>
+                    <td>/v1/12345/some/resource</td>
+                    <td>1</td>
+                    <td>12345</td>
+                    <td>/v1/some/resource</td>
+                    <td> /v2/some/resource </td>
+                    <td>/v2/12345/some/resource</td>
+                </tr>
+            </tbody>
+        </table>
+        <para>
+            <note>
+                <para><guilabel>Location Header</guilabel></para>
+                <para>Even if the URI Stripper is configured to
+                    rewrite the Location header, the Location header
+                    must be a valid URI (as per  <link
+                        xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html"
+                        >RFC-2614 Sec. 14</link> ). If the Location
+                    Header is not a valid URI, the URI Stripper filter
+                    will not attempt to insert the stripped token.
+                </para>
+            </note>
+        </para>
+        
+    </section>
+    
+    <section xml:id="URI-Stripper-error-scenarios">
+        <title>URI Stripper Error Scenarios</title>
+        
+        <para> </para>
+        
+    </section>
+</section>

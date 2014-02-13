@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="Header-Identity-Mapping-Chapter">
+    <title>Header Identity Mapping Filter</title>
+    
+    
+    <section xml:id="Header-Identity-Mapping-Introduction">
+        <title>Introduction</title>
+        <para> With the Header Identity Mapping Filter, Repose can introspect a configured Header and set the X-PP-User and X-PP-Groups headers accordingly.</para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Header-Identity-Mapping-use-cases">
+        <title>Header Identity Mapping Use Cases</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Header-Identity-Mapping-process">
+        <title>Header Identity Mapping Process</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    <section xml:id="Header-Identity-Mapping-request-prerequisites">
+        <title>Header Identity Mapping Request Prerequisites</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    
+    <section xml:id="Header-Identity-Mapping-features">  
+        <title>Header Identity Mapping Features</title>
+        <para> </para> 
+        
+        
+        
+        <section xml:id="Header-Identity-Mapping-Feature-1">
+            <title>Feature 1</title>
+            <para> </para>
+        </section>  
+        
+        
+    </section>
+    
+    
+    
+    <section xml:id="Header-Identity-Mapping-configuration-options">  
+        <title>Header Identity Mapping Configuration Options</title>
+        
+        
+        <para>The Header Identity Mapping Component is added to a Repose deployment as a filter (header-id-mapping) via the System Model Config.</para>
+        <para>An example configuration is provided: Example Header Identity Mapping Configuration
+            Header Identity Mapping can be configured by editing the header-id-mapping.cfg.xml file. The user can specify the following information:</para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para> &lt;source-headers&gt; : List of headers to
+                        identify the incoming user. </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para> &lt;header&gt; : Header to
+                                   identify incoming user and group. </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <itemizedlist>
+                                   <listitem>
+                                   <para>If the specified user header
+                                   contains no value, then neither
+                                   x-pp-user nor x-pp-groups will be
+                                   set based on that header
+                                   entry.</para>
+                                   </listitem>
+                                   <listitem>
+                                   <para>If the specified user header
+                                   contains a value, but the specified
+                                   group header does not, then
+                                   x-pp-user will be set, but
+                                   x-pp-groups will not based on that
+                                   header entry.</para>
+                                   </listitem>
+                                   </itemizedlist>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para> &lt;quality&gt; : Quality
+                                   assigned to users found in the
+                                   request headers. </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <itemizedlist>
+                                   <listitem>
+                                   <para>If no quality is set, Repose
+                                   will default this value to
+                                   0.1.</para>
+                                   </listitem>
+                                   </itemizedlist>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                       
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    <section xml:id="Header-Identity-Mapping-error-scenarios">
+        <title>Header Identity Mapping Error Scenarios</title>
+        
+        <para> </para>
+        
+    </section>
+</section>

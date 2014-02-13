@@ -100,7 +100,9 @@
                         <link linkend="Repose-Content-Normalization-Chapter">Content Normalization</link>
                     </para>
                     
-                    <db:para>URI Normalization</db:para>
+                    <para>
+                        <link linkend="uri-normalization-chapter">URI Normalization</link>
+                    </para>
                    
                 </td>
                 

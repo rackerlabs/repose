@@ -167,14 +167,6 @@
         </figure>
     </section>
     
-    <section xml:id="Header-Translation-Tests">
-        <title> Header Translation Tests</title>
-        <para>
-            Some tests go here.
-        </para>
-        
-    </section>
-    
     <section xml:id="Header-Translation-Error-Scenarios">
         <title> Header Translation Error Scenarios</title>
         <orderedlist>

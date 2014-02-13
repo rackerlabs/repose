@@ -186,7 +186,8 @@
                 <tr>
                     <td>
                         <para>
-                            <link linkend="uri-normalization-chapter">Content Normalization</link>
+                            <link linkend="uri-normalization-chapter"
+                                >URI Normalization</link>
                         </para>
                         
                     </td> 
@@ -195,11 +196,13 @@
                         <para>uri-normalization</para>
                     </td>
                     <td>
-                        <para>uri-normalization.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-normalization/src/main/resources/META-INF/schema/config/uri-normalization-configuration.xsd"> 
+                            uri-normalization.xsd</link> 
                     </td>
                     <td>
                         
-                            <para>uri-normalization.cfg.xml</para> 
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-normalization/src/main/resources/META-INF/schema/examples/uri-normalization.cfg.xml"> 
+                            uri-normalization.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Allows normalization of a request's
@@ -256,7 +259,8 @@
                 </tr>
                 
                 <tr>
-                    <td>URI Stripper</td>
+                    <td><para><link linkend="URI-Stripper-Chapter"
+                        >URI Stripper</link></para></td>
                     <td>
                         <para>uri-stripper</para>
                     </td>
@@ -282,6 +286,7 @@
     <xi:include href="chapters/repose-header-normalization-chapter.xml"/>
     <xi:include href="chapters/repose-header_translation-chapter.xml"/>
     <xi:include href="chapters/repose-translation-chapter.xml"/>
+    <xi:include href="chapters/repose-uri-stripper-chapter.xml"/>
     </chapter>
     
    
@@ -296,7 +301,7 @@
             table below.</para>
         <table rules="all" frame="box" border="1">
             <?dbfo keep-together="always"?>
-            <caption>Request-Response Modification Filters</caption>
+            <caption>Rate Limiting Filters</caption>
             <thead>
                 <tr>
                     <td>Filter Name</td>
@@ -309,17 +314,18 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <para>Header Identity</para>
-                    </td>
+                    <td><para><link linkend="Header-Identity-Chapter"
+                        >Header Identity</link></para></td>
                     <td>
                         <para>header-identity</para>
                     </td>
                     <td>
-                        <para>header-identity-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/config/header-identity-configuration.xsd"> 
+                            header-identity.xsd</link> 
                     </td>
                     <td>
-                        <para>header-identity.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/examples/header-identity.cfg.xml"> 
+                            header-identity.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Enables Repose to introspect a
@@ -329,17 +335,20 @@
                 </tr>
                 
                 <tr>
-                    <td>
-                        <para>Header Identity Mapping</para>
-                    </td>
+                    
+                    <td><para><link linkend="Header-Identity-Mapping-Chapter"
+                            >Header Identity Mapping</link></para></td>
+                    
                     <td>
                         <para>header-id-mapping</para>
                     </td>
                     <td>
-                        <para>header-id-mapping-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-id-mapping/src/main/resources/META-INF/schema/config/header-id-mapping-configuration.xsd"> 
+                            header-id-mapping-configuration.xsd</link> 
                     </td>
                     <td>
-                        <para>header-id-mapping.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-id-mapping/src/main/resources/META-INF/schema/examples/header-id-mapping.cfg.xml"> 
+                            header-id-mapping-cfg.xml</link> 
                     </td>
                     <td>Enables Repose to  introspect a configured
                         header and set the X-PP-User and X-PP-Groups
@@ -347,17 +356,18 @@
                 </tr>
                 
                 <tr>
-                    <td>
-                        <para>IP Identity</para>
-                    </td>
+                    <td><para><link linkend="IP-Identity-Chapter"
+                        >Header Identity Mapping</link></para></td>
                     <td>
                         <para>ip-identity</para>
                     </td>
                     <td>
-                        <para>ip-identity-configuration.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-ip-identity/src/main/resources/META-INF/schema/config/ip-identity-configuration.xsd"> 
+                            ip-identity-configuration.xsd</link> 
                     </td>
                     <td>
-                        <para>ip-identity.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-ip-identity/src/main/resources/META-INF/schema/examples/ip-identity.cfg.xml"> 
+                            ip-identity-cfg.xml</link> 
                     </td>
                     <td>
                         <para>Enables Repose to  introspect a
@@ -389,11 +399,13 @@
                 <tr>
                     <td><para><link linkend="Repose-Ratelimiting-Chapter"
                         >Ratelimiting</link></para></td>
-                    
+                    <td>
+                        rate-limiting
+                    </td>
                     <td>
                         
-                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml"> 
-                            rate-limiting.cfg.xml</link> 
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/rate-limiting-service/src/main/resources/META-INF/schema/config/rate-limiting-configuration.xsd"> 
+                            rate-limiting.xsd</link> 
                     </td>
                     <td>
                         <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml"> 
@@ -403,12 +415,17 @@
                         <para>Gives configurable control over the
                             amount of traffic to the origin service.</para>
                     </td>
+                    
+                    
                 </tr>
                 
                 
                 
             </tbody>
         </table>
+    <xi:include href="chapters/repose-header-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-header-identity-mapping-chapter.xml"/>
+        <xi:include href="chapters/repose-ip-identity-chapter.xml"/>
     <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>
     </chapter>
     
