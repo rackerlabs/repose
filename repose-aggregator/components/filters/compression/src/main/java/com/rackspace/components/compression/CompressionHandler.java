@@ -5,7 +5,6 @@
 package com.rackspace.components.compression;
 
 import com.rackspace.external.pjlcompression.CompressingFilter;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -51,7 +50,7 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
          filter.doFilter(mutableHttpRequest, response, chain);
          myDirector.setResponseStatusCode(response.getStatus());
       } catch (IOException ioe) {
-         if (isUserGzipError(ioe)) {
+         if ("Not in GZIP format".equalsIgnoreCase(ioe.getMessage())) {
             LOG.warn("Unable to decompress message. Bad request body or content-encoding");
             LOG.debug("Gzip Error: ", ioe);
             myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
@@ -69,11 +68,5 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
       }
 
       return myDirector;
-   }
-
-   //What we receive from the compressing filter is an IOException. This method will parse the message to see if the error
-   //was caused by a bad request body + content-encoding
-   private boolean isUserGzipError(IOException ioe) {
-      return StringUtilities.nullSafeEqualsIgnoreCase(ioe.getMessage(), "Not in GZIP format") ? true : false;
    }
 }
