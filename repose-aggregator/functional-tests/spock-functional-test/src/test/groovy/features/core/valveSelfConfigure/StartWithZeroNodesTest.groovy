@@ -5,7 +5,7 @@ import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.DeproxyEndpoint
+import org.rackspace.deproxy.Endpoint
 import spock.lang.Specification
 
 @org.junit.experimental.categories.Category(Slow.class)
@@ -13,7 +13,7 @@ class StartWithZeroNodesTest extends Specification {
 
     int targetPort
     Deproxy deproxy
-    DeproxyEndpoint endpoint
+    Endpoint endpoint
 
     int port
     int stopPort

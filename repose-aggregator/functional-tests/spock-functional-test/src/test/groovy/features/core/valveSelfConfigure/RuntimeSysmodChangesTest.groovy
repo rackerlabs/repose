@@ -5,7 +5,7 @@ import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.DeproxyEndpoint
+import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 import org.junit.experimental.categories.Category
@@ -15,7 +15,7 @@ class RuntimeSysmodChangesTest extends Specification {
 
     int targetPort
     Deproxy deproxy
-    DeproxyEndpoint endpoint
+    Endpoint endpoint
 
     int port1
     int port2

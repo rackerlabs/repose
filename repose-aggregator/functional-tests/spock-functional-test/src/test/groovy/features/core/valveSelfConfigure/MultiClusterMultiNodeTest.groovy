@@ -5,7 +5,7 @@ import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.DeproxyEndpoint
+import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
@@ -16,8 +16,8 @@ class MultiClusterMultiNodeTest extends Specification {
     int targetPort1
     int targetPort2
     Deproxy deproxy
-    DeproxyEndpoint endpoint1
-    DeproxyEndpoint endpoint2
+    Endpoint endpoint1
+    Endpoint endpoint2
 
     int port11
     int port12
