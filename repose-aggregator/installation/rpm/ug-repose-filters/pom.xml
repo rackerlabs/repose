@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>rpm</artifactId>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
@@ -22,17 +23,11 @@
         <profile>
             <id>build-system-packages</id>
 
-            <activation>
-                <property>
-                    <name>Build Filter Bundle RPM</name>
-                </property>
-            </activation>
-
             <build>
                 <plugins>
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>                        
+                        <artifactId>git-commit-id-plugin</artifactId>
                     </plugin>
 
                     <plugin>
@@ -91,7 +86,7 @@
                                         </source>
                                     </sources>
                                 </mapping>
-                                
+
                             </mappings>
 
                             <preinstallScriptlet>

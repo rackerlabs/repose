@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
@@ -16,11 +17,7 @@
     <profiles>
         <profile>
             <id>build-system-packages</id>
-            <activation>
-                <property>
-                    <name>Build ROOT Web Application RPM</name>
-                </property>
-            </activation>
+
             <build>
                 <plugins>
                     <plugin>
@@ -38,7 +35,9 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../components/filters/filter-bundle/target/filter-bundle-${project.version}.ear</location>
+                                            <location>
+                                                ${basedir}/../../../components/filters/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>

@@ -8,6 +8,7 @@ import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
+import org.junit.Before
 import org.junit.Test
 
 import javax.ws.rs.core.MediaType
@@ -30,7 +31,7 @@ class AkkaServiceClientImplTest {
     String returnString = "getinput"
     HttpClient httpClient
 
-    @org.junit.Before
+    @Before
     public void setUp() {
 
 
@@ -66,7 +67,7 @@ class AkkaServiceClientImplTest {
         targetHostUri = "targetHostUri";
     }
 
-    @org.junit.Test
+    @Test
     public void testValidateToken() {
         final String AUTH_TOKEN_HEADER = "X-Auth-Token";
         final String ACCEPT_HEADER = "Accept";
@@ -77,7 +78,7 @@ class AkkaServiceClientImplTest {
         org.junit.Assert.assertEquals("Should retrive service client with response", serviceClientResponse.getStatusCode(), 200);
     }
 
-    @org.junit.Test
+    @Test
     public void shouldExpireItemInFutureMap() {
         final String AUTH_TOKEN_HEADER = "X-Auth-Token";
         final String ACCEPT_HEADER = "Accept";

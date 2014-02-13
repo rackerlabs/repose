@@ -1,264 +1,270 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-   <parent>
-      <groupId>com.rackspace.papi.core</groupId>
-      <artifactId>core-support</artifactId>
-      <version>3.0.1-SNAPSHOT</version>
-   </parent>
+    <parent>
+        <groupId>com.rackspace.papi.core</groupId>
+        <artifactId>core-support</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
-   <groupId>com.rackspace.papi.core</groupId>
-   <artifactId>core-lib</artifactId>
+    <groupId>com.rackspace.papi.core</groupId>
+    <artifactId>core-lib</artifactId>
 
-   <name>Repose Core - Power API Core Library</name>
-   <description>TODO</description>
+    <name>Repose Core - Power API Core Library</name>
+    <description>TODO</description>
 
-   <properties>
-      <reposeVersion>${project.version}</reposeVersion>
-   </properties>
+    <properties>
+        <reposeVersion>${project.version}</reposeVersion>
+    </properties>
 
-   <packaging>jar</packaging>
+    <packaging>jar</packaging>
 
-   <dependencies>
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>classloader</artifactId>
-      </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>classloader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>utilities</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>configuration</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.service</groupId>
-          <artifactId>httpclient-connection-pool</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>httpclient-connection-pool</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-       <dependency>
-           <groupId>com.rackspace.papi.service</groupId>
-           <artifactId>datastore-service</artifactId>
-           <version>${project.version}</version>
-       </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>datastore-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-       <dependency>
-           <groupId>com.rackspace.papi.service</groupId>
-           <artifactId>service-client-akka</artifactId>
-           <version>${project.version}</version>
-       </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.service</groupId>
+            <artifactId>service-client-akka</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-      <dependency>
-         <groupId>org.codehaus.jackson</groupId>
-         <artifactId>jackson-core-lgpl</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-lgpl</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-core</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-beans</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-context</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>com.ning</groupId>
-         <artifactId>async-http-client</artifactId>
-         <version>1.7.5</version>
-         <type>jar</type>
-      </dependency>
-        
-      <dependency>
-         <groupId>commons-codec</groupId>
-         <artifactId>commons-codec</artifactId>
-         <version>1.7</version>
-      </dependency>
-        
-      <dependency>
-         <groupId>org.apache.httpcomponents</groupId>
-         <artifactId>httpclient</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>commons-codec</groupId>
-               <artifactId>commons-codec</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.7.5</version>
+            <type>jar</type>
+        </dependency>
 
-      <dependency>
-          <groupId>net.sf.saxon</groupId>
-          <artifactId>saxon-ee</artifactId>
-          <version>9.4.0.6</version>
-          <scope>test</scope>
-          <optional>true</optional>
-      </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.7</version>
+        </dependency>
 
-      <!-- Required for @Configuration annotation -->
-      <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>2.2.2</version>
-      </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-      <dependency>
-         <groupId>xmlunit</groupId>
-         <artifactId>xmlunit</artifactId>
-         <version>1.3</version>
-         <scope>test</scope>
-      </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon-ee</artifactId>
+            <version>9.4.0.6</version>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
 
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-test</artifactId>
-           <version>3.1.2.RELEASE</version>
-           <scope>test</scope>
-       </dependency>
+        <!-- Required for @Configuration annotation -->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 
-      <dependency>
-         <groupId>com.google.guava</groupId>
-         <artifactId>guava</artifactId>
-         <version>14.0.1</version>
-      </dependency>
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-         <groupId>org.eclipse.jetty</groupId>
-         <artifactId>jetty-webapp</artifactId>
-         <version>8.0.1.v20110908</version>
-      </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.1.2.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-         <groupId>org.eclipse.jetty</groupId>
-         <artifactId>jetty-server</artifactId>
-         <version>8.0.1.v20110908</version>
-      </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
 
-      <dependency>
-         <groupId>org.eclipse.jetty</groupId>
-         <artifactId>jetty-servlet</artifactId>
-         <version>8.0.1.v20110908</version>
-      </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>8.0.1.v20110908</version>
+        </dependency>
 
-       <dependency>
-           <groupId>com.yammer.metrics</groupId>
-           <artifactId>metrics-core</artifactId>
-       </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>8.0.1.v20110908</version>
+        </dependency>
 
-       <dependency>
-           <groupId>com.yammer.metrics</groupId>
-           <artifactId>metrics-graphite</artifactId>
-       </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>8.0.1.v20110908</version>
+        </dependency>
 
-       <dependency>
-         <groupId>com.yammer.metrics</groupId>
-         <artifactId>metrics-ehcache</artifactId>
-       </dependency>
+        <dependency>
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
 
-       <!-- CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator -->
-       <dependency>
-           <groupId>com.github.fge</groupId>
-           <artifactId>json-schema-validator</artifactId>
-       </dependency>
-   </dependencies>
+        <dependency>
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+        </dependency>
 
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>xml-maven-plugin</artifactId>
+        <dependency>
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-ehcache</artifactId>
+        </dependency>
 
-            <configuration>
-               <transformationSets>
-                  <transformationSet>
-                     <dir>src/main/resources/META-INF/schema/system-model</dir>
-                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
-                  </transformationSet>
-                  <transformationSet>
-                     <dir>src/main/resources/META-INF/schema/container</dir>
-                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
-                  </transformationSet>
-                  <transformationSet>
-                     <dir>src/main/resources/META-INF/schema/httpx</dir>
-                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
-                  </transformationSet>
-                  <transformationSet>
-                     <dir>src/main/resources/META-INF/schema/response-messaging</dir>
-                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
-                  </transformationSet>
-                   <transformationSet>
-                       <dir>src/main/resources/META-INF/schema/metrics</dir>
-                       <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                       <outputDir>${project.build.directory}/generated-resources/xml/xslt/metrics</outputDir>
-                   </transformationSet>
-               </transformationSets>
-            </configuration>
-         </plugin>
-            
-         <plugin>
-            <groupId>org.jvnet.jaxb2.maven2</groupId>
-            <artifactId>maven-jaxb2-plugin</artifactId>
+        <!-- CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator -->
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+        </dependency>
+    </dependencies>
 
-            <configuration>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
 
-               <specVersion>2.2</specVersion>
-               <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/system-model</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/container</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/httpx</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/response-messaging</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging
+                            </outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/metrics</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/metrics</outputDir>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
 
-               <schemaIncludes>
-                  <include>**/*.xsd</include>
-               </schemaIncludes>
-               <bindingIncludes>
-                  <include>**/*.xjb</include>
-               </bindingIncludes>
-               <strict>true</strict>
-               <verbose>false</verbose>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
 
-            </configuration>
-         </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-                <execution>
-                    <id>unpack</id>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>unpack</goal>
-                    </goals>
-                    <configuration>
-                        <artifactItems>
-                            <artifactItem>
-                                <groupId>com.typesafe.akka</groupId>
-                                <artifactId>akka-actor_2.10</artifactId>
-                                <type>jar</type>
-                                <includes>reference.conf</includes>
-                                <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
-                            </artifactItem>
-                        </artifactItems>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-      </plugins>
-      <resources>
-         <resource>
-            <directory>src/main/resources/</directory>
-            <filtering>true</filtering>
-         </resource>
-      </resources>
-   </build>
+                <configuration>
+
+                    <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.typesafe.akka</groupId>
+                                    <artifactId>akka-actor_2.10</artifactId>
+                                    <type>jar</type>
+                                    <includes>reference.conf</includes>
+                                    <outputDirectory>${project.build.outputDirectory}/</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>

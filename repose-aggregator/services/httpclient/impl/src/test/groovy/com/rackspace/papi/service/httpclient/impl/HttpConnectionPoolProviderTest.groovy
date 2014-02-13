@@ -3,12 +3,10 @@ import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 import static junit.framework.Assert.assertNotNull
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.assertEquals
 
 class HttpConnectionPoolProviderTest {
 

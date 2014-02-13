@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>deb</artifactId>
         <groupId>com.rackspace.repose.installation.deb</groupId>
@@ -13,7 +14,7 @@
     <name>Repose - Installation Extension Filters DEB</name>
 
     <description>
-       Module for the Extension Filters Bundle  DEB.
+        Module for the Extension Filters Bundle DEB.
     </description>
 
     <packaging>pom</packaging>
@@ -21,12 +22,6 @@
     <profiles>
         <profile>
             <id>build-system-packages</id>
-
-            <activation>
-                <property>
-                    <name>Build Extension Filters DEB</name>
-                </property>
-            </activation>
 
             <build>
                 <plugins>
@@ -37,7 +32,7 @@
 
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>                        
+                        <artifactId>properties-maven-plugin</artifactId>
                     </plugin>
 
                     <plugin>
@@ -53,7 +48,9 @@
                                     <dataSet>
                                         <!-- The jar file -->
                                         <data>
-                                            <src>${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear</src>
+                                            <src>
+                                                ${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear
+                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
