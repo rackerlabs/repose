@@ -72,16 +72,16 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         @Override
         public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
-            
-            List<String> uniqueArtifactList = new ArrayList<String>();  
-           
-            for(String artifactName: e.payload()){  
-                if(!uniqueArtifactList.contains(artifactName)){  
-                 uniqueArtifactList.add(artifactName);  
-                } else{
-                     LOG.error("Please review your artifacts directory, multiple versions of same artifact exists."); 
-                } 
-            } 
+
+            List<String> uniqueArtifactList = new ArrayList<String>();
+
+            for (String artifactName : e.payload()) {
+                if (!uniqueArtifactList.contains(artifactName)) {
+                    uniqueArtifactList.add(artifactName);
+                } else {
+                    LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
+                }
+            }
 
             if (currentSystemModel != null) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
@@ -196,8 +196,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         PowerFilterChain requestFilterChain = null;
         try {
             synchronized (internalLock) {
-                if (powerFilterChainBuilder == null || !papiContext.healthCheckService().isHealthy()) {
+                if (powerFilterChainBuilder == null) {
                     mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
+                } else if (!papiContext.healthCheckService().isHealthy()) {
+                    mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
                 } else {
                     requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
                 }
