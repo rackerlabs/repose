@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="IP-Identity-Chapter">
+    <title>IP Identity Filter</title>
+    
+    
+    <section xml:id="IP-Identity-Introduction">
+        <title>Introduction</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="IP-Identity-use-cases">
+        <title>IP Identity Use Cases</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="IP-Identity-process">
+        <title>IP Identity Process</title>
+        
+        <para> </para>
+       
+    </section>
+    
+    <section xml:id="IP-Identity-request-prerequisites">
+        <title>IP Identity Request Prerequisites</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    
+    <section xml:id="IP-Identity-features">  
+        <title>IP Identity Features</title>
+        <para> </para> 
+        
+        
+        
+        <section xml:id="IP-Identity-Feature-1">
+            <title>IP Identity Feature 1</title>
+            <para> </para>
+            
+           
+        </section>  
+    </section>
+    
+    
+    
+    <section xml:id="IP-Identity-configuration-options">  
+        <title>IP Identity Configuration Options</title>   
+        <para>The IP Identity Component is added to a Repose deployment as a filter (ip-identity) via the System Model Config.
+        </para>
+        <para>An example configuration is provided: Example IP Identity Configuration
+            Header Identity can be configured by editing the ip-identity.cfg.xml file. The user can specify the following information:</para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>&lt;quality&gt; : Quality assigned to user
+                        using the incoming source ip.</para>
+                </listitem>
+                <listitem>
+                    <para> &lt;whitelist&gt; : The whitelist is a list
+                        of IP addresses that will be given a group of
+                        IP_Super.  The white list will contain a list
+                        of ip-address elements. </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>&lt;ip-address&gt; : ip address
+                                   element can either contain an
+                                   explicit IP address or an IP
+                                   network specified using <link
+                                   xlink:href="http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing"
+                                   >CIDR</link> notation (e.g.
+                                   192.168.0.0/16).</para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para><guilabel>Set Headers</guilabel></para>
+        <itemizedlist>
+            <listitem>
+                <para>X-PP-User will be set to the source IP.</para>
+            </listitem>
+            <listitem>
+                <para>X-PP-Group will be set to IP_Standard or
+                    IP_Super.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    
+    <section xml:id="IP-Identity-error-scenarios">
+        <title>IP Identity Error Scenarios</title>
+        <para></para>
+        
+        
+        
+    </section>
+</section>
