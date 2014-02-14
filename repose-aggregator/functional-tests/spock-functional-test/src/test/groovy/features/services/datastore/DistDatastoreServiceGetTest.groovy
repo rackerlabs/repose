@@ -42,26 +42,26 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "GET with no key returns 500 INTERNAL SERVER ERROR"() {
+    def "GET with no key returns 404 NOT FOUND"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '404'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
     }
 
-    def "GET with missing X-PP-Host-Key returns a 500 INTERNAL SERVER ERROR"() {
+    def "GET with missing X-PP-Host-Key returns a 401 UNAUTHORIZED"() {
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '401'
         mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
     }
 
-    def "GET of invalid key fails with 500 INTERNAL SERVER ERROR"() {
+    def "GET of invalid key fails with 404 NOT FOUND"() {
 
         given:
         def badKey = "////////" + UUID.randomUUID().toString()
@@ -70,7 +70,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:distDatastoreEndpoint, path:DD_PATH + badKey, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '404'
     }
 
     def "GET of key after time to live has expired should return a 404"(){
