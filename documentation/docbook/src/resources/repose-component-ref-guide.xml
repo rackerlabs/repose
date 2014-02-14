@@ -574,8 +574,6 @@
     <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
         <xi:include href="chapters/repose-service-authn-chapter.xml"/>
 </chapter>
-    
-   
    
    
    
@@ -764,7 +762,111 @@
     <xi:include href="chapters/repose-destination-router-chapter.xml"/>
     <xi:include href="chapters/repose-flush-output-stream-chapter.xml"/>
     </chapter>
-   
+    
+    <chapter xml:id="services">
+        <title>Services</title>
+        <para>Configure services in the same way that you configure
+            filters within the system-model.cfg.xml file as a child
+            element of &lt;repose-cluster>. You may enumerate services
+            within a &lt;services> list.</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Services</caption>
+            <thead>
+                <tr>
+                    <td>Service</td>
+                    <td>&lt;service-name></td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <link linkend="Dist-Datastore-Svc-Chapter"
+                            >Distributed Datastore Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>&lt;dist-datastore></para>
+                    </td>
+                    <td> <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/datastore/impl/src/main/resources/META-INF/schema/config/dist-datastore-configuration.xsd"> 
+                        dist-datastore-configuration.xsd</link></td>
+                    
+                    <td> <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/datastore/impl/src/main/resources/META-INF/schema/examples/dist-datastore.cfg.xml"> 
+                        dist-datastore.cfg.xml</link></td>
+                    <td>
+                        <para>Repose uses one of the datastore
+                            implementations to store various types of
+                            data. Current implementations are the 
+                            Distributed Datastore Service and the
+                            Local Datastore.   </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <link linkend="Response-Messaging-Svc-Chapter"
+                            >Response Messaging Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>STUFF HERE</para>
+                    </td>
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/response-messaging/response-messaging.xsd"> 
+                        response-messaging.xsd</link> </td>
+                    
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/response-messaging.cfg.xml"> 
+                            messaging.cfg.xml</link> </td>
+                    <td>The Response Messaging Service (RMS) allows
+                        Repose to intercept the response and return a
+                        pre-configured message body.</td>
+                </tr>
+                
+                <tr>
+                    
+                    <td>
+                        <link linkend="Health-Check-Svc-Chapter"
+                            >Health Check Service</link>
+                       
+                    </td>
+                    <td>
+                        <para>STUFF HERE</para>
+                    </td>
+                    <td> STUFF HERE</td>
+                    <td> STUFF HERE</td>
+                    <td>
+                        <para>Allows Repose to return 503 error messages on bad configurations or requests when using other Repose service components. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <link linkend="HTTP-Connection-Pool-Svc-Chapter"
+                            >HTTP Connection Pool Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>http-connection-pools</para>
+                    </td>
+                    <td> STUFF HERE</td>
+                    <td> STUFF HERE</td>
+                    <td>
+                        <para>Allows Repose to manage and reuse HTTP connections. </para>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <xi:include href="chapters/repose-dist-datastore-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-healthcheck-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-http-connection-pool-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-response-messaging-svc-chapter.xml"/> 
+    </chapter>
    
     <!-- 
     <chapter xml:id="glossary">
