@@ -134,10 +134,25 @@ public class DistributedDatastoreServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (CacheRequest.isCacheRequestValid(req)) {
-            final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
-            localDatastore.remove(cacheDelete.getCacheKey());
+            try {
+                final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
+                localDatastore.remove(cacheDelete.getCacheKey());
+            } catch (MalformedCacheRequestException e) {
+                switch (e.error) {
+                    case NO_DD_HOST_KEY:
+                        resp.getWriter().write(e.error.message());
+                        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        break;
+                    case UNEXPECTED_REMOTE_BEHAVIOR:
+                        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        break;
+                    default:
+                        resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+                }
+
+            }
             resp.setStatus(HttpServletResponse.SC_ACCEPTED);
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
