@@ -89,6 +89,8 @@ class StartWithBadConfigs extends Specification {
         "header-identity"         | _
         "ip-identity"             | _
         "validator"               | _
+        "metrics"                 | _
+        "connectionPooling"       | _
     }
 
 

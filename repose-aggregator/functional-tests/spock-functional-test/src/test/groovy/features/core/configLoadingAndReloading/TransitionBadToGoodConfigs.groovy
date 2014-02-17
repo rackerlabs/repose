@@ -101,6 +101,8 @@ class TransitionBadToGoodConfigs extends Specification {
         "header-identity"         | 200
         "ip-identity"             | 200
         "validator"               | 200
+        "metrics"                 | 200
+        "connectionPooling"       | 200
     }
 
     @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
