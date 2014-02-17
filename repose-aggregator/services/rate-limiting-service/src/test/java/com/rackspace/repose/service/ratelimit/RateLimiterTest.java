@@ -32,18 +32,18 @@ public class RateLimiterTest {
 
       public WhenHandlingRateLimits() {
          uriMatcher.matches();
-         key = LimitKey.getLimitKey(uriMatcher, true);
+         key = LimitKey.getLimitKey(uriMatcher, configuredRateLimit.getHttpMethods(), true);
       }
       
       @Test(expected=OverLimitException.class)
-      public void noCaptureGroupshouldThrowOverLimitException() throws IOException, OverLimitException {
+      public void noCaptureGroupShouldThrowOverLimitException() throws IOException, OverLimitException {
 
          final RateLimiter rateLimiter = new RateLimiter(mockedCache);
 
          when(mockedCache.updateLimit(any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
 
-         key = LimitKey.getLimitKey(uriMatcher, false);
+         key = LimitKey.getLimitKey(uriMatcher, configuredRateLimit.getHttpMethods(), false);
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit, datastoreWarnLimit);
       }
 
