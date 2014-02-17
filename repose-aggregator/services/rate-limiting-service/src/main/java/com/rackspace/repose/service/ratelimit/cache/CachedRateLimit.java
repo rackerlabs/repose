@@ -1,79 +1,71 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 import java.io.Serializable;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  *
  * @author jhopper
  */
 public class CachedRateLimit implements Serializable {
-    private final Map<HttpMethod, Vector<Long>> usageMap;
-    private final int regexHashcode;
+    private final int maxCount;
+    private final long unit;
 
-    public CachedRateLimit(String regex) {
-        this.regexHashcode = regex.hashCode();
-        this.usageMap = new EnumMap<HttpMethod, Vector<Long>>(HttpMethod.class);
+    private int count;
+    private long timestamp;
+
+    public CachedRateLimit(ConfiguredRatelimit cfg) {
+        this.maxCount = cfg.getValue();
+        this.unit = TimeUnitConverter.fromSchemaTypeToConcurrent(cfg.getUnit()).toMillis(1);
+
+        this.count = 0;
+        this.timestamp = now();
     }
 
     public long now() {
         return System.currentTimeMillis();
     }
 
-    public int getRegexHashcode() {
-        return regexHashcode;
+    public void logHit() {
+        vacuum();
+
+        ++count;
     }
 
-    public Map<HttpMethod, Vector<Long>> getUsageMap() {
-        return usageMap;
+    public int amount() {
+        vacuum();
+
+        return count;
+    }
+
+    public long getSoonestRequestTime() {
+        vacuum();
+
+        if (count < maxCount) {
+            return now();
+        } else {
+            return timestamp + unit;
+        }
+    }
+
+    public long getNextExpirationTime() {
+        vacuum();
+
+        if (count != 0) {
+            return timestamp + unit;
+        } else {
+            return now();
+        }
     }
 
     private void vacuum() {
         final long now = now();
 
-        for (Map.Entry<HttpMethod, Vector<Long>> entry : usageMap.entrySet()) {
-            final Vector<Long> usageQueue = entry.getValue();
-
-            while (!usageQueue.isEmpty() && usageQueue.get(0) < now) {
-                usageQueue.remove(0);
-            }
+        if (now > timestamp + unit) {
+            count = 0;
+            timestamp = now;
         }
-    }
-
-    public void logHit(HttpMethod method, long time) {
-        Vector<Long> usageQueue = usageMap.get(method);
-
-        if (usageQueue == null) {
-            usageQueue = new Vector<Long>();
-            usageMap.put(method, usageQueue);
-        }
-
-        usageQueue.add(time);
-    }
-
-    public void logHit(HttpMethod method, TimeUnit timeInterval) {
-        vacuum();
-
-        logHit(method, now() + TimeUnitConverter.toLong(timeInterval));
-    }
-
-    public int amount(HttpMethod method) {
-        vacuum();
-
-        final Vector<Long> usageQueue = usageMap.get(method);
-        return usageQueue != null ? usageQueue.size() : 0;
-    }
-
-    public long getEarliestExpirationTime(HttpMethod method) {
-        vacuum();
-
-        final Vector<Long> usageQueue = usageMap.get(method);
-        return usageQueue != null && !usageQueue.isEmpty() ? usageQueue.get(0) : now();
     }
 }
