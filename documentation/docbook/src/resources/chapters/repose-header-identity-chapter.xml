@@ -51,7 +51,7 @@
     
     
     
-    <section xml:id="Header-Identity-use-cases">
+    <section xml:id="Header-Identity-use-cases" security="writeronly">
         <title>Header Identity Use Cases</title>
         <para> </para>
     </section>
@@ -59,13 +59,13 @@
     
     
     
-    <section xml:id="Header-Identity-process">
+    <section xml:id="Header-Identity-process" security="writeronly">
         <title>Header Identity Process</title>
         <para></para>
         
     </section>
     
-    <section xml:id="Header-Identity-request-prerequisites">
+    <section xml:id="Header-Identity-request-prerequisites" security="writeronly">
         <title>Header Identity Request Prerequisites</title>
         
         <para> </para>
@@ -73,13 +73,13 @@
     </section>
     
     
-    <section xml:id="Header-Identity-features">  
+    <section xml:id="Header-Identity-features" security="writeronly">  
         <title>Header Identity Features</title>
         <para> </para> 
         
         
         
-        <section xml:id="Header-Identity-Feature-1">
+        <section xml:id="Header-Identity-Feature-1" security="writeronly">
             <title>Header Identity Features</title>
             <para> </para>
             
@@ -139,7 +139,7 @@
         </para>
     </section>
     
-    <section xml:id="Header-Identity-error-scenarios">
+    <section xml:id="Header-Identity-error-scenarios" security="writeronly">
         <title>Header Identity Error Scenarios</title>
         
         <para> </para>

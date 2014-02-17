@@ -51,7 +51,7 @@
     </section>
     
     
-    <section xml:id="Header-Translation-Use-Cases">
+    <section xml:id="Header-Translation-Use-Cases" security="writeronly">
         <title>Header Translation Use Cases</title>
         <para>  </para>
     </section>
@@ -118,7 +118,7 @@
             prerequisites. </para>
     </section>
     
-    <section xml:id="Header-Translation-Features">
+    <section xml:id="Header-Translation-Features" security="writeronly">
         <title>Header Translation Features</title>
         <para>  </para>
     </section> 

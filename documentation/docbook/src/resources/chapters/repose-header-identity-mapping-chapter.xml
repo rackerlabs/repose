@@ -51,7 +51,7 @@
     
     
     
-    <section xml:id="Header-Identity-Mapping-use-cases">
+    <section xml:id="Header-Identity-Mapping-use-cases" security="writeronly">
         <title>Header Identity Mapping Use Cases</title>
         <para> </para>
     </section>
@@ -59,14 +59,14 @@
     
     
     
-    <section xml:id="Header-Identity-Mapping-process">
+    <section xml:id="Header-Identity-Mapping-process" security="writeronly">
         <title>Header Identity Mapping Process</title>
         
         <para> </para>
         
     </section>
     
-    <section xml:id="Header-Identity-Mapping-request-prerequisites">
+    <section xml:id="Header-Identity-Mapping-request-prerequisites" security="writeronly">
         <title>Header Identity Mapping Request Prerequisites</title>
         
         <para> </para>
@@ -74,13 +74,13 @@
     </section>
     
     
-    <section xml:id="Header-Identity-Mapping-features">  
+    <section xml:id="Header-Identity-Mapping-features" security="writeronly">  
         <title>Header Identity Mapping Features</title>
         <para> </para> 
         
         
         
-        <section xml:id="Header-Identity-Mapping-Feature-1">
+        <section xml:id="Header-Identity-Mapping-Feature-1" security="writeronly">
             <title>Feature 1</title>
             <para> </para>
         </section>  
@@ -150,7 +150,7 @@
         </para>
     </section>
     
-    <section xml:id="Header-Identity-Mapping-error-scenarios">
+    <section xml:id="Header-Identity-Mapping-error-scenarios" security="writeronly">
         <title>Header Identity Mapping Error Scenarios</title>
         
         <para> </para>

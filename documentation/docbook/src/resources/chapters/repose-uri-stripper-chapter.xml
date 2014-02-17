@@ -52,7 +52,7 @@
     
     
     
-    <section xml:id="URI-Stripper-use-cases">
+    <section xml:id="URI-Stripper-use-cases" security="writeronly">
         <title>URI Stripper Use Cases</title>
         <para> </para>
     </section>
@@ -60,14 +60,14 @@
     
     
     
-    <section xml:id="URI-Stripper-process">
+    <section xml:id="URI-Stripper-process" security="writeronly">
         <title>URI Stripper Process</title>
         <para></para>
         
         
     </section>
     
-    <section xml:id="URI-Stripper-request-prerequisites">
+    <section xml:id="URI-Stripper-request-prerequisites" security="writeronly">
         <title>URI Stripper Request Prerequisites</title>
         
         <para> </para>
@@ -75,7 +75,7 @@
     </section>
     
     
-    <section xml:id="URI-Stripper-features">  
+    <section xml:id="URI-Stripper-features" security="writeronly">  
         <title>URI Stripper Features</title>
         <para> </para>
     </section>
@@ -229,7 +229,7 @@
         
     </section>
     
-    <section xml:id="URI-Stripper-error-scenarios">
+    <section xml:id="URI-Stripper-error-scenarios" security="writeronly">
         <title>URI Stripper Error Scenarios</title>
         
         <para> </para>

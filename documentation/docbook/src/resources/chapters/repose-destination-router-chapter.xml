@@ -53,7 +53,7 @@
     
     
     
-    <section xml:id="Destination-Router-use-cases">
+    <section xml:id="Destination-Router-use-cases" security="writeronly">
         <title>Destination Router Use Cases</title>
         <para> </para>
     </section>
@@ -61,14 +61,14 @@
     
     
     
-    <section xml:id="Destination-Router-process">
+    <section xml:id="Destination-Router-process" security="writeronly">
         <title>Destination Router Process</title>
         
         <para> </para>
         
     </section>
     
-    <section xml:id="Destination-Router-request-prerequisites">
+    <section xml:id="Destination-Router-request-prerequisites" security="writeronly">
         <title>Destination Router Request Prerequisites</title>
         
         <para> </para>
@@ -76,7 +76,7 @@
     </section>
     
     
-    <section xml:id="Destination-Router-features">  
+    <section xml:id="Destination-Router-features" security="writeronly">  
         <title>Destination Router Features</title>
         <para> </para> 
         
@@ -115,7 +115,7 @@
         
     </section>
     
-    <section xml:id="Destination-Router-error-scenarios">
+    <section xml:id="Destination-Router-error-scenarios" security="writeronly">
         <title>Destination Router Error Scenarios</title>
         
         <para> </para>

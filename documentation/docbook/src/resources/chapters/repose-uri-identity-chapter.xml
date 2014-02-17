@@ -53,7 +53,7 @@
     
     
     
-    <section xml:id="URI-Identity-use-cases">
+    <section xml:id="URI-Identity-use-cases" security="writeronly">
         <title>URI Identity Use Cases</title>
         <para> </para>
     </section>
@@ -61,14 +61,14 @@
     
     
     
-    <section xml:id="URI-Identity-process">
+    <section xml:id="URI-Identity-process" security="writeronly">
         <title>URI Identity Process</title>
         
         <para> </para>
         
     </section>
     
-    <section xml:id="URI-Identity-request-prerequisites">
+    <section xml:id="URI-Identity-request-prerequisites" security="writeronly">
         <title>URI Identity Request Prerequisites</title>
         
         <para> </para>
@@ -76,13 +76,13 @@
     </section>
     
     
-    <section xml:id="URI-Identity-features">  
+    <section xml:id="URI-Identity-features" security="writeronly">  
         <title>URI Identity Features</title>
         <para> </para> 
         
         
         
-        <section xml:id="URI-Identity-Feature-1">
+        <section xml:id="URI-Identity-Feature-1" security="writeronly">
             <title>URI Identity Feature 1</title>
             <para> </para>
             

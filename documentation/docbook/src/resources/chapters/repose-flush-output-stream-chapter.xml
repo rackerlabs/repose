@@ -55,7 +55,7 @@
     
     
     
-    <section xml:id="Flush-Output-Stream-use-cases">
+    <section xml:id="Flush-Output-Stream-use-cases" security="writeronly">
         <title>Flush Output Stream Use Cases</title>
         <para> </para>
     </section>
@@ -63,14 +63,14 @@
     
     
     
-    <section xml:id="Flush-Output-Stream-process">
+    <section xml:id="Flush-Output-Stream-process" security="writeronly">
         <title>Flush Output Stream Process</title>
         
         <para> </para>
         
     </section>
     
-    <section xml:id="Flush-Output-Stream-request-prerequisites">
+    <section xml:id="Flush-Output-Stream-request-prerequisites" security="writeronly">
         <title>Flush Output Stream Request Prerequisites</title>
         
         <para> </para>
@@ -78,7 +78,7 @@
     </section>
     
     
-    <section xml:id="Flush-Output-Stream-features">  
+    <section xml:id="Flush-Output-Stream-features" security="writeronly">  
         <title>Flush Output Stream Features</title>
         <para> </para> 
         
@@ -112,7 +112,7 @@
         
     </section>
     
-    <section xml:id="Flush-Output-Stream-error-scenarios">
+    <section xml:id="Flush-Output-Stream-error-scenarios" security="writeronly">
         <title>Flush Output Stream Error Scenarios</title>
         
         <para> </para>

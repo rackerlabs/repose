@@ -52,7 +52,7 @@
             HTTP method type (http-methods).</para>
     </section>
     
-    <section xml:id="Header-Normalization-use-cases">
+    <section xml:id="Header-Normalization-use-cases" security="writeronly">
         <title>Header Normalization Use Cases</title>
         <para></para>
     </section>

@@ -59,7 +59,7 @@
     
     
     
-    <section xml:id="Service-Authentication-use-cases">
+    <section xml:id="Service-Authentication-use-cases" security="writeronly">
         <title>Service Authentication Use Cases</title>
         <para> </para>
     </section>
@@ -67,14 +67,14 @@
     
     
     
-    <section xml:id="Service-Authentication-process">
+    <section xml:id="Service-Authentication-process" security="writeronly">
         <title>Service Authentication Process</title>
         
         <para> </para>
         
     </section>
     
-    <section xml:id="Service-Authentication-request-prerequisites">
+    <section xml:id="Service-Authentication-request-prerequisites" security="writeronly">
         <title>Service Authentication Request Prerequisites</title>
         
         <para> </para>
@@ -82,13 +82,13 @@
     </section>
     
     
-    <section xml:id="Service-Authentication-features">  
+    <section xml:id="Service-Authentication-features" security="writeronly">  
         <title>Service Authentication Features</title>
         <para> </para> 
         
         
         
-        <section xml:id="Service-Authentication-Feature-1">
+        <section xml:id="Service-Authentication-Feature-1" security="writeronly">
             <title>Feature 1</title>
             <para> </para>
             
