@@ -8,7 +8,7 @@ import org.rackspace.deproxy.PortFinder
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     def DD_URI
-    def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
+    def DD_HEADERS = ['X-PP-Host-Key':'temp-host-key', 'X-TTL':'10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     static def distDatastoreEndpoint
