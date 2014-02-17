@@ -29,21 +29,21 @@
       <module>web-application</module>
       <module>valve</module>
    </modules>
-    
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <version>2.6.0</version>
-         </dependency>
-         
-         <dependency>
-            <groupId>org.jboss.netty</groupId>
-            <artifactId>netty</artifactId>
-            <version>3.2.7.Final</version>
-         </dependency>
 
-   </dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.netty</groupId>
+                <artifactId>netty</artifactId>
+                <version>3.2.7.Final</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
 
