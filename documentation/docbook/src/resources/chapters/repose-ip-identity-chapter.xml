@@ -42,8 +42,8 @@
     xml:id="IP-Identity-Chapter">
     <title>IP Identity Filter</title>
     
-    
-    <section xml:id="IP-Identity-Introduction">
+   
+    <section xml:id="IP-Identity-Introduction" security="writeronly">
         <title>Introduction</title>
         <para> </para>
     </section>
@@ -51,7 +51,7 @@
     
     
     
-    <section xml:id="IP-Identity-use-cases">
+    <section xml:id="IP-Identity-use-cases" security="writeronly">
         <title>IP Identity Use Cases</title>
         <para> </para>
     </section>
@@ -59,14 +59,14 @@
     
     
     
-    <section xml:id="IP-Identity-process">
+    <section xml:id="IP-Identity-process" security="writeronly">
         <title>IP Identity Process</title>
         
         <para> </para>
        
     </section>
     
-    <section xml:id="IP-Identity-request-prerequisites">
+    <section xml:id="IP-Identity-request-prerequisites" security="writeronly">
         <title>IP Identity Request Prerequisites</title>
         
         <para> </para>
@@ -74,13 +74,13 @@
     </section>
     
     
-    <section xml:id="IP-Identity-features">  
+    <section xml:id="IP-Identity-features" security="writeronly">  
         <title>IP Identity Features</title>
         <para> </para> 
         
         
         
-        <section xml:id="IP-Identity-Feature-1">
+        <section xml:id="IP-Identity-Feature-1" security="writeronly">
             <title>IP Identity Feature 1</title>
             <para> </para>
             
@@ -137,7 +137,7 @@
         </itemizedlist>
     </section>
     
-    <section xml:id="IP-Identity-error-scenarios">
+    <section xml:id="IP-Identity-error-scenarios" security="writeronly">
         <title>IP Identity Error Scenarios</title>
         <para></para>
         
