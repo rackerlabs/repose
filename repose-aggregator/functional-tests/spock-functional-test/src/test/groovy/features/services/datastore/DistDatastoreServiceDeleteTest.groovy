@@ -80,4 +80,26 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
         mc.receivedResponse.code == "202"
     }
 
+    def "DELETE to invalid target will return 404"() {
+
+        when:
+        MessageChain mc = deproxy.makeRequest([method: 'DELETE', url:distDatastoreEndpoint+"/invalid/target", headers:DD_HEADERS])
+
+        then:
+        mc.receivedResponse.code == '404'
+    }
+
+    def "DELETE of invalid key fails 202 Accepted"() {
+
+        given:
+        def badKey = "////////" + UUID.randomUUID().toString()
+
+        when: "I attempt to get the value from cache"
+        MessageChain mc = deproxy.makeRequest([method: 'DELETE', url:distDatastoreEndpoint, path:DD_PATH + badKey, headers:DD_HEADERS])
+
+        then:
+        mc.receivedResponse.code == '202'
+    }
+
+
 }
