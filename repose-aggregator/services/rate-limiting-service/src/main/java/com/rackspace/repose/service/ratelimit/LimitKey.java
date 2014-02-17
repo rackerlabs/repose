@@ -1,7 +1,9 @@
 package com.rackspace.repose.service.ratelimit;
 
+import com.rackspace.repose.service.limits.schema.HttpMethod;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.regex.Matcher;
 
 /*
@@ -10,25 +12,30 @@ import java.util.regex.Matcher;
  */
 public class LimitKey {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitKey.class);
 
-   public static String getLimitKey(Matcher uriMatcher, boolean useCaptureGroups) {
-      // The group count represents the number of elements that will go into
-      // generating the unique cache id for the requested URI
-      final int groupCount = uriMatcher.groupCount();
+    private LimitKey() {}
 
-      final StringBuilder cacheIdBuffer = new StringBuilder();
+    public static String getLimitKey(Matcher uriMatcher, List<HttpMethod> methods, boolean useCaptureGroups) {
+        // The group count represents the number of elements that will go into
+        // generating the unique cache id for the requested URI
+        final int groupCount = uriMatcher.groupCount();
 
-      // All cacheId's contain the full regex pattern
-      cacheIdBuffer.append(String.valueOf(uriMatcher.pattern().toString().hashCode()));
+        final StringBuilder cacheIdBuffer = new StringBuilder();
 
-      if (useCaptureGroups) {
-          // Capture groups are appended to the pattern for uniqueness
-          for (int i = 1; i <= groupCount; ++i) {
-            cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
-          }
-      }
+        // All cacheId's contain the full regex pattern and all associated methods
+        cacheIdBuffer.append(String.valueOf(uriMatcher.pattern().toString().hashCode()));
+        for (HttpMethod method : methods) {
+            cacheIdBuffer.append(":" + String.valueOf(method.toString().hashCode()));
+        }
 
-      return cacheIdBuffer.toString();
-   }
+        if (useCaptureGroups) {
+            // Capture groups are appended to the pattern for uniqueness
+            for (int i = 1; i <= groupCount; ++i) {
+                cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
+            }
+        }
+
+        return cacheIdBuffer.toString();
+    }
 }
