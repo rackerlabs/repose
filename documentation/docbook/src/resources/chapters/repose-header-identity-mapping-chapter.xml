@@ -100,15 +100,18 @@
         <para>
             <itemizedlist>
                 <listitem>
-                    <para> &lt;source-headers&gt; : List of headers to
-                        identify the incoming user. </para>
+                    <para>
+                        <guilabel>&lt;source-headers&gt;</guilabel> :
+                        List of headers to identify the incoming user. </para>
                 </listitem>
                 <listitem>
                     <para>
                         <itemizedlist>
                             <listitem>
-                                <para> &lt;header&gt; : Header to
-                                   identify incoming user and group. </para>
+                                <para>
+                                   <guilabel>&lt;header&gt;</guilabel>
+                                   : Header to identify incoming user
+                                   and group. </para>
                             </listitem>
                             <listitem>
                                 <para>
@@ -132,20 +135,12 @@
                                 </para>
                             </listitem>
                             <listitem>
-                                <para> &lt;quality&gt; : Quality
-                                   assigned to users found in the
-                                   request headers. </para>
-                            </listitem>
-                            <listitem>
                                 <para>
-                                   <itemizedlist>
-                                   <listitem>
-                                   <para>If no quality is set, Repose
-                                   will default this value to
-                                   0.1.</para>
-                                   </listitem>
-                                   </itemizedlist>
-                                </para>
+                                   <guilabel>&lt;quality&gt;</guilabel>
+                                   : Quality assigned to users found
+                                   in the request headers. If no
+                                   quality is set, Repose will default
+                                   this value to 0.1.</para>
                             </listitem>
                         </itemizedlist>
                        

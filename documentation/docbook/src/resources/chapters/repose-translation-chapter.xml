@@ -37,10 +37,14 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
+      
+      
       xml:id="Repose-Translation-Chapter">
     <title>Translation Filter</title>
-    <section xml:id="Introduction-500">
-        <title>Introduction to the Translation Component of &PRODNAME;</title>
+    
+    
+    <section xml:id="Translation-Introduction">
+        <title>Introduction</title>
         <para> Translation changes the format of a request or response so that it meets the expectations of the service or client that receives it.
             You can use
             &PRODNAME;'s translation filter to transform XML into JSON. 
@@ -91,11 +95,34 @@
                 translation configuration, edit
                     <code>translation.cfg.xml</code>. You can see an
                 annotated example of <code>translation.cfg.xml</code>
-                in <xref linkend="Configuration-d1e3590"/>. </para>
+                in <xref linkend="Translation-Configuration"/>. </para>
         </tip>
     </section>
-    <section xml:id="Configuration-d1e3590">
-        <title>Configuration</title>
+    
+    
+    <section xml:id="Translation-use-cases">
+        <title>Translation Use Cases</title>
+        <para></para>
+    </section>
+    
+    <section xml:id="Translation-Process">
+        <title>Translation Process</title>
+        <para></para>
+    </section>
+    
+    
+    <section xml:id="Translation-Request-Prerequisits">
+        <title>Translation Request Prerequisites</title>
+        <para></para>
+    </section>
+    
+    <section xml:id="Translation-Features">
+        <title>Translation Features</title>
+        <para></para>
+    </section> 
+    
+    <section xml:id="Translation-Configuration">
+        <title>Translation Configuration Options</title>
         <tip>
             <para> Before attempting to customize your translation
                 configuration and its stylesheets, familiarize
@@ -566,6 +593,11 @@
                 </example>
             </para>
         </section>
+    </section>
+    
+    <section xml:id="Translation-Error-Scenarios">
+        <title>Translation Error Scenarios</title>
+        <para></para>
     </section>
     
 </section>

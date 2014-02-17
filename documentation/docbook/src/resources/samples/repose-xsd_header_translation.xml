@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?><article xmlns="http://docbook.org/ns/docbook" version="5.0"><title>Schema documentation for repose-xsd_header_translation.xsd</title><info><pubdate>january 28, 2014</pubdate></info><section><title>Schema(s)</title><section xml:id="repose-xsd_header_translation.xsd"><title>Main schema <literal>repose-xsd_header_translation.xsd</literal></title></section></section><section><title>Element(s)</title><section xml:id="header-translation"><title>Element <literal>header-translation:header-translation</literal></title><informaltable frame="all" colsep="1"><tgroup cols="2"><colspec colwidth="3*" align="left"/><colspec colwidth="25*" align="left"/><tbody><row><entry>
+                Diagram
+            </entry><entry><para>
+                            
+                            <mediaobject>  
+                                <imageobjectco>  
+                                    
+                                    <areaspec xml:id="repose-xsd_header_translation_xsd_Element_header-translation_header-translation">  
+                                          
+                                            <area linkends="header-translationType" units="other" otherunits="imagemap" coords="327,3,609,25" xml:id="repose-xsd_header_translation_xsd_Element_header-translation_header-translation-1"/>
+                                        
+                                        
+                                    </areaspec>
+                                    <imageobject>                                        
+                                                <imagedata fileref="img/repose-xsd_header_translation_xsd_Element_header-translation_header-translation.jpeg" width="323pt"/>
+                                        <!--If you want to use this Docbook document to generate
+                                            HTML output you will have to delete the "width" attributes in order for the imagemaps to function.
+                                        -->
+                                    </imageobject>                                    
+                                </imageobjectco>
+                            </mediaobject>
+                            
+                        </para></entry></row></tbody></tgroup></informaltable></section></section><section><title>Complex Type(s)</title><section xml:id="header-translationType"><title>Complex Type <literal>header-translation:header-translationType</literal></title><informaltable frame="all" colsep="1"><tgroup cols="2"><colspec colwidth="3*" align="left"/><colspec colwidth="25*" align="left"/><tbody><row><entry>
+                Diagram
+            </entry><entry><para><mediaobject><imageobject><imagedata fileref="img/repose-xsd_header_translation_xsd_Complex_Type_header-translation_header-translationType.jpeg" width="255pt"/></imageobject></mediaobject></para></entry></row></tbody></tgroup></informaltable></section><section xml:id="header"><title>Complex Type <literal>header-translation:header</literal></title><informaltable frame="all" colsep="1"><tgroup cols="2"><colspec colwidth="3*" align="left"/><colspec colwidth="25*" align="left"/><tbody><row><entry>
+                Diagram
+            </entry><entry><para><mediaobject><imageobject><imagedata fileref="img/repose-xsd_header_translation_xsd_Complex_Type_header-translation_header.jpeg" width="182pt"/></imageobject></mediaobject></para></entry></row></tbody></tgroup></informaltable></section></section></article>

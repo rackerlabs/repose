@@ -98,32 +98,36 @@
         <para>
             <itemizedlist>
                 <listitem>
-                    <para> &lt;source-headers&gt; : List of headers to
-                        identify the incoming user. </para>
+                    <para>
+                        <guibutton>&lt;source-headers&gt;</guibutton>
+                        : List of headers to identify the incoming
+                        user. </para>
                 </listitem>
                 <listitem>
                     <para>
                         <itemizedlist>
                             <listitem>
-                                <para> &lt;header&gt; : Header to
-                                   identify incoming user. </para>
+                                <para>
+                                   <guilabel>&lt;header&gt;</guilabel>
+                                   : Header to identify incoming user. </para>
                             </listitem>
                             <listitem>
                                 <para>
                                    <itemizedlist>
                                    <listitem>
-                                   <para>id - This header key is
-                                   applied to the x-pp-group header.
-                                   The header value associated with
-                                   this key is applied to the
-                                   x-pp-user header.</para>
+                                   <para><guilabel>id</guilabel> -
+                                   This header key is applied to the
+                                   x-pp-group header. The header value
+                                   associated with this key is applied
+                                   to the x-pp-user header.</para>
                                    </listitem>
                                    <listitem>
-                                   <para> quality - Quality assigned
-                                   to users found in the request
-                                   headers. If no quality is set,
-                                   Repose will default this value to
-                                   0.1</para>
+                                   <para>
+                                   <guilabel>quality</guilabel> -
+                                   Quality assigned to users found in
+                                   the request headers. If no quality
+                                   is set, Repose will default this
+                                   value to 0.1</para>
                                    </listitem>
                                    </itemizedlist>
                                 </para>

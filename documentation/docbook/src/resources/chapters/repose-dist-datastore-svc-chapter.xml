@@ -113,7 +113,16 @@
         <para>Adding the Distributed Datastore Service to a Repose deployment requires 
             that listening ports be configured within the dist-datastore.cfg.xml file. 
             The XSD is at dist-datastore-configuration.xsd.</para>
-        <!-- EXAMPLE goes here.  -->
+        
+        <example><title>Distributed Datastore Example</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-dist-datastore-example.xml" parse="text"/>
+                </programlisting> 
+        </example>
+        
+        
+        
+      
         <para>The port element is the &lt;port> configuration for the
             Distributed Datastore. When Repose is told to start with
             the Distributed Datastore the running Repose instance will

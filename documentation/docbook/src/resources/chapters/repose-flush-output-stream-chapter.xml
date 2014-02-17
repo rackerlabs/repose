@@ -96,11 +96,18 @@
     
     <section xml:id="Flush-Output-Stream-configuration-options">  
         <title>Flush Output Stream Configuration Options</title>
-        <para>The flush output stream filter has not configuration file of its own. 
-            To install this filter into the chain, simply add it to the list of filters 
-            in the system-model.cfg.xml.  Below is an example.</para>
+        <para>The Flush Output Stream filter does not have a
+            configuration file of its own. To install this filter into
+            the chain, simply add it to the list of filters in the
+            system-model.cfg.xml. Below is an example.</para>
         
-        <!--  EXAMPLE goes here. -->
+        <example><title>Flush Output Stream Example</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-flush-output-stream-example.xml" parse="text"/>
+                </programlisting> 
+        </example>
+        
+        
         <para>In this filter chain, the flush-output filter will force the service response to be written to the output stream of the ip-identity filter. </para>
         
     </section>

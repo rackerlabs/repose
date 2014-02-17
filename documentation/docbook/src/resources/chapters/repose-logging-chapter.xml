@@ -15,8 +15,59 @@
     
           
     xml:id="HTTP-Logging-Filter">
-    
     <title>HTTP Logging Filter </title>
+    
+    
+    <section xml:id="HTTP-Logging-Intro">
+        <title>Introduction</title>
+        <para> </para>
+    </section>
+    
+    <section xml:id="HTTP-Logging-Use-Cases">
+        <title>HTTP Logging Use-Cases</title>
+        <para> </para>
+    </section>
+    
+    <section xml:id="HTTP-Logging-Process">
+        <title>HTTP Logging Process</title>
+        <para> </para>
+    </section>
+    
+    
+    <section xml:id="HTTP-Logging-Request-Prerequisits">
+        <title>HTTP Logging Request Prerequisits</title>
+        <para> </para>
+    </section>
+    
+    <section xml:id="HTTP-Logging-Features">
+        <title>HTTP Logging Features</title>
+        <para> </para>
+    </section>
+    
+    
+    <section xml:id="HTTP-Logging-Configuration">
+        <title>HTTP Logging Configuration Options</title>
+        <para> To add the HTTP logging component to a &PRODNAME;
+            deployment, add the <code>http-logging</code> filter to
+            the &PRODNAME; configuration file,
+            <code>power-proxy.cfg.xml</code>. You can read about
+            configuring &PRODNAME; in the &PRODNAME; Deployment
+            Handbook. </para>
+        <important>
+            <para> &PRODNAME;'s HTTP logging component can only be
+                deployed on a system which supports the UTF-8
+                character set. If the system does not support the
+                UTF-8 character set, an error will be thrown at
+                startup and &PRODNAME; will exit. </para>
+        </important>
+        <para> To configure the &PRODNAME; HTTP logging component,
+            edit the <code>http-logging.cfg.xml</code> file. Within
+            <code>http-logging.cfg.xml</code>, you can specify
+            multiple logs by repeating the <code>http-log</code>
+            element; within each <code>http-log</code>, use
+            <code>format</code> to specify what to log for each
+            request and response; use <code>location</code> to specify
+            where the log should be stored.</para>
         
         <para>
             &PRODNAME;'s HTTP logging component allows logging of information in HTTP requests that are sent to &PRODNAME; and responses sent from &PRODNAME;.
@@ -34,29 +85,7 @@
             </mediaobject>
         </figure>
    
-    <section xml:id="Configuration-d1e365">
-        <title>Configuration</title>
-        <para> To add the HTTP logging component to a &PRODNAME;
-            deployment, add the <code>http-logging</code> filter to
-            the &PRODNAME; configuration file,
-                <code>power-proxy.cfg.xml</code>. You can read about
-            configuring &PRODNAME; in the &PRODNAME; Deployment
-            Handbook. </para>
-        <important>
-            <para> &PRODNAME;'s HTTP logging component can only be
-                deployed on a system which supports the UTF-8
-                character set. If the system does not support the
-                UTF-8 character set, an error will be thrown at
-                startup and &PRODNAME; will exit. </para>
-        </important>
-        <para> To configure the &PRODNAME; HTTP logging component,
-            edit the <code>http-logging.cfg.xml</code> file. Within
-                <code>http-logging.cfg.xml</code>, you can specify
-            multiple logs by repeating the <code>http-log</code>
-            element; within each <code>http-log</code>, use
-                <code>format</code> to specify what to log for each
-            request and response; use <code>location</code> to specify
-            where the log should be stored.</para>
+    
         <example>
             <title>HTTP Logging Configured for Two Logs</title>
             <programlistingco>
@@ -354,7 +383,7 @@
                 <code>http-log</code> in the logging configuration.
             </para>
             <para>
-                See <xref linkend="Configuration-d1e365"/> for examples of
+                See <xref linkend="HTTP-Logging-Configuration"/> for examples of
                 specifying <code>location</code> and <code>http-log</code>. 
             </para>
         </important>    
@@ -412,6 +441,13 @@
             </tbody>
         </table> 
     </section>
+    
+    <section xml:id="HTTP-Logging-Error-Scenarios">
+        <title>HTTP Logging Error Scenarios</title>
+        <para> </para>
+    </section>
+    
+    
 </section>
   
 

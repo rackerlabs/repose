@@ -107,9 +107,10 @@
                 </td>
                 
                 <td>
-                    <para>
-                        Place the Normalization filters near the top.  
-                        These filters clean the request to prevent unexpected request headers and content. </para>
+                    <para>Place the Normalization filters near the
+                        top. These filters clean the request to
+                        prevent unexpected request headers and
+                        content. </para>
                 </td>
             </tr>
             <tr>
@@ -121,7 +122,7 @@
                     
                 </td>
                 <td>
-                    <para> Place the Client Authentication filter
+                    <para>Place the Client Authentication filter
                         before the Identity filters. This filter sets
                         the X-Roles, X-PP-User, and X-PP-Groups
                         headers.</para>
@@ -129,13 +130,22 @@
             </tr>
             <tr>
                 <td>
-                    <para> Header Identity  </para>
-                    <db:para> Header Identity Mapping  </db:para>
-                    <db:para> IP Identity </db:para>
-                    <db:para> URI Identity  </db:para>
+                    
+                    <para> 
+                        <link linkend="Header-Identity-Chapter">Header Identity</link>  
+                    </para>
+                    <para> 
+                        <link linkend="Header-Identity-Mapping-Chapter">Header Identity Mapping</link>  
+                    </para>
+                    <para> 
+                        <link linkend="IP-Identity-Chapter">IP Identity</link>   
+                    </para>
+                    <para> 
+                        <link linkend="URI-Identity-Chapter">URI Identity</link>  
+                    </para>
                 </td>
                 <td>
-                    <para> Place the Identity filters next. These
+                    <para>Place the Identity filters next. These
                         filters provide alternative methods of setting
                         the X-PP-User and X-PP-Groups headers.</para>
                 </td>
@@ -149,9 +159,9 @@
                     
                 </td>
                 <td>
-                    <para>
-                        Place the Client Authorization filter next to validate whether the user 
-                        has access to the requested endpoint. </para>
+                    <para>Place the Client Authorization filter next
+                        to validate whether the user has access to the
+                        requested endpoint. </para>
                 </td>
             </tr>
             <tr>
@@ -210,13 +220,19 @@
                 <td>
                     <para><link linkend="Repose-Translation-Chapter"
                             >Translation</link></para>
-                    <db:para>Service Authentication</db:para>
-                    <db:para>Destination Router</db:para>
+                    
+                    <para><link linkend="Service-Authentication-Chapter"
+                        >Service Authentication</link></para>
+                    
+                    <para><link linkend="Destination-Router-Chapter"
+                        >Destination Router</link></para>
+                    
+                    
                     <para>
                         <link linkend="Repose-Header-Translation-Chapter">Header Translation</link>
                     </para>
-                    <db:para>URI Stripper </db:para>
-                    
+                    <para><link linkend="URI-Stripper-Chapter"
+                        >URI Stripper</link></para>
                 </td>
                 <td>
                     <para> Place these filters and service last in the

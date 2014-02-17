@@ -100,7 +100,15 @@
             <para>Quality factors are used when determining the best routing destination. For more information on quality factors, 
                 see Header Value Quality. The quality factor of a target is a decimal number that must be greater than 0 and less than or equal to 1.0.</para>
         
-        <!-- EXAMPLE goes here.  -->
+     
+        
+        <example><title>Sample Header Normalization Configuration with Blacklist</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-destination-router-example.xml" parse="text"/>
+                </programlisting> 
+        </example>
+        
+        
         <para><guilabel>Routing Logic</guilabel></para>
         <para>In the configuration above, we assign the target destination id to be "openrepose" with a quality of 0.5. The destination router will add this id to 
         the list of possible routing destinations with a quality of 0.5 for this request.</para>

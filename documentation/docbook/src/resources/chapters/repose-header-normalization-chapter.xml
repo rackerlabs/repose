@@ -52,154 +52,10 @@
             HTTP method type (http-methods).</para>
     </section>
     
-    
-    
-    
-    <section xml:id="Header-Normalization-Prerequisites">
-        <title>Header Normalization Prerequisites</title>
-        <para>The Header Normalization filter has no required request headers. When you set the order of Repose filters, 
-            place the Header Normalization filter near the top of the sequence to clean the request. This order sequence 
-            prevents unexpected request headers and content from passing to the origin service.</para>
-        
-     <!--   
-         <sidebar>
-            <title>Some clever blog post</title>
-            <para>ipsum lorem</para>
-        </sidebar>
-        -->
-        
-        
-        
-        
+    <section xml:id="Header-Normalization-use-cases">
+        <title>Header Normalization Use Cases</title>
+        <para></para>
     </section>
-    
-    
-    
-    
-    <section xml:id="Header-Normalization-Configuration-Options">
-        <title>Header Normalization Configuration Options</title>
-        
-        <para>You can configure your service to use the Header
-            Normalization filter by specifying the headers to be
-            normalized. The filter can be added to the Repose
-            deployment through the  <link
-                xlink:href="https://repose.atlassian.net/wiki/display/REPOSE/System+Model"
-                >System Model Configuration</link> . All Header
-            Normalization filter configurations fall under
-            the &lt;header-filters&gt; and &lt;target&gt; elements. </para>
-        
-        
-        
-        <para><guilabel> Elements and Attributes Used in the Header Normalization Filter</guilabel></para>
-        
-        <example><title>Header Translation XSD</title>
-            <programlisting language="xml">
-<xi:include href="../samples/repose-xsd-header-normalization-cfg.xsd" parse="text"/>
-                </programlisting>
-        </example>  
-        
-        
-        <para>Your header normalization configuration in header-normalization.cfg.xml will resemble the following example.</para>
-        <example><title>Sample Header Translation Configuration File</title>
-            <programlisting language="xml">
-<xi:include href="../samples/repose-header-normalization-cfg.xml" parse="text"/>
-                </programlisting>
-        </example>
-        
-    </section>
-    
-    
-    <section xml:id="Header-Normalization-Features">  
-        <title>Header Normalization Features</title>
-        <para>The Header Normalization filter has two features that
-            perform separate functions. The features are blacklist and
-            whitelist. <emphasis role="bold"> </emphasis>
-        </para> 
-        
-        
-        
-        <section xml:id="Blacklist-Header-Norm">
-            <title>Blacklist</title>
-            <para>The blacklist feature extracts the headers that you
-                do not want to pass to the origin service. The
-                following example uses the  <emphasis role="bold"
-                    >&lt;blacklist&gt;</emphasis>  element and the 
-                    <emphasis role="bold">&lt;id&gt;</emphasis>
-                 attribute to name the HTTP headers that will be
-                extracted from the request.  </para>
-        </section>  
-        
-        
-        
-        
-        <section xml:id="Whitelist-Header-Norm">
-            <title>Whitelist</title>
-            <para>The whitelist feature enables you to list only
-                the HTTP headers that you want to pass to the origin
-                service. All other requests are extracted and are not
-                passed on. The following example uses the  <emphasis
-                    role="bold">&lt;whitelist&gt;</emphasis>  element
-                and the  <emphasis role="bold">&lt;id&gt;</emphasis>
-                 attribute to name the only HTTP headers that will be
-                passed to the origin service.   </para>
-            
-            
-   <!--         <example><title>Header Normalization Configuration with
-                Whitelist</title>
-                <programlisting language="xml">
-<xi:include href="../samples/repose-header-norm-whitelist.xml" parse="text"/>
-                </programlisting>
-            </example>   -->
-            
-      <!--    THIS IS A SAMPLE TABLE. Waiting for the real information. -->      
-          <!--  <table rules="all"> 
-                <caption></caption>
-                <col width="100%"/>
-                <thead>
-                    <tr>
-                        <th>
-                            Request
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
-                            -H "black-listed2:disappear" -H "nonblacklisted:should"   
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table rules="all" width="500"> 
-                <caption></caption>
-                <col width="100%"/>
-                <thead>
-                    <tr>
-                        <th>
-                            Headers Passed to Origin Service
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            X-Auth-Token
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            non-blacklisted
-                        </td>
-                        
-                    </tr>
-                </tbody>
-            </table> -->
-
-        </section>
-    </section>
-    
-    
     
     <section xml:id="Header-Normalization-Process">  
         <title>Header Normalization Process</title>
@@ -268,4 +124,177 @@
         </figure>
         
     </section>
+    
+    
+    
+    
+    <section xml:id="Header-Normalization-Prerequisites">
+        <title>Header Normalization Prerequisites</title>
+        <para>The Header Normalization filter has no required request headers. When you set the order of Repose filters, 
+            place the Header Normalization filter near the top of the sequence to clean the request. This order sequence 
+            prevents unexpected request headers and content from passing to the origin service.</para>
+        
+     <!--   
+         <sidebar>
+            <title>Some clever blog post</title>
+            <para>ipsum lorem</para>
+        </sidebar>
+        -->
+    </section>
+    
+    
+    <section xml:id="Header-Normalization-Features">  
+        <title>Header Normalization Features</title>
+        <para>The Header Normalization filter has two features that
+            perform separate functions. The features are blacklist and
+            whitelist. <emphasis role="bold"> </emphasis>
+        </para> 
+        
+        
+        
+        <section xml:id="Blacklist-Header-Norm">
+            <title>Blacklist</title>
+            <para>The blacklist feature extracts the headers that you
+                do not want to pass to the origin service. The
+                following example uses the  <emphasis role="bold"
+                    >&lt;blacklist&gt;</emphasis>  element and the 
+                <emphasis role="bold">&lt;id&gt;</emphasis>
+                 attribute to name the HTTP headers that will be
+                extracted from the request.</para>
+            
+            <example><title>Sample Header Normalization Configuration with Blacklist</title>
+                <programlisting language="xml">
+<xi:include href="../samples/repose-header-norm-blacklist.xml" parse="text"/>
+                </programlisting> 
+            </example>
+            
+        </section>  
+        
+        
+        
+        
+        <section xml:id="Whitelist-Header-Norm">
+            <title>Whitelist</title>
+            <para>The whitelist feature enables you to list only
+                the HTTP headers that you want to pass to the origin
+                service. All other requests are extracted and are not
+                passed on. The following example uses the  <emphasis
+                    role="bold">&lt;whitelist&gt;</emphasis>  element
+                and the  <emphasis role="bold">&lt;id&gt;</emphasis>
+                 attribute to name the only HTTP headers that will be
+                passed to the origin service.   </para>
+            
+            <example><title>Sample Header Normalization Configuration with
+                    Whitelist</title>
+                <programlisting language="xml">
+<xi:include href="../samples/repose-header-norm-whitelist.xml" parse="text"/>
+                </programlisting> 
+            </example>
+        </section>
+    </section>
+    
+    
+    
+    <section xml:id="Header-Normalization-Configuration-Options">
+        <title>Header Normalization Configuration Options</title>
+        
+        <para>Configure the Header Normalization filter by editing the header-normalization.cfg.xml file 
+            and specifying the headers to be normalized. Add the filter to the Repose deployment through 
+            the System Model Configuration by editing the following elements and attributes:</para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;header-filters&gt;</emphasis> lists
+                            the <emphasis role="bold"
+                            >&lt;target&gt;</emphasis> objects that
+                        are used to normalize requests.</para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis role="bold"
+                            >&lt;target&gt;</emphasis>  specifies a
+                        normalizer for a given  <emphasis role="bold"
+                            >uri-regex</emphasis>  or an  <emphasis
+                            role="bold">http-methods</emphasis>  to
+                        act against.  A target is either  <emphasis
+                            role="bold">&lt;blacklist&gt;</emphasis>
+                         or  <emphasis role="bold"
+                            >&lt;whitelist&gt;</emphasis> .   </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >&lt;blacklist&gt;</emphasis> lists
+                                   HTTP headers that are extracted
+                                   from the request.</para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <emphasis role="bold"
+                                   >&lt;whitelist&gt;</emphasis>
+                                    lists approved HTTP headers that
+                                   the request can contain. </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >uri-regex</emphasis> is the
+                                   regular expression that is matched
+                                   against incoming requests. If
+                                   no <emphasis role="bold"
+                                   >uri-regex</emphasis> is
+                                   configured, the Header
+                                   Normalization component defaults to
+                                   .*, meaning that the current target
+                                   can catch against any URI.</para>
+                                   </listitem>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >http-methods</emphasis> is the
+                                   method or methods that this target
+                                   matches against. Valid methods are
+                                   GET, DELETE, POST, PUT, HEAD,
+                                   OPTIONS, CONNECT, TRACE, and ALL.
+                                   If <emphasis role="bold"
+                                   >http-methods</emphasis> is blank,
+                                   the Header Normalization component
+                                   defaults to ALL.</para>
+                                   </listitem>
+                                   </itemizedlist>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        
+    </section> 
+    
+    <section xml:id="Header-Normalization-Error-Scenarios">
+        <title>Header Normalization Error Scenarios</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>The Header Normalization filter will never
+                        return error codes. The request will simply
+                        pass through to the next filter or the origin
+                        service.</para>
+                </listitem>
+                <listitem>
+                    <para>The Header Normalization filter extracts
+                        headers that are configured, ignores
+                        everything else, and lets the request pass to
+                        the origin service.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    
 </section>

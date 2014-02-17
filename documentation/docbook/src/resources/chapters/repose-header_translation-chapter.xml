@@ -50,72 +50,13 @@
             filter performs this process. </para>
     </section>
     
-    <section xml:id="Header-Translation-Request-Prereqs">
-        <title>Header Translation Request Prerequisites</title>
-        <para> The Header Translation filter has no request
-            prerequisites. </para>
+    
+    <section xml:id="Header-Translation-Use-Cases">
+        <title>Header Translation Use Cases</title>
+        <para>  </para>
     </section>
-    <section xml:id="Header-Translation-Configuration">
-        <title>Header Translation
-            Configuration Options</title>
-        <para>The Header Translation filter can be configured by
-            editing the <code>header-translation.cfg.xml</code>file.
-            The filter can be added to the Repose deployment through
-            the System Model Configuration. The user can edit the
-            following element: </para>
-        
-        <para><code>&lt;header
-            original-name=""new-name=""remove-original=""/&gt;</code></para>
-        <para><guilabel>Elements and Attributes Used in the Header
-            Translation Filter</guilabel>
-        </para>
-        
-        <variablelist>
-            <varlistentry xml:id="original-name">
-                <term>original-name</term>
-                <listitem>
-                    <para> This attribute contains the name of an
-                        already present header that you want to
-                        translate. The header is evaluated in a
-                        case-sensitive manner. Each
-                        <code>&lt;header></code> element must have
-                        a unique value for the
-                        <code>&lt;original-name></code>
-                        attribute.</para>
-                    
-                </listitem>
-            </varlistentry>
-            <varlistentry xml:id="new-name">
-                <term>new-name</term>
-                <listitem>
-                    <para>This attribute contains a space-delimited
-                        list of names that you would like the
-                        <code>&lt;original-name></code> translated
-                        into. </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry xml:id="remove-original">
-                <term>remove-original (optional)</term>
-                <listitem>
-                    <para>This attribute removes the original headers.
-                        The default value is set to <emphasis
-                            role="italic">false</emphasis>.</para>
-                </listitem>
-            </varlistentry>
-        </variablelist> 
-        <db:para/>
-        <db:para><emphasis role="italic">Your header
-            translation configuration in
-            header-translation.cfg.xml will resemble
-            the following
-            example:</emphasis></db:para>
-        <example><title>Sample Header Translation Configuration File</title>
-            <programlisting language="xml">
-<xi:include href="../samples/repose-header-translation-cfg.xml" parse="text"/>
-                </programlisting>
-        </example>
-        
-    </section>
+    
+    
     <section xml:id="Header-Translation-Process">
         <title>Header Translation Process</title>
         <orderedlist>
@@ -167,12 +108,108 @@
         </figure>
     </section>
     
+    
+    
+    
+    
+    <section xml:id="Header-Translation-Request-Prereqs">
+        <title>Header Translation Request Prerequisites</title>
+        <para> The Header Translation filter has no request
+            prerequisites. </para>
+    </section>
+    
+    <section xml:id="Header-Translation-Features">
+        <title>Header Translation Features</title>
+        <para>  </para>
+    </section> 
+    
+    
+    <section xml:id="Header-Translation-Configuration">
+        <title>Header Translation
+            Configuration Options</title>
+        <para>Configure the Header Translation filter by editing the 
+                <link
+                xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/header-translation/src/main/resources/META-INF/schema/examples/header-translation.cfg.xml"
+                >header-translation.cfg.xml</link> . You can add the
+            filter to the Repose deployment through the  <link
+                xlink:href="https://repose.atlassian.net/wiki/display/REPOSE/System+Model"
+                >System Model Configuration</link>  by editing the
+            following elements and attributes : </para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <emphasis role="bold"
+                            >&lt;header-translation&gt;</emphasis>  :
+                        This element uses the accompanying
+                        sub-elements and attributes to define your
+                        header translation configuration. </para>
+                </listitem>
+                <listitem>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                <emphasis role="bold"
+                                   >&lt;header&gt;:</emphasis>  This
+                                element defines the list of headers
+                                that are translated. </para>
+                        </listitem>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                   <para><emphasis role="bold"
+                                   >original-name</emphasis>: This
+                                   attribute contains the name of an
+                                   existing header that you want to
+                                   translate. The header is evaluated
+                                   in a case-sensitive manner. Each
+                                   &lt;header&gt; element must have a
+                                   unique value for the original-name
+                                   attribute.</para>
+                                </listitem>
+                                <listitem>
+                                   <para><emphasis role="bold"
+                                   >new-name</emphasis>: This
+                                   attribute contains a
+                                   space-delimited list of names that
+                                   you want the
+                                   original-name translated to.</para>
+                                </listitem>
+                                <listitem>
+                                   <para><emphasis role="bold"
+                                   >remove-original</emphasis> (optional):
+                                   This attribute removes the original
+                                   headers. The default value is set
+                                   to false.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </itemizedlist>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <db:para><emphasis role="italic">Your header
+            translation configuration in
+            header-translation.cfg.xml will resemble
+            the following
+            example:</emphasis></db:para>
+        <example><title>Header Translation Configuration</title>
+            <programlisting language="xml">
+<xi:include href="../samples/repose-header-translation-cfg.xml" parse="text"/>
+                </programlisting>
+        </example>
+        
+    </section>
+    
+    
     <section xml:id="Header-Translation-Error-Scenarios">
         <title> Header Translation Error Scenarios</title>
-        <orderedlist>
+        <itemizedlist>
             <listitem>
-                <para>The Header Translation filter will never return an error code. 
-                    The request will simply pass through to the next filter or the origin service.</para>
+                <para>The Header Translation filter will never return
+                    an error code. The request will simply pass
+                    through to the next filter or the origin
+                    service.</para>
             </listitem>
             
             <listitem>
@@ -181,7 +218,7 @@
                     The filter does not expect the header to be present every time.</para>
             </listitem>
             
-        </orderedlist>
+        </itemizedlist>
     </section>
     
 </section>

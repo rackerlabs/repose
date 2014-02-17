@@ -265,10 +265,12 @@
                         <para>uri-stripper</para>
                     </td>
                     <td>
-                        <para>uri-stripper.xsd</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/9cfa645b2a68a7a0a248795277da1c5b32b711ed/repose-aggregator/components/filters/uri-stripper/src/main/resources/META-INF/schema/config/uri-stripper.xsd"> 
+                            uri-stripper.xsd</link> 
                     </td>
                     <td>
-                        <para>uri-stripper.cfg.xml</para>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/9cfa645b2a68a7a0a248795277da1c5b32b711ed/repose-aggregator/components/filters/uri-stripper/src/main/resources/META-INF/schema/examples/uri-stripper.cfg.xml"> 
+                            uri-stripper.cfg.xml</link> 
                     </td>
                     <td>
                         <para>Strips out a specific section of the
@@ -280,10 +282,9 @@
             </tbody>
         </table>
                 
-        
+    <xi:include href="chapters/repose-header-normalization-chapter.xml"/>   
     <xi:include href="chapters/repose-content_normalization-chapter.xml"/> 
     <xi:include href="chapters/repose-uri-normalization.xml"/> 
-    <xi:include href="chapters/repose-header-normalization-chapter.xml"/>
     <xi:include href="chapters/repose-header_translation-chapter.xml"/>
     <xi:include href="chapters/repose-translation-chapter.xml"/>
     <xi:include href="chapters/repose-uri-stripper-chapter.xml"/>
@@ -755,10 +756,11 @@
                 
             </tbody>
         </table>
-    <xi:include href="chapters/repose-logging-chapter.xml"/> 
-    <xi:include href="chapters/repose-versioning-chapter.xml"/>
+        
     <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
-    <xi:include href="chapters/repose-compression-chapter.xml"/>  
+    <xi:include href="chapters/repose-logging-chapter.xml"/>
+    <xi:include href="chapters/repose-compression-chapter.xml"/>
+    <xi:include href="chapters/repose-versioning-chapter.xml"/>
     <xi:include href="chapters/repose-destination-router-chapter.xml"/>
     <xi:include href="chapters/repose-flush-output-stream-chapter.xml"/>
     </chapter>
@@ -813,7 +815,7 @@
                         
                     </td>
                     <td>
-                        <para>STUFF HERE</para>
+                        <para>&lt;response-messaging></para>
                     </td>
                     <td>
                     <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/response-messaging/response-messaging.xsd"> 
@@ -822,6 +824,7 @@
                     <td>
                         <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/response-messaging.cfg.xml"> 
                             messaging.cfg.xml</link> </td>
+                    
                     <td>The Response Messaging Service (RMS) allows
                         Repose to intercept the response and return a
                         pre-configured message body.</td>
@@ -835,10 +838,10 @@
                        
                     </td>
                     <td>
-                        <para>STUFF HERE</para>
+                        <para></para>
                     </td>
-                    <td> STUFF HERE</td>
-                    <td> STUFF HERE</td>
+                    <td></td>
+                    <td></td>
                     <td>
                         <para>Allows Repose to return 503 error messages on bad configurations or requests when using other Repose service components. </para>
                     </td>
@@ -851,10 +854,16 @@
                         
                     </td>
                     <td>
-                        <para>http-connection-pools</para>
+                        <para>&lt;http-connection-pools></para>
                     </td>
-                    <td> STUFF HERE</td>
-                    <td> STUFF HERE</td>
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/httpclient/impl/src/main/resources/META-INF/schema/config/http-connection-pool.xsd"> 
+                        http-connection-pool.xsd</link></td>
+                    
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/httpclient/impl/src/main/resources/META-INF/schema/examples/http-connection-pool.cfg.xml"> 
+                        http-connection-pool.cfg.xml</link>
+                    </td>
                     <td>
                         <para>Allows Repose to manage and reuse HTTP connections. </para>
                     </td>
@@ -863,9 +872,10 @@
             </tbody>
         </table>
         <xi:include href="chapters/repose-dist-datastore-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-response-messaging-svc-chapter.xml"/> 
         <xi:include href="chapters/repose-healthcheck-svc-chapter.xml"/> 
         <xi:include href="chapters/repose-http-connection-pool-svc-chapter.xml"/> 
-        <xi:include href="chapters/repose-response-messaging-svc-chapter.xml"/> 
+        
     </chapter>
    
     <!-- 
