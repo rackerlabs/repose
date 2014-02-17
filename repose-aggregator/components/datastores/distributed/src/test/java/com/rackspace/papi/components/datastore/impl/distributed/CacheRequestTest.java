@@ -58,13 +58,13 @@ public class CacheRequestTest {
        @Test
        public void shouldPassIfRequestPathStartsWithCacheURI() {
            when(mockRequest.getRequestURI()).thenReturn(CacheRequest.CACHE_URI_PATH + "/foobar");
-           assertTrue(CacheRequest.isCacheRequest(mockRequest));
+           assertTrue(CacheRequest.isCacheRequestValid(mockRequest));
        }
 
        @Test
        public void shouldNotMatchIfRequestPathDoesntStartWithCacheURI() {
            when(mockRequest.getRequestURI()).thenReturn("/stuff/" + CacheRequest.CACHE_URI_PATH + "/foobar");
-           assertFalse(CacheRequest.isCacheRequest(mockRequest));
+           assertFalse(CacheRequest.isCacheRequestValid(mockRequest));
        }
    }
 
