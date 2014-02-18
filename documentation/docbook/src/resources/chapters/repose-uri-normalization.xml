@@ -117,69 +117,68 @@
             <para>Prevent cache busting by whitelisting the query parameters and controlling the number of times a query parameter appears. 
                 This normalizes the requests coming from the client so that cache busting cannot occur.</para>
             
-            <!-- Real example goes here.  -->
             
-            <!--
+            
+            
             <example>
-              <title>URI Normalization Configuration Using Whitelist to Prevent Cache Busting</title>
-                
-                
-                
-                <programlisting language="xml">
-&lt;header-filters&gt;
-    &lt;blacklist id="rate-limit-headers"&gt;
-    &lt;header id="x-Black-Listed1" /&gt;
-    &lt;header id="x-Black-Listed2" /&gt;
-    &lt;/blacklist &gt;
-&lt;/header-filters&gt;
-                </programlisting>
-            </example>
+              <title>URI Normalization Configurations Using Whitelist </title>
+           
+              
             <table rules="all"> 
                 <caption></caption>
-                <col width="100%"/>
+                <col width="20%"/>
+                <col width="50%"/>
+                <col width="20%"/>
+                <col width="10%"/>
+                
                 <thead>
                     <tr>
+                        
+                        <th> Configuration</th>
                         <th>
                             Request
                         </th>
+                        <th>Passed Parameters</th>
                     </tr>
+                    
                 </thead>
                 <tbody>
                     <tr>
+                        
                         <td>
-                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
-                            -H "black-listed2:disappear" -H "nonblacklisted:should"   
+                            <example><title>Using Whitelist to Prevent Cache Busting</title>
+                                <programlisting language="xml">
+<xi:include href="../samples/repose-uri-norm-whitelist.xml" parse="text"/>
+                </programlisting> 
+                            </example>
                         </td>
+                        <td>curl
+                                http://origin.service/action?q=1&amp;r=2&amp;s=3&amp;r=4&amp;t=5&amp;r=6&amp;u=7&amp;r=8&amp;r=9</td>
+                    <td>
+                        <para>r=2</para>
+                        <para>r=4</para>
+                        <para>r=6</para> 
+                    </td>
                     </tr>
-                </tbody>
-            </table>
-            <table rules="all" width="500"> 
-                <caption></caption>
-                <col width="100%"/>
-                <thead>
                     <tr>
-                        <th>
-                            Headers Passed to Origin Service
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
+                        
                         <td>
-                            X-Auth-Token
+                            <example><title>Defining an Empty Whitelist </title>
+                                <programlisting language="xml">
+<xi:include href="../samples/repose-uri-norm-whitelist-empty.xml" parse="text"/>
+                </programlisting> 
+                            </example>
                         </td>
-                    </tr>
-                    <tr>
+                        <td> curl
+                                http://origin.service/action?l=1&amp;m=2&amp;N=3&amp;p=4&amp;n=5&amp;n=6</td>
                         <td>
-                            non-blacklisted
+                            Nothing is passed.
                         </td>
                         
                     </tr>
                 </tbody>
             </table>
             </example>
-            </example>
-            -->
         </section>  
         
         
@@ -192,7 +191,66 @@
                 filter strips the extension out of the URI and sets the configured media-type name. The filter sets 
                 the accept header but does not change the content body of the request. </para>
             
-            <!-- Examples go here. -->
+            <example>
+                <title>URI Normalization Configurations Using Whitelist </title>
+                
+                
+                <table rules="all"> 
+                    <caption></caption>
+                    
+                    <col width="60%"/>
+                    <col width="35%"/>
+                    <col width="5%"/>
+                    
+                    <thead>
+                        <tr>
+                            
+                            <th> Configuration</th>
+                            <th>
+                                Request
+                            </th>
+                            <th>Passed Parameters</th>
+                        </tr>
+                        
+                    </thead>
+                    <tbody>
+                        <tr>
+                            
+                            <td>
+                                <example><title>Using Whitelist to Prevent Cache Busting</title>
+                                    <programlisting language="xml">
+<xi:include href="../samples/repose-uri-norm-whitelist.xml" parse="text"/>
+                </programlisting> 
+                                </example>
+                            </td>
+                            <td>curl
+                                http://origin.service/action?q=1&amp;r=2&amp;s=3&amp;r=4&amp;t=5&amp;r=6&amp;u=7&amp;r=8&amp;r=9</td>
+                            <td>
+                                <para>r=2</para>
+                                <para>r=4</para>
+                                <para>r=6</para> 
+                            </td>
+                        </tr>
+                        <tr>
+                            
+                            <td>
+                                <example><title>Defining an Empty Whitelist </title>
+                                    <programlisting language="xml">
+<xi:include href="../samples/repose-uri-norm-whitelist-empty.xml" parse="text"/>
+                </programlisting> 
+                                </example>
+                            </td>
+                            <td> curl
+                                http://origin.service/action?l=1&amp;m=2&amp;N=3&amp;p=4&amp;n=5&amp;n=6</td>
+                            <td>
+                                Nothing is passed.
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </example>
         </section>
     </section>
     

@@ -28,40 +28,13 @@
                 in the context of &PRODABBREV; documentation. </para>
        
             <para><guilabel>Component Reference Guide</guilabel>: The
-                Repose Component Reference Guide is a non-procedural
-                collection of key facts designed to be helpful in
-                preparing to use specific components of &PRODNAME;.
-                This guide is available to assist you with the
-                following components. </para>
+        Repose Component Reference Guide is a non-procedural
+        collection of key facts designed to be helpful in preparing to
+        use specific components of &PRODNAME;. </para>
       
     
    
-    <itemizedlist>
-        <listitem><para>API (WADL/XSD) Validation</para></listitem>
-        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
-            Authentication Filter</link></para></listitem>
-        <listitem><para><link linkend="Repose-AuthNZ-Chapter">Client
-            Authorization Filter</link></para></listitem>
-        <listitem><para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para></listitem>
-        <listitem><para>Content Normalization</para></listitem>
-        <listitem><para>Destination Router (v2)</para></listitem>
-        <listitem><para>Flush Output Stream</para></listitem>
-        <listitem><para>Header Identity</para></listitem>
-        <listitem><para>Header Identity Mapping</para></listitem>
-        <listitem><para>Header Normalization</para></listitem>
-        <listitem><para><link linkend="Repose-Header-Translation-Chapter">Header Translation</link></para></listitem>
-        <listitem><para><link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link></para></listitem>
-        <listitem><para>IP Identity</para></listitem>
-        <listitem><para><link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link></para></listitem>
-        <listitem><para>Service Authentication</para></listitem>
-        <listitem><para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para></listitem>
-        <listitem><para>URI Identity</para></listitem>
-        <listitem><para>URI Normalization</para></listitem>
-        <listitem><para>URI Stripper</para></listitem>
-        <listitem><para><link linkend="Repose-Versioning-Chapter">Versioning Filter</link></para></listitem>
-        
-        
-    </itemizedlist>
+    
     
          
     <tip>

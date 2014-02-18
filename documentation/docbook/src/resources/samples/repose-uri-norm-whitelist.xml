@@ -1,0 +1,5 @@
+<target uri-regex=".*/uri_normalization/?.*" http-methods="GET" alphabetize="true">
+         <whitelist id="pagination-params">
+            <parameter name="r" multiplicity="3" case-sensitive="false"/>
+         </whitelist>
+</target>
