@@ -149,11 +149,11 @@ public class DistributedDatastoreServlet extends HttpServlet {
                         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         break;
                     default:
-                        resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+                        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
 
             }
-            resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
