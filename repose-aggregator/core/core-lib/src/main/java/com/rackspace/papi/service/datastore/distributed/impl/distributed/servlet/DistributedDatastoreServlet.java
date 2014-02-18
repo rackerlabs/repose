@@ -139,6 +139,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             try {
                 final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
                 localDatastore.remove(cacheDelete.getCacheKey());
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } catch (MalformedCacheRequestException e) {
                 switch (e.error) {
                     case NO_DD_HOST_KEY:
@@ -151,9 +152,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                     default:
                         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
-
             }
-            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
