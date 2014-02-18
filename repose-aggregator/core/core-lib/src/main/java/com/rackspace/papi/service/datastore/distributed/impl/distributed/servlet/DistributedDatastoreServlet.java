@@ -108,9 +108,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
         }
-
     }
 
     @Override
@@ -127,24 +125,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 LOG.error(cnfe.getMessage(), cnfe);
                 throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
             } catch (MalformedCacheRequestException mcre) {
-                switch (mcre.error) {
-                    case NO_DD_HOST_KEY:
-                        resp.getWriter().write(mcre.error.message());
-                        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        break;
-                    case OBJECT_TOO_LARGE:
-                        resp.getWriter().write(mcre.error.message());
-                        resp.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-                        break;
-                    case CACHE_KEY_INVALID:
-                    case TTL_HEADER_NOT_POSITIVE:
-                    case UNEXPECTED_REMOTE_BEHAVIOR:
-                        resp.getWriter().write(mcre.error.message());
-                        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        break;
-                    default:
-                        resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                }
+                handleputMalformedCacheRequestException(mcre, resp);
             }
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -176,25 +157,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 LOG.error(cnfe.getMessage(), cnfe);
                 throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
             } catch (MalformedCacheRequestException mcre) {
-                LOG.error(mcre.getMessage());
-                switch (mcre.error) {
-                    case NO_DD_HOST_KEY:
-                        response.getWriter().write(mcre.error.message());
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        break;
-                    case OBJECT_TOO_LARGE:
-                        response.getWriter().write(mcre.error.message());
-                        response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-                        break;
-                    case CACHE_KEY_INVALID:
-                    case TTL_HEADER_NOT_POSITIVE:
-                    case UNEXPECTED_REMOTE_BEHAVIOR:
-                        response.getWriter().write(mcre.error.message());
-                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        break;
-                    default:
-                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                }
+                handleputMalformedCacheRequestException(mcre, response);
             }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -240,5 +203,29 @@ public class DistributedDatastoreServlet extends HttpServlet {
         super.destroy();
         LOG.info("Unregistering Datastore: " + DISTRIBUTED_HASH_RING);
         datastoreService.destroyDatastore(DISTRIBUTED_HASH_RING);
+    }
+
+    private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
+
+        LOG.error(mcre.getMessage());
+        switch (mcre.error) {
+            case NO_DD_HOST_KEY:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                break;
+            case OBJECT_TOO_LARGE:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                break;
+            case CACHE_KEY_INVALID:
+            case TTL_HEADER_NOT_POSITIVE:
+            case UNEXPECTED_REMOTE_BEHAVIOR:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
