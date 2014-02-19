@@ -172,4 +172,25 @@ class HealthCheckServiceImplTest {
 
         assert set.size() == 1000
     }
+
+    @Test(expected = InputNullException)
+    void shouldNotAllowNullOrBlankForReportIds(){
+
+        String uid = healthCheckService.register(this.class)
+
+        healthCheckService.reportIssue(uid, null, h1);
+    }
+
+    @Test(expected = InputNullException)
+    void shouldReturnIdNullWhenGivenNullUid(){
+
+        healthCheckService.reportIssue(null, "rid", h1);
+    }
+
+    @Test(expected = InputNullException)
+    void shouldReturnInputNullExceptionForRegisteringNullClass(){
+
+        healthCheckService.register(null)
+    }
+
 }
