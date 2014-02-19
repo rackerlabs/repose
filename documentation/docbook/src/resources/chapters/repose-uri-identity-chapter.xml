@@ -126,14 +126,8 @@
                 </listitem>
             </itemizedlist>
         </para>
-        <para></para>
-    </section>
-    
-    <section xml:id="URI-Identity-error-scenarios">
-        <title>URI Identity Error Scenarios</title>
-        
-        <para> Set Headers</para>
-        <para>
+        <para><guilabel>Set Headers</guilabel></para>
+        <db:para>
             <itemizedlist>
                 <listitem>
                     <para>X-PP-User will be set to the identification
@@ -146,7 +140,13 @@
                         uri-identity.cfg.xml file.</para>
                 </listitem>
             </itemizedlist>
-        </para>
+        </db:para>
+    </section>
+    
+    <section xml:id="URI-Identity-error-scenarios">
+        <title>URI Identity Error Scenarios</title>
+        
+        <para>The URI Identity filter never returns error codes. The request will simply pass through to the next filter or the origin service.</para>
         
         
     </section>

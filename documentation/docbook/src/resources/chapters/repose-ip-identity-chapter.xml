@@ -66,10 +66,12 @@
        
     </section>
     
-    <section xml:id="IP-Identity-request-prerequisites" security="writeronly">
+    <section xml:id="IP-Identity-request-prerequisites">
         <title>IP Identity Request Prerequisites</title>
         
-        <para> </para>
+        <para>The IP Identity filter has no required request headers. When you set the order of Repose filters, 
+            place the IP Identity filter after the logging, normalization, and authentication filters. 
+            </para>
         
     </section>
     
@@ -137,9 +139,9 @@
         </itemizedlist>
     </section>
     
-    <section xml:id="IP-Identity-error-scenarios" security="writeronly">
+    <section xml:id="IP-Identity-error-scenarios">
         <title>IP Identity Error Scenarios</title>
-        <para></para>
+        <para>The IP Identity filter never returns error codes. The request will simply pass through to the next filter or the origin service.</para>
         
         
         

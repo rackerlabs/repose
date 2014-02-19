@@ -150,10 +150,10 @@
         </para>
     </section>
     
-    <section xml:id="Header-Identity-Mapping-error-scenarios" security="writeronly">
+    <section xml:id="Header-Identity-Mapping-error-scenarios">
         <title>Header Identity Mapping Error Scenarios</title>
         
-        <para> </para>
+        <para>The Header Identity Mapping filter never returns error codes. The request will simply pass through to the next filter or the origin service. </para>
         
     </section>
 </section>

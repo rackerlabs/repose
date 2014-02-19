@@ -229,10 +229,10 @@
         
     </section>
     
-    <section xml:id="URI-Stripper-error-scenarios" security="writeronly">
+    <section xml:id="URI-Stripper-error-scenarios">
         <title>URI Stripper Error Scenarios</title>
-        
-        <para> </para>
+        <para> The URI Stripper filter never returns error codes. The request will simply pass through to the next filter or the origin service.
+        </para>
         
     </section>
 </section>
