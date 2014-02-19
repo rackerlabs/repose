@@ -28,42 +28,32 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public HealthCheckReport getDiagnosis(String UID, String id) throws NotRegisteredException {
-        if (reports.keySet().contains(UID)) {
-            return reports.get(UID).get(id);
-        } else {
-            throw new NotRegisteredException(UID);
-        }
+    public HealthCheckReport getDiagnosis(String UID, String id) throws NotRegisteredException, InputNullException {
+        checkUid(UID);
+        return reports.get(UID).get(id);
     }
 
     @Override
-    public void reportIssue(String UID, String RID, HealthCheckReport report) throws NotRegisteredException {
+    public void reportIssue(String UID, String RID, HealthCheckReport report) throws NotRegisteredException, InputNullException {
 
-        if (reports.containsKey(UID)) {
-            reports.get(UID).put(RID, report);
-        } else {
-            throw new NotRegisteredException(UID);
-        }
+        checkUid(UID);
+        checkIdNull(RID);
+        reports.get(UID).put(RID, report);
     }
 
     @Override
-    public Set<String> getReportIds(String UID) throws NotRegisteredException {
+    public Set<String> getReportIds(String UID) throws NotRegisteredException, InputNullException {
 
-        if (reports.containsKey(UID)) {
-            return reports.get(UID).keySet();
-        } else {
-            throw new NotRegisteredException(UID);
-        }
+        checkUid(UID);
+        return reports.get(UID).keySet();
     }
 
     @Override
-    public void solveIssue(String UID, String id) throws NotRegisteredException {
+    public void solveIssue(String UID, String id) throws NotRegisteredException, InputNullException {
 
-        if (reports.containsKey(UID)) {
-            solveIssue(id, reports.get(UID));
-        } else {
-            throw new NotRegisteredException(UID);
-        }
+        checkUid(UID);
+        checkIdNull(id);
+        solveIssue(id, reports.get(UID));
     }
 
     private void solveIssue(String id, Map<String, HealthCheckReport> reportMap) {
@@ -79,8 +69,11 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public String register(Class T) {
+    public String register(Class T) throws InputNullException {
 
+        if(T == null){
+            throw new InputNullException("Registering Class");
+        }
         Map<String, HealthCheckReport> reportMap = new HashMap<String, HealthCheckReport>();
         Long rand = UUID.randomUUID().getMostSignificantBits();
         String UID = T.getName() + ":" + rand.toString();
@@ -89,13 +82,25 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public Map<String, HealthCheckReport> getReports(String UID) throws NotRegisteredException {
+    public Map<String, HealthCheckReport> getReports(String UID) throws NotRegisteredException, InputNullException {
 
-        if (reports.containsKey(UID)) {
-            return reports.get(UID);
-        } else {
-            throw new NotRegisteredException(UID);
+        checkUid(UID);
+        return reports.get(UID);
+
+    }
+
+    private void checkUid(String uid) throws NotRegisteredException, InputNullException {
+
+        checkIdNull(uid);
+        if (!reports.containsKey(uid)) {
+            throw new NotRegisteredException(uid);
         }
     }
 
+    private void checkIdNull(String id) throws InputNullException {
+
+        if (id == null) {
+            throw new InputNullException();
+        }
+    }
 }
