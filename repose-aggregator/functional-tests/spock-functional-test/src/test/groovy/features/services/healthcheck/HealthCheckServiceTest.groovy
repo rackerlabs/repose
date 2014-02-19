@@ -33,7 +33,7 @@ class HealthCheckServiceTest extends ReposeValveTest{
     def "when a bad config is loaded for dist-datastore service repose should return 503s"(){
 
         when: "Request is sent through repose"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, method: method])
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then: "Repose should return with a 503"
         messageChain.receivedResponse.code == "503"
@@ -42,7 +42,13 @@ class HealthCheckServiceTest extends ReposeValveTest{
         messageChain.handlings.size() == 0
 
         where:
-        method << [ "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE", "HEAD"]
-
+        method   | _
+        "GET"    | _
+        "PUT"    | _
+        "POST"   | _
+        "PATCH"  | _
+        "DELETE" | _
+        "TRACE"  | _
+        "HEAD"   | _
     }
 }
