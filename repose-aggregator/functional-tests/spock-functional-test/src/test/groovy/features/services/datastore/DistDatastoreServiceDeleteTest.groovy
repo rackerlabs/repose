@@ -46,7 +46,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
     }
 
 
-    def "DELETE of existing item in datastore should return 202 and no longer be available"(){
+    def "DELETE of existing item in datastore should return 204 and no longer be available"(){
         when: "Adding the object to the datastore"
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
 
@@ -61,7 +61,7 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
         mc = deproxy.makeRequest(method: "DELETE", url:DD_URI + KEY, headers:DD_HEADERS)
 
         then: "should report that it was successfully deleted"
-        mc.receivedResponse.code == "202"
+        mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
 
         when: "checking that it is no longer available in the datastore"
@@ -72,12 +72,34 @@ class DistDatastoreServiceDeleteTest extends ReposeValveTest {
         mc.receivedResponse.body == ""
     }
 
-    def "DELETE an item that is not in the datastore returns a 202"() {
+    def "DELETE an item that is not in the datastore returns a 204"() {
         when:
         MessageChain mc = deproxy.makeRequest(method: "DELETE", url:DD_URI + UUID.randomUUID().toString(), headers:DD_HEADERS)
 
         then:
-        mc.receivedResponse.code == "202"
+        mc.receivedResponse.code == "204"
     }
+
+    def "DELETE to invalid target will return 404"() {
+
+        when:
+        MessageChain mc = deproxy.makeRequest([method: 'DELETE', url:distDatastoreEndpoint+"/invalid/target", headers:DD_HEADERS])
+
+        then:
+        mc.receivedResponse.code == '404'
+    }
+
+    def "DELETE of invalid key fails 204 No Content"() {
+
+        given:
+        def badKey = "////////" + UUID.randomUUID().toString()
+
+        when: "I attempt to get the value from cache"
+        MessageChain mc = deproxy.makeRequest([method: 'DELETE', url:distDatastoreEndpoint, path:DD_PATH + badKey, headers:DD_HEADERS])
+
+        then:
+        mc.receivedResponse.code == '204'
+    }
+
 
 }
