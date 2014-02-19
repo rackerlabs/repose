@@ -151,7 +151,25 @@ class HealthCheckServiceImplTest {
         healthCheckService.solveIssue(uid+"blah", "notThere")
     }
 
+    @Test
+    void shouldNotThrowErrorIfNoIssuesExist(){
 
+        String uid = healthCheckService.register(this.class)
+        healthCheckService.solveIssue(uid, "notAnIssue")
+    }
 
+    @Test
+    void shouldGenerateUniqueUids(){
 
+        String x = "HealthChecker"
+        def list = []
+        for(int i=0; i<1000; i++){
+
+            list.push(healthCheckService.register(x.class))
+        }
+
+        def set = list as Set
+
+        assert set.size() == 1000
+    }
 }
