@@ -113,22 +113,22 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         ObjectSerializer.instance().readObject(mc.receivedResponse.body) == ""
     }
 
-    def "PUT with no key should return 500 INTERNAL SERVER ERROR"() {
+    def "PUT with no key should return 400 Bad Request"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI, headers:DD_HEADERS, requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '400'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
     }
 
-    def "PUT with missing X-PP-Host-Key should return a 500 INTERNAL SERVER ERROR and not be stored"() {
+    def "PUT with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '401'
         mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
 
         when: "I attempt to get the value from cache"
@@ -138,21 +138,21 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         mc.receivedResponse.code == '404'
     }
 
-    def "PUT of invalid key should fail with 500 INTERNAL SERVER ERROR"() {
+    def "PUT of invalid key should fail with 400 Bad Request"() {
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: distDatastoreEndpoint, path: DD_PATH + key,
                 headers: DD_HEADERS, requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '400'
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
                 headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '404'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
 
         where:
@@ -185,7 +185,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     }
 
 
-    def "PUT with really large body outside limit (2MEGS 2097152) should return 500 INTERNAL SERVER ERROR"() {
+    def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
         def largeBody = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray()))
 
@@ -193,7 +193,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '500'
+        mc.receivedResponse.code == '413'
         mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
 
         when: "I attempt to get the value from cache"

@@ -108,16 +108,14 @@ public class DistributedDatastoreServlet extends HttpServlet {
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
         }
-
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (CacheRequest.isCacheRequestValid(req)) {
-            final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
             try {
+                final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
                 localDatastore.put(cachePut.getCacheKey(), ObjectSerializer.instance().readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
                 resp.setStatus(HttpServletResponse.SC_ACCEPTED);
             } catch (IOException ioe) {
@@ -126,8 +124,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } catch (ClassNotFoundException cnfe) {
                 LOG.error(cnfe.getMessage(), cnfe);
                 throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+            } catch (MalformedCacheRequestException mcre) {
+                handleputMalformedCacheRequestException(mcre, resp);
             }
-
         } else {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -158,10 +157,10 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
-    private void doPatch(HttpServletRequest request, HttpServletResponse response) {
+    private void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (CacheRequest.isCacheRequestValid(request)) {
-            final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
             try {
+                final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(request);
                 Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) ObjectSerializer.instance().readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
                 response.getOutputStream().write(ObjectSerializer.instance().writeObject(value));
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -171,6 +170,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
             } catch (ClassNotFoundException cnfe) {
                 LOG.error(cnfe.getMessage(), cnfe);
                 throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+            } catch (MalformedCacheRequestException mcre) {
+                handleputMalformedCacheRequestException(mcre, response);
             }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -216,5 +217,29 @@ public class DistributedDatastoreServlet extends HttpServlet {
         super.destroy();
         LOG.info("Unregistering Datastore: " + DISTRIBUTED_HASH_RING);
         datastoreService.destroyDatastore(DISTRIBUTED_HASH_RING);
+    }
+
+    private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
+
+        LOG.error(mcre.getMessage());
+        switch (mcre.error) {
+            case NO_DD_HOST_KEY:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                break;
+            case OBJECT_TOO_LARGE:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                break;
+            case CACHE_KEY_INVALID:
+            case TTL_HEADER_NOT_POSITIVE:
+            case UNEXPECTED_REMOTE_BEHAVIOR:
+                response.getWriter().write(mcre.error.message());
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
