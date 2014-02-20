@@ -1,4 +1,4 @@
-package features.core.configLoadingAndReloading
+package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -11,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithGoodConfigs extends Specification {
+class StartWithGoodConfigsTest extends Specification {
 
     int reposePort
     int stopPort
@@ -49,9 +49,9 @@ class StartWithGoodConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
 
         // start repose
         repose = new ReposeValveLauncher(

@@ -1,4 +1,4 @@
-package features.core.configLoadingAndReloading
+package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -11,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithBadConfigs extends Specification {
+class StartWithBadConfigsTest extends Specification {
 
     int reposePort
     int stopPort
@@ -50,9 +50,9 @@ class StartWithBadConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = true
 
         // start repose
@@ -89,6 +89,8 @@ class StartWithBadConfigs extends Specification {
         "header-identity"         | _
         "ip-identity"             | _
         "validator"               | _
+        "metrics"                 | _
+        "connectionPooling"       | _
     }
 
 
@@ -98,9 +100,9 @@ class StartWithBadConfigs extends Specification {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
         expectCleanShutdown = false
 
         // start repose

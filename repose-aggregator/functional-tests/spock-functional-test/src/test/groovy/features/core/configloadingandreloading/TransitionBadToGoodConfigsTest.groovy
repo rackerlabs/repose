@@ -1,4 +1,4 @@
-package features.core.configLoadingAndReloading
+package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -11,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class TransitionBadToGoodConfigs extends Specification {
+class TransitionBadToGoodConfigsTest extends Specification {
 
     static int targetPort
     static Deproxy deproxy
@@ -44,7 +44,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
         // set the common configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
@@ -63,8 +63,8 @@ class TransitionBadToGoodConfigs extends Specification {
 
         given:
         // set the component-specific bad configs
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
         // start repose
         repose.start(killOthersBeforeStarting: false,
@@ -77,7 +77,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
         sleep 15000
         repose.waitForNon500FromUrl(url, 120)
 
@@ -101,6 +101,8 @@ class TransitionBadToGoodConfigs extends Specification {
         "header-identity"         | 200
         "ip-identity"             | 200
         "validator"               | 200
+        "metrics"                 | 200
+        "connectionPooling"       | 200
     }
 
     @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
@@ -108,8 +110,8 @@ class TransitionBadToGoodConfigs extends Specification {
 
         given:
         // set the component-specific bad configs
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-bad", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
         // start repose
         repose.start(killOthersBeforeStarting: false,
@@ -125,7 +127,7 @@ class TransitionBadToGoodConfigs extends Specification {
 
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-good", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
         sleep 35000
 
         then: "Repose should start returning 200's"
