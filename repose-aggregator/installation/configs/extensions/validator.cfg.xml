@@ -4,7 +4,7 @@
    <validator
       role="default"
       default="true"
-      wadl="file://my/wadl/file.wadl"
+      wadl="pass.wadl"
       dot-output="/tmp/default.dot"
       check-well-formed="false"
       check-xsd-grammar="true"
@@ -17,5 +17,5 @@
       xsl-engine="XalanC"
       use-saxon="false"
       join-xpath-checks="false"/>
-   <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
+   <validator role="other" default="false" wadl="fail-404.wadl"/>
 </validators>
