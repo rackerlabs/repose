@@ -10,10 +10,7 @@ import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.Port;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
-import com.rackspace.papi.service.healthcheck.HealthCheckReport;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.NotRegisteredException;
-import com.rackspace.papi.service.healthcheck.Severity;
+import com.rackspace.papi.service.healthcheck.*;
 import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -95,7 +92,11 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
         this.configurationManager = configurationService;
         this.instanceInfo = instanceInfo;
-        healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
+        try {
+            healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
+        } catch (InputNullException e) {
+            LOG.error("Error registering to Health Check Service: " + e.getMessage());
+        }
         issueId = "disdatastore-config-issue";
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
@@ -119,7 +120,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             try {
                 datastorePort = determinePort();
                 initialized = true;
-                if(!healthCheckService.getReportIds(healthServiceUID).isEmpty()){
+                if (!healthCheckService.getReportIds(healthServiceUID).isEmpty()) {
                     healthCheckService.solveIssue(healthServiceUID, issueId);
                 }
             } catch (Exception ex) {
@@ -156,12 +157,14 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             return port;
         }
 
-        private void reportError(String message){
+        private void reportError(String message) {
             try {
                 healthCheckService.reportIssue(healthServiceUID, issueId,
                         new HealthCheckReport("Dist-Datastore Configuration Issue:" + message, Severity.BROKEN));
             } catch (NotRegisteredException nre) {
                 LOG.error(nre.getMessage());
+            } catch (InputNullException e) {
+                LOG.error("Error reporting to Health Check Service: " + e.getMessage());
             }
 
         }
