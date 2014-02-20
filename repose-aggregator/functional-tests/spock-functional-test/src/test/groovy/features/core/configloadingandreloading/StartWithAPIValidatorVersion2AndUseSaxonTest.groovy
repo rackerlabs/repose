@@ -1,4 +1,4 @@
-package features.core.configLoadingAndReloading
+package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -39,9 +39,9 @@ class StartWithAPIValidatorVersion2AndUseSaxonTest extends Specification {
 
         params = properties.getDefaultTemplateParams()
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/validator-v2-use-saxon", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/validator-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/validator-v2-use-saxon", params)
 
         // start repose
         repose = new ReposeValveLauncher(

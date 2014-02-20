@@ -1,4 +1,4 @@
-package features.core.configLoadingAndReloading
+package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
@@ -11,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class StartWithMissingConfigsTest extends Specification {
+class StartWithGoodConfigsTest extends Specification {
 
     int reposePort
     int stopPort
@@ -43,15 +43,15 @@ class StartWithMissingConfigsTest extends Specification {
 
     }
 
-    @Unroll("start with missing #componentLabel config")
-    def "start with missing #componentLabel config"() {
+    @Unroll("start with good #componentLabel configs, should get #expectedResponseCode")
+    def "start with good #componentLabel configs, should get #expectedResponseCode"() {
 
         given:
-
-        // set the common configs, but not the component-specific configs
+        // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/common", params)
-        reposeConfigProvider.applyConfigs("features/core/configLoadingAndReloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
+        reposeConfigProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
 
         // start repose
         repose = new ReposeValveLauncher(
@@ -65,17 +65,30 @@ class StartWithMissingConfigsTest extends Specification {
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
-                     waitOnJmxAfterStarting: false)
+                waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(url)
 
 
+        expect: "starting Repose with good configs should yield 200's"
+        deproxy.makeRequest(url: url).receivedResponse.code == "${expectedResponseCode}"
 
-        expect: "if the file is missing then the default should produce 200's"
-        deproxy.makeRequest(url: url).receivedResponse.code == "200"
 
         where:
-        componentLabel       | _
-        "response-messaging" | _
+        componentLabel            | expectedResponseCode
+        "system-model"            | 200
+        "container"               | 200
+        "response-messaging"      | 200
+        "rate-limiting"           | 200
+        "versioning"              | 200
+        "translation"             | 200
+        "client-auth-n"           | 200
+        "openstack-authorization" | 401
+        "dist-datastore"          | 200
+        "http-logging"            | 200
+        "uri-identity"            | 200
+        "header-identity"         | 200
+        "ip-identity"             | 200
+        "validator"               | 200
     }
 
     def cleanup() {
