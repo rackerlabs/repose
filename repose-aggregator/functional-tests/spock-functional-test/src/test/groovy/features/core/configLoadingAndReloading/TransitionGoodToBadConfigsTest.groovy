@@ -11,7 +11,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Category(Slow.class)
-class TransitionGoodToBadConfigs extends Specification {
+class TransitionGoodToBadConfigsTest extends Specification {
 
     int reposePort
     int stopPort
