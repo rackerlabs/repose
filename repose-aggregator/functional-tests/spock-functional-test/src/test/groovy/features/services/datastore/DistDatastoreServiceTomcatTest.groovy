@@ -264,7 +264,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
 
     }
 
-    def "DELETE of existing item in datastore should return 202 and no longer be available"(){
+    def "DELETE of existing item in datastore should return 204 and no longer be available"(){
         given:
         def headers = ['X-PP-Host-Key':'temp', 'x-ttl':'1000']
         def objectkey = UUID.randomUUID().toString();
@@ -312,7 +312,7 @@ class DistDatastoreServiceTomcatTest extends Specification {
                     )
 
         then: "should report that it was successfully deleted"
-        mc.receivedResponse.code == "202"
+        mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
 
 

@@ -318,7 +318,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
                     )
 
         then: "should report that it was successfully deleted"
-        mc.receivedResponse.code == "202"
+        mc.receivedResponse.code == "204"
         mc.receivedResponse.body == ""
 
 
