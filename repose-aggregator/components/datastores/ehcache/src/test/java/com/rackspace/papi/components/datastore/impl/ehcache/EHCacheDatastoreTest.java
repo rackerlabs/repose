@@ -3,20 +3,26 @@ package com.rackspace.papi.components.datastore.impl.ehcache;
 import com.rackspace.papi.components.datastore.StringValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class EHCacheDatastoreTest {
 
@@ -177,5 +183,25 @@ public class EHCacheDatastoreTest {
         StringValue element = (StringValue)datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
         assertNotNull(element);
         assertEquals("1, 2, 3, 4", element.getValue());
+    }
+
+    @Test
+    public void patch_shouldSetTtl() throws Exception {
+        Ehcache cache = mock(Ehcache.class);
+        EHCacheDatastore datastore = new EHCacheDatastore(cache);
+        ArgumentCaptor<Element> captor = ArgumentCaptor.forClass(Element.class);
+        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
+        verify(cache).putIfAbsent(captor.capture());
+        assertThat(captor.getValue().getTimeToIdle(), equalTo(10));
+    }
+
+    @Test
+    public void patch_shouldRaiseTtl_ifHigher() throws Exception {
+        Ehcache cache = mock(Ehcache.class);
+        Element returnedElement = new Element("key", new StringValue(""));
+        when(cache.putIfAbsent(any(Element.class))).thenReturn(returnedElement);
+        EHCacheDatastore datastore = new EHCacheDatastore(cache);
+        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
+        assertThat(returnedElement.getTimeToIdle(), equalTo(10));
     }
 }
