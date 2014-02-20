@@ -20,15 +20,15 @@
         valve: Standalone Repose java servlet
 
         web-application: Wraps Repose up in a WAR
-    </description>
+   </description>
 
-    <packaging>pom</packaging>
+   <packaging>pom</packaging>
 
-    <modules>
-        <module>core-lib</module>
-        <module>web-application</module>
-        <module>valve</module>
-    </modules>
+   <modules>
+      <module>core-lib</module>
+      <module>web-application</module>
+      <module>valve</module>
+   </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -43,7 +43,6 @@
                 <artifactId>netty</artifactId>
                 <version>3.2.7.Final</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 </project>

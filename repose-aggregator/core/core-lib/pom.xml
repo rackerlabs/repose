@@ -170,6 +170,12 @@
             <artifactId>metrics-ehcache</artifactId>
         </dependency>
 
+       <dependency>
+           <groupId>com.rackspace.papi.service</groupId>
+           <artifactId>health-check-service</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+
         <!-- CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator -->
         <dependency>
             <groupId>com.github.fge</groupId>

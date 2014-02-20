@@ -37,7 +37,8 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
       configurationInformation =(ConfigurationInformation)ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation();
       // Initialize the resource watcher
       resourceWatcher = new ConfigurationResourceWatcher(eventManager);
-      
+
+       //TODO: Make this interval configurable
       final Poller pollerLogic = new Poller(resourceWatcher, 15000);
       
       resrouceWatcherThread = new DestroyableThreadWrapper(
