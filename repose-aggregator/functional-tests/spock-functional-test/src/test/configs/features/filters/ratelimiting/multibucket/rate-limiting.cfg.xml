@@ -17,8 +17,8 @@
     </limit-group>
 
     <limit-group id="subsetLimitsByUri" groups="subsetLimitsByUri" default="false">
-        <limit uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="3"/>
-        <limit uri="/resource/subresource*" uri-regex="/resource/subresource.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="4"/>
+        <limit uri="/resource/subresource*" uri-regex="/resource/subresource.*" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="subsetLimitsByMethod" groups="subsetLimitsByMethod" default="false">
@@ -35,6 +35,14 @@
     <limit-group id="limitsInOrder" groups="limitsInOrder" default="false">
         <limit uri="/*" uri-regex="/abc..." http-methods="GET" unit="MINUTE" value="2"/>
         <limit uri="/*" uri-regex="/...def" http-methods="GET" unit="MINUTE" value="3"/>
+    </limit-group>
+
+    <limit-group id="allMethods" groups="allMethods" default="false">
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="9" />
+    </limit-group>
+
+    <limit-group id="multipleMethods" groups="multipleMethods" default="false">
+        <limit uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="minute" value="3" />
     </limit-group>
 
     <limit-group id="stateMachine-ssppfnn" groups="stateMachine-ssppfnn" default="false">

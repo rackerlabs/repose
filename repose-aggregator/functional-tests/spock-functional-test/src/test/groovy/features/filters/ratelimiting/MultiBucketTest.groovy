@@ -27,7 +27,7 @@ class MultiBucketTest extends ReposeValveTest {
         return name;
     }
 
-    def "when two <limit> elements overlap, requests to the intersection decrement both counters"() {
+    def "separate users get separate buckets"() {
 
         given:
         def user = getNewUniqueUser()
@@ -37,17 +37,48 @@ class MultiBucketTest extends ReposeValveTest {
         def resource = "${reposeEndpoint}/resource"
         def item = "${reposeEndpoint}/item"
 
-        expect:
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"
+        expect:                                                                                     // counts: A B
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // X 1
 
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
+    }
+
+    def "when two <limit> elements overlap, requests to the intersection decrement both counters"() {
+
+        // A - 3 per minute - ALL /resource.*
+        // B - 3 per minute - GET /.*
+        //
+        // a non-GET to /resource.* will only hit A
+        // a GET to something other than /resource.* will only hit B
+        // a GET to /resource.* will trigger both limits
+
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "overlappingLimits"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        def resource = "${reposeEndpoint}/resource"
+        def item = "${reposeEndpoint}/item"
+
+        expect:                                                                                     // counts: A B
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
+
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // X 1
+
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
     }
 
     def "when two <limit> elements overlap, requests to the non-overlapping uri's decrement separately"() {
@@ -60,16 +91,16 @@ class MultiBucketTest extends ReposeValveTest {
         def resource = "${reposeEndpoint}/resource"
         def item = "${reposeEndpoint}/item"
 
-        expect:
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"
+        expect:                                                                                     // counts: A B
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 1
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
+        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
     }
 
     def "when two <limit> elements are disjoint, requests decrement the counters separately"() {
@@ -82,16 +113,16 @@ class MultiBucketTest extends ReposeValveTest {
         def resource = "${reposeEndpoint}/resource"
         def item = "${reposeEndpoint}/item"
 
-        expect:
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"
+        expect:                                                                     // counts: A B
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 1
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 2
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 3
+        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "413"     // - X
     }
 
     def "when one <limit> is a strict subset of the other by uri, both counters get decremented"() {
@@ -105,12 +136,32 @@ class MultiBucketTest extends ReposeValveTest {
         def subresource = "${resource}/subresource"
 
         expect:
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 1 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 2 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 3 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 4 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"    // X -
 
-        deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // X -
+    }
+
+    def "when one <limit> is a strict subset of the other by uri, both counters get decremented 2"() {
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "subsetLimitsByUri"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        def resource = "${reposeEndpoint}/resource"
+        def subresource = "${resource}/subresource"
+
+        expect:
+        deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // 3 X
+
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 4 -
+        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"    // X -
     }
 
     def "when one <limit> is a strict subset of the other by method, both counters get decremented"() {
@@ -122,13 +173,13 @@ class MultiBucketTest extends ReposeValveTest {
 
         def resource = "${reposeEndpoint}/resource"
 
-        expect:
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"
+        expect:                                                                                     // counts: A B
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 3
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // - X
     }
 
     def "when one <limit> is a strict subset of the other by method, both counters get decremented 2"() {
@@ -140,15 +191,15 @@ class MultiBucketTest extends ReposeValveTest {
 
         def resource = "${reposeEndpoint}/resource"
 
-        expect:
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"
+        expect:                                                                                       // counts: A B
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 1 1
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 2 2
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 3 3
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"    // X -
 
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"
-        deproxy.makeRequest(method: 'PUT', url: resource, headers: headers).receivedResponse.code == "413"
-        deproxy.makeRequest(method: 'DELETE', url: resource, headers: headers).receivedResponse.code == "413"
+        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"   // X -
+        deproxy.makeRequest(method: 'PUT', url: resource, headers: headers).receivedResponse.code == "413"    // X -
+        deproxy.makeRequest(method: 'DELETE', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
     }
     
@@ -162,7 +213,7 @@ class MultiBucketTest extends ReposeValveTest {
 
         def resource = "${reposeEndpoint}/resource"
 
-        expect:                                                              //        counts: A  B
+        expect:                                                                     // counts: A  B
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 1  1
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 2  2
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 3  3
@@ -204,7 +255,77 @@ class MultiBucketTest extends ReposeValveTest {
 
     }
 
+    def "when a <limit> has http-methods of ALL, requests to any method go into the same bucket"() {
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "allMethods"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        expect:
+        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "DELETE",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "POST",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "PUT",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 4
+        deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 5
+        deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 6
+        deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 7
+        deproxy.makeRequest(method: "CONNECT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
+        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 9
+
+        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+    }
+
+    def "when a <limit> has multiple http-methods, requests to any of the methods go into the same bucket"() {
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "multipleMethods"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        expect:
+        deproxy.makeRequest(method: "GET",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "POST", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "PUT",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "GET",  url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+    }
+
+    def "when a <limit> has specific http-methods, request to other methods are not counted by that <limit>"() {
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "multipleMethods"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        expect:
+        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "POST",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "PUT",     url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+
+        deproxy.makeRequest(method: "DELETE",  url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "CONNECT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+
+        deproxy.makeRequest(method: "SOME",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "OTHER",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+        deproxy.makeRequest(method: "GARBAGE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
+    }
+
+
+
+
     def "state machine ssppfnn - separate"() {
+
+        /*
+         * The stateMachine-ssppfnn limit group is set up so that we can
+         * selectively trigger any subset of the
+         *
+         *
+         */
 
         given:
         def user = getNewUniqueUser()
@@ -218,7 +339,6 @@ class MultiBucketTest extends ReposeValveTest {
         def f5 = "${reposeEndpoint}/xxxx5xx"
         def n6 = "${reposeEndpoint}/xxxxx6x"
         def n7 = "${reposeEndpoint}/xxxxxx7"
-        def all = "${reposeEndpoint}/1234567"
 
         expect:
         deproxy.makeRequest(url: s1, headers: headers).receivedResponse.code == "200"   // 1 - - - - - -
@@ -262,7 +382,11 @@ class MultiBucketTest extends ReposeValveTest {
 
         def skipFirstTwo = "${reposeEndpoint}/ss34567"
 
-        // we know it's skipping the first two, because they only have a value of 1, and would fail on the second request
+        /*
+         * we know it's skipping the first two <limit>'s, because they only
+         * allow a single request. If the requests were triggering them, then
+         * they would fail on the second request.  before the fifth <limit>.
+         */
 
         expect:
         deproxy.makeRequest(url: skipFirstTwo, headers: headers).receivedResponse.code == "200"   // - - 1 1 1 1 1
