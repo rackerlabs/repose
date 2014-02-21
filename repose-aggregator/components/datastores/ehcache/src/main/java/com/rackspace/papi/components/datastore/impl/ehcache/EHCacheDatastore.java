@@ -48,6 +48,7 @@ public class EHCacheDatastore implements Datastore {
     public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) {
         Element putMe = new Element(key, value);
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
+        //todo: switch to time to idle instead of time to live?
 
         ehCacheInstance.put(putMe);
     }
@@ -61,17 +62,25 @@ public class EHCacheDatastore implements Datastore {
     public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
         Serializable potentialNewValue = (Serializable)patch.newFromPatch();
         Element element = new Element(key, potentialNewValue);
-        if(ttl != -1) {
-            element.setTimeToLive((int)TimeUnit.SECONDS.convert(ttl, timeUnit));
-        }
         Element currentElement = ehCacheInstance.putIfAbsent(element);
+        Serializable returnValue;
+
         if(currentElement == null) {
-            return SerializationUtils.clone(potentialNewValue);
+            returnValue = SerializationUtils.clone(potentialNewValue);
+            currentElement = element;
         }
         else {
-            currentElement = ehCacheInstance.get(key);
-            return (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
+            returnValue = (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
         }
+
+        if(ttl >= 0) {
+            int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
+            if(convertedTtl > currentElement.getTimeToIdle()) {
+                currentElement.setTimeToIdle(convertedTtl);
+            }
+        }
+
+        return returnValue;
     }
 
     @Override
