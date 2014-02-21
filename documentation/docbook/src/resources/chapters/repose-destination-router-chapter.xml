@@ -68,10 +68,11 @@
         
     </section>
     
-    <section xml:id="Destination-Router-request-prerequisites" security="writeronly">
+    <section xml:id="Destination-Router-request-prerequisites">
         <title>Destination Router Request Prerequisites</title>
         
-        <para> </para>
+        <para>The Destination Router filter has no required request headers. When you set the order of Repose filters, 
+            place the Destination Router filter last in the filter chain. It does not need to proceed any other filters. </para>
         
     </section>
     
@@ -115,10 +116,9 @@
         
     </section>
     
-    <section xml:id="Destination-Router-error-scenarios" security="writeronly">
+    <section xml:id="Destination-Router-error-scenarios">
         <title>Destination Router Error Scenarios</title>
         
-        <para> </para>
-        
+        <para>The Destination Router filter returns a 404 error response if the id does not match the destination for the service domain.</para>
     </section>
 </section>

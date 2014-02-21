@@ -101,7 +101,7 @@
         <para>The URI Normalization filter has no required request headers. 
             When you set the order of Repose filters, place the URI Normalization 
             filter near the top of the sequence to clean the request. This sequence 
-            prevents unexpected request headers and content from passing to the origin service.</para>
+            prevents unexpected request headers and content from passing to the origin service. </para>
         
     </section>
     
@@ -114,8 +114,12 @@
         
         <section xml:id="Whitelist-uri-norm">
             <title>Whitelist</title>
-            <para>Prevent cache busting by whitelisting the query parameters and controlling the number of times a query parameter appears. 
-                This normalizes the requests coming from the client so that cache busting cannot occur.</para>
+            <para>Ensure that data is cached by using 
+                    <guilabel>&lt;whitelist></guilabel> to control the
+                query parameters and  <emphasis role="bold"/>  to
+                control the number of times a query parameter appears.
+                This normalizes the requests coming from the client so
+                that cache busting cannot occur. </para>
             
             
             
@@ -126,10 +130,10 @@
               
             <table rules="all"> 
                 <caption></caption>
-                <col width="20%"/>
-                <col width="50%"/>
-                <col width="20%"/>
-                <col width="10%"/>
+               
+                <col width="60%"/>
+                <col width="34%"/>
+                <col width="6%"/>
                 
                 <thead>
                     <tr>
@@ -146,7 +150,7 @@
                     <tr>
                         
                         <td>
-                            <example><title>Using Whitelist to Prevent Cache Busting</title>
+                            <example><title>Whitelist to Prevent Cache Busting</title>
                                 <programlisting language="xml">
 <xi:include href="../samples/repose-uri-norm-whitelist.xml" parse="text"/>
                 </programlisting> 
@@ -163,7 +167,7 @@
                     <tr>
                         
                         <td>
-                            <example><title>Defining an Empty Whitelist </title>
+                            <example><title>Define an Empty Whitelist </title>
                                 <programlisting language="xml">
 <xi:include href="../samples/repose-uri-norm-whitelist-empty.xml" parse="text"/>
                 </programlisting> 
@@ -186,21 +190,25 @@
         
         <section xml:id="media-type-uri-norm">
             <title>Media Type</title>
-            <para>Use the media-type feature to normalize the accept header by mapping a media-type to a URI extension. 
-                If the media-type extension of the URI matches a configured variant extension, the URI Normalization 
-                filter strips the extension out of the URI and sets the configured media-type name. The filter sets 
-                the accept header but does not change the content body of the request. </para>
-            
+            <para>Use the <guilabel>&lt;media-type></guilabel> element
+                to normalize the accept header by mapping a media-type
+                to a URI extension. If the media-type extension of the
+                URI matches a configured variant extension, the URI
+                Normalization filter strips the extension out of the
+                URI and sets the configured media-type name. The
+                filter sets the accept header but does not change the
+                content body of the request. </para>
             <example>
-                <title>URI Normalization Configurations Using Whitelist </title>
+                <title>URI Normalization Configurations Using Media
+                    Type </title>
                 
                 
                 <table rules="all"> 
                     <caption></caption>
                     
                     <col width="60%"/>
-                    <col width="35%"/>
-                    <col width="5%"/>
+                    <col width="34%"/>
+                    <col width="6%"/>
                     
                     <thead>
                         <tr>
@@ -217,40 +225,29 @@
                         <tr>
                             
                             <td>
-                                <example><title>Using Whitelist to Prevent Cache Busting</title>
+                                <example><title>Media Type to Normalize Accept Header</title>
                                     <programlisting language="xml">
-<xi:include href="../samples/repose-uri-norm-whitelist.xml" parse="text"/>
+<xi:include href="../samples/repose-uri-norm-media-type.xml" parse="text"/>
                 </programlisting> 
                                 </example>
                             </td>
                             <td>curl
-                                http://origin.service/action?q=1&amp;r=2&amp;s=3&amp;r=4&amp;t=5&amp;r=6&amp;u=7&amp;r=8&amp;r=9</td>
-                            <td>
-                                <para>r=2</para>
-                                <para>r=4</para>
-                                <para>r=6</para> 
-                            </td>
-                        </tr>
-                        <tr>
-                            
-                            <td>
-                                <example><title>Defining an Empty Whitelist </title>
-                                    <programlisting language="xml">
-<xi:include href="../samples/repose-uri-norm-whitelist-empty.xml" parse="text"/>
-                </programlisting> 
-                                </example>
-                            </td>
-                            <td> curl
                                 http://origin.service/action?l=1&amp;m=2&amp;N=3&amp;p=4&amp;n=5&amp;n=6</td>
                             <td>
-                                Nothing is passed.
+                                <para>l=1</para>
+                                <para>m=2</para>
+                                <para>N=3</para>
+                                <para>p=4</para>
+                                <para>n=5</para>
+                                <para>n=6</para>
                             </td>
-                            
                         </tr>
+                        
                     </tbody>
                 </table>
-                
             </example>
+            
+            
         </section>
     </section>
     
@@ -302,56 +299,53 @@
                 </listitem>
             </itemizedlist>
         </db:para>
-        <db:para>
-            <itemizedlist>
-                <listitem>
-                    <para><emphasis role="bold"
-                            >&lt;uri-filters&gt;</emphasis>: lists the
-                        targets for which to apply normalization to
-                        the query parameters.</para>
-                </listitem>
-                <listitem>
-                    <para><emphasis role="bold"
-                            >&lt;target&gt;</emphasis> : specifies the
-                        endpoint and http-method for a given uri-regex
-                        or http-method to act against.  </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <itemizedlist>
-                            <listitem>
-                                <para><emphasis role="bold"
+        <itemizedlist>
+            <listitem>
+                <para><emphasis role="bold"
+                        >&lt;uri-filters&gt;</emphasis>: lists the
+                    targets for which to apply normalization to the
+                    query parameters.</para>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold">&lt;target&gt;</emphasis>
+                    : specifies the endpoint and http-method for a
+                    given uri-regex or http-method to act against. 
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><emphasis role="bold"
                                    >uri-regex</emphasis>: defines a
-                                   regular expression that is matched
-                                   against incoming requests.</para>
-                            </listitem>
-                            <listitem>
-                                <para><emphasis role="bold"
+                                regular expression that is matched
+                                against incoming requests.</para>
+                        </listitem>
+                        <listitem>
+                            <para><emphasis role="bold"
                                    >http-methods</emphasis>: lists the
-                                   method or methods that this
-                                   target matches against. Valid
-                                   values are GET, DELETE, POST, PUT,
-                                   HEAD, OPTIONS, CONNECT, TRACE, and
-                                   ALL.</para>
-                            </listitem>
-                            <listitem>
-                                <para><emphasis role="bold"
+                                method or methods that this
+                                target matches against. Valid values
+                                are GET, DELETE, POST, PUT, HEAD,
+                                OPTIONS, CONNECT, TRACE, and
+                                ALL.</para>
+                        </listitem>
+                        <listitem>
+                            <para><emphasis role="bold"
                                    >alphabetize</emphasis>: rearranges
-                                   the query parameters in
-                                   alphabetical order.</para>
-                            </listitem>
-                        </itemizedlist>
-                    </para>
-                </listitem>
-            </itemizedlist>
-        </db:para>
+                                the query parameters in alphabetical
+                                order.</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+            </listitem>
+        </itemizedlist>
         <db:para>
             <itemizedlist>
                 <listitem>
-                    <para><emphasis role="bold"
-                            >&lt;whitelist&gt;</emphasis>: lists the
-                        set of parameters that are allowed to pass to
-                        the origin service.</para>
+                    <para><guilabel>&lt;whitelist></guilabel>: lists
+                        the set of parameters that are allowed to pass
+                        to the origin service.</para>
                 </listitem>
                 <listitem>
                     <para>

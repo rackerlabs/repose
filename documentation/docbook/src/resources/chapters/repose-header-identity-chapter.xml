@@ -92,9 +92,14 @@
     
     <section xml:id="Header-Identity-configuration-options">  
         <title>Header Identity Configuration Options</title>
-        <para>The Header Identity Filter is added to a Repose deployment as a filter (header-identity) via the System Model Config.</para>
-        <para>An example configuration is provided: Example Header Identity Configuration
-            Header Identity can be configured by editing the header-identity.cfg.xml file. The user can specify the following information:</para>
+        <para>Configure the Header Identity filter by editing the 
+                <link
+                xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/examples/header-identity.cfg.xml"
+                >header-identity.cfg.xml</link> ﻿ . Add the filter to
+            the Repose deployment through the  <link
+                xlink:href="https://repose.atlassian.net/wiki/display/REPOSE/System+Model"
+                >System Model Configuration</link>  by editing the
+            following elements and attributes. </para>
         <para>
             <itemizedlist>
                 <listitem>

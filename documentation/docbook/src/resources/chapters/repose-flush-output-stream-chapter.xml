@@ -73,7 +73,8 @@
     <section xml:id="Flush-Output-Stream-request-prerequisites" security="writeronly">
         <title>Flush Output Stream Request Prerequisites</title>
         
-        <para> </para>
+        <para>The Flush Output Stream filter has no required request headers. When you set the order of Repose filters, 
+            place the Flush Output Stream filter last in the filter chain. It does not need to proceed any other filters  </para>
         
     </section>
     
