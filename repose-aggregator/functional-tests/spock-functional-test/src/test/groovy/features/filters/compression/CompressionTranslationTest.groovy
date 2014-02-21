@@ -114,7 +114,7 @@ class CompressionTranslationTest extends ReposeValveTest {
     @Unroll("content-encoding: #encoding")
     def "when a decompressed request is sent from Origin to Repose when compression fails"() {
         given:
-        def decompressedHandler = {request -> return new Response(200, "OK", zippedContent.trim())}
+        def decompressedHandler = {request -> return new Response(code: 200, "OK", zippedContent)}
 
         when: "the decompressed content is sent to the origin service through Repose with encoding " + encoding
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, headers: ['accept-encoding': encoding], defaultHandler: decompressedHandler])

@@ -1,8 +1,11 @@
 package features.services.datastore
+
+import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
 @Category(Slow.class)
@@ -80,6 +83,72 @@ class DistDatastoreServiceBurstTest extends ReposeValveTest {
 
     }
 
+
+    def "under heavy load and small ttl - PATCH a new cache object should return 200 response and no errors" () {
+        given:
+        def headers = ['X-PP-Host-Key':'temp', 'X-TTL':'1']
+        def objectkey1 = UUID.randomUUID().toString();
+        def objectkey2 = UUID.randomUUID().toString();
+        def body = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch("test data"))
+        List<Thread> clientThreads = new ArrayList<Thread>()
+        List<String> requests = new ArrayList()
+        MessageChain mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'PATCH',
+                            url:datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey1,
+                            headers:headers,
+                            requestBody: body
+                    ])
+        mc =
+            deproxy.makeRequest(
+                    [
+                            method: 'PATCH',
+                            url:datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey2,
+                            headers:headers,
+                            requestBody: body
+                    ])
+        Thread.sleep(945)
+        for (x in 1..numClients) {
+
+            def thread = Thread.start {
+                def threadNum = x
+
+                for (i in 1..callsPerClient) {
+                    requests.add('spock-thread-' + threadNum + '-request-' + i)
+                    mc =
+                        deproxy.makeRequest(
+                                [
+                                        method: 'PATCH',
+                                        url:datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey1,
+                                        headers:headers,
+                                        requestBody: body
+                                ])
+                    mc.receivedResponse.code == '200'
+                    mc =
+                        deproxy.makeRequest(
+                                [
+                                        method: 'PATCH',
+                                        url:datastoreEndpoint1 + "/powerapi/dist-datastore/objects/" + objectkey2,
+                                        headers:headers,
+                                        requestBody: body
+                                ])
+                    mc.receivedResponse.code == '200'
+                }
+            }
+            clientThreads.add(thread)
+        }
+
+        when:
+        clientThreads*.join()
+
+        then:
+        true
+
+        where:
+        numClients | callsPerClient
+        30         | 20
+    }
     private void inRange(int totalSuccessfulCount, int rateLimitingCount){
         int minRange = Math.floor(rateLimitingCount - (rateLimitingCount * 0.03))
         int maxRange = Math.ceil(rateLimitingCount + (rateLimitingCount * 0.03))
