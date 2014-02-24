@@ -52,6 +52,21 @@ class MultiBucketTest extends ReposeValveTest {
 
     def "when two <limit> elements overlap, requests to the intersection decrement both counters"() {
 
+        /*
+         *
+         * We define two limits, each allowing 3 requests per minute. One
+         * triggers on all http methods with a uri-regex of "/resource.*". The
+         * other triggers on all GET requests to any uri.
+         *
+         * Each of these limits will match a different subset of all requests.
+         * In addition, there is a subset of requests that match both limits.
+         * A POST request to /resource will trigger only the first limit, a
+         * GET to /item will trigger only the second, and a GET to /resource
+         * will trigger both.
+         *
+         * We send four POST requests to /resource. This should complete exhaust the first limit. The first three requests shouold pass and the fourth should
+         *
+         */
         // A - 3 per minute - ALL /resource.*
         // B - 3 per minute - GET /.*
         //
@@ -74,14 +89,14 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // X 1
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413"  // X -
 
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "413" // - X
     }
 
-    def "when two <limit> elements overlap, requests to the non-overlapping uri's decrement separately"() {
+    def "when two <limit> elements overlap, requests to the non-overlapping uri's are counted separately"() {
 
         given:
         def user = getNewUniqueUser()
@@ -97,13 +112,13 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 1
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 1
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "413" // - X
     }
 
-    def "when two <limit> elements are disjoint, requests decrement the counters separately"() {
+    def "when two <limit> elements are disjoint, requests count against the limits separately"() {
 
         given:
         def user = getNewUniqueUser()
@@ -119,13 +134,13 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200" // 3 -
         deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 1
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 2
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "200"     // - 3
-        deproxy.makeRequest(url: item, headers: headers).receivedResponse.code == "413"     // - X
+        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 1
+        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(url: item,     headers: headers).receivedResponse.code == "413" // - X
     }
 
-    def "when one <limit> is a strict subset of the other by uri, both counters get decremented"() {
+    def "when one <limit> is a strict subset of the other by uri, both counters are affected"() {
 
         given:
         def user = getNewUniqueUser()
@@ -136,16 +151,16 @@ class MultiBucketTest extends ReposeValveTest {
         def subresource = "${resource}/subresource"
 
         expect:
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 1 -
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 2 -
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 3 -
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 4 -
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"    // X -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 4 -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "413" // X -
 
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // X -
     }
 
-    def "when one <limit> is a strict subset of the other by uri, both counters get decremented 2"() {
+    def "when one <limit> is a strict subset of the other by uri, both counters are affected 2"() {
 
         given:
         def user = getNewUniqueUser()
@@ -160,11 +175,11 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "200" // 2 2
         deproxy.makeRequest(url: subresource, headers: headers).receivedResponse.code == "413" // 3 X
 
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "200"    // 4 -
-        deproxy.makeRequest(url: resource, headers: headers).receivedResponse.code == "413"    // X -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "200" // 4 -
+        deproxy.makeRequest(url: resource,    headers: headers).receivedResponse.code == "413" // X -
     }
 
-    def "when one <limit> is a strict subset of the other by method, both counters get decremented"() {
+    def "when one <limit> is a strict subset of the other by method, both counters are affected"() {
 
         given:
         def user = getNewUniqueUser()
@@ -179,10 +194,10 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 3
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // - X
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413" // - X
     }
 
-    def "when one <limit> is a strict subset of the other by method, both counters get decremented 2"() {
+    def "when one <limit> is a strict subset of the other by method, both counters are affected 2"() {
 
         given:
         def user = getNewUniqueUser()
@@ -192,19 +207,47 @@ class MultiBucketTest extends ReposeValveTest {
         def resource = "${reposeEndpoint}/resource"
 
         expect:                                                                                       // counts: A B
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 1 1
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 2 2
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "200"    // 3 3
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"    // X -
+        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "200" // 3 3
+        deproxy.makeRequest(method: 'GET',    url: resource, headers: headers).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413"   // X -
-        deproxy.makeRequest(method: 'PUT', url: resource, headers: headers).receivedResponse.code == "413"    // X -
+        deproxy.makeRequest(method: 'POST',   url: resource, headers: headers).receivedResponse.code == "413" // X -
+        deproxy.makeRequest(method: 'PUT',    url: resource, headers: headers).receivedResponse.code == "413" // X -
         deproxy.makeRequest(method: 'DELETE', url: resource, headers: headers).receivedResponse.code == "413" // X -
 
     }
     
     @Ignore("The rate limiting config xsd doesn't yet allow for two limits to have the same URI and methods")
-    def "when two <limit> elements have the same uri-regex and method, but different units, then they each get counters that decrement separately"() {
+    def "when two <limit> elements have the same uri-regex and method, but different units, then they each get counters that counted separately"() {
+
+        /*
+         * We define two limits that have the same https-methods and the same
+         * uri-regex, but different units and value. Requests to the specified
+         * uri should count against both, but they will reset at different rate.
+         * The first limit allows 3 requests per second, the second allows 5
+         * requests per minute.
+         *
+         * We send four requests to the uri. The first three should pass, and
+         * the fourth should fail, because it exhausts the 3-per-second limit.
+         *
+         * We then wait for 2 seconds, enough time for the per-second limit to
+         * reset, but not enough for the per-minute one to reset.
+         *
+         * Next, we send three more requests (the fifth, sixth, and seventh in
+         * the test as a whole). The fifth and sixth requests should pass,
+         * because neither limit has been exhausted. The seventh request
+         * should fail, because the perm-minute limit is exhausted.
+         *
+         * Next, we wait for another 2 seconds for the per-second limit to
+         * reset.
+         *
+         * Finally, we send two more requests which should both fail, because
+         * the per-minute limit hasn't yet rest.
+         *
+         * If the rate limiter incorrectly counts the fourth request against
+         * the per-minute limit, then the sixth request will fail.
+         */
 
         given:
         def user = getNewUniqueUser()
