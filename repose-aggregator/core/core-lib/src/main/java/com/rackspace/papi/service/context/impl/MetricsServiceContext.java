@@ -83,6 +83,9 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, metricsCfgListener, MetricsConfiguration.class);
 
+        // The Metrics config is optional so in the case where the configuration listener doesn't mark it iniitalized
+        // and the file doesn't exist, this means that the Metrics service will load its own default configuration
+        // and the initial health check error should be cleared.
         try{
             if(!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()){
                 solveIssue();

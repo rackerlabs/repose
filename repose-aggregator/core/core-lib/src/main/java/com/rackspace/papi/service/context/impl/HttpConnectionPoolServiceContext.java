@@ -75,6 +75,10 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
         reportIssue();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, HttpConnectionPoolConfig.class);
+
+        // The Http Connection Pool config is optional so in the case where the configuration listener doesn't mark it iniitalized
+        // and the file doesn't exist, this means that the Http Connection Pool service will load its own default configuration
+        // and the initial health check error should be cleared.
         try {
             if (!configurationListener.isInitialized() && !configurationService.getResourceResolver().resolve(DEFAULT_CONFIG_NAME).exists()) {
                 solveIssue();
