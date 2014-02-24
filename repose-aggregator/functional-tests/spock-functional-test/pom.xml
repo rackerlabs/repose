@@ -470,16 +470,10 @@
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
-                        <goals>
-
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-
-                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
