@@ -1,7 +1,11 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster
+
+import com.rackspace.papi.commons.config.resource.ConfigurationResource
+import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver
 import com.rackspace.papi.domain.ReposeInstanceInfo
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
+import com.rackspace.papi.service.context.impl.MetricsServiceContext
 import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import org.junit.Before
@@ -47,6 +51,13 @@ class DistributedDatastoreServiceClusterContextTest {
 
     @Test
     void shouldHaveRegisteredInitialErrorReports(){
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class);
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(DistributedDatastoreServiceClusterContext.DEFAULT_CONFIG)).thenReturn(configurationResource);
+        when(configurationResource.exists()).thenReturn(false);
 
         ServletContext servletContext = mock(ServletContext.class)
         when(servletContext.getInitParameter(eq("datastoreServicePort"))).thenReturn("100001")

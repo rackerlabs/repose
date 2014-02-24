@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -33,6 +34,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
     private DistributedDatastoreServiceClusterViewService service;
     public static final String SERVICE_NAME = "distributedDatastoreClusterView";
+    public static final String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
     private static final String datastoreConfigHealthReport = "DistDatastoreConfigError";
     private static final String systemModelConfigHealthReport = "SystemModelConfigError";
     private final Object configLock = new Object();
@@ -185,9 +187,17 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelUpdateListener, SystemModel.class);
-        URL dXsdURL = getClass().getResource("/META-INF/schema/system-model/dist-datastore-configuration.xsd");
-        configurationManager.subscribeTo("dist-datastore.cfg.xml", dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
+        URL dXsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
+        configurationManager.subscribeTo(DEFAULT_CONFIG, dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
 
+        try {
+            if(!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()){
+                solveIssue(datastoreConfigHealthReport);
+                solveIssue(systemModelConfigHealthReport);
+            }
+        } catch (IOException e) {
+            LOG.error("Unable to search for " + DEFAULT_CONFIG);
+        }
         sce.getServletContext().setAttribute("ddClusterViewService", service);
         register();
     }
@@ -196,7 +206,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
     public void contextDestroyed(ServletContextEvent sce) {
         if (configurationManager != null) {
             configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelUpdateListener);
-            configurationManager.unsubscribeFrom("dist-datastore.cfg.xml", distributedDatastoreConfigurationListener);
+            configurationManager.unsubscribeFrom(DEFAULT_CONFIG, distributedDatastoreConfigurationListener);
         }
     }
 
