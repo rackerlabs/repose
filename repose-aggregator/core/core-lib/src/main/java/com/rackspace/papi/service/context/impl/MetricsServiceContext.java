@@ -4,18 +4,17 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.healthcheck.*;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
-
-import javax.servlet.ServletContextEvent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletContextEvent;
 import java.io.IOException;
 import java.net.URL;
 
@@ -26,95 +25,135 @@ import java.net.URL;
 @Component("metricsServiceContext")
 public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
-   public static final String SERVICE_NAME = "MetricsService";
+    public static final String SERVICE_NAME = "MetricsService";
 
-   private static final Logger LOG = LoggerFactory.getLogger( MetricsService.class );
+    private static final Logger LOG = LoggerFactory.getLogger(MetricsService.class);
+    private static final String metricsServiceConfigReport = "MetricsServiceReport";
 
-   private final MetricsService metricsService;
-   private final ServiceRegistry registry;
-   private final ConfigurationService configurationService;
-   private final MetricsCfgListener metricsCfgListener;
+    private final MetricsService metricsService;
+    private final ServiceRegistry registry;
+    private final ConfigurationService configurationService;
+    private final MetricsCfgListener metricsCfgListener;
+    private final HealthCheckService healthCheckService;
+    private String healthCheckUID;
 
-   @Autowired
-   public MetricsServiceContext( @Qualifier("serviceRegistry") ServiceRegistry registry,
+    @Autowired
+    public MetricsServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                  @Qualifier("configurationManager") ConfigurationService configurationService,
-                                 @Qualifier("metricsService") MetricsService metricsService ) {
+                                 @Qualifier("metricsService") MetricsService metricsService,
+                                 @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
 
-      this.registry = registry;
-      this.configurationService = configurationService;
-      this.metricsService = metricsService;
-      metricsCfgListener = new MetricsCfgListener();
-   }
+        this.registry = registry;
+        this.configurationService = configurationService;
+        this.metricsService = metricsService;
+        metricsCfgListener = new MetricsCfgListener();
+        this.healthCheckService = healthCheckService;
+        try{
+            healthCheckUID = healthCheckService.register(this.getClass());
+        } catch (InputNullException e) {
+            LOG.error("Unable to register to health check service");
+        }
 
-   private void register() {
-      if (registry != null) {
-         registry.addService(this);
-      }
-   }
+    }
 
-   @Override
-   public String getServiceName() {
-      return SERVICE_NAME;
-   }
+    private void register() {
+        if (registry != null) {
+            registry.addService(this);
+        }
+    }
 
-   @Override
-   public MetricsService getService() {
-      if (metricsService != null && metricsService.isEnabled()) {
-          return metricsService;
-      }
-      return null;
-   }
+    @Override
+    public String getServiceName() {
+        return SERVICE_NAME;
+    }
 
-   @Override
-   public void contextInitialized(ServletContextEvent sce) {
+    @Override
+    public MetricsService getService() {
+        if (metricsService != null && metricsService.isEnabled()) {
+            return metricsService;
+        }
+        return null;
+    }
 
-      URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
-      configurationService.subscribeTo("metrics.cfg.xml", xsdURL, metricsCfgListener, MetricsConfiguration.class);
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
 
-      register();
-   }
+        reportIssue();
+        URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
+        configurationService.subscribeTo("metrics.cfg.xml", xsdURL, metricsCfgListener, MetricsConfiguration.class);
+        register();
+    }
 
-   @Override
-   public void contextDestroyed(ServletContextEvent sce) {
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
 
-      metricsService.destroy();
-      configurationService.unsubscribeFrom( "metrics.cfg.xml", metricsCfgListener);
-   }
+        metricsService.destroy();
+        configurationService.unsubscribeFrom("metrics.cfg.xml", metricsCfgListener);
+    }
 
-   private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
+    private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
 
-      private boolean initialized = false;
+        private boolean initialized = false;
 
-      @Override
-      public void configurationUpdated( MetricsConfiguration metricsC ) {
+        @Override
+        public void configurationUpdated(MetricsConfiguration metricsC) {
 
-          // we are reinitializing the graphite servers
-          metricsService.shutdownGraphite();
+            // we are reinitializing the graphite servers
+            metricsService.shutdownGraphite();
 
-          if ( metricsC.getGraphite() != null ) {
+            if (metricsC.getGraphite() != null) {
 
-            try {
+                try {
 
-               for( GraphiteServer gs : metricsC.getGraphite().getServer() )  {
+                    for (GraphiteServer gs : metricsC.getGraphite().getServer()) {
 
-                   metricsService.addGraphiteServer( gs.getHost(),
-                                                     gs.getPort().intValue(),
-                                                     gs.getPeriod(),
-                                                     gs.getPrefix() );
-               }
-            } catch (IOException e ) {
+                        metricsService.addGraphiteServer(gs.getHost(),
+                                gs.getPort().intValue(),
+                                gs.getPeriod(),
+                                gs.getPrefix());
+                    }
+                } catch (IOException e) {
 
-               LOG.debug("Error with the MetricsService", e );
+                    LOG.debug("Error with the MetricsService", e);
+                }
             }
-         }
 
-         metricsService.setEnabled(metricsC.isEnabled());
-         initialized = true;
-      }
+            solveIssue();
+            metricsService.setEnabled(metricsC.isEnabled());
+            initialized = true;
+        }
 
-      @Override
-      public boolean isInitialized() {
-         return initialized;
-      }
-   }
+        @Override
+        public boolean isInitialized() {
+            return initialized;
+        }
+    }
+
+    private void reportIssue(){
+
+        LOG.debug("Reporting issue to Health Checker Service: " + metricsServiceConfigReport);
+        try{
+            healthCheckService.reportIssue(healthCheckUID, metricsServiceConfigReport,
+                    new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
+        } catch (InputNullException e) {
+            LOG.error("Unable to report Issues to Health Check Service");
+        } catch (NotRegisteredException e) {
+            LOG.error("Unable to report Issues to Health Check Service");
+        }
+
+    }
+
+    private void solveIssue(){
+
+        try{
+            LOG.debug("Resolving issue: " + metricsServiceConfigReport);
+            healthCheckService.solveIssue(healthCheckUID, metricsServiceConfigReport);
+        } catch (InputNullException e) {
+            LOG.error("Unable to solve issue " + metricsServiceConfigReport + "from " + healthCheckUID);
+        } catch (NotRegisteredException e) {
+            LOG.error("Unable to solve issue " + metricsServiceConfigReport + "from " + healthCheckUID);
+        }
+
+    }
+
 }
