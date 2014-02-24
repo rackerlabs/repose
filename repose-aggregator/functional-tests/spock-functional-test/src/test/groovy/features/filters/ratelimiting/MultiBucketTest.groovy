@@ -84,15 +84,12 @@ class MultiBucketTest extends ReposeValveTest {
         def item = "${reposeEndpoint}/item"
 
         expect:                                                                                     // counts: A B
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 -
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 -
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 1 1
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 2 2
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "200" // 3 3
+        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413" // X -
+
         deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
-
-        deproxy.makeRequest(method: 'GET',  url: resource, headers: headers).receivedResponse.code == "413"  // X -
-
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 2
-        deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "200" // - 3
         deproxy.makeRequest(method: 'GET',  url: item,     headers: headers).receivedResponse.code == "413" // - X
     }
 
