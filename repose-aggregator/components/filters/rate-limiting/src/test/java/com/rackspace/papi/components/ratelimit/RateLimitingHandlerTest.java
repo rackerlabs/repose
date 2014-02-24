@@ -12,6 +12,7 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.UserRateLimit;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -54,6 +55,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
   }
 
   public static class WhenMakingValidRequests extends TestParent {
+      private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
 
     @Before
     public void setup() {
@@ -61,8 +63,13 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       headerNames.add(PowerApiHeader.GROUPS.toString());
       headerNames.add(PowerApiHeader.USER.toString());
       headerNames.add("Accept");
-      
-      
+
+        defaultConfig.setUri(".*");
+        defaultConfig.setUriRegex(".*");
+        defaultConfig.getHttpMethods().add(HttpMethod.GET);
+        defaultConfig.setValue(10);
+        defaultConfig.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+
       when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
 
       when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
@@ -105,8 +112,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
       when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
       HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
-      CachedRateLimit cachedRateLimit = new CachedRateLimit("");
-      cachedRateLimit.getUsageMap().put(HttpMethod.GET, new Vector<Long>());
+      CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
       limitMap.put("252423958:46792755", cachedRateLimit);
       when(datastore.patch(any(String.class), any(Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
 

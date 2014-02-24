@@ -2,6 +2,7 @@ package com.rackspace.repose.service.ratelimit;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
+import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse;
@@ -10,10 +11,9 @@ import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,141 +21,175 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class RateLimitingServiceImplTest {
 
-   public static class WhenTestingRateLimitService extends RateLimitTestContext {
+    public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*", GROUPS_URI_REGEX = "/loadbalancer/(.*)/1234";
+    public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*", GROUPS_URI = "*loadbalancer/vips/cap1/1234*";
 
-      RateLimitingService rateLimitingService;
-      RateLimitCache cache;
-      RateLimitingConfiguration config;
-      String group1 = "group1";
-      ConfiguredRatelimit rl1;
-      private Map<String, CachedRateLimit> cacheMap;
-      private ConfiguredLimitGroup configuredLimitGroup;
-      private int datastoreWarnLimit= 1000;
+    RateLimitingService rateLimitingService;
+    RateLimitCache cache;
+    RateLimitingConfiguration config;
+    String group1 = "group1";
+    ConfiguredRatelimit rl1;
+    private Map<String, CachedRateLimit> cacheMap;
+    private ConfiguredLimitGroup configuredLimitGroup;
+    private int datastoreWarnLimit = 1000;
 
-      @Before
-      public final void beforeAll() {
+    private ConfiguredRatelimit mockConfiguredRateLimit;
+    private CachedRateLimit mockCachedRateLimit;
 
+    @Before
+    public final void beforeAll() {
+        mockConfiguredRateLimit = mock(ConfiguredRatelimit.class);
+        mockCachedRateLimit = mock(CachedRateLimit.class);
 
-         cache = mock(ManagedRateLimitCache.class);
-         config = new RateLimitingConfiguration();
-         config.setUseCaptureGroups(Boolean.TRUE);
+        cache = mock(ManagedRateLimitCache.class);
+        config = new RateLimitingConfiguration();
+        config.setUseCaptureGroups(Boolean.TRUE);
 
-         cacheMap = new HashMap<String, CachedRateLimit>();
-         configuredLimitGroup = new ConfiguredLimitGroup();
+        cacheMap = new HashMap<String, CachedRateLimit>();
+        configuredLimitGroup = new ConfiguredLimitGroup();
 
-         configuredLimitGroup.setDefault(Boolean.TRUE);
-         configuredLimitGroup.setId("configured-limit-group");
-         configuredLimitGroup.getGroups().add("user");
+        configuredLimitGroup.setDefault(Boolean.TRUE);
+        configuredLimitGroup.setId("configured-limit-group");
+        configuredLimitGroup.getGroups().add("user");
 
-         cacheMap.put(SIMPLE_URI, newCachedRateLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.GET, HttpMethod.PUT));
+        LinkedList<HttpMethod> methods = new LinkedList<HttpMethod>(), methodsSubset = new LinkedList<HttpMethod>(),
+                getMethod = new LinkedList<HttpMethod>();
+        methods.add(HttpMethod.GET);
+        methods.add(HttpMethod.PUT);
+        methods.add(HttpMethod.POST);
+        methods.add(HttpMethod.DELETE);
+        methodsSubset.add(HttpMethod.GET);
+        methodsSubset.add(HttpMethod.PUT);
+        getMethod.add(HttpMethod.GET);
 
-         configuredLimitGroup.getLimit().add(newLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.GET));
-         configuredLimitGroup.getLimit().add(newLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.PUT));
-         configuredLimitGroup.getLimit().add(newLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.DELETE));
-         configuredLimitGroup.getLimit().add(newLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.POST));
+        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods)));
 
-         cacheMap.put(COMPLEX_URI_REGEX, newCachedRateLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.GET, HttpMethod.PUT));
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods));
 
-         configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.GET));
-         configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.DELETE));
-         configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.PUT));
-         configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.POST));
-         
-         
-         configuredLimitGroup.getLimit().add(newLimitFor(GROUPS_URI, GROUPS_URI_REGEX, HttpMethod.GET));
+        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods)));
 
-         config.getLimitGroup().add(configuredLimitGroup);
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods));
 
-         when(cache.getUserRateLimits("usertest1")).thenReturn(cacheMap);
+        configuredLimitGroup.getLimit().add(newLimitConfig(GROUPS_URI, GROUPS_URI_REGEX, getMethod));
 
-         rateLimitingService = new RateLimitingServiceImpl(cache, config);
-      }
+        config.getLimitGroup().add(configuredLimitGroup);
 
-      @Test(expected = IllegalArgumentException.class)
-      public void shouldReturnExceptionOnNullConfiguration() {
-          RateLimitingService invalidService = null;
+        when(cache.getUserRateLimits("usertest1")).thenReturn(cacheMap);
 
-          invalidService = new RateLimitingServiceImpl(cache, null);
-      }
+        rateLimitingService = new RateLimitingServiceImpl(cache, config);
+    }
 
-      @Test
-      public void shouldReturnLimitsOnQuery() {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldReturnExceptionOnNullConfiguration() {
+        RateLimitingService invalidService = null;
 
-         List<String> groups = new ArrayList<String>();
-         groups.add("configure-limit-group");
-         RateLimitList list = rateLimitingService.queryLimits("user", groups);
+        invalidService = new RateLimitingServiceImpl(cache, null);
+    }
 
-         assertNotNull(list);
+    @Test
+    public void shouldReturnLimitsOnQuery() {
 
-      }
+        List<String> groups = new ArrayList<String>();
+        groups.add("configure-limit-group");
+        RateLimitList list = rateLimitingService.queryLimits("user", groups);
 
-      @Test(expected = IllegalArgumentException.class)
-      public void shouldReturnExceptionOnNullUser() {
-         List<String> groups = new ArrayList<String>();
-         groups.add("configure-limit-group");
-         RateLimitList list = null;
+        assertNotNull(list);
+    }
 
-         list = rateLimitingService.queryLimits(null, groups);
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldReturnExceptionOnNullUser() {
+        List<String> groups = new ArrayList<String>();
+        groups.add("configure-limit-group");
+        RateLimitList list = null;
 
+        list = rateLimitingService.queryLimits(null, groups);
+    }
 
-      }
+    @Test
+    public void shouldTrackLimits() throws IOException, OverLimitException {
+        when(mockCachedRateLimit.amount()).thenReturn(1);
+        when(mockCachedRateLimit.maxAmount()).thenReturn(2);
+        when(mockCachedRateLimit.getNextExpirationTime()).thenReturn(new Date().getTime());
 
-        @Test
-        public void shouldTrackLimits() throws IOException, OverLimitException{
-           List<String> groups = new ArrayList<String>();
-           groups.add("configure-limit-group");
+        List<String> groups = new ArrayList<String>();
+        groups.add("configure-limit-group");
 
-              when(cache.updateLimit(any(String.class), any(String.class),
-                      any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+        when(cache.updateLimit(any(String.class), any(List.class),
+                any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
-              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
-         }
-      
-      @Test
-      public void shouldThrowOverLimits() throws IOException, OverLimitException{
-         List<String> groups = new ArrayList<String>();
-         groups.add("configure-limit-group");
-         
-         Date nextAvail = new Date();
+        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
+    }
 
-         when(cache.updateLimit(any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, nextAvail, 0));
-         
-         try{
+    @Test
+    public void shouldThrowOverLimits() throws IOException, OverLimitException {
+        Date nextAvail = new Date();
+
+        when(mockCachedRateLimit.amount()).thenReturn(0);
+        when(mockCachedRateLimit.maxAmount()).thenReturn(0);
+        when(mockCachedRateLimit.getNextExpirationTime()).thenReturn(nextAvail.getTime());
+        when(mockConfiguredRateLimit.toString()).thenReturn("value=20");
+
+        List<String> groups = new ArrayList<String>();
+        groups.add("configure-limit-group");
+
+        when(cache.updateLimit(any(String.class), any(List.class),
+                any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
+
+        try {
             rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
-         }catch(OverLimitException e){
-            assertEquals("User should be returned",e.getUser(), "user");
-            assertTrue("Next available time should be returned",e.getNextAvailableTime().compareTo(nextAvail)==0);
-            assertTrue("Configured limits should be returned",e.getConfiguredLimit().contains("value=20"));
-            assertEquals(e.getCurrentLimitAmount(), 0);
-         }
-      }
-      
-      @Test(expected = IllegalArgumentException.class)
-      public void shouldThrowIllegalArgumentsOnNullUser() throws IOException, OverLimitException{
-         List<String> groups = new ArrayList<String>();
-         groups.add("configure-limit-group");
+        } catch (OverLimitException e) {
+            assertEquals("User should be returned", e.getUser(), "user");
+            assertTrue("Next available time should be returned", e.getNextAvailableTime().compareTo(nextAvail) == 0);
+            assertTrue("Configured limits should be returned", e.getConfiguredLimit().contains("value=20"));
+            assertEquals(0, e.getCurrentLimitAmount());
+        }
+    }
 
-         when(cache.updateLimit(any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(false, new Date(), 10));
-         
-         rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
-      }
-      
-      
-        @Test
-        public void shouldTrackNOGROUPSLimits() throws IOException, OverLimitException{
-           List<String> groups = new ArrayList<String>();
-           config.setUseCaptureGroups(Boolean.FALSE);
-           groups.add("configure-limit-group");
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIllegalArgumentsOnNullUser() throws IOException, OverLimitException {
+        when(mockCachedRateLimit.amount()).thenReturn(1);
+        when(mockCachedRateLimit.maxAmount()).thenReturn(2);
+        when(mockCachedRateLimit.getNextExpirationTime()).thenReturn(new Date().getTime());
 
-              when(cache.updateLimit(any(String.class), any(String.class),
-                      any(ConfiguredRatelimit.class), anyInt())).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+        List<String> groups = new ArrayList<String>();
+        groups.add("configure-limit-group");
 
-              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);
-         } 
-   }
+        when(cache.updateLimit(any(String.class), any(List.class),
+                any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
+
+        rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
+    }
+
+
+    @Test
+    public void shouldTrackNOGROUPSLimits() throws IOException, OverLimitException {
+        when(mockCachedRateLimit.amount()).thenReturn(1);
+        when(mockCachedRateLimit.maxAmount()).thenReturn(2);
+        when(mockCachedRateLimit.getNextExpirationTime()).thenReturn(new Date().getTime());
+
+        List<String> groups = new ArrayList<String>();
+        config.setUseCaptureGroups(Boolean.FALSE);
+        groups.add("configure-limit-group");
+
+        when(cache.updateLimit(any(String.class), any(List.class),
+                any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
+
+        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);
+    }
+
+    private ConfiguredRatelimit newLimitConfig(String uri, String uriRegex, LinkedList<HttpMethod> methods) {
+        final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
+
+        configuredRateLimit.setUnit(TimeUnit.HOUR);
+        configuredRateLimit.setUri(uri);
+        configuredRateLimit.setUriRegex(uriRegex);
+        configuredRateLimit.setValue(20);
+        for (HttpMethod m : methods) {
+            configuredRateLimit.getHttpMethods().add(m);
+        }
+
+        return configuredRateLimit;
+    }
 }
