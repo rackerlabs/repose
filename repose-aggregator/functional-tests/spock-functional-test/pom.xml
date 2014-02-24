@@ -156,7 +156,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <excludedGroups>
@@ -177,7 +177,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <excludedGroups>
@@ -202,7 +202,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.SaxonEE</groups>
@@ -221,7 +221,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Bug</groups>
@@ -240,7 +240,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Flaky</groups>
@@ -259,7 +259,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Benchmark</groups>
@@ -278,7 +278,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Slow</groups>
@@ -297,7 +297,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Smoke</groups>
@@ -339,7 +339,7 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <version>2.16</version>
                         <configuration>
                             <groups>framework.category.Slow</groups>
@@ -466,38 +466,37 @@
                         <id>default-test</id>
                         <phase/>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.16</version>
+                <executions>
                     <execution>
                         <id>functional-tests</id>
-                        <phase>verify</phase>
                         <goals>
-                            <goal>test</goal>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-              <groupId>org.jacoco</groupId>
-              <artifactId>jacoco-maven-plugin</artifactId>
-              <version>0.6.4.201312101107</version>
-                <configuration>
-                    <includes>
-                        <include>com.rackspace.papi.*</include>
-                    </includes>
-                </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.6.4.201312101107</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
-                        <goals>
-
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-
-                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
