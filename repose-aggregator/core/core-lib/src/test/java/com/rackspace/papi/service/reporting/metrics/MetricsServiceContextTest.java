@@ -1,5 +1,7 @@
 package com.rackspace.papi.service.reporting.metrics;
 
+import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.impl.MetricsServiceContext;
@@ -13,6 +15,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.ServletContextEvent;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -62,8 +66,15 @@ public class MetricsServiceContextTest {
         }
 
         @Test
-        public void verifyIssueReported() throws InputNullException, NotRegisteredException {
+        public void verifyIssueReported() throws InputNullException, NotRegisteredException, IOException {
 
+            ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
+            ConfigurationResource configurationResource = mock(ConfigurationResource.class);
+            when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
+            when(resourceResolver.resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+            when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+            when(configurationResource.exists()).thenReturn(false);
             metricsServiceContext.contextInitialized(sce);
             verify(healthCheckService, times(1)).reportIssue(any(String.class), any(String.class), any(HealthCheckReport.class));
         }

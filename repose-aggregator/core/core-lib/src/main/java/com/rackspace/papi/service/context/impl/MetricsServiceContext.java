@@ -26,6 +26,7 @@ import java.net.URL;
 public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
     public static final String SERVICE_NAME = "MetricsService";
+    public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsService.class);
     private static final String metricsServiceConfigReport = "MetricsServiceReport";
@@ -80,7 +81,15 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
         reportIssue();
         URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
-        configurationService.subscribeTo("metrics.cfg.xml", xsdURL, metricsCfgListener, MetricsConfiguration.class);
+        configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, metricsCfgListener, MetricsConfiguration.class);
+
+        try{
+            if(!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()){
+                solveIssue();
+            }
+        }catch(IOException io){
+            LOG.error("Error attempting to search for " + DEFAULT_CONFIG_NAME);
+        }
         register();
     }
 
@@ -88,7 +97,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
     public void contextDestroyed(ServletContextEvent sce) {
 
         metricsService.destroy();
-        configurationService.unsubscribeFrom("metrics.cfg.xml", metricsCfgListener);
+        configurationService.unsubscribeFrom(DEFAULT_CONFIG_NAME, metricsCfgListener);
     }
 
     private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {
