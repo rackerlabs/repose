@@ -283,6 +283,25 @@ class MultiBucketTest extends ReposeValveTest {
 
     def "when a <limit> has http-methods of ALL, requests to any method go into the same bucket"() {
 
+        /*
+         * If a limit has an http-methods of "ALL", it should match against
+         * any request method. All requests that match should be counted
+         * together in the same bucket, rather than having separate buckets
+         * for each matching method.
+         *
+         * We define a limit with an http-method of "ALL" and a value of "8".
+         * The ALL will match the following: GET, DELETE, POST, PUT, PATCH,
+         * HEAD, OPTIONS, TRACE, and CONNECT. However, CONNECT is a
+         * special-purpose method that modifies the connection; it is reserved
+         * according to rfc 2616, and will not be tested here.
+         *
+         * We send one request for each method (except for CONNECT), for a
+         * total of eight, and each should pass. Then we send one more
+         * request, which should fail.
+         *
+         * If this test passes, we know that ALL is matching against all eight methods.
+         */
+
         given:
         def user = getNewUniqueUser()
         def group = "allMethods"
@@ -296,10 +315,45 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 5
         deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 6
         deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 7
-        deproxy.makeRequest(method: "CONNECT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
-        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 9
+        deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
 
         deproxy.makeRequest(method: "GET",     url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
+    }
+
+    def "when a <limit> has http-methods of ALL, requests to the same method contribute to the total"() {
+
+        /*
+         * If a limit has an http-methods of "ALL", it should match against
+         * any request method. All requests that match should be counted
+         * together in the same bucket, rather than having separate buckets
+         * for each matching method.
+         *
+         * We define a limit with an http-method of "ALL" and a value of "8".
+         * The ALL will match the following: GET, DELETE, POST, PUT, PATCH,
+         * HEAD, OPTIONS, TRACE, and CONNECT. However, CONNECT is a
+         * special-purpose method that modifies the connection; it is reserved
+         * according to rfc 2616, and will not be tested here.
+         *
+         * We send the same GET request nine times. The first eight requests
+         * should exhaust the limit, and the ninth should fail.
+         *
+         */
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "allMethods"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        expect:
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 4
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 5
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 6
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 7
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // 8
+        deproxy.makeRequest(method: "GET", url: reposeEndpoint, headers: headers).receivedResponse.code == "413" // X
     }
 
     def "when a <limit> has multiple http-methods, requests to any of the methods go into the same bucket"() {
@@ -333,7 +387,6 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: "PATCH",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
         deproxy.makeRequest(method: "HEAD",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
         deproxy.makeRequest(method: "OPTIONS", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
-        deproxy.makeRequest(method: "CONNECT", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
         deproxy.makeRequest(method: "TRACE",   url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
 
         deproxy.makeRequest(method: "SOME",    url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
