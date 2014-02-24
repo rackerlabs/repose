@@ -18,28 +18,28 @@
     <title>HTTP Logging Filter </title>
     
     
-    <section xml:id="HTTP-Logging-Intro">
+    <section xml:id="HTTP-Logging-Intro" security="writeronly">
         <title>Introduction</title>
         <para> </para>
     </section>
     
-    <section xml:id="HTTP-Logging-Use-Cases">
+    <section xml:id="HTTP-Logging-Use-Cases" security="writeronly">
         <title>HTTP Logging Use-Cases</title>
         <para> </para>
     </section>
     
-    <section xml:id="HTTP-Logging-Process">
+    <section xml:id="HTTP-Logging-Process" security="writeronly">
         <title>HTTP Logging Process</title>
         <para> </para>
     </section>
     
     
-    <section xml:id="HTTP-Logging-Request-Prerequisits">
+    <section xml:id="HTTP-Logging-Request-Prerequisits" security="writeronly">
         <title>HTTP Logging Request Prerequisits</title>
         <para> </para>
     </section>
     
-    <section xml:id="HTTP-Logging-Features">
+    <section xml:id="HTTP-Logging-Features" security="writeronly">
         <title>HTTP Logging Features</title>
         <para> </para>
     </section>
@@ -442,7 +442,7 @@
         </table> 
     </section>
     
-    <section xml:id="HTTP-Logging-Error-Scenarios">
+    <section xml:id="HTTP-Logging-Error-Scenarios" security="writeronly">
         <title>HTTP Logging Error Scenarios</title>
         <para> </para>
     </section>

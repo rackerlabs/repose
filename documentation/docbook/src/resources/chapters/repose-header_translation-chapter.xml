@@ -144,8 +144,7 @@
                         This element uses the accompanying
                         sub-elements and attributes to define your
                         header translation configuration. </para>
-                </listitem>
-                <listitem>
+                
                     <itemizedlist>
                         <listitem>
                             <para>
@@ -153,8 +152,7 @@
                                    >&lt;header&gt;:</emphasis>  This
                                 element defines the list of headers
                                 that are translated. </para>
-                        </listitem>
-                        <listitem>
+                        
                             <itemizedlist>
                                 <listitem>
                                    <para><emphasis role="bold"
@@ -183,8 +181,10 @@
                                    to false.</para>
                                 </listitem>
                             </itemizedlist>
+                            
                         </listitem>
                     </itemizedlist>
+                    
                 </listitem>
             </itemizedlist>
         </para>

@@ -107,16 +107,14 @@
                         <guibutton>&lt;source-headers&gt;</guibutton>
                         : List of headers to identify the incoming
                         user. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
                                 <para>
                                    <guilabel>&lt;header&gt;</guilabel>
                                    : Header to identify incoming user. </para>
-                            </listitem>
-                            <listitem>
+                            
                                 <para>
                                    <itemizedlist>
                                    <listitem>

@@ -218,8 +218,7 @@
                         the accompanying sub-elements and attributes
                         to define your rate limiting
                         configuration.</para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -257,10 +256,7 @@
                             </listitem>
                         </itemizedlist>
                     </para>
-                </listitem>
-            </itemizedlist>
-            <itemizedlist>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -320,8 +316,7 @@
                         the request-endpoint element is not in the
                         configuration, the user cannot query limits.
                     </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -361,8 +356,7 @@
                         a list of rate limits to be applied to a user,
                         based on the user's membership in a group.
                     </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -398,8 +392,7 @@
                         <emphasis role="bold">&lt;limit&gt;</emphasis>
                         : describes limits configured for a given
                         endpoint. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -559,7 +552,10 @@
             
                 
         </calloutlist>
+        
+        
     </section>
+    
     <section xml:id="Tracking_Requests-d1e431">
         <title>Rate Limiting Behavior</title>
         <para> There are two general categories of behavior performed
@@ -902,9 +898,9 @@ application/xml"
             
          
             <para>Repose shares limits across nodes using the
-                Distributed Datastore filter. Look here for more
+                Distributed Datastore service. Look here for more
                 information about setting up the Distributed Datastore
-                filter for use with the Rate Limiting filter.</para>
+                service for use with the Rate Limiting filter.</para>
             <para/>
             
             <!--<link
@@ -912,6 +908,30 @@ application/xml"
                     Datastore</link> -->
             
            
+        </section>
+        <section xml:id="Distributed-Rate-Limiting">
+            <title>Set Up Distributed Rate Limiting</title>
+            <para>
+                Repose shares limits across nodes using the Distributed Datastore Service. 
+                You can implement distributed rate limiting with Repose by adding the 
+                Distributed Datastore service with the Rate Limiting filter.
+            </para>
+            <procedure>
+                <title>To set up distributed rate limiting:</title>
+                <step>
+                    <para>Configure Repose using a cluster configuration (multiple servers). Note that all servers must use the same system model.</para>
+                </step>
+                <step>
+                    <para>Add the Rate Limiting filter to your system model configuration.</para>
+                </step>
+                <step>
+                    <para>Add the Distributed Datastore service to your system model configuration.</para>
+                </step>
+                <step>
+                    <para>Configure the Distributed Datastore service to listen on a port as shown in the following example.</para>
+                </step>
+            </procedure>
+            
         </section>
     </section>
     <section xml:id="Limited-d1e731">

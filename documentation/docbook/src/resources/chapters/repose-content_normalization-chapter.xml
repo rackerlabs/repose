@@ -354,35 +354,35 @@
             <itemizedlist>
                 <listitem>
                     <para><emphasis role="bold"
-                            >&lt;content-normalization&gt;</emphasis>: This
-                        element uses the accompanying sub-elements and
+                            >&lt;content-normalization&gt;</emphasis>:
+                        uses the accompanying sub-elements and
                         attributes to define your content
                         normalization configuration.<itemizedlist>
                             <listitem>
                                 <para><emphasis role="bold"
                                    >&lt;header-filters&gt;</emphasis>:
-                                   This element uses the blacklist or
-                                   whitelist sub element to define the
-                                   headers that are extracted or
-                                   passed to the origin service.<itemizedlist>
+                                   uses the blacklist or whitelist sub
+                                   element to define the headers that
+                                   are extracted or passed to the
+                                   origin service.<itemizedlist>
                                    <listitem>
                                    <para><emphasis role="bold"
-                                   >&lt;blacklist&gt;</emphasis>: This
-                                   element defines the list of headers
-                                   that are extracted from the
+                                   >&lt;blacklist&gt;</emphasis>:
+                                   defines the list of headers that
+                                   are extracted from the
                                    request.</para>
                                    </listitem>
                                    <listitem>
                                    <para><emphasis role="bold"
-                                   >&lt;whitelist&gt;</emphasis>: This
-                                   element defines the list of request
-                                   headers that are allowed to pass to
-                                   the origin service.<itemizedlist>
+                                   >&lt;whitelist&gt;</emphasis>:
+                                   defines the list of request headers
+                                   that are allowed to pass to the
+                                   origin service.<itemizedlist>
                                    <listitem>
                                    <para><emphasis role="bold"
-                                   >id</emphasis>: This attribute
-                                   defines the unique identifier of
-                                   the given group.</para>
+                                   >id</emphasis>: defines the unique
+                                   identifier of the given
+                                   group.</para>
                                    </listitem>
                                    </itemizedlist></para>
                                    </listitem>
@@ -391,18 +391,17 @@
                             <listitem>
                                 <para><emphasis role="bold"
                                    >&lt;media-types&gt;</emphasis>:
-                                   This element defines a list of
-                                   accept headers for the URIs that
-                                   match a configured variant-extension.<itemizedlist>
+                                   defines a list of accept headers
+                                   for the URIs that match a
+                                   configured variant-extension.<itemizedlist>
                                    <listitem>
                                    <para><emphasis role="bold"
                                    >&lt;media-type&gt;</emphasis>:
-                                   This element defines the media type
-                                   that will be  normalized<itemizedlist>
+                                   defines the media type that will be  normalized<itemizedlist>
                                    <listitem>
                                    <para><emphasis role="bold"
-                                   >name</emphasis>: This attribute
-                                   names the media-type.</para>
+                                   >name</emphasis>: names the
+                                   media-type.</para>
                                    </listitem>
                                    </itemizedlist></para>
                                    </listitem>

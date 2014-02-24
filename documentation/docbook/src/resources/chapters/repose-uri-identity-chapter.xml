@@ -102,27 +102,49 @@
         <para>
             <itemizedlist>
                 <listitem>
-                    <para>&lt;identification-mappings&gt; : A list of
-                        &lt;mapping&gt; elements which are regular
-                        expressions used to extract the identification
-                        information from the request uri.  The first
-                        regular expression in the list that finds a
-                        match in the URI is what is used to extract
-                        the data.</para>
-                </listitem>
-                <listitem>
-                    <para>&lt;group&gt; : The rate limiting group
-                        associated with the extracted identification
-                        data.</para>
-                </listitem>
-                <listitem>
-                    <para>&lt;quality&gt; : Quality assigned to user
-                        by the incoming identification data. This
-                        value resolves the order of preference when
-                        multiple identity filters are used so that the
-                        rate limiting filter knows which identity to
-                        limit by. Should be a value between 0.0 and
-                        1.0. </para>
+                    <para><guilabel>&lt;uri-identity></guilabel>:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><guilabel>&lt;identification-mappings&gt;</guilabel>
+                                : A list of &lt;mapping&gt; elements
+                                which are regular expressions used to
+                                extract the identification information
+                                from the request uri.  The first
+                                regular expression in the list that
+                                finds a match in the URI is what is
+                                used to extract the data.</para>
+                            <itemizedlist>
+                                <listitem>
+                                   <para><guilabel>id</guilabel>:
+                                   Unique identifier of the
+                                   mapping.</para>
+                                </listitem>
+                                <listitem>
+                                   <para><guilabel>identification-regex</guilabel>:
+                                   Regular expression used to extract
+                                   identification information from a
+                                   given URI.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                        <listitem>
+                            <para><guilabel>&lt;group&gt;</guilabel> :
+                                The rate limiting group associated
+                                with the extracted identification
+                                data.</para>
+                        </listitem>
+                        <listitem>
+                            <para><guilabel>&lt;quality&gt;</guilabel>
+                                : Quality assigned to user by the
+                                incoming identification data. This
+                                value resolves the order of preference
+                                when multiple identity filters are
+                                used so that the rate limiting filter
+                                knows which identity to limit by.
+                                Should be a value between 0.0 and
+                                1.0. </para>
+                        </listitem>
+                    </itemizedlist>
                 </listitem>
             </itemizedlist>
         </para>

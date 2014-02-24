@@ -269,8 +269,7 @@
                     <para><emphasis role="bold"
                             >&lt;media-type&gt;:</emphasis>  defines
                         the media type that is normalized. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -311,8 +310,7 @@
                     : specifies the endpoint and http-method for a
                     given uri-regex or http-method to act against. 
                 </para>
-            </listitem>
-            <listitem>
+            
                 <para>
                     <itemizedlist>
                         <listitem>
@@ -353,8 +351,7 @@
                             >&lt;parameter&gt;</emphasis> : lists the
                         multiplicity and the case-sensitive
                         parameters. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>

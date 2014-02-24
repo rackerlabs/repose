@@ -221,8 +221,7 @@
                             role="bold">&lt;blacklist&gt;</emphasis>
                          or  <emphasis role="bold"
                             >&lt;whitelist&gt;</emphasis> .   </para>
-                </listitem>
-                <listitem>
+               
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -237,8 +236,7 @@
                                    >&lt;whitelist&gt;</emphasis>
                                     lists approved HTTP headers that
                                    the request can contain. </para>
-                            </listitem>
-                            <listitem>
+                            
                                 <para>
                                    <itemizedlist>
                                    <listitem>

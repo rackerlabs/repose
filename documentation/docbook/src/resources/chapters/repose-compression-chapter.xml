@@ -156,79 +156,88 @@
         
         <para><guilabel> Elements and Attributes Used in the
                 Compression Filter</guilabel></para>
-        <para><guilabel>&lt;content-compression></guilabel>:  This
-            element contains all of the Compression filter
-            configurations. </para>
-        
-            
-            
-                <para>
-                    <guilabel>&lt;compression></guilabel>:</para>
-            
-        
-        <itemizedlist>
-            <listitem>
-                <para>
-                    <guilabel>&lt;compression-threshold&gt;</guilabel>
-                </para>
-            
-        
-      
-                <para>This attribute sets the size, using
-                    bytes, of the
-                    smallest response that will be compressed.</para>
-                    <para>If less than the amount of bytes specified in the
-                        compressionThreshold attribute are written 
-                        to the response, the request will not be
-                        compressed, and the response will 
-                        go to the client unmodified. If it is set to
-                        0, compression will begin immediately. 
-                        The default is number of bytes is 1024.</para>
-            </listitem>
-   
-           
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para><guilabel>&lt;content-compression></guilabel>:
+                        lists the accompanying sub-elements and
+                        attributes to define your configuration.
+                    </para>
                 
-        <listitem>
-                <para>
-                    <guilabel>&lt;exclude-content-types&gt;</guilabel></para>
-        
-                
-                    <para>This attribute specifies a list of
-                    content types that should not be compressed;
-                    everything else will be compressed. Note that any content type 
-                    that indicates a compressed format (e.g. application/gzip, application/x-compress) 
-                    will not be compressed in any event.</para> 
-        </listitem>
-            
-            
-            <listitem>
-                <para>
-                    <guilabel>&lt;exclude-user-agent-patterns&gt;</guilabel></para>
-                
-                <para>This attribute will not compress requests
-                    whose User-Agent header values match one of
-                    these patterns. 
-                </para> 
+                    <itemizedlist>
+                        <listitem>
+                            <para><guilabel>&lt;compression></guilabel>:
+                                specifies the compression filter
+                                configuration.</para>
+                        
+                                   
+                                <itemizedlist>
+                                   <listitem>
+                                   <para><guilabel>compression-threshold</guilabel>:
+                                   This attribute sets the size, using
+                                   bytes, of the smallest response
+                                   that will be compressed. If less
+                                   than the amount of bytes specified
+                                   in the compressionThreshold
+                                   attribute are written to the
+                                   response, the request will not be
+                                   compressed, and the response will
+                                   go to the client unmodified. If it
+                                   is set to 0, compression will begin
+                                   immediately. The default is number
+                                   of bytes is 1024. </para>
+                                   </listitem>
+                                </itemizedlist>
+                            
+                            <itemizedlist>
+                                <listitem>
+                                   <para><guilabel>include-content-types</guilabel>:
+                                   This attribute is treated as a
+                                   space-separated list of content
+                                   types (e.g. text/html,text/xml). It
+                                   attempts to compress only the
+                                   responses that specify one of these
+                                   values as its content type, such as
+                                   ServletResponse.setContentType(String).
+                                   </para>
+                                </listitem>
+                            </itemizedlist>
+                     
+                                <itemizedlist>
+                                   <listitem>
+                                   <para><guilabel>exclude-content-types</guilabel>:
+                                   This attribute specifies a list of
+                                   content types that should not be
+                                   compressed; everything else will be
+                                   compressed. Note that any content
+                                   type that indicates a compressed
+                                   format (e.g. application/gzip,
+                                   application/x-compress) will not be
+                                   compressed in any event.</para>
+                                   </listitem>
+                                
+                                <listitem>
+                                    <para><guilabel>&lt;exclude-user-agent-patterns&gt;</guilabel>:
+                                        This attribute will not compress
+                                        requests whose User-Agent header
+                                        values match one of these patterns.
+                                    </para>
+                                </listitem>
+                    </itemizedlist>
+                            
+                        </listitem>
+                    </itemizedlist>
+                    
                 </listitem>
-            
-            
-            <listitem>
-                <para>
-                    <guilabel>&lt;include-content-types&gt;</guilabel></para>
-            <para>This attribute is treated as a space-separated list 
-                    of content types (e.g. text/html,text/xml). It attempts 
-                    to compress only the responses that specify one of these values 
-                    as its content type, such as ServletResponse.setContentType(String). </para>
-                    <para>
+            </itemizedlist>
+        </para>
+                
                         <note>
                             <para> This parameter cannot be specified
                                 if exclude-content-types is
                                 also configured. </para>
                         </note>
-                    </para>
-                </listitem>
-        </itemizedlist>
-        
+                 
         <para><guilabel>Your configuration in compression.cfg.xml will
             resemble the following example: </guilabel></para>
         <example><title>Sample Compression Configuration File</title>

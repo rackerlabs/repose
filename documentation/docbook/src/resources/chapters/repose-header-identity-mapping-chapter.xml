@@ -103,8 +103,7 @@
                     <para>
                         <guilabel>&lt;source-headers&gt;</guilabel> :
                         List of headers to identify the incoming user. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
@@ -112,8 +111,7 @@
                                    <guilabel>&lt;header&gt;</guilabel>
                                    : Header to identify incoming user
                                    and group. </para>
-                            </listitem>
-                            <listitem>
+                            
                                 <para>
                                    <itemizedlist>
                                    <listitem>

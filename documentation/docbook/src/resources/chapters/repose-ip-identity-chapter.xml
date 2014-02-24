@@ -103,14 +103,12 @@
                 <listitem>
                     <para>&lt;quality&gt; : Quality assigned to user
                         using the incoming source ip.</para>
-                </listitem>
-                <listitem>
+                
                     <para> &lt;whitelist&gt; : The whitelist is a list
                         of IP addresses that will be given a group of
                         IP_Super.  The white list will contain a list
                         of ip-address elements. </para>
-                </listitem>
-                <listitem>
+                
                     <para>
                         <itemizedlist>
                             <listitem>
