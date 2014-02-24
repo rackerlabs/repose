@@ -215,7 +215,6 @@ class MultiBucketTest extends ReposeValveTest {
 
     }
     
-    @Ignore("The rate limiting config xsd doesn't yet allow for two limits to have the same URI and methods")
     def "when two <limit> elements have the same uri-regex and method, but different units, then they each get counters that counted separately"() {
 
         /*

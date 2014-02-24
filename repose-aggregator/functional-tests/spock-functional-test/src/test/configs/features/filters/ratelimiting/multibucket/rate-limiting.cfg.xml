@@ -26,11 +26,11 @@
         <limit uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="3"/>
     </limit-group>
 
-    <!--<limit-group id="differentUnits" groups="differentUnits" default="false">-->
+    <limit-group id="differentUnits" groups="differentUnits" default="false">
         <!--not yet allowed by the rate limiting xsd-->
-        <!--<limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="SECOND" value="3"/>-->
-        <!--<limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="5"/>-->
-    <!--</limit-group>-->
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="SECOND" value="3"/>
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="5"/>
+    </limit-group>
 
     <limit-group id="limitsInOrder" groups="limitsInOrder" default="false">
         <limit uri="/*" uri-regex="/1." http-methods="GET" unit="MINUTE" value="2"/>
