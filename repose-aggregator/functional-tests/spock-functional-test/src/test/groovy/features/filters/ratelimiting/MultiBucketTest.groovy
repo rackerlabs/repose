@@ -30,24 +30,24 @@ class MultiBucketTest extends ReposeValveTest {
     def "separate users get separate buckets"() {
 
         given:
-        def user = getNewUniqueUser()
-        def group = "overlappingLimits"
-        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+        def user1 = getNewUniqueUser()
+        def user2 = getNewUniqueUser()
+        def group = "limitAll"
+        def headers1 = ['X-PP-User': user1, 'X-PP-Groups': group]
+        def headers2 = ['X-PP-User': user2, 'X-PP-Groups': group]
 
         def resource = "${reposeEndpoint}/resource"
-        def item = "${reposeEndpoint}/item"
 
-        expect:                                                                                     // counts: A B
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 1 -
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 2 -
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "200" // 3 -
-        deproxy.makeRequest(method: 'POST', url: resource, headers: headers).receivedResponse.code == "413" // X -
+        expect:                                                                                     //  count: A B
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers1).receivedResponse.code == "200" // 1 -
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers1).receivedResponse.code == "200" // 2 -
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers1).receivedResponse.code == "200" // 3 -
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers1).receivedResponse.code == "413" // X -
 
-        deproxy.makeRequest(method: 'GET', url: resource, headers: headers).receivedResponse.code == "413"  // X 1
-
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 2
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "200"      // - 3
-        deproxy.makeRequest(method: 'GET', url: item, headers: headers).receivedResponse.code == "413"      // - X
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers2).receivedResponse.code == "200" // - 1
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers2).receivedResponse.code == "200" // - 2
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers2).receivedResponse.code == "200" // - 3
+        deproxy.makeRequest(method: 'GET', url: resource, headers: headers2).receivedResponse.code == "413" // - X
     }
 
     def "when two <limit> elements overlap, requests to the intersection decrement both counters"() {
