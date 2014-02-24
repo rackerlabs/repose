@@ -38,7 +38,7 @@
     </limit-group>
 
     <limit-group id="allMethods" groups="allMethods" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="9" />
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="8" />
     </limit-group>
 
     <limit-group id="multipleMethods" groups="multipleMethods" default="false">
