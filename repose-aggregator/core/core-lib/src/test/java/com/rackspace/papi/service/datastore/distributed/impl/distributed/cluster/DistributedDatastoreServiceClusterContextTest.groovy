@@ -50,7 +50,6 @@ class DistributedDatastoreServiceClusterContextTest {
 
         ServletContext servletContext = mock(ServletContext.class)
         when(servletContext.getInitParameter(eq("datastoreServicePort"))).thenReturn("100001")
-//        when(servletContext.setAttribute(eq("ddClusterViewService"), any(DistributedDatastoreServiceClusterViewService.class))).thenReturn(true)
         when(sce.getServletContext()).thenReturn(servletContext)
         distributedDatastoreServiceClusterContext.contextInitialized(sce)
 
