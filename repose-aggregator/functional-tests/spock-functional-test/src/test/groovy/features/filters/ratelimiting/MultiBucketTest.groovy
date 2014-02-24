@@ -234,25 +234,51 @@ class MultiBucketTest extends ReposeValveTest {
         
     }
 
-    def "a sequence of <limit> elements is considered in order. limits after a failing one don't get decremented"() {
+    def "a sequence of <limit> elements is considered in order. limits after a failing one don't get affected"() {
+
+        /*
+         * We define two limits. The first allows 2 requests per minute, the
+         * second allows 3. The uri-regexes are designed so that we can
+         * selectively trigger one limit, or the other, or both, or neither,
+         * based on the uri sent.
+         *
+         * We will send three requests to a uri that triggers both limits. The
+         * first two requests should pass successfully. The third should be
+         * rejected with a 413, because the first limit only allows 2
+         * requests.
+         *
+         * After those, we will send two more requests (that is, the fourth
+         * and fifth of the entire test), this time to a uri that only
+         * triggers the second limit. The fourth request should pass, because
+         * the second limit has only recorded two requests so far. The fifth
+         * request should fail, because it exhausts the second limit.
+         *
+         * If the rate limiter is incorrectly counting the third request
+         * against the second limit, we will know because the fourth request
+         * will fail with a 413, instead of passing as it should.
+         *
+         * If the rate limiter is not counting the first two requests against
+         * the second limit, as though it passed the first tests and did not
+         * consider the second, we will know because the fifth request will
+         * pass and return a 200.
+         *
+         */
 
         given:
         def user = getNewUniqueUser()
-        def group = "differentUnits"
+        def group = "limitsInOrder"
         def headers = ['X-PP-User': user, 'X-PP-Groups': group]
 
-        def hitBoth = "${reposeEndpoint}/abcdef"
-        def skipFirst = "${reposeEndpoint}/xyzdef"
+        def hitBoth = "${reposeEndpoint}/12"
+        def skipFirst = "${reposeEndpoint}/s2"
 
-        expect:                                                              //         counts: A  B
+        expect:                                                                      // counts: A  B
         deproxy.makeRequest(url: hitBoth, headers: headers).receivedResponse.code == "200"   // 1  1
         deproxy.makeRequest(url: hitBoth, headers: headers).receivedResponse.code == "200"   // 2  2
         deproxy.makeRequest(url: hitBoth, headers: headers).receivedResponse.code == "413"   // X  2
 
-
         deproxy.makeRequest(url: skipFirst, headers: headers).receivedResponse.code == "200" // -  3
         deproxy.makeRequest(url: skipFirst, headers: headers).receivedResponse.code == "413" // -  X
-
     }
 
     def "when a <limit> has http-methods of ALL, requests to any method go into the same bucket"() {
