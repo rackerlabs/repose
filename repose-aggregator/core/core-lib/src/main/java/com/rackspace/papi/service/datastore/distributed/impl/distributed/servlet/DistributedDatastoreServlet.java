@@ -234,11 +234,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
             case CACHE_KEY_INVALID:
             case TTL_HEADER_NOT_POSITIVE:
             case UNEXPECTED_REMOTE_BEHAVIOR:
+            default:
                 response.getWriter().write(mcre.error.message());
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                break;
-            default:
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
     }
