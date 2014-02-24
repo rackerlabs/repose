@@ -16,6 +16,17 @@ public class LimitKey {
 
     private LimitKey() {}
 
+    public static String getConfigLimitKey(String uriRegex, List<HttpMethod> methods) {
+        final StringBuilder buffer = new StringBuilder();
+
+        buffer.append(String.valueOf(uriRegex.hashCode()));
+        for (HttpMethod method : methods) {
+            buffer.append(":" + String.valueOf(method.toString().hashCode()));
+        }
+
+        return buffer.toString();
+    }
+
     public static String getLimitKey(Matcher uriMatcher, List<HttpMethod> methods, boolean useCaptureGroups) {
         // The group count represents the number of elements that will go into
         // generating the unique cache id for the requested URI

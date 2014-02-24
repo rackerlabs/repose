@@ -2,13 +2,16 @@ package com.rackspace.repose.service.ratelimit;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
+import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.*;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 import com.rackspace.repose.service.ratelimit.util.StringUtilities;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -57,6 +60,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
+        final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
+        TimeUnit largestUnit = null;
 
         // Go through all of the configured limits for this group
         for (ConfiguredRatelimit rateLimit : configuredLimitGroup.getLimit()) {
@@ -71,10 +76,15 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
             // Did we find a limit that matches the incoming uri and http method?
             if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod)) {
-                rateLimiter.handleRateLimit(user, LimitKey.getLimitKey(uriMatcher, rateLimit.getHttpMethods(), useCaptureGroups), rateLimit, datastoreWarnLimit);
+                matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(uriMatcher, rateLimit.getHttpMethods(), useCaptureGroups), rateLimit));
 
-                return;
+                if (largestUnit == null || rateLimit.getUnit().compareTo(largestUnit) > 0) {
+                    largestUnit = rateLimit.getUnit();
+                }
             }
+        }
+        if (matchingConfiguredLimits.size() > 0) {
+            rateLimiter.handleRateLimit(user, matchingConfiguredLimits, largestUnit, datastoreWarnLimit);
         }
     }
 
