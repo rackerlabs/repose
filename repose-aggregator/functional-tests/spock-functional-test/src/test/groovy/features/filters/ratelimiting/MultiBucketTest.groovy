@@ -64,16 +64,16 @@ class MultiBucketTest extends ReposeValveTest {
          * GET to /item will trigger only the second, and a GET to /resource
          * will trigger both.
          *
-         * We send four POST requests to /resource. This should complete exhaust the first limit. The first three requests shouold pass and the fourth should
+         * We send four GET requests to /resource. This should completely
+         * exhaust both limits. The first three requests should pass and
+         * the fourth should fail.
+         *
+         * After that, we send one POST request to /resource, which should
+         * count against the first limit and fail. Finally, we send a GET
+         * request to /item, which should count against the second limit and
+         * fail.
          *
          */
-        // A - 3 per minute - ALL /resource.*
-        // B - 3 per minute - GET /.*
-        //
-        // a non-GET to /resource.* will only hit A
-        // a GET to something other than /resource.* will only hit B
-        // a GET to /resource.* will trigger both limits
-
 
         given:
         def user = getNewUniqueUser()
