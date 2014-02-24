@@ -167,7 +167,8 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     def "PUT with really large body within limit (2MEGS 2097152) should return 202"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray()))
+        def largeBodyContent = RandomStringUtils.random(2006139, ('A'..'Z').join().toCharArray())
+        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(largeBodyContent))
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
@@ -180,14 +181,14 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.body == largeBody
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == largeBodyContent
         mc.receivedResponse.body.length == 2097152
     }
 
 
     def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray()))
+        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(RandomStringUtils.random(512153, ('A'..'Z').join().toCharArray())))
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
