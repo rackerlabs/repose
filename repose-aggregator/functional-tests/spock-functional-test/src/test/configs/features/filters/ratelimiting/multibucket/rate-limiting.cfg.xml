@@ -42,17 +42,7 @@
     </limit-group>
 
     <limit-group id="multipleMethods" groups="multipleMethods" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="minute" value="3" />
-    </limit-group>
-
-    <limit-group id="stateMachine-ssppfnn" groups="stateMachine-ssppfnn" default="false">
-        <limit uri="/*" uri-regex="/1......" http-methods="GET" unit="MINUTE" value="1"/>
-        <limit uri="/*" uri-regex="/.2....." http-methods="GET" unit="MINUTE" value="1"/>
-        <limit uri="/*" uri-regex="/..3...." http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/*" uri-regex="/...4..." http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/*" uri-regex="/....5.." http-methods="GET" unit="MINUTE" value="2"/>
-        <limit uri="/*" uri-regex="/.....6." http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/*" uri-regex="/......7" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="MINUTE" value="3" />
     </limit-group>
 
 </rate-limiting>
