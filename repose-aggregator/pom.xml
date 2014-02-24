@@ -31,6 +31,8 @@
         <jersey.version>1.16</jersey.version>
         <jackson.version>1.9.13</jackson.version>
         <yammer.version>2.2.0</yammer.version>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.itReportPath>${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <modules>
