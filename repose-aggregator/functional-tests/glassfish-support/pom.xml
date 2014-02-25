@@ -59,13 +59,4 @@
         </plugins>
 
     </build>
-
-    <repositories>
-        <repository>
-            <id>maven.java.net</id>
-            <name>Glassfish repository</name>
-            <url>http://maven.java.net/content/repositories/releases</url>
-            <!--url>http://download.java.net/maven/glassfish</url-->
-        </repository>
-    </repositories>
 </project>
