@@ -7,6 +7,7 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -33,7 +34,12 @@ class TransitionBadToGoodConfigsTest extends Specification {
         this.targetPort = properties.targetPort
         this.url = properties.reposeEndpoint
 
+        int dataStorePort = PortFinder.Singleton.getNextOpenPort()
         params = properties.getDefaultTemplateParams()
+
+        params += [
+                'datastorePort' : dataStorePort,
+        ]
 
         // start a deproxy
         deproxy = new Deproxy()

@@ -20,6 +20,7 @@
         <constructor-arg index="0" ref="serviceRegistry"/>
         <constructor-arg index="1" ref="configurationManager"/>
         <constructor-arg index="2" ref="httpConnectionPoolService"/>
+        <constructor-arg index="3" ref="healthCheckService"/>
     </bean>
 
     <bean name="akkaServiceClientService"

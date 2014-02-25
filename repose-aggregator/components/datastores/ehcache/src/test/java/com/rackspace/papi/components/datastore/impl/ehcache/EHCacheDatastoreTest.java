@@ -89,15 +89,16 @@ public class EHCacheDatastoreTest {
     public void put_removesExistingElementPastTTL() throws Exception {
         final String key = "my other element";
         String value = "1, 2, 3";
-        int ttl = 10;
+        int ttl = 1;
 
-        datastore.put(key, value, ttl, MILLISECONDS);
+        datastore.put(key, value, ttl, SECONDS);
 
         Serializable element = datastore.get(key);
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
 
-        Thread.sleep(20);
+        //todo: replace with within style matcher
+        Thread.sleep(2000);
 
         element = datastore.get(key);
         assertNull(element);
