@@ -33,7 +33,7 @@ public class RateLimiterTest {
     @Before
     public void setup() {
         uriMatcher.matches();
-        key = LimitKey.getLimitKey(uriMatcher, configuredRateLimit.getHttpMethods(), true);
+        key = LimitKey.getLimitKey(configuredRateLimit.getId(), uriMatcher, true);
     }
 
     @Test(expected = OverLimitException.class)

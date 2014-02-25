@@ -227,7 +227,7 @@
             </xs:annotation>
         </xs:attribute>             
          
-        <xs:assert vc:minVersion="1.1"
+        <!--xs:assert vc:minVersion="1.1"
             test="
             count(for $first-pass in rl:limit,
             $second-pass in rl:limit[ @uri = $first-pass/@uri  and (: ids are the same :)
@@ -236,7 +236,7 @@
                 ] return $second-pass) (: The result of this mess should equal the number of elements because every element in the for expression should match itself and only itself  :)                    
                 = count(rl:limit)"
                 xerces:message="Unique http-methods, and uri-regexes within a limit group"
-                saxon:message="Unique http-methods, and uri-regexes within a limit group"/>
+                saxon:message="Unique http-methods, and uri-regexes within a limit group"/-->
         
     </xs:complexType>
 
@@ -246,6 +246,19 @@
                 <html:p>Defines a single rate limit</html:p>
             </xs:documentation>
         </xs:annotation>
+
+        <!-- The "id" attribute should be prohibited, but doesn't appear present in the generated
+        class is designated as such -->
+        <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A placeholder for a unique identifier which will be added to any object generated from this XSD.
+                        Repose will automatically assign this value when the configuration file is read.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:attribute name="uri" type="xs:string" use="required">
             <xs:annotation>

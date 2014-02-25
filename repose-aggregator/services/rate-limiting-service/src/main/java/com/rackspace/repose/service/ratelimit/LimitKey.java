@@ -1,9 +1,7 @@
 package com.rackspace.repose.service.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
 import org.slf4j.Logger;
 
-import java.util.List;
 import java.util.regex.Matcher;
 
 /*
@@ -16,32 +14,18 @@ public class LimitKey {
 
     private LimitKey() {}
 
-    public static String getConfigLimitKey(String uriRegex, List<HttpMethod> methods) {
-        final StringBuilder buffer = new StringBuilder();
-
-        buffer.append(String.valueOf(uriRegex.hashCode()));
-        for (HttpMethod method : methods) {
-            buffer.append(":" + String.valueOf(method.toString().hashCode()));
-        }
-
-        return buffer.toString();
-    }
-
-    public static String getLimitKey(Matcher uriMatcher, List<HttpMethod> methods, boolean useCaptureGroups) {
+    public static String getLimitKey(String limitId, Matcher uriMatcher, boolean useCaptureGroups) {
         // The group count represents the number of elements that will go into
         // generating the unique cache id for the requested URI
         final int groupCount = uriMatcher.groupCount();
 
         final StringBuilder cacheIdBuffer = new StringBuilder();
 
-        // All cacheId's contain the full regex pattern and all associated methods
-        cacheIdBuffer.append(String.valueOf(uriMatcher.pattern().toString().hashCode()));
-        for (HttpMethod method : methods) {
-            cacheIdBuffer.append(":" + String.valueOf(method.toString().hashCode()));
-        }
+        // All cacheId's contain the unique limit Id
+        cacheIdBuffer.append(limitId);
 
+        // If using capture groups, captured text is hashed and appended
         if (useCaptureGroups) {
-            // Capture groups are appended to the pattern for uniqueness
             for (int i = 1; i <= groupCount; ++i) {
                 cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
             }

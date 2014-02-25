@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class RateLimitListBuilderTest {
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*", GROUPS_URI_REGEX = "/loadbalancer/(.*)/1234";
     public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*", GROUPS_URI = "*loadbalancer/vips/cap1/1234*";
+    public static final String SIMPLE_ID = "12345-ABCDE", COMPLEX_ID = "09876-ZYXWV";
 
     private Map<String, CachedRateLimit> cacheMap;
     private ConfiguredLimitGroup configuredLimitGroup;
@@ -41,13 +42,13 @@ public class RateLimitListBuilderTest {
         configuredLimitGroup.setId("configured-limit-group");
         configuredLimitGroup.getGroups().add("user");
 
-        cacheMap.put(LimitKey.getConfigLimitKey(SIMPLE_URI_REGEX, methods), new CachedRateLimit(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods), 1));
+        cacheMap.put(SIMPLE_ID, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods), 1));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods));
 
-        cacheMap.put(LimitKey.getConfigLimitKey(COMPLEX_URI_REGEX, methods), new CachedRateLimit(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods), 1));
+        cacheMap.put(COMPLEX_ID, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods), 1));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods));
     }
 
     @Test
@@ -60,9 +61,10 @@ public class RateLimitListBuilderTest {
         assertEquals(2, rll.getRate().size());
     }
 
-    private ConfiguredRatelimit newLimitConfig(String uri, String uriRegex, LinkedList<HttpMethod> methods) {
+    private ConfiguredRatelimit newLimitConfig(String limitId, String uri, String uriRegex, LinkedList<HttpMethod> methods) {
         final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
 
+        configuredRateLimit.setId(limitId);
         configuredRateLimit.setUnit(TimeUnit.HOUR);
         configuredRateLimit.setUri(uri);
         configuredRateLimit.setUriRegex(uriRegex);

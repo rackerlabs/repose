@@ -29,6 +29,7 @@ public class CombineLimitsTransformTest {
 
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*";
     public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*";
+    public static final String SIMPLE_ID = "12345-ABCDE", COMPLEX_ID = "09876-ZYXWV";
 
     public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     public static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
@@ -96,20 +97,21 @@ public class CombineLimitsTransformTest {
         configuredLimitGroup.setId("configured-limit-group");
         configuredLimitGroup.getGroups().add("user");
 
-        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods), 1));
+        cacheMap.put(SIMPLE_ID, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods), 1));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods));
 
-        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods), 1));
+        cacheMap.put(COMPLEX_ID, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods), 1));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods));
 
         return new RateLimitListBuilder(cacheMap, configuredLimitGroup).toRateLimitList();
     }
 
-    private ConfiguredRatelimit newLimitConfig(String uri, String uriRegex, LinkedList<HttpMethod> methods) {
+    private ConfiguredRatelimit newLimitConfig(String limitId, String uri, String uriRegex, LinkedList<HttpMethod> methods) {
         final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
 
+        configuredRateLimit.setId(limitId);
         configuredRateLimit.setUnit(TimeUnit.HOUR);
         configuredRateLimit.setUri(uri);
         configuredRateLimit.setUriRegex(uriRegex);

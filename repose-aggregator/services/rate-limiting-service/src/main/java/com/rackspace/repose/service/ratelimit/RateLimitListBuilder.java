@@ -81,10 +81,8 @@ public class RateLimitListBuilder {
     }
 
     private CachedRateLimit getCachedRateLimitFromSet(ConfiguredRatelimit configuredRatelimit, Collection<CachedRateLimit> limitSet) {
-        final String configLimitKey = LimitKey.getConfigLimitKey(configuredRatelimit.getUriRegex(), configuredRatelimit.getHttpMethods());
-
         for (CachedRateLimit cachedRateLimit : limitSet) {
-            if (cachedRateLimit.getConfigLimitKey().equals(configLimitKey)) {
+            if (cachedRateLimit.getConfigId().equals(configuredRatelimit.getId())) {
                 return cachedRateLimit;
             }
         }
@@ -105,7 +103,7 @@ public class RateLimitListBuilder {
             int remainingRequests = configuredRateLimit.getValue();
 
             if (cachedLimit != null) {
-                earliestExpirationDate = cachedLimit.getNextExpirationTime(); // TODO getSoonestRequestTime?
+                earliestExpirationDate = cachedLimit.getNextExpirationTime();
                 remainingRequests = cachedLimit.maxAmount() - cachedLimit.amount();
             }
 
@@ -114,15 +112,15 @@ public class RateLimitListBuilder {
             limit.setRemaining(remainingRequests);
             limit.setNextAvailable(DATATYPE_FACTORY.newXMLGregorianCalendar((GregorianCalendar) cal));
 
-            final String configLimitKey = LimitKey.getConfigLimitKey(configuredRateLimit.getUriRegex(), configuredRateLimit.getHttpMethods());
-            ResourceRateLimits rateLimits = liveRateLimitMap.get(configLimitKey);
+            final String configId = configuredRateLimit.getId();
+            ResourceRateLimits rateLimits = liveRateLimitMap.get(configId);
 
             if (rateLimits == null) {
                 rateLimits = new ResourceRateLimits();
                 rateLimits.setRegex(configuredRateLimit.getUriRegex());
                 rateLimits.setUri(configuredRateLimit.getUri());
 
-                liveRateLimitMap.put(configLimitKey, rateLimits);
+                liveRateLimitMap.put(configId, rateLimits);
             }
 
             rateLimits.getLimit().add(limit);

@@ -1,6 +1,5 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
-import com.rackspace.repose.service.ratelimit.LimitKey;
 import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
@@ -13,7 +12,7 @@ public class CachedRateLimit implements Serializable {
 
     private final int maxCount;
     private final long unit;
-    private final String configLimitKey;
+    private final String configId;
 
     private int count;
     private long timestamp;
@@ -21,7 +20,7 @@ public class CachedRateLimit implements Serializable {
     public CachedRateLimit(ConfiguredRatelimit cfg) {
         this.maxCount = cfg.getValue();
         this.unit = TimeUnitConverter.fromSchemaTypeToConcurrent(cfg.getUnit()).toMillis(1);
-        this.configLimitKey = LimitKey.getConfigLimitKey(cfg.getUriRegex(), cfg.getHttpMethods());
+        this.configId = cfg.getId();
 
         this.count = 0;
         this.timestamp = System.currentTimeMillis();
@@ -30,7 +29,7 @@ public class CachedRateLimit implements Serializable {
     public CachedRateLimit(ConfiguredRatelimit cfg, int count) {
         this.maxCount = cfg.getValue();
         this.unit = TimeUnitConverter.fromSchemaTypeToConcurrent(cfg.getUnit()).toMillis(1);
-        this.configLimitKey = LimitKey.getConfigLimitKey(cfg.getUriRegex(), cfg.getHttpMethods());
+        this.configId = cfg.getId();
 
         this.count = count;
         this.timestamp = System.currentTimeMillis();
@@ -39,7 +38,7 @@ public class CachedRateLimit implements Serializable {
     public CachedRateLimit(ConfiguredRatelimit cfg, int count, long timestamp) {
         this.maxCount = cfg.getValue();
         this.unit = TimeUnitConverter.fromSchemaTypeToConcurrent(cfg.getUnit()).toMillis(1);
-        this.configLimitKey = LimitKey.getConfigLimitKey(cfg.getUriRegex(), cfg.getHttpMethods());
+        this.configId = cfg.getId();
 
         this.count = count;
         this.timestamp = timestamp;
@@ -53,8 +52,8 @@ public class CachedRateLimit implements Serializable {
         return unit;
     }
 
-    public String getConfigLimitKey() {
-        return configLimitKey;
+    public String getConfigId() {
+        return configId;
     }
 
     public long timestamp() {

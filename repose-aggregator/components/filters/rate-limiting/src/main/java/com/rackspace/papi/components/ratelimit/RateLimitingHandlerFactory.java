@@ -2,21 +2,24 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import com.rackspace.repose.service.ratelimit.RateLimitingServiceFactory;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.repose.service.ratelimit.config.DatastoreType;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /* Responsible for creating rate limit handlers that provide datastoreservice and listener to rate limit configuration */
@@ -95,6 +98,12 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
             rateLimitingConfig = configurationObject;
 
             isInitialized = true;
+
+            for (ConfiguredLimitGroup limitGroup : rateLimitingConfig.getLimitGroup()) {
+                for (ConfiguredRatelimit limit : limitGroup.getLimit()) {
+                    limit.setId(UUID.randomUUID().toString());
+                }
+            }
 
         }
 

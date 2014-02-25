@@ -27,6 +27,7 @@ public class CachedRateLimitTest {
 
         cfg = mock(ConfiguredRatelimit.class);
 
+        when(cfg.getId()).thenReturn("12345-ABCDE");
         when(cfg.getUriRegex()).thenReturn(".*");
         when(cfg.getHttpMethods()).thenReturn(methods);
         when(cfg.getValue()).thenReturn(6);
@@ -93,9 +94,7 @@ public class CachedRateLimitTest {
     public void getConfigLimitKey_shouldCreateCorrectCLKey() {
         final CachedRateLimit limit = new CachedRateLimit(cfg);
 
-        assertTrue(limit.getConfigLimitKey().equals(String.valueOf(".*".hashCode()) +
-                ":" + String.valueOf(HttpMethod.GET.toString().hashCode()) +
-                ":" + String.valueOf(HttpMethod.POST.toString().hashCode())));
+        assertTrue(limit.getConfigId().equals(cfg.getId()));
     }
 
     @Test
