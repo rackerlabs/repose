@@ -81,7 +81,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         and: "I get the value for the key"
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then: "The body of the get response should be my second request body"
+        then: "The body of the get response should be the original body with the patch appended"
         mc.receivedResponse.body == newBody
     }
 
