@@ -71,7 +71,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
     }
 
-    def "PUT a cache object to an existing key should overwrite the cached value"() {
+    def "PATCH a cache object to an existing key should append the cached value"() {
 
         when: "I make 2 PUT calls for 2 different values for the same key"
         def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch("MY NEW VALUE"))
