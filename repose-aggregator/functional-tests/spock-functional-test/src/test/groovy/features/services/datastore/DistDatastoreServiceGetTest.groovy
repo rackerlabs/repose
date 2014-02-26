@@ -1,7 +1,6 @@
 package features.services.datastore
 import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
-import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -12,7 +11,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
     def DD_HEADERS = ['X-PP-Host-Key':'temp-host-key', 'X-TTL':'10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    def KEY_TOO_LARGE = ObjectSerializer.instance().writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray() ))
     static def distDatastoreEndpoint
 
     def setupSpec() {
@@ -44,15 +42,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "GET with empty host key returns 401"(){
-        when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:['X-PP-Host-Key':'', 'X-TTL':'1']])
-
-        then:
-        mc.receivedResponse.code == '401'
-
-    }
-
     def "GET with no key returns 404 NOT FOUND"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI, headers:DD_HEADERS])
@@ -82,14 +71,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '404'
-    }
-
-    def "GET with a really large key returns a 413"(){
-        when: "I attempt to get the value from cache"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url:distDatastoreEndpoint, path:DD_PATH + KEY_TOO_LARGE, headers:DD_HEADERS])
-
-        then:
-        mc.receivedResponse.code == '413'
     }
 
     def "GET of key after time to live has expired should return a 404"(){

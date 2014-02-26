@@ -162,9 +162,6 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         "foo"                                     | "less than 36 chars"
         UUID.randomUUID().toString() + "a"        | "more than 36 chars"
         "////////" + UUID.randomUUID().toString() | "leading slashes on path"
-        ""                                        | "empty key"
-        "%20foo%20"                               | "spaces"
-        "%2F%2D%20"                               | "random encoded characters"
     }
 
 
