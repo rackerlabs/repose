@@ -35,7 +35,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("User: #user, Token: #token")
+    @Unroll("when authenticating user with Rackspace identity - success - User: #user, Token: #token")
     def "when authenticating user with Rackspace identity - success"() {
 
         fakeIdentityService.client_token = token
@@ -79,7 +79,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         "rando9" | "toke8"  | "json"
     }
 
-    @Unroll("User: #user, Token: #token")
+    @Unroll("when authenticating user with Rackspace identity - failure - User: #user, Token: #token")
     def "when authenticating user with Rackspace identity - failure"() {
 
         fakeIdentityService.client_token = token
@@ -87,7 +87,8 @@ class RackspaceAuthTest extends ReposeValveTest {
         fakeIdentityService.isAbleToGetGroups = true
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        MessageChain mc
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + (user ?: "user"), method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -95,7 +96,7 @@ class RackspaceAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + (user ?: "user"), method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
