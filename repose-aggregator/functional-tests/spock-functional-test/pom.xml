@@ -161,7 +161,7 @@
                         <configuration>
                             <excludedGroups>
                                 framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
-                                framework.category.SaxonEE,framework.category.Slow
+                                framework.category.SaxonEE,framework.category.Slow,framework.category.Release
                             </excludedGroups>
                         </configuration>
                     </plugin>
@@ -182,7 +182,7 @@
                         <configuration>
                             <excludedGroups>
                                 framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
-                                framework.category.SaxonEE,framework.category.Slow
+                                framework.category.SaxonEE,framework.category.Slow,framework.category.Release
                             </excludedGroups>
                         </configuration>
                     </plugin>
@@ -480,7 +480,7 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>**/*Test.java</include>
+                                <include>**/*Test.*</include>
                             </includes>
                         </configuration>
                     </execution>
