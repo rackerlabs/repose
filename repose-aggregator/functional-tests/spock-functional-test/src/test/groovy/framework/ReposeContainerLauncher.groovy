@@ -151,7 +151,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             try {
                 print(".")
                 HttpClient client = new DefaultHttpClient()
-                client.execute(new HttpGet(url)).statusLine.statusCode != 500
+                client.execute(new HttpGet(url)).statusLine.statusCode < 500
             } catch (IOException ignored) {
             } catch (ClientProtocolException ignored) {
             }
