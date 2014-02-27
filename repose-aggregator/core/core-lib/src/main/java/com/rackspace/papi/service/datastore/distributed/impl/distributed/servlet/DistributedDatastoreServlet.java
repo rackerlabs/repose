@@ -87,7 +87,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
             }
         } catch (MalformedCacheRequestException e) {
 
-            LOG.error(e.getMessage());
+            LOG.error("Malformed cache request during GET", e);
             switch (e.error) {
                 case NO_DD_HOST_KEY:
                     resp.getWriter().write(e.error.message());
@@ -223,7 +223,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
 
-        LOG.error(mcre.getMessage());
+        LOG.error("Handling Malformed Cache Request", mcre);
         switch (mcre.error) {
             case NO_DD_HOST_KEY:
                 response.getWriter().write(mcre.error.message());
