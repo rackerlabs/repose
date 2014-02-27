@@ -12,16 +12,16 @@ import java.io.InputStream;
 
 public class ReusableServiceClientResponse<E> extends ServiceClientResponse {
 
-    private byte [] dataArray;
+    private byte[] dataArray;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ReusableServiceClientResponse.class);
 
     public ReusableServiceClientResponse(int code, InputStream data) {
-       super(code,data);
+        super(code, data);
 
-        try{
+        try {
             dataArray = IOUtils.toByteArray(data);
-        } catch(IOException e){
-           LOG.error("Not able read inputstream to byte array: "+e.getMessage());
+        } catch (IOException e) {
+            LOG.error("Not able read inputstream to byte array: " + e.getMessage(), e);
         }
     }
 
@@ -29,7 +29,6 @@ public class ReusableServiceClientResponse<E> extends ServiceClientResponse {
     public InputStream getData() {
         return new ByteArrayInputStream(dataArray);
     }
-
 
 
 }

@@ -17,7 +17,7 @@ public class ThreadContextAwareObjectInputStream extends ObjectInputStream {
 
       try {
          return threadContextClassLoader.loadClass(desc.getName());
-      } catch (ClassNotFoundException cnfe) {
+      } catch (ClassNotFoundException ignored) {
       }
 
       return super.resolveClass(desc);

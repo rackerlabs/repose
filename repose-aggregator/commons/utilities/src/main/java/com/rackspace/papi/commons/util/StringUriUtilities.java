@@ -126,7 +126,7 @@ public final class StringUriUtilities {
 
         try {
             encodedUri = URLEncoder.encode(uri, "UTF8");
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException ignored) {
         }
 
         return encodedUri;
