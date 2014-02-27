@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * This class represents a thread that continuously monitors configuration
@@ -41,7 +42,13 @@ public class ConfigurationResourceWatcher implements RecurringTask {
                     LOG.info("Updated " + resource.name());
                 }
             } catch (Exception e) {
-                // TODO:Log - Create a logger that is smart enough not to print out errors we don't care about more than once
+                /**
+                 * TODO:Log - Create a logger that is smart enough not to print out errors we don't care about more than once
+                 * Trace logging the exception, because the context knowledge of this exception has been lost. We don't know
+                 * for certain that we can catch the IOException, because we might be relying on this to catch runtime
+                 * exceptions. Bad bad bad.
+                 */
+                LOG.trace("Error updating resource: " + resource.name(), e);
             }
         }
     }
