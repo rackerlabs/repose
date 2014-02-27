@@ -95,7 +95,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         try {
             healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
         } catch (InputNullException e) {
-            LOG.error("Error registering to Health Check Service: " + e.getMessage());
+            LOG.error("Error registering to Health Check Service: " + e.getMessage(), e);
         }
         issueId = "disdatastore-config-issue";
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
@@ -124,6 +124,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
                     healthCheckService.solveIssue(healthServiceUID, issueId);
                 }
             } catch (Exception ex) {
+                LOG.trace("Exception caught on an updated configuration", ex);
                 reportError(ex.getMessage());
             }
         }
@@ -162,9 +163,9 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
                 healthCheckService.reportIssue(healthServiceUID, issueId,
                         new HealthCheckReport("Dist-Datastore Configuration Issue:" + message, Severity.BROKEN));
             } catch (NotRegisteredException nre) {
-                LOG.error(nre.getMessage());
+                LOG.error("Health Check Service not registered: " + nre.getMessage(), nre);
             } catch (InputNullException e) {
-                LOG.error("Error reporting to Health Check Service: " + e.getMessage());
+                LOG.error("Error reporting to Health Check Service: " + e.getMessage(), e);
             }
 
         }

@@ -38,7 +38,7 @@ public class ManagementServiceImpl implements ManagementService {
                 server.start();
                 LOG.info("Repose REST Management API started: " + buildManagementUrl(managementPort, managementContext));
             } catch (Exception e) {
-                LOG.error("Problem starting Repose REST Management API.");
+                LOG.error("Problem starting Repose REST Management API.",e);
             }
         }
     }
