@@ -172,6 +172,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
             } catch (MalformedCacheRequestException mcre) {
                 handleputMalformedCacheRequestException(mcre, response);
+            } catch (ClassCastException e){
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
             }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
