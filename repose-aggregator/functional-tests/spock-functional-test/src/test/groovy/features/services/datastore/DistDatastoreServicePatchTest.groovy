@@ -1,6 +1,7 @@
 package features.services.datastore
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer
+import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
@@ -11,7 +12,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     String DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
-    def BODY = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch("test data"))
+    def BODY = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
     def INVALID_BODY = ObjectSerializer.instance().writeObject("test data")
     static def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
@@ -63,7 +64,6 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         mc.receivedResponse.code == '400'
     }
 
-
     def "PATCH with query parameters should ignore query params and return 200"() {
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY + "?foo=bar", headers:DD_HEADERS, requestBody: BODY])
@@ -79,17 +79,17 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     }
 
-    def "PATCH a cache object to an existing key should overwrite the cached value"() {
+    def "PATCH a cache object to an existing key should append onto the cached value"() {
 
         when: "I make 2 PATCH calls for 2 different values for the same key"
-        def newBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch("MY NEW VALUE"))
+        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch("MY NEW VALUE"))
         deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
         deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
 
         and: "I get the value for the key"
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then: "The body of the get response should be my second request body"
+        then: "The body of the get response should be the appended value"
         ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == "test dataMY NEW VALUE"
     }
 
@@ -109,7 +109,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with empty string as body is allowed, and GET will return it"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(""))])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: ObjectSerializer.instance().writeObject(new StringValue.Patch(""))])
 
         then:
         mc.receivedResponse.code == '200'
@@ -176,10 +176,10 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         "%2F%2D%20"                               | "random encoded characters"
     }
 
-
     def "PATCH with really large body within limit (2MEGS 2097152) should return 200"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(RandomStringUtils.random(2096139, ('A'..'Z').join().toCharArray())))
+        def largeBodyContent = RandomStringUtils.random(2096139, ('A'..'Z').join().toCharArray())
+        def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(largeBodyContent))
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
@@ -192,14 +192,12 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.body == largeBody
-        mc.receivedResponse.body.length == 2097152
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == largeBodyContent
     }
-
 
     def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray())))
+        def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray())))
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
