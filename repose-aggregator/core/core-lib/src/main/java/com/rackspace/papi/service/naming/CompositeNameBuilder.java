@@ -4,6 +4,7 @@ import javax.naming.CompositeName;
 import javax.naming.Name;
 import javax.naming.NamingException;
 
+//TODO: can I just delete this
 public class CompositeNameBuilder {
     private final String stringRepresentation;
 
