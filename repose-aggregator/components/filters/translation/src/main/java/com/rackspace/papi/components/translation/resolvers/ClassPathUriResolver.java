@@ -1,5 +1,8 @@
 package com.rackspace.papi.components.translation.resolvers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -9,6 +12,7 @@ import java.net.URISyntaxException;
 
 public class ClassPathUriResolver extends SourceUriResolver {
 
+    public static final Logger LOG = LoggerFactory.getLogger(ClassPathUriResolver.class);
     public static final String CLASSPATH_PREFIX = "classpath://";
 
     public ClassPathUriResolver() {
@@ -32,6 +36,7 @@ public class ClassPathUriResolver extends SourceUriResolver {
             try {
                 return new StreamSource(resource, getClass().getResource(path).toURI().toString());
             } catch (URISyntaxException ex) {
+                LOG.trace("Unable to convert resource to URI", ex);
                 return new StreamSource(resource);
             }
         }
