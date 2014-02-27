@@ -57,7 +57,7 @@ public class DatastoreServiceImpl implements DatastoreService {
             try {
                 managerToUnregister.destroy();
             } catch (Exception e) {
-                LOG.warn("Failed to shutdown datastore {} with exception {}", datastoreName, e.getMessage());
+                LOG.warn("Failed to shutdown datastore "+ datastoreName +" with exception " + e.getMessage(), e);
             }
         }
     }
