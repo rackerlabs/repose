@@ -13,6 +13,7 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import org.openstack.docs.identity.api.v2.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
@@ -21,6 +22,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 public class AdminTokenProvider {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);
 
    private String authUrl;
    private String username;
@@ -60,6 +63,7 @@ public class AdminTokenProvider {
                  org.openstack.docs.identity.api.v2.ObjectFactory.class,
                  com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
       } catch (JAXBException ex) {
+          LOG.trace("Unable to set JAXB Context", ex);
       }
    }
    
