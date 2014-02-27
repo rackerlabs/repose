@@ -229,7 +229,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         try {
             IOUtils.copy(inputStream, stringWriter, "UTF8");
         } catch (IOException e) {
-            LOG.error(e.getMessage(), "Unable to copy stream.");
+            LOG.error("Unable to copy stream: " + e.getMessage(), e);
         }
         String stringFromStream = stringWriter.toString();
         byte[] encodedString = Base64.encodeBase64(stringFromStream.getBytes());
