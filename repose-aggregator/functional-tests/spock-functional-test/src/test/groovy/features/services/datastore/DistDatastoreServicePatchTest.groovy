@@ -1,18 +1,18 @@
 package features.services.datastore
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer
-import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
-class DistDatastoreServicePutTest extends ReposeValveTest {
+class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     String DD_URI
     def DD_HEADERS = ['X-PP-Host-Key':'temp', 'X-TTL':'10']
-    def BODY = ObjectSerializer.instance().writeObject(new StringValue.Patch("test data"))
+    def BODY = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch("test data"))
+    def INVALID_BODY = ObjectSerializer.instance().writeObject("test data")
     static def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
     static def distDatastoreEndpoint
@@ -47,87 +47,94 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "PUT a new cache object should return 202 response" () {
+    def "PATCH a new cache object should return 200 response" () {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '202'
+        mc.receivedResponse.code == '200'
+    }
+
+    def "PATCH a new cache object with invalid Patch should return 400 response" () {
+        when:
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: INVALID_BODY])
+
+        then:
+        mc.receivedResponse.code == '400'
     }
 
 
-    def "PUT with query parameters should ignore query params and return 202"() {
+    def "PATCH with query parameters should ignore query params and return 200"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY + "?foo=bar", headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY + "?foo=bar", headers:DD_HEADERS, requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '202'
+        mc.receivedResponse.code == '200'
 
         when:
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.body == BODY
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == "test data"
 
     }
 
-    def "PATCH a cache object to an existing key should append the cached value"() {
+    def "PATCH a cache object to an existing key should overwrite the cached value"() {
 
-        when: "I make 2 PUT calls for 2 different values for the same key"
-        def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch("MY NEW VALUE"))
-        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
-        deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
+        when: "I make 2 PATCH calls for 2 different values for the same key"
+        def newBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch("MY NEW VALUE"))
+        deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: BODY])
+        deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: newBody])
 
         and: "I get the value for the key"
         MessageChain mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
-        then: "The body of the get response should be the original body with the patch appended"
-        mc.receivedResponse.body == newBody
+        then: "The body of the get response should be my second request body"
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == "test dataMY NEW VALUE"
     }
 
-    def "PUT with missing X-TTL is allowed"() {
+    def "PATCH with missing X-TTL is allowed"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:['X-PP-Host-Key':'temp'], requestBody: BODY])
 
         then:
-        mc.receivedResponse.code == '202'
+        mc.receivedResponse.code == '200'
 
         when: "I get the value for the key"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.body == BODY
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == "test data"
     }
 
-    def "PUT with empty string as body is allowed, and GET will return it"() {
+    def "PATCH with empty string as body is allowed, and GET will return it"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS,
-                requestBody: ObjectSerializer.instance().writeObject(new StringValue.Patch(""))])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers:DD_HEADERS, requestBody: ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(""))])
 
         then:
-        mc.receivedResponse.code == '202'
+        mc.receivedResponse.code == '200'
 
         when: "I get the value from cache with the empty body"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
-        ObjectSerializer.instance().readObject(mc.receivedResponse.body) == ""
+        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == ""
     }
 
-    def "PUT with no key should return 400 Bad Request"() {
+    def "PATCH with no key should return 400 Bad Request"() {
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI, headers:DD_HEADERS, requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI, headers:DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
     }
 
-    def "PUT with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
+    def "PATCH with missing X-PP-Host-Key should return a 401 Unauthorized and not be stored"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url:DD_URI + KEY, headers: ['X-TTL':'10'], requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '401'
@@ -140,10 +147,10 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         mc.receivedResponse.code == '404'
     }
 
-    def "PUT of invalid key should fail with 400 Bad Request"() {
+    def "PATCH of invalid key should fail with 400 Bad Request"() {
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: distDatastoreEndpoint, path: DD_PATH + key,
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: distDatastoreEndpoint, path: DD_PATH + key,
                 headers: DD_HEADERS, requestBody: BODY])
 
         then:
@@ -170,34 +177,32 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
     }
 
 
-    def "PUT with really large body within limit (2MEGS 2097152) should return 202"() {
+    def "PATCH with really large body within limit (2MEGS 2097152) should return 200"() {
         given:
-        def largeBodyContent = RandomStringUtils.random(2006139, ('A'..'Z').join().toCharArray())
-        def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(largeBodyContent))
+        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(RandomStringUtils.random(2096139, ('A'..'Z').join().toCharArray())))
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '202'
+        mc.receivedResponse.code == '200'
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '200'
-        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == largeBodyContent
+        mc.receivedResponse.body == largeBody
+        mc.receivedResponse.body.length == 2097152
     }
 
 
-    def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
+    def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(
-                new StringValue.Patch(
-                        RandomStringUtils.random(2097152, ('A'..'Z').join().toCharArray())))
+        def largeBody = ObjectSerializer.instance().writeObject(new com.rackspace.papi.components.datastore.StringValue.Patch(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray())))
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
+        MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
         mc.receivedResponse.code == '413'
