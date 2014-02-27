@@ -63,7 +63,7 @@ public class ManagementServiceImpl implements ManagementService {
             try {
                 server.stop();
             } catch (Exception e) {
-                LOG.error("Problem stopping Repose REST Management API.");
+                LOG.error("Problem stopping Repose REST Management API.", e);
             }
         }
     }
