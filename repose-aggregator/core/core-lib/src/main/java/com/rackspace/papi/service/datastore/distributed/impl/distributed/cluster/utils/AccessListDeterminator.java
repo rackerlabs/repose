@@ -31,7 +31,7 @@ public class AccessListDeterminator {
       if (!allowAll) {
          hostAccessList.addAll(getConfiguredAllowedHosts(config));
       }
-      
+
       if (allowAll) {
             LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
          } else {
@@ -54,7 +54,7 @@ public class AccessListDeterminator {
             final InetAddress hostAddress = InetAddress.getByName(host.getHost());
             configuredAllowedHosts.add(hostAddress);
          } catch (UnknownHostException e) {
-            LOG.warn("Unable to resolve host: " + host.getHost());
+            LOG.warn("Unable to resolve host: " + host.getHost(), e);
          }
       }
 
@@ -71,7 +71,7 @@ public class AccessListDeterminator {
             final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
             reposeClusterMembers.add(hostAddress);
          } catch (UnknownHostException e) {
-            LOG.warn("Unable to resolve host: " + node.getHostname() + "for Node " + node.getId() + " in Repose Cluster " + clusterId);
+            LOG.warn("Unable to resolve host: " + node.getHostname() + "for Node " + node.getId() + " in Repose Cluster " + clusterId, e);
          }
 
       }
