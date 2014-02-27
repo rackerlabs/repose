@@ -6,7 +6,7 @@ import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.DeproxyEndpoint
+import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
 import spock.lang.Specification
 
@@ -26,8 +26,8 @@ class AuthNConnectionPoolingTest extends Specification {
     IdentityServiceResponseSimulator identityService
 
     Deproxy deproxy
-    DeproxyEndpoint originEndpoint
-    DeproxyEndpoint identityEndpoint
+    Endpoint originEndpoint
+    Endpoint identityEndpoint
 
     TestProperties properties
     def logFile
