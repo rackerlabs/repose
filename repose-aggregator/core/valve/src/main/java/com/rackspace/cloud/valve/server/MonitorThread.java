@@ -59,6 +59,7 @@ public class MonitorThread extends Thread {
          accept.close();
          socket.close();
       } catch (InterruptedException ie) {
+          LOG.trace("MonitorThread interrupted (Normal exit)", ie);
          //NOP - normal exit
       } catch (Exception e) {
          throw new RuntimeException(e);
