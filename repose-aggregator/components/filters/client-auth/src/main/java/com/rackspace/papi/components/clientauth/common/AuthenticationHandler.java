@@ -123,10 +123,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                     token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token, offset);
                 } catch (AuthServiceException ex) {
-                    LOG.error("Failure in Auth-N: " + ex.getMessage());
+                    LOG.error("Failure in Auth-N: " + ex.getMessage(), ex);
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } catch (IllegalArgumentException ex) {
-                    LOG.error("Failure in Auth-N: " + ex.getMessage());
+                    LOG.error("Failure in Auth-N: " + ex.getMessage(), ex);
                     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } catch (Exception ex) {
                     LOG.error("Failure in auth: " + ex.getMessage(), ex);
@@ -147,10 +147,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 }
 
             } catch (AuthServiceException ex) {
-                LOG.error("Failure in Auth-N: " + ex.getMessage());
+                LOG.error("Failure in Auth-N: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (IllegalArgumentException ex) {
-                LOG.error("Failure in Auth-N: " + ex.getMessage());
+                LOG.error("Failure in Auth-N: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (Exception ex) {
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
