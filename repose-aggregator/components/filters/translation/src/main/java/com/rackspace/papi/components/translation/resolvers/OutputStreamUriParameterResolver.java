@@ -12,10 +12,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriUtils;
 
 public class OutputStreamUriParameterResolver implements OutputURIResolver {
 
+    public static final Logger LOG = LoggerFactory.getLogger(OutputStreamUriParameterResolver.class);
   public static final String PREFIX = "repose:output:";
   private final Map<String, OutputStream> streams = new HashMap<String, OutputStream>();
   private final OutputURIResolver parent;
@@ -61,6 +65,7 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
       try {
         result.setSystemId(new URI(href).toString());
       } catch (URISyntaxException ex) {
+          LOG.trace("Unable to parse URI", ex);
       }
 
       return result;
