@@ -23,8 +23,6 @@ import javax.xml.bind.JAXBException;
 
 public class AdminTokenProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AdminTokenProvider.class);
-
    private String authUrl;
    private String username;
    private String password;
