@@ -3,8 +3,12 @@ package org.openrepose.cli.command.datastore.local;
 import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RateLimitsRemover extends AbstractCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RateLimitsRemover.class);
 
     @Override
     public String getCommandToken() {
@@ -34,6 +38,7 @@ public class RateLimitsRemover extends AbstractCommand {
                         "Failure to remove rate limits for user " + arguments[1]);
             }
         } catch (Exception e) {
+            LOG.trace("Unable to connect to Repose MBean Server", e);
             result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
                     "Unable to connect to Repose MBean Server: " + e.getMessage());
         }

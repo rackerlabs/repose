@@ -140,6 +140,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 localDatastore.remove(cacheDelete.getCacheKey());
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
             } catch (MalformedCacheRequestException e) {
+                LOG.trace("Malformed cache request on Delete", e);
                 switch (e.error) {
                     case NO_DD_HOST_KEY:
                         resp.getWriter().write(e.error.message());

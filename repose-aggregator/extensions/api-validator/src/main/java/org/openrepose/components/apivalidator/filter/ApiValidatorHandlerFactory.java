@@ -87,7 +87,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             try {
                 path = new URL(uri).toString();
             } catch (MalformedURLException ex) {
-                LOG.warn("Invalid URL: " + uri);
+                LOG.warn("Invalid URL: " + uri, ex);
             }
             return path;
         }

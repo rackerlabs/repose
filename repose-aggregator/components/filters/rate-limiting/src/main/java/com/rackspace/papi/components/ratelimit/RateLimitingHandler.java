@@ -70,7 +70,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             // Record limits
             pass = recordLimitedRequest(request, director);
         } catch (DatastoreOperationException doe) {
-            LOG.error("Unable to communicate with dist-datastore.", doe.getMessage());
+            LOG.error("Unable to communicate with dist-datastore.", doe.getMessage(), doe);
             response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
 

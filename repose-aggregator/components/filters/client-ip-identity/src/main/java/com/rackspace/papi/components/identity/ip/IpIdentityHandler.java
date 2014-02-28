@@ -65,7 +65,7 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
                q = ";q=" + whiteList.getQuality();
             }
          } catch (UnknownHostException ex) {
-            LOG.warn("Invalid client IP Address: " + address);
+            LOG.warn("Invalid client IP Address: " + address, ex);
          }
 
          headerManager.appendHeader(PowerApiHeader.USER.toString(), address + q);

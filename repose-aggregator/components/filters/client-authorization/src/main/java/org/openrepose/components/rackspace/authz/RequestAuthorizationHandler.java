@@ -80,7 +80,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                 director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
         } catch (AuthServiceException ex){
-           LOG.error("Failure in authorization component" + ex.getMessage());
+           LOG.error("Failure in authorization component" + ex.getMessage(), ex);
            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
         catch (Exception ex) {

@@ -41,21 +41,21 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    public void destroy() {
       // Nothing that a good de-referencing can't clean up.
    }
-  
+
   @Override
    public void setInitialized(){
         this.initialized=true;
    }
-   
-   
+
+
    @Override
    public boolean isInitialized(){
         return initialized;
    }
-  
+
    @Override
    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      
+
       final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
       final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
       MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
@@ -63,8 +63,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       if(!isInitialized()){
            response.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating Response Messaging service.");
       }else{
-          
-      
+
+
         if (matchedCode != null) {
 
            HttpLogFormatter formatter = null;
@@ -73,7 +73,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
 
               message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
-             
+
         if(message!=null){
               formatter=getHttpLogFormatter(matchedCode, message.getMediaType());
 
@@ -90,7 +90,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
            } else{
               LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
            }}else{
-            
+
             LOG.info("Message for Matched code is empty. Matched Code is :" + matchedCode.getCodeRegex());
         }
        }
@@ -113,7 +113,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       HttpLogFormatter httpLogFormatter = null;
 
       if (matchedCode != null && preferredMediaType != null) {
-        
+
 
          configurationLock.lock(readKey);
 
@@ -162,8 +162,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       try{
          hasBody = ((MutableHttpServletResponse)response).getBufferedOutputAsInputStream().available() > 0;
       }catch(IOException e){
-         LOG.warn("Unable to retrieve response body input stream");
+         LOG.warn("Unable to retrieve response body input stream",e);
       }
       return hasBody;
-   }      
+   }
 }

@@ -12,9 +12,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriUtils;
 
 public class InputStreamUriParameterResolver extends SourceUriResolver {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InputStreamUriParameterResolver.class);
 
     private static final String PREFIX = "reference:jio:";
     private final Map<String, InputStream> streams = new HashMap<String, InputStream>();
@@ -57,6 +62,7 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
         try {
             return PREFIX + UriUtils.encodePathSegment(inputStreamReference.toString(), "utf-8");
         } catch (UnsupportedEncodingException ex) {
+            LOG.trace("Unable to encode the path segment to utf-8", ex);
             return PREFIX + inputStreamReference.toString();
         }
     }
@@ -76,6 +82,7 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
             try {
                 return new StreamSource(stream, new URI(href).toString());
             } catch (URISyntaxException ex) {
+                LOG.trace("Unable to parse href to URI", ex);
                 return new StreamSource(stream);
             }
         }

@@ -43,7 +43,7 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
                     try {
                         whitelist.add(new IpAddressRange(address));
                     } catch (UnknownHostException ex) {
-                        LOG.warn("Invalid IP address specified in white list: " + address);
+                        LOG.warn("Invalid IP address specified in white list: " + address, ex);
                     }
                 }
             }

@@ -5,6 +5,8 @@ import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -13,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
  * @author zinic
  */
 public class CacheKeyEncoder extends AbstractCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CacheKeyEncoder.class);
 
    @Override
    public String getCommandDescription() {
@@ -36,6 +40,7 @@ public class CacheKeyEncoder extends AbstractCommand {
          
          return new MessageResult(encodedCacheKey);
       } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+          LOG.trace("JRE doesn't support MD5", noSuchAlgorithmException);
          return new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
                  "Your instance of the Java Runtime Environment does not support the MD5 hash algorithm.");
       }

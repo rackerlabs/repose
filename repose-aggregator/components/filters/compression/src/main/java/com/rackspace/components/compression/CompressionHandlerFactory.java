@@ -68,7 +68,7 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
             filter.setForRepose();
             isInitialized = true;
          } catch (ServletException ex) {
-            LOG.error("Unable to initialize content compression filter");
+            LOG.error("Unable to initialize content compression filter", ex);
          }
       }
 

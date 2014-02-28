@@ -41,6 +41,7 @@ public final class ProxyApp {
       try{
         validateConfigDirectory(commandLineArgs);
       }catch(IOException e){
+          LOG.trace("Unable to validate config directory", e);
         System.err.println(e.getMessage());
         cmdLineParser.printUsage(System.err);
         return;
