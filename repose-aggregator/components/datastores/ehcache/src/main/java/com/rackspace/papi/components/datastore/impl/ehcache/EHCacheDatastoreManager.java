@@ -56,7 +56,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
                 cacheManagerInstance.shutdown();
             }
         } catch (Exception e) {
-            LOG.warn("Error occurred when shutting down datastore: {}", e.getMessage());
+            LOG.warn("Error occurred when shutting down datastore: " + e.getMessage(), e);
         }
     }
 }
