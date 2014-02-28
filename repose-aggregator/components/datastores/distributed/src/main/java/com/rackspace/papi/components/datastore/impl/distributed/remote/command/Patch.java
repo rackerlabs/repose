@@ -9,6 +9,8 @@ import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * TODO: update with Jorge's suggestions
  */
 public class Patch extends AbstractRemoteCommand {
+    private final Logger LOG = LoggerFactory.getLogger(Patch.class);
 
     private final TimeUnit timeUnit;
     private final byte[] value;
@@ -37,7 +40,7 @@ public class Patch extends AbstractRemoteCommand {
         try {
             deferredValue = ObjectSerializer.instance().writeObject(patch);
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            LOG.warn("unable to serialize object", ioe);
         }
         this.value = deferredValue;
     }
