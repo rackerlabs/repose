@@ -46,6 +46,7 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
     try {
       return PREFIX + UriUtils.encodePathSegment(name, "utf-8");
     } catch (UnsupportedEncodingException ex) {
+        LOG.trace("unable to encode path segment to utf-8", ex);
       return PREFIX + name;
     }
   }
