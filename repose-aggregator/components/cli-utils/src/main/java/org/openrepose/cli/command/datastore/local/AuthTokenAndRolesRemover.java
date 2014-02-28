@@ -3,9 +3,12 @@ package org.openrepose.cli.command.datastore.local;
 import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthTokenAndRolesRemover extends AbstractCommand {
-   
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuthTokenAndRolesRemover.class);
    private static final int ARGUMENTS_LENGTH = 3;
 
     @Override
@@ -37,6 +40,7 @@ public class AuthTokenAndRolesRemover extends AbstractCommand {
                         "Failure to remove auth token and roles for user " + arguments[1]);
             }
         } catch (Exception e) {
+            LOG.trace("Unable to connect to repose MBean Server", e);
             result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
                         "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
