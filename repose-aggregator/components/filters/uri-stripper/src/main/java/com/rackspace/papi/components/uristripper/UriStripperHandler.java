@@ -94,7 +94,7 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
             try {
                 extractPreAndPostTexts(locationHeader);
             } catch (URISyntaxException ex) {
-                LOG.warn("Unable to parse Location header. Location header is malformed URI", ex.getMessage());
+                LOG.warn("Unable to parse Location header. Location header is malformed URI", ex.getMessage(), ex);
                 return filterDirector;
             }
 
