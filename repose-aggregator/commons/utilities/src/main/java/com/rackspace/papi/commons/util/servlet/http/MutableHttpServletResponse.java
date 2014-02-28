@@ -231,7 +231,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
       if (body != null && body.available() > 0) {
         hasBody = true;
       }
-    } catch (IOException e) {
+    } catch (IOException ignored) {
       hasBody = false;
     }
 

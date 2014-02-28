@@ -180,7 +180,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 Message message = (Message) ObjectSerializer.instance().readObject(recv.getData());
                 receivedAnnouncement(message.getTargetId(), message.getKey(), message.getOperation(), (Subscriber) message.getData());
             } catch (SocketTimeoutException ex) {
-                // ignore
+                LOG.trace("Socket timeout", ex);
             } catch (ClassNotFoundException ex) {
                 LOG.error("Unable to deserialize multicast message", ex);
             } catch (IOException ex) {

@@ -65,13 +65,13 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         try {
             reusableServiceserviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
         } catch (Exception e) {
-            LOG.error("error with akka future: " + e.getMessage());
+            LOG.error("error with akka future: " + e.getMessage(), e);
         }
         return reusableServiceserviceClientResponse;
     }
 
     @Override
-    public void shutdown(){
+    public void shutdown() {
         actorSystem.shutdown();
 
     }
@@ -90,7 +90,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
         return quickFutureCache.asMap().get(token);
     }
 
-    public ServiceClient getServiceClient(HttpClientService httpClientService){
-        return new ServiceClient(null,httpClientService);
+    public ServiceClient getServiceClient(HttpClientService httpClientService) {
+        return new ServiceClient(null, httpClientService);
     }
 }

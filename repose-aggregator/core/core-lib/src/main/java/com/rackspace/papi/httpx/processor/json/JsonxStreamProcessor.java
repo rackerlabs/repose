@@ -72,12 +72,12 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
             try {
                 handler.endPrefixMapping(XSD_PREFIX);
             } catch (Exception ex) {
-                LOG.warn("Unable to end prefix mapping: " + XSD_PREFIX);
+                LOG.warn("Unable to end prefix mapping: " + XSD_PREFIX, ex);
             }
             try {
                 handler.endPrefixMapping(JSON_PREFIX);
             } catch (Exception ex) {
-                LOG.warn("Unable to end prefix mapping: " + JSON_PREFIX);
+                LOG.warn("Unable to end prefix mapping: " + JSON_PREFIX, ex);
             }
             handler.endDocument();
         }
@@ -96,7 +96,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
                 }
 
             } catch (Exception ex) {
-                LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage());
+                LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage(), ex);
             } finally {
                 try {
                     out.close();

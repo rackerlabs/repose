@@ -117,9 +117,11 @@ public class HashRingDatastore implements DistributedDatastore {
                         return action.performRemote(name, target, remoteBehavior);
                     }
                 } catch (RemoteConnectionException rce) {
+                    LOG.trace("Could not perform action", rce);
                     clusterView.memberDamaged(target, rce.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 } catch (DatastoreOperationException doe) {
+                    LOG.trace("Could not perform action",doe);
                     clusterView.memberDamaged(target, doe.getMessage());
                     remoteBehavior = RemoteBehavior.DISALLOW_FORWARDING;
                 }

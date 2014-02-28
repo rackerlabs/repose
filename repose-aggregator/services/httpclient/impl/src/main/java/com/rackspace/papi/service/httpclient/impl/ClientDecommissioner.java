@@ -75,7 +75,7 @@ public class ClientDecommissioner implements Runnable {
                         clientsToRemove.add(client);
                     }
                 }
-                for(HttpClient client: clientsToRemove) {
+                for (HttpClient client : clientsToRemove) {
                     clientList.remove(client);
                     LOG.info("HTTP connection pool {} has been destroyed.", client.getParams().getParameter(CLIENT_INSTANCE_ID));
                 }
@@ -84,7 +84,8 @@ public class ClientDecommissioner implements Runnable {
             try {
                 Thread.sleep(DEFAULT_INTERVAL);
             } catch (InterruptedException ex) {
-               break;
+                LOG.info("Interrupted", ex);
+                break;
             }
 
         }

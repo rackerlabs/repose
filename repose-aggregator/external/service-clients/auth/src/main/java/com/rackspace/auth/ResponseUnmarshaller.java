@@ -42,8 +42,7 @@ public class ResponseUnmarshaller {
     try{
         return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data,"UTF8"), expectedType));
     }catch(UnsupportedEncodingException e){
-        LOG.error("Error reading Response stream in Response Unmarshaller");
-        
+        LOG.error("Error reading Response stream in Response Unmarshaller", e);
     }
     return null;
    }

@@ -43,7 +43,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
          try {
             wait(checkIntervalInMilliseconds);
          } catch (InterruptedException ie) {
-            LOG.info("Artifact directory watcher received an interrupt.");
+            LOG.info("Artifact directory watcher received an interrupt.", ie);
              
             destroy();
             Thread.currentThread().interrupt();

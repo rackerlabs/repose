@@ -87,7 +87,7 @@ public final class DefaultLogConfigurator {
          try {
             logFile = File.createTempFile(DEFAULT_LOG_PREFIX, DEFAULT_LOG_SUFFIX).getAbsolutePath();
          } catch (IOException ex) {
-            System.out.println("Error creating temporary log file.");
+            System.out.println("Error creating temporary log file." + ex.getMessage());
          }
       } else {
          String path = logDir.getAbsolutePath();

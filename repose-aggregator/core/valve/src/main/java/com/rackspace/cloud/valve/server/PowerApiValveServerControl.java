@@ -131,7 +131,7 @@ public class PowerApiValveServerControl {
             out.flush();
             s.close();
         } catch (IOException ioex) {
-            LOG.error("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+            LOG.error("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage(), ioex);
         }
     }
 }

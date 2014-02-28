@@ -87,7 +87,7 @@ public class XmlChainPool {
         try {
           chain.executeChain(in, out, inputs, outputs);
         } catch (XsltException ex) {
-          LOG.warn("Error processing transforms", ex.getMessage());
+          LOG.warn("Error processing transforms", ex.getMessage(), ex);
           return new TranslationResult(false);
         }
         return new TranslationResult(true, outputs);

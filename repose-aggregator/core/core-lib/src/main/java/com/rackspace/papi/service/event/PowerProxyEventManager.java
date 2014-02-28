@@ -7,6 +7,8 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,6 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component("eventManager")
 public class PowerProxyEventManager implements EventService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventManager.class);
     private final Map<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>> listenerMap;
     private final Queue<Event> eventQueue;
     private final Lock eventQueueLock;
@@ -47,6 +50,7 @@ public class PowerProxyEventManager implements EventService {
 
             return eventQueue.poll();
         } catch (InterruptedException ie) {
+            LOG.trace("Power Proxy Event Manager Interrupted", ie);
             Thread.currentThread().interrupt();
             throw ie;
         } finally {

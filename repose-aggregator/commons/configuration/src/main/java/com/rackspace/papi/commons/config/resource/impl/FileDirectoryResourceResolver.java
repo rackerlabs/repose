@@ -53,7 +53,7 @@ public class FileDirectoryResourceResolver implements ConfigurationResourceResol
         try {
             return new URL(resourceName);
         } catch (MalformedURLException murle) {
-            LOG.trace("Unable to build URL for resource, it is a configuration file");
+            LOG.trace("Unable to build URL for resource, it is a configuration file", murle);
         }
         return null;
     }
