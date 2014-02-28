@@ -218,9 +218,9 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                     handle(key);
                 }
             } catch (SocketTimeoutException ex) {
-                // ignore
+                LOG.trace("Socket timed out", ex);
             } catch (ClosedByInterruptException ex) {
-                LOG.warn("Thread Interrupted");
+                LOG.warn("Thread Interrupted", ex);
             } catch (ClassNotFoundException ex) {
                 LOG.error("Unable to deserialize update message", ex);
             } catch (IOException ex) {
