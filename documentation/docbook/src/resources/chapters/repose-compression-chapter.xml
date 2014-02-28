@@ -31,7 +31,7 @@
 ]>
 
 
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:svg="http://www.w3.org/2000/svg"
@@ -43,7 +43,7 @@
     <title>Compression Filter</title>
     
     
-<section xml:id="Introduction-Compression-Filter">
+<section xml:id="Compression-Introduction">
             <title> Introduction</title>
     <para> Compression is the process of reducing data size for storage or transmission. 
         In addition to compressing data, you may need to expand or decompress data to its 
@@ -56,8 +56,74 @@
                     version 2.7 or above to use this filter. </para>
             </note>
         </para>
+    </section>
+    
+    
+    <section xml:id="Compression-Use-Cases">
+        <title> Compression Filter Use Cases</title>
         <para> </para>
     </section>
+    
+    
+    <section xml:id="Compression-Process">
+        <title>Compression Filter Process</title>
+        <para>Depending on your need, you can configure the Repose
+            Compression filter to either compress, decompress, or pass
+            the request data that it receives from the client before
+            sending it to the origin service. The Compression filter
+            then compresses, decompresses, or passes the response data
+            that it receives from the origin service before sending it
+            back to the client. A typical Compression filter  decision
+            flow is summarized in the drawing below: </para>
+        <figure
+            xml:id="Compression-Filter-Diagram">
+            <title>Request/Response Lifecycle for
+                the Compression Filter</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata
+                        fileref="../figures/repose-compression-figure.png"
+                        format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        
+        
+        
+        <section xml:id="Supported-Compresions-60">
+            <title>Supported Compressions </title>
+            <para> Currently, the Repose Compression filter supports these compression schemes.</para>
+            <itemizedlist>
+                <listitem><para>gzip</para></listitem>
+            </itemizedlist>
+            
+            <itemizedlist>
+                <listitem><para>x-gzip</para></listitem>
+            </itemizedlist>
+            
+            <itemizedlist>
+                <listitem><para>deflate</para></listitem>
+            </itemizedlist>
+            
+            <itemizedlist>
+                <listitem><para>identity (no compression)</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section xml:id="Unsupported-Compresions-70">
+            <title>Unsupported Compressions </title>
+            <para> Currently, the Repose Compression filter does not support these compression schemes which the CompressingFilter supports.</para>
+            <itemizedlist>
+                <listitem><para>compress</para></listitem>
+            </itemizedlist>
+            
+            <itemizedlist>
+                <listitem><para>x-compress</para></listitem>
+            </itemizedlist>
+        </section>
+    </section>
+    
+    
     
     <section xml:id="Compression-Prereqs-30">
         <title> Compression Filter Prerequisites</title>
@@ -65,8 +131,15 @@
             When ordering the filters, it should be placed before any
             filter that looks at the request body.</para>
     </section>
+    
+    <section xml:id="Compression-Features">
+        <title> Compression Filter Features</title>
+        <para>The Compression filter has no required incoming headers.
+            When ordering the filters, it should be placed before any
+            filter that looks at the request body.</para>
+    </section>
         
-    <section xml:id="Compression-Configuration-40">
+    <section xml:id="Compression-Configuration">
         <title>Compression Filter Configuration Options</title>
 <!-- Add link to System Model Config -->
         
@@ -81,97 +154,90 @@
         
         
         
-        
-        
-   <!--   Play sample #1 to try to get the XSD to make a pretty graphic. -->     
-        
-     <!--   <example><title>Compression XSD File</title>
-            <programlisting language="xml">
-<xi:include href="../../../../../repose-aggregator/components/compression/src/main/resources/META-INF/schema/config/content-compression-configuration.xsd" parse="text"/>
-                </programlisting>
-            
-        </example> -->
-        
-        
-        
-        
-        
-        
         <para><guilabel> Elements and Attributes Used in the
                 Compression Filter</guilabel></para>
-        <para><guilabel>&lt;content-compression></guilabel>:  This
-            element contains all of the Compression filter
-            configurations. </para>
-        
-            
-            
-                <para>
-                    <guilabel>&lt;compression></guilabel>:</para>
-            
-        
-        <itemizedlist>
-            <listitem>
-                <para>
-                    <guilabel>&lt;compression-threshold&gt;</guilabel>
-                </para>
-            
-        
-      
-                <para>This attribute sets the size, using
-                    bytes, of the
-                    smallest response that will be compressed.</para>
-                    <para>If less than the amount of bytes specified in the
-                        compressionThreshold attribute are written 
-                        to the response, the request will not be
-                        compressed, and the response will 
-                        go to the client unmodified. If it is set to
-                        0, compression will begin immediately. 
-                        The default is number of bytes is 1024.</para>
-            </listitem>
-   
-           
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para><guilabel>&lt;content-compression></guilabel>:
+                        lists the accompanying sub-elements and
+                        attributes to define your configuration.
+                    </para>
                 
-        <listitem>
-                <para>
-                    <guilabel>&lt;exclude-content-types&gt;</guilabel></para>
-        
-                
-                    <para>This attribute specifies a list of
-                    content types that should not be compressed;
-                    everything else will be compressed. Note that any content type 
-                    that indicates a compressed format (e.g. application/gzip, application/x-compress) 
-                    will not be compressed in any event.</para> 
-        </listitem>
-            
-            
-            <listitem>
-                <para>
-                    <guilabel>&lt;exclude-user-agent-patterns&gt;</guilabel></para>
-                
-                <para>This attribute will not compress requests
-                    whose User-Agent header values match one of
-                    these patterns. 
-                </para> 
+                    <itemizedlist>
+                        <listitem>
+                            <para><guilabel>&lt;compression></guilabel>:
+                                specifies the compression filter
+                                configuration.</para>
+                        
+                                   
+                                <itemizedlist>
+                                   <listitem>
+                                   <para><guilabel>compression-threshold</guilabel>:
+                                   This attribute sets the size, using
+                                   bytes, of the smallest response
+                                   that will be compressed. If less
+                                   than the amount of bytes specified
+                                   in the compressionThreshold
+                                   attribute are written to the
+                                   response, the request will not be
+                                   compressed, and the response will
+                                   go to the client unmodified. If it
+                                   is set to 0, compression will begin
+                                   immediately. The default is number
+                                   of bytes is 1024. </para>
+                                   </listitem>
+                                </itemizedlist>
+                            
+                            <itemizedlist>
+                                <listitem>
+                                   <para><guilabel>include-content-types</guilabel>:
+                                   This attribute is treated as a
+                                   space-separated list of content
+                                   types (e.g. text/html,text/xml). It
+                                   attempts to compress only the
+                                   responses that specify one of these
+                                   values as its content type, such as
+                                   ServletResponse.setContentType(String).
+                                   </para>
+                                </listitem>
+                            </itemizedlist>
+                     
+                                <itemizedlist>
+                                   <listitem>
+                                   <para><guilabel>exclude-content-types</guilabel>:
+                                   This attribute specifies a list of
+                                   content types that should not be
+                                   compressed; everything else will be
+                                   compressed. Note that any content
+                                   type that indicates a compressed
+                                   format (e.g. application/gzip,
+                                   application/x-compress) will not be
+                                   compressed in any event.</para>
+                                   </listitem>
+                                
+                                <listitem>
+                                    <para><guilabel>&lt;exclude-user-agent-patterns&gt;</guilabel>:
+                                        This attribute will not compress
+                                        requests whose User-Agent header
+                                        values match one of these patterns.
+                                    </para>
+                                </listitem>
+                    </itemizedlist>
+                            
+                        </listitem>
+                    </itemizedlist>
+                    
                 </listitem>
-            
-            
-            <listitem>
-                <para>
-                    <guilabel>&lt;include-content-types&gt;</guilabel></para>
-            <para>This attribute is treated as a space-separated list 
-                    of content types (e.g. text/html,text/xml). It attempts 
-                    to compress only the responses that specify one of these values 
-                    as its content type, such as ServletResponse.setContentType(String). </para>
-                    <para>
+            </itemizedlist>
+        </para>
+                
                         <note>
                             <para> This parameter cannot be specified
                                 if exclude-content-types is
                                 also configured. </para>
                         </note>
-                    </para>
-                </listitem>
-        </itemizedlist>
-        
+                 
         <para><guilabel>Your configuration in compression.cfg.xml will
             resemble the following example: </guilabel></para>
         <example><title>Sample Compression Configuration File</title>
@@ -195,63 +261,7 @@
         </section>
     </section>
     
-    <section xml:id="Compression-Process-50">
-        <title>Compression Filter Process</title>
-        <para>Depending on your need, you can configure the Repose
-            Compression filter to either compress, decompress, or pass
-            the request data that it receives from the client before
-            sending it to the origin service. The Compression filter
-            then compresses, decompresses, or passes the response data
-            that it receives from the origin service before sending it
-            back to the client. A typical Compression filter  decision
-            flow is summarized in the drawing below: </para>
-        <figure
-            xml:id="Compression-Filter-Diagram">
-            <title>Request/Response Lifecycle for
-                the Compression Filter</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata
-                        fileref="../figures/repose-compression-figure.png"
-                        format="PNG" align="center"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
     
-    
-    
-    <section xml:id="Supported-Compresions-60">
-        <title>Supported Compressions </title>
-        <para> Currently, the Repose Compression filter supports these compression schemes.</para>
-        <itemizedlist>
-            <listitem><para>gzip</para></listitem>
-        </itemizedlist>
-        
-        <itemizedlist>
-            <listitem><para>x-gzip</para></listitem>
-        </itemizedlist>
-        
-        <itemizedlist>
-            <listitem><para>deflate</para></listitem>
-        </itemizedlist>
-        
-        <itemizedlist>
-            <listitem><para>identity (no compression)</para>
-            </listitem>
-        </itemizedlist>
-    </section>
-        <section xml:id="Unsupported-Compresions-70">
-            <title>Unsupported Compressions </title>
-            <para> Currently, the Repose Compression filter does not support these compression schemes which the CompressingFilter supports.</para>
-            <itemizedlist>
-                <listitem><para>compress</para></listitem>
-            </itemizedlist>
-            
-            <itemizedlist>
-                <listitem><para>x-compress</para></listitem>
-            </itemizedlist>
-    </section>
-    </section>
     <section xml:id="Preventing-XXE-Injection">
         <title>Preventing XXE Injection</title>
         <para>The Compression filter can aid with the prevention of
@@ -275,4 +285,27 @@
         
         
     </section>
-</chapter>
+    
+    <section xml:id="Compression-Error-Scenarios">
+        <title> Compression Filter Error Scenarios</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>The Compression filter returns a 400 error
+                        response code if the request body is not in
+                        the format specified in the Content-Encoding
+                        header (ZipException) or if the request body
+                        terminates in an unexpected manner
+                        (EOFException) while decompressing.</para>
+                </listitem>
+                <listitem>
+                    <para>The Compression filter returns a 500 error
+                        response code on any other IOException or
+                        ServletException.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    
+</section>

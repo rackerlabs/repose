@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="Header-Identity-Chapter">
+    <title>Header Identity</title>
+    
+    
+    <section xml:id="Header-Identity-Introduction">
+        <title>Introduction</title>
+        <para> With the Header Identity Filter, Repose can introspect a configured Header and set the X-PP-User and X-PP-Groups headers accordingly.</para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Header-Identity-use-cases" security="writeronly">
+        <title>Header Identity Use Cases</title>
+        <para> </para>
+    </section>
+    
+    
+    
+    
+    <section xml:id="Header-Identity-process" security="writeronly">
+        <title>Header Identity Process</title>
+        <para></para>
+        
+    </section>
+    
+    <section xml:id="Header-Identity-request-prerequisites" security="writeronly">
+        <title>Header Identity Request Prerequisites</title>
+        
+        <para> </para>
+        
+    </section>
+    
+    
+    <section xml:id="Header-Identity-features" security="writeronly">  
+        <title>Header Identity Features</title>
+        <para> </para> 
+        
+        
+        
+        <section xml:id="Header-Identity-Feature-1" security="writeronly">
+            <title>Header Identity Features</title>
+            <para> </para>
+            
+            
+        </section>  
+        
+    </section>
+    
+    
+    
+    <section xml:id="Header-Identity-configuration-options">  
+        <title>Header Identity Configuration Options</title>
+        <para>Configure the Header Identity filter by editing the 
+                <link
+                xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/examples/header-identity.cfg.xml"
+                >header-identity.cfg.xml</link> ﻿ . Add the filter to
+            the Repose deployment through the  <link
+                xlink:href="https://repose.atlassian.net/wiki/display/REPOSE/System+Model"
+                >System Model Configuration</link>  by editing the
+            following elements and attributes. </para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <guibutton>&lt;source-headers&gt;</guibutton>
+                        : List of headers to identify the incoming
+                        user. </para>
+                
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>
+                                   <guilabel>&lt;header&gt;</guilabel>
+                                   : Header to identify incoming user. </para>
+                            
+                                <para>
+                                   <itemizedlist>
+                                   <listitem>
+                                   <para><guilabel>id</guilabel> -
+                                   This header key is applied to the
+                                   x-pp-group header. The header value
+                                   associated with this key is applied
+                                   to the x-pp-user header.</para>
+                                   </listitem>
+                                   <listitem>
+                                   <para>
+                                   <guilabel>quality</guilabel> -
+                                   Quality assigned to users found in
+                                   the request headers. If no quality
+                                   is set, Repose will default this
+                                   value to 0.1</para>
+                                   </listitem>
+                                   </itemizedlist>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    <section xml:id="Header-Identity-error-scenarios">
+        <title>Header Identity Error Scenarios</title>
+        
+        <para>The Header Identity filter never returns error codes. The request will simply pass through to the next filter or the origin service. </para>
+        
+    </section>
+</section>

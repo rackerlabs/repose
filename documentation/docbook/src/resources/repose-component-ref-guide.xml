@@ -103,19 +103,791 @@
        <xi:include href="chapters/available-doc.xml"/> 
     </chapter>
     
+   <!-- FILTER ORDER --> 
    <xi:include href="chapters/repose-filterorder-chapter.xml"/> 
     
-    <xi:include href="chapters/repose-logging-chapter.xml"/> 
-    <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
-    <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>  
-     <xi:include href="chapters/repose-versioning-chapter.xml"/>
-    <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
-    <xi:include href="chapters/repose-content_normalization-chapter.xml"/> 
-    <xi:include href="chapters/repose-translation-chapter.xml"/>
-    <xi:include href="chapters/repose-compression-chapter.xml"/>  
-    <xi:include href="chapters/repose-header_translation-chapter.xml"/>
-    <xi:include href="chapters/repose-glossary-chapter.xml"/>
-    <xi:include href="chapters/afterword.xml"/> 
-    
  
+   <!-- REQUEST-RESPONSE MODIFICATION FILTERS --> 
+    
+    <chapter xml:id="request-response-modification-filters">
+        <title>Request-Response Modification Filters</title>
+        <para>The Request-Response Modification filters modify requests or responses in various ways. 
+            Use these filters remove or modify the headers, the query parameters, or the body of requests and responses. 
+            To see the basic functions that these filters perform, read through each filter description in 
+            the table below.</para>
+        
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Request-Response Modification Filters</caption>
+            <thead>
+                <tr>
+                    <td>Filter Name</td>
+                    <td>filter-name</td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="Header-Normalization-Chapter">Header Normalization</link>
+                        </para>
+                        
+                    </td> 
+                    <td>
+                        
+                        <para>
+                            header-normalization
+                        </para>
+                    </td>
+                    
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-normalization/src/main/resources/META-INF/schema/config/header-normalization-configuration.xsd"> 
+                            header-normalization.xsd</link>
+                        
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-normalization/src/main/resources/META-INF/schema/examples/header-normalization.cfg.xml"> 
+                            header-normalization.cfg.xml</link>  
+                    </td>
+                    <td>
+                        <para>Cleans the request to prevent unexpected request headers.</para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="Repose-Content-Normalization-Chapter">Content Normalization</link>
+                        </para>
+                        
+                    </td> 
+                    <td>
+                        <para>content-normalization</para>
+                    </td>
+                    <td>
+                        
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/content-normalization/src/main/resources/META-INF/schema/config/normalization-configuration.xsd"> 
+                            content-normalization.xsd</link>  
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/content-normalization/src/main/resources/META-INF/schema/examples/content-normalization.cfg.xml"> 
+                            content-normalization.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Allows normalization of the headers and
+                            media-type of the request.</para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="uri-normalization-chapter"
+                                >URI Normalization</link>
+                        </para>
+                        
+                    </td> 
+                    
+                    <td>
+                        <para>uri-normalization</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-normalization/src/main/resources/META-INF/schema/config/uri-normalization-configuration.xsd"> 
+                            uri-normalization.xsd</link> 
+                    </td>
+                    <td>
+                        
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-normalization/src/main/resources/META-INF/schema/examples/uri-normalization.cfg.xml"> 
+                            uri-normalization.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Allows normalization of a request's
+                            query parameters and media type. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="Repose-Header-Translation-Chapter">Header Translation</link>
+                        </para>
+                    </td>
+                    <td>
+                        <para>header-translation</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            header-translation.xsd</link>  
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            header-translation.xsd</link> 
+                    </td>
+                    <td>
+                        <para>Translates a request header to one or
+                            many other headers. There is an option to
+                            remove the original header or leave it in
+                            place. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="Repose-Translation-Chapter"
+                        >Translation</link></para></td>
+                    <td>
+                        <para>translation</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-translation/src/main/resources/META-INF/schema/config/header-translation.xsd"> 
+                            translation.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/translation/src/main/resources/META-INF/schema/examples/translation.cfg.xml"> 
+                            translation.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Translates requests and responses so
+                            that services receive the request in the
+                            expected format and the responses are
+                            returned to the client in the expected
+                            format. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="URI-Stripper-Chapter"
+                        >URI Stripper</link></para></td>
+                    <td>
+                        <para>uri-stripper</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/9cfa645b2a68a7a0a248795277da1c5b32b711ed/repose-aggregator/components/filters/uri-stripper/src/main/resources/META-INF/schema/config/uri-stripper.xsd"> 
+                            uri-stripper.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/9cfa645b2a68a7a0a248795277da1c5b32b711ed/repose-aggregator/components/filters/uri-stripper/src/main/resources/META-INF/schema/examples/uri-stripper.cfg.xml"> 
+                            uri-stripper.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Strips out a specific section of the
+                            request URI and edits the Location if
+                            there is one present in the response. </para>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+                
+    <xi:include href="chapters/repose-header-normalization-chapter.xml"/>   
+    <xi:include href="chapters/repose-content_normalization-chapter.xml"/> 
+    <xi:include href="chapters/repose-uri-normalization.xml"/> 
+    <xi:include href="chapters/repose-header_translation-chapter.xml"/>
+    <xi:include href="chapters/repose-translation-chapter.xml"/>
+    <xi:include href="chapters/repose-uri-stripper-chapter.xml"/>
+    </chapter>
+    
+   
+   
+    <!-- RATELIMITING FILTERS --> 
+    
+    <chapter xml:id="ratelimiting-filters">
+        <title>Rate Limiting Filters</title>
+        <para>The Rate Limiting filter gives you configurable control to rate-limit requests that are set by the Identity filters. 
+            Use the Identity filters to introspect request headers and source IPs and to set X-PP-User and X-PP-Groups 
+            headers. To see the basic functions that these filters perform, read through each filter description in the 
+            table below.</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Rate Limiting Filters</caption>
+            <thead>
+                <tr>
+                    <td>Filter Name</td>
+                    <td>filter-name</td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><para><link linkend="Header-Identity-Chapter"
+                        >Header Identity</link></para></td>
+                    <td>
+                        <para>header-identity</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/config/header-identity-configuration.xsd"> 
+                            header-identity.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-identity/src/main/resources/META-INF/schema/examples/header-identity.cfg.xml"> 
+                            header-identity.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Enables Repose to introspect a
+                            configured header and set the X-PP-User
+                            and X-PP-Groups headers accordingly. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    
+                    <td><para><link linkend="Header-Identity-Mapping-Chapter"
+                            >Header Identity Mapping</link></para></td>
+                    
+                    <td>
+                        <para>header-id-mapping</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-id-mapping/src/main/resources/META-INF/schema/config/header-id-mapping-configuration.xsd"> 
+                            header-id-mapping-configuration.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/header-id-mapping/src/main/resources/META-INF/schema/examples/header-id-mapping.cfg.xml"> 
+                            header-id-mapping-cfg.xml</link> 
+                    </td>
+                    <td>Enables Repose to  introspect a configured
+                        header and set the X-PP-User and X-PP-Groups
+                        headers as needed. </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="IP-Identity-Chapter"
+                        >Header Identity Mapping</link></para></td>
+                    <td>
+                        <para>ip-identity</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-ip-identity/src/main/resources/META-INF/schema/config/ip-identity-configuration.xsd"> 
+                            ip-identity-configuration.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-ip-identity/src/main/resources/META-INF/schema/examples/ip-identity.cfg.xml"> 
+                            ip-identity-cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Enables Repose to  introspect a
+                            request's source IP and set the X-PP-User
+                            and X-PP-Groups headers as needed. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="URI-Identity-Chapter"
+                        >URI Identity</link></para></td>
+                    
+                    <td>
+                        <para>uri-identity</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-identity/src/main/resources/META-INF/schema/config/uri-identity-configuration.xsd"> 
+                            uri-identity-configuration.xsd</link> 
+                       
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/uri-identity/src/main/resources/META-INF/schema/examples/uri-identity.cfg.xml"> 
+                            uri-identity.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Enables Repose to  inspect a request URI
+                            and set the X-PP-User and X-PP-Group
+                            headers as needed. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="Repose-Ratelimiting-Chapter"
+                        >Ratelimiting</link></para></td>
+                    <td>
+                        rate-limiting
+                    </td>
+                    <td>
+                        
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/rate-limiting-service/src/main/resources/META-INF/schema/config/rate-limiting-configuration.xsd"> 
+                            rate-limiting.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml"> 
+                            rate-limiting.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Gives configurable control over the
+                            amount of traffic to the origin service.</para>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        
+    <xi:include href="chapters/repose-header-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-header-identity-mapping-chapter.xml"/>
+    <xi:include href="chapters/repose-ip-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-uri-identity-chapter.xml"/>
+    <xi:include href="chapters/repose-ratelimiting-chapter.xml"/>
+    </chapter>
+    
+    
+    
+    <!-- AUTHENTICATION FILTERS --> 
+   
+    <chapter xml:id="authentication-filters">
+        <title>Authentication Filters</title>
+        <para>The Authentication filters authenticate and authorize requests to the origin service. 
+            These filters authenticate requests before they are passed to the origin service, validate 
+            requests before they are passed through the filter chain, and send basic authentication 
+            credentials to the origin service.  To see the basic functions that these filters perform, 
+            read through each filter description in the table below.</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Authentication Filters</caption>
+            <thead>
+                <tr>
+                    <td>Filter Name</td>
+                    <td>filter-name</td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><para><link linkend="Repose-AuthNZ-Chapter"
+                        >Client Authentication</link></para></td>
+                    <td>
+                        <para>client-auth</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-auth/src/main/resources/META-INF/schema/config/client-auth-n-configuration.xsd"> 
+                            client-auth-n-configuration.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/client-auth/src/main/resources/META-INF/schema/examples/openstack/client-auth-n.cfg.xml"> 
+                            client-auth-n.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Acting as a reverse proxy, this filter
+                            can be configured to use an identity
+                            endpoint to authenticate an HTTP request
+                            before  the request is passed to the
+                            origin server.   </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>- OpenStack Identity Service</para>
+                    </td>
+                    <td>
+                        <para>content-identity-auth-2.0</para>
+                    </td>
+                    <td>
+                        <para>openstack-ids-auth.xsd</para>
+                    </td>
+                    <td>
+                        <para>client-auth-n.cfg.xml</para>
+                    </td>
+                    <td>The Repose client authentication component
+                        supports an OpenStack Identity Service
+                        authentication scheme. For example, the Repose
+                        client authentication component may be
+                        configured to interact with Keystone or Cloud
+                        Auth 2.0 (both of which implement the
+                        OpenStack Identity Service contract) when
+                        validating user credentials. </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>- Rackspace Cloud Auth 1.1</para>
+                    </td>
+                    <td>
+                        <para>content-identity-auth-1.1</para>
+                    </td>
+                    <td>
+                        <para>rackspace-auth-v1.1.xsd</para>
+                    </td>
+                    <td>
+                        <para>client-auth-n.cfg.xml</para>
+                    </td>
+                    <td>
+                        <para>The Repose client authentication
+                            component supports the Rackspace Cloud
+                            Auth 1.1 authentication scheme. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>Client Authorization</para>
+                    </td>
+                    <td>
+                        <para>client-authorization</para>
+                    </td>
+                    <td>
+                        <para>client-authorization-configuration.xsd</para>
+                    </td>
+                    <td>
+                        <para>client-authorization-configuration.cfg.xml</para>
+                    </td>
+                    <td>
+                        <para>This filter can be configured to
+                            validate that a client request is allowed.
+                            If the request is allowed, it proceeds
+                            through the filter chain, on to the origin
+                            service. If the request is not allowed,
+                            the request will be denied with an  <link
+                                xlink:href="http://tools.ietf.org/html/rfc2616#section-10.4.4"
+                                >HTTP 500 - Internal Server
+                                Error</link> response. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td><para><link linkend="Service-Authentication-Chapter"
+                        >Service Authentication</link></para></td>
+                    <td>
+                        <para>service-authentication</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/service-authentication/src/main/resources/META-INF/schema/config/service-auth-configuration.xsd"> 
+                            service-auth-configuration.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/service-authentication/src/main/resources/META-INF/schema/examples/service-authentication.cfg.xml"> 
+                            service-auth-configuration.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>This filter sends basic authentication
+                            credentials up to the origin service. </para>
+                    </td>
+                </tr>
+                
+                
+                
+            </tbody>
+        </table>
+    <xi:include href="chapters/repose-authnauthz-chapter.xml"/>
+        <xi:include href="chapters/repose-service-authn-chapter.xml"/>
+</chapter>
+   
+   
+   
+    <!-- OTHER FILTERS --> 
+    
+    <chapter xml:id="other-filters">
+    <title>Other Filters</title>
+        <para>The filters in this section perform many tasks that are unrelated to each other, 
+            such as logging, validating, compressing or decompressing, and versioning request 
+            information. To see the basic functions that these filters perform, read through 
+            each filter description in the table below.</para>
+        
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Authentication Filters</caption>
+            <thead>
+                <tr>
+                    <td>Filter Name</td>
+                    <td>filter-name</td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="Repose-API-Validation-Chapter"
+                                >API (WADL/XSD) Validation</link>
+                        </para>
+                       
+                    </td>
+                    <td>
+                        <para>api-validator</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd"> 
+                            validator-configuration.xsd</link>
+                        
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/extensions/api-validator/src/main/resources/META-INF/schema/examples/validator.cfg.xml"> 
+                            validator.cfg.xml</link>
+                        
+                    </td>
+                    <td>
+                        <para>Validates all requests based on an XSD
+                            and WADL.  </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="HTTP-Logging-Filter">HTTP
+                                Logging</link>
+                        </para>
+                        
+                    </td>
+                    <td>
+                        <para>http-logging</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/http-logging/src/main/resources/META-INF/schema/config/http-logging-configuration.xsd"> 
+                            http-logging-configuration.xsd</link> 
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/http-logging/src/main/resources/META-INF/schema/examples/http-logging.cfg.xml"> 
+                            http-logging.cfg.xml</link> 
+                        
+                        
+                    </td>
+                    <td>Allows logging of information in HTTP requests
+                        that are sent to Repose and responses from
+                        Repose. </td>
+                </tr>
+                
+                <tr>
+                   
+                    <td>
+                    <para>
+                        <link linkend="Repose-Compression-Chapter"
+                        >Compression</link>
+                    </para>
+                    </td>
+                    <td>
+                        <para>compression</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/compression/src/main/resources/META-INF/schema/config/content-compression-configuration.xsd"> 
+                            content-compression-configuration.xsd</link> 
+                        
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/compression/src/main/resources/META-INF/schema/examples/compression.cfg.xml"> 
+                            compression.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>With this filter, Repose supports
+                            decompressing request data and compressing
+                            response data. This filter is available in
+                            Repose versions 2.7 and later. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <para>
+                            <link linkend="Repose-Versioning-Chapter"
+                                >Versioning </link>
+                        </para>
+                        
+                    </td>
+                    <td>
+                        <para>versioning</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/versioning/src/main/resources/META-INF/schema/config/versioning-configuration.xsd"> 
+                            versioning-configuration.xsd</link>  
+                        
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml"> 
+                            versioning.cfg.xml</link> 
+                    </td>
+                    <td>
+                        <para>Enables REST services to version updates
+                            without causing end-client breakage.  </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                    <link linkend="Destination-Router-Chapter"
+                        >Destination Router </link>
+                    </td>
+                    <td>
+                        <para>destination-router</para>
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/destination-router/src/main/resources/META-INF/schema/config/destination-router-configuration.xsd"> 
+                            destination-router-configuration.xsd</link> 
+                       
+                    </td>
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/components/filters/destination-router/src/main/resources/META-INF/schema/examples/destination-router.cfg.xml"> 
+                            destination-router-configuration.cfg.xml</link> 
+                    </td>
+                    <td>Adds a routing destination at a configured
+                        quality. After the request has been processed
+                        by all filters,  Repose chooses the
+                        destination that has the highest quality.
+                        Available in Repose versions 2.0 and later. </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                    <link linkend="Flush-Output-Stream-Chapter"
+                        >Flush Output Stream </link>
+                    </td>
+                    <td>
+                        <para> flush-output </para>
+                    </td>
+                    <td>
+                        <para>Coming soon!</para>
+                    </td>
+                    <td>
+                        <para>Coming soon!</para>
+                    </td>
+                    <td>
+                        <para>Forces Repose to flush any data buffered
+                            in the filter chain to the output stream.  </para>
+                    </td>
+                </tr>
+                
+                
+                
+            </tbody>
+        </table>
+        
+    <xi:include href="chapters/repose-apivalidation-chapter.xml"/>
+    <xi:include href="chapters/repose-logging-chapter.xml"/>
+    <xi:include href="chapters/repose-compression-chapter.xml"/>
+    <xi:include href="chapters/repose-versioning-chapter.xml"/>
+    <xi:include href="chapters/repose-destination-router-chapter.xml"/>
+    <xi:include href="chapters/repose-flush-output-stream-chapter.xml"/>
+    </chapter>
+    
+    <chapter xml:id="services">
+        <title>Services</title>
+        <para>Configure services in the same way that you configure
+            filters within the system-model.cfg.xml file as a child
+            element of &lt;repose-cluster>. You may enumerate services
+            within a &lt;services> list.</para>
+        <table rules="all" frame="box" border="1">
+            <?dbfo keep-together="always"?>
+            <caption>Services</caption>
+            <thead>
+                <tr>
+                    <td>Service</td>
+                    <td>&lt;service-name></td>
+                    <td>XML Schema Definition</td>
+                    <td>Example Configuration</td>
+                    <td>Description</td>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <link linkend="Dist-Datastore-Svc-Chapter"
+                            >Distributed Datastore Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>&lt;dist-datastore></para>
+                    </td>
+                    <td> <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/datastore/impl/src/main/resources/META-INF/schema/config/dist-datastore-configuration.xsd"> 
+                        dist-datastore-configuration.xsd</link></td>
+                    
+                    <td> <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/datastore/impl/src/main/resources/META-INF/schema/examples/dist-datastore.cfg.xml"> 
+                        dist-datastore.cfg.xml</link></td>
+                    <td>
+                        <para>Repose uses one of the datastore
+                            implementations to store various types of
+                            data. Current implementations are the 
+                            Distributed Datastore Service and the
+                            Local Datastore.   </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <link linkend="Response-Messaging-Svc-Chapter"
+                            >Response Messaging Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>&lt;response-messaging></para>
+                    </td>
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/response-messaging/response-messaging.xsd"> 
+                        response-messaging.xsd</link> </td>
+                    
+                    <td>
+                        <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/core/core-lib/src/main/resources/META-INF/schema/examples/response-messaging.cfg.xml"> 
+                            messaging.cfg.xml</link> </td>
+                    
+                    <td>The Response Messaging Service (RMS) allows
+                        Repose to intercept the response and return a
+                        pre-configured message body.</td>
+                </tr>
+                
+                <tr>
+                    
+                    <td>
+                        <link linkend="Health-Check-Svc-Chapter"
+                            >Health Check Service</link>
+                       
+                    </td>
+                    <td>
+                        <para></para>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <para>Allows Repose to return 503 error messages on bad configurations or requests when using other Repose service components. </para>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <link linkend="HTTP-Connection-Pool-Svc-Chapter"
+                            >HTTP Connection Pool Service </link>
+                        
+                    </td>
+                    <td>
+                        <para>&lt;http-connection-pools></para>
+                    </td>
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/httpclient/impl/src/main/resources/META-INF/schema/config/http-connection-pool.xsd"> 
+                        http-connection-pool.xsd</link></td>
+                    
+                    <td>
+                    <link xlink:href="https://github.com/rackerlabs/repose/blob/master/repose-aggregator/services/httpclient/impl/src/main/resources/META-INF/schema/examples/http-connection-pool.cfg.xml"> 
+                        http-connection-pool.cfg.xml</link>
+                    </td>
+                    <td>
+                        <para>Allows Repose to manage and reuse HTTP connections. </para>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <xi:include href="chapters/repose-dist-datastore-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-response-messaging-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-healthcheck-svc-chapter.xml"/> 
+        <xi:include href="chapters/repose-http-connection-pool-svc-chapter.xml"/> 
+        
+    </chapter>
+   
+    <!-- 
+    <chapter xml:id="glossary">
+        <title>Glossary</title>
+    <xi:include href="chapters/repose-glossary-chapter.xml"/>
+    </chapter>
+    
+    
+    <chapter xml:id="afterward">
+        <title>Afterward</title>
+    <xi:include href="chapters/afterword.xml"/> 
+    </chapter>
+    -->
 </book>

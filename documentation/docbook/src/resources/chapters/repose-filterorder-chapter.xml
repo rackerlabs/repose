@@ -39,27 +39,28 @@
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-FilterOrder">
     
-    <title>Filter Ordering</title>
+    <title>Filter Order</title>
    
-   
-    <para>The placement of the Repose filters is important because the filters interact with each other differently depending on the order. 
-        Some filters gather information for third-party servers, which are then used by other filters. 
-        One example of this is the when the user's role is determined in the Client Authentication filter 
-        and then that role is used in the API Validation filter.</para>
+    <para>The System Model defines which filters and services are
+        deployed.   You can select and customize Repose filters and
+        services to suit your application. </para>
+    <para>The filters in Repose often interact with each other, so the
+        order in which they are listed in the System Model is
+        important. Some filters gather information for third-party
+        servers which is then used by other filters.  One example of
+        this is determining a user's role in the client authentication
+        filter and then using that role in the API Validation filter. </para>
     
-        <para>While not all filters have strict dependencies, using the standard default order will 
-            prevent you from injecting unnecessary bugs into your deployment. Some deployments might 
-            require a different order from the standard ordering.  
-    </para>
-    <para>
-        <note>
-            <para> Not all filters are required for each deployment;
-                to simplify your deployment, use only the filters that
-                are necessary. </para>
-        </note>
-    </para>
+    <para>Although not all filters have strict dependencies, using the
+        standard default order prevents you from injecting unnecessary
+        bugs into your deployment.  Of course, some deployments might
+        require a different order from the standard order.  Also, not
+        all filters are required for each deployment.  Only use the
+        necessary filters to simplify your deployment.  </para>
+    
+    
     <table rules="all" frame="box" border="1">
-        <caption>Filter Ordering Table</caption>
+        <caption>Standard Filter Order</caption>
         <col width="25%"/>
         <col width="75%"/>
         
@@ -74,41 +75,54 @@
             <tr>
                 <td>
                     <para>
-                        <link linkend="HTTP-Logging-Filter">HTTP Logging Filter</link>
-                        
+                        <link linkend="HTTP-Logging-Filter">HTTP
+                            Logging</link>
                     </para>
                     
                 </td>
                 <td>
-                    <para>
-                        Place the HTTP Logging filter behind the Datastore filter so 
-                        that it does not log datastore-specific HTTP requests. </para>
+                    <para>Place the HTTP Logging filter at the top of
+                        the filter chain. (If you have not upgraded to
+                        Repose v3.0 and are still using the deprecated
+                        Distributed Datastore filter, you must place
+                        the Distributed Datastore filter above the
+                        HTTP Logging filter to avoid  logging
+                        datastore-specific HTTP requests.) </para>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <para>Header Normalization Filter </para>
-                    <db:para>Content Normalization Filter</db:para>
-                    <db:para>URI Normalization Filter</db:para>
+                        <para>
+                            <link linkend="Header-Normalization-Chapter">Header Normalization</link>
+                        </para>
+                
+                    <para>
+                        <link linkend="Repose-Content-Normalization-Chapter">Content Normalization</link>
+                    </para>
+                    
+                    <para>
+                        <link linkend="uri-normalization-chapter">URI Normalization</link>
+                    </para>
                    
                 </td>
                 
                 <td>
-                    <para>
-                        Place the Normalization filters near the top.  
-                        These filters clean the request to prevent unexpected request headers and content. </para>
+                    <para>Place the Normalization filters near the
+                        top. These filters clean the request to
+                        prevent unexpected request headers and
+                        content. </para>
                 </td>
             </tr>
             <tr>
                 <td>
                     <para>
-                        <link linkend="Repose-AuthNZ-Chapter">Client Authentication Filter</link>
-                        
+                        <link linkend="Repose-AuthNZ-Chapter">Client
+                            Authentication</link>
                     </para>
                     
                 </td>
                 <td>
-                    <para> Place the Client Authentication filter
+                    <para>Place the Client Authentication filter
                         before the Identity filters. This filter sets
                         the X-Roles, X-PP-User, and X-PP-Groups
                         headers.</para>
@@ -116,15 +130,22 @@
             </tr>
             <tr>
                 <td>
-                    <para>
-                        Header Identity Filter
+                    
+                    <para> 
+                        <link linkend="Header-Identity-Chapter">Header Identity</link>  
                     </para>
-                    <db:para> Header Identity Mapping Filter </db:para>
-                    <db:para> IP Identity Filter </db:para>
-                    <db:para> URI Identity Filter </db:para>
+                    <para> 
+                        <link linkend="Header-Identity-Mapping-Chapter">Header Identity Mapping</link>  
+                    </para>
+                    <para> 
+                        <link linkend="IP-Identity-Chapter">IP Identity</link>   
+                    </para>
+                    <para> 
+                        <link linkend="URI-Identity-Chapter">URI Identity</link>  
+                    </para>
                 </td>
                 <td>
-                    <para> Place the Identity filters next. These
+                    <para>Place the Identity filters next. These
                         filters provide alternative methods of setting
                         the X-PP-User and X-PP-Groups headers.</para>
                 </td>
@@ -132,36 +153,36 @@
             <tr>
                 <td>
                     <para>
-         <link linkend="Repose-AuthNZ-Chapter"> Client Authorization Filter</link>
-                      
+                        <link linkend="Repose-AuthNZ-Chapter"> Client
+                            Authorization </link>
                     </para>
                     
                 </td>
                 <td>
-                    <para>
-                        Place the Client Authorization filter next to validate whether the user 
-                        has access to the requested endpoint. </para>
+                    <para>Place the Client Authorization filter next
+                        to validate whether the user has access to the
+                        requested endpoint. </para>
                 </td>
             </tr>
             <tr>
                 <td>
                     <para>
-                        
-                        <link linkend="Repose-Ratelimiting-Chapter">Rate Limiting Filter</link>
+                        <link linkend="Repose-Ratelimiting-Chapter"
+                            >Rate Limiting </link>
                     </para>
                     
                 </td>
                 <td>
-                    <para>
-                        Place the Rate Limiting filter next. This filter uses the URI, X-PP-User 
-                        and X-PP-Groups to establish rate limits. </para>
+                    <para> Place the Rate Limiting filter next. This
+                        filter uses the URI, X-PP-User, and
+                        X-PP-Groups to establish rate limits. </para>
                 </td>
             </tr>
             <tr>
                 <td>
                     <para>
-                        <link linkend="Repose-Versioning-Chapter">Versioning Filter</link>
-                        
+                        <link linkend="Repose-Versioning-Chapter"
+                            >Versioning </link>
                     </para>
                     
                 </td>
@@ -172,7 +193,9 @@
             </tr>
             <tr>
                 <td>
-                    <para><link linkend="Repose-Compression-Chapter">Compression Filter</link> (Added v2.7) </para>
+                    <para><link linkend="Repose-Compression-Chapter"
+                            >Compression</link>
+                    </para>
                 </td>
                 <td>
                     <para>
@@ -182,8 +205,8 @@
             <tr>
                 <td>
                     <para>
-                       
-                        <link linkend="Repose-API-Validation-Chapter">API (WADL/XSD) Validation Filter</link>
+                        <link linkend="Repose-API-Validation-Chapter"
+                            >API (WADL/XSD) Validation</link>
                     </para>
                     
                 </td>
@@ -195,17 +218,26 @@
             </tr>
             <tr>
                 <td>
-                    <para><link linkend="Repose-Translation-Chapter">Translation Filter</link></para>
-                    <db:para>Service Authentication Filter</db:para>
-                    <db:para>Destination Router Filter (v2)</db:para>
-                    <db:para>Header Translation Filter</db:para>
-                    <db:para>URI Stripper Filter</db:para>
+                    <para><link linkend="Repose-Translation-Chapter"
+                            >Translation</link></para>
                     
+                    <para><link linkend="Service-Authentication-Chapter"
+                        >Service Authentication</link></para>
+                    
+                    <para><link linkend="Destination-Router-Chapter"
+                        >Destination Router</link></para>
+                    
+                    
+                    <para>
+                        <link linkend="Repose-Header-Translation-Chapter">Header Translation</link>
+                    </para>
+                    <para><link linkend="URI-Stripper-Chapter"
+                        >URI Stripper</link></para>
                 </td>
                 <td>
-                    <para>
-                        Place theses filters and service last in the filter chain. 
-                        They do not need to go before any other filters.</para>
+                    <para> Place these filters and service last in the
+                        filter chain. They do not need to precede any
+                        other filters.</para>
                 </td>
             </tr>
           

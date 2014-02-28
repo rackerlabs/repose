@@ -30,7 +30,7 @@
         </inlinemediaobject>'>
 ]>
 
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -43,8 +43,8 @@
     <title>Content Normalization</title>
     
         
-    <section xml:id="Content-Normalization-Filter">
-        <title>Content Normalization Filter</title>
+    <section xml:id="Content-Normalization-Introduction">
+        <title>Introduction</title>
         <para>
             Content normalization is the process of modifying or standardizing content to optimize the flow of information. </para>
         <para>
@@ -53,381 +53,30 @@
             it passes only approved headers to the origin service using whitelisting, or it normalizes accept headers using media-typing.
         </para>
     </section>
-    <section xml:id="Content-Normalization-Request-Prerequisites">
-        <title>Content Normalization Request Prerequisites</title>
-        <para> The Content Normalization filter has no required request headers. When ordering Repose filters, the Content Normalization 
-            filter should be placed near the top of the sequence to clean the request. This sequence prevents unexpected request 
-            headers and content to pass to the origin service.
+    
+    <section xml:id="Content-Normalization-use-cases" security="writeronly">
+        <title>Content Normalization Use Cases</title>
+        <para>
+            
         </para>
     </section>
     
-    <section xml:id="Content-Normalization-Configuration-Options">
-        <title>Content Normalization Configuration Options</title>
-        
-        
-        <para> You can configure your service to use the Content
-            Normalization filter by specifying the headers and/or the
-            media types to be normalized. The filter can be added to
-            the Repose deployment through the System Model
-            Configuration. All Content Normalization filter
-            configurations fall under the &lt;header-filters> or
-            &lt;media-types> elements. </para>
-        
-        <!-- TABLES -->
-        <!-- Elements Table -->
-        <table rules="all" width="250">
-            <caption>Customizable Options of the Content Normalization
-                Configuration</caption>
-            <col width="100%"/>
-            
-            
-            <thead>
-                <tr>
-                    <th>Element</th>
-                    
-                </tr>
-            </thead>
-            <tr>
-                <td>
-                    <link linkend="header-filters"><code>&lt;header-filters&gt;</code></link>
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Sub-Elements Table -->
-        <table rules="all" width="500">
-            <caption>Customizable Options of the Content Normalization
-                Configuration</caption>
-            <col width="50%"/>
-            <col width="50%"/>
-            
-            <thead>
-                <tr>
-                    <th>Sub-elements of the &lt;header-filter>
-                        Element</th>
-                    <th>Attribute</th>
-                </tr>
-            </thead>
-            <tr>
-                <td>
-                    <link linkend="blacklist"><code>&lt;blacklist&gt;</code></link>
-                </td>
-                <td rowspan="2">
-                    
-                    <link linkend="id"><code>&lt;id&gt;</code></link>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>
-                    <link linkend="whitelist"><code>&lt;whitelist&gt;</code></link>
-                </td>
-                
-            </tr>
-        </table>   
-        
-        <!-- Element Table -->
-        
-        <table rules="all" width="500">
-            <caption>Customizable Options of the Content Normalization
-                Configuration</caption>
-            <col width="50%"/>
-            <col width="50%"/>
-            
-            <thead>
-                <tr>
-                    <th>Sub-elements of the &lt;header-filter>
-                        Element</th>
-                    <th>Attribute</th>
-                </tr>
-            </thead>
-            <tr>
-                <td>
-                    <link linkend="media-types"
-                            ><code>&lt;media-types&gt;</code></link>
-                </td>
-                
-                <td>
-                    
-                    <link linkend="name"><code>&lt;name&gt;</code></link>
-                </td>
-                
-            </tr>
-            
-        </table>   
-        <!-- End of TABLES -->
-        
-        <para><guilabel> The elements and attributes used in the Rate Limiting filter are described as follows: </guilabel></para>
-        <para> </para>
-        
-        <variablelist>
-            
-            <varlistentry xml:id="blacklist">
-                <term><guilabel>&lt;blacklist&gt;</guilabel></term>
-                <listitem>
-                    <para>This element defines the list of headers that are extracted from the request.</para>
-                </listitem>
-            </varlistentry>
-            
-            
-            <varlistentry xml:id="header-filters">
-                <term><guilabel>&lt;header-filters&gt;</guilabel></term>
-                
-                <listitem>
-                    <para>This element uses the accompanying sub-elements and attributes to define your content normalization configuration.</para>
-                </listitem>
-            </varlistentry>
-                
-            <varlistentry xml:id="id">
-                <term><guilabel>&lt;id&gt;</guilabel></term>
-                <listitem>
-                    <para>This attribute defines the unique identifier of the given group.</para>
-                </listitem>
-            </varlistentry>  
-            
-            <varlistentry xml:id="media-types">
-                <term><guilabel>&lt;media-types&gt;</guilabel></term>
-                <listitem>
-                    <para>This element defines a list of accept headers for the URIs that match a configured variant-extension.</para>
-                </listitem>
-            </varlistentry>
-                
-            <varlistentry xml:id="name">
-                <term><guilabel>&lt;name&gt;</guilabel></term>
-                <listitem>
-                    <para>This attribute names the media-type.</para>
-                </listitem>
-            </varlistentry>
-            
-            <varlistentry xml:id="whitelist">
-                <term><guilabel>&lt;whitelist&gt;</guilabel></term>
-                <listitem>
-                    <para>This element defines the list of request headers that are allowed to pass to the origin service.</para>
-                </listitem>
-            </varlistentry>
-            
-        </variablelist>
-        
-    </section>
-    
-    
-    
-            <section xml:id="Content-Normalization-Features">  
-                <title>Content Normalization Features</title>
-            
-                <para>The Content Normalization filter has three
-            features, the blacklist, whitelist, and media type, that
-            perform separate functions. </para> 
-                
-                
-                <section xml:id="Blacklist">
-                    <title>Blacklist</title>
-                    <para>The blacklist feature extracts the headers
-                that you do not want to pass to the origin service.
-                The following example uses the &lt;blacklist> element
-                and the &lt;id> attribute to name the HTTP headers
-                that will be extracted from the request. </para>
-            <db:para/>
-                    
-                    <example>
-                        <title>Content Normalization Configuration with Blacklist</title>
-                        <programlisting language="xml">
-&lt;header-filters&gt;
-    &lt;blacklist id="rate-limit-headers"&gt;
-    &lt;header id="x-Black-Listed1" /&gt;
-    &lt;header id="x-Black-Listed2" /&gt;
-    &lt;/blacklist &gt;
-&lt;/header-filters&gt;
-                </programlisting>
-                    </example>
-                    <table rules="all"> 
-                        <caption></caption>
-                        <col width="100%"/>
-                        <thead>
-                            <tr>
-                                <th>
-                            Request
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
-                                    -H "black-listed2:disappear" -H "nonblacklisted:should"   
-                                </td>
-                            </tr>
-                        </tbody>
-            </table>
-                    <table rules="all" width="500"> 
-                        <caption></caption>
-                        <col width="100%"/>
-                        <thead>
-                            <tr>
-                                <th>
-                                    Headers Passed to Origin Service
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    X-Auth-Token
-                                </td>
-                            </tr>
-                               <tr>
-                                <td>
-                                    non-blacklisted
-                                </td>
-                                
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>  
-               
-               
-               
-                    <section xml:id="Whitelist">
-                        <title>Whitelist</title>
-                        <para>The whitelist feature allows you to list only the HTTP headers 
-                            that you want to pass to the origin service. All other requests will 
-                            be extracted and will not be passed on. The following example uses the &lt;whitelist> 
-                            element and the &lt;id> attribute to name the only HTTP headers that will be 
-                            passed to the origin service.  </para>
-                        <db:para/>
-                        
-                        <example>
-                            <title>Content Normalization Configuration with Blacklist</title>
-                            <programlisting language="xml">
-&lt;header-filters&gt;
-    &lt;whitelist id="rate-limit-headers"&gt;
-    &lt;header id="X-Auth-Token" /&gt;
-    &lt;header id="X-Whitelisted-Header" /&gt;
-    &lt;/whitelist &gt;
-&lt;/header-filters&gt;
-                </programlisting>
-                        </example>
-                        <table rules="all"> 
-                            <caption></caption>
-                            <col width="100%"/>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Request
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" 
-                                        -H "X-Auth-Group:should" -H "X-Auth-Header:disappear" -H "X-Whitelisted-Header:allowed"
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table rules="all"> 
-                            <caption></caption>
-                            <col width="100%"/>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Headers Passed to Origin Service
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        X-Auth-Token
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        X-Whitelisted-Header
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                </section>
-                
-                
-                <section xml:id="Media-Types">
-                    <title>Media-Types</title>
-                    <para>
-                        The media-type feature normalizes the accept header by mapping a media-type to a URL extension. 
-                        If the media-type extension of the URI matches a configured variant extension, the 
-                        Content Normalization filter will strip the extension out of the URI and set the configured media-type name. 
-                        The filter sets the accept header, but does not change the content body of the request. 
-                    </para>
-                    
-                    <example>
-                        <title>Content Normalization Configuration with Blacklist</title>
-                        <programlisting language="xml">
-&lt;media-types&gt;
-    &lt;media-type name="application/xml" variant-extension="xml" preferred="true" /&gt;
-    &lt;media-type name="application/atom+xml" variant-extension="atom" /&gt;
-    &lt;media-type name="application/json" variant-extension="json" /&gt;
-    &lt;/whitelist &gt;
-&lt;/media-types&gt;
-                </programlisting>
-                    </example>
-                    <table rules="all"> 
-                        <caption></caption>
-                        <col width="100%"/>
-                        <thead>
-                            <tr>
-                                <th>
-                                    Request
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    curl http://50.57.184.12:8887/v1/usertest1.xml
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table rules="all"> 
-                        <caption></caption>
-                        <col width="100%"/>
-                        <thead>
-                            <tr>
-                                <th>
-                                    Headers Passed to Origin Service
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    accept: application/xml
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                </section>
-                
-            </section>
     <section xml:id="Content-Normalization-Process">  
         <title>Content Normalization Process</title>
         <orderedlist>
             
-        <listitem>
-            <para>
-                The client sends the request.
-            </para>
-        </listitem>
+            <listitem>
+                <para>
+                    The client sends the request.
+                </para>
+            </listitem>
             
             
-        <listitem>
-            <para>
-                The request is processed with the blacklist or whitelist feature or with the media-type feature. 
-            </para>
-        </listitem>
+            <listitem>
+                <para>
+                    The request is processed with the blacklist or whitelist feature or with the media-type feature. 
+                </para>
+            </listitem>
             
             
             <listitem>
@@ -479,6 +128,316 @@
                 </imageobject>
             </mediaobject>
         </figure>
-       
+        
     </section>
-</chapter>
+    
+    
+    <section xml:id="Content-Normalization-Request-Prerequisites">
+        <title>Content Normalization Request Prerequisites</title>
+        <para> The Content Normalization filter has no required request headers. When ordering Repose filters, the Content Normalization 
+            filter should be placed near the top of the sequence to clean the request. This sequence prevents unexpected request 
+            headers and content to pass to the origin service.
+        </para>
+    </section>
+    
+    <section xml:id="Content-Normalization-Features">  
+        <title>Content Normalization Features</title>
+        
+        <para>The Content Normalization filter has three
+            features, the blacklist, whitelist, and media type, that
+            perform separate functions. </para> 
+        
+        
+        <section xml:id="Blacklist">
+            <title>Blacklist</title>
+            <para>The blacklist feature extracts the headers
+                that you do not want to pass to the origin service.
+                The following example uses the &lt;blacklist> element
+                and the &lt;id> attribute to name the HTTP headers
+                that will be extracted from the request. </para>
+            <db:para/>
+            
+            <example>
+                <title>Content Normalization Configuration with Blacklist</title>
+                <programlisting language="xml">
+&lt;header-filters&gt;
+    &lt;blacklist id="rate-limit-headers"&gt;
+    &lt;header id="x-Black-Listed1" /&gt;
+    &lt;header id="x-Black-Listed2" /&gt;
+    &lt;/blacklist &gt;
+&lt;/header-filters&gt;
+                </programlisting>
+            </example>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Request
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" -H "black-listed1:should" 
+                            -H "black-listed2:disappear" -H "nonblacklisted:should"   
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table rules="all" width="500"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Headers Passed to Origin Service
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            X-Auth-Token
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            non-blacklisted
+                        </td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+        </section>  
+        
+        
+        
+        <section xml:id="Whitelist">
+            <title>Whitelist</title>
+            <para>The whitelist feature allows you to list only the HTTP headers 
+                that you want to pass to the origin service. All other requests will 
+                be extracted and will not be passed on. The following example uses the &lt;whitelist> 
+                element and the &lt;id> attribute to name the only HTTP headers that will be 
+                passed to the origin service.  </para>
+            <db:para/>
+            
+            <example>
+                <title>Content Normalization Configuration with Blacklist</title>
+                <programlisting language="xml">
+&lt;header-filters&gt;
+    &lt;whitelist id="rate-limit-headers"&gt;
+    &lt;header id="X-Auth-Token" /&gt;
+    &lt;header id="X-Whitelisted-Header" /&gt;
+    &lt;/whitelist &gt;
+&lt;/header-filters&gt;
+                </programlisting>
+            </example>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Request
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            curl http://50.57.184.12:8887/v1/usertest1.xml -H "x-auth-token:358484212:99493" 
+                            -H "X-Auth-Group:should" -H "X-Auth-Header:disappear" -H "X-Whitelisted-Header:allowed"
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Headers Passed to Origin Service
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            X-Auth-Token
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            X-Whitelisted-Header
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        
+        <section xml:id="Media-Types">
+            <title>Media-Types</title>
+            <para>
+                The media-type feature normalizes the accept header by mapping a media-type to a URL extension. 
+                If the media-type extension of the URI matches a configured variant extension, the 
+                Content Normalization filter will strip the extension out of the URI and set the configured media-type name. 
+                The filter sets the accept header, but does not change the content body of the request. 
+            </para>
+            
+            <example>
+                <title>Content Normalization Configuration with Blacklist</title>
+                <programlisting language="xml">
+&lt;media-types&gt;
+    &lt;media-type name="application/xml" variant-extension="xml" preferred="true" /&gt;
+    &lt;media-type name="application/atom+xml" variant-extension="atom" /&gt;
+    &lt;media-type name="application/json" variant-extension="json" /&gt;
+    &lt;/whitelist &gt;
+&lt;/media-types&gt;
+                </programlisting>
+            </example>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Request
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            curl http://50.57.184.12:8887/v1/usertest1.xml
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table rules="all"> 
+                <caption></caption>
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>
+                            Headers Passed to Origin Service
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            accept: application/xml
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+        </section>
+        
+    </section>
+    
+    <section xml:id="Content-Normalization-Configuration-Options">
+        <title>Content Normalization Configuration Options</title>
+        
+        
+        <para>Configure your service to use the Content Normalization
+            filter by specifying the headers and/or the media types to
+            be normalized. You can add the filter to the Repose
+            deployment through the System Model Configuration by
+            editing the following elements and attributes.</para>
+        <db:para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;content-normalization&gt;</emphasis>:
+                        uses the accompanying sub-elements and
+                        attributes to define your content
+                        normalization configuration.<itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >&lt;header-filters&gt;</emphasis>:
+                                   uses the blacklist or whitelist sub
+                                   element to define the headers that
+                                   are extracted or passed to the
+                                   origin service.<itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >&lt;blacklist&gt;</emphasis>:
+                                   defines the list of headers that
+                                   are extracted from the
+                                   request.</para>
+                                   </listitem>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >&lt;whitelist&gt;</emphasis>:
+                                   defines the list of request headers
+                                   that are allowed to pass to the
+                                   origin service.<itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >id</emphasis>: defines the unique
+                                   identifier of the given
+                                   group.</para>
+                                   </listitem>
+                                   </itemizedlist></para>
+                                   </listitem>
+                                   </itemizedlist></para>
+                            </listitem>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >&lt;media-types&gt;</emphasis>:
+                                   defines a list of accept headers
+                                   for the URIs that match a
+                                   configured variant-extension.<itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >&lt;media-type&gt;</emphasis>:
+                                   defines the media type that will be  normalized<itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >name</emphasis>: names the
+                                   media-type.</para>
+                                   </listitem>
+                                   </itemizedlist></para>
+                                   </listitem>
+                                   </itemizedlist></para>
+                            </listitem>
+                        </itemizedlist></para>
+                </listitem>
+            </itemizedlist>
+        </db:para>
+    </section>   
+        
+        
+    <section xml:id="Content-Normalization-error-scenarios">
+        <title>Content Normalization Error Scenarios</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>The Content Normalization filter never
+                        returns error codes. The request will simply
+                        pass through to the next filter or the origin
+                        service.</para>
+                </listitem>
+                <listitem>
+                    <para>The Content Normalization filter extracts
+                        content that is configured, ignores everything
+                        else, and lets the request pass to the origin
+                        service.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+            
+        
+ 
+    
+    </section>   
+    
+            
+    
+</section>

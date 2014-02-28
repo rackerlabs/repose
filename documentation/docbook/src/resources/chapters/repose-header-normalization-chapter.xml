@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+    
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+    
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+        
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]> 
+
+<section version="5.0" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:m="http://www.w3.org/1998/Math/MathML"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:db="http://docbook.org/ns/docbook" 
+    
+    
+    xml:id="Header-Normalization-Chapter">
+    <title>Header Normalization Filter</title>
+    
+    
+    <section xml:id="Header-Normalization-Introduction">
+        <title>Introduction</title>
+        <para>Normalization is the process of modifying or standardizing content to optimize the flow of information.
+            The Header Normalization filter allows normalization of the headers of the request by performing two separate functions. 
+            The filter uses blacklisting to prevent specific requests from passing to the origin service, and it uses whitelisting 
+            to pass only approved headers to the origin service. The headers can be matched by URI regular expression (uri-regex) or 
+            HTTP method type (http-methods).</para>
+    </section>
+    
+    <section xml:id="Header-Normalization-use-cases" security="writeronly">
+        <title>Header Normalization Use Cases</title>
+        <para></para>
+    </section>
+    
+    <section xml:id="Header-Normalization-Process">  
+        <title>Header Normalization Process</title>
+        <orderedlist>
+            
+            <listitem>
+                <para>
+                    The client sends the request.
+                </para>
+            </listitem>
+            
+            
+            <listitem>
+                <para> The request is processed.</para>
+            </listitem>
+            
+            
+            <listitem>
+                <para>
+                    Repose sends the request to the origin service.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service processes the request.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service returns the response.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    The origin service processes the request.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    Repose passes the response.
+                </para>
+            </listitem>
+            
+            <listitem>
+                <para>
+                    Repose returns the response to the client.
+                </para>
+            </listitem>
+            
+        </orderedlist>
+        
+        <figure
+            xml:id="Header-Normalization-Lifecycle">
+            <title>Header Normalization Lifecyle</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata
+                        fileref="../figures/repose-header-normalization-lifecycle.png"
+                        format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        
+    </section>
+    
+    
+    
+    
+    <section xml:id="Header-Normalization-Prerequisites">
+        <title>Header Normalization Prerequisites</title>
+        <para>The Header Normalization filter has no required request headers. When you set the order of Repose filters, 
+            place the Header Normalization filter near the top of the sequence to clean the request. This order sequence 
+            prevents unexpected request headers and content from passing to the origin service.</para>
+        
+     <!--   
+         <sidebar>
+            <title>Some clever blog post</title>
+            <para>ipsum lorem</para>
+        </sidebar>
+        -->
+    </section>
+    
+    
+    <section xml:id="Header-Normalization-Features">  
+        <title>Header Normalization Features</title>
+        <para>The Header Normalization filter has two features that
+            perform separate functions. The features are blacklist and
+            whitelist. <emphasis role="bold"> </emphasis>
+        </para> 
+        
+        
+        
+        <section xml:id="Blacklist-Header-Norm">
+            <title>Blacklist</title>
+            <para>The blacklist feature extracts the headers that you
+                do not want to pass to the origin service. The
+                following example uses the  <emphasis role="bold"
+                    >&lt;blacklist&gt;</emphasis>  element and the 
+                <emphasis role="bold">&lt;id&gt;</emphasis>
+                 attribute to name the HTTP headers that will be
+                extracted from the request.</para>
+            
+            <example><title>Sample Header Normalization Configuration with Blacklist</title>
+                <programlisting language="xml">
+<xi:include href="../samples/repose-header-norm-blacklist.xml" parse="text"/>
+                </programlisting> 
+            </example>
+            
+        </section>  
+        
+        
+        
+        
+        <section xml:id="Whitelist-Header-Norm">
+            <title>Whitelist</title>
+            <para>The whitelist feature enables you to list only
+                the HTTP headers that you want to pass to the origin
+                service. All other requests are extracted and are not
+                passed on. The following example uses the  <emphasis
+                    role="bold">&lt;whitelist&gt;</emphasis>  element
+                and the  <emphasis role="bold">&lt;id&gt;</emphasis>
+                 attribute to name the only HTTP headers that will be
+                passed to the origin service.   </para>
+            
+            <example><title>Sample Header Normalization Configuration with
+                    Whitelist</title>
+                <programlisting language="xml">
+<xi:include href="../samples/repose-header-norm-whitelist.xml" parse="text"/>
+                </programlisting> 
+            </example>
+        </section>
+    </section>
+    
+    
+    
+    <section xml:id="Header-Normalization-Configuration-Options">
+        <title>Header Normalization Configuration Options</title>
+        
+        <para>Configure the Header Normalization filter by editing the header-normalization.cfg.xml file 
+            and specifying the headers to be normalized. Add the filter to the Repose deployment through 
+            the System Model Configuration by editing the following elements and attributes:</para>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >&lt;header-filters&gt;</emphasis> lists
+                            the <emphasis role="bold"
+                            >&lt;target&gt;</emphasis> objects that
+                        are used to normalize requests.</para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis role="bold"
+                            >&lt;target&gt;</emphasis>  specifies a
+                        normalizer for a given  <emphasis role="bold"
+                            >uri-regex</emphasis>  or an  <emphasis
+                            role="bold">http-methods</emphasis>  to
+                        act against.  A target is either  <emphasis
+                            role="bold">&lt;blacklist&gt;</emphasis>
+                         or  <emphasis role="bold"
+                            >&lt;whitelist&gt;</emphasis> .   </para>
+               
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >&lt;blacklist&gt;</emphasis> lists
+                                   HTTP headers that are extracted
+                                   from the request.</para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <emphasis role="bold"
+                                   >&lt;whitelist&gt;</emphasis>
+                                    lists approved HTTP headers that
+                                   the request can contain. </para>
+                            
+                                <para>
+                                   <itemizedlist>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >uri-regex</emphasis> is the
+                                   regular expression that is matched
+                                   against incoming requests. If
+                                   no <emphasis role="bold"
+                                   >uri-regex</emphasis> is
+                                   configured, the Header
+                                   Normalization component defaults to
+                                   .*, meaning that the current target
+                                   can catch against any URI.</para>
+                                   </listitem>
+                                   <listitem>
+                                   <para><emphasis role="bold"
+                                   >http-methods</emphasis> is the
+                                   method or methods that this target
+                                   matches against. Valid methods are
+                                   GET, DELETE, POST, PUT, HEAD,
+                                   OPTIONS, CONNECT, TRACE, and ALL.
+                                   If <emphasis role="bold"
+                                   >http-methods</emphasis> is blank,
+                                   the Header Normalization component
+                                   defaults to ALL.</para>
+                                   </listitem>
+                                   </itemizedlist>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        
+    </section> 
+    
+    <section xml:id="Header-Normalization-Error-Scenarios">
+        <title>Header Normalization Error Scenarios</title>
+        <para>
+            <itemizedlist>
+                <listitem>
+                    <para>The Header Normalization filter will never
+                        return error codes. The request will simply
+                        pass through to the next filter or the origin
+                        service.</para>
+                </listitem>
+                <listitem>
+                    <para>The Header Normalization filter extracts
+                        headers that are configured, ignores
+                        everything else, and lets the request pass to
+                        the origin service.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    
+    
+</section>
