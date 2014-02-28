@@ -3,9 +3,12 @@ package org.openrepose.cli.command.datastore.local;
 import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthGroupsRemover extends AbstractCommand {
     private static final int ARG_SIZE = 3;
+    private static final Logger LOG = LoggerFactory.getLogger(AuthGroupsRemover.class);
 
     @Override
     public String getCommandToken() {
@@ -36,6 +39,7 @@ public class AuthGroupsRemover extends AbstractCommand {
                         "Failure to remove auth groups for user " + arguments[1]);
             }
         } catch (Exception e) {
+            LOG.trace("Unable to connect to Repose MBean Server", e);
             result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
                         "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
