@@ -114,7 +114,7 @@ class CompressionTranslationTest extends ReposeValveTest {
     @Unroll("content-encoding: #encoding")
     def "when a decompressed request is sent from Origin to Repose when compression fails"() {
         given:
-        def decompressedHandler = {request -> return new Response(200, "OK", zippedContent.trim())}
+        def decompressedHandler = {request -> return new Response(200, "OK", zippedContent)}
 
         when: "the decompressed content is sent to the origin service through Repose with encoding " + encoding
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint, headers: ['accept-encoding': encoding], defaultHandler: decompressedHandler])
@@ -122,18 +122,17 @@ class CompressionTranslationTest extends ReposeValveTest {
 
         then: "the compressed content should be compressed and the accept-encoding header should be absent"
         mc.handlings.size == 0
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == response
         if(encoding != "identity"){
             assert(mc.receivedResponse.headers.contains("Content-Encoding"))
             assert(!mc.receivedResponse.headers.contains("Accept-Encoding"))
         }
 
         where:
-        encoding    | unzippedContent | zippedContent
-        "gzip"      | content         | gzipCompressedContent
-        "x-gzip"    | content         | gzipCompressedContent
-        "deflate"   | content         | deflateCompressedContent
-        "identity"  | content         | content
+        encoding    | unzippedContent | zippedContent               | response
+        "gzip"      | content         | gzipCompressedContent       | "500"
+        "x-gzip"    | content         | gzipCompressedContent       | "500"
+        "deflate"   | content         | deflateCompressedContent    | "500"
 
     }
 
