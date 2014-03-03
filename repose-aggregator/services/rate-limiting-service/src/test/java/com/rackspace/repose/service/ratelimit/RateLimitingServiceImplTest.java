@@ -21,16 +21,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class RateLimitingServiceImplTest {
-
-    public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*", GROUPS_URI_REGEX = "/loadbalancer/(.*)/1234";
-    public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*", GROUPS_URI = "*loadbalancer/vips/cap1/1234*";
-
-    RateLimitingService rateLimitingService;
-    RateLimitCache cache;
-    RateLimitingConfiguration config;
-    String group1 = "group1";
-    ConfiguredRatelimit rl1;
+public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
     private Map<String, CachedRateLimit> cacheMap;
     private ConfiguredLimitGroup configuredLimitGroup;
     private int datastoreWarnLimit = 1000;
@@ -38,8 +29,12 @@ public class RateLimitingServiceImplTest {
     private ConfiguredRatelimit mockConfiguredRateLimit;
     private CachedRateLimit mockCachedRateLimit;
 
+    private RateLimitingService rateLimitingService;
+    private RateLimitCache cache;
+    private RateLimitingConfiguration config;
+
     @Before
-    public final void beforeAll() {
+    public final void standUp() {
         mockConfiguredRateLimit = mock(ConfiguredRatelimit.class);
         mockCachedRateLimit = mock(CachedRateLimit.class);
 
@@ -54,25 +49,22 @@ public class RateLimitingServiceImplTest {
         configuredLimitGroup.setId("configured-limit-group");
         configuredLimitGroup.getGroups().add("user");
 
-        LinkedList<HttpMethod> methods = new LinkedList<HttpMethod>(), methodsSubset = new LinkedList<HttpMethod>(),
-                getMethod = new LinkedList<HttpMethod>();
+        LinkedList<HttpMethod> methods = new LinkedList<HttpMethod>(), getMethod = new LinkedList<HttpMethod>();
         methods.add(HttpMethod.GET);
         methods.add(HttpMethod.PUT);
         methods.add(HttpMethod.POST);
         methods.add(HttpMethod.DELETE);
-        methodsSubset.add(HttpMethod.GET);
-        methodsSubset.add(HttpMethod.PUT);
         getMethod.add(HttpMethod.GET);
 
-        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods)));
+        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods)));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_URI, SIMPLE_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods));
 
-        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods)));
+        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods)));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_URI, COMPLEX_URI_REGEX, methods));
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(GROUPS_URI, GROUPS_URI_REGEX, getMethod));
+        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod));
 
         config.getLimitGroup().add(configuredLimitGroup);
 
@@ -177,19 +169,5 @@ public class RateLimitingServiceImplTest {
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
         rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);
-    }
-
-    private ConfiguredRatelimit newLimitConfig(String uri, String uriRegex, LinkedList<HttpMethod> methods) {
-        final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
-
-        configuredRateLimit.setUnit(TimeUnit.HOUR);
-        configuredRateLimit.setUri(uri);
-        configuredRateLimit.setUriRegex(uriRegex);
-        configuredRateLimit.setValue(20);
-        for (HttpMethod m : methods) {
-            configuredRateLimit.getHttpMethods().add(m);
-        }
-
-        return configuredRateLimit;
     }
 }

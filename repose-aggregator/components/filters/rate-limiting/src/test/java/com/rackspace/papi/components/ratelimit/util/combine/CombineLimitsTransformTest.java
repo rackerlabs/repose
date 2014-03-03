@@ -12,10 +12,13 @@ import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -27,30 +30,19 @@ import static org.junit.Assert.assertTrue;
 
 public class CombineLimitsTransformTest {
 
-    public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*";
-    public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*";
-    public static final String SIMPLE_ID = "12345-ABCDE", COMPLEX_ID = "09876-ZYXWV";
+    public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";
+    public static final String COMPLEX_URI_REGEX = "/loadbalancer/vips/.*";
+    public static final String SIMPLE_URI = "*loadbalancer*";
+    public static final String COMPLEX_URI = "*loadbalancer/vips*";
+    public static final String SIMPLE_ID = "12345-ABCDE";
+    public static final String COMPLEX_ID = "09876-ZYXWV";
 
     public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     public static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
 
     private final Pattern validationPattern = Pattern.compile(".*(<rates>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
+    private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
-
-    public static String readStream(String resourceLocation) throws Exception {
-        final StringBuilder stringBuffer = new StringBuilder();
-
-        final BufferedReader in = new BufferedReader(new InputStreamReader(
-                CombineLimitsTransformTest.class.getResourceAsStream(resourceLocation)));
-
-        String nextLine;
-
-        while ((nextLine = in.readLine()) != null) {
-            stringBuffer.append(nextLine);
-        }
-
-        return stringBuffer.toString();
-    }
 
     @Before
     public void standUp() throws Exception {
@@ -73,6 +65,27 @@ public class CombineLimitsTransformTest {
 
         final String actual = output.toString();
         final Matcher matcher = validationPattern.matcher(actual);
+
+        assertTrue("Combined limits must match expected output pattern", matcher.matches());
+
+        assertNotNull("Combined limits must include rate limits", matcher.group(1));
+        assertNotNull("Combined limits must include absolute limits", matcher.group(2));
+    }
+
+    @Test
+    @Ignore
+    public void shouldCombineInputStreamWithJaxbElementJson() throws Exception {
+        final InputStream is = CombineLimitsTransformTest.class.getResourceAsStream(
+                "/META-INF/schema/examples/absolute-limits.json");
+
+        RateLimitList rll = createRateLimitList();
+
+        final LimitsTransformPair tPair = new LimitsTransformPair(is, rll);
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        combiner.transform(tPair, output);
+
+        final String actual = output.toString();
+        final Matcher matcher = validationPatternJson.matcher(actual);
 
         assertTrue("Combined limits must match expected output pattern", matcher.matches());
 

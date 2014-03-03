@@ -3,10 +3,8 @@ package com.rackspace.repose.service.ratelimit;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,11 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author zinic
  */
-public class RateLimitListBuilderTest {
-    public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*", COMPLEX_URI_REGEX = "/loadbalancer/vips/.*", GROUPS_URI_REGEX = "/loadbalancer/(.*)/1234";
-    public static final String SIMPLE_URI = "*loadbalancer*", COMPLEX_URI = "*loadbalancer/vips*", GROUPS_URI = "*loadbalancer/vips/cap1/1234*";
-    public static final String SIMPLE_ID = "12345-ABCDE", COMPLEX_ID = "09876-ZYXWV";
-
+public class RateLimitListBuilderTest extends RateLimitServiceTestContext {
     private Map<String, CachedRateLimit> cacheMap;
     private ConfiguredLimitGroup configuredLimitGroup;
 
@@ -59,20 +53,5 @@ public class RateLimitListBuilderTest {
         limits.setRates(rll);
 
         assertEquals(2, rll.getRate().size());
-    }
-
-    private ConfiguredRatelimit newLimitConfig(String limitId, String uri, String uriRegex, LinkedList<HttpMethod> methods) {
-        final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
-
-        configuredRateLimit.setId(limitId);
-        configuredRateLimit.setUnit(TimeUnit.HOUR);
-        configuredRateLimit.setUri(uri);
-        configuredRateLimit.setUriRegex(uriRegex);
-        configuredRateLimit.setValue(20);
-        for (HttpMethod m : methods) {
-            configuredRateLimit.getHttpMethods().add(m);
-        }
-
-        return configuredRateLimit;
     }
 }
