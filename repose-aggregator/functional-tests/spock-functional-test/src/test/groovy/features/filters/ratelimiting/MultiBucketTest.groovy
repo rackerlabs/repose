@@ -433,6 +433,64 @@ class MultiBucketTest extends ReposeValveTest {
         deproxy.makeRequest(method: "GARBAGE", url: reposeEndpoint, headers: headers).receivedResponse.code == "200" // -
     }
 
+    def "when a burst of limits is sent for an execution, only 2x-1 requests can get through"() {
+
+        given:
+        def user = getNewUniqueUser()
+        def group = "multipleMethods"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+
+        List<Thread> clientThreads = new ArrayList<Thread>()
+        def totalSuccessfulCount = 0
+        def totalFailedCount = 0
+        List<String> requests = new ArrayList()
+        int rate_limiting_count = 3
+
+        long start = System.currentTimeMillis()
+
+        for (x in 1..numClients) {
+
+            def thread = Thread.start {
+                def threadNum = x
+
+                for (i in 1..callsPerClient) {
+                    requests.add('spock-thread-' + threadNum + '-request-' + i)
+                    def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
+                    if(messageChain.receivedResponse.code.equals("200")){
+                        totalSuccessfulCount = totalSuccessfulCount + 1
+                        println messageChain.sentRequest.headers
+                        println messageChain.sentRequest.body
+                        println messageChain.receivedResponse.code
+                    }
+
+                    else   {
+                        totalFailedCount = totalFailedCount + 1
+                        println messageChain.receivedResponse.code
+                    }
+
+                    Thread.sleep(1000)
+
+                }
+            }
+            clientThreads.add(thread)
+        }
+
+        when:
+        clientThreads*.join()
+
+        then:
+        long stop = System.currentTimeMillis()
+        //println totalFailedCount
+        //println requests.size()
+        assert totalSuccessfulCount < (rate_limiting_count * 2 - 1)
+
+        where:
+        numClients | callsPerClient
+        1        | 50
+    }
+
+
+
 
 
     def cleanupSpec() {
