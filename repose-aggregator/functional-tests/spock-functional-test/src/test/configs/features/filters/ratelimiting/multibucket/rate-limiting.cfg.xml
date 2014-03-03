@@ -45,4 +45,14 @@
         <limit uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="MINUTE" value="3" />
     </limit-group>
 
+    <limit-group id="countOnStart" groups="countOnStart" default="false">
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
+    </limit-group>
+
+    <limit-group id="fixedTimeWindow" groups="fixedTimeWindow" default="false">
+        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
+    </limit-group>
+
+
+
 </rate-limiting>

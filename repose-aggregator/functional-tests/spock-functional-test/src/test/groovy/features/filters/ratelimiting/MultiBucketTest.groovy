@@ -2,7 +2,14 @@ package features.filters.ratelimiting
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Ignore
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
+
+import static org.rackspace.deproxy.Handlers.Delay
 
 class MultiBucketTest extends ReposeValveTest {
 
@@ -489,9 +496,121 @@ class MultiBucketTest extends ReposeValveTest {
         1        | 50
     }
 
+    def "counts use a fixed time window"() {
 
+        /*
+         * The old model of rate limiting kept track of both individual
+         * requests and their timestamps. Thus, when the first request in a
+         * sequence "expired", the next request in that sequence now defined
+         * the window. In effect, this produced a "sliding window" pattern.
+         * That is, when we say that a certain rate limit limits request to,
+         * e.g., 3 per minute, then the "minute" that it's talking about would
+         * extend from a given request until 60 seconds after it. This ensured
+         * that, if we were to choose any arbitrary minute-long section of
+         * time, there would be no more than 3 passing requests in that
+         * minute-long section.
+         *
+         *
+         *                   X---------|
+         *                  X---------|
+         *                 X---------|
+         *                3---------|
+         *            X---------|
+         *           3---------|
+         *          2---------|
+         *    1---------|
+         *   -|---------+---------+---------+--------> t
+         *    0         1min      2         3
+         *         \__________/
+         *            3 total
+         *
+         *
+         *
+         * In the new model of rate limiting, we use a "fixed window" pattern.
+         * The first request in a series of requests defines the start of the
+         * window. When that request "expires", then a new request is
+         * necessary to start a new window. This is a much simpler pattern to
+         * implement, in that we only have to store one timestamp per limit,
+         * rather than one per request. However, it changes the effective
+         * behavior of limiting when we consider arbitrary sections of time.
+         * Each window has a maximum number of passed requests, but if two
+         * windows are close together, and the first has almost all of its
+         * requests toward the end, and the second has all of its requests
+         * toward its start, then there could be a minute-long span of time
+         * that contains more passed requests than each individual window is
+         * otherwise allowed. The max works out to 2N-1, where N is the max
+         * defined fow a single window.
+         *
+         *
+         *    1-----23X-| 123X-----|
+         *   -|---------+---------+---------+--------> t
+         *    0         1min      2         3
+         *         \__________/
+         *            5 total
+         *
+         * This test ensures that repose is tracking requests and times
+         * according to the new model. We have a single limit set for 3
+         * requests per minute. First, we send a single request (which should
+         * pass) and sleep for 57 seconds. This will put the next few requests
+         * at the end of the window. After sleeping, we get the current system
+         * time.
+         *
+         * Next, we make three requests (2 thru 4). The second and third
+         * requests should pass and the fourth should fail. Then we sleep for
+         * another 4 seconds, which should reset the limit (57 + 4 > 60).
+         *
+         * Then, we make four more requests (5 thru 8). The fifth, sixth, and
+         * seventh requests should pass, because the limit reset. The eight
+         * should fail.
+         *
+         * Finally, we get the system time again and check that the difference
+         * between the two system times is less than one minute.
+         *
+         * If Repose is using the old model of rate limiting, then the sixth
+         * and seventh requests should fail, because they would be within the
+         * one-minute window started by the second request.
+         *
+         * If the difference between the system times is greater than one
+         * minute, then the requests took far longer than we were expecting,
+         * and it's possible the limit reset at some point. If that happened,
+         * then we can't say for sure that the rate limiter is using the right
+         * model.
+         *
+         * If all assertions pass, then we know that the span of time between
+         * the two calls to currentTimeMillis contain 2N - 1 = 5 passed
+         * requests, and that that span of time is less than a minute long.
+         *
+         */
 
+        given:
+        def user = getNewUniqueUser()
+        def group = "fixedTimeWindow"
+        def headers = ['X-PP-User': user, 'X-PP-Groups': group]
+        def url = "${reposeEndpoint}/resource"
 
+        expect:                                                                        // count
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 1
+
+        sleep(57000)                                                                   // 1
+
+        def time1 = System.currentTimeMillis()
+
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "413" // X
+
+        sleep(4000)                                                                    // 0
+
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 1
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 2
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "200" // 3
+        deproxy.makeRequest(url: url, headers: headers).receivedResponse.code == "413" // X
+
+        def time2 = System.currentTimeMillis()
+
+        and:
+        time2 - time1 < 60000
+    }
 
     def cleanupSpec() {
         
