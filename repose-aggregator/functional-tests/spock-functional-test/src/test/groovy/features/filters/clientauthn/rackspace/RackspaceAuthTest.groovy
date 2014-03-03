@@ -88,31 +88,30 @@ class RackspaceAuthTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + (user ?: "user"), method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == 1
+        mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + (user ?: "user"), method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
+        mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/" + user, method: 'GET', headers: ['content-type': 'application/' + contentType, 'X-Auth-User': user, 'X-Auth-Token': token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == 1
+        mc.orphanedHandlings.size() == orphanedHandlings
         mc.handlings.size() == 0
 
         where:
-                         user     | token    | isUserAuthed | responseCode | contentType
-/* fail belongsto */     "rando2" | "toke1"  | false        | "401"        | "xml"
-/* empty user & token */ null     | null     | true         | "401"        | "xml"
-/* empty token */        "rando4" | null     | true         | "401"        | "xml"
-/* empty user  */        null     | "toke3"  | true         | "401"        | "xml"
-/* fail belongsto */     "rando6" | "toke5"  | false        | "401"        | "json"
-/* empty user & token */ null     | null     | true         | "401"        | "json"
-/* empty token */        "rando8" | null     | true         | "401"        | "json"
-/* empty user  */        null     | "toke7"  | true         | "401"        | "json"
+                         user     | token    | isUserAuthed | responseCode | contentType | orphanedHandlings
+/* empty user & token */ ""       | ""       | true         | "401"        | "xml"       | 0
+/* empty token */        "rando4" | ""       | true         | "401"        | "xml"       | 0
+/* empty user  */        ""       | "toke3"  | true         | "401"        | "xml"       | 0
+/* fail belongsto */     "rando6" | "toke5"  | false        | "401"        | "json"      | 1
+/* empty user & token */ ""       | ""       | true         | "401"        | "json"      | 0
+/* empty token */        "rando8" | ""       | true         | "401"        | "json"      | 0
+/* empty user  */        ""       | "toke7"  | true         | "401"        | "json"      | 0
     }
 
     @Category(Bug)
