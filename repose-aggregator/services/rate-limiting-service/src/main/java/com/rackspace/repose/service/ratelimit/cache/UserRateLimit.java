@@ -71,7 +71,7 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
             CachedRateLimit newRateLimit = new CachedRateLimit(limitEntry.getValue(), 1);
             CachedRateLimit oldRateLimit = limitMap.putIfAbsent(limitEntry.getKey(), newRateLimit);
 
-            if (oldRateLimit == null) oldRateLimit = newRateLimit;
+            if (oldRateLimit == null) { oldRateLimit = newRateLimit; }
 
             if (oldRateLimit == newRateLimit || ((System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit())) {
                 returnRateLimit = newRateLimit;
