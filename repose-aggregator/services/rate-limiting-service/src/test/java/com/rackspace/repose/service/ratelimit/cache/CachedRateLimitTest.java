@@ -2,64 +2,133 @@ package com.rackspace.repose.service.ratelimit.cache;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.TimeUnit;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.LinkedList;
+
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
  * @author jhopper
  */
 public class CachedRateLimitTest {
+    private ConfiguredRatelimit cfg;
+
+    @Before
+    public void setup() {
+        final LinkedList<HttpMethod> methods = new LinkedList<HttpMethod>();
+        methods.add(HttpMethod.GET);
+        methods.add(HttpMethod.POST);
+
+        cfg = mock(ConfiguredRatelimit.class);
+
+        when(cfg.getId()).thenReturn("12345-ABCDE");
+        when(cfg.getUriRegex()).thenReturn(".*");
+        when(cfg.getHttpMethods()).thenReturn(methods);
+        when(cfg.getValue()).thenReturn(6);
+        when(cfg.getUnit()).thenReturn(TimeUnit.MINUTE);
+    }
+
     @Test
     public void shouldLogHits() {
-        final CachedRateLimit limit = new CachedRateLimit("");
-        limit.logHit(HttpMethod.GET, TimeUnit.HOUR);
-        limit.logHit(HttpMethod.GET, TimeUnit.HOUR);
-        limit.logHit(HttpMethod.GET, TimeUnit.HOUR);
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+        limit.logHit();
+        limit.logHit();
+        limit.logHit();
 
-        assertTrue(limit.amount(HttpMethod.GET) == 3);
+        assertTrue(limit.amount() == 3);
     }
 
     @Test
     public void shouldGiveAccurateExpirationDates() {
-        final CachedRateLimit limit = new CachedRateLimit("");
-        limit.logHit(HttpMethod.GET, TimeUnit.MINUTE);
-        limit.logHit(HttpMethod.GET, TimeUnit.HOUR);
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+        limit.logHit();
+        limit.logHit();
 
-        final long earliestExpiration = limit.getEarliestExpirationTime(HttpMethod.GET);
-        final long latestExpiration = limit.getUsageMap().get(HttpMethod.GET).lastElement();
+        final long soonestRequest = limit.getSoonestRequestTime();
+        final long nextExpiration = limit.getNextExpirationTime();
 
-        assertTrue(earliestExpiration < latestExpiration);
-        assertTrue(earliestExpiration > System.currentTimeMillis());
-        assertTrue(latestExpiration > System.currentTimeMillis());
+        assertTrue(soonestRequest <= nextExpiration);
+        assertTrue(soonestRequest >= System.currentTimeMillis());
+        assertTrue(nextExpiration >= System.currentTimeMillis());
     }
 
     @Test
     public void shouldVacuumExpiredHits() {
-        final CachedRateLimit limit = new CachedRateLimit("");
-        limit.logHit(HttpMethod.GET, System.currentTimeMillis());
+        when(cfg.getValue()).thenReturn(3);
+        when(cfg.getUnit()).thenReturn(TimeUnit.SECOND);
+
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+        limit.logHit();
 
         try {
-            Thread.sleep(5);
-        } catch (InterruptedException ie) {
-        }
+            Thread.sleep(2000);
+        } catch (InterruptedException ie) {}
 
-        assertTrue(limit.amount(HttpMethod.GET) == 0);
+        assertTrue(limit.amount() == 0);
     }
 
     @Test
     public void shouldMaintainHitsThatHaveNotExpired() {
-        final CachedRateLimit limit = new CachedRateLimit("");
-        limit.logHit(HttpMethod.GET, System.currentTimeMillis());
+        when(cfg.getValue()).thenReturn(3);
+        when(cfg.getUnit()).thenReturn(TimeUnit.SECOND);
+
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+        limit.logHit();
 
         try {
-            Thread.sleep(5);
-        } catch (InterruptedException ie) {
-        }
+            Thread.sleep(2000);
+        } catch (InterruptedException ie) {}
 
-        limit.logHit(HttpMethod.GET, TimeUnit.HOUR);
+        limit.logHit();
 
-        assertTrue(limit.amount(HttpMethod.GET) == 1);
+        assertTrue(limit.amount() == 1);
+    }
+
+    @Test
+    public void getConfigLimitKey_shouldCreateCorrectCLKey() {
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+
+        assertTrue(limit.getConfigId().equals(cfg.getId()));
+    }
+
+    @Test
+    public void timestamp_get() {
+        long before = System.currentTimeMillis();
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+        long after = System.currentTimeMillis();
+
+        assertTrue(limit.timestamp() >= before);
+        assertTrue(limit.timestamp() <= after);
+    }
+
+    @Test
+    public void amount_get() {
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+
+        assertTrue(limit.amount() == 0);
+
+        limit.logHit();
+
+        assertTrue(limit.amount() == 1);
+    }
+
+    @Test
+    public void unit_get() {
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+
+        assertTrue(limit.unit() == java.util.concurrent.TimeUnit.MINUTES.toMillis(1));
+    }
+
+    @Test
+    public void maxAmount_get() {
+        final CachedRateLimit limit = new CachedRateLimit(cfg);
+
+        assertTrue(limit.maxAmount() == 6);
     }
 }

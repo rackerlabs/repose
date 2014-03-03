@@ -8,97 +8,108 @@ import java.util.regex.Pattern;
 
 public class ConfiguredRateLimitWrapper extends ConfiguredRatelimit {
 
-   private final ConfiguredRatelimit configuredRateLimit;
-   private final Pattern regexPattern;
+    private static final int PRIME = 31;
+    private static final int ZERO = 0;
+    private final ConfiguredRatelimit configuredRateLimit;
+    private final Pattern regexPattern;
 
-   public ConfiguredRateLimitWrapper(ConfiguredRatelimit configuredRateLimit) {
-      this.configuredRateLimit = configuredRateLimit;
-      this.regexPattern = Pattern.compile(configuredRateLimit.getUriRegex());
-   }
+    public ConfiguredRateLimitWrapper(ConfiguredRatelimit configuredRateLimit) {
+        this.configuredRateLimit = configuredRateLimit;
+        this.regexPattern = Pattern.compile(configuredRateLimit.getUriRegex());
+    }
 
-   public Pattern getRegexPattern() {
-      return regexPattern;
-   }
+    public Pattern getRegexPattern() {
+        return regexPattern;
+    }
 
-   @Override
-   public String getUri() {
-      return configuredRateLimit.getUri();
-   }
+    @Override
+    public String getId() {
+        return configuredRateLimit.getId();
+    }
 
-   @Override
-   public void setUri(String value) {
-      configuredRateLimit.setUri(value);
-   }
+    @Override
+    public void setId(String value) {
+        configuredRateLimit.setId(value);
+    }
 
-   @Override
-   public String getUriRegex() {
-      return configuredRateLimit.getUriRegex();
-   }
+    @Override
+    public String getUri() {
+        return configuredRateLimit.getUri();
+    }
 
-   @Override
-   public void setUriRegex(String value) {
-      configuredRateLimit.setUriRegex(value);
-   }
+    @Override
+    public void setUri(String value) {
+        configuredRateLimit.setUri(value);
+    }
 
-   @Override
-   public List<HttpMethod> getHttpMethods() {
-      return configuredRateLimit.getHttpMethods();
-   }
+    @Override
+    public String getUriRegex() {
+        return configuredRateLimit.getUriRegex();
+    }
 
-   @Override
-   public int getValue() {
-      return configuredRateLimit.getValue();
-   }
+    @Override
+    public void setUriRegex(String value) {
+        configuredRateLimit.setUriRegex(value);
+    }
 
-   @Override
-   public void setValue(int value) {
-      configuredRateLimit.setValue(value);
-   }
+    @Override
+    public List<HttpMethod> getHttpMethods() {
+        return configuredRateLimit.getHttpMethods();
+    }
 
-   @Override
-   public TimeUnit getUnit() {
-      return configuredRateLimit.getUnit();
-   }
+    @Override
+    public int getValue() {
+        return configuredRateLimit.getValue();
+    }
 
-   @Override
-   public void setUnit(TimeUnit value) {
-      configuredRateLimit.setUnit(value);
-   }
+    @Override
+    public void setValue(int value) {
+        configuredRateLimit.setValue(value);
+    }
 
-   @Override
-   public String toString() {
-      return configuredRateLimit.toString();
-   }
+    @Override
+    public TimeUnit getUnit() {
+        return configuredRateLimit.getUnit();
+    }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) {
-         return true;
-      }
+    @Override
+    public void setUnit(TimeUnit value) {
+        configuredRateLimit.setUnit(value);
+    }
 
-      if (o == null || getClass() != o.getClass()) {
-         return false;
-      }
+    @Override
+    public String toString() {
+        return configuredRateLimit.toString();
+    }
 
-      ConfiguredRateLimitWrapper that = (ConfiguredRateLimitWrapper) o;
+    @Override
+    public boolean equals(Object o) {
+        // TODO Does this method need to be updated?
+        if (this == o) {
+            return true;
+        }
 
-      if (configuredRateLimit != null ? !configuredRateLimit.equals(that.configuredRateLimit) : that.configuredRateLimit != null) {
-         return false;
-      }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-      if (regexPattern != null ? !regexPattern.equals(that.regexPattern) : that.regexPattern != null) {
-         return false;
-      }
+        ConfiguredRateLimitWrapper that = (ConfiguredRateLimitWrapper) o;
 
-      return true;
-   }
+        if (configuredRateLimit != null ? !configuredRateLimit.equals(that.configuredRateLimit) : that.configuredRateLimit != null) {
+            return false;
+        }
 
-   private static final int PRIME = 31;
-   private static final int ZERO = 0;
-   @Override
-   public int hashCode() {
-      int result = configuredRateLimit != null ? configuredRateLimit.hashCode() : ZERO;
-      result = PRIME * result + (regexPattern != null ? regexPattern.hashCode() : ZERO);
-      return result;
-   }
+        if (regexPattern != null ? !regexPattern.equals(that.regexPattern) : that.regexPattern != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = configuredRateLimit != null ? configuredRateLimit.hashCode() : ZERO;
+        result = PRIME * result + (regexPattern != null ? regexPattern.hashCode() : ZERO);
+        return result;
+    }
 }

@@ -214,11 +214,11 @@ class RateLimitingTest extends ReposeValveTest {
 
         where:
         path                   | acceptHeader                       | expectedFormat
-        "/service/limits"      | ["Accept" : "application/xml"]     | "application/xml"
-        "/service/limits"      | ["Accept" : "application/json"]    | "application/json"
-        "/service/limits"      | []                                 | "application/json"
-        "/service/limits"      | ["Accept" : ""]                    | "application/json"
-        "/service/limits"      | ["Accept" : "*/*"]                 | "application/json"
+        "/service2/limits"      | ["Accept" : "application/xml"]     | "application/xml"
+        "/service2/limits"      | ["Accept" : "application/json"]    | "application/json"
+        "/service2/limits"      | []                                 | "application/json"
+        "/service2/limits"      | ["Accept" : ""]                    | "application/json"
+        "/service2/limits"      | ["Accept" : "*/*"]                 | "application/json"
     }
 
     @Unroll("when requesting rate limits for limited groups with #acceptHeader ")
@@ -248,16 +248,16 @@ class RateLimitingTest extends ReposeValveTest {
 
         where:
         path                   | acceptHeader                       | expectedFormat
-        "/service/limits"      | ["Accept" : "application/xml"]     | "application/xml"
-        "/service/limits"      | ["Accept" : "application/json"]    | "application/json"
-        "/service/limits"      | []                                 | "application/json"
-        "/service/limits"      | ["Accept" : ""]                    | "application/json"
-        "/service/limits"      | ["Accept" : "*/*"]                 | "application/json"
+        "/service2/limits"      | ["Accept" : "application/xml"]     | "application/xml"
+        "/service2/limits"      | ["Accept" : "application/json"]    | "application/json"
+        "/service2/limits"      | []                                 | "application/json"
+        "/service2/limits"      | ["Accept" : ""]                    | "application/json"
+        "/service2/limits"      | ["Accept" : "*/*"]                 | "application/json"
     }
 
-    def "When requesting rate limits  invalid Accept header, Should receive 406 response when invalid Accept header"() {
+    def "When requesting rate limits with an invalid Accept header, Should receive 406 response when invalid Accept header"() {
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: ["X-PP-Groups" : "customer;q=1.0", "X-PP-User" : "user", "Accept" : "application/unknown"])
 
         then:
@@ -287,10 +287,10 @@ class RateLimitingTest extends ReposeValveTest {
 
         where:
         path                   | acceptHeader                       | expectedFormat
-        "/service/limits"      | ["Accept" : "application/json"]    | "application/json"
-        "/service/limits"      | []                                 | "application/json"
-        "/service/limits"      | ["Accept" : ""]                    | "application/json"
-        "/service/limits"      | ["Accept" : "*/*"]                 | "application/json"
+        "/service2/limits"      | ["Accept" : "application/json"]    | "application/json"
+        "/service2/limits"      | []                                 | "application/json"
+        "/service2/limits"      | ["Accept" : ""]                    | "application/json"
+        "/service2/limits"      | ["Accept" : "*/*"]                 | "application/json"
     }
 
     def "When rate limiting against multiple regexes, Should not limit requests against a different regex"() {
@@ -392,14 +392,14 @@ class RateLimitingTest extends ReposeValveTest {
 
     def "When rate limiting /limits"(){
         when: "requests remain"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: ["X-PP-Groups" : "query-limits", "X-PP-User" : "123limits"] + acceptHeaderDefault)
 
         then: "should not be rate limited"
         messageChain.receivedResponse.code.equals("200")
 
         when: "requests remain"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: ["X-PP-Groups" : "query-limits", "X-PP-User" : "123limits"] + acceptHeaderDefault)
 
         then: "should be rate limited"
@@ -501,7 +501,7 @@ class RateLimitingTest extends ReposeValveTest {
 
     private String getDefaultLimits(Map group = null) {
         def groupHeader = (group != null) ? group : groupHeaderDefault
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
                 headers: userHeaderDefault + groupHeader + acceptHeaderDefault);
 
         return messageChain.receivedResponse.body

@@ -1,5 +1,8 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Date;
 
 /**
@@ -7,35 +10,34 @@ import java.util.Date;
  */
 public class NextAvailableResponse {
 
-   private final boolean hasRequests;
-   private final Date resetTime;
-   private final int currentLimitAmount;
+    private final Pair<ConfiguredRatelimit, CachedRateLimit> limitPair;
 
+    public NextAvailableResponse(Pair<ConfiguredRatelimit, CachedRateLimit> limitPair) {
+        this.limitPair = limitPair;
+    }
 
-   public NextAvailableResponse(boolean hasRequests, Date resetTime, int currentLimitAmount) {
-      this.hasRequests = hasRequests;
-      this.resetTime = resetTime;
-      this.currentLimitAmount = currentLimitAmount;
-   }
+    public Date getResetTime() {
+        return new Date(limitPair.getValue().getNextExpirationTime());
+    }
 
-   public Date getResetTime() {
-      return (Date)resetTime.clone();
-   }
+    public boolean hasRequestsRemaining() {
+        return (limitPair == null) || (limitPair.getValue().maxAmount() - limitPair.getValue().amount() >= 0);
+    }
 
-   public boolean hasRequestsRemaining() {
-      return hasRequests;
-   }
+    public int getCurrentLimitAmount() {
+        return limitPair.getValue().amount();
+    }
 
-   public int getCurrentLimitAmount() {
-      return currentLimitAmount;
-   }
+    public Pair<ConfiguredRatelimit, CachedRateLimit> getLimitPair() {
+        return limitPair;
+    }
 
     @Override
     public String toString() {
         return "NextAvailableResponse{" +
-                "hasRequests=" + hasRequests +
-                ", resetTime=" + resetTime.getTime() +
-                ", currentLimitAmount=" + currentLimitAmount +
+                "hasRequests=" + hasRequestsRemaining() +
+                ", resetTime=" + getResetTime().getTime() +
+                ", currentLimitAmount=" + getCurrentLimitAmount() +
                 '}';
     }
 }

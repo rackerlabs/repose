@@ -2,12 +2,15 @@ package com.rackspace.repose.service.ratelimit.cache;
 
 import com.rackspace.papi.components.datastore.Patchable;
 import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
-import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,67 +20,90 @@ import java.util.Vector;
  */
 public class UserRateLimit implements Serializable, Patchable<UserRateLimit, UserRateLimit.Patch> {
 
-    private HashMap<String, CachedRateLimit> limitMap = new HashMap<String, CachedRateLimit>();
+    private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
 
-    public UserRateLimit(HashMap<String, CachedRateLimit> limitMap) {
-        this.limitMap = limitMap;
+    private ConcurrentHashMap<String, CachedRateLimit> limitMap = new ConcurrentHashMap<String, CachedRateLimit>();
+
+    public UserRateLimit() {
+        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>();
+        this.leastRemainingLimit = null;
     }
 
-    public HashMap<String, CachedRateLimit> getLimitMap() {
+    public UserRateLimit(Map<String, CachedRateLimit> limitMap) {
+        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>(limitMap);
+        this.leastRemainingLimit = null;
+    }
+
+    private UserRateLimit(Map<String, CachedRateLimit> limitMap, Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit) {
+        this.limitMap = new ConcurrentHashMap<String, CachedRateLimit>(limitMap);
+        this.leastRemainingLimit = lowestLimit;
+    }
+
+    public ConcurrentHashMap<String, CachedRateLimit> getLimitMap() {
         return limitMap;
+    }
+
+    public Pair<ConfiguredRatelimit, CachedRateLimit> getLowestLimit() {
+        return leastRemainingLimit;
     }
 
     @Override
     public UserRateLimit applyPatch(Patch patch) {
-        HashMap<String, CachedRateLimit> returnedLimitMap = new HashMap<String, CachedRateLimit>();
-        CachedRateLimit cachedRateLimit = limitMap.get(patch.getLimitKey());
-        if(cachedRateLimit == null) {
-            cachedRateLimit = new CachedRateLimit(patch.getConfiguredRateLimit().getUriRegex());
-            limitMap.put(patch.getLimitKey(), cachedRateLimit);
+        HashMap<String, CachedRateLimit> returnLimits = new HashMap<String, CachedRateLimit>();
+        Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit = null;
+
+        for (Pair<String, ConfiguredRatelimit> limitEntry : patch.getLimitMap()) {
+            CachedRateLimit rateLimit = adjustLimit(limitEntry);
+            returnLimits.put(limitEntry.getKey(), rateLimit);
+            if (lowestLimit == null || (rateLimit.maxAmount() - rateLimit.amount() < lowestLimit.getValue().maxAmount() - lowestLimit.getValue().amount())) {
+                lowestLimit = Pair.of(limitEntry.getValue(), rateLimit);
+            }
+            if (rateLimit.amount() > rateLimit.maxAmount()) break;
         }
 
-        CachedRateLimit returnedRateLimit = new CachedRateLimit(patch.getConfiguredRateLimit().getUriRegex());
-        returnedLimitMap.put(patch.getLimitKey(), returnedRateLimit);
+        return new UserRateLimit(returnLimits, lowestLimit);
+    }
 
-        for(HttpMethod method : patch.getConfiguredRateLimit().getHttpMethods()) {
-            if(cachedRateLimit.amount(method) < patch.getConfiguredRateLimit().getValue()) {
-                cachedRateLimit.logHit(method, patch.getConfiguredRateLimit().getUnit());
-                returnedRateLimit.getUsageMap().put(method, new Vector<Long>(cachedRateLimit.getUsageMap().get(method)));
+    private CachedRateLimit adjustLimit(Pair<String, ConfiguredRatelimit> limitEntry) {
+        CachedRateLimit returnRateLimit;
+
+        while (true) {
+            CachedRateLimit newRateLimit = new CachedRateLimit(limitEntry.getValue(), 1);
+            CachedRateLimit oldRateLimit = limitMap.putIfAbsent(limitEntry.getKey(), newRateLimit);
+
+            if (oldRateLimit == null) { oldRateLimit = newRateLimit; }
+
+            if (oldRateLimit == newRateLimit || ((System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit())) {
+                returnRateLimit = newRateLimit;
+            } else {
+                returnRateLimit = new CachedRateLimit(limitEntry.getValue(), oldRateLimit.amount() + 1, oldRateLimit.timestamp());
+            }
+
+            if ((oldRateLimit == returnRateLimit) || limitMap.replace(limitEntry.getKey(), oldRateLimit, returnRateLimit)) {
+                return returnRateLimit;
             }
         }
-
-        return new UserRateLimit(returnedLimitMap);
     }
 
     public static class Patch implements SerializablePatch<UserRateLimit> {
 
-        private String limitKey;
-        private ConfiguredRatelimit configuredRateLimit;
+        private List< Pair<String, ConfiguredRatelimit> > limitMap;
 
-        public Patch(String limitKey, ConfiguredRatelimit configuredRateLimit) {
-            this.limitKey = limitKey;
-            this.configuredRateLimit = configuredRateLimit;
+        public Patch(List< Pair<String, ConfiguredRatelimit> > patchMap) {
+            this.limitMap = new ArrayList< Pair<String, ConfiguredRatelimit> >(patchMap);
         }
 
         @Override
         public UserRateLimit newFromPatch() {
-            HashMap<String, CachedRateLimit> newLimitMap = new HashMap<String, CachedRateLimit>();
-            CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRateLimit.getUriRegex());
-            if(configuredRateLimit.getValue() > 0) {
-                for(HttpMethod method : configuredRateLimit.getHttpMethods()) {
-                    cachedRateLimit.logHit(method, configuredRateLimit.getUnit());
-                }
-            }
-            newLimitMap.put(limitKey, cachedRateLimit);
-            return new UserRateLimit(newLimitMap);
+            UserRateLimit returnLimit = new UserRateLimit();
+
+            returnLimit.applyPatch(this);
+
+            return returnLimit;
         }
 
-        public String getLimitKey() {
-            return limitKey;
-        }
-
-        public ConfiguredRatelimit getConfiguredRateLimit() {
-            return configuredRateLimit;
+        public List< Pair<String, ConfiguredRatelimit> > getLimitMap() {
+            return limitMap;
         }
     }
 }

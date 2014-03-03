@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
-    <request-endpoint uri-regex="/service/limits" include-absolute-limits="true"/>
+    <request-endpoint uri-regex="/service2/limits" include-absolute-limits="true"/>
 
     <limit-group id="higher-limits" groups="higher test" default="false">
         <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="30"/>
@@ -51,7 +51,7 @@
     </limit-group>
 
     <limit-group id="query-limits" groups="query-limits" default="false">
-        <limit uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="HOUR" value="1"/>
+        <limit uri="/service2/limits" uri-regex="/service2/limits" http-methods="GET" unit="HOUR" value="1"/>
     </limit-group>
 
 </rate-limiting>
