@@ -77,6 +77,10 @@ public class EHCacheDatastore implements Datastore {
             int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
             if(convertedTtl > currentElement.getTimeToIdle()) {
                 currentElement.setTimeToIdle(convertedTtl);
+
+                //todo: should we round up to the nearest second rather than always rounding down by casting?
+                int currentLifeSpan = (int)TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
+                currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
             }
         }
 

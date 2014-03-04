@@ -205,4 +205,14 @@ public class EHCacheDatastoreTest {
         datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
         assertThat(returnedElement.getTimeToIdle(), equalTo(10));
     }
+
+    @Test
+    public void patch_ttlShouldBeReset() throws Exception {
+        Ehcache cache = mock(Ehcache.class);
+        Element returnedElement = new Element("key", new StringValue(""));
+        when(cache.putIfAbsent(any(Element.class))).thenReturn(returnedElement);
+        EHCacheDatastore datastore = new EHCacheDatastore(cache);
+        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
+        assertTrue(returnedElement.getTimeToLive() >= 10);
+    }
 }
