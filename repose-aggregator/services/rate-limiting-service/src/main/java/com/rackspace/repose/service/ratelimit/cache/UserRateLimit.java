@@ -95,11 +95,9 @@ public class UserRateLimit implements Serializable, Patchable<UserRateLimit, Use
 
         @Override
         public UserRateLimit newFromPatch() {
-            UserRateLimit returnLimit = new UserRateLimit();
+            UserRateLimit newUserLimit = new UserRateLimit();
 
-            returnLimit.applyPatch(this);
-
-            return returnLimit;
+            return newUserLimit.applyPatch(this);
         }
 
         public List< Pair<String, ConfiguredRatelimit> > getLimitMap() {
