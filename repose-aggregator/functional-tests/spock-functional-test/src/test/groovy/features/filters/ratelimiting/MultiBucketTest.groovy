@@ -12,7 +12,7 @@ class MultiBucketTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/multiBucket", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/multibucket", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
 
