@@ -2,14 +2,6 @@ package features.filters.ratelimiting
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
-import spock.lang.Ignore
-
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicInteger
-
-import static org.rackspace.deproxy.Handlers.Delay
 
 class MultiBucketTest extends ReposeValveTest {
 
