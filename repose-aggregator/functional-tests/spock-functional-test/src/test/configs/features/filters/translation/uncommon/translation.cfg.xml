@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-doctype-decl="true">
+    <request-translations>
+        <request-translation>
+            <style-sheets>
+                <style id="ss1" href="remove-element.xsl" />
+                <style id="ss3" href="remove-attribute.xsl" />
+                <style id="ss4" href="jsonx2json.xsl" />
+            </style-sheets>
+        </request-translation>
+    </request-translations>
+    <response-translations>
+        <response-translation accept="*/*" >
+            <style-sheets>
+                <style id="ss2" href="remove-attribute.xsl" />
+                <style id="ss5" href="jsonx2json.xsl" />
+                <style id="ss6" href="remove-element.xsl" />
+            </style-sheets>
+        </response-translation>
+    </response-translations>
+</translation>
