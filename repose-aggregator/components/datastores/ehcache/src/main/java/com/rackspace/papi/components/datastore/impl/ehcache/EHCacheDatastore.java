@@ -73,14 +73,16 @@ public class EHCacheDatastore implements Datastore {
             returnValue = (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
         }
 
-        if(ttl >= 0) {
-            int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
+        //todo: setting ttl can die once we move to tti
+        if (ttl == 0) {
+            currentElement.setTimeToLive(0);
+            currentElement.setTimeToIdle(0);
+        } else if (ttl > 0) {
+            int convertedTtl = (int)TimeUnit.SECONDS.convert(ttl, timeUnit);
+            int currentLifeSpan = (int)TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
+            currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
             if(convertedTtl > currentElement.getTimeToIdle()) {
                 currentElement.setTimeToIdle(convertedTtl);
-
-                //todo: should we round up to the nearest second rather than always rounding down by casting?
-                int currentLifeSpan = (int)TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
-                currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
             }
         }
 
