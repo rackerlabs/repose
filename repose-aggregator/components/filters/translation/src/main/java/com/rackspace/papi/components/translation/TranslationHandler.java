@@ -117,12 +117,15 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
   }
 
   private MediaType getContentType(HeaderValue contentType) {
-    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType != null ? contentType.getValue() : "");
-    return new MediaType(contentMimeType);
+      MediaRangeProcessor processor = new MediaRangeProcessor(new ArrayList<HeaderValue>());
+      MediaType contentTypeMediaType = new MediaType(MimeType.UNKNOWN);
+      if(contentType != null)
+          contentTypeMediaType = processor.process(contentType);
+      return contentTypeMediaType;
   }
 
   private MediaType getContentType(String contentType) {
-    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType != null ? contentType : "");
+    MimeType contentMimeType = MimeType.guessMediaTypeFromString(contentType != null ? contentType : "");
     return new MediaType(contentMimeType);
   }
 
