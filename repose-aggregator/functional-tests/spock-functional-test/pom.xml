@@ -495,7 +495,7 @@
                         <id>prepare-agent</id>
                         <phase>pre-integration-test</phase>
                         <configuration>
-                            <destFile>${project.build.directory}/jacoco-it.exec</destFile>
+                            <destFile>${project.basedir}/../../target/jacoco-it.exec</destFile>
                         </configuration>
                     </execution>
                 </executions>

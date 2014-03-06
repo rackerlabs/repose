@@ -18,6 +18,10 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>

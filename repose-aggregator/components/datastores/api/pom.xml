@@ -11,6 +11,10 @@
     <artifactId>datastore-api</artifactId>
     <name>Repose Components - Datastores - API</name>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
