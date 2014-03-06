@@ -57,7 +57,7 @@ class TranslateUncommonHeadersTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("response: #respHeaders, request: #reqHeaders - #reqBody")
+    @Unroll("response: #respHeaders, request: #reqHeaders - #reqHeaders")
     def "when translating responses with uncommon headers"(){
 
         given: "Origin service returns body of type " + respHeaders
