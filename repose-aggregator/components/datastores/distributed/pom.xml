@@ -11,6 +11,10 @@
     <artifactId>datastore-distributed</artifactId>
     <name>Repose Components - Datastores - Distributed Impl</name>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>

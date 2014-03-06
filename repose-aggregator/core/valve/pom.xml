@@ -13,6 +13,10 @@
     <packaging>jar</packaging>
     <name>Repose Valve - Integration Proxy Container</name>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>xalan</groupId>

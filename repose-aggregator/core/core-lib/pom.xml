@@ -17,6 +17,7 @@
 
     <properties>
         <reposeVersion>${project.version}</reposeVersion>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <packaging>jar</packaging>

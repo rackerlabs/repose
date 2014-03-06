@@ -10,6 +10,10 @@
     <artifactId>datastore-service</artifactId>
     <name>Repose Services - Datastore Service Impl</name>
 
+    <properties>
+        <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.service</groupId>
