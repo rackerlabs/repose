@@ -4,18 +4,14 @@
     <request-translations>
         <request-translation>
             <style-sheets>
-                <style id="ss1" href="remove-element.xsl" />
                 <style id="ss3" href="remove-attribute.xsl" />
-                <style id="ss4" href="jsonx2json.xsl" />
             </style-sheets>
         </request-translation>
     </request-translations>
     <response-translations>
-        <response-translation accept="*/*" >
+        <response-translation>
             <style-sheets>
                 <style id="ss2" href="remove-attribute.xsl" />
-                <style id="ss5" href="jsonx2json.xsl" />
-                <style id="ss6" href="remove-element.xsl" />
             </style-sheets>
         </response-translation>
     </response-translations>
