@@ -3,11 +3,11 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="allmethods" groups="allmethods" default="false">
-        <limit uri="/allmethods/*" uri-regex="/allmethods/(.*)" http-methods="ALL" unit="MINUTE" value="4"/>
+        <limit id="test" uri="/allmethods/*" uri-regex="/allmethods/(.*)" http-methods="ALL" unit="MINUTE" value="4"/>
     </limit-group>
 
     <limit-group id="patchmethod" groups="patchmethod" default="false">
-        <limit uri="/patchmethod/*" uri-regex="/patchmethod/(.*)" http-methods="PATCH" unit="MINUTE" value="4"/>
+        <limit id="test" uri="/patchmethod/*" uri-regex="/patchmethod/(.*)" http-methods="PATCH" unit="MINUTE" value="4"/>
     </limit-group>
 
 </rate-limiting>

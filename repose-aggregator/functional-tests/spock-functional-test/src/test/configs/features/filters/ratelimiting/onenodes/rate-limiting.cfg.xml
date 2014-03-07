@@ -3,55 +3,54 @@
     <request-endpoint uri-regex="/service2/limits" include-absolute-limits="true"/>
 
     <limit-group id="higher-limits" groups="higher test" default="false">
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="30"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="100"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
+        <limit id="one" uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="30"/>
+        <limit id="two" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="100"/>
+        <limit id="three" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
     </limit-group>
 
-    <limit-group id="unlimited-limits" groups="unlimited" default="false">
-    </limit-group>
+    <limit-group id="unlimited-limits" groups="unlimited" default="false" />
 
     <limit-group id="customer-limits" groups="user customer" default="true">
-        <limit uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="MINUTE" value="1000"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="10"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="5"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="5"/>
+        <limit id="one" uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="MINUTE" value="1000"/>
+        <limit id="two" uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="three" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="10"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="5"/>
+        <limit id="five" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="5"/>
     </limit-group>
 
     <limit-group id="unique" groups="unique" default="false">
-        <limit uri="/service/\w*" uri-regex="/service/(&quot;.+&quot;)" http-methods="GET" unit="MINUTE" value="30"/>
-        <limit uri="/service/\s*" uri-regex="/service/(\w.*)" http-methods="POST" unit="HOUR" value="100"/>
-        <limit uri="/service/\d*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
+        <limit id="one" uri="/service/\w*" uri-regex="/service/(&quot;.+&quot;)" http-methods="GET" unit="MINUTE" value="30"/>
+        <limit id="two" uri="/service/\s*" uri-regex="/service/(\w.*)" http-methods="POST" unit="HOUR" value="100"/>
+        <limit id="three" uri="/service/\d*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
     </limit-group>
 
     <limit-group id="multiregex" groups="multiregex" default="false">
-        <limit uri="/service/*" uri-regex="/service/(endpoint1.*)" http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(endpoint2.*)" http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(endpoint3.*)" http-methods="GET POST" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(endpoint4.*)" http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(endpoint5.*)" http-methods="GET" unit="MINUTE" value="3"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="100"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
+        <limit id="one" uri="/service/*" uri-regex="/service/(endpoint1.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="two" uri="/service/*" uri-regex="/service/(endpoint2.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="three" uri="/service/*" uri-regex="/service/(endpoint3.*)" http-methods="GET POST" unit="MINUTE" value="3"/>
+        <limit id="four" uri="/service/*" uri-regex="/service/(endpoint4.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="five" uri="/service/*" uri-regex="/service/(endpoint5.*)" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="six" uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="100"/>
+        <limit id="seven" uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="50"/>
+        <limit id="eight" uri="/service/*" uri-regex="/service/(.*)" http-methods="DELETE" unit="DAY" value="50"/>
     </limit-group>
 
     <limit-group id="all-limits" groups="all-limits" default="false">
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="ALL" unit="HOUR" value="50"/>
+        <limit id="one" uri="/service/*" uri-regex="/service/(.*)" http-methods="ALL" unit="HOUR" value="50"/>
     </limit-group>
 
     <limit-group id="all-limits-small" groups="all-limits-small" default="false">
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/service/*" uri-regex="/service/(.*)" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="multi-limits" groups="multi-limits" default="false">
-        <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
+        <limit id="one" uri="/service/*" uri-regex="/service/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
     </limit-group>
 
     <limit-group id="query-limits" groups="query-limits" default="false">
-        <limit uri="/service2/limits" uri-regex="/service2/limits" http-methods="GET" unit="HOUR" value="1"/>
+        <limit id="one" uri="/service2/limits" uri-regex="/service2/limits" http-methods="GET" unit="HOUR" value="1"/>
     </limit-group>
 
 </rate-limiting>
