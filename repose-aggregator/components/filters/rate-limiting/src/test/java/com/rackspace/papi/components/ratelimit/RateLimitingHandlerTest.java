@@ -64,6 +64,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       headerNames.add(PowerApiHeader.USER.toString());
       headerNames.add("Accept");
 
+        defaultConfig.setId("one");
         defaultConfig.setUri(".*");
         defaultConfig.setUriRegex(".*");
         defaultConfig.getHttpMethods().add(HttpMethod.GET);
