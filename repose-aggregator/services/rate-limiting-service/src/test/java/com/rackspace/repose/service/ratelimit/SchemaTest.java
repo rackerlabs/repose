@@ -60,7 +60,7 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits' groups='user'/> " +
                             "</rate-limiting>";
@@ -98,8 +98,8 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"two\" uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
                     "    </limit-group>" +
                     "    <limit-group id='customer-limits' groups='user'/> " +
                     "</rate-limiting>";
@@ -112,8 +112,8 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"two\" uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
                     "    </limit-group>" +
                     "    <limit-group id='customer-limits' groups='user'/> " +
                     "</rate-limiting>";
@@ -126,7 +126,7 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits' groups='user'/> " +
                             "</rate-limiting>";
