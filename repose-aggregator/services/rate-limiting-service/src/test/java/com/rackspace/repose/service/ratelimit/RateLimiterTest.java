@@ -33,7 +33,7 @@ public class RateLimiterTest {
     @Before
     public void setup() {
         uriMatcher.matches();
-        key = LimitKey.getLimitKey(configuredRateLimit.getId(), uriMatcher, true);
+        key = LimitKey.getLimitKey("unique-group", configuredRateLimit.getId(), uriMatcher, true);
     }
 
     @Test(expected = OverLimitException.class)
