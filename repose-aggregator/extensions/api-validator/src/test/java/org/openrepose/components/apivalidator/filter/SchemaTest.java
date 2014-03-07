@@ -21,7 +21,7 @@ public class SchemaTest {
     @Before
     public void setup() throws Exception {
         final StreamSource schemaSource = new StreamSource(
-                XSDVersioningTest.class.getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"));
+                SchemaTest.class.getResourceAsStream("/META-INF/schema/config/validator-configuration.xsd"));
 
         SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
         Schema schema = schemaFactory.newSchema(schemaSource);

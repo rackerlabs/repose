@@ -6,12 +6,8 @@ import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorItem;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration1;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem1;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -22,50 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * These classes use the <a href="http://en.wikipedia.org/wiki/Template_method_pattern">template pattern</a> to process
- * different versions of the validator.cfg.xml and maintain backward compatibility.
- *
- * The ValidatorConfigurator class provides the base algorithm and the subclasses provide the version-specific
- * functionality.  The base classes match the JAXB classes generated from the version-aware XML schema.
- *
- * A factory method is used to generate the appropriate ValidatorConfigurator child class without exposing
- * the multiple versions to the calling method.
- *
+ * A helper class to process a ValidationConfiguration.
  */
-public abstract class ValidatorConfigurator {
-
+public class ValidatorConfigurator {
     private static final Logger LOG = LoggerFactory.getLogger(ValidatorConfigurator.class);
 
-    static ValidatorConfigurator createValidatorConfigurator( BaseValidatorConfiguration valconfiguration )
-          throws IllegalArgumentException {
+    private ValidatorInfo defaultvalidator;
+    private List<ValidatorInfo> validators;
 
-        ValidatorConfigurator validatorConfigurator;
+    public ValidatorConfigurator() {}
 
-        if( valconfiguration instanceof ValidatorConfiguration1 ) {
-
-            validatorConfigurator = new ValidatorConfigurator1();
-        }
-        else if( valconfiguration instanceof ValidatorConfiguration2 ) {
-
-            validatorConfigurator = new ValidatorConfigurator2();
-        }
-        else {
-            throw new IllegalArgumentException(); // TODO
-        }
-
-        return validatorConfigurator;
+    public ValidatorConfigurator(ValidatorConfiguration valConfig, String configRoot, String wadlUri) {
+        processConfiguration(valConfig, configRoot, wadlUri);
     }
 
-    protected List<ValidatorInfo> validators;
-
-    protected ValidatorInfo defaultvalidator;
-
-    protected abstract List<? extends BaseValidatorItem> getValidatorItems( BaseValidatorConfiguration validatorConfiguration );
-
-    protected abstract void configureVersion( Config config, BaseValidatorItem validatorItem );
-
     public ValidatorInfo getDefaultValidator() {
-
         return defaultvalidator;
     }
 
@@ -73,39 +40,25 @@ public abstract class ValidatorConfigurator {
         return validators;
     }
 
-    public static List< Class<? extends BaseValidatorConfiguration> > getConfigurationClasses() {
-        List< Class<? extends BaseValidatorConfiguration> > r = new ArrayList< Class<? extends BaseValidatorConfiguration> >();
-
-        r.add(BaseValidatorConfiguration.class);
-        r.add(ValidatorConfiguration1.class);
-        r.add(ValidatorConfiguration2.class);
-
-        return r;
-    }
-
-    public void processConfiguration( BaseValidatorConfiguration validatorConfiguration, String configRoot, String config ) {
-
+    public void processConfiguration(ValidatorConfiguration validatorConfiguration, String configRoot, String wadlUri) {
         defaultvalidator = null;
 
-        List<? extends BaseValidatorItem> validatorItems = getValidatorItems( validatorConfiguration );
-        validators = new ArrayList<ValidatorInfo>( validatorItems.size() );
+        List<? extends ValidatorItem> validatorItems = validatorConfiguration.getValidator();
+        validators = new ArrayList<ValidatorInfo>(validatorItems.size());
 
-        for (BaseValidatorItem validatorItem : validatorItems) {
-            Config configuration = createConfiguration(validatorItem,
-                                                       validatorConfiguration.isMultiRoleMatch(),
-                                                       configRoot);
+        for (ValidatorItem validatorItem : validatorItems) {
+            Config configuration = createConfiguration(validatorItem, validatorConfiguration.isMultiRoleMatch(), configRoot);
             configuration.setPreserveRequestBody(validatorConfiguration.isMultiRoleMatch());
-            ValidatorInfo validator =
-                  validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(),
-                                            (Element) validatorItem.getAny(),
-                                            getWadlPath(config, configRoot),
-                                            configuration,
-                                            validatorItem.getValidatorName())
-                        : new ValidatorInfo(validatorItem.getRole(),
-                                            getWadlPath(validatorItem.getWadl(), configRoot),
-                                            configuration,
-                                            validatorItem.getValidatorName());
+            ValidatorInfo validator = validatorItem.getAny() != null
+                    ? new ValidatorInfo(validatorItem.getRole(),
+                    (Element) validatorItem.getAny(),
+                    getWadlPath(wadlUri, configRoot),
+                    configuration,
+                    validatorItem.getValidatorName())
+                    : new ValidatorInfo(validatorItem.getRole(),
+                    getWadlPath(validatorItem.getWadl(), configRoot),
+                    configuration,
+                    validatorItem.getValidatorName());
 
             validators.add(validator);
             if (validatorItem.isDefault() && defaultvalidator == null) {
@@ -114,13 +67,12 @@ public abstract class ValidatorConfigurator {
         }
     }
 
-    private Config createConfiguration( BaseValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
+    private Config createConfiguration(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
+        Config config = new Config();
 
-        Config config = new Config() ;
-
-        configureVersion( config, validatorItem );
-
-        config.setResultHandler(getHandlers(validatorItem, multiRoleMatch, configRoot ));
+        config.setXSDEngine((validatorItem).getXsdEngine().value());
+        config.setXSLEngine((validatorItem).getXslEngine().value());
+        config.setResultHandler(getHandlers(validatorItem, multiRoleMatch, configRoot));
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());
@@ -138,7 +90,7 @@ public abstract class ValidatorConfigurator {
         return config;
     }
 
-    private DispatchHandler getHandlers(BaseValidatorItem validatorItem, boolean multiRoleMatch, String configRoot ) {
+    private DispatchHandler getHandlers(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
 
         if (!multiRoleMatch) {
@@ -146,7 +98,7 @@ public abstract class ValidatorConfigurator {
         }
 
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
-            final String dotPath = StringUriUtilities.formatUri( getPath( validatorItem.getDotOutput(), configRoot ) );
+            final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput(), configRoot));
             File out = new File(dotPath);
             try {
                 if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
@@ -161,10 +113,10 @@ public abstract class ValidatorConfigurator {
         return new DispatchHandler(handlers.toArray(new ResultHandler[handlers.size()]));
     }
 
-    private String getPath(String path, String configRoot){
+    private String getPath(String path, String configRoot) {
         File file = new File(path);
 
-        if (!file.isAbsolute()){
+        if (!file.isAbsolute()) {
             file = new File(configRoot, path);
         }
 
@@ -173,35 +125,5 @@ public abstract class ValidatorConfigurator {
 
     private String getWadlPath(String uri, String configRoot) {
         return new File(configRoot, uri).toURI().toString();
-    }
-
-    static class ValidatorConfigurator1 extends ValidatorConfigurator {
-
-        @Override
-        protected List<? extends BaseValidatorItem> getValidatorItems( BaseValidatorConfiguration validatorConfiguration ) {
-            return ((ValidatorConfiguration1)validatorConfiguration).getValidator();
-        }
-
-        @Override
-        protected void configureVersion( Config config, BaseValidatorItem validatorItem ) {
-
-            config.setXSDEngine(((ValidatorItem1)validatorItem).isUseSaxon() ? "SaxonEE" : "Xerces");
-            config.setXSLEngine(((ValidatorItem1)validatorItem).getXslEngine().value());
-        }
-    }
-
-    static class ValidatorConfigurator2 extends ValidatorConfigurator {
-
-        @Override
-        protected void configureVersion( Config config, BaseValidatorItem validatorItem ) {
-
-            config.setXSDEngine(((ValidatorItem2)validatorItem).getXsdEngine().value());
-            config.setXSLEngine(((ValidatorItem2)validatorItem).getXslEngine().value());
-        }
-
-        @Override
-        protected List<? extends BaseValidatorItem> getValidatorItems( BaseValidatorConfiguration validatorConfiguration ) {
-            return ((ValidatorConfiguration2)validatorConfiguration).getValidator();
-        }
     }
 }
