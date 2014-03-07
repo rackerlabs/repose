@@ -223,7 +223,7 @@
                         <itemizedlist>
                             <listitem>
                                 <para><emphasis role="bold"
-                                   >datastore</emphasis> (optional): stores
+                                   >datastore</emphasis> <guilabel>(optional)</guilabel>: stores
                                    rate limiting information. If not
                                    specified, rate limiting will use
                                    the first distributed datastore
@@ -261,7 +261,7 @@
                         <itemizedlist>
                             <listitem>
                                 <para><emphasis role="bold"
-                                   >datastore-warn-limit</emphasis> (optional): defines <emphasis
+                                   >datastore-warn-limit</emphasis> <guilabel>(optional)</guilabel>: defines <emphasis
                                    role="bold"
                                    >&lt;limit&gt;</emphasis> in order
                                    to log a warning on size when an
@@ -274,7 +274,7 @@
                             </listitem>
                             <listitem>
                                 <para><emphasis role="bold"
-                                   >overLimit-429-responseCode</emphasis> (optional): when
+                                   >overLimit-429-responseCode</emphasis> <guilabel>(optional)</guilabel>: when
                                    set to true, will send a 429
                                    response code instead of the
                                    default 413 response code. The 429
@@ -287,9 +287,10 @@
                                 <para>
                                    <emphasis role="bold"
                                    >use-capture-groups</emphasis>
-                                    (optional): when  is set to false,
-                                   it will count all the requests with
-                                   the &lt;uri-regex&gt; that have the
+                                    <guilabel>(optional)</guilabel>:
+                                   when  is set to false, it will
+                                   count all the requests with the
+                                   &lt;uri-regex&gt; that have the
                                    capture group towards the limit
                                    count specified. By default, this
                                    attribute is set to true. If it is
@@ -307,15 +308,15 @@
                     <para>
                         <emphasis role="bold"
                             >&lt;request-endpoint&gt; </emphasis>
-                        (recommended) : This element sets the endpoint
-                        and format with which the user can query
-                        limits. It must specify a regular expression
-                        that identifies client requests for the
-                        client's current limits. This element is
-                        highly recommended, but it is not required. If
-                        the request-endpoint element is not in the
-                        configuration, the user cannot query limits.
-                    </para>
+                        <guilabel>(recommended)</guilabel> : This
+                        element sets the endpoint and format with
+                        which the user can query limits. It must
+                        specify a regular expression that identifies
+                        client requests for the client's current
+                        limits. This element is highly recommended,
+                        but it is not required. If the
+                        request-endpoint element is not in the
+                        configuration, the user cannot query limits. </para>
                 
                     <para>
                         <itemizedlist>
@@ -395,6 +396,17 @@
                 
                     <para>
                         <itemizedlist>
+                            <listitem>
+                                <para><emphasis role="bold"
+                                   >id</emphasis>
+                                   <guilabel>(required)</guilabel>: defines
+                                   the unique identifier for a given
+                                   limit. Each
+                                   <guilabel>&lt;limit></guilabel>
+                                   element must have an id attribute
+                                   that is unique within the each
+                                   <guilabel>&lt;limit-group></guilabel>.</para>
+                            </listitem>
                             <listitem>
                                 <para><emphasis role="bold"
                                    >http-methods: </emphasis>lists the
