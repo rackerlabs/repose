@@ -549,11 +549,229 @@
                 descriptive name for this limit.</para>
                
             </callout>
-            
-                
         </calloutlist>
-        
-        
+        <section xml:id="multiple-rate-limits">
+            <title>Multiple Rate Limits</title>
+            <para><guilabel>Limit Order</guilabel></para>
+            <para>By editing your rate-limiting.cfg.xml file, you can configure multiple rate limits.</para>
+            <para> Within each  <emphasis role="bold"
+                    >&lt;limit-group&gt;</emphasis> , you can define
+                one or more rate limits by using a regular expression
+                to match against request URIs, the maximum number of
+                requests allowed by the limit, and the unit of time
+                before the count applied to the limit is reset. To
+                further restrict the requests a limit applies to, you
+                can also define HTTP methods, but these are not
+                required. Each  <emphasis role="bold"
+                    >&lt;limit&gt;</emphasis>  element has a "bucket"
+                with an allowance described above. For each request,
+                all applicable limits add a hit into their respective
+                buckets. Multiple rate limits that match the same
+                request, such as POST on * and POST on /servers, will
+                all apply.  </para>
+            <para>When the number of hits in a bucket exceeds the value of the corresponding limit, 
+                future requests are rate-limited and will not be forwarded to the origin service. 
+                After the configured unit of time for a limit has passed from the time of the first 
+                request the limit was applied to, the bucket will be emptied and the process will restart. 
+                When the allowance for one limit is reached, subsequent limits within the same limit 
+                group will never be applied. In other words, the most restrictive limit will prevent 
+                updates to subsequent limits. If a request does not cause a bucket to go over limit, 
+                the request passes.</para>
+            
+            
+            <para><guilabel>Group Limit Order</guilabel></para>
+            <para> Rate Limits are only applied to the first matching 
+                    <emphasis role="bold"
+                    >&lt;limit-group&gt;</emphasis> . For example,
+                some user “test” is in both the “admin” and “observer”
+                groups. If the “admin” limit-group is defined in the
+                configuration above the  “observer” limit-group,
+                the “admin” limit-group will apply its limits while
+                the "observer" limit-group will not. </para>
+            
+            
+            <para><guilabel>Methods</guilabel></para>
+            <para>Limits with multiple methods in the http-methods attribute or with the http-method 
+                of ALL will match against the listed methods, and matching requests will fall in the 
+                same bucket rather than in separate buckets for each method. For example, if a limit 
+                has http-methods="GET POST" and value="3", then three GET or POST requests will be passed, 
+                but a fourth, GET or POST request will be rejected because it exceeds the limit of 3. 
+                The following example shows how this would work.
+            </para>
+            
+            
+            
+            <para><guilabel>Time-block Approach</guilabel></para>
+            <para>With the time block approach, each time-block or unit is independent of other units. 
+                On average, the configured rate limit of X will be enforced. During a rare spike, up to 
+                2X-1 requests can pass through in less than one unit of time. </para>
+            <para>In the following example, five requests are allowed per minute for each time-block, 
+                but the one-minute window that lands in between the two units has seven requests. 
+                You may see over-limits during particular windows; however, across multiple units of time, 
+                the allowed requests average less than or equal to five requests per minute.</para>
+            
+          
+            <figure
+                xml:id="time-block-figure">
+                <title>Time-block Figure</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata
+                            fileref="../figures/repose-time-block.png"
+                            format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            
+            
+            
+            <note>
+                <para> The difference stems from the way time is
+                    perceived by the Rate Limiting filter; the filter
+                    views time as discrete units rather than a
+                    continuous stream. </para>
+            </note>
+            
+            
+            
+            <para><guilabel>Example of Multiple Rate
+                    Limiting</guilabel></para>
+            
+            <para><emphasis role="italic">The following example shows
+                    a sample request, a configuration for multiple
+                    rate limiting, and a table showing how the
+                    requests are updated. </emphasis></para>
+            <para>This is a valid request that could pass
+                    through the Rate Limiting filter multiple times
+                    depending on the rate limit intervals that are set
+                    in the rate-limiting.cfg.xml
+                file.</para>
+            
+            <!-- REQUEST HERE  -->
+            <informaltable frame="void">
+                <col width="100%"/>
+                <thead>
+                    <tr>
+                        <th>Request</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <para>GET /test/one HTTP/1.1</para>
+                            <para>Host: api.example.com</para>
+                            <para>X-PP-User: person-1</para>
+                            <para>X-PP-Groups: user</para>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
+            
+            <para>This section of the rate-limiting configuration
+                shows only one <guilabel>&lt;limit
+                    group&gt;</guilabel>. Your configuration may have
+                numerous <guilabel>&lt;limit groups&gt;</guilabel>
+                listed. Within each
+                    <guilabel>&lt;limit-group&gt;</guilabel>, you may
+                have numerous <guilabel>&lt;limits&gt;</guilabel>. </para>
+            
+            <!-- CONFIG HERE -->
+            <example><title>Sample Multiple Rate Limit</title>
+                <programlisting language="xml">
+<xi:include href="../samples/repose-multiple-rate-limit.xml" parse="text"/>
+                </programlisting> 
+            </example>
+            
+            
+            <para>This table details a one-second scenario
+                    of the preceding request and rate limiting
+                    configuration. </para>
+            
+            <!--  LIST DESCRIPTION AND TABLE HERE  -->
+            
+            
+            <orderedlist>
+                <listitem>
+                    <para>The first request passes all three
+                        limits because the methods match and the limit
+                        values have not been exceeded.</para>
+                
+                <db:para>
+                    <note>
+                        <para> Only the first matching
+                            <guilabel>&lt;limit
+                                group&gt;</guilabel> is applied to a
+                            request. </para>
+                    </note>
+                </db:para>
+                </listitem>
+                <listitem>
+                    <para> The second request passes all three limits
+                        like the first. Limit "two" has been reached. 
+                    </para>
+                </listitem>
+                <listitem>
+                    <para> The third request passes the first limit
+                        and is then rejected because the allowance has
+                        already been fulfilled for the second limit
+                        until the next 24-hour period. </para>
+                    
+                </listitem>
+            </orderedlist>
+            <informaltable frame="void">
+                <col width="14%"/>
+                <col width="14%"/>
+                <col width="14%"/>
+                <col width="14%"/>
+                <col width="14%"/>
+                <col width="14%"/>
+                <col width="14%"/>
+                <thead>
+                    <tr>
+                        <th>&lt;limit> id</th>
+                        <th>Limit value</th>
+                        <th>Bucket Allowance After 1st Request</th>
+                        <th>Bucket Allowance After 2nd Request</th>
+                        <th>Bucket Allowance After 3rd Request</th>
+                        <th>Bucket Allowance After 4th Request</th>
+                        <th>Bucket Allowance After 5th Request</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>one</td>
+                        <td>5</td>
+                        <td>4</td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>0 (limit hit)</td>
+                    </tr>
+                    <tr>
+                        <td>two</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>0 (limit hit)</td>
+                        <td>0 (request rejected)</td>
+                        <td>0 (request rejected)</td>
+                        <td>0 (request rejected)</td>
+                    </tr>
+                    <tr>
+                        <td>three</td>
+                        <td>4</td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </informaltable>
+            
+            
+            
+            
+        </section>
     </section>
     
     <section xml:id="Tracking_Requests-d1e431">
