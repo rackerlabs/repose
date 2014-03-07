@@ -53,6 +53,10 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:sequence>
+            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
         <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
@@ -66,10 +70,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:sequence>
-            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
                    test="count(scr:validator/@dot-output) = count(distinct-values(scr:validator/@dot-output))"
