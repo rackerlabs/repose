@@ -9,8 +9,7 @@
             check-elements="true"
             xsl-engine="XalanC"
             enable-rax-roles="true"
-            check-xsd-grammar="true"
-            use-saxon="false"/>
+            check-xsd-grammar="true"/>
 
     <validator
             role="check-param"
@@ -21,8 +20,7 @@
             xsl-engine="XalanC"
             enable-pre-process-extension="true"
             check-plain-params="true"
-            check-xsd-grammar="true"
-            use-saxon="false"/>
+            check-xsd-grammar="true"/>
 
     <validator
             role="check-all"
@@ -33,8 +31,7 @@
             xsl-engine="XalanC"
             enable-pre-process-extension="true"
             check-plain-params="true"
-            check-xsd-grammar="true"
-            use-saxon="false"/>
+            check-xsd-grammar="true"/>
 
     <validator
             role="pass"
@@ -45,7 +42,6 @@
             xsl-engine="XalanC"
             enable-pre-process-extension="true"
             check-plain-params="true"
-            check-xsd-grammar="true"
-            use-saxon="false"/>
+            check-xsd-grammar="true"/>
 </validators>
 

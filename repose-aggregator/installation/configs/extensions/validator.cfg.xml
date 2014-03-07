@@ -15,7 +15,6 @@
       remove-dups="true"
       xpath-version="2"
       xsl-engine="XalanC"
-      use-saxon="false"
       join-xpath-checks="false"/>
    <validator role="other" default="false" wadl="fail-404.wadl"/>
 </validators>
