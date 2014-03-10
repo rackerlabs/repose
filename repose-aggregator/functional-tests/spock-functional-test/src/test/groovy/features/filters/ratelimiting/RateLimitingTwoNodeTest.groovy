@@ -97,13 +97,13 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
 
         long start = System.currentTimeMillis()
 
-        for (x in 1..numClients) {
+        numClients.times { x ->
 
             def thread = Thread.start {
                 def threadNum = x
 
-                for (i in 1..callsPerClient) {
-                    requests.add('spock-thread-' + threadNum + '-request-' + i)
+                callsPerClient.times { i ->
+                    requests.add("spock-thread-$threadNum-request-$i")
                     def messageChain = null
                     if((i+x) % 2 == 0){
                         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
