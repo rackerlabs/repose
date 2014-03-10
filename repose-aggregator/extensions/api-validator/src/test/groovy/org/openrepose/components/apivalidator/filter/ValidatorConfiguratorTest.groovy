@@ -32,7 +32,7 @@ class ValidatorConfiguratorTest {
         cnf.setMultiRoleMatch(true)
         validatorConfigurator.processConfiguration(cnf, getFilePath(resource), wadl)
         for (ValidatorInfo info : validatorConfigurator.getValidators()) {
-            assert !info.getValidator().config().preserveRequestBody
+            assert info.getValidator().config().preserveRequestBody
         }
     }
 
