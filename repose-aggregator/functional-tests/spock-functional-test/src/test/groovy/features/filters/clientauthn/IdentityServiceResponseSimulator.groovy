@@ -119,6 +119,13 @@ class IdentityServiceResponseSimulator {
          * X-Auth-Token : String - A valid authentication token for an administrative user.
          * List groups for a specified user.
          *
+         * GET
+         * users/{user_id}/roles
+         * X-Auth-Token : String - A valid authentication token for an administrative user.
+         * user_id : String - The user ID.
+         * Lists global roles for a specified user. Excludes tenant roles.
+         *
+         *
          */
 
         def path = request.path
@@ -157,11 +164,22 @@ class IdentityServiceResponseSimulator {
             }
 
         } else if (path.startsWith("/users/")) {
+
             match = (path =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
             if (match) {
                 if (method =="GET") {
                     def userId = match[0][1]
                     return handleGroupsCall(request)
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (path =~ /\/users\/([^\/]+)\/roles/)
+            if (match) {
+                if (method =="GET") {
+                    def userId = match[0][1]
+                    return getUserGlobalRoles(request)
                 } else {
                     return new Response(405)
                 }
@@ -363,6 +381,33 @@ class IdentityServiceResponseSimulator {
                 'tenant': this.client_tenant,
                 'originServicePort': this.originServicePort,
         ];
+
+        def body = templateEngine.createTemplate(template).make(params);
+        return new Response(200, null, headers, body);
+    }
+
+    def getUserGlobalRoles(Request request) {
+
+        def xml = false
+
+        request.headers.findAll('Accept').each { values ->
+            if (values.contains('application/xml')) {
+                xml = true
+            }
+        }
+
+        def template;
+        def headers = [:];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+            template = this.getUserGlobalRolesXmlTemplate;
+        } else {
+            headers.put('Content-type', 'application/json')
+            template = this.getUserGlobalRolesJsonTemplate;
+        }
+
+        def params = [:];
 
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
@@ -649,5 +694,23 @@ class IdentityServiceResponseSimulator {
             adminURL="http://localhost:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
 </endpoints>"""
+
+    def getUserGlobalRolesJsonTemplate =
+        """{
+    "roles":[{
+            "id":"123",
+            "name":"compute:admin",
+            "description":"Nova Administrator"
+        }
+    ],
+    "roles_links":[]
+}"""
+
+    def getUserGlobalRolesXmlTemplate =
+        """<?xml version="1.0" encoding="UTF-8"?>
+<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <role id="123" name="Admin" description="All Access" />
+    <role id="234" name="Guest" description="Guest Access" />
+</roles>"""
 
 }
