@@ -5,16 +5,16 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="servers-instances" groups="group" default="false">
-        <limit uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test" uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="no-captures" groups="no-captures" default="false">
-        <limit uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test" uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="separate-limits" groups="separate-limits" default="false">
-        <limit uri="/v1/*/servers" uri-regex="/v1/(.+)/servers" http-methods="ALL" unit="MINUTE" value="2"/>
-        <limit uri="/v2/*/images" uri-regex="/v2/(.+)/images" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test1" uri="/v1/*/servers" uri-regex="/v1/(.+)/servers" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test2" uri="/v2/*/images" uri-regex="/v2/(.+)/images" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
 </rate-limiting>

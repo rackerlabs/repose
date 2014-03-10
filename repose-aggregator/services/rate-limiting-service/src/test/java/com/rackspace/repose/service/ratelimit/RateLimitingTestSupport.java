@@ -41,10 +41,10 @@ public class RateLimitingTestSupport {
       limitGroup.setId(limitGroupId);
       limitGroup.getGroups().add(userRole);
 
-      limitGroup.getLimit().add(newConfiguredRateLimit(TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.GET);}}, rateLimitUri, uriRegex, VALUE));
-      limitGroup.getLimit().add(newConfiguredRateLimit(TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.PUT);}}, rateLimitUri, uriRegex, VALUE));
-      limitGroup.getLimit().add(newConfiguredRateLimit(TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.POST);}}, rateLimitUri, uriRegex, VALUE));
-      limitGroup.getLimit().add(newConfiguredRateLimit(TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.DELETE);}}, rateLimitUri, uriRegex, VALUE));
+      limitGroup.getLimit().add(newConfiguredRateLimit("one", TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.GET);}}, rateLimitUri, uriRegex, VALUE));
+      limitGroup.getLimit().add(newConfiguredRateLimit("two", TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.PUT);}}, rateLimitUri, uriRegex, VALUE));
+      limitGroup.getLimit().add(newConfiguredRateLimit("three", TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.POST);}}, rateLimitUri, uriRegex, VALUE));
+      limitGroup.getLimit().add(newConfiguredRateLimit("four", TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.DELETE);}}, rateLimitUri, uriRegex, VALUE));
 
       return limitGroup;
    }
@@ -56,7 +56,7 @@ public class RateLimitingTestSupport {
       limitGroup.setId(limitGroupId);
       limitGroup.getGroups().add(userRole);
 
-      limitGroup.getLimit().add(newConfiguredRateLimit(TimeUnit.MINUTE,
+      limitGroup.getLimit().add(newConfiguredRateLimit("five", TimeUnit.MINUTE,
                                                        new ArrayList<HttpMethod>(){{ add(HttpMethod.GET);
                                                                                      add(HttpMethod.PUT);
                                                                                      add(HttpMethod.POST);
@@ -66,9 +66,10 @@ public class RateLimitingTestSupport {
       return limitGroup;
    }
 
-   public static ConfiguredRatelimit newConfiguredRateLimit(TimeUnit unit, List<HttpMethod> methods, String rateLimitUri, String uriRegex, int value) {
+   public static ConfiguredRatelimit newConfiguredRateLimit(String id, TimeUnit unit, List<HttpMethod> methods, String rateLimitUri, String uriRegex, int value) {
       final ConfiguredRatelimit rateLimit = new ConfiguredRatelimit();
 
+       rateLimit.setId(id);
       rateLimit.setUnit(unit);
       rateLimit.setUri(rateLimitUri);
       rateLimit.setUriRegex(uriRegex);

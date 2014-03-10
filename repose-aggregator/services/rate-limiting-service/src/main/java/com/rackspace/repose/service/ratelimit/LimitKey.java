@@ -14,15 +14,18 @@ public class LimitKey {
 
     private LimitKey() {}
 
-    public static String getLimitKey(String limitId, Matcher uriMatcher, boolean useCaptureGroups) {
+    public static String getLimitKey(String limitGroup, String limitId, Matcher uriMatcher, boolean useCaptureGroups) {
         // The group count represents the number of elements that will go into
         // generating the unique cache id for the requested URI
         final int groupCount = uriMatcher.groupCount();
 
         final StringBuilder cacheIdBuffer = new StringBuilder();
 
+        // All cacheId's contain the unique limit group
+        cacheIdBuffer.append(String.valueOf(limitGroup.hashCode()));
+
         // All cacheId's contain the unique limit Id
-        cacheIdBuffer.append(limitId);
+        cacheIdBuffer.append(":" + String.valueOf(limitId.hashCode()));
 
         // If using capture groups, captured text is hashed and appended
         if (useCaptureGroups) {

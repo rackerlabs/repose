@@ -10,7 +10,7 @@
 
     <!-- Limits for all other requests -->
     <limit-group id="limited" groups="limited" default="true">
-        <limit uri="*" uri-regex="/.*" http-methods="POST PUT GET DELETE" unit="MINUTE" value="10" />
+        <limit id="all" uri="*" uri-regex="/.*" http-methods="POST PUT GET DELETE" unit="MINUTE" value="10" />
     </limit-group>
 
     <!-- Limits for WhiteListed IPs -->

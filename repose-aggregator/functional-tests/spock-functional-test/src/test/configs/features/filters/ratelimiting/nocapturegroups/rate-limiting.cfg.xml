@@ -5,11 +5,11 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="no-captures" groups="no-captures" default="false">
-        <limit uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test" uri="/objects/*/things/*" uri-regex="/objects/.+/things/.+" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="captures" groups="captures" default="false">
-        <limit uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="test" uri="/servers/*/instances/*" uri-regex="/servers/(.+)/instances/(.+)" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
 </rate-limiting>

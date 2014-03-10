@@ -3,54 +3,54 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="limitAll" groups="limitAll" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="disjointLimits" groups="disjointLimits" default="false">
-        <limit uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="3"/>
-        <limit uri="/item*" uri-regex="/item.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="two" uri="/item*" uri-regex="/item.*" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="overlappingLimits" groups="overlappingLimits" default="false">
-        <limit uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="3"/>
-        <limit uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="two" uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="subsetLimitsByUri" groups="subsetLimitsByUri" default="false">
-        <limit uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="4"/>
-        <limit uri="/resource/subresource*" uri-regex="/resource/subresource.*" http-methods="ALL" unit="MINUTE" value="2"/>
+        <limit id="one" uri="/resource*" uri-regex="/resource.*" http-methods="ALL" unit="MINUTE" value="4"/>
+        <limit id="two" uri="/resource/subresource*" uri-regex="/resource/subresource.*" http-methods="ALL" unit="MINUTE" value="2"/>
     </limit-group>
 
     <limit-group id="subsetLimitsByMethod" groups="subsetLimitsByMethod" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3"/>
-        <limit uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="two" uri="/*" uri-regex="/.*" http-methods="GET" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="differentUnits" groups="differentUnits" default="false">
         <!--not yet allowed by the rate limiting xsd-->
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="SECOND" value="3"/>
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="5"/>
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="SECOND" value="3"/>
+        <limit id="two" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="5"/>
     </limit-group>
 
     <limit-group id="limitsInOrder" groups="limitsInOrder" default="false">
-        <limit uri="/*" uri-regex="/1." http-methods="GET" unit="MINUTE" value="2"/>
-        <limit uri="/*" uri-regex="/.2" http-methods="GET" unit="MINUTE" value="3"/>
+        <limit id="one" uri="/*" uri-regex="/1." http-methods="GET" unit="MINUTE" value="2"/>
+        <limit id="two" uri="/*" uri-regex="/.2" http-methods="GET" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="allMethods" groups="allMethods" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="8" />
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="8" />
     </limit-group>
 
     <limit-group id="multipleMethods" groups="multipleMethods" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="MINUTE" value="3" />
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="GET POST PUT" unit="MINUTE" value="3" />
     </limit-group>
 
     <limit-group id="countOnStart" groups="countOnStart" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
     </limit-group>
 
     <limit-group id="fixedTimeWindow" groups="fixedTimeWindow" default="false">
-        <limit uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
+        <limit id="one" uri="/*" uri-regex="/.*" http-methods="ALL" unit="MINUTE" value="3" />
     </limit-group>
 
 
