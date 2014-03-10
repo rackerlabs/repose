@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.components.clientauth.atomfeed.CacheKeys;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 public class SaxAuthFeedReaderTest {
 
    private ServiceClient client;
+    private AkkaServiceClient akkaClient;
    private ServiceClientResponse resp1, resp2, resp3;
    private SaxAuthFeedReader reader;
 
@@ -34,6 +36,7 @@ public class SaxAuthFeedReaderTest {
       AppenderForTesting.clear();
 
       client = mock(ServiceClient.class);
+       akkaClient = mock(AkkaServiceClient.class);
 
       FilePathReaderImpl fileReader1 = new FilePathReaderImpl(File.separator + "META-INF" + File.separator + "feed.xml");
       FilePathReaderImpl fileReader2 = new FilePathReaderImpl(File.separator + "META-INF" + File.separator + "empty-feed.xml");
@@ -55,7 +58,7 @@ public class SaxAuthFeedReaderTest {
       when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp1);
       when(client.get(eq("https://test.feed.atomhopper.rackspace.com/some/identity/feed/?marker=urn:uuid:b23a9c7f-5489-4fd8-bf10-3292032d805f&limit=25&search=&direction=forward"),
               anyMap())).thenReturn(resp2);
-      reader = new SaxAuthFeedReader(client, "http://some.junit.test.feed/at/somepath", "atomId");
+      reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
       CacheKeys keys = reader.getCacheKeys();
 
       String[] users = {"224277258"}; //User from atom feed
@@ -70,8 +73,7 @@ public class SaxAuthFeedReaderTest {
 
       resp3 = new ServiceClientResponse(401, null);
       when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
-      reader = new SaxAuthFeedReader(client, "http://some.junit.test.feed/at/somepath", "atomId");
-
+      reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
       CacheKeys keys = reader.getCacheKeys();
 
       assertEquals("Should log 401 with atom feed configured without auth", "Feed at http://some.junit.test.feed/at/somepath requires Authentication. Please "
@@ -85,7 +87,7 @@ public class SaxAuthFeedReaderTest {
 
       resp3 = new ServiceClientResponse(503, null);
       when(client.get(eq("http://some.junit.test.feed/at/somepath"), anyMap())).thenReturn(resp3);
-      reader = new SaxAuthFeedReader(client, "http://some.junit.test.feed/at/somepath", "atomId");
+      reader = new SaxAuthFeedReader(client, akkaClient, "http://some.junit.test.feed/at/somepath", "atomId");
 
       CacheKeys keys = reader.getCacheKeys();
 

@@ -61,7 +61,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
    public void setAuthed(String uri, String user, String pass) {
       isAuthed = true;
-      provider = new AdminTokenProvider(client, uri, user, pass);
+      provider = new AdminTokenProvider(akkaServiceClient, uri, user, pass);
       adminToken = provider.getAdminToken();
    }
 
