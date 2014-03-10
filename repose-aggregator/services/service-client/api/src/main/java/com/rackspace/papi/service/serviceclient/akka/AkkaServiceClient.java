@@ -2,6 +2,7 @@ package com.rackspace.papi.service.serviceclient.akka;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
+import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Map;
  */
 public interface AkkaServiceClient {
     ServiceClientResponse get(String token, String uri, Map<String, String> headers);
-    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload);
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType);
 
     void shutdown();
 }

@@ -2,6 +2,7 @@ package com.rackspace.papi.service.serviceclient.akka;
 
 import akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
+import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
 public class AuthPostRequest implements ConsistentHashable {
@@ -10,12 +11,14 @@ public class AuthPostRequest implements ConsistentHashable {
     private Map<String, String> headers;
     private String hashKey;
     private String payload;
+    private MediaType mediaType;
 
-    public AuthPostRequest(String hashKey, String uri, Map<String, String> headers, String payload) {
+    public AuthPostRequest(String hashKey, String uri, Map<String, String> headers, String payload, MediaType mediaType) {
         this.uri = uri;
         this.headers = headers;
         this.payload = payload;
         this.hashKey = hashKey;
+        this.mediaType = mediaType;
     }
 
     public String getUri() {
@@ -34,4 +37,11 @@ public class AuthPostRequest implements ConsistentHashable {
         return hashKey;
     }
 
+    public MediaType getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
 }

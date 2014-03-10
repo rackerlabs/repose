@@ -18,6 +18,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -73,9 +74,9 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     }
 
     @Override
-    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload) {
+    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType) {
         ServiceClientResponse scr = null;
-        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload);
+        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, mediaType);
         Future<ServiceClientResponse> future = getFuture(apr);
 
         try {
