@@ -67,7 +67,11 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
         } else if (serviceAdminRoles != null) {
             //validate token and get roles if service admin roles is not null
-            roleIsServiceAdmin(authenticationService.validateToken(null, authenticationToken));
+            if (roleIsServiceAdmin(authenticationService.validateToken(null, authenticationToken))) {
+                director.setFilterAction(FilterAction.PASS);
+            } else {
+                checkTenantEndpoints(director, authenticationToken);
+            }
         } else {
             checkTenantEndpoints(director, authenticationToken);
         }
