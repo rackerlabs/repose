@@ -1,6 +1,7 @@
 package org.openrepose.components.rackspace.authz;
 
 import com.rackspace.auth.AuthServiceException;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -11,6 +12,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.components.authz.rackspace.config.ServiceAdminRoles;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -29,11 +31,14 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
+    private final ServiceAdminRoles serviceAdminRoles;
 
-    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
+                                       ServiceEndpoint myEndpoint, ServiceAdminRoles serviceAdminRoles) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
+        this.serviceAdminRoles = serviceAdminRoles;
     }
 
     @Override
@@ -45,11 +50,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         if (authenticationWasDelegated(request)) {
             // We do not support delegation
             myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            LOG.debug("Authentication delegation is not supported by the rackspace authorization filter. Rejecting request.");
+            LOG.debug("Authentication delegation is not supported by the Rackspace authorization filter. Rejecting request.");
         } else {
             authorizeRequest(myDirector, request);
         }
-
 
         return myDirector;
     }
@@ -61,9 +65,24 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+        } else if (serviceAdminRoles != null) {
+            //validate token and get roles if service admin roles is not null
+            roleIsServiceAdmin(authenticationService.validateToken(null, authenticationToken));
         } else {
             checkTenantEndpoints(director, authenticationToken);
         }
+    }
+
+    private boolean roleIsServiceAdmin(AuthToken authToken) {
+        if (authToken.getRoles() == null) return false;
+
+        for (String role : authToken.getRoles().split(",")) {
+            if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void checkTenantEndpoints(FilterDirector director, String userToken) {
@@ -79,11 +98,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
                         myEndpoint.getHref() + "\".  User not authorized to access service.");
                 director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
-        } catch (AuthServiceException ex){
-           LOG.error("Failure in authorization component" + ex.getMessage(), ex);
-           director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        catch (Exception ex) {
+        } catch (AuthServiceException ex) {
+            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
             LOG.error("Failure in authorization component: " + ex.getMessage(), ex);
             director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
