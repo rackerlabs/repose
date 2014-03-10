@@ -9,5 +9,7 @@ import java.util.Map;
  */
 public interface AkkaServiceClient {
     ServiceClientResponse get(String token, String uri, Map<String, String> headers);
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload);
+
     void shutdown();
 }
