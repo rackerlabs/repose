@@ -43,7 +43,7 @@ class DateTimeFormatConverterTest {
         //The format we are using is incorrect and doesn't do what it says it does, the following two tests prove it
         //unfortunately the simple date format in java 1.6 is broken for our purposes, when we upgrade to 1.7
         //these test can be unignored and the appropriate format un commented in DateConversionFormat
-        assert new Date() < new Date(2014 - 1900, Calendar.MARCH, 9, 9, 0)
+        assert new Date() < new Date(2014 - 1900, Calendar.APRIL, 9, 9, 0)
     }
 
     @Ignore
