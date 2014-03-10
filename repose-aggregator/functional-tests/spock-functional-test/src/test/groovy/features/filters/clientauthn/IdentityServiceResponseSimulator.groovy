@@ -96,21 +96,82 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        if (request.method == "POST") {
-            return handleGetAdminTokenCall(request);
-        } else if (request.method == "GET" && request.path.endsWith("endpoints")) {
-            return handleEndpointsCall(request);
-        } else if (request.method == "GET" && request.path.contains("tokens")) {
-            return handleValidateTokenCall(request);
-        } else if (request.method == "GET") {
-            return handleGroupsCall(request);
-        } else {
-            throw new UnsupportedOperationException('Unknown request: %r' % request)
+        /*
+         * From http://docs.openstack.org/api/openstack-identity-service/2.0/content/
+         *
+         * POST
+         * v2.0/tokens
+         * Authenticates and generates a token.
+         *
+         * GET
+         * v2.0/tokens/{tokenId}{?belongsTo}
+         * tokenId : UUID - Required. The token ID.
+         * Validates a token and confirms that it belongs to a specified tenant.
+         *
+         * GET
+         * v2.0/tokens/{tokenId}/endpoints
+         * tokenId : UUID - Required. The token ID.
+         * Lists the endpoints associated with a specified token.
+         *
+         * GET
+         * v2.0/users/{userId}/RAX-KSGRP
+         * userId : String - The user ID.
+         * X-Auth-Token : String - A valid authentication token for an administrative user.
+         * List groups for a specified user.
+         *
+         */
+
+        def path = request.path
+        def method = request.method
+
+        def match
+
+        if (path.startsWith("/tokens")) {
+
+            if (path == "/tokens") {
+                if (method == "POST") {
+                    return handleGetAdminTokenCall(request);
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (path =~ /\/tokens\/([^\/]+)(\?belongsTo)?/)
+            if (match) {
+                if (method == 'GET') {
+                    def tokenId = match[0][1]
+                    return handleValidateTokenCall(request)
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (path ==~ /\/tokens\/([^\/]+)\/endpoints/)
+            if (match) {
+                if (method == "GET") {
+                    def tokenId = match[0][1]
+                    return handleEndpointsCall(request)
+                } else {
+                    return new Response(405)
+                }
+            }
+
+        } else if (path.startsWith("/users/")) {
+            match = (path =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
+            if (match) {
+                if (method =="GET") {
+                    def userId = match[0][1]
+                    return handleGroupsCall(request)
+                } else {
+                    return new Response(405)
+                }
+            }
         }
+
+        return new Response(501);
     }
 
     String getExpires() {
-
 
         if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
 
