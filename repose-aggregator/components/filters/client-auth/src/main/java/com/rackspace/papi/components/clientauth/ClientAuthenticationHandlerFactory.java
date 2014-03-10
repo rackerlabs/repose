@@ -110,7 +110,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
             for (RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()) {
 
-                SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService), feed.getUri(), feed.getId());
+                SaxAuthFeedReader rdr = new SaxAuthFeedReader(
+                        new ServiceClient(modifiedConfig.getOpenstackAuth().getConnectionPoolId(),httpClientService),
+                        akkaServiceClient,
+                        feed.getUri(),
+                        feed.getId());
 
                 //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                 if (feed.isIsAuthed()) {

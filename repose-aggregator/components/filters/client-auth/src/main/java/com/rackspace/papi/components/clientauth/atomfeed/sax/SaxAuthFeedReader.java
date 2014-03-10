@@ -22,6 +22,8 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -46,10 +48,13 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
    private AdminTokenProvider provider;
    private String feedId;
 
-   public SaxAuthFeedReader(ServiceClient client, String targetFeed, String feedId) {
+    private AkkaServiceClient akkaServiceClient;
+
+   public SaxAuthFeedReader(ServiceClient client, AkkaServiceClient akkaClient, String targetFeed, String feedId) {
       this.client = client;
       this.targetFeed = targetFeed;
       this.feedId = feedId;
+       this.akkaServiceClient = akkaClient;
       factory = SAXParserFactory.newInstance();
       factory.setNamespaceAware(true);
    }
