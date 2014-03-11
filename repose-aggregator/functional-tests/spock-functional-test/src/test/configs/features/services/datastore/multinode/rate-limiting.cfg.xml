@@ -4,7 +4,7 @@
    <request-endpoint uri-regex="/limits" include-absolute-limits="false" />
  
    <limit-group id="limited" groups="BETA_Group IP_Standard" default="true">
-       <limit uri="/*" uri-regex="/(.*)" http-methods="GET" unit="HOUR" value="3" />
+       <limit id="all" uri="/*" uri-regex="/(.*)" http-methods="GET" unit="HOUR" value="3" />
    </limit-group>
 </rate-limiting>
 
