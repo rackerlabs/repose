@@ -28,12 +28,15 @@ public class PowerApiValveServerControl {
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
     private static final String LOCALHOST_IP = "127.0.0.1";
     private final List<Port> ports = new ArrayList<Port>();
+
     private Integer httpPort;
     private Integer httpsPort;
     private Integer stopPort;
     private String configDirectory;
     private String connectionFramework;
     private Boolean insecure;
+
+    private Server serverInstance = null;
 
     public PowerApiValveServerControl(
             Integer httpPort,
@@ -107,6 +110,11 @@ public class PowerApiValveServerControl {
 
     public void startPowerApiValve() {
         Server serverInstance = null;
+        if (serverInstance != null &&
+                !serverInstance.isStopped()) {
+
+            throw new IllegalStateException("A serverInstance already exists and has not stopped.");
+        }
 
         try {
             validateSsl();
@@ -138,7 +146,18 @@ public class PowerApiValveServerControl {
     }
 
     public void stopPowerApiValve() {
+
+        if (serverInstance != null) {
+
+            try {
+                serverInstance.stop();
+            } catch (Exception e) {
+                LOG.error("An error occurred while trying to stop the Repose Controller. Reason: " + e.getMessage());
+            }
+        }
+
         try {
+
             final Socket s = new Socket(InetAddress.getByName(LOCALHOST_IP), stopPort);
             final OutputStream out = s.getOutputStream();
 
