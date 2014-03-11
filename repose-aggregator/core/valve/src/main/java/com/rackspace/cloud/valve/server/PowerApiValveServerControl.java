@@ -121,7 +121,7 @@ public class PowerApiValveServerControl {
             serverInstance = new ValveControllerServerBuilder(
                     configDirectory,
                     connectionFramework,
-                    insecure)
+                    (insecure != null ? insecure : false))
                     .newServer();
             serverInstance.setStopAtShutdown(true);
             serverInstance.start();
