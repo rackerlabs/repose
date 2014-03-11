@@ -22,7 +22,13 @@ public class PowerApiValveServerControlTest {
             commandLineArguments = new CommandLineArguments();
             commandLineArguments.setConfigDirectory("test/dir");
             commandLineArguments.setHttpsPort(9090);
-            powerApiValveServerControl = new PowerApiValveServerControl(commandLineArguments);
+            powerApiValveServerControl = new PowerApiValveServerControl(
+                    commandLineArguments.getHttpPort(),
+                    commandLineArguments.getHttpsPort(),
+                    commandLineArguments.getStopPort(),
+                    commandLineArguments.getConfigDirectory(),
+                    commandLineArguments.getConnectionFramework(),
+                    commandLineArguments.getInsecure());
         }
 
         @After

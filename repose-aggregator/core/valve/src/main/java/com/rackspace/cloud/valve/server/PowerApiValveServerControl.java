@@ -27,27 +27,44 @@ public class PowerApiValveServerControl {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
     private static final String LOCALHOST_IP = "127.0.0.1";
-    private CommandLineArguments commandLineArgs;
     private final List<Port> ports = new ArrayList<Port>();
+    private Integer httpPort;
+    private Integer httpsPort;
+    private Integer stopPort;
+    private String configDirectory;
+    private String connectionFramework;
+    private Boolean insecure;
 
-    public PowerApiValveServerControl(CommandLineArguments commandLineArgs) {
-        this.commandLineArgs = commandLineArgs;
+    public PowerApiValveServerControl(
+            Integer httpPort,
+            Integer httpsPort,
+            Integer stopPort,
+            String configDirectory,
+            String connectionFramework,
+            Boolean insecure) {
 
-        if (commandLineArgs.getHttpPort() != null) {
-            ports.add(new Port("http", commandLineArgs.getHttpPort()));
+        this.httpPort = httpPort;
+        this.httpsPort = httpsPort;
+        this.stopPort = stopPort;
+        this.configDirectory = configDirectory;
+        this.connectionFramework = connectionFramework;
+        this.insecure = insecure;
+
+        if (httpPort != null) {
+            ports.add(new Port("http", httpPort));
         }
 
-        if (commandLineArgs.getHttpsPort() != null) {
-            ports.add(new Port("https", commandLineArgs.getHttpsPort()));
+        if (httpsPort != null) {
+            ports.add(new Port("https", httpsPort));
         }
     }
 
     private SslConfiguration validateSsl() throws MalformedURLException {
         SslConfiguration sslConfiguration = null;
 
-        if (commandLineArgs.getHttpsPort() != null) {
+        if (httpsPort != null) {
 
-            sslConfiguration = readSslConfiguration(commandLineArgs.getConfigDirectory());
+            sslConfiguration = readSslConfiguration(configDirectory);
 
             if (sslConfiguration == null) {
                 throw new ConfigurationResourceException(
@@ -94,13 +111,13 @@ public class PowerApiValveServerControl {
         try {
             validateSsl();
             serverInstance = new ValveControllerServerBuilder(
-                    commandLineArgs.getConfigDirectory(),
-                    commandLineArgs.getConnectionFramework(),
-                    commandLineArgs.getInsecure())
+                    configDirectory,
+                    connectionFramework,
+                    insecure)
                     .newServer();
             serverInstance.setStopAtShutdown(true);
             serverInstance.start();
-            final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
+            final Thread monitor = new MonitorThread(serverInstance, stopPort, LOCALHOST_IP);
             monitor.start();
 
             for (Port p : ports) {
@@ -122,7 +139,7 @@ public class PowerApiValveServerControl {
 
     public void stopPowerApiValve() {
         try {
-            final Socket s = new Socket(InetAddress.getByName(LOCALHOST_IP), commandLineArgs.getStopPort());
+            final Socket s = new Socket(InetAddress.getByName(LOCALHOST_IP), stopPort);
             final OutputStream out = s.getOutputStream();
 
             LOG.info("Sending Repose stop request");
