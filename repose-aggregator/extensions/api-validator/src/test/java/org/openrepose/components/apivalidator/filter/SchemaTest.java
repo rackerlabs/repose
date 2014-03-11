@@ -55,6 +55,20 @@ public class SchemaTest {
         validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
 
+    @Test
+    public void shouldAllowXsdEngineAttribute() throws IOException, SAXException {
+        String xml =
+                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\">" +
+                        "    <validator" +
+                        "        role=\"default\"" +
+                        "        default=\"true\"" +
+                        "        wadl=\"file://my/wadl/file.wadl\"" +
+                        "        xsd-engine=\"Xerces\"/>" +
+                        "</validators>";
+
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+    }
+
     @Test(expected = SAXException.class)
     public void shouldNotAllowInvalidRaxRolesAttribute() throws IOException, SAXException {
         String xml =
@@ -65,6 +79,33 @@ public class SchemaTest {
                         "        wadl=\"file://my/wadl/file.wadl\"" +
                         "        enable-rax-roles=\"foo\"/>" +
                         "</validators>";
+
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+    }
+
+    @Test(expected = SAXException.class)
+    public void shouldNotAllowUseSaxonAttribute() throws IOException, SAXException {
+        String xml =
+                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\">" +
+                "    <validator" +
+                "        role=\"default\"" +
+                "        default=\"true\"" +
+                "        wadl=\"file://my/wadl/file.wadl\"" +
+                "        use-saxon=\"true\"/>" +
+                "</validators>";
+
+        validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+    }
+
+    @Test(expected = SAXException.class)
+    public void shouldNotAllowVersionAttribute() throws IOException, SAXException {
+        String xml =
+                "<validators xmlns=\"http://openrepose.org/repose/validator/v1.0\" version=\"1\">" +
+                "    <validator" +
+                "        role=\"default\"" +
+                "        default=\"true\"" +
+                "        wadl=\"file://my/wadl/file.wadl\"/>" +
+                "</validators>";
 
         validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
     }
