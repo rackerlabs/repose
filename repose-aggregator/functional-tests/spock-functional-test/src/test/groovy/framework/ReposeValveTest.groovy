@@ -62,7 +62,7 @@ abstract class ReposeValveTest extends Specification {
         if (deproxy)
             deproxy.shutdown()
 
-        if (repose && repose.isUp())
+        if (repose?.isUp())
             repose.stop()
     }
 
