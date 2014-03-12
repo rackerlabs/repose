@@ -69,7 +69,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
                 serviceEndpoint, serviceAdminRoles)
 
         then:
-        requestAuthorizationHandler.serviceAdminRolePresent(null, goodToken) == true
+        requestAuthorizationHandler.serviceAdminRolePresent(null, goodToken)
     }
 
     def "auth should not be bypassed if neither an x-roles header role nor a role from token validation matches within a configured list of service admin roles"() {
