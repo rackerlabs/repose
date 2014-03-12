@@ -39,7 +39,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
 
         given:
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
 

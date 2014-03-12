@@ -35,7 +35,7 @@ class CacheOffsetTest extends ReposeValveTest {
         given: "Identity Service returns cache tokens with 1 day expirations"
         IdentityServiceResponseSimulator fauxIdentityService
         def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator()
+        fauxIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 

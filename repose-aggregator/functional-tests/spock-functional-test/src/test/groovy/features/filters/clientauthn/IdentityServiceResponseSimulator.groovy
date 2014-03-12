@@ -17,9 +17,6 @@ import javax.xml.validation.Validator
  */
 class IdentityServiceResponseSimulator {
 
-    public IdentityServiceResponseSimulator() {
-        this(12200, 10001)
-    }
     public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
         this.port = identityPort
         this.originServicePort = originServicePort
@@ -33,6 +30,9 @@ class IdentityServiceResponseSimulator {
 
         this.validator = schema.newValidator();
     }
+
+    int port
+    int originServicePort
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
@@ -55,9 +55,6 @@ class IdentityServiceResponseSimulator {
     boolean isGetGroupsBroken = false;
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
-
-    int port
-    int originServicePort
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';

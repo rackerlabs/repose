@@ -60,7 +60,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 

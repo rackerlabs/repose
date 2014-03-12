@@ -36,7 +36,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         Thread.sleep(2000)
 
         def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator()
+        fauxIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 

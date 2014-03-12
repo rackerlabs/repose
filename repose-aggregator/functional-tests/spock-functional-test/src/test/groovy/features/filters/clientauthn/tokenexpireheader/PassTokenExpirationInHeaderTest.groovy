@@ -63,7 +63,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator();
+        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort);
 
         def now = new DateTime();
         fakeIdentityService.tokenExpiresAt = now.plusDays(1);
