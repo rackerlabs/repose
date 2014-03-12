@@ -36,6 +36,7 @@ class IdentityServiceResponseSimulator {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
+
     int validateTokenCount = 0;
     int groupsCount = 0;
     int adminTokenCount = 0;
@@ -69,7 +70,10 @@ class IdentityServiceResponseSimulator {
     def templateEngine = new SimpleTemplateEngine();
 
 
-    def handler = { Request request ->
+    def handler = { Request request -> return handleRequest(request) }
+
+    // we can still use the `handler' closure even if handleRequest is overridden in a derived class
+    Response handleRequest(Request request) {
         def xml = false
 
         request.headers.findAll('Accept').each { values ->
@@ -134,7 +138,7 @@ class IdentityServiceResponseSimulator {
 
             if (path == "/tokens") {
                 if (method == "POST") {
-                    return handleGetAdminTokenCall(request);
+                    return generateToken(request);
                 } else {
                     return new Response(405)
                 }
@@ -144,7 +148,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == 'GET') {
                     def tokenId = match[0][1]
-                    return handleValidateTokenCall(request)
+                    return validateToken(request)
                 } else {
                     return new Response(405)
                 }
@@ -154,7 +158,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == "GET") {
                     def tokenId = match[0][1]
-                    return handleEndpointsCall(request)
+                    return getEndpoints(request)
                 } else {
                     return new Response(405)
                 }
@@ -166,7 +170,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method =="GET") {
                     def userId = match[0][1]
-                    return handleGroupsCall(request)
+                    return getGroups(request)
                 } else {
                     return new Response(405)
                 }
@@ -209,7 +213,7 @@ class IdentityServiceResponseSimulator {
         }
     }
 
-    Response handleValidateTokenCall(Request request) {
+    Response validateToken(Request request) {
         validateTokenCount += 1
 
         if (this.isValidateClientTokenBroken) {
@@ -271,7 +275,7 @@ class IdentityServiceResponseSimulator {
         return new Response(code, null, headers, body)
     }
 
-    Response handleGroupsCall(Request request) {
+    Response getGroups(Request request) {
         groupsCount += 1
 
         if (this.isGetGroupsBroken) {
@@ -315,7 +319,7 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body)
     }
 
-    Response handleGetAdminTokenCall(Request request) {
+    Response generateToken(Request request) {
 
      try{
          final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
@@ -342,7 +346,7 @@ class IdentityServiceResponseSimulator {
         return handleTokenCallBase(request, params);
     }
 
-    Response handleEndpointsCall(Request request) {
+    Response getEndpoints(Request request) {
         endpointsCount += 1;
 
         if (this.isGetEndpointsBroken) {
