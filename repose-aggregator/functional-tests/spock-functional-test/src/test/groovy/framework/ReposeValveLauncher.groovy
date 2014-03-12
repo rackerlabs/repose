@@ -1,5 +1,4 @@
 package framework
-
 import framework.client.jmx.JmxClient
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
@@ -11,7 +10,6 @@ import org.rackspace.deproxy.PortFinder
 import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
 
-import static org.junit.Assert.fail
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeValveLauncher implements ReposeLauncher {
@@ -100,6 +98,7 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         def jmxprops = ""
         def debugProps = ""
+        def jacocoProps = ""
         def classPath = ""
 
         if (debugEnabled) {
@@ -120,7 +119,11 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         }
 
-        def cmd = "java ${classPath} ${debugProps} ${jmxprops} -jar ${reposeJar} -s ${shutdownPort} -c ${configDir}"
+        if(System.getProperty('jacocoArguements')) {
+            jacocoProps = System.getProperty('jacocoArguements')
+        }
+
+        def cmd = "java $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
