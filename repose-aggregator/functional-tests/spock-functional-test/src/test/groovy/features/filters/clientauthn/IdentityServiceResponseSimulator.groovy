@@ -138,7 +138,15 @@ class IdentityServiceResponseSimulator {
 
             if (path == "/tokens") {
                 if (method == "POST") {
+
+                    adminTokenCount += 1
+
+                    if (this.isGetAdminTokenBroken) {
+                        return new Response(this.errorCode);
+                    }
+
                     return generateToken(request);
+
                 } else {
                     return new Response(405)
                 }
@@ -147,8 +155,16 @@ class IdentityServiceResponseSimulator {
             match = (path =~ /\/tokens\/([^\/]+)(\?belongsTo)?/)
             if (match) {
                 if (method == 'GET') {
+
+                    validateTokenCount += 1
+
+                    if (this.isValidateClientTokenBroken) {
+                        return new Response(this.errorCode);
+                    }
+
                     def tokenId = match[0][1]
                     return validateToken(tokenId, request)
+
                 } else {
                     return new Response(405)
                 }
@@ -157,8 +173,16 @@ class IdentityServiceResponseSimulator {
             match = (path ==~ /\/tokens\/([^\/]+)\/endpoints/)
             if (match) {
                 if (method == "GET") {
+
+                    endpointsCount += 1;
+
+                    if (this.isGetEndpointsBroken) {
+                        return new Response(this.errorCode);
+                    }
+
                     def tokenId = match[0][1]
                     return getEndpoints(tokenId, request)
+
                 } else {
                     return new Response(405)
                 }
@@ -169,8 +193,16 @@ class IdentityServiceResponseSimulator {
             match = (path =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
             if (match) {
                 if (method =="GET") {
+
+                    groupsCount += 1
+
+                    if (this.isGetGroupsBroken) {
+                        return new Response(this.errorCode);
+                    }
+
                     def userId = match[0][1]
                     return getGroups(userId, request)
+
                 } else {
                     return new Response(405)
                 }
@@ -179,8 +211,10 @@ class IdentityServiceResponseSimulator {
             match = (path =~ /\/users\/([^\/]+)\/roles/)
             if (match) {
                 if (method =="GET") {
+
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request)
+
                 } else {
                     return new Response(405)
                 }
@@ -214,11 +248,6 @@ class IdentityServiceResponseSimulator {
     }
 
     Response validateToken(String tokenId, Request request) {
-        validateTokenCount += 1
-
-        if (this.isValidateClientTokenBroken) {
-            return new Response(this.errorCode);
-        }
 
         def path = request.getPath()
         def request_token = tokenId
@@ -276,11 +305,6 @@ class IdentityServiceResponseSimulator {
     }
 
     Response getGroups(String userId, Request request) {
-        groupsCount += 1
-
-        if (this.isGetGroupsBroken) {
-            return new Response(this.errorCode);
-        }
 
         def xml = false
 
@@ -321,17 +345,14 @@ class IdentityServiceResponseSimulator {
 
     Response generateToken(Request request) {
 
-     try{
-         final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
-         validator.validate(sampleSource);
+        try {
 
-     }catch(Exception e){
-         println("Admin token XSD validation error: " +e);
-         return new Response(this.errorCode);
-     }
-        adminTokenCount += 1
+            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+            validator.validate(sampleSource);
 
-        if (this.isGetAdminTokenBroken) {
+        } catch (Exception e) {
+
+            println("Admin token XSD validation error: " + e);
             return new Response(this.errorCode);
         }
 
@@ -347,11 +368,6 @@ class IdentityServiceResponseSimulator {
     }
 
     Response getEndpoints(String tokenId, Request request) {
-        endpointsCount += 1;
-
-        if (this.isGetEndpointsBroken) {
-            return new Response(this.errorCode);
-        }
 
         def xml = false
 
