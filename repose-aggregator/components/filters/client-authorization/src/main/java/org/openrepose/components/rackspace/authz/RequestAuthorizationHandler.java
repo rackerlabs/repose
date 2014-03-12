@@ -60,14 +60,15 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     public void authorizeRequest(FilterDirector director, HttpServletRequest request) {
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
+        final String xRolesHeaderValueString = request.getHeader(OpenStackServiceHeader.ROLES.toString());
 
         if (StringUtilities.isBlank(authenticationToken)) {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (serviceAdminRoles != null) {
-            //validate token and get roles if service admin roles is not null
-            if (roleIsServiceAdmin(authenticationService.validateToken(null, authenticationToken))) {
+        } else if (serviceAdminRoles != null && serviceAdminRoles.getServiceAdminRole().size() > 0) {
+            //if service admin roles from cfg populated then compare to x-roles header or validated token roles info
+            if (serviceAdminRolePresent(xRolesHeaderValueString, authenticationToken)) {
                 director.setFilterAction(FilterAction.PASS);
             } else {
                 checkTenantEndpoints(director, authenticationToken);
@@ -77,13 +78,27 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    private boolean roleIsServiceAdmin(AuthToken authToken) {
-        if (authToken.getRoles() == null) return false;
-
-        for (String role : authToken.getRoles().split(",")) {
-            if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
-                return true;
+    private boolean serviceAdminRolePresent(String xRolesHeaderValueString, String authenticationToken) {
+        if (!StringUtilities.isEmpty(xRolesHeaderValueString)) {
+            for (String role : xRolesHeaderValueString.split(",")) {
+                if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
+                    return true;
+                }
             }
+
+            return false;
+        }
+
+        AuthToken authToken = authenticationService.validateToken(null, authenticationToken);
+
+        if (authToken != null) {
+            for (String role : authToken.getRoles().split(",")) {
+                if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         return false;
