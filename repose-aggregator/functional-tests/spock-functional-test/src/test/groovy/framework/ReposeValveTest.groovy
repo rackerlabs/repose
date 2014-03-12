@@ -58,10 +58,12 @@ abstract class ReposeValveTest extends Specification {
         reposeLogSearch = new ReposeLogSearch(logFile);
     }
 
+    //todo: should this be cleanup spec?
     def teardownSpec() {
         if (deproxy)
             deproxy.shutdown()
 
+        //todo: nullsafe check?
         if (repose.isUp())
             repose.stop()
     }
