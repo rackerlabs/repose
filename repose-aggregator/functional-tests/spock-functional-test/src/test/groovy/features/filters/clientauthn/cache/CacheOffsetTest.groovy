@@ -22,7 +22,7 @@ class CacheOffsetTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", properties.defaultTemplateParams)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/cacheoffset", properties.defaultTemplateParams)
         repose.start()
-        Thread.sleep(2000)
+        waitUntilReadyToServiceRequests('401')
     }
 
     def cleanupSpec() {
@@ -45,13 +45,7 @@ class CacheOffsetTest extends ReposeValveTest {
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         and: "All users have unique X-Auth-Token"
-        def userTokens = new ArrayList()
-        int randomStringLength = 16
-        String charset = (('a'..'z') + ('A'..'Z')).join()
-
-        for (x in 1..uniqueUsers) {
-            userTokens.add(RandomStringUtils.random(randomStringLength, charset.toCharArray()))
-        }
+        def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
         fauxIdentityService.validateTokenCount = 0
@@ -59,20 +53,16 @@ class CacheOffsetTest extends ReposeValveTest {
 
         DateTime initialTokenValidation = DateTime.now()
         DateTime initialBurstLastValidationCall
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
+        userTokens.eachWithIndex { token, index ->
 
             def thread = Thread.start {
-                def threadNumber = x
-
-                for (i in 1..initialCallsPerUser) {
-                    def threadName = "User_" + x + "_Call_" + i
-                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token, 'TEST_THREAD': threadName])
-                    messageChainList.put("InitialBurst-" + x + "-" + i, mc)
-
-                    if (threadNumber == uniqueUsers && i == 1) {
-                        initialBurstLastValidationCall = DateTime.now()
-                    }
+                (1..initialCallsPerUser).each {
+                    MessageChain mc = deproxy.makeRequest(
+                            url: reposeEndpoint, method: 'GET',
+                            headers: ['X-Auth-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
+                    messageChainList.put("InitialBurst-$index-$it", mc)
+                    mc.receivedResponse.code.equals("200")
+                    initialBurstLastValidationCall = DateTime.now()
                 }
             }
             clientThreads.add(thread)
@@ -85,19 +75,18 @@ class CacheOffsetTest extends ReposeValveTest {
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
         fauxIdentityService.validateTokenCount = 0
+        int offset = initialBurstLastValidationCall.millis - initialTokenValidation.millis
 
-        Period cacheExpiration = new Period().withSeconds(20)
-        DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(20)
+        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(offset)
         clientThreads = new ArrayList<Thread>()
 
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
+        userTokens.eachWithIndex { token, index ->
             def Map<String, MessageChain> roundTwo = [:]
 
             def thread = Thread.start {
                 while (DateTime.now().isBefore(minimumTokenExpiration)) {
                     MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundTwo-" + x + "-" , mc)
+                    roundTwo.put("RoundTwo-$index" , mc)
                 }
             }
             clientThreads.add(thread)
@@ -111,17 +100,16 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount = 0
         clientThreads = new ArrayList<Thread>()
 
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
+        userTokens.eachWithIndex { token, index ->
             def Map<String, MessageChain> roundTwo = [:]
 
-            DateTime maxTokenExpiration = initialBurstLastValidationCall.plusSeconds(40)
+            DateTime maxTokenExpiration = initialBurstLastValidationCall.plusSeconds(10)
 
             def thread = Thread.start {
-            while (DateTime.now().isBefore(maxTokenExpiration)) {
+                while (DateTime.now().isBefore(maxTokenExpiration)) {
                     MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundThree-" + x + "-" , mc)
-            }
+                    roundTwo.put("RoundThree-$index-" , mc)
+                }
             }
             clientThreads.add(thread)
         }

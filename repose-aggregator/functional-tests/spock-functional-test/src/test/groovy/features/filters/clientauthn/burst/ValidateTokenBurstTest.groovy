@@ -122,7 +122,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        10 | 5
+        10         | 5
 
     }
 
