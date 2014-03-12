@@ -76,9 +76,10 @@ class IdentityServiceResponseSimulator {
     Response handleRequest(Request request) {
         def xml = false
 
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
+        for (value in request.headers.findAll('Accept')) {
+            if (value.contains('application/xml')) {
                 xml = true
+                break
             }
         }
 
@@ -145,7 +146,7 @@ class IdentityServiceResponseSimulator {
                         return new Response(this.errorCode);
                     }
 
-                    return generateToken(request);
+                    return generateToken(request, xml);
 
                 } else {
                     return new Response(405)
@@ -163,7 +164,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def tokenId = match[0][1]
-                    return validateToken(tokenId, request)
+                    return validateToken(tokenId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -181,7 +182,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def tokenId = match[0][1]
-                    return getEndpoints(tokenId, request)
+                    return getEndpoints(tokenId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -201,7 +202,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def userId = match[0][1]
-                    return getGroups(userId, request)
+                    return getGroups(userId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -213,7 +214,7 @@ class IdentityServiceResponseSimulator {
                 if (method =="GET") {
 
                     def userId = match[0][1]
-                    return getUserGlobalRoles(userId, request)
+                    return getUserGlobalRoles(userId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -247,7 +248,7 @@ class IdentityServiceResponseSimulator {
         }
     }
 
-    Response validateToken(String tokenId, Request request) {
+    Response validateToken(String tokenId, Request request, boolean xml) {
 
         def path = request.getPath()
         def request_token = tokenId
@@ -260,18 +261,10 @@ class IdentityServiceResponseSimulator {
                 token: request_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, xml);
     }
 
-    Response handleTokenCallBase(Request request, params) {
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
+    Response handleTokenCallBase(Request request, Map params, boolean xml) {
 
         def code;
         def template;
@@ -304,15 +297,7 @@ class IdentityServiceResponseSimulator {
         return new Response(code, null, headers, body)
     }
 
-    Response getGroups(String userId, Request request) {
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
+    Response getGroups(String userId, Request request, boolean xml) {
 
         def params = [
                 expires: getExpires(),
@@ -343,7 +328,7 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body)
     }
 
-    Response generateToken(Request request) {
+    Response generateToken(Request request, boolean xml) {
 
         try {
 
@@ -364,18 +349,10 @@ class IdentityServiceResponseSimulator {
                 token: admin_token
         ];
 
-        return handleTokenCallBase(request, params);
+        return handleTokenCallBase(request, params, xml);
     }
 
-    Response getEndpoints(String tokenId, Request request) {
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
+    Response getEndpoints(String tokenId, Request request, boolean xml) {
 
         def code;
         def template;
@@ -403,15 +380,7 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body);
     }
 
-    def getUserGlobalRoles(String userId, Request request) {
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
+    def getUserGlobalRoles(String userId, Request request, boolean xml) {
 
         def template;
         def headers = [:];
