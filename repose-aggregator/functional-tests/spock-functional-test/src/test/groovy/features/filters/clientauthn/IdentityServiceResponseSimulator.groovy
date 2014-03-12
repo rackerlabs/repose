@@ -148,7 +148,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == 'GET') {
                     def tokenId = match[0][1]
-                    return validateToken(request)
+                    return validateToken(tokenId, request)
                 } else {
                     return new Response(405)
                 }
@@ -158,7 +158,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == "GET") {
                     def tokenId = match[0][1]
-                    return getEndpoints(request)
+                    return getEndpoints(tokenId, request)
                 } else {
                     return new Response(405)
                 }
@@ -170,7 +170,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method =="GET") {
                     def userId = match[0][1]
-                    return getGroups(request)
+                    return getGroups(userId, request)
                 } else {
                     return new Response(405)
                 }
@@ -180,7 +180,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method =="GET") {
                     def userId = match[0][1]
-                    return getUserGlobalRoles(request)
+                    return getUserGlobalRoles(userId, request)
                 } else {
                     return new Response(405)
                 }
@@ -213,7 +213,7 @@ class IdentityServiceResponseSimulator {
         }
     }
 
-    Response validateToken(Request request) {
+    Response validateToken(String tokenId, Request request) {
         validateTokenCount += 1
 
         if (this.isValidateClientTokenBroken) {
@@ -221,7 +221,7 @@ class IdentityServiceResponseSimulator {
         }
 
         def path = request.getPath()
-        def request_token = path.substring(path.lastIndexOf("/")+1)
+        def request_token = tokenId
 
         def params = [
                 expires: getExpires(),
@@ -275,7 +275,7 @@ class IdentityServiceResponseSimulator {
         return new Response(code, null, headers, body)
     }
 
-    Response getGroups(Request request) {
+    Response getGroups(String userId, Request request) {
         groupsCount += 1
 
         if (this.isGetGroupsBroken) {
@@ -346,7 +346,7 @@ class IdentityServiceResponseSimulator {
         return handleTokenCallBase(request, params);
     }
 
-    Response getEndpoints(Request request) {
+    Response getEndpoints(String tokenId, Request request) {
         endpointsCount += 1;
 
         if (this.isGetEndpointsBroken) {
@@ -387,7 +387,7 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body);
     }
 
-    def getUserGlobalRoles(Request request) {
+    def getUserGlobalRoles(String userId, Request request) {
 
         def xml = false
 
