@@ -62,7 +62,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
