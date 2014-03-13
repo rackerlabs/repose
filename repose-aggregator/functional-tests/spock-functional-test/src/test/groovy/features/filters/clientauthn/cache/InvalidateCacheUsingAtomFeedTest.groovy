@@ -148,8 +148,8 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         // change identity atom feed
 
         fakeIdentityService.errorCode = 404
-        fakeIdentityService.isValidateClientTokenBroken= true
-        fakeIdentityService.ok = false
+        fakeIdentityService.isValidateClientTokenBroken = true
+        fakeIdentityService.isTokenValid = false
         fakeIdentityService.resetCounts()
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler

@@ -35,7 +35,7 @@ class IdentityServiceResponseSimulator {
     int originServicePort
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    boolean ok = true;
+    boolean isTokenValid = true;
 
     int validateTokenCount = 0;
     int groupsCount = 0;
@@ -284,7 +284,7 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        if (ok) {
+        if (isTokenValid) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
