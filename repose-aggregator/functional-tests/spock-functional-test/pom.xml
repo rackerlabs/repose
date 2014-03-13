@@ -482,6 +482,9 @@
                             <includes>
                                 <include>**/*Test.*</include>
                             </includes>
+                            <systemPropertyVariables>
+                                <jacocoArguements>${jacocoArgLine}</jacocoArguements>
+                            </systemPropertyVariables>
                         </configuration>
                     </execution>
                 </executions>
@@ -496,6 +499,7 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <destFile>${project.basedir}/../../target/jacoco-it.exec</destFile>
+                            <propertyName>jacocoArgLine</propertyName>
                         </configuration>
                     </execution>
                 </executions>
