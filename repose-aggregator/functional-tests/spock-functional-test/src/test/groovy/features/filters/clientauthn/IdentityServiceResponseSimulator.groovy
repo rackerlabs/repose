@@ -42,6 +42,14 @@ class IdentityServiceResponseSimulator {
     int adminTokenCount = 0;
     int endpointsCount = 0;
 
+    void resetCounts() {
+
+        validateTokenCount = 0;
+        groupsCount = 0;
+        adminTokenCount = 0;
+        endpointsCount = 0;
+    }
+
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
      * this class should set to a particular DateTime (for example, to test
