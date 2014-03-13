@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0" >
-    <openstack-auth delegable="true"
+    <openstack-auth delegable="false"
                     tenanted="false"
                     request-groups="true"
                     token-cache-timeout="600000"

@@ -319,7 +319,9 @@ class MockIdentityService {
         if (isTokenValid) {
             code = 200;
             if (xml) {
-                template = identitySuccessXmlTemplate
+                if(doesTenantHaveAdminRoles && isTenantMatch)
+                    template = identityTenantlessValidationXML
+                } else if(doesTenantHaveAdminRoles && isTenantMatch)
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -707,23 +709,7 @@ class MockIdentityService {
 </endpoints>"""
 
     // TODO: Replace this with builder
-    def getUserGlobalRolesJsonTemplate =
-        """{
-    "roles":[{
-            "id":"123",
-            "name":"compute:admin",
-            "description":"Nova Administrator"
-        }
-    ],
-    "roles_links":[]
-}"""
 
     // TODO: Replace this with builder
-    def getUserGlobalRolesXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8"?>
-<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-    <role id="123" name="Admin" description="All Access" />
-    <role id="234" name="Guest" description="Guest Access" />
-</roles>"""
 
 }
