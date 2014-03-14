@@ -18,6 +18,9 @@ import javax.xml.validation.Validator
 class IdentityServiceResponseSimulator {
 
     public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+
+        resetHandlers()
+
         this.port = identityPort
         this.originServicePort = originServicePort
 
@@ -66,6 +69,22 @@ class IdentityServiceResponseSimulator {
     boolean isGetGroupsBroken = false;
     boolean isValidateClientTokenBroken = false;
     boolean isGetEndpointsBroken = false;
+
+    void resetHandlers() {
+
+        handler = this.&handleRequest
+        validateTokenHandler = this.&validateToken
+        getGroupsHandler = this.&getGroups
+        generateTokenHandler = this.&generateToken
+        getEndpointsHandler = this.&getEndpoints
+        getUserGlobalRolesHandler = this.&getUserGlobalRoles
+    }
+
+    Closure<Response> validateTokenHandler
+    Closure<Response> getGroupsHandler
+    Closure<Response> generateTokenHandler
+    Closure<Response> getEndpointsHandler
+    Closure<Response> getUserGlobalRolesHandler
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
@@ -156,7 +175,7 @@ class IdentityServiceResponseSimulator {
                         return new Response(this.errorCode);
                     }
 
-                    return generateToken(request, xml);
+                    return generateTokenHandler(request, xml);
 
                 } else {
                     return new Response(405)
@@ -174,7 +193,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def tokenId = match[0][1]
-                    return validateToken(tokenId, request, xml)
+                    return validateTokenHandler(tokenId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -192,7 +211,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def tokenId = match[0][1]
-                    return getEndpoints(tokenId, request, xml)
+                    return getEndpointsHandler(tokenId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -212,7 +231,7 @@ class IdentityServiceResponseSimulator {
                     }
 
                     def userId = match[0][1]
-                    return getGroups(userId, request, xml)
+                    return getGroupsHandler(userId, request, xml)
 
                 } else {
                     return new Response(405)
@@ -236,6 +255,7 @@ class IdentityServiceResponseSimulator {
 
         return new Response(501);
     }
+
 
     String getExpires() {
 
@@ -392,7 +412,7 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body);
     }
 
-    def getUserGlobalRoles(String userId, Request request, boolean xml) {
+    Response getUserGlobalRoles(String userId, Request request, boolean xml) {
 
         def template;
         def headers = [:];
