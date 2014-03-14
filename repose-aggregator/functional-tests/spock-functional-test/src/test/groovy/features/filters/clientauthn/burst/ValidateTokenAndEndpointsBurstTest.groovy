@@ -1,6 +1,6 @@
 package features.filters.clientauthn.burst
 
-import features.filters.clientauthn.MockIdentityService
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat

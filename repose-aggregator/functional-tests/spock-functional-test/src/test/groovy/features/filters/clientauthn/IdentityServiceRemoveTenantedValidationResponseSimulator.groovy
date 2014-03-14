@@ -1,4 +1,6 @@
 package features.filters.clientauthn
+
+import framework.mocks.MockIdentityService
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone

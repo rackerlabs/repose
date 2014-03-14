@@ -1,6 +1,6 @@
 package features.filters.clientauthn.cache
 
-import features.filters.clientauthn.MockIdentityService
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import framework.category.Flaky
 import org.apache.commons.lang.RandomStringUtils

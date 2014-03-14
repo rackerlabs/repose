@@ -1,6 +1,6 @@
 package features.filters.clientauthz.serviceresponse
 
-import features.filters.clientauthn.MockIdentityService
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category

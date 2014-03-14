@@ -1,6 +1,6 @@
 package features.filters.clientauthz.connectionpooling
 
-import features.filters.clientauthn.MockIdentityService
+import framework.mocks.MockIdentityService
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
