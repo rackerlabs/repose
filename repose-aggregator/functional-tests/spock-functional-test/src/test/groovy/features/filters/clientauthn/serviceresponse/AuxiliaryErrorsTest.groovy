@@ -4,6 +4,7 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
@@ -45,10 +46,18 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def "When the identity service endpoint returns failed or unexpected responses"() {
 
         given: "When Calls to Auth Return bad responses"
-        fakeIdentityService.isGetAdminTokenBroken = adminBroken
-        fakeIdentityService.isValidateClientTokenBroken = validateBroken
-        fakeIdentityService.isGetGroupsBroken = groupsBroken
-        fakeIdentityService.errorCode = errorCode
+
+        fakeIdentityService.resetHandlers()
+        if (adminBroken) {
+            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+        }
+        if (validateBroken) {
+            fakeIdentityService.validateTokenHandler = { tokenId, request, xml -> return new Response(errorCode) }
+        }
+        if (groupsBroken) {
+            fakeIdentityService.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
+        }
+
         def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"

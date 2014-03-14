@@ -6,6 +6,7 @@ import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 @Category(Slow.class)
@@ -43,10 +44,14 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         given: "When Calls to Auth Return bad responses"
 
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.isGetAdminTokenBroken = adminBroken
-        fakeIdentityService.errorCode = errorCode
-        fakeIdentityService.isGetEndpointsBroken = endpointsBroken
+
+        fakeIdentityService.resetHandlers()
+        if (adminBroken) {
+            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+        }
+        if (endpointsBroken) {
+            fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
+        }
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])

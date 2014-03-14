@@ -4,6 +4,8 @@ import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -147,9 +149,10 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
         // change identity atom feed
 
-        fakeIdentityService.errorCode = 404
-        fakeIdentityService.isValidateClientTokenBroken = true
         fakeIdentityService.isTokenValid = false
+        fakeIdentityService.resetHandlers()
+        fakeIdentityService.validateTokenHandler = { tokenId, request, xml -> return new Response(404) }
+
         fakeIdentityService.resetCounts()
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
