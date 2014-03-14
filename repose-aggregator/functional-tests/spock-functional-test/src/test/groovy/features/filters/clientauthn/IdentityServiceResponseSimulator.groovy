@@ -64,12 +64,6 @@ class IdentityServiceResponseSimulator {
      */
     def tokenExpiresAt = null;
 
-    int errorCode;
-    boolean isGetAdminTokenBroken = false;
-    boolean isGetGroupsBroken = false;
-    boolean isValidateClientTokenBroken = false;
-    boolean isGetEndpointsBroken = false;
-
     void resetHandlers() {
 
         handler = this.&handleRequest
@@ -97,7 +91,6 @@ class IdentityServiceResponseSimulator {
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
-
 
     def handler = { Request request -> return handleRequest(request) }
 
@@ -171,10 +164,6 @@ class IdentityServiceResponseSimulator {
 
                     generateTokenCount++
 
-                    if (this.isGetAdminTokenBroken) {
-                        return new Response(this.errorCode);
-                    }
-
                     return generateTokenHandler(request, xml);
 
                 } else {
@@ -187,10 +176,6 @@ class IdentityServiceResponseSimulator {
                 if (method == 'GET') {
 
                     validateTokenCount++
-
-                    if (this.isValidateClientTokenBroken) {
-                        return new Response(this.errorCode);
-                    }
 
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, request, xml)
@@ -205,10 +190,6 @@ class IdentityServiceResponseSimulator {
                 if (method == "GET") {
 
                     getEndpointsCount++
-
-                    if (this.isGetEndpointsBroken) {
-                        return new Response(this.errorCode);
-                    }
 
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, xml)
@@ -225,10 +206,6 @@ class IdentityServiceResponseSimulator {
                 if (method =="GET") {
 
                     getGroupsCount++
-
-                    if (this.isGetGroupsBroken) {
-                        return new Response(this.errorCode);
-                    }
 
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
@@ -365,7 +342,7 @@ class IdentityServiceResponseSimulator {
         } catch (Exception e) {
 
             println("Admin token XSD validation error: " + e);
-            return new Response(this.errorCode);
+            return new Response(400);
         }
 
         def params = [
