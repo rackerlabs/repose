@@ -293,11 +293,6 @@ class IdentityServiceResponseSimulator {
                 token: request_token
         ];
 
-        return handleTokenCallBase(request, params, xml);
-    }
-
-    Response handleTokenCallBase(Request request, Map params, boolean xml) {
-
         def code;
         def template;
         def headers = [:];
@@ -381,7 +376,36 @@ class IdentityServiceResponseSimulator {
                 token: admin_token
         ];
 
-        return handleTokenCallBase(request, params, xml);
+
+        def code;
+        def template;
+        def headers = [:];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
+        }
+
+        if (isTokenValid) {
+            code = 200;
+            if (xml) {
+                template = identitySuccessXmlTemplate
+            } else {
+                template = identitySuccessJsonTemplate
+            }
+        } else {
+            code = 404
+            if (xml) {
+                template = identityFailureXmlTemplate
+            } else {
+                template = identityFailureJsonTemplate
+            }
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(code, null, headers, body)
     }
 
     Response getEndpoints(String tokenId, Request request, boolean xml) {
