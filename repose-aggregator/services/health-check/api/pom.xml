@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.rackspace.papi.service</groupId>
         <artifactId>health-check-service-support</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,5 +18,5 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
-    <dependencies/>
+    <dependencies />
 </project>
