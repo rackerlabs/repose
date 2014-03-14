@@ -41,6 +41,7 @@ class IdentityServiceResponseSimulator {
     int getGroupsCount = 0;
     int generateTokenCount = 0;
     int getEndpointsCount = 0;
+    int getUserGlobalRolesCount = 0;
 
     void resetCounts() {
 
@@ -48,6 +49,7 @@ class IdentityServiceResponseSimulator {
         getGroupsCount = 0;
         generateTokenCount = 0;
         getEndpointsCount = 0;
+        getUserGlobalRolesCount = 0;
     }
 
     /*
@@ -148,7 +150,7 @@ class IdentityServiceResponseSimulator {
             if (path == "/tokens") {
                 if (method == "POST") {
 
-                    generateTokenCount += 1
+                    generateTokenCount++
 
                     if (this.isGetAdminTokenBroken) {
                         return new Response(this.errorCode);
@@ -165,7 +167,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == 'GET') {
 
-                    validateTokenCount += 1
+                    validateTokenCount++
 
                     if (this.isValidateClientTokenBroken) {
                         return new Response(this.errorCode);
@@ -183,7 +185,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == "GET") {
 
-                    getEndpointsCount += 1;
+                    getEndpointsCount++
 
                     if (this.isGetEndpointsBroken) {
                         return new Response(this.errorCode);
@@ -203,7 +205,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method =="GET") {
 
-                    getGroupsCount += 1
+                    getGroupsCount++
 
                     if (this.isGetGroupsBroken) {
                         return new Response(this.errorCode);
@@ -220,6 +222,8 @@ class IdentityServiceResponseSimulator {
             match = (path =~ /\/users\/([^\/]+)\/roles/)
             if (match) {
                 if (method =="GET") {
+
+                    getUserGlobalRolesCount++
 
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)
