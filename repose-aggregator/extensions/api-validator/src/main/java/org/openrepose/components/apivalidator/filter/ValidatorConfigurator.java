@@ -70,8 +70,8 @@ public class ValidatorConfigurator {
     private Config createConfiguration(ValidatorItem validatorItem, boolean multiRoleMatch, String configRoot) {
         Config config = new Config();
 
-        config.setXSDEngine((validatorItem).getXsdEngine().value());
-        config.setXSLEngine((validatorItem).getXslEngine().value());
+        config.setXSDEngine(validatorItem.getXsdEngine().value());
+        config.setXSLEngine(validatorItem.getXslEngine().value());
         config.setResultHandler(getHandlers(validatorItem, multiRoleMatch, configRoot));
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
