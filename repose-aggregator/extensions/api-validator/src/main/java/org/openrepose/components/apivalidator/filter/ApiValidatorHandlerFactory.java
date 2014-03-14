@@ -7,7 +7,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import org.openrepose.components.apivalidator.servlet.config.BaseValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +21,13 @@ import java.util.Map;
 /**
  * This class uses the <a href="http://en.wikipedia.org/wiki/Factory_method_pattern">factory pattern</a> to construct
  * a handler from the configuration files.
- *
+ * <p/>
  * ApiValidatorWadlListener and ApiValidationConfigurationListener are classes which re-initialize the handler factory
  * when the wadl or configuration files are changed.
- *
  */
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
-    
-  
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
-    private BaseValidatorConfiguration validatorConfiguration;
+    private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
     private List<ValidatorInfo> validators;
     private boolean initialized = false;
@@ -43,10 +40,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final MetricsService metricsService;
 
     public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config,
-            MetricsService metricsService) {
+                                      MetricsService metricsService) {
         this.manager = manager;
-        wadlListener = new ApiValidatorWadlListener();
-        lock = new Object();
+        this.wadlListener = new ApiValidatorWadlListener();
+        this.lock = new Object();
         this.configRoot = configurationRoot;
         this.config = config;
         this.metricsService = metricsService;
@@ -78,10 +75,79 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         this.validators = validators;
     }
 
-    public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+    private void addListener(String wadl) {
+        if (wadl == null) {
+            return;
+        }
 
-       private boolean isInitialized = false;
-       
+        LOG.info("Watching WADL: " + wadl);
+        manager.subscribeTo("api-validator", wadl, wadlListener, new GenericResourceConfigurationParser());
+    }
+
+    String getWadlPath(String uri) {
+        return new File(configRoot, uri).toURI().toString();
+    }
+
+    void initialize() {
+        synchronized (lock) {
+            if (initialized || validatorConfiguration == null) {
+                return;
+            }
+
+            ValidatorConfigurator validatorConfigurator = new ValidatorConfigurator(validatorConfiguration, configRoot, config);
+
+            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
+
+            defaultValidator = validatorConfigurator.getDefaultValidator();
+            validators = validatorConfigurator.getValidators();
+
+            for (ValidatorInfo validator : validators) {
+                addListener(validator.getUri());
+            }
+
+            initialized = true;
+        }
+    }
+
+    @Override
+    protected ApiValidatorHandler buildHandler() {
+        initialize();
+        if (!initialized || !this.isInitialized()) {
+            return null;
+        }
+        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, metricsService);
+    }
+
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+        ApiValidationConfigurationListener avcl = new ApiValidationConfigurationListener();
+
+        updateListeners.put(ValidatorConfiguration.class, avcl);
+
+        return updateListeners;
+    }
+
+    private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ValidatorConfiguration configurationObject) {
+            validatorConfiguration = configurationObject;
+            unsubscribeAll();
+            initialize();
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+        private boolean isInitialized = false;
+
         private String getNormalizedPath(String uri) {
             String path = uri;
             try {
@@ -101,122 +167,37 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     return;
                 }
                 boolean found = false;
-                boolean loadedWADL=true;
+                boolean loadedWADL = true;
 
                 for (ValidatorInfo info : validators) {
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
-                        if(loadedWADL){
-                          loadedWADL=info.reinitValidator();
-                        }else{
-                           info.reinitValidator(); 
+                        if (loadedWADL) {
+                            loadedWADL = info.reinitValidator();
+                        } else {
+                            info.reinitValidator();
                         }
                         found = true;
                     }
                 }
 
                 if (!found) {
-                    // If we couldn't match the particular config... be safe and clear 
-                    // all fo the validators
+                    // If we couldn't match the particular config... be safe and clear
+                    // all of the validators
                     for (ValidatorInfo info : validators) {
                         info.reinitValidator();
                     }
-                }if(!loadedWADL){
-                   isInitialized=false;
-                }else{
-                   isInitialized=true;
+                }
+                if (!loadedWADL) {
+                    isInitialized = false;
+                } else {
+                    isInitialized = true;
                 }
             }
-             
-        }
-          
-       @Override
-      public boolean isInitialized(){
-          return isInitialized;
-      }
-      
-  
-    }
-
-    private void addListener(String wadl) {
-        if (wadl == null) {
-            return;
         }
 
-        LOG.info("Watching WADL: " + wadl);
-        manager.subscribeTo("api-validator",wadl, wadlListener, new GenericResourceConfigurationParser());
-    }
-
-    String getWadlPath(String uri) {
-        return new File(configRoot, uri).toURI().toString();
-    }
-
-    void initialize() {
-        synchronized (lock) {
-            if (initialized || validatorConfiguration == null) {
-                return;
-            }
-
-            ValidatorConfigurator validatorConfigurator = ValidatorConfigurator.createValidatorConfigurator(
-                  validatorConfiguration );
-
-            validatorConfigurator.processConfiguration( validatorConfiguration,
-                                               configRoot,
-                                               config );
-
-            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
-
-            defaultValidator = validatorConfigurator.getDefaultValidator() ;
-            validators = validatorConfigurator.getValidators();
-
-            for (ValidatorInfo validator : validators) {
-                addListener(validator.getUri());
-            }
-
-            initialized = true;
-        }
-    }
-
-
-    private class ApiValidationConfigurationListener implements UpdateListener<BaseValidatorConfiguration> {
-        private boolean isInitialized = false;
-       
-        
         @Override
-        public void configurationUpdated(BaseValidatorConfiguration configurationObject) {
-            validatorConfiguration = configurationObject;
-            unsubscribeAll();
-            initialize();
-            isInitialized=true;
-        }
-        
-        @Override
-        public boolean isInitialized(){
+        public boolean isInitialized() {
             return isInitialized;
         }
-    }
-
-    void setValidatorConfiguration(BaseValidatorConfiguration configurationObject) {
-        validatorConfiguration = configurationObject;
-    }
-
-    @Override
-    protected ApiValidatorHandler buildHandler() {
-        initialize();
-        if (!initialized || !this.isInitialized()) {
-            return null;
-        }
-        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch, metricsService);
-    }
-
-    @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        ApiValidationConfigurationListener avcl = new ApiValidationConfigurationListener();
-
-        for (Class<? extends BaseValidatorConfiguration> c : ValidatorConfigurator.getConfigurationClasses()) {
-            updateListeners.put(c, avcl);
-        }
-
-        return updateListeners;
     }
 }

@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration2;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem2;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,12 +20,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class ApiValidatorHandlerFactoryTest {
@@ -41,14 +36,14 @@ public class ApiValidatorHandlerFactoryTest {
         
         @Before
         public void setup() {
-            ValidatorConfiguration2 config = new ValidatorConfiguration2();
-            ValidatorItem2 item = new ValidatorItem2();
+            ValidatorConfiguration config = new ValidatorConfiguration();
+            ValidatorItem item = new ValidatorItem();
             item.setWadl(wadl);
             List<String> role1=item.getRole();
             role1.add(role);
             config.getValidator().add(item);
 
-            ValidatorItem2 defaultItem = new ValidatorItem2();
+            ValidatorItem defaultItem = new ValidatorItem();
             defaultItem.setWadl(wadl);
             List<String> role2=defaultItem.getRole();
             role2.add(defaultRole);
