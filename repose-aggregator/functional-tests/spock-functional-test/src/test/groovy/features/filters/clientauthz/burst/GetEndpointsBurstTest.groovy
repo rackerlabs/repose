@@ -95,7 +95,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.endpointsCount == 1
+        fakeIdentityService.getEndpointsCount == 1
 
         and:
         Bad403Response == false

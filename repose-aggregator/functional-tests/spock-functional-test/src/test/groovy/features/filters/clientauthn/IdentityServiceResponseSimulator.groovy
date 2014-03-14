@@ -38,16 +38,16 @@ class IdentityServiceResponseSimulator {
     boolean isTokenValid = true;
 
     int validateTokenCount = 0;
-    int groupsCount = 0;
-    int adminTokenCount = 0;
-    int endpointsCount = 0;
+    int getGroupsCount = 0;
+    int generateTokenCount = 0;
+    int getEndpointsCount = 0;
 
     void resetCounts() {
 
         validateTokenCount = 0;
-        groupsCount = 0;
-        adminTokenCount = 0;
-        endpointsCount = 0;
+        getGroupsCount = 0;
+        generateTokenCount = 0;
+        getEndpointsCount = 0;
     }
 
     /*
@@ -148,7 +148,7 @@ class IdentityServiceResponseSimulator {
             if (path == "/tokens") {
                 if (method == "POST") {
 
-                    adminTokenCount += 1
+                    generateTokenCount += 1
 
                     if (this.isGetAdminTokenBroken) {
                         return new Response(this.errorCode);
@@ -183,7 +183,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method == "GET") {
 
-                    endpointsCount += 1;
+                    getEndpointsCount += 1;
 
                     if (this.isGetEndpointsBroken) {
                         return new Response(this.errorCode);
@@ -203,7 +203,7 @@ class IdentityServiceResponseSimulator {
             if (match) {
                 if (method =="GET") {
 
-                    groupsCount += 1
+                    getGroupsCount += 1
 
                     if (this.isGetGroupsBroken) {
                         return new Response(this.errorCode);

@@ -99,7 +99,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 1
 
         and:
-        fakeIdentityService.endpointsCount == 1
+        fakeIdentityService.getEndpointsCount == 1
 
         and:
         missingAuthHeader == false
