@@ -1,7 +1,7 @@
 
 package features.filters.clientauthn.regionheader;
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import features.filters.clientauthn.MockIdentityService
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -47,7 +47,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
 
     def setup() {
         deproxy = new Deproxy()
@@ -60,7 +60,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 

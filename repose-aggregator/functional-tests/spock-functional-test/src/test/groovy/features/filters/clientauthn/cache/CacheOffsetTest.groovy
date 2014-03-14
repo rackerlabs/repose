@@ -1,6 +1,6 @@
 package features.filters.clientauthn.cache
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import features.filters.clientauthn.MockIdentityService
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.apache.commons.lang.RandomStringUtils
@@ -33,9 +33,9 @@ class CacheOffsetTest extends ReposeValveTest {
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
-        IdentityServiceResponseSimulator fauxIdentityService
+        MockIdentityService fauxIdentityService
         def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 

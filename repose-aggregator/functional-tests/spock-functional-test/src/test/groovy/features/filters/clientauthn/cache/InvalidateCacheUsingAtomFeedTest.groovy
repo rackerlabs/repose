@@ -1,6 +1,6 @@
 package features.filters.clientauthn.cache
 import features.filters.clientauthn.AtomFeedResponseSimulator
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import features.filters.clientauthn.MockIdentityService
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -87,7 +87,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     def identityEndpoint
     def atomEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
     AtomFeedResponseSimulator fakeAtomFeed
 
     def setup() {
@@ -105,7 +105,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 

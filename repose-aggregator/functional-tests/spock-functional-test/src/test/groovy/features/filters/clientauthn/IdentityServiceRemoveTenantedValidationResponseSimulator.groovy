@@ -234,7 +234,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
         factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
         Schema schema = factory.newSchema(
-                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
 
 
         Validator validator= schema.newValidator();

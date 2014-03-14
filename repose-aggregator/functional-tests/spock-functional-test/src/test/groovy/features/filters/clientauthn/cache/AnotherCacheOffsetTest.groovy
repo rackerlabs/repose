@@ -1,5 +1,6 @@
 package features.filters.clientauthn.cache
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+
+import features.filters.clientauthn.MockIdentityService
 import framework.ReposeValveTest
 import framework.category.Flaky
 import org.apache.commons.lang.RandomStringUtils
@@ -14,7 +15,7 @@ import spock.lang.Unroll
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
-    @Shared def IdentityServiceResponseSimulator fauxIdentityService
+    @Shared def MockIdentityService fauxIdentityService
 
     def cleanup() {
         deproxy.shutdown()
@@ -36,7 +37,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         Thread.sleep(2000)
 
         def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 

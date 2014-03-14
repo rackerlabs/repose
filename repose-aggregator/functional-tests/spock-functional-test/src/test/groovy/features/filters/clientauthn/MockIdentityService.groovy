@@ -15,9 +15,9 @@ import javax.xml.validation.Validator
 /**
  * Simulates responses from an Identity Service
  */
-class IdentityServiceResponseSimulator {
+class MockIdentityService {
 
-    public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+    public MockIdentityService(int identityPort, int originServicePort) {
 
         resetHandlers()
 
@@ -28,7 +28,7 @@ class IdentityServiceResponseSimulator {
 
         factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
         Schema schema = factory.newSchema(
-                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
 
 
         this.validator = schema.newValidator();

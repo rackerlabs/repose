@@ -5,7 +5,7 @@
 
 package features.filters.clientauthn.tokenexpireheader;
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator;
+import features.filters.clientauthn.MockIdentityService;
 import framework.ReposeValveTest;
 import org.rackspace.deproxy.Deproxy;
 import org.rackspace.deproxy.MessageChain;
@@ -56,14 +56,14 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
 
     def setup() {
         deproxy = new Deproxy()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort);
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort);
 
         def now = new DateTime();
         fakeIdentityService.tokenExpiresAt = now.plusDays(1);
