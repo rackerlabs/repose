@@ -54,7 +54,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 2
     }
