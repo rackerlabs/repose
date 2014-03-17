@@ -18,55 +18,79 @@ import java.util.List;
  */
 public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
-   private static final Logger LOG = LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
-   private static final String WWW_AUTH_PREFIX = "Keystone uri=";
-   private final String wwwAuthHeaderContents;
-   private final AuthenticationService authenticationService;
-   private final List<String> serviceAdminRoles;
+    private static final Logger LOG = LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
+    private static final String WWW_AUTH_PREFIX = "Keystone uri=";
+    private final String wwwAuthHeaderContents;
+    private final AuthenticationService authenticationService;
+    private final List<String> serviceAdminRoles;
+    private final List<String> bypassTenantCheckRoles;
 
-   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
-      super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
-      this.authenticationService = serviceClient;
-      this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
-      this.serviceAdminRoles = cfg.getServiceAdminRoles();
-   }
+    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
+        super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
+        this.authenticationService = serviceClient;
+        this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
+        this.serviceAdminRoles = cfg.getServiceAdminRoles();
+        this.bypassTenantCheckRoles = cfg.getBypassTenantCheckRoles();
+    }
 
-   private boolean roleIsServiceAdmin(AuthToken authToken) {
-       if (authToken.getRoles() == null || serviceAdminRoles == null) return false;
+    private boolean roleIsServiceAdmin(AuthToken authToken) {
+        if (authToken.getRoles() == null || serviceAdminRoles == null) return false;
 
-       for (String role : authToken.getRoles().split(",")) {
-           if (serviceAdminRoles.contains(role)) {
-               return true;
-           }
-       }
+        for (String role : authToken.getRoles().split(",")) {
+            if (serviceAdminRoles.contains(role)) {
+                return true;
+            }
+        }
 
-       return false;
-   }
+        return false;
+    }
 
-   private AuthToken validateTenant(AuthToken authToken, String tenantID) {
-       if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
-           LOG.error("Unable to validate token for tenant.  Invalid token.");
-           return null;
-       } else {
-           return authToken;
-       }
-   }
+    private AuthToken validateTenant(AuthToken authToken, String tenantID) {
+        if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
+            LOG.error("Unable to validate token for tenant.  Invalid token.");
+            return null;
+        } else {
+            return authToken;
+        }
+    }
 
-   @Override
-   public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      return account != null ? validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult())
-              : authenticationService.validateToken(null, token);
-   }
+    @Override
+    public AuthToken validateToken(ExtractorResult<String> account, String token) {
+        AuthToken authToken = null;
 
-   @Override
-   public AuthGroups getGroups(String group) {
-      return authenticationService.getGroups(group);
-   }
+        if (account != null) {
+            authToken = validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult());
+        } else {
+            authToken = authenticationService.validateToken(null, token);
+        }
 
-   @Override
-   public FilterDirector processResponse(ReadableHttpServletResponse response) {
-      return new OpenStackResponseHandler(response, wwwAuthHeaderContents).handle();
-   }
+        /**
+         * If any role in that token is in the BypassTenantRoles list, bypass the tenant check
+         */
+        boolean bypassTenantCheck = false;
+        for (String role : authToken.getRoles().split(",")) {
+            if (bypassTenantCheckRoles.contains(role))
+                bypassTenantCheck = true;
+        }
+
+        if (!bypassTenantCheck) {
+            if (authToken.getTenantId() == null || authToken.getTenantName() == null) {
+                //Moved this check from within the OpenStackToken into here
+                throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
+            }
+        }
+        return authToken;
+    }
+
+    @Override
+    public AuthGroups getGroups(String group) {
+        return authenticationService.getGroups(group);
+    }
+
+    @Override
+    public FilterDirector processResponse(ReadableHttpServletResponse response) {
+        return new OpenStackResponseHandler(response, wwwAuthHeaderContents).handle();
+    }
 
     @Override //getting the final encoded string
     protected String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration) {
@@ -75,9 +99,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     @Override
     public void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
-            FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsInBase64) {
+                                        FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String
+            endpointsInBase64) {
         new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult,
-                                                 groups, wwwAuthHeaderContents, endpointsInBase64)
-                                                .setFilterDirectorValues();
+                groups, wwwAuthHeaderContents, endpointsInBase64)
+                .setFilterDirectorValues();
     }
 }
