@@ -51,7 +51,7 @@ module.exports = function(grunt) {
     },
     exec: {
       build: {
-        cmd: 'jekyll build'
+        cmd: 'jekyll build --config _local-config.yml'
       }
     },
     watch: {

@@ -8,7 +8,7 @@ If you just want to build the project
 
 - Clone the repo with `git clone https://github.com/username/repo.git`.
 - Install ruby depencies: `bundle install`
-- Run this project's version of jekyll `bundle exec jekyll serve`
+- Run this project's version of jekyll `bundle exec jekyll serve --config _local-config.yml`
 
 ## CSS/SCSS requirements
 
