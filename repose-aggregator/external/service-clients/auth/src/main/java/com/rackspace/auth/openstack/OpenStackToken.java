@@ -33,8 +33,15 @@ public class OpenStackToken extends AuthToken implements Serializable {
     public OpenStackToken(AuthenticateResponse response) {
 
         checkTokenInfo(response);
-        this.tenantId = response.getToken().getTenant().getId();
-        this.tenantName = response.getToken().getTenant().getName();
+
+        //Tenant is now optional
+        if (response.getToken().getTenant() != null) {
+            this.tenantId = response.getToken().getTenant().getId();
+            this.tenantName = response.getToken().getTenant().getName();
+        } else {
+            this.tenantId = null;
+            this.tenantName = null;
+        }
         this.expires = response.getToken().getExpires().toGregorianCalendar().getTimeInMillis();
         this.roles = formatRoles(response);
         this.tokenId = response.getToken().getId();
@@ -54,15 +61,14 @@ public class OpenStackToken extends AuthToken implements Serializable {
 
     /**
      * Assumption here is that not having a tenant would throw an exception - B-52709
+     * This is no longer valid, Some responses will not have a tenant. - B-60838
+     * There is logic elsewhere that will double check the existence of a tenant based on configuration data
+     *
      * @param response
      */
     private void checkTokenInfo(AuthenticateResponse response) {
         if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
             throw new IllegalArgumentException("Invalid token");
-        }
-
-        if (response.getToken().getTenant() == null) {
-            throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
         }
 
         if (response.getUser() == null) {
@@ -72,7 +78,6 @@ public class OpenStackToken extends AuthToken implements Serializable {
         if (response.getUser().getRoles() == null) {
             throw new IllegalArgumentException("Invalid Response from Auth: User must have a list of roles");
         }
-
     }
 
     private String getDefaultRegion(AuthenticateResponse response) {
