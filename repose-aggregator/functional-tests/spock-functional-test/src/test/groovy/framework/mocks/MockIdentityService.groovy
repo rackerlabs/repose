@@ -157,9 +157,25 @@ class MockIdentityService {
 
         def match
 
-        if (path.startsWith("/tokens")) {
+        String nonQueryPath;
+        String query;
 
-            if (path == "/tokens") {
+        if (path.contains("?")) {
+
+            int index = path.indexOf("?")
+            query = path.substring(index + 1)
+            nonQueryPath = path.substring(0, index)
+
+        } else {
+
+            query = null
+            nonQueryPath = path
+        }
+
+
+        if (nonQueryPath.startsWith("/tokens")) {
+
+            if (nonQueryPath == "/tokens") {
                 if (method == "POST") {
 
                     generateTokenCount++
@@ -171,8 +187,11 @@ class MockIdentityService {
                 }
             }
 
-            match = (path =~ /\/tokens\/([^\/]+)(\?belongsTo)?/)
+            match = (nonQueryPath ==~ /\/tokens\/([^\/]+)/)
             if (match) {
+
+                // TODO: 'belongsTo' in query string
+
                 if (method == 'GET') {
 
                     validateTokenCount++
@@ -185,7 +204,7 @@ class MockIdentityService {
                 }
             }
 
-            match = (path ==~ /\/tokens\/([^\/]+)\/endpoints/)
+            match = (nonQueryPath ==~ /\/tokens\/([^\/]+)\/endpoints/)
             if (match) {
                 if (method == "GET") {
 
@@ -199,9 +218,9 @@ class MockIdentityService {
                 }
             }
 
-        } else if (path.startsWith("/users/")) {
+        } else if (nonQueryPath.startsWith("/users/")) {
 
-            match = (path =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
+            match = (nonQueryPath ==~ /\/users\/([^\/]+)\/RAX-KSGRP/)
             if (match) {
                 if (method =="GET") {
 
@@ -215,7 +234,7 @@ class MockIdentityService {
                 }
             }
 
-            match = (path =~ /\/users\/([^\/]+)\/roles/)
+            match = (nonQueryPath ==~ /\/users\/([^\/]+)\/roles/)
             if (match) {
                 if (method =="GET") {
 
