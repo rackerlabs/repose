@@ -1,50 +1,21 @@
-## java specific
-!.gitignore
-*.iml
-*.iws
-*.ipr
-*.lic
-target
-*/target
-*/*/target
+/_site
 
-## vim objects
-*.swo
+/node_modules
+/bower_components
+npm-debug.log
+*.sassc
+.sass-cache/
+
+# OS generated files #
+######################
+/tmp
+doc/
 *.swp
-
-## Build helper scripts
-*.bhs
-
-## Netbeans
-catalog.xml
-nbactions.xml
-
-## IntelliJ IDEA
-*.iml
-*.ipr
-*.iws
-.idea/
-
-## generic files to ignore
 *~
-*.lock
-*.DS_Store
-*.swp
-*.out
-jmeter.log
-
-## rcman
-rcman.conf
-rcman.log
-rsInstances
-nodeNames
-hosts.csv
-automation/rcman/files/*
-log.txt
-/test/JavaApplication1/nbproject/private/
-/test/artifact-behavior-test/responseBody
-/test/artifact-behavior-test/responseHeaders
-
-## Python
-*.py[cod]
-.Python
+.svn
+.project
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+.DS_Store

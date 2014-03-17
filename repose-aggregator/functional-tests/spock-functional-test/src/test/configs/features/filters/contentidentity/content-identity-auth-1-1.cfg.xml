@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<content-identity-auth content-body-read-limit="300"
-                       xmlns='http://openrepose.org/rackspace/auth-1.1/content-identity/v1.0'>
-    <group>My Group</group>
-    <quality>0.75</quality>
-
-</content-identity-auth>

@@ -1,0 +1,8 @@
+{
+  "name": "repose",
+  "version": "0.0.0",
+  "dependencies": {
+    "foundation": "*"
+  }
+}
+

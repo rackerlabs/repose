@@ -1,8 +1,0 @@
-<metrics xmlns="http://docs.rackspacecloud.com/repose/metrics/v1.0">
-    <graphite>
-        <server host="localhost"
-                port="${graphitePort}"
-                period="1"
-                prefix="test.1.metrics" />
-    </graphite>
-</metrics>

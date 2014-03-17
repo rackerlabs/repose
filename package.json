@@ -1,0 +1,23 @@
+{
+  "name": "repose",
+  "version": "0.0.0",
+  "dependencies": {
+    "grunt-contrib-watch": "*",
+    "grunt": "*",
+    "grunt-cli": "*",
+    "grunt-exec": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-connect": "*",
+    "grunt-contrib-compass": "*",
+    "bower": "*"
+  },
+  "scripts": {
+    "start": "node node_modules/grunt-cli/bin/grunt",
+    "postinstall": "node node_modules/bower/bin/bower install && bundle install"
+  },
+  "keywords": [
+    "jekyll",
+    "grunt",
+    "prototyping"
+  ]
+}

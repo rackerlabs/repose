@@ -1,6 +1,0 @@
-<target>
-    <blacklist id="rate-limit-headers">
-        <header id="X-PP-User" />
-        <header id="X-PP-Groups" />
-    </blacklist>
-</target>
