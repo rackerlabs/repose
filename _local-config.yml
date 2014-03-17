@@ -1,2 +1,2 @@
-baseurl: "http://rackerlabs.github.io/repose"
+baseurl: ""
 exclude: ["README.md", "Gruntfile.js", "changelog.md", "Gemfile", "Gemfile.lock", "node_modules", "bower_components", "scss", "config.rb", "package.json", "LICENSE-MIT", "bower.json"]
