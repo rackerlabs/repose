@@ -187,7 +187,7 @@ class MockIdentityService {
                 }
             }
 
-            match = (nonQueryPath ==~ /\/tokens\/([^\/]+)/)
+            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)/)
             if (match) {
 
                 // TODO: 'belongsTo' in query string
@@ -204,7 +204,7 @@ class MockIdentityService {
                 }
             }
 
-            match = (nonQueryPath ==~ /\/tokens\/([^\/]+)\/endpoints/)
+            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)\/endpoints/)
             if (match) {
                 if (method == "GET") {
 
@@ -220,9 +220,9 @@ class MockIdentityService {
 
         } else if (nonQueryPath.startsWith("/users/")) {
 
-            match = (nonQueryPath ==~ /\/users\/([^\/]+)\/RAX-KSGRP/)
+            match = (nonQueryPath =~ /^\/users\/([^\/]+)\/RAX-KSGRP/)
             if (match) {
-                if (method =="GET") {
+                if (method == "GET") {
 
                     getGroupsCount++
 
@@ -234,9 +234,9 @@ class MockIdentityService {
                 }
             }
 
-            match = (nonQueryPath ==~ /\/users\/([^\/]+)\/roles/)
+            match = (nonQueryPath =~ /^\/users\/([^\/]+)\/roles/)
             if (match) {
-                if (method =="GET") {
+                if (method == "GET") {
 
                     getUserGlobalRolesCount++
 
