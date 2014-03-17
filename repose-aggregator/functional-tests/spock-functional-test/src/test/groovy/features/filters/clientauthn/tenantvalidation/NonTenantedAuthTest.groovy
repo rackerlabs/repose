@@ -45,7 +45,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
         fakeIdentityService.client_token = "rackerButts"
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = false
+        fakeIdentityService.ok = true
         fakeIdentityService.adminOk = true
 
 
