@@ -39,7 +39,9 @@ public final class RackspaceAuthenticationHandlerFactory {
                 authConfig.getTokenCacheTimeout(),
                 0,
                 authConfig.isRequestGroups(),
-                null,null); 
+                null,
+                null,
+                null);
 
         return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, usrCache,null, uriMatcher);
     }
