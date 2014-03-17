@@ -7,8 +7,8 @@ import java.util.List;
 
 /**
  * @author fran
- *
- * This class manages information from config files related to auth.
+ *         <p/>
+ *         This class manages information from config files related to auth.
  */
 public class Configurables {
     private final boolean delegable;
@@ -22,6 +22,7 @@ public class Configurables {
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
     private final List<String> serviceAdminRoles;
+    private final List<String> bypassTenantCheckRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
@@ -33,15 +34,16 @@ public class Configurables {
         this.groupCacheTtl = groupCacheTtl;
         this.userCacheTtl = usrCacheTtl;
         this.tokenCacheTtl = tokenCacheTtl;
-        this.requestGroups=requestGroups;
+        this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
         this.serviceAdminRoles = new ArrayList<String>();
+        this.bypassTenantCheckRoles = new ArrayList<String>();
         this.cacheOffset = 0;
     }
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
-            boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
-            EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles) {
+                         boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
+                         EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> bypassTenantCheckRoles) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -50,9 +52,10 @@ public class Configurables {
         this.userCacheTtl = usrCacheTtl;
         this.tokenCacheTtl = tokenCacheTtl;
         this.cacheOffset = cacheOffset;
-        this.requestGroups=requestGroups;
+        this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
         this.serviceAdminRoles = serviceAdminRoles;
+        this.bypassTenantCheckRoles = bypassTenantCheckRoles;
     }
 
     public boolean isDelegable() {
@@ -74,9 +77,9 @@ public class Configurables {
     public long getGroupCacheTtl() {
         return groupCacheTtl;
     }
-    
+
     public long getTokenCacheTtl() {
-       return tokenCacheTtl;
+        return tokenCacheTtl;
     }
 
     public long getUserCacheTtl() {
@@ -91,11 +94,15 @@ public class Configurables {
         return endpointsConfiguration;
     }
 
-    public int getCacheOffset(){
+    public int getCacheOffset() {
         return cacheOffset;
     }
 
     public List<String> getServiceAdminRoles() {
         return serviceAdminRoles;
+    }
+
+    public List<String> getBypassTenantCheckRoles() {
+        return bypassTenantCheckRoles;
     }
 }
