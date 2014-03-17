@@ -30,11 +30,17 @@ class CacheOffsetTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
+    /**
+     * Cache offset test will test the following scenario:
+     * - a burst of requests will be sent for a specified number of users
+     * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
+     * - all tokens will expire at tokenTimeout+cacheOffset
+     */
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
         IdentityServiceResponseSimulator fauxIdentityService
-        def clientToken = UUID.randomUUID().toString()
+        def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
         fauxIdentityService = new IdentityServiceResponseSimulator()
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
@@ -47,12 +53,11 @@ class CacheOffsetTest extends ReposeValveTest {
         and: "All users have unique X-Auth-Token"
         def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
-        when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
+        when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
         fauxIdentityService.validateTokenCount = 0
-        Map<String,MessageChain> messageChainList = new HashMap<String,MessageChain>()
 
         DateTime initialTokenValidation = DateTime.now()
-        DateTime initialBurstLastValidationCall
+        DateTime lastTokenValidation = DateTime.now()
         userTokens.eachWithIndex { token, index ->
 
             def thread = Thread.start {
@@ -60,9 +65,8 @@ class CacheOffsetTest extends ReposeValveTest {
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
                             headers: ['X-Auth-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
-                    messageChainList.put("InitialBurst-$index-$it", mc)
                     mc.receivedResponse.code.equals("200")
-                    initialBurstLastValidationCall = DateTime.now()
+                    lastTokenValidation = DateTime.now()
                 }
             }
             clientThreads.add(thread)
@@ -73,20 +77,17 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount == uniqueUsers
 
 
-        when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
+        when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
         fauxIdentityService.validateTokenCount = 0
-        int offset = initialBurstLastValidationCall.millis - initialTokenValidation.millis
 
-        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(offset)
+        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
 
         userTokens.eachWithIndex { token, index ->
-            def Map<String, MessageChain> roundTwo = [:]
-
             def thread = Thread.start {
-                while (DateTime.now().isBefore(minimumTokenExpiration)) {
+                while (minimumTokenExpiration.isAfterNow()) {
                     MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundTwo-$index" , mc)
+                    mc.receivedResponse.code.equals("200")
                 }
             }
             clientThreads.add(thread)
@@ -96,27 +97,28 @@ class CacheOffsetTest extends ReposeValveTest {
         then: "All calls should hit cache"
         fauxIdentityService.validateTokenCount == 0
 
-        when: "Cache has expired for all tokens, and new GETs are issued"
+        when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
         fauxIdentityService.validateTokenCount = 0
+        DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
+        //wait until max token expiration is reached
+        while (maximumTokenExpiration.isAfterNow()) {
+            sleep 100
+        }
+
         clientThreads = new ArrayList<Thread>()
 
         userTokens.eachWithIndex { token, index ->
-            def Map<String, MessageChain> roundTwo = [:]
-
-            DateTime maxTokenExpiration = initialBurstLastValidationCall.plusSeconds(10)
-
             def thread = Thread.start {
-                while (DateTime.now().isBefore(maxTokenExpiration)) {
-                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundThree-$index-" , mc)
-                }
+                MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
+                mc.receivedResponse.code.equals("200")
             }
             clientThreads.add(thread)
         }
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount >= uniqueUsers - 2 // adding a little bit of wiggle for slow systems
+        //since we are talking about time based testing, we cannot always validate against a concrete number.  This is testing a range of requests.
+        fauxIdentityService.validateTokenCount >= uniqueUsers - 5
 
         where:
         uniqueUsers | initialCallsPerUser

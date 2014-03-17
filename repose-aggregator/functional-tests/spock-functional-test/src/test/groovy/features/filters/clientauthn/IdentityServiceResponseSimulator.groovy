@@ -36,7 +36,7 @@ class IdentityServiceResponseSimulator {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
-    int validateTokenCount = 0;
+    static int validateTokenCount = 0;
     int groupsCount = 0;
     int adminTokenCount = 0;
     int endpointsCount = 0;
