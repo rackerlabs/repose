@@ -56,6 +56,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
+        sleep(500)
 
         where:
         adminBroken | validateBroken | groupsBroken | errorCode | expectedCode

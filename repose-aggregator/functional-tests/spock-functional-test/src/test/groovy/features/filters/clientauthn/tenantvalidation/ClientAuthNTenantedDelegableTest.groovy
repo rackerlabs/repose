@@ -39,7 +39,8 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
     @Unroll("token: #clientToken")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - fail"() {
-
+        given:
+        sleep 500
         // def clientToken = UUID.randomUUID().toString()
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
@@ -71,8 +72,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
     @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: token: #clientToken")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - pass"() {
-
-        // def clientToken = UUID.randomUUID().toString()
+        given:
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
         fakeIdentityService.ok = true

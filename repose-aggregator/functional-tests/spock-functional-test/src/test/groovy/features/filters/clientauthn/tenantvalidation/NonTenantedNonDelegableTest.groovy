@@ -38,6 +38,10 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup(){
+        sleep 500
+    }
+
     @Unroll("Tenant: #reqTenant")
     def "when authenticating user in non tenanted and non delegable mode - fail"() {
 
@@ -60,6 +64,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request should not be passed from repose"
@@ -99,6 +104,7 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"

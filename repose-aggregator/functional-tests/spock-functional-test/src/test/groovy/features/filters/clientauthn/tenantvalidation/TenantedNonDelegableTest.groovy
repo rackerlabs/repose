@@ -39,6 +39,10 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup(){
+        sleep 500
+    }
+
     @Unroll("Tenant: #reqTenant")
     def "when authenticating user in tenanted and non delegable mode - fail"() {
 
@@ -67,6 +71,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == www_auth_header
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
@@ -113,6 +118,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         !mc.receivedResponse.headers.contains("www-authenticate")
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"

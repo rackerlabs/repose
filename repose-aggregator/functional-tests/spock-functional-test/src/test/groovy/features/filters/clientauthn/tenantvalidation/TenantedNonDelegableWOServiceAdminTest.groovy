@@ -38,6 +38,10 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup(){
+        sleep 500
+    }
+
     @Unroll("Tenant: #reqTenant")
     def "when authenticating user in tenanted and non delegable mode and without service-admin - fail"() {
 
@@ -58,12 +62,12 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
@@ -99,7 +103,6 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == 2
@@ -112,6 +115,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-authorization") == "Proxy " + 222
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"

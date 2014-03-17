@@ -38,6 +38,10 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         repose.stop()
     }
 
+    def setup(){
+        sleep 500
+    }
+
 
     @Unroll("Tenant: #reqTenant")
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - fail"() {
@@ -61,6 +65,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         mc.orphanedHandlings.size() == orphanedHandlings
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
@@ -104,6 +109,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
         when: "User passes a request through repose the second time"
+        sleep 500
         mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"

@@ -70,6 +70,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
+        sleep(500)
 
         when: "User passes a request through repose the second time"
         mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
@@ -78,14 +79,15 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
         mc.orphanedHandlings.size() == secondPassOrphanedHandlings
         mc.handlings.size() == 0
+        sleep(500)
 
         where:
         reqTenant | tenantMatch | tenantWithAdminRole | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | x_www_auth | validateClientBroken | getAdminTokenBroken | getGroupsBroken | secondPassOrphanedHandlings
         111       | false       | false               | true     | false         | "500"        | 1                 | false      | false                | false               | false           | 1
         888       | true        | true                | true     | true          | "500"        | 1                 | false      | false                | true                | false           | 1
-        555       | false       | false               | true     | true          | "401"        | 2                 | true       | false                | false               | false           | 0
-        666       | false       | false               | false    | true          | "401"        | 1                 | true       | false                | false               | false           | 0
-        777       | true        | true                | true     | true          | "500"        | 1                 | false      | true                 | false               | false           | 0
+        555       | false       | false               | true     | true          | "401"        | 2                 | true       | false                | false               | false           | 1
+        666       | false       | false               | false    | true          | "401"        | 1                 | true       | false                | false               | false           | 1
+        777       | true        | true                | true     | true          | "500"        | 1                 | false      | true                 | false               | false           | 1
     }
 
 

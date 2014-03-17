@@ -7,6 +7,15 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+/**
+ * In this scenario we are testing when the configuration requires the client to be tenanted and allows delegable
+ * passthrough
+ *
+ * What that means is the following:
+ * - request must specify a tenant id for the client to validate against
+ * - request can be delegable, which means that the authentication can be delegated to origin service.
+ * @return
+ */
 class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
     def static originEndpoint
@@ -38,6 +47,11 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
+    //this is required due to akka caching requests for a few milliseconds
+    def setup(){
+        sleep 500
+    }
+
     @Unroll("tenant: #reqTenant isAuthed: #isAuthed isAdminAuthed: #isAdminAuthed")
     def "when authenticating user in tenanted and delegable mode and client-mapping matching - fail"() {
 
@@ -53,16 +67,30 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = false
         fakeIdentityService.doesTenantHaveAdminRoles = false
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': "${fakeIdentityService.client_token}$reqTenant"
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == orphanedHandlings
 
-        when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        when: "User passes a request through repose the second time (after waiting for akka burst cache to expire)"
+        sleep 500
+        mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': "${fakeIdentityService.client_token}$reqTenant"
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
@@ -93,10 +121,16 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.isTenantMatch = tenantMatch
         fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
         fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': "${fakeIdentityService.client_token}$reqTenant"
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.orphanedHandlings.size() == orphanedHandlings
@@ -110,8 +144,16 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         request2.headers.getFirstValue("x-identity-status") == "Confirmed"
         request2.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
 
-        when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token+reqTenant])
+        when: "User passes a request through repose the second time (after waiting for akka burst cache to expire)"
+        sleep 500
+        mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': "${fakeIdentityService.client_token}$reqTenant"
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
@@ -130,7 +172,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
         222       | true        | true                | 2                 | 0
         333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 0
+        444       | false       | true                | 2                 | 1
     }
 
 }
