@@ -2,7 +2,7 @@
 <client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0" >
     <openstack-auth delegable="false"
                     tenanted="false"
-                    request-groups="true"
+                    request-groups="false"
                     token-cache-timeout="600000"
                     group-cache-timeout="600000"
                     connectionPoolId= "client-auth"
@@ -12,7 +12,7 @@
                           uri="http://localhost:${identityPort}" />
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
         <bypass-tenant-check>
-            <role>9</role>
+            <role>Racker</role>
         </bypass-tenant-check>
     </openstack-auth>
 </client-auth>
