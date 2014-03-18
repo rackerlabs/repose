@@ -189,6 +189,21 @@ class MockIdentityService {
                 }
             }
 
+            match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
+            if (match) {
+                if (method == "GET") {
+
+                    getEndpointsCount.incrementAndGet()
+                    println "get endpoint"
+
+                    def tokenId = match[0][1]
+                    return getEndpointsHandler(tokenId, request, xml)
+
+                } else {
+                    return new Response(405)
+                }
+            }
+
             match = (nonQueryPath =~ /\/tokens\/([^\/]+)/)
             if (match) {
 
@@ -202,21 +217,6 @@ class MockIdentityService {
                     println "$tokenId-$validateTokenCount"
                     return validateTokenHandler(tokenId, request, xml)
 
-
-                } else {
-                    return new Response(405)
-                }
-            }
-
-            match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
-            if (match) {
-                if (method == "GET") {
-
-                    getEndpointsCount.incrementAndGet()
-                    println "get endpoint"
-
-                    def tokenId = match[0][1]
-                    return getEndpointsHandler(tokenId, request, xml)
 
                 } else {
                     return new Response(405)

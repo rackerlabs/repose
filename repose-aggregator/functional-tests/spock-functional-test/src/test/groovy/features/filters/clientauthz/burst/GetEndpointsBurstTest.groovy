@@ -1,7 +1,7 @@
 package features.filters.clientauthz.burst
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -14,7 +14,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -22,7 +22,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/clientauthz/common", properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
@@ -47,12 +47,16 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
+    def setup(){
+        sleep 500
+    }
+
     @Unroll("Testing with #numClients clients for #callsPerClient clients")
     def "under heavy load should not drop get endpoints response"() {
 
         given:
-        Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        Map header1 = ['X-Auth-Token': "$fakeIdentityService.client_token-$numClients-$callsPerClient"]
+        fakeIdentityService.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -64,27 +68,20 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
         def missingAuthResponse = false
         def Bad403Response = false
-        List<String> badRequests = new ArrayList()
-        List<String> requests = new ArrayList()
 
-        for (x in 1..numClients) {
+        (1..numClients).each {
+            threadNum ->
 
             def thread = Thread.start {
-                def threadNum = x
-
-                for (i in 1..callsPerClient) {
-                    requests.add('spock-thread-' + threadNum + '-request-' + i)
-
+                (1..callsPerClient).each {
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true
-                        badRequests.add('500-spock-thread-' + threadNum + '-request-' + i)
                     }
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("403")) {
                         Bad403Response = true
-                        badRequests.add('403-spock-thread-' + threadNum + '-request-' + i)
                     }
 
                 }
@@ -96,7 +93,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.endpointsCount == 1
+        fakeIdentityService.getEndpointsCount.get() == 1
 
         and:
         Bad403Response == false

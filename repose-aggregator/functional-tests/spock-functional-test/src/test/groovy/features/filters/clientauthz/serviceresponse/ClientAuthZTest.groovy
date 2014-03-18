@@ -1,8 +1,8 @@
 package features.filters.clientauthz.serviceresponse
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.mocks.MockIdentityService
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -14,7 +14,7 @@ class ClientAuthZTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -25,7 +25,7 @@ class ClientAuthZTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }

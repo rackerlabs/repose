@@ -1,7 +1,7 @@
 package features.filters.clientauthz.serviceresponse
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
@@ -10,7 +10,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         cleanLogDirectory()
@@ -23,7 +23,7 @@ class ServiceListFeatureTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator(properties.identityPort, properties.targetPort)
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }

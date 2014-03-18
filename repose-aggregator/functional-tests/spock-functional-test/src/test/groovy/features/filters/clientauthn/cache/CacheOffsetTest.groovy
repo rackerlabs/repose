@@ -1,6 +1,5 @@
 package features.filters.clientauthn.cache
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService

@@ -5,7 +5,6 @@
 
 package features.filters.clientauthn.tokenexpireheader;
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator;
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService;
 import org.rackspace.deproxy.Deproxy;
