@@ -43,6 +43,7 @@ class TomcatProxyTest extends Specification {
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()
+        repose.waitForNon500FromUrl(tomcatEndpoint, 120)
     }
 
     def cleanupSpec() {
@@ -56,7 +57,6 @@ class TomcatProxyTest extends Specification {
     def "Should Pass Requests through repose"() {
 
         when: "Request is sent through Repose/Tomcat"
-        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-trace-request': 'true', 'x-pp-user': 'usertest1'])
 
         then: "Repose Should Forward Request"

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException
 import static org.junit.Assert.fail
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeValveLauncher implements ReposeLauncher {
+class ReposeValveLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
     def String reposeJar

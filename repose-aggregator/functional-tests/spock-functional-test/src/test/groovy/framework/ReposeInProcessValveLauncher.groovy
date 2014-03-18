@@ -9,7 +9,7 @@ import org.linkedin.util.clock.SystemClock
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeInProcessValveLauncher implements ReposeLauncher {
+class ReposeInProcessValveLauncher extends ReposeLauncher {
 
     ReposeConfigurationProvider configurationProvider
     String configDir

@@ -1,14 +1,14 @@
 package framework
 
-interface ReposeLauncher {
+abstract class ReposeLauncher {
 
-    void start();
+    abstract void start();
 
-    void stop();
+    abstract void stop();
 
-    boolean isUp();
+    abstract boolean isUp();
 
-    void enableDebug()
+    abstract void enableDebug()
 
-    void addToClassPath(String path)
+    abstract void addToClassPath(String path)
 }
