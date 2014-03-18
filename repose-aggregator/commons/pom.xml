@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>3.1.0-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.commons</groupId>
@@ -57,10 +56,10 @@
 
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/target"/>
+                                <mkdir dir="${project.basedir}/target" />
 
                                 <exec dir="${project.basedir}" executable="doxygen">
-                                    <arg value="rc-commons-doxygen.config"/>
+                                    <arg value="rc-commons-doxygen.config" />
                                 </exec>
                             </target>
                         </configuration>

@@ -3,7 +3,7 @@
 
 
     <limit-group id="multi2-limits" groups="multi2-limits" default="false">
-        <limit uri="rate2/*" uri-regex="/rate2/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
+        <limit id="test" uri="rate2/*" uri-regex="/rate2/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
     </limit-group>
 
 

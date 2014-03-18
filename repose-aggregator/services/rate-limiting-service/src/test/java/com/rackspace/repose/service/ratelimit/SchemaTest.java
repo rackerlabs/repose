@@ -60,7 +60,7 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='" + method + "' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits' groups='user'/> " +
                             "</rate-limiting>";
@@ -98,8 +98,8 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"two\" uri='foo' uri-regex='bar' http-methods='GET PUT' value='1' unit='HOUR'/>" +
                     "    </limit-group>" +
                     "    <limit-group id='customer-limits' groups='user'/> " +
                     "</rate-limiting>";
@@ -112,8 +112,8 @@ public class SchemaTest {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                     "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
-                    "       <limit uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='GET PUT' value='1' unit='HOUR'/>" +
+                    "       <limit id=\"two\" uri='foo' uri-regex='foo' http-methods='POST DELETE' value='1' unit='HOUR'/>" +
                     "    </limit-group>" +
                     "    <limit-group id='customer-limits' groups='user'/> " +
                     "</rate-limiting>";
@@ -122,11 +122,27 @@ public class SchemaTest {
         }
 
         @Test
+        public void shouldValidateIfLimitIdsSameAcrossGroups() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                            "    <limit-group id='customer-limits' groups='customer foo'> " +
+                            "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "        <limit id=\"two\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "    <limit-group id='customer-limits2' groups='customer2'> " +
+                            "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "        <limit id=\"two\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
+                            "    </limit-group>" +
+                            "</rate-limiting>";
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
         public void shouldFailWhenInvalidMethodUsed() throws Exception {
             String xml =
                     "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
                             "    <limit-group id='test-limits' groups='customer foo' default='true'> " +
-                            "       <limit uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
+                            "       <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='FOO' value='1' unit='HOUR'/>" +
                             "    </limit-group>" +
                             "    <limit-group id='customer-limits' groups='user'/> " +
                             "</rate-limiting>";
@@ -152,6 +168,18 @@ public class SchemaTest {
                     "    <limit-group id='test-limits' groups='user' default='true'/> " +
                     "</rate-limiting>";
             assertInvalidConfig(xml, "Only one default limit group may be defined");
+        }
+
+        @Test
+        public void shouldFailIfNonUniqueLimitIdsUsed() throws Exception {
+            String xml =
+                    "<rate-limiting xmlns='http://docs.rackspacecloud.com/repose/rate-limiting/v1.0'> " +
+                    "    <limit-group id='customer-limits' groups='customer'> " +
+                    "        <limit id=\"one\" uri='foo' uri-regex='foo' http-methods='ALL' value='1' unit='HOUR'/>" +
+                    "        <limit id=\"one\" uri='foo2' uri-regex='foo2' http-methods='ALL' value='1' unit='HOUR'/>" +
+                    "    </limit-group>" +
+                    "</rate-limiting>";
+            assertInvalidConfig(xml, "Limits must have unique ids");
         }
 
         private void assertInvalidConfig(String xml, String errorMessage) {

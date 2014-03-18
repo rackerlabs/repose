@@ -225,7 +225,11 @@
                     <html:p>The groups that the rate limits are associated with</html:p>
                 </xs:documentation>
             </xs:annotation>
-        </xs:attribute>             
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(limit/@id)) = count(limit/@id)"
+                   xerces:message="Limits must have unique ids"
+                   saxon:message="Limits must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
          
         <!--xs:assert vc:minVersion="1.1"
             test="
@@ -249,7 +253,7 @@
 
         <!-- The "id" attribute should be prohibited, but doesn't appear present in the generated
         class is designated as such -->
-        <xs:attribute name="id" type="xs:string" use="optional">
+        <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

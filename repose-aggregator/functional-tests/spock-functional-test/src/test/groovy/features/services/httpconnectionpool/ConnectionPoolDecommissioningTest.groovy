@@ -8,13 +8,16 @@ import org.rackspace.deproxy.MessageChain
 
 class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
-    def setup() {
-        cleanLogDirectory()
+    def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    def cleanup() {
+    def setup() {
+        cleanLogDirectory()
+    }
+
+    def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
     }

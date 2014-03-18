@@ -32,24 +32,24 @@
             that match this regex under the key '53418.' The meaning of the key
             is arbitrary.
         -->
-        <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+        <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
     <limit-group id="test-limits" groups="user">
-        <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+        <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
     <limit-group id="standard-ip-limits" groups="IP_Standard">
-        <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
+        <limit id="one" uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
 
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="DAY" value="10"/>
-        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="HOUR" value="5" />
+        <limit id="two" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="DAY" value="10"/>
+        <limit id="three" uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="HOUR" value="5" />
     </limit-group>
     
     <limit-group id="super-user-limits" groups="IP_Super"/>

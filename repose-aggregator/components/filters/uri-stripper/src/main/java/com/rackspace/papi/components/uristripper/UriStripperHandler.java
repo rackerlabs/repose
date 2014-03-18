@@ -86,7 +86,8 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
 
             locationHeader = response.getHeader(CommonHttpHeader.LOCATION.toString());
 
-            if(locationHeader.contains(token)){
+            //Need to check and see if it contains the three token pattern already in the location header
+            if(locationHeader.contains(prevToken + URI_DELIMITER + token + URI_DELIMITER + nextToken)){
                 LOG.debug("Stripped token already present in Location Header");
                 return filterDirector;
             }
