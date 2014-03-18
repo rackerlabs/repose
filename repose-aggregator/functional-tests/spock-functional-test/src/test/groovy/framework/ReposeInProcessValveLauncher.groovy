@@ -53,20 +53,4 @@ class ReposeInProcessValveLauncher extends ReposeLauncher {
     @Override
     void addToClassPath(String path) {
     }
-
-    def clock = new SystemClock()
-    def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
-
-        print("Waiting for repose to start at ${url} ")
-        waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
-            try {
-                print(".")
-                HttpClient client = new DefaultHttpClient()
-                client.execute(new HttpGet(url)).statusLine.statusCode != 500
-            } catch (ClientProtocolException ignored) {
-            } catch (IOException ignored) {
-            }
-        }
-        println()
-    }
 }
