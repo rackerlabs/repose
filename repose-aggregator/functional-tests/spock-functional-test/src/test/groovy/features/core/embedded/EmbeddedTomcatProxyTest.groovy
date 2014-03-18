@@ -55,6 +55,7 @@ class EmbeddedTomcatProxyTest extends Specification {
                 reposePort, shutdownPort, mocksWar)
         repose.clusterId = "repose"
         repose.start()
+        repose.waitForNon500FromUrl(tomcatEndpoint, 120)
     }
 
     def cleanupSpec() {
@@ -68,7 +69,6 @@ class EmbeddedTomcatProxyTest extends Specification {
     def "Should Pass Requests through repose"() {
 
         when: "Request is sent through Repose/Tomcat"
-        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster?a=b&c=123", headers: ['passheader': 'value1', 'PassHeAder' : 'value2'])
         RequestInfo info = MocksUtil.xmlStringToRequestInfo(mc.receivedResponse.body.toString())
 
