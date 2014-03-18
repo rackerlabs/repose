@@ -1,10 +1,11 @@
 package features.filters.clientauthn.tenantvalidation
 
-import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
@@ -12,7 +13,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static IdentityServiceRemoveTenantedValidationResponseSimulator fakeIdentityService
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
 
@@ -25,7 +26,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -39,48 +40,56 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
     }
 
     def setup(){
-        sleep 500
+        fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #reqTenant")
+    @Unroll("Tenant: #requestTenant")
     def "when authenticating user in tenanted and non delegable mode and without service-admin - fail"() {
 
         given:
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
 
+        if(authResponseCode != 200){
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(authResponseCode)
+            }
+        }
 
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = isAuthed
-        fakeIdentityService.adminOk = isAdminAuthed
+        if(groupResponseCode != 200){
+            fakeIdentityService.getGroupsHandler = {
+                userId, request,xml ->
+                    new Response(groupResponseCode)
+            }
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = tenantMatch
-        fakeIdentityService.doesTenantHaveAdminRoles = false
-        fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == orphanedHandlings
-
-        when: "User passes a request through repose the second time"
-        sleep 500
-        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == secondPassOrphanedHandlings
         mc.handlings.size() == 0
 
         where:
-        reqTenant | tenantMatch | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | secondPassOrphanedHandlings
-        111       | false       | true     | false         | "500"        | 1                 | 1
-        333       | false       | true     | true          | "401"        | 2                 | 0
-        444       | true        | false    | true          | "401"        | 1                 | 0
-        555       | false       | false    | true          | "401"        | 1                 | 0
+        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        813           | 813             | "not-admin"           | 500              | "500"        | 200               | false
+        814           | 814             | "not-admin"           | 404              | "401"        | 200               | true
+        815           | 815             | "not-admin"           | 200              | "500"        | 404               | false
+        816           | 816             | "not-admin"           | 200              | "500"        | 500               | false
+        811           | 812             | "not-admin"           | 200              | "401"        | 200               | true
 
 
     }
@@ -90,40 +99,30 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         given:
 
 
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = true
-        fakeIdentityService.adminOk = true
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = 999
+            client_userid = 999
+            service_admin_role = "non-admin"
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = true
-        fakeIdentityService.doesTenantHaveAdminRoles = false
-        fakeIdentityService.client_tenant = 222
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(
+                url:"$reposeEndpoint/servers/999/",
+                method:'GET',
+                headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 2
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
         request2.headers.contains("x-auth-token")
         !request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-authorization") == "Proxy " + 222
-
-        when: "User passes a request through repose the second time"
-        sleep 500
-        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + 222 + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == 0
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("x-authorization") == "Proxy 999"
     }
 
 }

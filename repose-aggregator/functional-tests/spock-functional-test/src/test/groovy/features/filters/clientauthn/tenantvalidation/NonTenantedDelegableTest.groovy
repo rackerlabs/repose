@@ -1,10 +1,11 @@
 package features.filters.clientauthn.tenantvalidation
 
-import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class NonTenantedDelegableTest extends ReposeValveTest {
@@ -12,7 +13,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static IdentityServiceRemoveTenantedValidationResponseSimulator fakeIdentityService
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
 
@@ -25,7 +26,7 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -39,91 +40,80 @@ class NonTenantedDelegableTest extends ReposeValveTest {
     }
 
     def setup(){
-        sleep 500
+        fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #reqTenant")
+    @Unroll("Tenant: #requestTenant")
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching - fail"() {
 
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = isAuthed
-        fakeIdentityService.adminOk = isAdminAuthed
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
+
+        if(authResponseCode != 200){
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(authResponseCode)
+            }
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = false
-        fakeIdentityService.doesTenantHaveAdminRoles = false
-        fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == orphanedHandlings
-
-        when: "User passes a request through repose the second time"
-        sleep 500
-        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token+reqTenant])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == cachedOrphanedHandlings
         mc.handlings.size() == 0
 
         where:
-        reqTenant | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | cachedOrphanedHandlings
-        111       | true     | false         | "500"        | 1                 | 1
-        666       | false    | true          | "401"        | 2                 | 1
+        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | clientToken
+        500           | 501             | "not-admin"           | 500              | "500"        | UUID.randomUUID()
+        502           | 503             | "not-admin"           | 404              | "401"        | UUID.randomUUID()
     }
 
-    @Unroll("Tenant: #reqTenant")
+    @Unroll("Tenant: #requestTenant")
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching - pass"() {
 
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = true
-        fakeIdentityService.adminOk = true
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
 
-        when: "User passes a request through repose with tenant in service admin role = " + tenantWithAdminRole + " and tenant returned equal = " + tenantMatch
-        fakeIdentityService.isTenantMatch = tenantMatch
-        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
-        fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        when: "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == orphanedHandlings
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.getFirstValue("X-Default-Region") == default_region
         request2.headers.contains("x-auth-token")
         request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
-        request2.headers.getFirstValue("x-identity-status") == "Confirmed"
+        request2.headers.getFirstValue("x-identity-status") == identityStatus
         request2.headers.getFirstValue("x-authorization") == "Proxy"
 
-        when: "User passes a request through repose the second time"
-        sleep 500
-        mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/" + reqTenant + "/", method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Request sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == cachedOrphanedHandlings
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
-
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
-        222       | true        | true                | 2                 | 0
-        333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 0
-        555       | false       | false               | 1                 | 0
+        requestTenant | responseTenant  | serviceAdminRole      | identityStatus  | clientToken        | default_region
+        504           | 505             | "not-admin"           | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
+        506           | 506             | "not-admin"           | "Indeterminate" | ""                 | null
+        507           | 507             | "not-admin"           | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
+        508           | 508             | "service:admin-role1" | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
+        509           | 510             | "service:admin-role1" | "Confirmed"     | UUID.randomUUID()  | "the-default-region"
+        ""            | 512             | "not-admin"           | "Indeterminate" | ""                 | null
     }
 
 

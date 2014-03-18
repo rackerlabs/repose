@@ -1,7 +1,8 @@
 package features.filters.clientauthn.cache
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+
 import framework.ReposeValveTest
 import framework.category.Flaky
+import framework.mocks.MockIdentityService
 import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -10,11 +11,13 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.atomic.AtomicInteger
+
 @Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
-    @Shared def IdentityServiceResponseSimulator fauxIdentityService
+    @Shared def MockIdentityService fauxIdentityService
 
     def cleanup() {
         deproxy.shutdown()
@@ -40,10 +43,12 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
-        def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator()
-        fauxIdentityService.client_token = clientToken
-        fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fauxIdentityService.resetCounts()
+        fauxIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+        }
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
@@ -52,7 +57,6 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         def userTokens = (1..uniqueUsers).collect { "another-cache-offset-random-token-$id-$it" }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
 
         DateTime initialTokenValidation = DateTime.now()
         DateTime initialBurstLastValidationCall
@@ -74,11 +78,11 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
 
         DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
@@ -98,10 +102,10 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fauxIdentityService.validateTokenCount.get() == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
         clientThreads = new ArrayList<Thread>()
 
         DateTime maxTokenExpiration = initialBurstLastValidationCall.plusMillis(tokenTimeout + cacheOffset)
@@ -122,7 +126,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id | tokenTimeout | cacheOffset

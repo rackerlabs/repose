@@ -3,12 +3,15 @@ package features.filters.clientauthn.cache
 import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.mocks.MockIdentityService
 import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.joda.time.Period
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+
+import java.util.concurrent.atomic.AtomicInteger
 
 @Category(Slow.class)
 class CacheOffsetTest extends ReposeValveTest {
@@ -39,11 +42,14 @@ class CacheOffsetTest extends ReposeValveTest {
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
-        IdentityServiceResponseSimulator fauxIdentityService
+        MockIdentityService fauxIdentityService
         def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
-        fauxIdentityService = new IdentityServiceResponseSimulator()
-        fauxIdentityService.client_token = clientToken
-        fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fauxIdentityService.resetCounts()
+        fauxIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+        }
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
@@ -54,7 +60,7 @@ class CacheOffsetTest extends ReposeValveTest {
         def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
         when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
 
         DateTime initialTokenValidation = DateTime.now()
         DateTime lastTokenValidation = DateTime.now()
@@ -74,11 +80,11 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
 
         DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
@@ -95,10 +101,10 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fauxIdentityService.validateTokenCount.get() == 0
 
         when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
         DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
         //wait until max token expiration is reached
         while (maximumTokenExpiration.isAfterNow()) {
@@ -118,7 +124,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         then: "All calls should hit identity"
         //since we are talking about time based testing, we cannot always validate against a concrete number.  This is testing a range of requests.
-        fauxIdentityService.validateTokenCount >= uniqueUsers - 5
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser

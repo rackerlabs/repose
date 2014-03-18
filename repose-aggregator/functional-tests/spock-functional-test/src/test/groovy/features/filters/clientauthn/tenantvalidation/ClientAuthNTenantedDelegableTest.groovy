@@ -1,9 +1,10 @@
 package features.filters.clientauthn.tenantvalidation
-import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
@@ -11,7 +12,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static IdentityServiceRemoveTenantedValidationResponseSimulator fakeIdentityService
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
 
@@ -24,7 +25,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -37,60 +38,70 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("token: #clientToken")
+    def setup(){
+        fakeIdentityService.resetHandlers()
+    }
+
+
+    @Unroll("tenant: #requestTenant, response tenant: #responseTenant, token: #clientToken")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - fail"() {
         given:
-        sleep 500
-        // def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = isAuthed
-        fakeIdentityService.adminOk = isAdminAuthed
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
+
+        if(authResponseCode != 200){
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(authResponseCode)
+            }
+        }
 
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = false
-        fakeIdentityService.doesTenantHaveAdminRoles = false
-        fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/$reqTenant", method: 'GET',
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant",
+                method: 'GET',
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == orphanedHandlings
 
         where:
-        reqTenant | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | clientToken
-
-        128       | true     | false         | "500"        | 1                 | UUID.randomUUID()
-        126       | true     | true          | "401"        | 2                 | UUID.randomUUID()
-        127       | false    | true          | "401"        | 1                 | UUID.randomUUID()
-        129       | false    | true          | "401"        | 0                 | ""
+        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | clientToken
+        300           | 301             | "not-admin"           | 500              | "500"        | UUID.randomUUID()
+        302           | 303             | "not-admin"           | 404              | "401"        | UUID.randomUUID()
+        304           | 305             | "not-admin"           | 200              | "401"        | UUID.randomUUID()
+        306           | 306             | "not-admin"           | 200              | "401"        | ""
 
     }
+
 
     @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: token: #clientToken")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - pass"() {
         given:
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = true
-        fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
-        fakeIdentityService.adminOk = isAdminAuthed
-
+        fakeIdentityService.with {
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = tenantMatch
-        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
-        fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/$reqTenant", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == orphanedHandlings
 
         and: "If request made it to origin service"
         if (identityStatus == "Confirmed") {
@@ -112,13 +123,11 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         }
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | isAdminAuthed | orphanedHandlings | identityStatus  | clientToken
-
-        123       | true        | true                | true          | 2                 | "Confirmed"     | UUID.randomUUID()
-        124       | true        | false               | true          | 2                 | "Confirmed"     | UUID.randomUUID()
-        125       | false       | true                | true          | 2                 | "Confirmed"     | UUID.randomUUID()
-        ""        | false       | false               | false         | 0                 | "Indeterminate" | ""
-
+        requestTenant | responseTenant  | serviceAdminRole      | responseCode | identityStatus  | clientToken
+        307           | 307             | "not-admin"           | "200"        | "Confirmed"     | UUID.randomUUID()
+        308           | 308             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
+        309           | 310             | "service:admin-role1" | "200"        | "Confirmed"     | UUID.randomUUID()
+        ""            | 312             | "not-admin"           | "200"        | "Indeterminate" | ""
     }
 
 }
