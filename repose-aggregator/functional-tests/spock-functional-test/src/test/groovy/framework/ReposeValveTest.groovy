@@ -12,7 +12,7 @@ import org.rackspace.deproxy.MessageChain
 abstract class ReposeValveTest extends Specification {
 
     @Shared
-    def ReposeValveLauncher repose
+    def ReposeLauncher repose
 
     @Shared
     def Deproxy deproxy
