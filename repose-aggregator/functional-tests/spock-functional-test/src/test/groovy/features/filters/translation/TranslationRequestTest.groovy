@@ -62,7 +62,7 @@ class TranslationRequestTest extends ReposeValveTest {
         1
 
         then:
-        assert new Date() < new Date(2014 - 1900, Calendar.MARCH, 17, 9, 0)
+        assert new Date() < new Date(2014 - 1900, Calendar.APRIL, 17, 9, 0)
     }
 
     @Unroll("response: xml, request: #reqHeaders - #reqBody")

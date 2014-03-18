@@ -95,8 +95,8 @@ class AdminTokenTest  extends ReposeValveTest {
 
         where:
         reqTenant   | adminResponseCode | responseCode | responseBody                                   | orphanedHandlings
-        newClient() | 500               | "500"        | ""                                             | 1
-        newClient() | 404               | "500"        | fakeIdentityService.identityFailureXmlTemplate | 1
+        1111        | 500               | "500"        | ""                                             | 1
+        1112        | 404               | "500"        | fakeIdentityService.identityFailureXmlTemplate | 1
     }
 
 }
