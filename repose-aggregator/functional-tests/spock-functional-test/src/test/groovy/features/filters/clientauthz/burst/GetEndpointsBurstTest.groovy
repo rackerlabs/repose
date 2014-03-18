@@ -47,10 +47,6 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
-    def setup(){
-        sleep 500
-    }
-
     @Unroll("Testing with #numClients clients for #callsPerClient clients")
     def "under heavy load should not drop get endpoints response"() {
 
