@@ -21,12 +21,22 @@ abstract class ReposeLauncher {
 
     def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
 
+        waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code < 500 }
+    }
+
+    def waitForDesiredResponseCodeFromUrl(url, desiredCodes, timeoutInSeconds=60, int intervalInSeconds=2) {
+
+        waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code in desiredCodes }
+    }
+
+    def waitForResponseCodeFromUrl(url, timeoutInSeconds, int intervalInSeconds, isResponseAcceptable) {
+
         print("Waiting for repose to start at ${url} ")
         waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
                 print(".")
                 HttpClient client = new DefaultHttpClient()
-                client.execute(new HttpGet(url)).statusLine.statusCode < 500
+                isResponseAcceptable(client.execute(new HttpGet(url)).statusLine.statusCode)
             } catch (IOException ignored) {
             } catch (ClientProtocolException ignored) {
             }
