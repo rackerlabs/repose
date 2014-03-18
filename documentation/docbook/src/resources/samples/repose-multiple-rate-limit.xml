@@ -1,0 +1,7 @@
+<limit-group id="test-limits" groups="user">
+    
+   <limit id="one" uri="/*" uri-regex="/.*" http-methods="GET POST” unit="SECOND" value="5"/>
+   <limit id="two" uri="/test/*" uri-regex="\/test\/.*" http-methods="GET" unit="DAY" value="2"/>
+   <limit id="three" uri="/test/*" uri-regex="\/test\/.*" http-methods="GET" unit="HOUR" value="4"/>
+        
+</limit-group>
