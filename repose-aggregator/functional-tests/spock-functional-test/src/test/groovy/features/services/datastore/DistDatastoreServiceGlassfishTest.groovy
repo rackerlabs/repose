@@ -96,9 +96,9 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         repose2.waitForNon500FromUrl(reposeGlassfishEndpoint2, 120)
         repose2.waitForNon500FromUrl(datastoreGlassfishEndpoint2, 120)
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint1, "401")
-        TestUtils.waitUntilReadyToServiceRequests(reposeGlassfishEndpoint2, "401")
 
+        repose1.waitForNon500FromUrl(reposeGlassfishEndpoint1, 120)
+        repose2.waitForNon500FromUrl(reposeGlassfishEndpoint2, 120)
     }
 
     def cleanupSpec() {
