@@ -3,10 +3,10 @@ package org.openrepose.components.rackspace.authz;
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.httpclient.HttpClientService;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -26,10 +26,9 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
     private HttpClientService httpClientService;
     private AkkaServiceClient akkaServiceClient;
 
-    public RequestAuthorizationHandlerFactory(Datastore datastore,HttpClientService httpClientService
-            ,AkkaServiceClient akkaServiceClient) {
+    public RequestAuthorizationHandlerFactory(Datastore datastore,HttpClientService httpClientService, AkkaServiceClient akkaServiceClient) {
         this.datastore = datastore;
-        this.httpClientService=httpClientService;
+        this.httpClientService = httpClientService;
         this.akkaServiceClient = akkaServiceClient;
     }
 
@@ -74,7 +73,8 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
         }
 
         final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
-        return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
+        return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint(),
+                authorizationConfiguration.getServiceAdminRoles());
     }
 
     @Override

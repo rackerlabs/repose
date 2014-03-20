@@ -5,122 +5,141 @@
            xmlns:rs-auth-z="http://openrepose.org/components/openstack-identity/auth-z/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    
+
     <!-- Configuration -->
-   <xs:element name="rackspace-authorization">
-      <xs:complexType>
-         <xs:annotation>
+    <xs:element name="rackspace-authorization">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a Rackspace Auth 2.0 Authorization configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+            <xs:sequence>
+                <xs:element name="authentication-server" type="rs-auth-z:AuthenticationServer" minOccurs="1"
+                            maxOccurs="1"/>
+                <xs:element name="service-endpoint" type="rs-auth-z:ServiceEndpoint" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="service-admin-roles" type="rs-auth-z:service-admin-roles" minOccurs="0" maxOccurs="1" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="AuthenticationServer">
+        <xs:annotation>
             <xs:documentation>
-               <html:p>Defines a Rackspace Auth 2.0 Authorization configuration</html:p>
+                <html:p>Describes an authorization endpoint</html:p>
             </xs:documentation>
-         </xs:annotation>
+        </xs:annotation>
 
-         <xs:sequence>
-            <xs:element name="authentication-server" type="rs-auth-z:AuthenticationServer" minOccurs="1" maxOccurs="1" />
-            <xs:element name="service-endpoint" type="rs-auth-z:ServiceEndpoint" minOccurs="1" maxOccurs="1" />
-         </xs:sequence>  
-      </xs:complexType>
-   </xs:element>
-    
-   <xs:complexType name="AuthenticationServer">
-      <xs:annotation>
-         <xs:documentation>
-            <html:p>Describes an authorization endpoint</html:p>
-         </xs:documentation>
-      </xs:annotation>
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
-      <xs:attribute name="username" type="xs:string" use="required">
-         <xs:annotation>
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="tenantId" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Tenant Id for Auth User, Required if using the OpenStack Keystone implementation.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="endpoint-list-ttl" type="rs-auth-z:intGTEZero" use="optional" default="300">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Time to live used to cache endpoint list responses from the authentication service. This
+                        value is in seconds.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+
+        <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-authorization-default">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Tells the connection pool service to map to the pool with specified id. If default is chosen
+                        then the default connection pool configurations in connection pool service is used.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceEndpoint">
+        <xs:annotation>
             <xs:documentation>
-               <html:p>Username to use</html:p>
+                <html:p>Describes the service mapping for the Origin Service</html:p>
             </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
+        </xs:annotation>
 
-      <xs:attribute name="password" type="xs:string" use="required">
-         <xs:annotation>
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service Mapping for the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="region" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service Mapping for the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service Mapping for the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service Mapping for the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="service-admin-roles">
+        <xs:annotation>
             <xs:documentation>
-               <html:p>Password to use</html:p>
+                <html:p>List of service admin role names that can bypass URI tenant comparison.</html:p>
             </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      
-      <xs:attribute name="tenantId" type="xs:string" use="optional">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Tenant Id for Auth User, Required if using the OpenStack Keystone implementation.</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
+        </xs:annotation>
 
-      <xs:attribute name="href" type="xs:anyURI" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Target URI for authentication requests</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
+        <xs:sequence>
+            <xs:element name="service-admin-role" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
 
-      <xs:attribute name="endpoint-list-ttl" type="rs-auth-z:intGTEZero" use="optional" default="300">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Time to live used to cache endpoint list responses from the authentication service. This value is in seconds.</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-
-
-       <xs:attribute name="connectionPoolId" type="xs:string" use="optional" default="client-authorization-default">
-           <xs:annotation>
-               <xs:documentation>
-                   <html:p>Tells the connection pool service to map to the pool with specified id. If default is chosen then the default connection pool configurations in connection pool service is used.</html:p>
-               </xs:documentation>
-           </xs:annotation>
-       </xs:attribute>
-   </xs:complexType>
-    
-   <xs:complexType name="ServiceEndpoint">
-      <xs:annotation>
-         <xs:documentation>
-            <html:p>Describes the service mapping for the Origin Service</html:p>
-         </xs:documentation>
-      </xs:annotation>
-
-      <xs:attribute name="href" type="xs:anyURI" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Service Mapping for the Origin Service</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="region" type="xs:string" use="optional">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Service Mapping for the Origin Service</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="name" type="xs:string" use="optional">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Service Mapping for the Origin Service</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-
-      <xs:attribute name="type" type="xs:string" use="optional" >
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>Service Mapping for the Origin Service</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-   </xs:complexType>
-   <xs:simpleType name="intGTEZero">
-      <xs:restriction base="xs:int">
-         <xs:minInclusive value="0"/>
-      </xs:restriction>
-   </xs:simpleType>
+    <xs:simpleType name="intGTEZero">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
