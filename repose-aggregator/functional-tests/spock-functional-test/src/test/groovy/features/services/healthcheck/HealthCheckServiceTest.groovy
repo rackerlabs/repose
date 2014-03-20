@@ -1,6 +1,5 @@
 package features.services.healthcheck
 import framework.ReposeValveTest
-import framework.TestUtils
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
@@ -15,7 +14,7 @@ class HealthCheckServiceTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params)
         repose.start(true, false)
-        TestUtils.waitUntilReadyToServiceRequests(reposeEndpoint, "503")
+        repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [503], 120)
 
     }
 

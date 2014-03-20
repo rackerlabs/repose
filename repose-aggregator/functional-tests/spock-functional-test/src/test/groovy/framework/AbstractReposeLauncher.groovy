@@ -10,7 +10,7 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 
-abstract class AbstractReposeLauncher implements ReposeLauncher {
+abstract class AbstractReposeLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
     def String connFramework = "jersey"

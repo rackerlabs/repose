@@ -49,6 +49,7 @@ class DestinationClusterTest extends Specification {
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()
+        repose.waitForNon500FromUrl(tomcatEndpoint, 120)
     }
 
     def cleanupSpec() {
@@ -62,7 +63,6 @@ class DestinationClusterTest extends Specification {
     def "should switch routing between to nodes within destination cluster"(){
 
         when: "Requests are sent through Repose/Tomcat"
-        TestUtils.waitUntilReadyToServiceRequests(tomcatEndpoint)
         MessageChain mc = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-pp-user': 'usertest1'])
         MessageChain mc2 = deproxy.makeRequest(url: tomcatEndpoint + "/cluster", headers: ['x-pp-user': 'usertest1'])
         def sentRequest1 = ((MessageChain) mc).getHandlings()[0]

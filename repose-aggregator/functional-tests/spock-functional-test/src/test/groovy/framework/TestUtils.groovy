@@ -8,30 +8,10 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 
 class TestUtils {
 
-    def static waitUntilReadyToServiceRequests(String reposeEndpoint, String responseCode="200") {
-        def clock = new SystemClock()
-        def innerDeproxy = new Deproxy()
-        MessageChain mc
-        waitForCondition(clock, '60s', '1s', {
-            try {
-                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-            } catch (Exception e) {}
-            if (mc != null) {
-                if (mc.receivedResponse.code.equalsIgnoreCase(responseCode)) {
-                    return true
-                }
-            } else {
-                return false
-            }
-        })
-    }
-
     def static String getJvmProcesses() {
         def runningJvms = "jps -v".execute()
         runningJvms.waitFor()
 
         return runningJvms.in.text
     }
-
-
 }

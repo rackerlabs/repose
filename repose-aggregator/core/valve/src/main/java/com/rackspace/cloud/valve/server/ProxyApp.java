@@ -47,7 +47,13 @@ public final class ProxyApp {
         return;
       }
 
-      final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
+      final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(
+              commandLineArgs.getHttpPort(),
+              commandLineArgs.getHttpsPort(),
+              commandLineArgs.getStopPort(),
+              commandLineArgs.getConfigDirectory(),
+              commandLineArgs.getConnectionFramework(),
+              commandLineArgs.getInsecure());
 
       if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
          serverControl.startPowerApiValve();

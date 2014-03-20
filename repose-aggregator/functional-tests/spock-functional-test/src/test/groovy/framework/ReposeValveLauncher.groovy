@@ -12,7 +12,7 @@ import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeValveLauncher implements ReposeLauncher {
+class ReposeValveLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
     def String reposeJar
@@ -273,20 +273,5 @@ class ReposeValveLauncher implements ReposeLauncher {
                 }
             }
         }
-    }
-
-    def waitForNon500FromUrl(url, int timeoutInSeconds=60, int intervalInSeconds=2) {
-
-        print("Waiting for repose to start at ${url} ")
-        waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
-            try {
-                print(".")
-                HttpClient client = new DefaultHttpClient()
-                client.execute(new HttpGet(url)).statusLine.statusCode != 500
-            } catch (IOException ignored) {
-            } catch (ClientProtocolException ignored) {
-            }
-        }
-        println()
     }
 }
