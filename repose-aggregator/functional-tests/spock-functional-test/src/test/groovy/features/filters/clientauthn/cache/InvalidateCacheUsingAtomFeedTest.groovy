@@ -156,7 +156,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
 
 
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
+        and: "we sleep for several seconds so that repose can check the atom feed"
         sleep(15000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
@@ -168,7 +168,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
                         defaultHandler:fakeIdentityService.handler
                 ])
 
-        then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
+        then: "Repose should not have the token in the cache any more, so it tries to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
         mc.handlings.size() == 0
         fakeIdentityService.validateTokenCount == 1
