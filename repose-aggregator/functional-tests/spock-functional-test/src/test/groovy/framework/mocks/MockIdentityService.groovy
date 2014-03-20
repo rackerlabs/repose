@@ -187,7 +187,7 @@ class MockIdentityService {
                 }
             }
 
-            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)/)
+            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)\/?$/)
             if (match) {
 
                 // TODO: 'belongsTo' in query string
