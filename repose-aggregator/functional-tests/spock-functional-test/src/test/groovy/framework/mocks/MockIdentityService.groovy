@@ -549,6 +549,29 @@ class MockIdentityService {
 }
 """
 
+    // To define a different set of default user roles, set the
+    // defaultUserRoles property. Don't set the _defaultUserRoles (note the
+    // leading underscore), it's there so a test can easily reset
+    // defaultUserRoles to what it was at first.
+    def _defaultUserRoles = [
+            [
+                    id         : '684',
+                    name       : "compute:default",
+                    description: "A Role that allows a user access to keystone Service methods",
+                    serviceId  : "0000000000000000000000000000000000000001",
+                    tenantId   : "12345"
+            ],
+            [
+                    id         : "5",
+                    name       : "object-store:default",
+                    description: "A Role that allows a user access to keystone Service methods",
+                    serviceId  : "0000000000000000000000000000000000000002",
+                    tenantId   : "12345"
+            ],
+    ]
+    def defaultUserRoles = _defaultUserRoles
+
+
     // Here we use a groovy builder to construct the xml, instead of a string
     // template. This is more flexible. All other string templates in this
     // class will eventually be replaced likewise.
@@ -560,31 +583,8 @@ class MockIdentityService {
         builder.setDoubleQuotes(true)
         builder.getMkp().xmlDeclaration(version:"1.0", encoding:"UTF-8", standalone:"yes")
 
-        def rroles
+        def rroles = params?.roles ?: defaultUserRoles
 
-        if (params.containsKey('roles')) {
-
-            rroles = params.roles
-
-        } else {
-
-            rroles = [
-                    [
-                            id         : '684',
-                            name       : "compute:default",
-                            description: "A Role that allows a user access to keystone Service methods",
-                            serviceId  : "0000000000000000000000000000000000000001",
-                            tenantId   : "12345"
-                    ],
-                    [
-                            id         : "5",
-                            name       : "object-store:default",
-                            description: "A Role that allows a user access to keystone Service methods",
-                            serviceId  : "0000000000000000000000000000000000000002",
-                            tenantId   : "12345"
-                    ],
-            ]
-        }
         def root = builder.access(
                 [xmlns: "http://docs.openstack.org/identity/api/v2.0",
                  'xmlns:os-ksadm': "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0",
