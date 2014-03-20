@@ -1,5 +1,6 @@
 package framework.mocks
 import groovy.text.SimpleTemplateEngine
+import groovy.xml.MarkupBuilder
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -276,6 +277,7 @@ class MockIdentityService {
 
         def code;
         def template;
+        def generator = { _params -> templateEngine.createTemplate(template).make(_params) }
         def headers = [:];
 
         if (xml) {
@@ -287,7 +289,7 @@ class MockIdentityService {
         if (isTokenValid) {
             code = 200;
             if (xml) {
-                template = identitySuccessXmlTemplate
+                generator = this.&identitySuccessXmlGenerator
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -300,7 +302,7 @@ class MockIdentityService {
             }
         }
 
-        def body = templateEngine.createTemplate(template).make(params)
+        def body = generator(params)
 
         return new Response(code, null, headers, body)
     }
@@ -360,6 +362,7 @@ class MockIdentityService {
 
         def code;
         def template;
+        def generator = { _params -> templateEngine.createTemplate(template).make(_params) }
         def headers = [:];
 
         if (xml) {
@@ -371,7 +374,7 @@ class MockIdentityService {
         if (isTokenValid) {
             code = 200;
             if (xml) {
-                template = identitySuccessXmlTemplate
+                generator = this.&identitySuccessXmlGenerator
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -384,7 +387,7 @@ class MockIdentityService {
             }
         }
 
-        def body = templateEngine.createTemplate(template).make(params)
+        def body = generator(params)
 
         return new Response(code, null, headers, body)
     }
@@ -546,59 +549,93 @@ class MockIdentityService {
 }
 """
 
-    def identitySuccessXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<access xmlns="http://docs.openstack.org/identity/api/v2.0"
-        xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
-        xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
-        xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
-        xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0">
-    <token id="\${token}"
-           expires="\${expires}">
-        <tenant id="\${tenant}"
-                name="\${tenant}"/>
-    </token>
-    <user xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-          id="\${userid}"
-          name="\${username}"
-          rax-auth:defaultRegion="the-default-region">
-        <roles>
-            <role id="684"
-                  name="compute:default"
-                  description="A Role that allows a user access to keystone Service methods"
-                  serviceId="0000000000000000000000000000000000000001"
-                  tenantId="12345"/>
-            <role id="5"
-                  name="object-store:default"
-                  description="A Role that allows a user access to keystone Service methods"
-                  serviceId="0000000000000000000000000000000000000002"
-                  tenantId="12345"/>
-        </roles>
-    </user>
-    <serviceCatalog>
-        <service type="rax:object-cdn"
-                 name="cloudFilesCDN">
-            <endpoint region="DFW"
-                      tenantId="\${tenant}"
-                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
-            <endpoint region="ORD"
-                      tenantId="\${tenant}"
-                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
-        </service>
-        <service type="object-store"
-                 name="cloudFiles">
-            <endpoint region="ORD"
-                      tenantId="\${tenant}"
-                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
-                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
-            <endpoint region="DFW"
-                      tenantId="\${tenant}"
-                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
-                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
-        </service>
-    </serviceCatalog>
-</access>
-"""
+    // Here we use a groovy builder to construct the xml, instead of a string
+    // template. This is more flexible. All other string templates in this
+    // class will eventually be replaced likewise.
+    def identitySuccessXmlGenerator(Map params) {
+
+        def writer = new StringWriter()
+        def indenter = new IndentPrinter(writer, '    ')
+        def builder = new MarkupBuilder(indenter)
+        builder.setDoubleQuotes(true)
+        builder.getMkp().xmlDeclaration(version:"1.0", encoding:"UTF-8", standalone:"yes")
+
+        def rroles
+
+        if (params.containsKey('roles')) {
+
+            rroles = params.roles
+
+        } else {
+
+            rroles = [
+                    [
+                            id         : '684',
+                            name       : "compute:default",
+                            description: "A Role that allows a user access to keystone Service methods",
+                            serviceId  : "0000000000000000000000000000000000000001",
+                            tenantId   : "12345"
+                    ],
+                    [
+                            id         : "5",
+                            name       : "object-store:default",
+                            description: "A Role that allows a user access to keystone Service methods",
+                            serviceId  : "0000000000000000000000000000000000000002",
+                            tenantId   : "12345"
+                    ],
+            ]
+        }
+        def root = builder.access(
+                [xmlns: "http://docs.openstack.org/identity/api/v2.0",
+                 'xmlns:os-ksadm': "http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0",
+                 'xmlns:os-ksec2': "http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0",
+                 'xmlns:rax-ksqa': "http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0",
+                 'xmlns:rax-kskey': "http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"]) {
+
+            token(id: params['token'], expires: params['expires']) {
+                tenant(id: params['tenant'], name: params['tenant'])
+            }
+            user(['xmlns:rax-auth': "http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0",
+                  id: params['userid'],
+                  name: params['username'],
+                  'rax-auth:defaultRegion': 'the-default-region']) {
+
+                roles {
+                    for (r in rroles) {
+                        role(
+                                id: r.id,
+                                name: r.name,
+                                description: r.description,
+                                serviceId: r.serviceId,
+                                tenantId: r.tenantId
+                        )
+                    }
+                }
+            }
+            serviceCatalog {
+                service(type: 'rax:object-cdn', name: 'cloudFilesCDN') {
+                    endpoint(region: 'DFW',
+                            tenantId: params['tenant'],
+                            publicURL: "https://cdn.stg.clouddrive.com/v1/${params['tenant']}")
+                    endpoint(region: 'ORD',
+                            tenantId: params["tenant"],
+                            publicURL: "https://cdn.stg.clouddrive.com/v1/${params['tenant']}")
+                }
+                service(type: 'object-store', name: 'cloudFiles') {
+                    endpoint(region: 'ORD',
+                            tenantId: params["tenant"],
+                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${params['tenant']}",
+                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${params['tenant']}")
+                    endpoint(region: 'DFW',
+                            tenantId: params["tenant"],
+                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${params['tenant']}",
+                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${params['tenant']}")
+                }
+            }
+        }
+
+        return writer.toString()
+    }
 
     def identitySuccessXmlWithServiceAdminTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
