@@ -96,6 +96,7 @@ class MockIdentityService {
 
     // we can still use the `handler' closure even if handleRequest is overridden in a derived class
     Response handleRequest(Request request) {
+
         def xml = false
 
         for (value in request.headers.findAll('Accept')) {
@@ -103,21 +104,6 @@ class MockIdentityService {
                 xml = true
                 break
             }
-        }
-
-        def params = [:]
-
-        // default response code and message
-        def template
-        def headers = [:]
-        def code = 200
-        def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
-        } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
         }
 
         /*
@@ -171,7 +157,6 @@ class MockIdentityService {
             query = null
             nonQueryPath = path
         }
-
 
         if (nonQueryPath.startsWith("/tokens")) {
 
