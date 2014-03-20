@@ -1,6 +1,6 @@
 package features.filters.clientauthn.cache
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.apache.commons.lang.RandomStringUtils
@@ -33,9 +33,9 @@ class CacheOffsetTest extends ReposeValveTest {
     def "should cache tokens using cache offset"() {
 
         given: "Identity Service returns cache tokens with 1 day expirations"
-        IdentityServiceResponseSimulator fauxIdentityService
+        MockIdentityService fauxIdentityService
         def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator()
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fauxIdentityService.client_token = clientToken
         fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
 
@@ -54,7 +54,7 @@ class CacheOffsetTest extends ReposeValveTest {
         }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
         Map<String,MessageChain> messageChainList = new HashMap<String,MessageChain>()
 
         DateTime initialTokenValidation = DateTime.now()
@@ -84,7 +84,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
 
         Period cacheExpiration = new Period().withSeconds(20)
         DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(20)
@@ -108,7 +108,7 @@ class CacheOffsetTest extends ReposeValveTest {
         fauxIdentityService.validateTokenCount == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
         clientThreads = new ArrayList<Thread>()
 
         for (int x in 1..uniqueUsers) {

@@ -1,4 +1,6 @@
 package features.filters.clientauthn
+
+import framework.mocks.MockIdentityService
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -234,7 +236,7 @@ class IdentityServiceRemoveTenantedValidationResponseSimulator {
 
         factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
         Schema schema = factory.newSchema(
-                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
 
 
         Validator validator= schema.newValidator();

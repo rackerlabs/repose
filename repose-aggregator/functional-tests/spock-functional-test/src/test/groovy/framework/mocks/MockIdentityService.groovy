@@ -1,4 +1,4 @@
-package features.filters.clientauthn
+package framework.mocks
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -15,12 +15,12 @@ import javax.xml.validation.Validator
 /**
  * Simulates responses from an Identity Service
  */
-class IdentityServiceResponseSimulator {
+class MockIdentityService {
 
-    public IdentityServiceResponseSimulator() {
-        this(12200, 10001)
-    }
-    public IdentityServiceResponseSimulator(int identityPort, int originServicePort) {
+    public MockIdentityService(int identityPort, int originServicePort) {
+
+        resetHandlers()
+
         this.port = identityPort
         this.originServicePort = originServicePort
 
@@ -28,18 +28,32 @@ class IdentityServiceResponseSimulator {
 
         factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
         Schema schema = factory.newSchema(
-                new StreamSource(IdentityServiceResponseSimulator.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
 
 
         this.validator = schema.newValidator();
     }
 
+    int port
+    int originServicePort
+
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    boolean ok = true;
+    boolean isTokenValid = true;
+
     int validateTokenCount = 0;
-    int groupsCount = 0;
-    int adminTokenCount = 0;
-    int endpointsCount = 0;
+    int getGroupsCount = 0;
+    int generateTokenCount = 0;
+    int getEndpointsCount = 0;
+    int getUserGlobalRolesCount = 0;
+
+    void resetCounts() {
+
+        validateTokenCount = 0;
+        getGroupsCount = 0;
+        generateTokenCount = 0;
+        getEndpointsCount = 0;
+        getUserGlobalRolesCount = 0;
+    }
 
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
@@ -50,14 +64,21 @@ class IdentityServiceResponseSimulator {
      */
     def tokenExpiresAt = null;
 
-    int errorCode;
-    boolean isGetAdminTokenBroken = false;
-    boolean isGetGroupsBroken = false;
-    boolean isValidateClientTokenBroken = false;
-    boolean isGetEndpointsBroken = false;
+    void resetHandlers() {
 
-    int port
-    int originServicePort
+        handler = this.&handleRequest
+        validateTokenHandler = this.&validateToken
+        getGroupsHandler = this.&getGroups
+        generateTokenHandler = this.&generateToken
+        getEndpointsHandler = this.&getEndpoints
+        getUserGlobalRolesHandler = this.&getUserGlobalRoles
+    }
+
+    Closure<Response> validateTokenHandler
+    Closure<Response> getGroupsHandler
+    Closure<Response> generateTokenHandler
+    Closure<Response> getEndpointsHandler
+    Closure<Response> getUserGlobalRolesHandler
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
@@ -71,46 +92,153 @@ class IdentityServiceResponseSimulator {
 
     def templateEngine = new SimpleTemplateEngine();
 
+    def handler = { Request request -> return handleRequest(request) }
 
-    def handler = { Request request ->
+    // we can still use the `handler' closure even if handleRequest is overridden in a derived class
+    Response handleRequest(Request request) {
+
         def xml = false
 
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
+        for (value in request.headers.findAll('Accept')) {
+            if (value.contains('application/xml')) {
                 xml = true
+                break
             }
         }
 
-        def params = [:]
+        /*
+         * From http://docs.openstack.org/api/openstack-identity-service/2.0/content/
+         *
+         * POST
+         * v2.0/tokens
+         * Authenticates and generates a token.
+         *
+         * GET
+         * v2.0/tokens/{tokenId}{?belongsTo}
+         * tokenId : UUID - Required. The token ID.
+         * Validates a token and confirms that it belongs to a specified tenant.
+         *
+         * GET
+         * v2.0/tokens/{tokenId}/endpoints
+         * tokenId : UUID - Required. The token ID.
+         * Lists the endpoints associated with a specified token.
+         *
+         * GET
+         * v2.0/users/{userId}/RAX-KSGRP
+         * userId : String - The user ID.
+         * X-Auth-Token : String - A valid authentication token for an administrative user.
+         * List groups for a specified user.
+         *
+         * GET
+         * users/{user_id}/roles
+         * X-Auth-Token : String - A valid authentication token for an administrative user.
+         * user_id : String - The user ID.
+         * Lists global roles for a specified user. Excludes tenant roles.
+         *
+         *
+         */
 
-        // default response code and message
-        def template
-        def headers = [:]
-        def code = 200
-        def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
+        def path = request.path
+        def method = request.method
+
+        def match
+
+        String nonQueryPath;
+        String query;
+
+        if (path.contains("?")) {
+
+            int index = path.indexOf("?")
+            query = path.substring(index + 1)
+            nonQueryPath = path.substring(0, index)
+
         } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
+
+            query = null
+            nonQueryPath = path
         }
 
-        if (request.method == "POST") {
-            return handleGetAdminTokenCall(request);
-        } else if (request.method == "GET" && request.path.endsWith("endpoints")) {
-            return handleEndpointsCall(request);
-        } else if (request.method == "GET" && request.path.contains("tokens")) {
-            return handleValidateTokenCall(request);
-        } else if (request.method == "GET") {
-            return handleGroupsCall(request);
-        } else {
-            throw new UnsupportedOperationException('Unknown request: %r' % request)
+        if (nonQueryPath.startsWith("/tokens")) {
+
+            if (nonQueryPath == "/tokens") {
+                if (method == "POST") {
+
+                    generateTokenCount++
+
+                    return generateTokenHandler(request, xml);
+
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)\/?$/)
+            if (match) {
+
+                // TODO: 'belongsTo' in query string
+
+                if (method == 'GET') {
+
+                    validateTokenCount++
+
+                    def tokenId = match[0][1]
+                    return validateTokenHandler(tokenId, request, xml)
+
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (nonQueryPath =~ /^\/tokens\/([^\/]+)\/endpoints/)
+            if (match) {
+                if (method == "GET") {
+
+                    getEndpointsCount++
+
+                    def tokenId = match[0][1]
+                    return getEndpointsHandler(tokenId, request, xml)
+
+                } else {
+                    return new Response(405)
+                }
+            }
+
+        } else if (nonQueryPath.startsWith("/users/")) {
+
+            match = (nonQueryPath =~ /^\/users\/([^\/]+)\/RAX-KSGRP/)
+            if (match) {
+                if (method == "GET") {
+
+                    getGroupsCount++
+
+                    def userId = match[0][1]
+                    return getGroupsHandler(userId, request, xml)
+
+                } else {
+                    return new Response(405)
+                }
+            }
+
+            match = (nonQueryPath =~ /^\/users\/([^\/]+)\/roles/)
+            if (match) {
+                if (method == "GET") {
+
+                    getUserGlobalRolesCount++
+
+                    def userId = match[0][1]
+                    return getUserGlobalRoles(userId, request, xml)
+
+                } else {
+                    return new Response(405)
+                }
+            }
         }
+
+        return new Response(501);
     }
 
-    String getExpires() {
 
+    String getExpires() {
 
         if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
 
@@ -133,15 +261,10 @@ class IdentityServiceResponseSimulator {
         }
     }
 
-    Response handleValidateTokenCall(Request request) {
-        validateTokenCount += 1
-
-        if (this.isValidateClientTokenBroken) {
-            return new Response(this.errorCode);
-        }
+    Response validateToken(String tokenId, Request request, boolean xml) {
 
         def path = request.getPath()
-        def request_token = path.substring(path.lastIndexOf("/")+1)
+        def request_token = tokenId
 
         def params = [
                 expires: getExpires(),
@@ -150,19 +273,6 @@ class IdentityServiceResponseSimulator {
                 tenant: client_tenant,
                 token: request_token
         ];
-
-        return handleTokenCallBase(request, params);
-    }
-
-    Response handleTokenCallBase(Request request, params) {
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
 
         def code;
         def template;
@@ -174,7 +284,7 @@ class IdentityServiceResponseSimulator {
             headers.put('Content-type', 'application/json')
         }
 
-        if (ok) {
+        if (isTokenValid) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
@@ -195,20 +305,7 @@ class IdentityServiceResponseSimulator {
         return new Response(code, null, headers, body)
     }
 
-    Response handleGroupsCall(Request request) {
-        groupsCount += 1
-
-        if (this.isGetGroupsBroken) {
-            return new Response(this.errorCode);
-        }
-
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
-            }
-        }
+    Response getGroups(String userId, Request request, boolean xml) {
 
         def params = [
                 expires: getExpires(),
@@ -239,20 +336,17 @@ class IdentityServiceResponseSimulator {
         return new Response(200, null, headers, body)
     }
 
-    Response handleGetAdminTokenCall(Request request) {
+    Response generateToken(Request request, boolean xml) {
 
-     try{
-         final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
-         validator.validate(sampleSource);
+        try {
 
-     }catch(Exception e){
-         println("Admin token XSD validation error: " +e);
-         return new Response(this.errorCode);
-     }
-        adminTokenCount += 1
+            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+            validator.validate(sampleSource);
 
-        if (this.isGetAdminTokenBroken) {
-            return new Response(this.errorCode);
+        } catch (Exception e) {
+
+            println("Admin token XSD validation error: " + e);
+            return new Response(400);
         }
 
         def params = [
@@ -263,23 +357,39 @@ class IdentityServiceResponseSimulator {
                 token: admin_token
         ];
 
-        return handleTokenCallBase(request, params);
-    }
 
-    Response handleEndpointsCall(Request request) {
-        endpointsCount += 1;
+        def code;
+        def template;
+        def headers = [:];
 
-        if (this.isGetEndpointsBroken) {
-            return new Response(this.errorCode);
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+        } else {
+            headers.put('Content-type', 'application/json')
         }
 
-        def xml = false
-
-        request.headers.findAll('Accept').each { values ->
-            if (values.contains('application/xml')) {
-                xml = true
+        if (isTokenValid) {
+            code = 200;
+            if (xml) {
+                template = identitySuccessXmlTemplate
+            } else {
+                template = identitySuccessJsonTemplate
+            }
+        } else {
+            code = 404
+            if (xml) {
+                template = identityFailureXmlTemplate
+            } else {
+                template = identityFailureJsonTemplate
             }
         }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(code, null, headers, body)
+    }
+
+    Response getEndpoints(String tokenId, Request request, boolean xml) {
 
         def code;
         def template;
@@ -302,6 +412,25 @@ class IdentityServiceResponseSimulator {
                 'tenant': this.client_tenant,
                 'originServicePort': this.originServicePort,
         ];
+
+        def body = templateEngine.createTemplate(template).make(params);
+        return new Response(200, null, headers, body);
+    }
+
+    Response getUserGlobalRoles(String userId, Request request, boolean xml) {
+
+        def template;
+        def headers = [:];
+
+        if (xml) {
+            headers.put('Content-type', 'application/xml')
+            template = this.getUserGlobalRolesXmlTemplate;
+        } else {
+            headers.put('Content-type', 'application/json')
+            template = this.getUserGlobalRolesJsonTemplate;
+        }
+
+        def params = [:];
 
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
@@ -588,5 +717,23 @@ class IdentityServiceResponseSimulator {
             adminURL="http://localhost:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
 </endpoints>"""
+
+    def getUserGlobalRolesJsonTemplate =
+        """{
+    "roles":[{
+            "id":"123",
+            "name":"compute:admin",
+            "description":"Nova Administrator"
+        }
+    ],
+    "roles_links":[]
+}"""
+
+    def getUserGlobalRolesXmlTemplate =
+        """<?xml version="1.0" encoding="UTF-8"?>
+<roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+    <role id="123" name="Admin" description="All Access" />
+    <role id="234" name="Guest" description="Guest Access" />
+</roles>"""
 
 }
