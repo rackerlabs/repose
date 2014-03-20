@@ -90,11 +90,14 @@
     <section xml:id="Distributed-Datastore">
         <title>Distributed Datastore</title>
         
-        <para> A Repose cluster may, at times, need to share information between cluster nodes. 
-            The Distributed Datastore component allows Repose to host a simple hash-ring object 
-            store that shares consistency between all of the participating cluster nodes. This, in turn, 
-            allows other hosted components as well as external programs to use the Repose cluster as a whole 
-            to store information.</para>
+        <para>A Repose cluster may, at times, need to share
+            information between cluster nodes. The Distributed
+            Datastore component allows Repose to host a simple
+            hash-ring object store that shares consistency between all
+            of the participating cluster nodes. This, in turn, allows
+            other hosted components as well as external programs to
+            use the Repose cluster as a whole to store
+            information.</para>
         <para>Instead of cache operations communicating through the Repose Service port (which is the port which Repose 
             service requests to pass to the Origin Service), the Distributed Datastore Service will communicate 
             through configured port(s) within the distributed datastore configuration. If the 
@@ -107,9 +110,10 @@
     <section xml:id="Dist-Datastore-configuration">
         <title>Distributed Datastore Configuration</title>
         
-        <para>The Distributed Datastore service can be added to a 
-            Repose deployment by adding it as a service (dist-datastore) 
-            within the services list of the system-model.cfg.xml file. </para>
+        <para>Configure the Distributed Datastore service by editing
+            the  dist-datastore.cfg.xml file.  You can add the filter
+            to the Repose deployment through the system-model.cfg.xml
+            file. </para>
         <para>Adding the Distributed Datastore Service to a Repose deployment requires 
             that listening ports be configured within the dist-datastore.cfg.xml file. 
             The XSD is at dist-datastore-configuration.xsd.</para>
@@ -142,13 +146,12 @@
         
         
         
-        <section xml:id="Transport">
-            <title>Transport</title>
+            <para><guilabel>Transport</guilabel></para>
             <para> The distributed datastore uses HTTP as its transport protocol.</para>
-        </section> 
+         
         
-        <section xml:id="Key-space-Addressing">
-            <title>Key-space Addressing</title>
+        
+            <para><guilabel>Key-space Addressing</guilabel></para>
             <para>Addressing a key is done by first normalizing all of
                 the participating cluster nodes. This is done by an
                 ascending sort. After the participating nodes have had
@@ -159,7 +162,7 @@
                 cluster node is looked up by performing a modulus such
                 that (&lt;key-value> %
                 &lt;number-of-cluster-members>).</para>
-        </section>
+       
         
         <section xml:id="Key-space-Encoding">
             <title>Key-space Encoding</title>
