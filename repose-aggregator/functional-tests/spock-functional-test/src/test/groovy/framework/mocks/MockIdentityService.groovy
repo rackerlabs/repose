@@ -85,10 +85,12 @@ class MockIdentityService {
     def client_tenant = 'this-is-the-tenant';
     def client_username = 'username';
     def client_userid = 12345;
+
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant';
     def admin_username = 'admin_username';
     def admin_userid = 67890;
+
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -271,9 +273,12 @@ class MockIdentityService {
                 expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
-                tenant: client_tenant,
                 token: request_token
         ];
+
+        if (this.client_tenant != null) {
+            params += [ tenant: client_tenant ]
+        }
 
         def code;
         def template;
@@ -584,6 +589,7 @@ class MockIdentityService {
         builder.getMkp().xmlDeclaration(version:"1.0", encoding:"UTF-8", standalone:"yes")
 
         def rroles = params?.roles ?: defaultUserRoles
+        def _tenant = params?.tenant
 
         def root = builder.access(
                 [xmlns: "http://docs.openstack.org/identity/api/v2.0",
@@ -593,7 +599,9 @@ class MockIdentityService {
                  'xmlns:rax-kskey': "http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"]) {
 
             token(id: params['token'], expires: params['expires']) {
-                tenant(id: params['tenant'], name: params['tenant'])
+                if (_tenant != null) {
+                    tenant(id: _tenant, name: _tenant)
+                }
             }
             user(['xmlns:rax-auth': "http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0",
                   id: params['userid'],
@@ -602,34 +610,71 @@ class MockIdentityService {
 
                 roles {
                     for (r in rroles) {
-                        role(
+
+                        def rparams = [
                                 id: r.id,
                                 name: r.name,
                                 description: r.description,
                                 serviceId: r.serviceId,
-                                tenantId: r.tenantId
-                        )
+                        ]
+
+                        if (r?.tenantId != null) {
+                            rparams += [ tenantId: r.tenantId ]
+                        }
+
+                        role(rparams)
                     }
                 }
             }
             serviceCatalog {
+
+                def eparams
+
                 service(type: 'rax:object-cdn', name: 'cloudFilesCDN') {
-                    endpoint(region: 'DFW',
-                            tenantId: params['tenant'],
-                            publicURL: "https://cdn.stg.clouddrive.com/v1/${params['tenant']}")
-                    endpoint(region: 'ORD',
-                            tenantId: params["tenant"],
-                            publicURL: "https://cdn.stg.clouddrive.com/v1/${params['tenant']}")
+
+                    eparams = [
+                            region: 'DFW',
+                            publicURL: "https://cdn.stg.clouddrive.com/v1/${_tenant ?: ''}",
+                    ]
+                    if (_tenant != null) {
+                        eparams += [ tenantId: _tenant ]
+                    }
+                    endpoint(eparams)
+
+
+                    eparams = [
+                            region: 'ORD',
+                            publicURL: "https://cdn.stg.clouddrive.com/v1/${_tenant ?: ''}",
+                    ]
+                    if (_tenant != null) {
+                        eparams += [ tenantId: _tenant ]
+                    }
+                    endpoint(eparams)
                 }
+
                 service(type: 'object-store', name: 'cloudFiles') {
-                    endpoint(region: 'ORD',
-                            tenantId: params["tenant"],
-                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${params['tenant']}",
-                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${params['tenant']}")
-                    endpoint(region: 'DFW',
-                            tenantId: params["tenant"],
-                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${params['tenant']}",
-                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${params['tenant']}")
+
+                    eparams = [
+                            region: 'ORD',
+                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${_tenant ?: ''}",
+                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${_tenant ?: ''}"
+                    ]
+                    if (_tenant != null) {
+                        eparams += [ tenantId: _tenant ]
+                    }
+                    endpoint(eparams)
+
+
+                    eparams = [
+                            region: 'DFW',
+                            publicURL:"https://storage.stg.swift.racklabs.com/v1/${_tenant ?: ''}",
+                            internalURL: "https://snet-storage.stg.swift.racklabs.com/v1/${_tenant ?: ''}"
+                    ]
+                    if (_tenant != null) {
+                        eparams += [ tenantId: _tenant ]
+                    }
+                    endpoint(eparams)
+
                 }
             }
         }
