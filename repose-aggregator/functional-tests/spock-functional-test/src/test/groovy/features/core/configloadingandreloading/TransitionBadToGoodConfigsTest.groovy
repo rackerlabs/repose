@@ -148,7 +148,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
     def cleanup() {
         if (repose) {
-            repose.stop()
+            repose.stop(throwExceptionOnKill: false)
         }
         if (deproxy) {
             deproxy.shutdown()
