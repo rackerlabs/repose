@@ -4,7 +4,6 @@
     <host id="proxy-n01" hostname="pp-n01.service.api.vendor.com" service-port="2101">
         <filters>
             <filter name="versioning" />
-            <filter name="dist-datastore" />
             <filter name="rate-limiting" />
         </filters>
     </host>
@@ -12,7 +11,6 @@
     <host id="proxy-n02" hostname="pp-n02.service.api.vendor.com" service-port="2102">
         <filters>
             <filter name="versioning" />
-            <filter name="dist-datastore" />
             <filter name="rate-limiting" />
         </filters>
     </host>

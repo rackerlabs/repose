@@ -4,7 +4,6 @@
     <host id="proxy" hostname="api-n01.yourdomain.com" 
         service-port="65000">
         <filters>
-            <filter name="dist-datastore" />
             <filter name="versioning" />
             <filter name="rate-limiting" />            
         </filters>

@@ -14,10 +14,13 @@
       <filter name="http-logging" />
       <filter name="ip-identity" />
       <filter name="header-identity" />
-      <filter name="dist-datastore" />
+
       -->
       <filter name="rate-limiting" />
     </filters>
+      <services>
+          <service name="dist-datastore" />
+      </services>
     <destinations>
       <!-- Update this endpoint if you want Repose to send requests to a different service -->
       <endpoint id="open_repose" protocol="http" hostname="openrepose.org" root-path="/" port="80" default="true"/>
