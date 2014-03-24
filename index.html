@@ -9,7 +9,7 @@ title: First Page
             <h1 class="logo-text">
                 <img src="{{ site.baseurl }}/img/repose-text.png" alt="">
             </h1>
-            <p>Repose is an open-source RESTful HTTP reverse proxy that is highly scalable and extensible.
+            <p>Repose is an open-source RESTful HTTP middleware platform that is highly scalable and extensible.
                 It provides solutions to API processing tasks such as
                 <strong>authentication</strong>,
                 <strong>rate limiting</strong>,
@@ -34,91 +34,107 @@ title: First Page
 </div>
 
 <div class="slide slide-3">
-    <div class="row">
+ <!--    <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2>What features does Repose offer?</h2>
             <ul>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Authentication">Openstack Keystone Authentication &amp; Authorization</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Role+Based+Access+Control+with+Repose">Role Based Access Control</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed Rate Limiting</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Content+Normalization">Content Normalization</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Request-Response+Modification">Request/Resonse Modification</a>
-            </li>
-            <li>
-                <a href="https://repose.atlassian.net/wiki/display/REPOSE/Versioning+Filter">Versioning</a>
-            </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Authentication">Openstack Keystone Authentication &amp; Authorization</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Role+Based+Access+Control+with+Repose">Role Based Access Control</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed Rate Limiting</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Content+Normalization">Content Normalization</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Request-Response+Modification">Request/Resonse Modification</a>
+                </li>
+                <li>
+                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Versioning+Filter">Versioning</a>
+                </li>
             </ul>
-
-
-
         </div>
-    </div>
+    </div> -->
     <div class="row">
         <div class="small-12 small-centered columns">
             <div class="path-container">
-              <div class="row">
-                <div class="large-12 columns ">
-                  <h1> This is a Timeline!</h1>
+                <div class="row">
+                    <div class="large-12 columns ">
+                        <h1>A Series of Filters</h1>
+                    </div>
+                    <div class="row path-item">
+                        <div class="large-7 columns">
+                        <div class="circle circle-right right"><i class="fi-arrow-down"></i></div>
+                        </div>
+                        <div class="large-5 columns path-text right">
+                            <h3>Incoming Requests</h3>
+                            <p>Users submit requests to your API, which are then load balanced, and forwarded to Repose</p>
+                            <a href="#">Show something cool »</a>
+                        </div>
+                    </div>
+                    <div class="row path-item">
+                        <div class="large-7 push-5 columns">
+                            <div class="circle circle-left ">
+                              <i class="fi-key"></i>
+                            </div>
+                        </div>
+                        <div class="large-5 pull-7 columns path-text left">
+                            <h3>Hello, who is it?</h3>
+                            <p>Repose can use an identity endpoint to authenticate an HTTP request before the request is passed to the destination.</p>
+                            <a href="#">Authentication »</a>
+                        </div>
+                    </div>
+                    <div class="row path-item">
+                        <div class="large-7 columns">
+                            <div class="circle circle-right right"><i class="fi-address-book"></i></div>
+                        </div>
+                        <div class="large-5 columns path-text right">
+                            <h3>Access Denied</h3>
+                            <p>Repose validates that a client request is allowed to a destination URI. If the request is not allowed, the request will be denied with an HTTP 403 - Unauthorized response.</p>
+                            <a href="#">Authorization »</a>
+                        </div>
+                    </div>
+                    <div class="row get-feedback path-item">
+                        <div class="large-7 push-5 columns">
+                            <div class="circle circle-left"><i class="fi-torsos-all"></i></div>
+                        </div>
+                        <div class="large-5 pull-7 columns path-text left">
+                            <h3>One at at time, please</h3>
+                            <p>Distributed Rate limiting allows control over the amount of traffic to the destination service over the cluster.</p>
+                            <a href="#">Distributed Rate Limiting »</a>
+                        </div>
+                    </div>
+                    <div class="row land-job path-item">
+                        <div class="large-7 columns">
+                            <div class="circle circle-right right"><i class="fi-align-justify"></i></div>
+                        </div>
+                        <div class="large-5 columns path-text right">
+                            <h3>Let me get my journal</h3>
+                            <p>Repose can log all of your requests before they get to your service, so you can better know who's accessing your APIs</p>
+                            <a href="#">HTTP Logging »</a>
+                        </div>
+                    </div>
+                    <div class="row path-item">
+                        <div class="large-7 push-5 columns">
+                          <div class="circle circle-left "><i class="fi-heart"></i></div>
+                        </div>
+                        <div class="large-5 pull-7 columns path-text left">
+                            <h3>Destination</h3>
+                            <p>Your service receives only validated, well formed requests.</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="row path-item">
-                <div class="large-7 push-5 columns">
-                  <div class="circle circle-left "></div>
-                </div>
-                <div class="large-5 pull-7 columns path-text left">
-                  <h3>Lorem ipsum dolor sit amet, consectetur</h3>
-                  <p>Something that happened in the past or will happen in the future Lorem ipsum dolor sit amet, consectetur adipiscing elit.  a est. Suspendisse potenti. Sc lorem pretium, molestie</p>
-                  <a href="#">Show something cool Â»</a>
-                </div>
-              </div>
-              <div class="row path-item">
-                <div class="large-7 columns">
-                  <div class="circle circle-right right"></div>
-                </div>
-                <div class="large-5 columns path-text right">
-                  <h3>Lorem ipsum dolor sit amet, consectetur</h3>
-                  <p>Something that happened in the past or will happen in the future Lorem ipsum dolor sit amet, consectetur adipiscing elit.  a est. Suspendisse potenti. Sc lorem pretium, molestie</p>
-                  <a href="#">Show something cool Â»</a>
-                </div>
-              </div>
-              <div class="row get-feedback path-item">
-                <div class="large-7 push-5 columns">
-                  <div class="circle circle-left"></div>
-                </div>
-                <div class="large-5 pull-7 columns path-text left">
-                  <h3>Lorem ipsum dolor sit amet, consectetur</h3>
-                  <p>Something that happened in the past or will happen in the future Lorem ipsum dolor sit amet, consectetur adipiscing elit.  a est. Suspendisse potenti. Sc lorem pretium, molestie</p>
-                  <a href="#">Show something cool Â»</a>
-                </div>
-              </div>
-              <div class="row land-job path-item">
-                <div class="large-7 columns">
-                  <div class="circle circle-right right"></div>
-                </div>
-                <div class="large-5 columns path-text right">
-                  <h3>Lorem ipsum dolor sit amet, consectetur</h3>
-                  <p>Something that happened in the past or will happen in the future Lorem ipsum dolor sit amet, consectetur adipiscing elit.  a est. Suspendisse potenti. Sc lorem pretium, molestie</p>
-                  <a href="#">Show something cool Â»</a>
-                </div>
-              </div>
-              <span class="line hide-for-small"></span>
+                <span class="line hide-for-small"></span>
             </div>
-
         </div>
     </div>
-
 </div>
 
 <div class="slide slide-4">
@@ -138,10 +154,15 @@ title: First Page
 <div class="slide slide-3">
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
-            <h2>Test your service with <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> + <a href="https://github.com/rackerlabs/mimic">Mimic</a></h2>
-            <p>Any good enterprise product is backed by testing, but why just test your code when you can test the entire infrastructure?</p>
-            <p><a href="https://github.com/rackerlabs/mimic">Mimic</a> is an API Mock Service that allows you to easily create pre-defined API responses.</p>
-            <p><a href="https://github.com/rackerlabs/deproxy">Deproxy</a> is a tool for performing high-level, black-box, functional and regression testing of proxies, and other HTTP intermediaries. It is meant to be incorporated into unit tests for functional testing.</p>
+            <h2>Test your service with <a href="https://github.com/rackerlabs/deproxy">Deproxy</a> + <a href="https://github.com/rackerlabs/mimic">Mimic</a>
+            </h2>
+            <p>Any good enterprise product is backed by testing, but why just test your code when you can
+                test the entire infrastructure?</p>
+            <p><a href="https://github.com/rackerlabs/mimic">Mimic</a> is an API Mock Service that allows
+                you to easily create pre-defined API responses.</p>
+            <p><a href="https://github.com/rackerlabs/deproxy">Deproxy</a> is a tool for performing high-level,
+                black-box, functional and regression testing of proxies, and other HTTP intermediaries.
+                It is meant to be incorporated into unit tests for functional testing.</p>
         </div>
     </div>
 </div>
