@@ -75,7 +75,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
         // start repose
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(url, 120)
+        repose.waitForDesiredResponseCodeFromUrl(url, [503], 120)
 
 
         expect: "starting Repose with good configs should yield 503's"
