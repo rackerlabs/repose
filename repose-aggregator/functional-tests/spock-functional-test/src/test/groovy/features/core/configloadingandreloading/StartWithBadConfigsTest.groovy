@@ -68,7 +68,7 @@ class StartWithBadConfigsTest extends Specification {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(url)
+        repose.waitForDesiredResponseCodeFromUrl(url, [503])
 
 
         expect: "starting Repose with good configs should yield 503's"
