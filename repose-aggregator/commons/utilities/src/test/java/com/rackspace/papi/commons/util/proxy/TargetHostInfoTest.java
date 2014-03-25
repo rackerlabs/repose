@@ -23,7 +23,7 @@ public class TargetHostInfoTest {
     public void getProxiedHostUri_returnsNullOnInvalidUri() throws Exception {
         TargetHostInfo targetHostInfo = new TargetHostInfo(invalidTargetHost);
 
-        assertNull("Returned URI was not null as expected", targetHostInfo.getProxiedHostUri());
+        assertNull("Returned URI was null as expected", targetHostInfo.getProxiedHostUri());
     }
 
     @Test
@@ -37,6 +37,6 @@ public class TargetHostInfoTest {
     public void getProxiedHostUrl_returnsNullOnInvalidUrl() throws Exception {
         TargetHostInfo targetHostInfo = new TargetHostInfo(invalidTargetHost);
 
-        assertNull("Returned URL was not null as expected", targetHostInfo.getProxiedHostUrl());
+        assertNull("Returned URL was null as expected", targetHostInfo.getProxiedHostUrl());
     }
 }
