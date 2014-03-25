@@ -1,6 +1,6 @@
 package features.filters.clientauthz.connectionpooling
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import framework.mocks.MockIdentityService
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
@@ -23,7 +23,7 @@ class AuthZConnectionPoolingTest extends Specification {
     int identityServicePort
     String urlBase
 
-    IdentityServiceResponseSimulator identityService
+    MockIdentityService identityService
 
     Deproxy deproxy
     Endpoint originEndpoint
@@ -45,7 +45,7 @@ class AuthZConnectionPoolingTest extends Specification {
         originServicePort = properties.targetPort
         identityServicePort = properties.identityPort
 
-        identityService = new IdentityServiceResponseSimulator(identityServicePort, originServicePort)
+        identityService = new MockIdentityService(identityServicePort, originServicePort)
 
         // start deproxy
         deproxy = new Deproxy()

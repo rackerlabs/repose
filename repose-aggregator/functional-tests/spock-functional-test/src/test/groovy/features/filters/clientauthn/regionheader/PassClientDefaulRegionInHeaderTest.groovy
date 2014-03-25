@@ -1,7 +1,7 @@
 
 package features.filters.clientauthn.regionheader;
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -47,7 +47,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
 
     def setup() {
         deproxy = new Deproxy()
@@ -60,7 +60,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -76,7 +76,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
     def "when a token is validated, should pass the default region as X-Default-Region"() {
 
         when: "I send a GET request to Repose with an X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should validate the token and path the user's default region as the X-Default_Region header to the origin service"
@@ -89,7 +89,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         request.headers.getFirstValue("X-Default-Region") == "the-default-region"
         
         when: "I send a second GET request to Repose with the same token"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
         
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-Default-Region header"

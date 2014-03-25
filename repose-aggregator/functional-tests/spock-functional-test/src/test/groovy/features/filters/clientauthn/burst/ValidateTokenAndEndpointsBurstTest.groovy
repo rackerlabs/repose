@@ -1,6 +1,6 @@
 package features.filters.clientauthn.burst
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -14,7 +14,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -22,8 +22,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/nogroupsendpointsheader", properties.defaultTemplateParams)
         repose.start()
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
-        fakeIdentityService.originServicePort = properties.defaultTemplateParams.targetPort
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -52,7 +51,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -100,7 +99,7 @@ class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
         fakeIdentityService.validateTokenCount == 1
 
         and:
-        fakeIdentityService.endpointsCount == 1
+        fakeIdentityService.getEndpointsCount == 1
 
         and:
         missingAuthHeader == false
