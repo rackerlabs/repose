@@ -1,8 +1,9 @@
 package features.filters.clientauthn.serviceresponse
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Response
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
@@ -11,7 +12,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -24,13 +25,14 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
     }
 
     def setup() {
+        fakeIdentityService.resetHandlers()
 
     }
 
@@ -45,10 +47,15 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
     def "When the identity service endpoint returns failed or unexpected responses"() {
 
         given: "When Calls to Auth Return bad responses"
-        fakeIdentityService.isGetAdminTokenBroken = adminBroken
-        fakeIdentityService.isValidateClientTokenBroken = validateBroken
-        fakeIdentityService.isGetGroupsBroken = groupsBroken
-        fakeIdentityService.errorCode = errorCode
+        if (adminBroken) {
+            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+        }
+        if (validateBroken) {
+            fakeIdentityService.validateTokenHandler = { tokenId, request, xml -> return new Response(errorCode) }
+        }
+        if (groupsBroken) {
+            fakeIdentityService.getGroupsHandler = { userId, request, xml -> return new Response(errorCode) }
+        }
         def tokenId = "${adminBroken} + ${validateBroken} + ${groupsBroken} + ${errorCode}"
 
         when: "User sends a request through repose"
@@ -56,6 +63,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
         then: "User should receive a " + expectedCode + "response"
         mc.receivedResponse.code == expectedCode
+        sleep(500)
 
         where:
         adminBroken | validateBroken | groupsBroken | errorCode | expectedCode

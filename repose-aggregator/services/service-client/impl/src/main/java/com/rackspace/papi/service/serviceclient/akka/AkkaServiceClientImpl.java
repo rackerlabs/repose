@@ -2,6 +2,7 @@ package com.rackspace.papi.service.serviceclient.akka;
 
 
 import akka.actor.*;
+import akka.routing.ConsistentHashingRouter;
 import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
@@ -17,11 +18,13 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
+import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
@@ -31,7 +34,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
     final Timeout t = new Timeout(50, TimeUnit.SECONDS);
-    private final Cache<String, Future> quickFutureCache;
+    private final Cache<Object, Future> quickFutureCache;
 
     private static final long FUTURE_CACHE_TTL = 500;
 
@@ -71,23 +74,39 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     }
 
     @Override
+    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType) {
+        ServiceClientResponse scr = null;
+        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, mediaType);
+        Future<ServiceClientResponse> future = getFuture(apr);
+
+        try {
+            scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            LOG.error("Error awaiting result for akka post: " + e.getMessage(), e);
+        }
+
+        return scr;
+    }
+
+
+    @Override
     public void shutdown() {
         actorSystem.shutdown();
 
     }
 
-    public Future getFuture(AuthGetRequest authGetRequest) {
-        String token = authGetRequest.hashKey();
+    private Future getFuture(ConsistentHashable hashableRequest) {
+        Object hashKey = hashableRequest.consistentHashKey();
         Future<Object> newFuture;
-        if (!quickFutureCache.asMap().containsKey(token)) {
+        if (!quickFutureCache.asMap().containsKey(hashKey)) {
             synchronized (quickFutureCache) {
-                if (!quickFutureCache.asMap().containsKey(token)) {
-                    newFuture = ask(tokenActorRef, authGetRequest, t);
-                    quickFutureCache.asMap().putIfAbsent(token, newFuture);
+                if (!quickFutureCache.asMap().containsKey(hashKey)) {
+                    newFuture = ask(tokenActorRef, hashableRequest, t);
+                    quickFutureCache.asMap().putIfAbsent(hashKey, newFuture);
                 }
             }
         }
-        return quickFutureCache.asMap().get(token);
+        return quickFutureCache.asMap().get(hashKey);
     }
 
     public ServiceClient getServiceClient(HttpClientService httpClientService) {

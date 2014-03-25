@@ -1,18 +1,28 @@
 package features.filters.clientauthn.tenantvalidation
 
-import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+/**
+ * In this scenario we are testing when the configuration requires the client to be tenanted and allows delegable
+ * passthrough
+ *
+ * What that means is the following:
+ * - request must specify a tenant id for the client to validate against
+ * - request can be delegable, which means that the authentication can be delegated to origin service.
+ * @return
+ */
 class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
 
-    def static IdentityServiceRemoveTenantedValidationResponseSimulator fakeIdentityService
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
 
@@ -25,7 +35,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -38,68 +48,76 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Unroll("tenant: #reqTenant isAuthed: #isAuthed isAdminAuthed: #isAdminAuthed")
+    def setup(){
+        fakeIdentityService.resetHandlers()
+    }
+
+
+    @Unroll("tenant: #requestTenant with mismatching response tenant id (#responseTenant) and non-service admin roles and response from identity: #authResponseCode")
     def "when authenticating user in tenanted and delegable mode and client-mapping matching - fail"() {
 
         given:
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = "not-admin"
+        }
 
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = isAuthed
-        fakeIdentityService.adminOk = isAdminAuthed
+        if(authResponseCode != 200){
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(authResponseCode)
+            }
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = false
-        fakeIdentityService.doesTenantHaveAdminRoles = false
-        fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
-
-        then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
-        mc.receivedResponse.code == responseCode
-        mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == orphanedHandlings
-
-        when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityService.client_token+requestTenant
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == cachedOrphanedHandlings
         mc.handlings.size() == 0
 
         where:
-        reqTenant | isAuthed | isAdminAuthed | responseCode | orphanedHandlings | cachedOrphanedHandlings
-        111       | true     | false         | "500"        | 1                | 1
-        555       | true     | true          | "401"        | 2                | 1
-        666       | false    | true          | "401"        | 1                | 1
+        requestTenant | responseTenant  | authResponseCode | responseCode
+        200           | 201             | 500              | "500"
+        202           | 203             | 404              | "401"
+        204           | 205             | 200              | "401"
     }
 
-    @Unroll("tenant: #reqTenant tenantMatch: #tenantMatch tenantWithAdmin")
+    @Unroll("tenant: #requestTenant with identity returning HTTP 200 response with tenant id (#responseTenant), role (#serviceAdminRole)")
     def "when authenticating user in tenanted and delegable mode and client-mapping matching - pass"() {
 
         given:
-
-        def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = true
-        fakeIdentityService.adminOk = true
-        fakeIdentityService.client_tenant = reqTenant
-        fakeIdentityService.client_userid = reqTenant
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = (new DateTime()).plusDays(1);
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
 
         when: "User passes a request through repose"
-        fakeIdentityService.isTenantMatch = tenantMatch
-        fakeIdentityService.doesTenantHaveAdminRoles = tenantWithAdminRole
-        fakeIdentityService.client_tenant = reqTenant
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token+reqTenant])
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestTenant/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Auth-Token': "${fakeIdentityService.client_token}$requestTenant"
+                ]
+        )
 
         then: "Request body sent from repose to the origin service should contain"
-        System.out.println(mc)
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == orphanedHandlings
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
         request2.headers.contains("X-Default-Region")
@@ -108,29 +126,14 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         request2.headers.contains("x-identity-status")
         request2.headers.contains("x-authorization")
         request2.headers.getFirstValue("x-identity-status") == "Confirmed"
-        request2.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
-
-        when: "User passes a request through repose the second time"
-        mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + reqTenant + "/", method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token+reqTenant])
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == "200"
-        mc.orphanedHandlings.size() == cachedOrphanedHandlings
-        mc.handlings.size() == 1
-        mc.handlings[0].endpoint == originEndpoint
-        mc.handlings[0].request.headers.contains("X-Default-Region")
-        mc.handlings[0].request.headers.getFirstValue("X-Default-Region") == "the-default-region"
-        mc.handlings[0].request.headers.contains("x-auth-token")
-        mc.handlings[0].request.headers.contains("x-identity-status")
-        mc.handlings[0].request.headers.contains("x-authorization")
-        mc.handlings[0].request.headers.getFirstValue("x-identity-status") == "Confirmed"
-        mc.handlings[0].request.headers.getFirstValue("x-authorization") == "Proxy " + reqTenant
+        request2.headers.getFirstValue("x-authorization") == "Proxy " + requestTenant
 
         where:
-        reqTenant | tenantMatch | tenantWithAdminRole | orphanedHandlings | cachedOrphanedHandlings
-        222       | true        | true                | 2                 | 0
-        333       | true        | false               | 2                 | 0
-        444       | false       | true                | 2                 | 0
+        requestTenant | responseTenant  | serviceAdminRole      | responseCode
+        206           | 206             | "not-admin"           | "200"
+        207           | 207             | "not-admin"           | "200"
+        208           | 208             | "service:admin-role1" | "200"
+        208           | 209             | "service:admin-role1" | "200"
     }
 
 }

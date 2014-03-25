@@ -1,10 +1,10 @@
 package features.filters.clientauthn.connectionpooling
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
@@ -23,7 +23,7 @@ class AuthNConnectionPoolingTest extends Specification {
     int identityServicePort
     String urlBase
 
-    IdentityServiceResponseSimulator identityService
+    MockIdentityService identityService
 
     Deproxy deproxy
     Endpoint originEndpoint
@@ -44,7 +44,7 @@ class AuthNConnectionPoolingTest extends Specification {
         originServicePort = properties.targetPort
         identityServicePort = properties.identityPort
 
-        identityService = new IdentityServiceResponseSimulator(identityServicePort, originServicePort)
+        identityService = new MockIdentityService(identityServicePort, originServicePort)
 
         // start deproxy
         deproxy = new Deproxy()

@@ -308,12 +308,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private synchronized String getAdminToken(boolean force) {
+    private String getAdminToken(boolean force) {
 
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         if (adminToken == null) {
-            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.post(targetHostUri + "/tokens", requestBody, MediaType.APPLICATION_XML_TYPE);
+            final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
+                    targetHostUri + "/tokens",
+                    new HashMap<String, String>(),
+                    requestBody,
+                    MediaType.APPLICATION_XML_TYPE );
 
             switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
                 case OK:

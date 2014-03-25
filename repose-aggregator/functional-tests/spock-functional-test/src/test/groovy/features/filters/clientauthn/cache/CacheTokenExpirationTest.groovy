@@ -1,7 +1,7 @@
 package features.filters.clientauthn.cache
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.joda.time.DateTime
@@ -11,7 +11,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
 
     def setup() {
         deproxy = new Deproxy()
@@ -39,7 +39,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
 
         given:
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         fakeIdentityService.client_token = clientToken
         fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(40);
 
@@ -47,23 +47,23 @@ class CacheTokenExpirationTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityService.handler)
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
 
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
-        fakeIdentityService.validateTokenCount == 0
+        fakeIdentityService.validateTokenCount.get() == 0
 
         when: "I troubleshoot the REPOSE logs"
         def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")

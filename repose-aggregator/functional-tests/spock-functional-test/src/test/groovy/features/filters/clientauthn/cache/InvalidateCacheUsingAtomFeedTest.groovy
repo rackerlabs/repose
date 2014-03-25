@@ -1,9 +1,11 @@
 package features.filters.clientauthn.cache
 import features.filters.clientauthn.AtomFeedResponseSimulator
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -85,7 +87,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     def identityEndpoint
     def atomEndpoint
 
-    IdentityServiceResponseSimulator fakeIdentityService
+    MockIdentityService fakeIdentityService
     AtomFeedResponseSimulator fakeAtomFeed
 
     def setup() {
@@ -103,7 +105,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort,'origin service')
 
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -119,7 +121,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
     def "when token is cached then invalidated by atom feed, should attempt to revalidate token with identity endpoint"() {
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
@@ -129,28 +131,31 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
         mc.handlings[0].endpoint == originEndpoint
 
 
         when:"I send a GET request to REPOSE with the same X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount == 0
+        fakeIdentityService.validateTokenCount.get() == 0
         mc.handlings[0].endpoint == originEndpoint
 
 
         when: "identity atom feed has an entry that should invalidate the tenant associated with this X-Auth-Token"
         // change identity atom feed
 
-        fakeIdentityService.errorCode = 404
-        fakeIdentityService.isValidateClientTokenBroken= true
-        fakeIdentityService.ok = false
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.with {
+            fakeIdentityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(404)
+            }
+        }
+        fakeIdentityService.resetCounts()
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
@@ -171,7 +176,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
         mc.handlings.size() == 0
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
     }
 
 }

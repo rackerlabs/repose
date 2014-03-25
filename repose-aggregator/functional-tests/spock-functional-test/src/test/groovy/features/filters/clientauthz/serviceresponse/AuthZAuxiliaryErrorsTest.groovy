@@ -1,11 +1,12 @@
 package features.filters.clientauthz.serviceresponse
 
-import features.filters.clientauthn.IdentityServiceResponseSimulator
 import framework.ReposeValveTest
 import framework.category.Slow
+import framework.mocks.MockIdentityService
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 @Category(Slow.class)
@@ -14,7 +15,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -25,7 +26,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
     }
@@ -43,11 +44,16 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
         given: "When Calls to Auth Return bad responses"
 
         def clientToken = UUID.randomUUID().toString()
-        fakeIdentityService.client_token = clientToken
-        fakeIdentityService.isGetAdminTokenBroken = adminBroken
-        fakeIdentityService.errorCode = errorCode
-        fakeIdentityService.isGetEndpointsBroken = endpointsBroken
+        fakeIdentityService.with {
+            client_token = UUID.randomUUID().toString()
 
+        }
+        if (adminBroken) {
+            fakeIdentityService.generateTokenHandler = { request, xml -> return new Response(errorCode) }
+        }
+        if (endpointsBroken) {
+            fakeIdentityService.getEndpointsHandler = { tokenId, request, xml -> return new Response(errorCode) }
+        }
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers:['X-Auth-Token': fakeIdentityService.client_token])
 

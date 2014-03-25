@@ -6,6 +6,7 @@ package com.rackspace.papi.components.clientauth.atomfeed.sax;
 
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,20 +25,20 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 public class AdminTokenProviderTest {
 
-   ServiceClient client;
+   AkkaServiceClient client;
    AdminTokenProvider provider;
 
    @Before
    public void setUp() {
-      client = mock(ServiceClient.class);
-       when(client.getPoolSize()).thenReturn(100);
-
+      client = mock(AkkaServiceClient.class);
    }
 
    @Test
@@ -59,7 +60,7 @@ public class AdminTokenProviderTest {
       
       InputStream is = new ByteArrayInputStream(baos.toByteArray());
       ServiceClientResponse<AuthenticateResponse> resp = new ServiceClientResponse<AuthenticateResponse>(200, is);
-      when(client.post(anyString(), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
+      when(client.post(anyString(),anyString(),  anyMapOf(String.class, String.class), anyString(), eq(MediaType.APPLICATION_XML_TYPE))).thenReturn(resp);
       provider = new AdminTokenProvider(client, "authUrl", "user", "pass");
 
       String adminToken = provider.getAdminToken();

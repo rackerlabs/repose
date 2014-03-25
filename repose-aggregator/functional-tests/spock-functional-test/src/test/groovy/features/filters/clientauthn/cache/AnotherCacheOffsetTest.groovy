@@ -1,7 +1,8 @@
 package features.filters.clientauthn.cache
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+
 import framework.ReposeValveTest
 import framework.category.Flaky
+import framework.mocks.MockIdentityService
 import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -10,71 +11,66 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.atomic.AtomicInteger
+
 @Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
-    @Shared def IdentityServiceResponseSimulator fauxIdentityService
+    @Shared def MockIdentityService fauxIdentityService
 
     def cleanup() {
         deproxy.shutdown()
         repose.stop()
     }
 
+    /**
+     * Cache offset test will test the following scenario:
+     * - a burst of requests will be sent for a specified number of users
+     * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
+     * - all tokens will expire at tokenTimeout+cacheOffset
+     */
     @Unroll("when cache offset is not configured then no cache offset is used - #id")
     def "when cache offset is not configured then no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/clientauthn/cacheoffset/common", params)
         repose.configurationProvider.applyConfigs(additionalConfigs, params)
         repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        waitUntilReadyToServiceRequests('401')
 
-        Thread.sleep(2000)
-
-        def clientToken = UUID.randomUUID().toString()
-        fauxIdentityService = new IdentityServiceResponseSimulator()
-        fauxIdentityService.client_token = clientToken
-        fauxIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
+        fauxIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
+        fauxIdentityService.resetCounts()
+        fauxIdentityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+        }
 
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fauxIdentityService.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
-        def userTokens = new ArrayList()
-        int randomStringLength = 16
-        String charset = (('a'..'z') + ('A'..'Z')).join()
-
-        for (x in 1..uniqueUsers) {
-            userTokens.add(RandomStringUtils.random(randomStringLength, charset.toCharArray()))
-        }
+        def userTokens = (1..uniqueUsers).collect { "another-cache-offset-random-token-$id-$it" }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
-        Map<String,MessageChain> messageChainList = new HashMap<String,MessageChain>()
 
         DateTime initialTokenValidation = DateTime.now()
         DateTime initialBurstLastValidationCall
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
-
+        userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
-                def threadNumber = x
-
-                for (i in 1..initialCallsPerUser) {
-                    def threadName = "User_" + x + "_Call_" + i
+                (1..initialCallsPerUser).each {
+                    def threadName = "User-$index-Call-$it"
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint,
                             method: 'GET',
                             headers: ['X-Auth-Token': token, 'TEST_THREAD': threadName])
-                    messageChainList.put("InitialBurst-" + x + "-" + i, mc)
+                    mc.receivedResponse.code.equals('200')
 
-                    if (threadNumber == uniqueUsers && i == 1) {
-                        initialBurstLastValidationCall = DateTime.now()
-                    }
+                    initialBurstLastValidationCall = DateTime.now()
                 }
             }
             clientThreads.add(thread)
@@ -82,26 +78,23 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
 
-        DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(30)
+        DateTime minimumTokenExpiration = initialTokenValidation.plusMillis(tokenTimeout - cacheOffset)
         clientThreads = new ArrayList<Thread>()
 
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
-            def Map<String, MessageChain> roundTwo = [:]
-
+        userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
-                while (DateTime.now().isBefore(minimumTokenExpiration)) {
+                while (minimumTokenExpiration.isAfterNow()) {
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint,
                             method: 'GET',
                             headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundTwo-" + x + "-" , mc)
+                    mc.receivedResponse.code.equals('200')
                 }
             }
             clientThreads.add(thread)
@@ -109,38 +102,36 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fauxIdentityService.validateTokenCount.get() == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.resetCounts()
         clientThreads = new ArrayList<Thread>()
 
-        for (int x in 1..uniqueUsers) {
-            def token = userTokens.get(x-1)
-            def Map<String, MessageChain> roundTwo = [:]
+        DateTime maxTokenExpiration = initialBurstLastValidationCall.plusMillis(tokenTimeout + cacheOffset)
+        while (maxTokenExpiration.isAfterNow()) {
+            sleep 500
+        }
 
-            DateTime maxTokenExpiration = initialBurstLastValidationCall.plusSeconds(30)
-
+        userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
-            while (DateTime.now().isBefore(maxTokenExpiration)) {
-                    MessageChain mc = deproxy.makeRequest(
-                            url: reposeEndpoint,
-                            method: 'GET',
-                            headers: ['X-Auth-Token': token])
-                    roundTwo.put("RoundThree-" + x + "-" , mc)
-            }
+                MessageChain mc = deproxy.makeRequest(
+                    url: reposeEndpoint,
+                    method: 'GET',
+                    headers: ['X-Auth-Token': token])
+                mc.receivedResponse.code.equals('200')
             }
             clientThreads.add(thread)
         }
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"      | 1
-        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero" | 2
+        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id | tokenTimeout | cacheOffset
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/notset"      | 1  | 5000         | 0
+        10          | 4                   | "features/filters/clientauthn/cacheoffset/defaultzero" | 2  | 5000         | 0
 
     }
 

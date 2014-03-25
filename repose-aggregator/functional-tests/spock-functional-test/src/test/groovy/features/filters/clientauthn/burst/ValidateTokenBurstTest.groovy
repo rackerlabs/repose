@@ -1,6 +1,7 @@
 package features.filters.clientauthn.burst
-import features.filters.clientauthn.IdentityServiceResponseSimulator
+
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
@@ -13,7 +14,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    static IdentityServiceResponseSimulator fakeIdentityService
+    static MockIdentityService fakeIdentityService
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -24,7 +25,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -37,8 +38,6 @@ class ValidateTokenBurstTest extends ReposeValveTest {
             if (!headers.contains("X-Auth-Token") ) {
                 return new Response(500, "INTERNAL SERVER ERROR", null, "MISSING AUTH TOKEN")
             }
-
-
             return new Response(200, "OK",header1+acceptXML)
 
         }
@@ -62,7 +61,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.resetCounts()
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -70,33 +69,21 @@ class ValidateTokenBurstTest extends ReposeValveTest {
                 .forPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
                 .withLocale(Locale.US)
                 .withZone(DateTimeZone.UTC);
-        def expiresString = fmt.print(fakeIdentityService.tokenExpiresAt);
 
         def missingAuthResponse = false
         def missingAuthHeader = false
-        List<String> badRequests = new ArrayList()
-        List<String> requests = new ArrayList()
-
-        for (x in 1..numClients) {
-
+        (1..numClients).each {
+            threadNum ->
             def thread = Thread.start {
-                def threadNum = x
-
-                for (i in 1..callsPerClient) {
-                    requests.add('spock-thread-'+threadNum+'-request-'+i)
-
+                (1..callsPerClient).each {
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
                         missingAuthResponse = true
-                        badRequests.add('500-spock-thread-'+threadNum+'-request-'+i)
                     }
-
-
                     def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
 
                     if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                        badRequests.add('header-spock-thread-'+threadNum+'-request-'+i)
                         missingAuthHeader = true
                     }
 
@@ -109,10 +96,10 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
 
         and:
-        fakeIdentityService.groupsCount == 1
+        fakeIdentityService.getGroupsCount.get() == 1
 
         and:
         missingAuthHeader == false
@@ -122,7 +109,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         where:
         numClients | callsPerClient
-        10 | 5
+        10         | 5
 
     }
 

@@ -3,8 +3,8 @@
     <openstack-auth delegable="false"
                     tenanted="false"
                     request-groups="true"
-                    token-cache-timeout="30000"
-                    group-cache-timeout="30000"
+                    token-cache-timeout="5000"
+                    group-cache-timeout="5000"
                     xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username"
                           password="admin_password"

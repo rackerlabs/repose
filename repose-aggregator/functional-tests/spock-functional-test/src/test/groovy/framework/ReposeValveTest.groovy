@@ -23,6 +23,9 @@ abstract class ReposeValveTest extends Specification {
     @Shared
     def ReposeLogSearch reposeLogSearch
 
+    @Shared
+    int clientId = 0
+
     def setupSpec() {
 
         properties = new TestProperties()
