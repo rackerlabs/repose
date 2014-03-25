@@ -10,8 +10,6 @@ import java.util.Map;
  */
 public interface AkkaServiceClient {
 
-    public static final String ADMIN_TOKEN_KEY = "ADMIN_TOKEN";
-
     ServiceClientResponse get(String token, String uri, Map<String, String> headers);
     ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType);
 

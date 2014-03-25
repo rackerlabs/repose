@@ -4,6 +4,11 @@ import java.util.Calendar;
 
 public class AdminToken {
 
+    /**
+     * A convienient location for the admin token cache key used internally to repose.
+     */
+    public static final String CACHE_KEY = "ADMIN_TOKEN";
+
     private final String token;
     private final Calendar expires;
 

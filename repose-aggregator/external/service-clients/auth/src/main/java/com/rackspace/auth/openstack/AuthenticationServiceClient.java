@@ -313,7 +313,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         if (adminToken == null) {
-            final ServiceClientResponse serviceResponse = akkaServiceClient.post(AkkaServiceClient.ADMIN_TOKEN_KEY,
+            final ServiceClientResponse serviceResponse = akkaServiceClient.post(AdminToken.CACHE_KEY,
                     targetHostUri + "/tokens",
                     new HashMap<String, String>(),
                     requestBody,
