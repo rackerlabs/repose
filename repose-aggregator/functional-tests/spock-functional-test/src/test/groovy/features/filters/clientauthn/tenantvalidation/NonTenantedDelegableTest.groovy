@@ -43,15 +43,15 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with HTTP code #authResponseCode and response tenant: #responseTenant")
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching - fail"() {
 
         fakeIdentityService.with {
-            client_token = clientToken
+            client_token = UUID.randomUUID()
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenant = responseTenant
             client_userid = requestTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
         }
 
         if(authResponseCode != 200){
@@ -72,12 +72,12 @@ class NonTenantedDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | clientToken
-        500           | 501             | "not-admin"           | 500              | "500"        | UUID.randomUUID()
-        502           | 503             | "not-admin"           | 404              | "401"        | UUID.randomUUID()
+        requestTenant | responseTenant  | authResponseCode | responseCode
+        500           | 501             | 500              | "500"
+        502           | 503             | 404              | "401"
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
     def "when authenticating user in non tenanted and delegable mode with client-mapping matching - pass"() {
 
         fakeIdentityService.with {

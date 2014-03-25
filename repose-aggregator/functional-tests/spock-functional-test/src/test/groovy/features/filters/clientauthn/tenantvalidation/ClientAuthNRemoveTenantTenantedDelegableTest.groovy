@@ -53,7 +53,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
     }
 
 
-    @Unroll("tenant: #requestTenant with mismatching response tenant id (#responseTenant) and non-service admin roles")
+    @Unroll("tenant: #requestTenant with mismatching response tenant id (#responseTenant) and non-service admin roles and response from identity: #authResponseCode")
     def "when authenticating user in tenanted and delegable mode and client-mapping matching - fail"() {
 
         given:
@@ -62,7 +62,7 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenant = responseTenant
             client_userid = requestTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
         }
 
         if(authResponseCode != 200){
@@ -87,13 +87,13 @@ class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode
-        200           | 201             | "not-admin"           | 500              | "500"
-        202           | 203             | "not-admin"           | 404              | "401"
-        204           | 205             | "not-admin"           | 200              | "401"
+        requestTenant | responseTenant  | authResponseCode | responseCode
+        200           | 201             | 500              | "500"
+        202           | 203             | 404              | "401"
+        204           | 205             | 200              | "401"
     }
 
-    @Unroll("tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant with identity returning HTTP 200 response with tenant id (#responseTenant), role (#serviceAdminRole)")
     def "when authenticating user in tenanted and delegable mode and client-mapping matching - pass"() {
 
         given:

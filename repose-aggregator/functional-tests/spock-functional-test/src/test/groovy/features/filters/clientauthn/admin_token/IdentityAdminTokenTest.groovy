@@ -11,7 +11,7 @@ import spock.lang.Unroll
 /**
  * Specific tests for admin token
  */
-class AdminTokenTest  extends ReposeValveTest {
+class IdentityAdminTokenTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -47,7 +47,7 @@ class AdminTokenTest  extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #reqTenant")
+    @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
     def "when failing to authenticate admin client"() {
 
         given:
@@ -76,22 +76,6 @@ class AdminTokenTest  extends ReposeValveTest {
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == orphanedHandlings
-
-        when: "User passes a request through repose the second time (sleep for akka cache burst)"
-        sleep 500
-        mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqTenant/",
-                method: 'GET',
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token
-                ]
-        )
-
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.orphanedHandlings.size() == orphanedHandlings
-        mc.handlings.size() == 0
 
         where:
         reqTenant   | adminResponseCode | responseCode | responseBody                                   | orphanedHandlings

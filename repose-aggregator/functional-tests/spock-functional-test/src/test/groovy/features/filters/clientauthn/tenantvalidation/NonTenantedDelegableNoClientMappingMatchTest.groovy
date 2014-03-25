@@ -44,7 +44,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
     }
 
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with status code #authResponseCode and response tenant: #responseTenant")
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - fail"() {
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
@@ -79,7 +79,7 @@ class NonTenantedDelegableNoClientMappingMatchTest extends ReposeValveTest{
     }
 
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
     def "when authenticating user in non tenanted and delegable mode with client-mapping not matching - pass"() {
 
         fakeIdentityService.with {

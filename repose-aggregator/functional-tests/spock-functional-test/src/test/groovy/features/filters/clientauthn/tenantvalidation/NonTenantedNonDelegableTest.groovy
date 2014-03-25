@@ -43,14 +43,14 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group response (#groupResponseCode), response tenant: #responseTenant, token: #clientToken")
     def "when authenticating user in non tenanted and non delegable mode - fail"() {
 
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
             client_userid = requestTenant
         }
 
@@ -83,19 +83,19 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | groupResponseCode | clientToken
-        613           | 613             | "not-admin"           | 500              | "500"        | 200               | UUID.randomUUID()
-        614           | 614             | "not-admin"           | 404              | "401"        | 200               | UUID.randomUUID()
-        615           | 615             | "not-admin"           | 200              | "500"        | 404               | UUID.randomUUID()
-        616           | 616             | "not-admin"           | 200              | "500"        | 500               | UUID.randomUUID()
-        ""            | 612             | "not-admin"           | 200              | "500"        | 200               | ""
+        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | clientToken
+        613           | 613             | 500              | "500"        | 200               | UUID.randomUUID()
+        614           | 614             | 404              | "401"        | 200               | UUID.randomUUID()
+        615           | 615             | 200              | "500"        | 404               | UUID.randomUUID()
+        616           | 616             | 200              | "500"        | 500               | UUID.randomUUID()
+        ""            | 612             | 200              | "500"        | 200               | ""
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
     def "when authenticating user in non tenanted and non delegable mode - pass"() {
 
         fakeIdentityService.with {
-            client_token = clientToken
+            client_token = UUID.randomUUID()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
             service_admin_role = serviceAdminRole
@@ -117,14 +117,14 @@ class NonTenantedNonDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        request2.headers.getFirstValue("X-Default-Region") == default_region
+        request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | clientToken        | default_region
-        604           | 605             | "not-admin"           | UUID.randomUUID()  | "the-default-region"
-        607           | 607             | "not-admin"           | UUID.randomUUID()  | "the-default-region"
-        608           | 608             | "service:admin-role1" | UUID.randomUUID()  | "the-default-region"
-        609           | 610             | "service:admin-role1" | UUID.randomUUID()  | "the-default-region"
+        requestTenant | responseTenant  | serviceAdminRole
+        604           | 605             | "not-admin"
+        607           | 607             | "not-admin"
+        608           | 608             | "service:admin-role1"
+        609           | 610             | "service:admin-role1"
     }
 
 }
