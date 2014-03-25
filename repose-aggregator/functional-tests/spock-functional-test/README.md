@@ -141,6 +141,13 @@ two methods:
 # ReposeValveTest #
 
 The `ReposeValveTest` class serves as a base class for all of the spock tests.
+It has some properties for a ReposeLauncher and a Deproxy, and will
+automatically start and stop them at the beginning and end of the tests. It
+will create a TestProperties object for you, which automatically reserves
+ports for various things. It can theoretically start Repose in a Valve,
+Glassfish, or Tomcat configuration, although this is not completely fleshed
+out, and should eventually be removed. Moreover it makes the name of the class
+inaccurate.
 
 # Mock Services #
 
