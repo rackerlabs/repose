@@ -145,29 +145,30 @@ The `ReposeValveTest` class serves as a base class for all of the spock tests.
 # Mock Services #
 
 The framework contains a few mock servers for various purposes:
-    - The `MockGraphite` class, found in the `framework.mocks` package, will
-      simulate a Graphite server listening on a certain port using the
-      plaintext protocol (http://graphite.readthedocs.org/en/latest/feeding-carbon.html#the-plaintext-protocol).
-      It can be made to do some processing on each line received from Repose,
-      and/or to log each line received. The `features.core.powerfilter.GraphiteTest`
-      class uses it to test Repose's reporting of yammer metrics.
-    - The `MockIdentityService`, also found in the `framework.mocks` package,
-      simulates an OpenStack Keystone Identity service (see http://docs.openstack.org/api/openstack-identity-service/2.0/content/).
-      It can be customized by replacing handlers with your own groovy
-      closures, for example to test how Repose responds when it receives a 404
-      from the configured identity service while trying to validate tokens. It
-      is intended to be very easy to extend, but it still has a way to go. It is
-      used by several tests, especially in the `features.filters.clientauthn`
-      and `features.filters.clientauthz` packages. Additionally, there are some
-      older "identity response simulators" in the `features.filters.clientauthn`
-      package. They will eventually be replaced by the `MockIdentityService`
-      with appropriate custom handlers.
-    - The `AtomFeedResponseSimulator` class, currently found in the
-      `features.filters.clientauthn` package, simulates an ATOM feed. It is used
-      by `InvalidateCacheUsingAtomFeedTest` to test when Repose removes a cached
-      token from the cache in response to said token being invalidated. This
-      simulator will eventually be renamed and moved to the `framework.mocks`
-      package.
+
+- The `MockGraphite` class, found in the `framework.mocks` package, will
+  simulate a Graphite server listening on a certain port using the
+  plaintext protocol (http://graphite.readthedocs.org/en/latest/feeding-carbon.html#the-plaintext-protocol).
+  It can be made to do some processing on each line received from Repose,
+  and/or to log each line received. The `features.core.powerfilter.GraphiteTest`
+  class uses it to test Repose's reporting of yammer metrics.
+- The `MockIdentityService`, also found in the `framework.mocks` package,
+  simulates an OpenStack Keystone Identity service (see http://docs.openstack.org/api/openstack-identity-service/2.0/content/).
+  It can be customized by replacing handlers with your own groovy
+  closures, for example to test how Repose responds when it receives a 404
+  from the configured identity service while trying to validate tokens. It
+  is intended to be very easy to extend, but it still has a way to go. It is
+  used by several tests, especially in the `features.filters.clientauthn`
+  and `features.filters.clientauthz` packages. Additionally, there are some
+  older "identity response simulators" in the `features.filters.clientauthn`
+  package. They will eventually be replaced by the `MockIdentityService`
+  with appropriate custom handlers.
+- The `AtomFeedResponseSimulator` class, currently found in the
+  `features.filters.clientauthn` package, simulates an ATOM feed. It is used
+  by `InvalidateCacheUsingAtomFeedTest` to test when Repose removes a cached
+  token from the cache in response to said token being invalidated. This
+  simulator will eventually be renamed and moved to the `framework.mocks`
+  package.
 
 
 
