@@ -30,6 +30,7 @@ abstract class ReposeValveTest extends Specification {
         switch (properties.getReposeContainer().toLowerCase()) {
             case "valve":
                 configureReposeValve()
+                repose.configurationProvider.cleanConfigDirectory()
                 break
             case "tomcat":
                 throw new UnsupportedOperationException("Please implement me")
