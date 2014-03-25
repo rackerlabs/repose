@@ -68,7 +68,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
             }
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
+        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in non-admin service role"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
