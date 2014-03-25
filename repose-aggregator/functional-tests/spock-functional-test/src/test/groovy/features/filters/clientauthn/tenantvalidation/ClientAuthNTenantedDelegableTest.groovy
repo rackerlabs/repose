@@ -43,7 +43,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
     }
 
 
-    @Unroll("tenant: #requestTenant, response tenant: #responseTenant, token: #clientToken")
+    @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode) response tenant: #responseTenant, token: #clientToken")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - fail"() {
         given:
         fakeIdentityService.with {
@@ -51,7 +51,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
             tokenExpiresAt = (new DateTime()).plusDays(1);
             client_tenant = responseTenant
             client_userid = requestTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
         }
 
         if(authResponseCode != 200){
@@ -73,16 +73,16 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | clientToken
-        300           | 301             | "not-admin"           | 500              | "500"        | UUID.randomUUID()
-        302           | 303             | "not-admin"           | 404              | "401"        | UUID.randomUUID()
-        304           | 305             | "not-admin"           | 200              | "401"        | UUID.randomUUID()
-        306           | 306             | "not-admin"           | 200              | "401"        | ""
+        requestTenant | responseTenant  | authResponseCode | responseCode | clientToken
+        300           | 301             | 500              | "500"        | UUID.randomUUID()
+        302           | 303             | 404              | "401"        | UUID.randomUUID()
+        304           | 305             | 200              | "401"        | UUID.randomUUID()
+        306           | 306             | 200              | "401"        | ""
 
     }
 
 
-    @Unroll("tenantMatch: #tenantMatch tenantWithAdmin: token: #clientToken")
+    @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant, token: #clientToken, and role: #serviceAdminRole")
     def "when authenticating user in tenanted and delegable mode and client-mapping not matching - pass"() {
         given:
         fakeIdentityService.with {

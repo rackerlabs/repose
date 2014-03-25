@@ -43,7 +43,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
     def "when authenticating user in tenanted and non delegable mode and without service-admin - fail"() {
 
         given:
@@ -52,7 +52,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
             client_userid = requestTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
         }
 
         if(authResponseCode != 200){
@@ -84,21 +84,18 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        813           | 813             | "not-admin"           | 500              | "500"        | 200               | false
-        814           | 814             | "not-admin"           | 404              | "401"        | 200               | true
-        815           | 815             | "not-admin"           | 200              | "500"        | 404               | false
-        816           | 816             | "not-admin"           | 200              | "500"        | 500               | false
-        811           | 812             | "not-admin"           | 200              | "401"        | 200               | true
+        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        813           | 813             | 500              | "500"        | 200               | false
+        814           | 814             | 404              | "401"        | 200               | true
+        815           | 815             | 200              | "500"        | 404               | false
+        816           | 816             | 200              | "500"        | 500               | false
+        811           | 812             | 200              | "401"        | 200               | true
 
 
     }
 
     def "when authenticating user in tenanted and non delegable mode and without service-admin - pass"() {
-
         given:
-
-
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)

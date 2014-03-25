@@ -43,14 +43,14 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - fail scenarios"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
             client_userid = requestTenant
         }
 
@@ -83,12 +83,12 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        713           | 713             | "not-admin"           | 500              | "500"        | 200               | false
-        714           | 714             | "not-admin"           | 404              | "401"        | 200               | true
-        715           | 715             | "not-admin"           | 200              | "500"        | 404               | false
-        716           | 716             | "not-admin"           | 200              | "500"        | 500               | false
-        711           | 712             | "not-admin"           | 200              | "401"        | 200               | true
+        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        713           | 713             | 500              | "500"        | 200               | false
+        714           | 714             | 404              | "401"        | 200               | true
+        715           | 715             | 200              | "500"        | 404               | false
+        716           | 716             | 200              | "500"        | 500               | false
+        711           | 712             | 200              | "401"        | 200               | true
     }
 
     /**
@@ -101,7 +101,7 @@ class TenantedNonDelegableTest extends ReposeValveTest {
      * - token returns expired
      * @return
      */
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("tenant: #requestTenant, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
     def "when authenticating user in tenanted and non delegable mode - success"() {
         given:
         fakeIdentityService.with {

@@ -58,14 +58,14 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
      * - token returns expired
      * @return
      */
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("For request tenant: #requestTenant, identity returns #authResponseCode, groups response is #groupResponseCode with response tenant #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - fail scenarios"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenant = responseTenant
-            service_admin_role = serviceAdminRole
+            service_admin_role = "not-admin"
         }
 
         if(authResponseCode != 200){
@@ -82,7 +82,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
             }
         }
 
-        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in service admin role = $serviceAdminRole"
+        when: "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -97,12 +97,12 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
 
         where:
-        requestTenant | responseTenant  | serviceAdminRole      | authResponseCode | responseCode | groupResponseCode | x_www_auth
-        113           | 113             | "not-admin"           | 500              | "500"        | 200               | false
-        114           | 114             | "not-admin"           | 404              | "401"        | 200               | true
-        115           | 115             | "not-admin"           | 200              | "200"        | 404               | false
-        116           | 116             | "not-admin"           | 200              | "200"        | 500               | false
-        111           | 112             | "not-admin"           | 200              | "401"        | 200               | true
+        requestTenant | responseTenant  | authResponseCode | responseCode | groupResponseCode | x_www_auth
+        113           | 113             | 500              | "500"        | 200               | false
+        114           | 114             | 404              | "401"        | 200               | true
+        115           | 115             | 200              | "200"        | 404               | false
+        116           | 116             | 200              | "200"        | 500               | false
+        111           | 112             | 200              | "401"        | 200               | true
     }
 
     /**
@@ -115,7 +115,7 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
      * - token returns expired
      * @return
      */
-    @Unroll("Tenant: #requestTenant")
+    @Unroll("For request tenant: #requestTenant, identity returns role #serviceAdminRole with response tenant #responseTenant")
     def "when authenticating user in tenanted and non delegable mode - success"() {
 
         fakeIdentityService.with {
@@ -155,6 +155,6 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
         where:
         requestTenant | responseTenant  | serviceAdminRole      | responseCode
         117           | 117             | "not-admin"           | "200"
-        118           | 119             | "service:admin-role1"  | "200"
+        118           | 119             | "service:admin-role1" | "200"
     }
 }
