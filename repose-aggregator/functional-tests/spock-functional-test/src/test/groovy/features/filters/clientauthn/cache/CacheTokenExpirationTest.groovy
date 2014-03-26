@@ -53,7 +53,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
 
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
         fakeIdentityService.resetCounts()
@@ -63,7 +63,7 @@ class CacheTokenExpirationTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
-        fakeIdentityService.validateTokenCount.get() == 0
+        fakeIdentityService.validateTokenCount == 0
 
         when: "I troubleshoot the REPOSE logs"
         def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")

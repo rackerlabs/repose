@@ -41,20 +41,45 @@ class MockIdentityService {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
 
-    AtomicInteger validateTokenCount = new AtomicInteger(0);
-    AtomicInteger getGroupsCount = new AtomicInteger(0);
-    AtomicInteger generateTokenCount = new AtomicInteger(0);
-    AtomicInteger getEndpointsCount = new AtomicInteger(0);
-    AtomicInteger getUserGlobalRolesCount = new AtomicInteger(0);
+    protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
+    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
+    protected AtomicInteger _generateTokenCount = new AtomicInteger(0);
+    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
+    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
 
     void resetCounts() {
 
-        validateTokenCount = new AtomicInteger(0);
-        getGroupsCount = new AtomicInteger(0);
-        generateTokenCount = new AtomicInteger(0);
-        getEndpointsCount = new AtomicInteger(0);
-        getUserGlobalRolesCount = new AtomicInteger(0);
+        _validateTokenCount.set(0)
+        _getGroupsCount.set(0)
+        _generateTokenCount.set(0)
+        _getEndpointsCount.set(0)
+        _getUserGlobalRolesCount.set(0)
     }
+
+    public int getValidateTokenCount() {
+        return _validateTokenCount.get()
+    }
+
+    public int getGetGroupsCount() {
+        return _getGroupsCount.get()
+
+    }
+
+    public int getGenerateTokenCount() {
+        return _generateTokenCount.get()
+
+    }
+
+    public int getGetEndpointsCount() {
+        return _getEndpointsCount.get()
+
+    }
+
+    public int getGetUserGlobalRolesCount() {
+        return _getUserGlobalRolesCount.get()
+
+    }
+
 
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
@@ -180,7 +205,7 @@ class MockIdentityService {
             if (nonQueryPath == "/tokens") {
                 if (method == "POST") {
 
-                    generateTokenCount.incrementAndGet()
+                    _generateTokenCount.incrementAndGet()
 
                     return generateTokenHandler(request, xml);
 
@@ -193,7 +218,7 @@ class MockIdentityService {
             if (match) {
                 if (method == "GET") {
 
-                    getEndpointsCount.incrementAndGet()
+                    _getEndpointsCount.incrementAndGet()
                     println "get endpoint"
 
                     def tokenId = match[0][1]
@@ -211,10 +236,9 @@ class MockIdentityService {
 
                 if (method == 'GET') {
 
-                    validateTokenCount.incrementAndGet()
+                    _validateTokenCount.incrementAndGet()
 
                     def tokenId = match[0][1]
-                    println "$tokenId-$validateTokenCount"
                     return validateTokenHandler(tokenId, request, xml)
 
 
@@ -229,7 +253,7 @@ class MockIdentityService {
             if (match) {
                 if (method =="GET") {
 
-                    getGroupsCount.incrementAndGet()
+                    _getGroupsCount.incrementAndGet()
 
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
@@ -243,7 +267,7 @@ class MockIdentityService {
             if (match) {
                 if (method =="GET") {
 
-                    getUserGlobalRolesCount.incrementAndGet()
+                    _getUserGlobalRolesCount.incrementAndGet()
 
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)

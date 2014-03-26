@@ -96,10 +96,10 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
 
         and:
-        fakeIdentityService.getGroupsCount.get() == 1
+        fakeIdentityService.getGroupsCount == 1
 
         and:
         missingAuthHeader == false

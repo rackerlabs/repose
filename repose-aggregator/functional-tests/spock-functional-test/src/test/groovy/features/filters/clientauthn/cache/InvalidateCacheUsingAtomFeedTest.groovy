@@ -131,7 +131,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         //Repose is getting an admin token and groups, so the number of
         //orphaned handlings doesn't necessarily equal the number of times a
         //token gets validated
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
         mc.handlings[0].endpoint == originEndpoint
 
 
@@ -142,7 +142,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount.get() == 0
+        fakeIdentityService.validateTokenCount == 0
         mc.handlings[0].endpoint == originEndpoint
 
 
@@ -176,7 +176,7 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         then: "Repose should not have the token in the cache any more, so it try to validate it, which will fail and result in a 401"
         mc.receivedResponse.code == '401'
         mc.handlings.size() == 0
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
     }
 
 }

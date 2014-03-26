@@ -82,7 +82,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
 
         then: "Repose should validate the token and path the user's default region as the X-Default_Region header to the origin service"
         mc.receivedResponse.code == "200"
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request = mc.handlings[0].request
@@ -95,7 +95,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-Default-Region header"
         mc.receivedResponse.code == "200"
-        fakeIdentityService.validateTokenCount.get() == 0
+        fakeIdentityService.validateTokenCount == 0
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
