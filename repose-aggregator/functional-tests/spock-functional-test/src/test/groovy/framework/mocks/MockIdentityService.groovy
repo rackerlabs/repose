@@ -472,6 +472,7 @@ class MockIdentityService {
 
 
 
+    // TODO: Replace this with builder
     def groupsJsonTemplate =
         """{
   "RAX-KSGRP:groups": [
@@ -484,6 +485,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def groupsXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
@@ -493,6 +495,7 @@ class MockIdentityService {
 </groups>
 """
 
+    // TODO: Replace this with builder
     def identityFailureJsonTemplate =
         """{
    "itemNotFound" : {
@@ -502,6 +505,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def identityFailureXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -511,6 +515,7 @@ class MockIdentityService {
 </itemNotFound>
 """
 
+    // TODO: Replace this with builder
     def identitySuccessJsonTemplate =
         """{
    "access" : {
@@ -580,6 +585,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def identitySuccessXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -639,6 +645,7 @@ class MockIdentityService {
 </access>
 """
 
+    // TODO: Replace this with builder
     def identityEndpointsJsonTemplate =
         """{
     "endpoints_links": [
@@ -671,6 +678,7 @@ class MockIdentityService {
     ]
 }"""
 
+    // TODO: Replace this with builder
     def identityEndpointXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -698,6 +706,7 @@ class MockIdentityService {
             tenantId="\${tenant}"/>
 </endpoints>"""
 
+    // TODO: Replace this with builder
     def getUserGlobalRolesJsonTemplate =
         """{
     "roles":[{
@@ -709,6 +718,7 @@ class MockIdentityService {
     "roles_links":[]
 }"""
 
+    // TODO: Replace this with builder
     def getUserGlobalRolesXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8"?>
 <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
