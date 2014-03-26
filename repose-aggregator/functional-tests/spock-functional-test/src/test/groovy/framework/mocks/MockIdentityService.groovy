@@ -192,7 +192,7 @@ class MockIdentityService {
             if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
                     _getEndpointsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
+                    def match = (nonQueryPath =~ getEndpointsCallPathRegex)
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, xml)
                 } else {
@@ -204,7 +204,7 @@ class MockIdentityService {
                 // TODO: 'belongsTo' in query string
                 if (method == 'GET') {
                     _validateTokenCount.incrementAndGet()
-                    def match = (nonQueryPath =~ /\/tokens\/([^\/]+)/)
+                    def match = (nonQueryPath =~ validateTokenCallPathRegex)
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, request, xml)
                 } else {
@@ -217,7 +217,7 @@ class MockIdentityService {
             if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method =="GET") {
                     _getGroupsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
+                    def match = (nonQueryPath =~ getGroupsCallPathRegex)
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
                 } else {
@@ -228,7 +228,7 @@ class MockIdentityService {
             if (isGetUserGlobalRolesCallPath(nonQueryPath)) {
                 if (method =="GET") {
                     _getUserGlobalRolesCount.incrementAndGet()
-                    def match = (nonQueryPath =~ /\/users\/([^\/]+)\/roles/)
+                    def match = (nonQueryPath =~ getUserGlobalRolesCallPathRegex)
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)
                 } else {
@@ -240,20 +240,25 @@ class MockIdentityService {
         return new Response(501);
     }
 
+    static final String getUserGlobalRolesCallPathRegex = /^\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/RAX-KSGRP/
+    static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
+    static final String validateTokenCallPathRegex = /^\/tokens\/([^\/]+)\/?$/
+
     public static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ /^\/users\/([^\/]+)\/roles/
+        return nonQueryPath ==~ getUserGlobalRolesCallPathRegex
     }
 
     public static boolean isGetGroupsCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ /^\/users\/([^\/]+)\/RAX-KSGRP/
+        return nonQueryPath ==~ getGroupsCallPathRegex
     }
 
     public static boolean isGetEndpointsCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ /^\/tokens\/([^\/]+)\/endpoints/
+        return nonQueryPath ==~ getEndpointsCallPathRegex
     }
 
     public static boolean isValidateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ /^\/tokens\/([^\/]+)\/?$/
+        return nonQueryPath ==~ validateTokenCallPathRegex
     }
 
     public static boolean isGenerateTokenCallPath(String nonQueryPath) {
