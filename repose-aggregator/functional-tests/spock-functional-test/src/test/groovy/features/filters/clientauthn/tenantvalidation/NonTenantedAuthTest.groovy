@@ -1,7 +1,7 @@
 package features.filters.clientauthn.tenantvalidation
 
-import features.filters.clientauthn.IdentityServiceRemoveTenantedValidationResponseSimulator
 import framework.ReposeValveTest
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -14,7 +14,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static IdentityServiceRemoveTenantedValidationResponseSimulator fakeIdentityService
+    def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
 
@@ -28,7 +28,7 @@ class NonTenantedAuthTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityService = new IdentityServiceRemoveTenantedValidationResponseSimulator()
+        fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
@@ -43,10 +43,12 @@ class NonTenantedAuthTest extends ReposeValveTest {
 
     def "Validates a racker token"() {
 
-        fakeIdentityService.client_token = "rackerButts"
-        fakeIdentityService.tokenExpiresAt = (new DateTime()).plusDays(1);
-        fakeIdentityService.ok = true
-        fakeIdentityService.adminOk = true
+        fakeIdentityService.with {
+            client_token = "rackerButts"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = "456"
+            client_userid = "456"
+        }
 
 
         when: "User passes a request through repose"
