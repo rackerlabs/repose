@@ -320,8 +320,6 @@ class MockIdentityService {
             code = 200;
             if (xml) {
                 if(doesTenantHaveAdminRoles && isTenantMatch)
-                    template = identityTenantlessValidationXML
-                } else if(doesTenantHaveAdminRoles && isTenantMatch)
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -709,7 +707,5 @@ class MockIdentityService {
 </endpoints>"""
 
     // TODO: Replace this with builder
-
     // TODO: Replace this with builder
-
 }
