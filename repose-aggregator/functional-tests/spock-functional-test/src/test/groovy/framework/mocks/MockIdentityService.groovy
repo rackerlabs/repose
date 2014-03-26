@@ -167,8 +167,6 @@ class MockIdentityService {
         def path = request.path
         def method = request.method
 
-        def match
-
         String nonQueryPath;
         String query;
 
@@ -181,48 +179,34 @@ class MockIdentityService {
             nonQueryPath = path
         }
 
-        if (nonQueryPath.startsWith("/tokens")) {
-
-            if (nonQueryPath == "/tokens") {
+        if (isTokenCallPath(nonQueryPath)) {
+            if (isGenerateTokenCallPath(nonQueryPath)) {
                 if (method == "POST") {
-
                     _generateTokenCount.incrementAndGet()
-
                     return generateTokenHandler(request, xml);
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
-            if (match) {
+            if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
-
                     _getEndpointsCount.incrementAndGet()
-                    println "get endpoint"
-
+                    def match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/tokens\/([^\/]+)/)
-            if (match) {
-
+            if (isValidateTokenCallPath(nonQueryPath)) {
                 // TODO: 'belongsTo' in query string
-
                 if (method == 'GET') {
-
                     _validateTokenCount.incrementAndGet()
-
+                    def match = (nonQueryPath =~ /\/tokens\/([^\/]+)/)
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, request, xml)
-
-
                 } else {
                     return new Response(405)
                 }
@@ -230,29 +214,23 @@ class MockIdentityService {
 
         } else if (nonQueryPath.startsWith("/users/")) {
 
-            match = (nonQueryPath =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
-            if (match) {
+            if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method =="GET") {
-
                     _getGroupsCount.incrementAndGet()
-
+                    def match = (nonQueryPath =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/users\/([^\/]+)\/roles/)
-            if (match) {
+            if (isGetUserGlobalRolesCallPath(nonQueryPath)) {
                 if (method =="GET") {
-
                     _getUserGlobalRolesCount.incrementAndGet()
-
+                    def match = (nonQueryPath =~ /\/users\/([^\/]+)\/roles/)
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
@@ -260,6 +238,30 @@ class MockIdentityService {
         }
 
         return new Response(501);
+    }
+
+    public static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ /^\/users\/([^\/]+)\/roles/
+    }
+
+    public static boolean isGetGroupsCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ /^\/users\/([^\/]+)\/RAX-KSGRP/
+    }
+
+    public static boolean isGetEndpointsCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ /^\/tokens\/([^\/]+)\/endpoints/
+    }
+
+    public static boolean isValidateTokenCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ /^\/tokens\/([^\/]+)\/?$/
+    }
+
+    public static boolean isGenerateTokenCallPath(String nonQueryPath) {
+        return nonQueryPath == "/tokens"
+    }
+
+    public static boolean isTokenCallPath(String nonQueryPath) {
+        return nonQueryPath.startsWith("/tokens")
     }
 
 
