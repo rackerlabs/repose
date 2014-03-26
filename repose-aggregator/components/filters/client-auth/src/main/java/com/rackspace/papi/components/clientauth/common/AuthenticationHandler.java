@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * @author fran
@@ -134,6 +134,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                 }
             }
         }
+
         String endpointsInBase64 = "";
         List<AuthGroup> groups = new ArrayList<AuthGroup>();
 

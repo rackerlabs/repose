@@ -1,5 +1,4 @@
 package org.openrepose.components.rackspace.authz
-import com.rackspace.auth.AuthToken
 import com.rackspace.auth.openstack.AuthenticationService
 import com.rackspace.papi.commons.util.http.CommonHttpHeader
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader
@@ -14,6 +13,9 @@ import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
+import static org.mockito.Mockito.mock
+import static org.powermock.api.mockito.PowerMockito.when
+
 class RequestAuthorizationHandlerGroovyTest extends Specification {
 
     AuthenticationService authenticationService
@@ -24,7 +26,6 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     FilterDirector filterDirector
     HttpServletRequest httpServletRequest
     RequestAuthorizationHandler requestAuthorizationHandler
-    AuthToken authToken
 
     def setup() {
         authenticationService = Mock()
@@ -33,15 +34,14 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         serviceEndpoint = Mock()
         serviceAdminRoles = Mock()
         filterDirector = new FilterDirectorImpl()
-        httpServletRequest = Mock()
+        httpServletRequest = mock(HttpServletRequest.class)
         requestAuthorizationHandler = Mock()
-        authToken = Mock()
     }
 
     def "auth should be bypassed if an x-roles header role matches within a configured list of service admin roles"() {
         given:
-        httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString()) >> "abc"
-        httpServletRequest.getHeader(OpenStackServiceHeader.ROLES.toString()) >> "role0,role1,role2"
+        when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
+        when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role1", "role2"]))
         serviceAdminRoles.getServiceAdminRole() >> new ArrayList<String>()
         serviceAdminRoles.getServiceAdminRole().add("role1")
 
@@ -55,27 +55,10 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         filterDirector.getFilterAction() == FilterAction.PASS
     }
 
-    def "auth should be bypassed if a role from token validation matches within a configured list of service admin roles"() {
-        when:
-        String goodToken = "good_token"
-        String role1 = "role1"
-        List<String> role1InList = new ArrayList<String>()
-        role1InList.add(role1)
-        serviceAdminRoles.getServiceAdminRole() >> role1InList
-        authenticationService.validateToken(null, goodToken) >> authToken
-        authToken.getRoles() >> "role0,role1"
-
-        requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, serviceAdminRoles)
-
-        then:
-        requestAuthorizationHandler.serviceAdminRolePresent(null, goodToken)
-    }
-
-    def "auth should not be bypassed if neither an x-roles header role nor a role from token validation matches within a configured list of service admin roles"() {
+    def "auth should not be bypassed if the x-roles header role does not match within a configured list of service admin roles"() {
         given:
-        httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString()) >> "bad_token"
-        httpServletRequest.getHeader(OpenStackServiceHeader.ROLES.toString()) >> "role0,role2"
+        when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
+        when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role2"]))
         serviceAdminRoles.getServiceAdminRole() >> new ArrayList<String>()
         serviceAdminRoles.getServiceAdminRole().add("role1")
 

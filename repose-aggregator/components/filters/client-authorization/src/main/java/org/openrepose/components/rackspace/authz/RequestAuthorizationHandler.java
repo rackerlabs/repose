@@ -1,7 +1,6 @@
 package org.openrepose.components.rackspace.authz;
 
 import com.rackspace.auth.AuthServiceException;
-import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,15 +60,16 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     public void authorizeRequest(FilterDirector director, HttpServletRequest request) {
         final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
-        final String xRolesHeaderValueString = request.getHeader(OpenStackServiceHeader.ROLES.toString());
 
         if (StringUtilities.isBlank(authenticationToken)) {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
         } else if (serviceAdminRoles != null && serviceAdminRoles.getServiceAdminRole().size() > 0) {
-            //if service admin roles from cfg populated then compare to x-roles header or validated token roles info
-            if (serviceAdminRolePresent(xRolesHeaderValueString, authenticationToken)) {
+            //if service admin roles from cfg populated then compare to x-roles header
+            final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
+
+            if (checkForAdminRoles(xRolesHeaderValueList)) {
                 director.setFilterAction(FilterAction.PASS);
             } else {
                 checkTenantEndpoints(director, authenticationToken);
@@ -78,27 +79,23 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    private boolean serviceAdminRolePresent(String xRolesHeaderValueString, String authenticationToken) {
-        if (!StringUtilities.isEmpty(xRolesHeaderValueString)) {
-            for (String role : xRolesHeaderValueString.split(",")) {
-                if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
-                    return true;
-                }
-            }
+    private boolean checkForAdminRoles(List<String> xRolesHeaderValueStringList) {
 
-            return false;
+        if (xRolesHeaderValueStringList.size() > 0) {
+            return adminRoleMatchIgnoringCase(xRolesHeaderValueStringList);
         }
 
-        AuthToken authToken = authenticationService.validateToken(null, authenticationToken);
+        return false;
+    }
 
-        if (authToken != null) {
-            for (String role : authToken.getRoles().split(",")) {
-                if (serviceAdminRoles.getServiceAdminRole().contains(role)) {
+    private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
+
+        for (String serviceAdminRole : serviceAdminRoles.getServiceAdminRole()) {
+            for (String role : roleStringList) {
+                if (serviceAdminRole.equalsIgnoreCase(role)) {
                     return true;
                 }
             }
-
-            return false;
         }
 
         return false;
@@ -112,9 +109,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             if (isEndpointAuthorized(authorizedEndpoints)) {
                 director.setFilterAction(FilterAction.PASS);
             } else {
-                LOG.info("User token: " + userToken + ": The user's service catalog does not contain an endpoint that matches " +
-                        "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                        myEndpoint.getHref() + "\".  User not authorized to access service.");
+                LOG.info("User token: " + userToken +
+                         ": The user's service catalog does not contain an endpoint that matches " +
+                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                         myEndpoint.getHref() + "\".  User not authorized to access service.");
                 director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
         } catch (AuthServiceException ex) {
