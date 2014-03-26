@@ -12,6 +12,7 @@ import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Simulates responses from an Identity Service
@@ -41,19 +42,18 @@ class MockIdentityService {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
 
-    int validateTokenCount = 0;
-    int getGroupsCount = 0;
-    int generateTokenCount = 0;
-    int getEndpointsCount = 0;
-    int getUserGlobalRolesCount = 0;
+    AtomicInteger validateTokenCount = new AtomicInteger(0);
+    AtomicInteger getGroupsCount = new AtomicInteger(0);
+    AtomicInteger generateTokenCount = new AtomicInteger(0);
+    AtomicInteger getEndpointsCount = new AtomicInteger(0);
+    AtomicInteger getUserGlobalRolesCount = new AtomicInteger(0);
 
     void resetCounts() {
-
-        validateTokenCount = 0;
-        getGroupsCount = 0;
-        generateTokenCount = 0;
-        getEndpointsCount = 0;
-        getUserGlobalRolesCount = 0;
+        validateTokenCount = new AtomicInteger(0);
+        getGroupsCount = new AtomicInteger(0);
+        generateTokenCount = new AtomicInteger(0);
+        getEndpointsCount = new AtomicInteger(0);
+        getUserGlobalRolesCount = new AtomicInteger(0);
     }
 
     /*
@@ -85,12 +85,11 @@ class MockIdentityService {
     def client_tenant = 'this-is-the-tenant';
     def client_username = 'username';
     def client_userid = 12345;
-
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant';
     def admin_username = 'admin_username';
+    def service_admin_role = 'service:admin-role1';
     def admin_userid = 67890;
-
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -99,7 +98,6 @@ class MockIdentityService {
 
     // we can still use the `handler' closure even if handleRequest is overridden in a derived class
     Response handleRequest(Request request) {
-
         def xml = false
 
         for (value in request.headers.findAll('Accept')) {
@@ -166,7 +164,7 @@ class MockIdentityService {
             if (nonQueryPath == "/tokens") {
                 if (method == "POST") {
 
-                    generateTokenCount++
+                    generateTokenCount.incrementAndGet()
 
                     return generateTokenHandler(request, xml);
 
@@ -182,7 +180,7 @@ class MockIdentityService {
 
                 if (method == 'GET') {
 
-                    validateTokenCount++
+                    validateTokenCount.incrementAndGet()
 
                     def tokenId = match[0][1]
                     return validateTokenHandler(tokenId, request, xml)
@@ -196,7 +194,7 @@ class MockIdentityService {
             if (match) {
                 if (method == "GET") {
 
-                    getEndpointsCount++
+                    getEndpointsCount.incrementAndGet()
 
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, xml)
@@ -212,7 +210,7 @@ class MockIdentityService {
             if (match) {
                 if (method == "GET") {
 
-                    getGroupsCount++
+                    getGroupsCount.incrementAndGet()
 
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
@@ -226,7 +224,7 @@ class MockIdentityService {
             if (match) {
                 if (method == "GET") {
 
-                    getUserGlobalRolesCount++
+                    getUserGlobalRolesCount.incrementAndGet()
 
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)
@@ -265,7 +263,6 @@ class MockIdentityService {
     }
 
     Response validateToken(String tokenId, Request request, boolean xml) {
-
         def path = request.getPath()
         def request_token = tokenId
 
@@ -273,7 +270,8 @@ class MockIdentityService {
                 expires: getExpires(),
                 userid: client_userid,
                 username: client_username,
-                token: request_token
+                token: request_token,
+                serviceadmin: service_admin_role
         ];
 
         if (this.client_tenant != null) {
@@ -319,8 +317,8 @@ class MockIdentityService {
                 userid: client_userid,
                 username: client_username,
                 tenant: client_tenant,
-                token: request.getHeaders().getFirstValue("X-Auth-Token")
-
+                token: request.getHeaders().getFirstValue("X-Auth-Token"),
+                serviceadmin: service_admin_role
         ]
 
         def template;
@@ -361,7 +359,8 @@ class MockIdentityService {
                 userid: admin_userid,
                 username: admin_username,
                 tenant: admin_tenant,
-                token: admin_token
+                token: admin_token,
+                serviceadmin: service_admin_role
         ];
 
 
@@ -703,17 +702,17 @@ class MockIdentityService {
                   name="compute:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000001"
-                  tenantId="12345"/>
-            <role id="6"
-                  name="service:admin"
-                  description="A Role that allows a user to auth without belongsto"
-                  serviceId="0000000000000000000000000000000000000003"
-                  tenantId="12345"/>
+                  tenantId="\${tenant}"/>
             <role id="5"
                   name="object-store:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000002"
-                  tenantId="12345"/>
+                  tenantId="\${tenant}"/>
+            <role id="6"
+                  name="\${serviceadmin}"
+                  description="A Role that allows a user access to keystone Service methods"
+                  serviceId="0000000000000000000000000000000000000002"
+                  tenantId="\${tenant}"/>
         </roles>
     </user>
     <serviceCatalog>

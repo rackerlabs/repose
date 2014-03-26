@@ -1,13 +1,19 @@
 package features.filters.clientauthz.serviceadminroles
 
 import framework.ReposeConfigurationProvider
+import framework.category.Bug
+import org.junit.experimental.categories.Category
+
 //import framework.ReposeInProcessValveLauncher
 import framework.mocks.MockIdentityService
 import framework.ReposeValveTest
 import groovy.json.JsonBuilder
+import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 import spock.lang.Ignore
+import spock.lang.Unroll
 
 class NoTenantComparisonForAdminRolesTest extends ReposeValveTest {
 
@@ -26,12 +32,9 @@ class NoTenantComparisonForAdminRolesTest extends ReposeValveTest {
         deproxy.addEndpoint(name: "originService", port: properties.targetPort)
 
         def params = properties.defaultTemplateParams
-//        def configurationProvider = new ReposeConfigurationProvider(properties)
         def configurationProvider = repose.configurationProvider
         configurationProvider.applyConfigs("common", params)
         configurationProvider.applyConfigs("features/filters/clientauthz/serviceadminroles", params)
-
-//        repose = new ReposeInProcessValveLauncher(configurationProvider, properties.configDirectory, properties.reposeShutdownPort)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -49,32 +52,83 @@ class NoTenantComparisonForAdminRolesTest extends ReposeValveTest {
         return name;
     }
 
-    def "Admin user with no tenant tries to access a tenant's resource"() {
+    /**
+     * These tests all pass.  They shouldn't!
+     * @return
+     */
+    @Category(Bug.class)
+    @Unroll("tenant: #requestTenant with request role #requestRole, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
+    def "When accessing tenant's resource - fail"() {
 
         given:
-        def username = getNewUniqueUser()
         def headers = [
-                'X-Auth-Token': UUID.randomUUID().toString(),
+                'X-Auth-Token': UUID.randomUUID().toString()
         ]
 
-        identityService.client_tenant = 'tenant456'
-//        identityService.defaultUserRoles = [
-//                [
-//                        id: '2468',
-//                        name: 'service-admin',
-//                        description: 'The admin for the service',
-//                        serviceId: '0000000000000000000000000000000000000001',
-//                ]
-//        ]
+        identityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
 
+        if(authResponseCode != 200){
+            identityService.validateTokenHandler = {
+                tokenId, request,xml ->
+                    new Response(authResponseCode)
+            }
+        }
         when:
-        def mc = deproxy.makeRequest(url: "${reposeEndpoint}/tenant123/resource", headers: headers)
+        def mc = deproxy.makeRequest(url: "${reposeEndpoint}/$requestTenant/resource", headers: headers + requestRole)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code == "403"
         mc.handlings.size() == 1
+
+        where:
+        requestTenant | responseTenant | serviceAdminRole  | requestRole                 | authResponseCode
+        124           | 456            | "non-admin"       | []                          | 200
+        125           | 456            | "non-admin"       | ['X-roles':"some-role"]     | 200
+        128           | null           | "non-admin"       | ['X-roles':"some-role"]     | 200
+        123           | 123            | "non-admin"       | ['X-roles':"some-role"]     | 404
+        126           | 456            | "service-admin"   | ['X-roles':"some-role"]     | 404
+        129           | 456            | "some-role"       | ['X-roles':"service-admin"] | 404
     }
 
+    @Unroll("tenant: #requestTenant with request role #requestRole, with return from identity with response tenant: #responseTenant and role: #serviceAdminRole")
+    def "When accessing tenant's resource - pass"() {
+
+        given:
+        def headers = [
+                'X-Auth-Token': UUID.randomUUID().toString()
+        ]
+
+        identityService.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_tenant = responseTenant
+            client_userid = requestTenant
+            service_admin_role = serviceAdminRole
+        }
+
+        when:
+        def mc = deproxy.makeRequest(url: "${reposeEndpoint}/$requestTenant/resource", headers: headers + requestRole)
+
+        then:
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == 1
+
+        where:
+        requestTenant | responseTenant | serviceAdminRole  | requestRole                 | responseCode
+        223           | 223            | "non-admin"       | ['X-roles':"some-role"]     | "200"
+        225           | 456            | "service-admin"   | ['X-roles':"some-role"]     | "200"
+        226           | 456            | "some-role"       | ['X-roles':"some-role"]     | "200"
+        229           | 456            | "some-role"       | ['X-roles':"service-admin"] | "200"
+        227           | null           | "service-admin"   | ['X-roles':"some-role"]     | "200"
+        224           | null           | "some-role"       | ['X-roles':"service-admin"] | "200"
+        228           | 456            | "some-role"       | ['X-roles':"service-admin"] | "200"
+    }
 
 
     def cleanupSpec() {
