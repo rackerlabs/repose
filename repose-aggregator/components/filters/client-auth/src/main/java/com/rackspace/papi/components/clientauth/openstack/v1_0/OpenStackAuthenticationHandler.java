@@ -25,7 +25,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     private final List<String> serviceAdminRoles;
     private final List<String> bypassTenantCheckRoles;
 
-    public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
+    public OpenStackAuthenticationHandler(
+            Configurables cfg,
+            AuthenticationService serviceClient,
+            AuthTokenCache cache,
+            AuthGroupCache grpCache,
+            AuthUserCache usrCache,
+            EndpointsCache endpointsCache,
+            UriMatcher uriMatcher) {
+
         super(cfg, cache, grpCache, usrCache, endpointsCache, uriMatcher);
         this.authenticationService = serviceClient;
         this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
@@ -98,9 +106,15 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     @Override
-    public void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable,
-                                        FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String
-            endpointsInBase64) {
+    public void setFilterDirectorValues(
+            String authToken,
+            AuthToken cachableToken,
+            Boolean delegatable,
+            FilterDirector filterDirector,
+            String extractedResult,
+            List<AuthGroup> groups,
+            String endpointsInBase64) {
+
         new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult,
                 groups, wwwAuthHeaderContents, endpointsInBase64)
                 .setFilterDirectorValues();
