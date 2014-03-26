@@ -132,21 +132,6 @@ class MockIdentityService {
             }
         }
 
-        def params = [:]
-
-        // default response code and message
-        def template
-        def headers = [:]
-        def code = 200
-        def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
-        } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
-        }
-
         /*
          * From http://docs.openstack.org/api/openstack-identity-service/2.0/content/
          *
@@ -188,17 +173,13 @@ class MockIdentityService {
         String query;
 
         if (path.contains("?")) {
-
             int index = path.indexOf("?")
             query = path.substring(index + 1)
             nonQueryPath = path.substring(0, index)
-
         } else {
-
             query = null
             nonQueryPath = path
         }
-
 
         if (nonQueryPath.startsWith("/tokens")) {
 
