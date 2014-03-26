@@ -52,6 +52,8 @@
                         </goals>
 
                         <configuration>
+                            <!-- This strips signatures and other items from the jars that we are including,
+                                 so that java doesn't freakout when they don't agree with our new fat jar -->
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
