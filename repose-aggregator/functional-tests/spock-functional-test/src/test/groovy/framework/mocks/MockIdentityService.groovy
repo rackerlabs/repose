@@ -319,7 +319,7 @@ class MockIdentityService {
         if (isTokenValid) {
             code = 200;
             if (xml) {
-                if(doesTenantHaveAdminRoles && isTenantMatch)
+                template = identitySuccessXmlTemplate
             } else {
                 template = identitySuccessJsonTemplate
             }
