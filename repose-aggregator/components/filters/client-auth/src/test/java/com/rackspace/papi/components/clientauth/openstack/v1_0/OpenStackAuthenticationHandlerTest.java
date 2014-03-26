@@ -186,6 +186,19 @@ public class OpenStackAuthenticationHandlerTest {
 
             return cti;
         }
+
+        protected RoleList defaultRoleList() {
+            //Having an empty role list is not valid, they should always have one role
+            Role role = new Role();
+            role.setName("derpRole");
+            role.setId("9");
+            role.setDescription("Derp description");
+
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role);
+            return roleList;
+        }
+
     }
 
     public static class WhenCachingUserInfo extends TestParent {
@@ -216,17 +229,7 @@ public class OpenStackAuthenticationHandlerTest {
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
 
-            //Having an empty role list is not valid, they should always have one role
-            Role role = new Role();
-            role.setName("derpRole");
-            role.setId("9");
-            role.setDescription("Derp description");
-
-            RoleList roleList = new RoleList();
-            roleList.getRole().add(role);
-
-            userForAuthenticateResponse.setRoles(roleList);
-
+            userForAuthenticateResponse.setRoles(defaultRoleList());
 
             Token token = new Token();
             token.setId("tokenId");
@@ -334,16 +337,7 @@ public class OpenStackAuthenticationHandlerTest {
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
 
-            //Having an empty role list is not valid, they should always have one role
-            Role role = new Role();
-            role.setName("derpRole");
-            role.setId("9");
-            role.setDescription("Derp description");
-
-            RoleList roleList = new RoleList();
-            roleList.getRole().add(role);
-
-            userForAuthenticateResponse.setRoles(roleList);
+            userForAuthenticateResponse.setRoles(defaultRoleList());
 
             Token token = new Token();
             token.setId("tokenId");
@@ -429,16 +423,8 @@ public class OpenStackAuthenticationHandlerTest {
         UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
         userForAuthenticateResponse.setId("104772");
         userForAuthenticateResponse.setName("user2");
-        //Having an empty role list is not valid, they should always have one role
-        Role role = new Role();
-        role.setName("derpRole");
-        role.setId("9");
-        role.setDescription("Derp description");
 
-        RoleList roleList = new RoleList();
-        roleList.getRole().add(role);
-
-        userForAuthenticateResponse.setRoles(roleList);
+        userForAuthenticateResponse.setRoles(defaultRoleList());
 
         Token token = new Token();
         token.setId("tokenId");
