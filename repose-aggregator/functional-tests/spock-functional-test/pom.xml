@@ -174,7 +174,7 @@
                 </plugins>
             </build>
         </profile>
-
+        <!-- todo: merge these and get rid of references to the other -->
         <profile>
             <id>uncategorized</id>
             <activation>
@@ -196,6 +196,26 @@
             </build>
         </profile>
 
+        <profile>
+            <id>all-normal</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.16</version>
+                        <configuration>
+                            <excludedGroups>
+                                framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
+                                framework.category.SaxonEE,framework.category.Release
+                            </excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>saxonee</id>
             <activation>
