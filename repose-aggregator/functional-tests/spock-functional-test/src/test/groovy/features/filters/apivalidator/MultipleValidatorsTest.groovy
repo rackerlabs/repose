@@ -29,7 +29,8 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
     def cleanupSpec() {
         if (repose)
-            repose.stop()
+            // TODO: Figure out a more elegant way for this test to shutdown.
+            repose.stop(throwExceptionOnKill: false)
         if (deproxy)
             deproxy.shutdown()
     }
