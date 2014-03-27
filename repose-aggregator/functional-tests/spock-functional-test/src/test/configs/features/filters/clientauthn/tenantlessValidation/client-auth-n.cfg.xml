@@ -11,8 +11,8 @@
                           password="admin_password"
                           uri="http://localhost:${identityPort}" />
         <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
-        <bypass-tenant-check>
+        <ignore-tenant-roles>
             <role>Racker</role>
-        </bypass-tenant-check>
+        </ignore-tenant-roles>
     </openstack-auth>
 </client-auth>
