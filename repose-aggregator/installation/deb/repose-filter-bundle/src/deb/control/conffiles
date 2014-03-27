@@ -14,3 +14,5 @@
 /etc/repose/ip-identity.cfg.xml
 /etc/repose/service-authentication.cfg.xml
 /etc/repose/uri-identity.cfg.xml
+/etc/repose/uri-stripper.cfg.xml
+/etc/repose/header-translation.cfg.xml
