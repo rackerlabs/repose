@@ -23,7 +23,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     private final String wwwAuthHeaderContents;
     private final AuthenticationService authenticationService;
     private final List<String> serviceAdminRoles;
-    private final List<String> bypassTenantCheckRoles;
+    private final List<String> ignoreTenantRoles;
 
     public OpenStackAuthenticationHandler(
             Configurables cfg,
@@ -38,7 +38,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         this.authenticationService = serviceClient;
         this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
         this.serviceAdminRoles = cfg.getServiceAdminRoles();
-        this.bypassTenantCheckRoles = cfg.getBypassTenantCheckRoles();
+        this.ignoreTenantRoles = cfg.getIgnoreTenantRoles();
     }
 
     private boolean roleIsServiceAdmin(AuthToken authToken) {
@@ -75,16 +75,18 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         /**
          * If any role in that token is in the BypassTenantRoles list, bypass the tenant check
          */
-        boolean bypassTenantCheck = false;
-        for (String role : authToken.getRoles().split(",")) {
-            if (bypassTenantCheckRoles.contains(role))
-                bypassTenantCheck = true;
-        }
+        if (authToken != null) { //authToken could still be null at this point :(
+            boolean ignoreTenantRequirement = false;
+            for (String role : authToken.getRoles().split(",")) {
+                if (ignoreTenantRoles.contains(role))
+                    ignoreTenantRequirement = true;
+            }
 
-        if (!bypassTenantCheck) {
-            if (authToken.getTenantId() == null || authToken.getTenantName() == null) {
-                //Moved this check from within the OpenStackToken into here
-                throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
+            if (!ignoreTenantRequirement) {
+                if (authToken.getTenantId() == null || authToken.getTenantName() == null) {
+                    //Moved this check from within the OpenStackToken into here
+                    throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
+                }
             }
         }
         return authToken;

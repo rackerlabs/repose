@@ -22,7 +22,7 @@ public class Configurables {
     private final boolean requestGroups;
     private final EndpointsConfiguration endpointsConfiguration;
     private final List<String> serviceAdminRoles;
-    private final List<String> bypassTenantCheckRoles;
+    private final List<String> ignoreTenantRoles;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
@@ -37,13 +37,13 @@ public class Configurables {
         this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
         this.serviceAdminRoles = new ArrayList<String>();
-        this.bypassTenantCheckRoles = new ArrayList<String>();
+        this.ignoreTenantRoles = new ArrayList<String>();
         this.cacheOffset = 0;
     }
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
-                         EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> bypassTenantCheckRoles) {
+                         EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -55,7 +55,7 @@ public class Configurables {
         this.requestGroups = requestGroups;
         this.endpointsConfiguration = endpointsConfiguration;
         this.serviceAdminRoles = serviceAdminRoles;
-        this.bypassTenantCheckRoles = bypassTenantCheckRoles;
+        this.ignoreTenantRoles = ignoreTenantRoles;
     }
 
     public boolean isDelegable() {
@@ -102,7 +102,7 @@ public class Configurables {
         return serviceAdminRoles;
     }
 
-    public List<String> getBypassTenantCheckRoles() {
-        return bypassTenantCheckRoles;
+    public List<String> getIgnoreTenantRoles() {
+        return ignoreTenantRoles;
     }
 }

@@ -12,7 +12,7 @@ import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsConfiguration;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
-import com.rackspace.papi.components.clientauth.openstack.config.BypassTenantRoles;
+import com.rackspace.papi.components.clientauth.openstack.config.IgnoreTenantRoles;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.openstack.config.ServiceAdminRoles;
@@ -67,7 +67,7 @@ public final class OpenStackAuthenticationHandlerFactory {
                 authConfig.isRequestGroups(),
                 endpointsConfiguration,
                 getServiceAdminRoles(authConfig.getServiceAdminRoles()),
-                getBypassTenantCheckRoles(authConfig.getBypassTenantCheck()));
+                getIgnoreTenantRoles(authConfig.getIgnoreTenantRoles()));
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, endpointsCache, uriMatcher);
     }
@@ -76,7 +76,7 @@ public final class OpenStackAuthenticationHandlerFactory {
         return roles == null ? new ArrayList<String>() : roles.getRole();
     }
 
-    private static List<String> getBypassTenantCheckRoles(BypassTenantRoles roles){
+    private static List<String> getIgnoreTenantRoles(IgnoreTenantRoles roles){
         if(roles == null) {
             return new ArrayList<String>();
         } else {

@@ -23,7 +23,7 @@
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
                 <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
-                <xs:element name="bypass-tenant-check" type="os-ids-auth:BypassTenantRoles" minOccurs="0" maxOccurs="1" />
+                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0" maxOccurs="1" />
             </xs:all>
 
             <!-- Order matters in 1.0 land :-( -->
@@ -33,7 +33,7 @@
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
                 <xs:element name="service-admin-roles" type="os-ids-auth:ServiceAdminRoles" minOccurs="0" maxOccurs="1" />
-                <xs:element name="bypass-tenant-check" type="os-ids-auth:BypassTenantRoles" minOccurs="0" maxOccurs="1" />
+                <xs:element name="ignore-tenant-roles" type="os-ids-auth:IgnoreTenantRoles" minOccurs="0" maxOccurs="1" />
             </xs:sequence>
 
             <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
@@ -232,10 +232,11 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="BypassTenantRoles">
+    <xs:complexType name="IgnoreTenantRoles">
         <xs:annotation>
             <xs:documentation>
-                <html:p>A list of roles to bypass the tenant requirement check. These roles will not require a tenant.</html:p>
+                <html:p>A list of roles to bypass the tenant requirement check.
+                    Users with the any of the roles specified will not have the requirement for a tenant.</html:p>
             </xs:documentation>
         </xs:annotation>
 
