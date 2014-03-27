@@ -8,7 +8,6 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
-import java.io.File;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -16,12 +15,13 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import org.eclipse.jetty.http.ssl.SslContextFactory;
 
 public class ValveJettyServerBuilder {
 
