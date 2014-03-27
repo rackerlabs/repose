@@ -79,7 +79,7 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount.get() == uniqueUsers
+        fauxIdentityService.validateTokenCount == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
@@ -100,7 +100,7 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount.get() == 0
+        fauxIdentityService.validateTokenCount == 0
 
         when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
         fauxIdentityService.resetCounts()
@@ -123,7 +123,7 @@ class CacheOffsetTest extends ReposeValveTest {
 
         then: "All calls should hit identity"
         //since we are talking about time based testing, we cannot always validate against a concrete number.  This is testing a range of requests.
-        fauxIdentityService.validateTokenCount.get() == uniqueUsers
+        fauxIdentityService.validateTokenCount == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser

@@ -41,20 +41,45 @@ class MockIdentityService {
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
 
-    AtomicInteger validateTokenCount = new AtomicInteger(0);
-    AtomicInteger getGroupsCount = new AtomicInteger(0);
-    AtomicInteger generateTokenCount = new AtomicInteger(0);
-    AtomicInteger getEndpointsCount = new AtomicInteger(0);
-    AtomicInteger getUserGlobalRolesCount = new AtomicInteger(0);
+    protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
+    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
+    protected AtomicInteger _generateTokenCount = new AtomicInteger(0);
+    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
+    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
 
     void resetCounts() {
 
-        validateTokenCount = new AtomicInteger(0);
-        getGroupsCount = new AtomicInteger(0);
-        generateTokenCount = new AtomicInteger(0);
-        getEndpointsCount = new AtomicInteger(0);
-        getUserGlobalRolesCount = new AtomicInteger(0);
+        _validateTokenCount.set(0)
+        _getGroupsCount.set(0)
+        _generateTokenCount.set(0)
+        _getEndpointsCount.set(0)
+        _getUserGlobalRolesCount.set(0)
     }
+
+    public int getValidateTokenCount() {
+        return _validateTokenCount.get()
+    }
+
+    public int getGetGroupsCount() {
+        return _getGroupsCount.get()
+
+    }
+
+    public int getGenerateTokenCount() {
+        return _generateTokenCount.get()
+
+    }
+
+    public int getGetEndpointsCount() {
+        return _getEndpointsCount.get()
+
+    }
+
+    public int getGetUserGlobalRolesCount() {
+        return _getUserGlobalRolesCount.get()
+
+    }
+
 
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
@@ -107,21 +132,6 @@ class MockIdentityService {
             }
         }
 
-        def params = [:]
-
-        // default response code and message
-        def template
-        def headers = [:]
-        def code = 200
-        def message = 'OK'
-        if (xml) {
-            template = identitySuccessXmlTemplate
-            headers.put('Content-type', 'application/xml')
-        } else {
-            template = identitySuccessJsonTemplate
-            headers.put('Content-type', 'application/json')
-        }
-
         /*
          * From http://docs.openstack.org/api/openstack-identity-service/2.0/content/
          *
@@ -157,67 +167,46 @@ class MockIdentityService {
         def path = request.path
         def method = request.method
 
-        def match
-
         String nonQueryPath;
         String query;
 
         if (path.contains("?")) {
-
             int index = path.indexOf("?")
             query = path.substring(index + 1)
             nonQueryPath = path.substring(0, index)
-
         } else {
-
             query = null
             nonQueryPath = path
         }
 
-
-        if (nonQueryPath.startsWith("/tokens")) {
-
-            if (nonQueryPath == "/tokens") {
+        if (isTokenCallPath(nonQueryPath)) {
+            if (isGenerateTokenCallPath(nonQueryPath)) {
                 if (method == "POST") {
-
-                    generateTokenCount.incrementAndGet()
-
+                    _generateTokenCount.incrementAndGet()
                     return generateTokenHandler(request, xml);
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/tokens\/([^\/]+)\/endpoints/)
-            if (match) {
+            if (isGetEndpointsCallPath(nonQueryPath)) {
                 if (method == "GET") {
-
-                    getEndpointsCount.incrementAndGet()
-                    println "get endpoint"
-
+                    _getEndpointsCount.incrementAndGet()
+                    def match = (nonQueryPath =~ getEndpointsCallPathRegex)
                     def tokenId = match[0][1]
                     return getEndpointsHandler(tokenId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/tokens\/([^\/]+)/)
-            if (match) {
-
+            if (isValidateTokenCallPath(nonQueryPath)) {
                 // TODO: 'belongsTo' in query string
-
                 if (method == 'GET') {
-
-                    validateTokenCount.incrementAndGet()
-
+                    _validateTokenCount.incrementAndGet()
+                    def match = (nonQueryPath =~ validateTokenCallPathRegex)
                     def tokenId = match[0][1]
-                    println "$tokenId-$validateTokenCount"
                     return validateTokenHandler(tokenId, request, xml)
-
-
                 } else {
                     return new Response(405)
                 }
@@ -225,29 +214,23 @@ class MockIdentityService {
 
         } else if (nonQueryPath.startsWith("/users/")) {
 
-            match = (nonQueryPath =~ /\/users\/([^\/]+)\/RAX-KSGRP/)
-            if (match) {
+            if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method =="GET") {
-
-                    getGroupsCount.incrementAndGet()
-
+                    _getGroupsCount.incrementAndGet()
+                    def match = (nonQueryPath =~ getGroupsCallPathRegex)
                     def userId = match[0][1]
                     return getGroupsHandler(userId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
             }
 
-            match = (nonQueryPath =~ /\/users\/([^\/]+)\/roles/)
-            if (match) {
+            if (isGetUserGlobalRolesCallPath(nonQueryPath)) {
                 if (method =="GET") {
-
-                    getUserGlobalRolesCount.incrementAndGet()
-
+                    _getUserGlobalRolesCount.incrementAndGet()
+                    def match = (nonQueryPath =~ getUserGlobalRolesCallPathRegex)
                     def userId = match[0][1]
                     return getUserGlobalRoles(userId, request, xml)
-
                 } else {
                     return new Response(405)
                 }
@@ -255,6 +238,35 @@ class MockIdentityService {
         }
 
         return new Response(501);
+    }
+
+    static final String getUserGlobalRolesCallPathRegex = /^\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/RAX-KSGRP/
+    static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
+    static final String validateTokenCallPathRegex = /^\/tokens\/([^\/]+)\/?$/
+
+    public static boolean isGetUserGlobalRolesCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ getUserGlobalRolesCallPathRegex
+    }
+
+    public static boolean isGetGroupsCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ getGroupsCallPathRegex
+    }
+
+    public static boolean isGetEndpointsCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ getEndpointsCallPathRegex
+    }
+
+    public static boolean isValidateTokenCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ validateTokenCallPathRegex
+    }
+
+    public static boolean isGenerateTokenCallPath(String nonQueryPath) {
+        return nonQueryPath == "/tokens"
+    }
+
+    public static boolean isTokenCallPath(String nonQueryPath) {
+        return nonQueryPath.startsWith("/tokens")
     }
 
 
@@ -460,6 +472,7 @@ class MockIdentityService {
 
 
 
+    // TODO: Replace this with builder
     def groupsJsonTemplate =
         """{
   "RAX-KSGRP:groups": [
@@ -472,6 +485,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def groupsXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
@@ -481,6 +495,7 @@ class MockIdentityService {
 </groups>
 """
 
+    // TODO: Replace this with builder
     def identityFailureJsonTemplate =
         """{
    "itemNotFound" : {
@@ -490,6 +505,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def identityFailureXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -499,6 +515,7 @@ class MockIdentityService {
 </itemNotFound>
 """
 
+    // TODO: Replace this with builder
     def identitySuccessJsonTemplate =
         """{
    "access" : {
@@ -568,6 +585,7 @@ class MockIdentityService {
 }
 """
 
+    // TODO: Replace this with builder
     def identitySuccessXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -627,6 +645,7 @@ class MockIdentityService {
 </access>
 """
 
+    // TODO: Replace this with builder
     def identityEndpointsJsonTemplate =
         """{
     "endpoints_links": [
@@ -659,6 +678,7 @@ class MockIdentityService {
     ]
 }"""
 
+    // TODO: Replace this with builder
     def identityEndpointXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
@@ -686,6 +706,7 @@ class MockIdentityService {
             tenantId="\${tenant}"/>
 </endpoints>"""
 
+    // TODO: Replace this with builder
     def getUserGlobalRolesJsonTemplate =
         """{
     "roles":[{
@@ -697,6 +718,7 @@ class MockIdentityService {
     "roles_links":[]
 }"""
 
+    // TODO: Replace this with builder
     def getUserGlobalRolesXmlTemplate =
         """<?xml version="1.0" encoding="UTF-8"?>
 <roles xmlns="http://docs.openstack.org/identity/api/v2.0">

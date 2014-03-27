@@ -158,13 +158,13 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        def respFromOrigin = deproxy.makeRequest(url:reposeEndpoint + "/servers/123/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
-        def sentRequest = ((MessageChain) respFromOrigin).getHandlings()[0]
+        def mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/123/", method:'GET', headers:['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token] + reqHeaders)
 
         then:
-        sentRequest.request.getHeaders().findAll("user-agent").size() == 1
-        sentRequest.request.getHeaders().findAll("x-pp-user").size() == 4
-        sentRequest.request.getHeaders().findAll("accept").size() == 2
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("user-agent") == 1
+        mc.handlings[0].request.headers.getCountByName("x-pp-user") == 4
+        mc.handlings[0].request.headers.getCountByName("accept") == 2
     }
 
     def "Should not split response headers according to rfc"() {
@@ -179,16 +179,18 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        def respFromOrigin =
-            deproxy.makeRequest(url: reposeEndpoint + "/servers/123/", method: 'GET',
+        def mc =
+            deproxy.makeRequest(
+                    url: reposeEndpoint + "/servers/123/",
+                    method: 'GET',
                     headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token],
                     defaultHandler: xmlResp
             )
 
         then:
-        respFromOrigin.receivedResponse.code == "201"
-        respFromOrigin.receivedResponse.headers.findAll("location").size() == 1
-        respFromOrigin.receivedResponse.headers.findAll("via").size() == 1
+        mc.receivedResponse.code == "201"
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
 

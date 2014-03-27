@@ -92,7 +92,7 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.generateTokenCount.get() == 1
+        fakeIdentityService.generateTokenCount == 1
 
         and:
         missingAuthHeader == false
