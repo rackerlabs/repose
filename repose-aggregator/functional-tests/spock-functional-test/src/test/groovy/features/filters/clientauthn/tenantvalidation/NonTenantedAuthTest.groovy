@@ -32,7 +32,6 @@ class NonTenantedAuthTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeIdentityService.handler)
 
-        def headersMap = ["X-Auth-Token":"rackerButts"]
     }
 
     def cleanupSpec() {
@@ -46,7 +45,6 @@ class NonTenantedAuthTest extends ReposeValveTest {
         fakeIdentityService.with {
             client_token = "rackerButts"
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenant = "456"
             client_userid = "456"
         }
 
@@ -55,10 +53,25 @@ class NonTenantedAuthTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "Everything gets passed as is to the origin service (no matter the user)"
+        then: "Things are forward to the origin, because we're not validating existence of tenant"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 2
+    }
+
+    def "Fails when a racker token doesn't have the authorized role"() {
+        fakeIdentityService.with {
+            client_token = "rackerFailure"
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_userid = "456"
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+
+        then: "They should get denied because they don't have a tenant"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
     }
 
 }

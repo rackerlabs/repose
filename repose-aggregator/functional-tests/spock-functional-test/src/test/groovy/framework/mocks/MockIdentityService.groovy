@@ -1,4 +1,5 @@
 package framework.mocks
+
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -215,7 +216,7 @@ class MockIdentityService {
         } else if (nonQueryPath.startsWith("/users/")) {
 
             if (isGetGroupsCallPath(nonQueryPath)) {
-                if (method =="GET") {
+                if (method == "GET") {
                     _getGroupsCount.incrementAndGet()
                     def match = (nonQueryPath =~ getGroupsCallPathRegex)
                     def userId = match[0][1]
@@ -226,7 +227,7 @@ class MockIdentityService {
             }
 
             if (isGetUserGlobalRolesCallPath(nonQueryPath)) {
-                if (method =="GET") {
+                if (method == "GET") {
                     _getUserGlobalRolesCount.incrementAndGet()
                     def match = (nonQueryPath =~ getUserGlobalRolesCallPathRegex)
                     def userId = match[0][1]
@@ -298,11 +299,11 @@ class MockIdentityService {
         def request_token = tokenId
 
         def params = [
-                expires: getExpires(),
-                userid: client_userid,
-                username: client_username,
-                tenant: client_tenant,
-                token: request_token,
+                expires     : getExpires(),
+                userid      : client_userid,
+                username    : client_username,
+                tenant      : client_tenant,
+                token       : request_token,
                 serviceadmin: service_admin_role
         ];
 
@@ -319,7 +320,13 @@ class MockIdentityService {
         if (isTokenValid) {
             code = 200;
             if (xml) {
-                template = identitySuccessXmlTemplate
+                if (tokenId == "rackerButts") {
+                    template = rackerTokenXmlTemplate
+                } else if (tokenId == "failureRacker") {
+                    template = rackerTokenWithoutProperRoleXmlTemplate
+                } else {
+                    template = identitySuccessXmlTemplate
+                }
             } else {
                 template = identitySuccessJsonTemplate
             }
@@ -340,11 +347,11 @@ class MockIdentityService {
     Response getGroups(String userId, Request request, boolean xml) {
 
         def params = [
-                expires: getExpires(),
-                userid: client_userid,
-                username: client_username,
-                tenant: client_tenant,
-                token: request.getHeaders().getFirstValue("X-Auth-Token"),
+                expires     : getExpires(),
+                userid      : client_userid,
+                username    : client_username,
+                tenant      : client_tenant,
+                token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
         ]
@@ -383,11 +390,11 @@ class MockIdentityService {
         }
 
         def params = [
-                expires: getExpires(),
-                userid: admin_userid,
-                username: admin_username,
-                tenant: admin_tenant,
-                token: admin_token,
+                expires     : getExpires(),
+                userid      : admin_userid,
+                username    : admin_username,
+                tenant      : admin_tenant,
+                token       : admin_token,
                 serviceadmin: service_admin_role
         ];
 
@@ -438,12 +445,12 @@ class MockIdentityService {
         }
 
         def params = [
-                'identityPort': this.port,
-                token: request.getHeaders().getFirstValue("X-Auth-Token"),
-                'expires': getExpires(),
-                'userid': this.client_userid,
-                'username': this.client_username,
-                'tenant': this.client_tenant,
+                'identityPort'     : this.port,
+                token              : request.getHeaders().getFirstValue("X-Auth-Token"),
+                'expires'          : getExpires(),
+                'userid'           : this.client_userid,
+                'username'         : this.client_username,
+                'tenant'           : this.client_tenant,
                 'originServicePort': this.originServicePort,
         ];
 
@@ -471,10 +478,9 @@ class MockIdentityService {
     }
 
 
-
     // TODO: Replace this with builder
     def groupsJsonTemplate =
-        """{
+            """{
   "RAX-KSGRP:groups": [
     {
         "id": "0",
@@ -487,7 +493,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def groupsXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <groups xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSGRP/v1.0">
     <group id="0" name="Default">
         <description>Default Limits</description>
@@ -497,7 +503,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identityFailureJsonTemplate =
-        """{
+            """{
    "itemNotFound" : {
       "message" : "Invalid Token, not found.",
       "code" : 404
@@ -507,7 +513,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identityFailureXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <itemNotFound xmlns="http://docs.openstack.org/identity/api/v2.0"
               xmlns:ns2="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
               code="404">
@@ -517,7 +523,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identitySuccessJsonTemplate =
-        """{
+            """{
    "access" : {
       "serviceCatalog" : [
          {
@@ -587,7 +593,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identitySuccessXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <access xmlns="http://docs.openstack.org/identity/api/v2.0"
         xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
         xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
@@ -647,7 +653,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identityEndpointsJsonTemplate =
-        """{
+            """{
     "endpoints_links": [
         {
             "href": "http://localhost:\${identityPort}/tokens/\${token}/endpoints?'marker=5&limit=10'",
@@ -680,7 +686,7 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     def identityEndpointXmlTemplate =
-        """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <endpoints xmlns="http://docs.openstack.org/identity/api/v2.0"
            xmlns:ns2="http://www.w3.org/2005/Atom"
            xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
@@ -708,4 +714,53 @@ class MockIdentityService {
 
     // TODO: Replace this with builder
     // TODO: Replace this with builder
+
+    def rackerTokenXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:ns2="http://www.w3.org/2005/Atom"
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+    <token id="\${token}"
+           expires="\${expires}"/>
+    <user id="rackerUsername">
+        <roles>
+            <role id="9" name="Racker"
+                description="Defines a user as being a Racker"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+            <role name="dl_RackUSA"/>
+            <role name="dl_RackGlobal"/>
+            <role name="dl_cloudblock"/>
+            <role name="dl_US Managers"/>
+            <role name="DL_USManagers"/>
+        </roles>
+    </user>
+</access>
+"""
+
+    def rackerTokenWithoutProperRoleXmlTemplate =
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0"
+    xmlns:ns2="http://www.w3.org/2005/Atom"
+    xmlns:os-ksadm="http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0"
+    xmlns:rax-ksqa="http://docs.rackspace.com/identity/api/ext/RAX-KSQA/v1.0"
+    xmlns:rax-kskey="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+    xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
+    xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+    <token id="\${token}"
+           expires="\${expires}"/>
+    <user id="rackerUsername">
+        <roles>
+            <role name="dl_RackUSA"/>
+            <role name="dl_RackGlobal"/>
+            <role name="dl_cloudblock"/>
+            <role name="dl_US Managers"/>
+            <role name="DL_USManagers"/>
+        </roles>
+    </user>
+</access>
+"""
 }
