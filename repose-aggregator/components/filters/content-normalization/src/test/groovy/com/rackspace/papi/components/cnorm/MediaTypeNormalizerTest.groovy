@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 
-class MediaTypeNormalizerSpec extends Specification {
+class MediaTypeNormalizerTest extends Specification {
 
     List<MediaType> configuredMediaTypes
     MediaTypeNormalizer normalizer

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 
-class HeaderNormalizerSpec extends Specification {
+class HeaderNormalizerTest extends Specification {
 
     HttpServletRequest request
     FilterDirector director

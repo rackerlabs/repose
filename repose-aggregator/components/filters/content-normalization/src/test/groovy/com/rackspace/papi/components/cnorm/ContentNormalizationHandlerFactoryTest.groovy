@@ -4,7 +4,7 @@ import com.rackspace.papi.components.normalization.config.ContentNormalizationCo
 import spock.lang.Specification
 
 
-class ContentNormalizationHandlerFactorySpec extends Specification {
+class ContentNormalizationHandlerFactoryTest extends Specification {
 
     ContentNormalizationHandlerFactory instance
 
