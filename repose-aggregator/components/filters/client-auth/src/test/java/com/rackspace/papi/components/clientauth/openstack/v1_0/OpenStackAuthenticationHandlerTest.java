@@ -105,8 +105,19 @@ public class OpenStackAuthenticationHandlerTest {
             serviceAdminRoles.getRole().add("12345");
 
             endpointsConfiguration = new EndpointsConfiguration("json", AUTH_USER_CACHE_TTL, new Integer("1000"));
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
-                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,AUTH_CACHE_OFFSET,requestGroups(), endpointsConfiguration, serviceAdminRoles.getRole());
+            Configurables configurables = new Configurables(
+                    delegable(),
+                    "http://some.auth.endpoint",
+                    keyedRegexExtractor,
+                    isTenanted(),
+                    AUTH_GROUP_CACHE_TTL,
+                    AUTH_TOKEN_CACHE_TTL,
+                    AUTH_USER_CACHE_TTL,
+                    AUTH_CACHE_OFFSET,
+                    requestGroups(),
+                    endpointsConfiguration,
+                    serviceAdminRoles.getRole(),
+                    new ArrayList<String>());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -175,6 +186,19 @@ public class OpenStackAuthenticationHandlerTest {
 
             return cti;
         }
+
+        protected RoleList defaultRoleList() {
+            //Having an empty role list is not valid, they should always have one role
+            Role role = new Role();
+            role.setName("derpRole");
+            role.setId("9");
+            role.setDescription("Derp description");
+
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role);
+            return roleList;
+        }
+
     }
 
     public static class WhenCachingUserInfo extends TestParent {
@@ -205,8 +229,8 @@ public class OpenStackAuthenticationHandlerTest {
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
 
-            userForAuthenticateResponse.setRoles(new RoleList());
-            
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
             Token token = new Token();
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -312,8 +336,8 @@ public class OpenStackAuthenticationHandlerTest {
             UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
-            
-            userForAuthenticateResponse.setRoles(new RoleList());
+
+            userForAuthenticateResponse.setRoles(defaultRoleList());
 
             Token token = new Token();
             token.setId("tokenId");
@@ -400,9 +424,8 @@ public class OpenStackAuthenticationHandlerTest {
         userForAuthenticateResponse.setId("104772");
         userForAuthenticateResponse.setName("user2");
 
-        userForAuthenticateResponse.setRoles(new RoleList());
+        userForAuthenticateResponse.setRoles(defaultRoleList());
 
-                 
         Token token = new Token();
         token.setId("tokenId");
         TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
@@ -413,6 +436,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         authResponse.setToken(token);
         authResponse.setUser(userForAuthenticateResponse);
+
     }
 
    
@@ -484,7 +508,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            final AuthToken token = generateCachableTokenInfo("", "", "", "12345");
+            final AuthToken token = generateCachableTokenInfo("role1,role2", "tokentokentoken", "username", "12345");
             when(authService.validateToken(anyString(), anyString())).thenReturn(token);
 
             final FilterDirector director = handler.handleRequest(request, response);
