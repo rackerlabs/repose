@@ -70,7 +70,7 @@ strong {
   font-size: emCalc(14px);
 }
 .path-container .path-item .circle {
-  background-color: #ccc;
+  background-color: #fff;
   background-size: 156px 156px;
   border-radius: 50%;
   width: 156px;
@@ -80,20 +80,27 @@ strong {
   z-index: 2;
 }
 .path-container .path-item .circle.circle-left {
-  left: -7px;
+  left: 7px;
 }
 .path-container .path-item .circle.circle-right {
-  right: -10px;
+  right: 7px;
 }
 .path-container .line {
-  background: #ddd;
+  background: #fff;
   width: 2px;
   bottom: 0;
   position: absolute;
   top: 160px;
   left: 50%;
   z-index: 0;
-  height: 1164px;
+  height: 1600px;
+}
+
+.icon {
+  position:relative;
+  font-size: 100px;
+  text-align: center;
+  top: 25px;
 }
 
 /*------------------------------------
@@ -128,6 +135,7 @@ strong {
     left: 0px !important;
   }
 }
+
 /*------------------------------------
  mobile timeline styles
 ------------------------------------*/

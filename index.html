@@ -1,6 +1,6 @@
----
-layout: default
-title: First Page
+--- 
+layout: default 
+title: First Page 
 ---
 
 <div class="slide slide-1">
@@ -34,34 +34,6 @@ title: First Page
 </div>
 
 <div class="slide slide-3">
- <!--    <div class="row">
-        <div class="small-12 medium-9 small-centered large-8 columns">
-            <h2>What features does Repose offer?</h2>
-            <ul>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Authentication">Openstack Keystone Authentication &amp; Authorization</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Role+Based+Access+Control+with+Repose">Role Based Access Control</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Rate+Limiting+Filter">Distributed Rate Limiting</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/HTTP+Logging+Filter">HTTP Logging</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Content+Normalization">Content Normalization</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Request-Response+Modification">Request/Resonse Modification</a>
-                </li>
-                <li>
-                    <a href="https://repose.atlassian.net/wiki/display/REPOSE/Versioning+Filter">Versioning</a>
-                </li>
-            </ul>
-        </div>
-    </div> -->
     <div class="row">
         <div class="small-12 small-centered columns">
             <div class="path-container">
@@ -71,59 +43,75 @@ title: First Page
                     </div>
                     <div class="row path-item">
                         <div class="large-7 columns">
-                        <div class="circle circle-right right"><i class="fi-arrow-down"></i></div>
+                            <div class="circle circle-right right">
+                            <div class="icon"><i class="fi-arrow-down large"></i></div>
+                            </div>
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Incoming Requests</h3>
-                            <p>Users submit requests to your API, which are then load balanced, and forwarded to Repose</p>
+                            <p>Users submit requests to your API, which are then load balanced, and forwarded
+                                to Repose</p>
                             <a href="#">Show something cool »</a>
                         </div>
                     </div>
                     <div class="row path-item">
                         <div class="large-7 push-5 columns">
                             <div class="circle circle-left ">
-                              <i class="fi-key"></i>
+                                <div class="icon"><i class="fi-key"></i></div>
                             </div>
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Hello, who is it?</h3>
-                            <p>Repose can use an identity endpoint to authenticate an HTTP request before the request is passed to the destination.</p>
+                            <p>Repose can use an identity endpoint to authenticate an HTTP request before
+                                the request is passed to the destination.</p>
                             <a href="#">Authentication »</a>
                         </div>
                     </div>
                     <div class="row path-item">
                         <div class="large-7 columns">
-                            <div class="circle circle-right right"><i class="fi-address-book"></i></div>
+                            <div class="circle circle-right right">
+                                <div class="icon"><i class="fi-address-book"></i></div>
+                            </div>
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Access Denied</h3>
-                            <p>Repose validates that a client request is allowed to a destination URI. If the request is not allowed, the request will be denied with an HTTP 403 - Unauthorized response.</p>
+                            <p>Repose validates that a client request is allowed to a destination URI. If
+                                the request is not allowed, the request will be denied with an HTTP 403
+                                - Unauthorized response.</p>
                             <a href="#">Authorization »</a>
                         </div>
                     </div>
                     <div class="row get-feedback path-item">
                         <div class="large-7 push-5 columns">
-                            <div class="circle circle-left"><i class="fi-torsos-all"></i></div>
+                            <div class="circle circle-left">
+                                <div class="icon"><i class="fi-torsos-all"></i></div>
+                            </div>
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>One at at time, please</h3>
-                            <p>Distributed Rate limiting allows control over the amount of traffic to the destination service over the cluster.</p>
+                            <p>Distributed Rate limiting allows control over the amount of traffic to the
+                                destination service over the cluster.</p>
                             <a href="#">Distributed Rate Limiting »</a>
                         </div>
                     </div>
                     <div class="row land-job path-item">
                         <div class="large-7 columns">
-                            <div class="circle circle-right right"><i class="fi-align-justify"></i></div>
+                            <div class="circle circle-right right">
+                                <div class="icon"><i class="fi-pencil"></i></div>
+                            </div>
                         </div>
                         <div class="large-5 columns path-text right">
                             <h3>Let me get my journal</h3>
-                            <p>Repose can log all of your requests before they get to your service, so you can better know who's accessing your APIs</p>
+                            <p>Repose can log all of your requests before they get to your service, so you
+                                can better know who's accessing your APIs</p>
                             <a href="#">HTTP Logging »</a>
                         </div>
                     </div>
                     <div class="row path-item">
                         <div class="large-7 push-5 columns">
-                          <div class="circle circle-left "><i class="fi-heart"></i></div>
+                            <div class="circle circle-left ">
+                                <div class="icon"><i class="fi-heart"></i></div>
+                            </div>
                         </div>
                         <div class="large-5 pull-7 columns path-text left">
                             <h3>Destination</h3>
@@ -141,11 +129,15 @@ title: First Page
     <div class="row">
         <div class="small-12 medium-9 small-centered large-8 columns">
             <h2>Get started with Repose</h2>
-            <p>Repose supports multiple environments to suit your deployment. Deploy repose as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
+            <p>
+                Repose supports multiple environments to suit your deployment. Deploy repose as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Docker">docker container</a>,
                 inside your <a href="https://repose.atlassian.net/wiki/display/REPOSE/ROOT.war+Installation">existing Java application</a> or
-                as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">stand alone JAR</a>.</p>
+                as a <a href="https://repose.atlassian.net/wiki/display/REPOSE/Proxy+Server+%28Valve%29+Installation">stand alone JAR</a>.
+            </p>
             <p>See our <a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+101">Repose 101 Course</a> for
                 a quick start.</p>
+            <p>Get Involved! Join our <a href="http://discourse.openrepose.org/">Discourse Forum</a>
+            </p>
         </div>
     </div>
 </div>
