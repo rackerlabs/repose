@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,17 +59,34 @@ public class MediaTypeNormalizer {
                 headerManager.putHeader(ACCEPT.toString(), preferredMediaType.getName());
             } else {
                 //We have an Accept header, lets see if it contains something we're looking for
-                List<String> acceptHeaders = Arrays.asList(request.getHeader(ACCEPT.toString()).split(","));
+                Iterator<String> headerIterator = Arrays.asList(request.getHeader(ACCEPT.toString()).split(",")).iterator();
+                List<String> acceptHeaders = new LinkedList<String>();
+                //doing a map on this, because we don't actually have map :(
+                //Making sure that for each item in the list, we sanitize the accept header.
+                // Eventually we'll pay attention to the ;q=.1 or whatev
+                while(headerIterator.hasNext()) {
+                    String replaced = headerIterator.next().replaceAll(";.*", ""); //Stripping off any ;stuff
+                    acceptHeaders.add(replaced);
+                }
+
                 //If we have an acceptable media type that's in this list, use it, based on exact match
                 //If none match, use preferred
                 String toUse = null;
-                for (MediaType mt : configuredMediaTypes) {
-                    if (acceptHeaders.contains(mt)) {
-                        //use the one it contains, and we're done
+                Iterator<MediaType> mtIterator = configuredMediaTypes.iterator();
+                while(toUse == null && mtIterator.hasNext()){
+                    MediaType mt = mtIterator.next();
+                    if(acceptHeaders.contains(mt.getName())) {
                         toUse = mt.getName();
-                        break;
                     }
                 }
+                //Here's the same code with a for loop and a break, I can use whichever is preferred in the review
+//                for (MediaType mt : configuredMediaTypes) {
+//                    if (acceptHeaders.contains(mt.getName())) {
+//                        //use the one it contains, and we're done
+//                        toUse = mt.getName();
+//                        break;
+//                    }
+//                }
                 if(toUse == null) {
                     //this means we didn't find one
                     //Use the preferred one
