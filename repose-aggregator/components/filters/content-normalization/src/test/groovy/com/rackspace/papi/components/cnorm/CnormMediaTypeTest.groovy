@@ -39,7 +39,6 @@ class CnormMediaTypeTest extends Specification {
         response = mock(ReadableHttpServletResponse.class)
 
         //Common mocks on all the tests
-        when(request.getHeaderNames()).thenReturn(Collections.enumeration(["accept"]))
         when(request.getRequestURI()).thenReturn("http://www.example.com/derp/derp")
 
     }
@@ -58,6 +57,10 @@ class CnormMediaTypeTest extends Specification {
     }
 
     def mockIncomingAccept(String acceptHeader) {
+        if(acceptHeader != null) {
+            //Only include the accept header in the list of headers if it's been set
+            when(request.getHeaderNames()).thenReturn(Collections.enumeration(["accept"]))
+        }
         when(request.getHeader(CommonHttpHeader.ACCEPT.toString())).thenReturn(acceptHeader)
     }
 
@@ -177,4 +180,24 @@ class CnormMediaTypeTest extends Specification {
         ]
     }
 
+
+    def "Applies the preferred accept type if one is not specified"() {
+        given:
+        def handler = buildHandler([
+                preferred("application/json"),
+        ])
+
+        mockIncomingAccept(null)
+        FilterDirector director
+
+        when:
+        director = handler.handleRequest(request, response)
+
+        then:
+        //TODO: make copypasta assertion go away
+        director.requestHeaderManager().headersToRemove().contains("accept")
+        director.requestHeaderManager().headersToAdd().containsKey("accept")
+        director.requestHeaderManager().headersToAdd().get("accept") == ["application/json"].toSet()
+
+    }
 }
