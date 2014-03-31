@@ -34,7 +34,15 @@ public class IpAddressRangeTest {
       public void shouldFindAddressesInRange() throws UnknownHostException {
          assertTrue(range1.addressInRange("198.51.100.254"));
       }
-      
+
+       /**
+        * This is kind of a bad test. If the network is doing odd things, like auto resolving things for you
+        * I found this failure when I was working remotely, the network I'm on happily translates "invalid" into an
+        * IP address, and this test then fails, and I cannot continue the compilation
+        *
+        * TODO: BRITTLE TEST
+        * @throws UnknownHostException
+        */
       @Test(expected=UnknownHostException.class)
       public void shouldThrowExceptionForInvalidAddress() throws UnknownHostException {
          range1.addressInRange("Invalid");
