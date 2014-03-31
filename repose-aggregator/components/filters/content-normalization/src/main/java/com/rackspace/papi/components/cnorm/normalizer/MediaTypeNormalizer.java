@@ -72,21 +72,13 @@ public class MediaTypeNormalizer {
                 //If we have an acceptable media type that's in this list, use it, based on exact match
                 //If none match, use preferred
                 String toUse = null;
-                Iterator<MediaType> mtIterator = configuredMediaTypes.iterator();
-                while(toUse == null && mtIterator.hasNext()){
-                    MediaType mt = mtIterator.next();
-                    if(acceptHeaders.contains(mt.getName())) {
+                for (MediaType mt : configuredMediaTypes) {
+                    if (acceptHeaders.contains(mt.getName())) {
+                        //use the one it contains, and we're done
                         toUse = mt.getName();
+                        break;
                     }
                 }
-                //Here's the same code with a for loop and a break, I can use whichever is preferred in the review
-//                for (MediaType mt : configuredMediaTypes) {
-//                    if (acceptHeaders.contains(mt.getName())) {
-//                        //use the one it contains, and we're done
-//                        toUse = mt.getName();
-//                        break;
-//                    }
-//                }
                 if(toUse == null) {
                     //this means we didn't find one
                     //Use the preferred one
