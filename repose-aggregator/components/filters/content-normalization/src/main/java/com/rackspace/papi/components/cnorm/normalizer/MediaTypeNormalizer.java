@@ -4,19 +4,24 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.HeaderManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.ACCEPT;
 
 public class MediaTypeNormalizer {
     private static final Logger LOG = LoggerFactory.getLogger(MediaTypeNormalizer.class);
     private static final Pattern VARIANT_EXTRACTOR_REGEX = Pattern.compile("((\\.)[^\\d][\\w]*)");
     private static final int VARIANT_EXTENSION_GROUP = 1;
-    
+
     private final List<MediaType> configuredMediaTypes;
     private final MediaType preferredMediaType;
 
@@ -46,13 +51,37 @@ public class MediaTypeNormalizer {
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
         // The preferred media type should only be null if there were no media types specified
         if (preferredMediaType != null) {
-            final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.toString()) != null;
+            final boolean requestHasAcceptHeader = request.getHeader(ACCEPT.toString()) != null;
             final MediaType requestedVariantMediaType = getMediaTypeForVariant(request, director);
-            
+            HeaderManager headerManager = director.requestHeaderManager();
+
             if (requestedVariantMediaType != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), requestedVariantMediaType.getName());
+                headerManager.putHeader(ACCEPT.toString(), requestedVariantMediaType.getName());
             } else if (!requestHasAcceptHeader) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), preferredMediaType.getName());
+                headerManager.putHeader(ACCEPT.toString(), preferredMediaType.getName());
+            } else {
+                //We have an Accept header, lets see if it contains something we're looking for
+                List<String> acceptHeaders = Arrays.asList(request.getHeader(ACCEPT.toString()).split(","));
+                //If we have an acceptable media type that's in this list, use it, based on exact match
+                //If none match, use preferred
+                String toUse = null;
+                for (MediaType mt : configuredMediaTypes) {
+                    if (acceptHeaders.contains(mt)) {
+                        //use the one it contains, and we're done
+                        toUse = mt.getName();
+                        break;
+                    }
+                }
+                if(toUse == null) {
+                    //this means we didn't find one
+                    //Use the preferred one
+                    toUse = preferredMediaType.getName();
+                }
+
+                //Only actually change it, if we're needing to change it.
+                if(request.getHeader(ACCEPT.toString()) != null && !request.getHeader(ACCEPT.toString()).equals(toUse)) {
+                    headerManager.putHeader(ACCEPT.toString(), toUse);
+                }
             }
         }
     }
@@ -62,21 +91,21 @@ public class MediaTypeNormalizer {
 
         if (variantMatcher.find()) {
             final String requestedVariant = variantMatcher.group(VARIANT_EXTENSION_GROUP);
-            
+
             for (MediaType mediaType : configuredMediaTypes) {
                 final String variantExtension = formatVariant(mediaType.getVariantExtension());
 
                 if (StringUtilities.isNotBlank(variantExtension) && requestedVariant.equalsIgnoreCase(variantExtension)) {
                     final int uriExtensionIndex = request.getRequestURI().lastIndexOf(requestedVariant);
                     final int urlExtensionIndex = request.getRequestURL().lastIndexOf(requestedVariant);
-                    
-                    if (uriExtensionIndex > 0 && urlExtensionIndex >0) {
+
+                    if (uriExtensionIndex > 0 && urlExtensionIndex > 0) {
                         final StringBuilder uriBuilder = new StringBuilder(request.getRequestURI());
-                        
+
                         director.setRequestUri(uriBuilder.delete(uriExtensionIndex, uriExtensionIndex + requestedVariant.length()).toString());
                         director.setRequestUrl(request.getRequestURL().delete(urlExtensionIndex, urlExtensionIndex + requestedVariant.length()));
                     }
-                    
+
                     return mediaType;
                 }
             }
