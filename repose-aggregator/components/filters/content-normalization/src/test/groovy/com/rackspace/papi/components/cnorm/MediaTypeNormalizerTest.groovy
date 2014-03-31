@@ -60,8 +60,4 @@ class MediaTypeNormalizerTest extends Specification {
         "ignores uri fragments and query parameters" | "/a/request/uri.xml?name=name&value=1#fragment" | "http://localhost/a/request/uri.xml?name=name&value=1#fragment"
         "captures unusual variants extensions"       | "/a/request/uri/.xml"                           | "http://localhost/a/request/uri/.xml"
     }
-
-
-
-
 }
