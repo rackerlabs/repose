@@ -26,8 +26,12 @@ public class ContentNormalizationHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.PASS);
-        headerNormalizer.normalizeHeaders(request, myDirector);
-        mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
+        if(headerNormalizer != null) {
+            headerNormalizer.normalizeHeaders(request, myDirector);
+        }
+        if(mediaTypeNormalizer != null) {
+            mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
+        }
         return myDirector;
     }
 
