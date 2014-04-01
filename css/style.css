@@ -9559,9 +9559,10 @@ strong {
   background: #c0eef2;
   border-top: 3px solid #333;
   border-bottom: 3px solid #333;
+  z-index: -1;
 }
 
-/* line 36, ../scss/_custom.scss */
+/* line 37, ../scss/_custom.scss */
 .narwhal-landing {
   position: relative;
   bottom: -16px;
@@ -9570,43 +9571,43 @@ strong {
   margin-bottom: -200px;
 }
 
-/* line 44, ../scss/_custom.scss */
+/* line 45, ../scss/_custom.scss */
 .footer {
   padding: 100px 0;
 }
 
-/* line 51, ../scss/_custom.scss */
+/* line 52, ../scss/_custom.scss */
 .path-container {
   margin-top: 50px;
   margin-bottom: 70px;
 }
 
-/* line 55, ../scss/_custom.scss */
+/* line 56, ../scss/_custom.scss */
 .path-container .path-item h1 {
   text-align: center;
   margin-bottom: 70px;
 }
 
-/* line 59, ../scss/_custom.scss */
+/* line 60, ../scss/_custom.scss */
 .path-container .path-item h3 {
   margin-bottom: 10px;
   line-height: 1.15;
 }
 
-/* line 63, ../scss/_custom.scss */
+/* line 64, ../scss/_custom.scss */
 .path-container .path-item p {
   font-size: 1rem;
   line-height: 1.7;
   margin-bottom: 25px;
 }
 
-/* line 68, ../scss/_custom.scss */
+/* line 69, ../scss/_custom.scss */
 .path-container .path-item a {
   font-weight: bold;
   font-size: 0.875rem;
 }
 
-/* line 72, ../scss/_custom.scss */
+/* line 73, ../scss/_custom.scss */
 .path-container .path-item .circle {
   background-color: #fff;
   background-size: 156px 156px;
@@ -9618,17 +9619,17 @@ strong {
   z-index: 2;
 }
 
-/* line 82, ../scss/_custom.scss */
+/* line 83, ../scss/_custom.scss */
 .path-container .path-item .circle.circle-left {
   left: 7px;
 }
 
-/* line 85, ../scss/_custom.scss */
+/* line 86, ../scss/_custom.scss */
 .path-container .path-item .circle.circle-right {
   right: 7px;
 }
 
-/* line 88, ../scss/_custom.scss */
+/* line 89, ../scss/_custom.scss */
 .path-container .line {
   background: #fff;
   width: 5px;
@@ -9640,7 +9641,7 @@ strong {
   height: 1000px;
 }
 
-/* line 99, ../scss/_custom.scss */
+/* line 100, ../scss/_custom.scss */
 .icon {
   position: relative;
   font-size: 100px;
@@ -9652,36 +9653,36 @@ strong {
  medium timeline styles
 ------------------------------------*/
 @media only screen and (max-width: 800px) and (min-width: 768px) {
-  /* line 110, ../scss/_custom.scss */
+  /* line 112, ../scss/_custom.scss */
   .line {
     display: none !important;
   }
 
-  /* line 114, ../scss/_custom.scss */
+  /* line 116, ../scss/_custom.scss */
   .large-5.columns.path-text {
     width: 70%;
     right: 0;
     margin-left: 15px;
   }
 
-  /* line 120, ../scss/_custom.scss */
+  /* line 122, ../scss/_custom.scss */
   .path-item .large-7 {
     width: 25%;
   }
 
-  /* line 124, ../scss/_custom.scss */
+  /* line 126, ../scss/_custom.scss */
   .push-5 {
     left: 0;
     float: right;
   }
 
-  /* line 129, ../scss/_custom.scss */
+  /* line 131, ../scss/_custom.scss */
   .circle-right {
     float: left;
     right: 0px !important;
   }
 
-  /* line 134, ../scss/_custom.scss */
+  /* line 136, ../scss/_custom.scss */
   .circle-left {
     left: 0px !important;
   }
@@ -9690,12 +9691,12 @@ strong {
  mobile timeline styles
 ------------------------------------*/
 @media only screen and (max-width: 767px) {
-  /* line 143, ../scss/_custom.scss */
+  /* line 145, ../scss/_custom.scss */
   .path-container {
     text-align: center;
   }
 
-  /* line 146, ../scss/_custom.scss */
+  /* line 148, ../scss/_custom.scss */
   .path-container .circle {
     top: 0;
     right: 0;
