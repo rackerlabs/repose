@@ -6,11 +6,7 @@
 
 @font-face {
   font-family: "foundation-icons";
-  src: url("foundation-icons.eot");
-  src: url("foundation-icons.eot?#iefix") format("embedded-opentype"),
-       url("foundation-icons.woff") format("woff"),
-       url("foundation-icons.ttf") format("truetype"),
-       url("foundation-icons.svg#fontcustom") format("svg");
+  src: url("//cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
