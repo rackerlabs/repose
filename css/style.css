@@ -9614,7 +9614,7 @@ strong {
   width: 156px;
   height: 156px;
   position: relative;
-  margin-bottom: 180px;
+  margin-bottom: 60px;
   z-index: 2;
 }
 
@@ -9631,13 +9631,13 @@ strong {
 /* line 88, ../scss/_custom.scss */
 .path-container .line {
   background: #fff;
-  width: 2px;
+  width: 5px;
   bottom: 0;
   position: absolute;
   top: 160px;
-  left: 50%;
+  left: 49.5%;
   z-index: 0;
-  height: 1600px;
+  height: 1000px;
 }
 
 /* line 99, ../scss/_custom.scss */
