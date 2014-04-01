@@ -11,7 +11,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.components.authz.rackspace.config.ServiceAdminRoles;
+import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -31,14 +31,14 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
-    private final ServiceAdminRoles serviceAdminRoles;
+    private final IgnoreTenantRoles ignoreTenantRoles;
 
     public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
-                                       ServiceEndpoint myEndpoint, ServiceAdminRoles serviceAdminRoles) {
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles serviceAdminRoles) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
-        this.serviceAdminRoles = serviceAdminRoles;
+        this.ignoreTenantRoles = serviceAdminRoles;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (serviceAdminRoles != null && serviceAdminRoles.getServiceAdminRole().size() > 0) {
+        } else if (ignoreTenantRoles != null && ignoreTenantRoles.getIgnoreTenantRole().size() > 0) {
             //if service admin roles from cfg populated then compare to x-roles header
             final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
 
@@ -90,9 +90,9 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
     private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
 
-        for (String serviceAdminRole : serviceAdminRoles.getServiceAdminRole()) {
+        for (String ignoreTenantRole : ignoreTenantRoles.getIgnoreTenantRole()) {
             for (String role : roleStringList) {
-                if (serviceAdminRole.equalsIgnoreCase(role)) {
+                if (ignoreTenantRole.equalsIgnoreCase(role)) {
                     return true;
                 }
             }

@@ -74,7 +74,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
 
         final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
         return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint(),
-                authorizationConfiguration.getServiceAdminRoles());
+                authorizationConfiguration.getIgnoreTenantRoles());
     }
 
     @Override

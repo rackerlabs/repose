@@ -1,4 +1,5 @@
 package org.openrepose.components.rackspace.authz
+
 import com.rackspace.auth.openstack.AuthenticationService
 import com.rackspace.papi.commons.util.http.CommonHttpHeader
 import com.rackspace.papi.commons.util.http.HttpStatusCode
@@ -6,7 +7,7 @@ import com.rackspace.papi.commons.util.http.OpenStackServiceHeader
 import com.rackspace.papi.filter.logic.FilterAction
 import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import org.openrepose.components.authz.rackspace.config.ServiceAdminRoles
+import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache
@@ -17,8 +18,9 @@ import spock.lang.Specification
 import javax.servlet.http.HttpServletRequest
 
 import static org.junit.Assert.assertEquals
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
+import static org.mockito.Matchers.any
+import static org.mockito.Matchers.eq
+import static org.mockito.Mockito.*
 
 class RequestAuthorizationHandlerGroovyTest extends Specification {
 
@@ -26,7 +28,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     AuthenticateResponse authenticateResponse
     EndpointListCache endpointListCache
     ServiceEndpoint serviceEndpoint
-    ServiceAdminRoles serviceAdminRoles
+    IgnoreTenantRoles ignoreTenantRoles
     FilterDirector filterDirector
     HttpServletRequest httpServletRequest
     RequestAuthorizationHandler requestAuthorizationHandler
@@ -35,7 +37,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
     private static final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
 
     protected AuthenticationService mockedAuthService;
-    protected RequestAuthorizationHandler handler;
+    protected RequestAuthorizationHandler handler, handler2;
     protected EndpointListCache mockedCache;
     protected HttpServletRequest mockedRequest;
 
@@ -44,7 +46,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         authenticateResponse = Mock()
         endpointListCache = Mock()
         serviceEndpoint = Mock()
-        serviceAdminRoles = Mock()
+        ignoreTenantRoles = Mock()
         filterDirector = new FilterDirectorImpl()
         httpServletRequest = mock(HttpServletRequest.class)
         requestAuthorizationHandler = Mock()
@@ -85,6 +87,7 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         myServiceEndpoint.setType(TYPE);
 
         handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
+        handler2 = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint, null);
 
         mockedRequest = mock(HttpServletRequest.class);
     }
@@ -93,11 +96,11 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         given:
         when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
         when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role1", "role2"]))
-        serviceAdminRoles.getServiceAdminRole() >> new ArrayList<String>()
-        serviceAdminRoles.getServiceAdminRole().add("role1")
+        ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
+        ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, serviceAdminRoles)
+                serviceEndpoint, ignoreTenantRoles)
 
         when:
         requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)
@@ -110,11 +113,11 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         given:
         when(httpServletRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("abc")
         when(httpServletRequest.getHeaders(OpenStackServiceHeader.ROLES.toString())).thenReturn(Collections.enumeration(["role0", "role2"]))
-        serviceAdminRoles.getServiceAdminRole() >> new ArrayList<String>()
-        serviceAdminRoles.getServiceAdminRole().add("role1")
+        ignoreTenantRoles.getIgnoreTenantRole() >> new ArrayList<String>()
+        ignoreTenantRoles.getIgnoreTenantRole().add("role1")
 
         requestAuthorizationHandler = new RequestAuthorizationHandler(authenticationService, endpointListCache,
-                serviceEndpoint, serviceAdminRoles)
+                serviceEndpoint, ignoreTenantRoles)
 
         when:
         requestAuthorizationHandler.authorizeRequest(filterDirector, httpServletRequest)
@@ -175,16 +178,15 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         assertEquals("Authorization component must retrun 500 on service exception", HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), director.getResponseStatus().intValue());
     }
 
-/*
     def "should Cache Fresh Endpoint Lists"() {
         when:
         when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
         handler.handleRequest(mockedRequest, null);
 
         then:
-        verify(mockedCache, times(1)).getCachedEndpointsForToken(AUTHORIZED_TOKEN);
-        verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN);
-        verify(mockedCache, times(1)).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class));
+        verify(mockedCache, times(1)).getCachedEndpointsForToken(AUTHORIZED_TOKEN) == null
+        verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN) == null
+        verify(mockedCache, times(1)).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
     }
 
     def "should Use Cache For Cached Endpoint Lists"() {
@@ -193,9 +195,8 @@ class RequestAuthorizationHandlerGroovyTest extends Specification {
         handler.handleRequest(mockedRequest, null);
 
         then:
-        verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN);
-        verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN);
-        verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class));
+        verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN) == null
+        verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN) == null
+        verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class)) == null
     }
-*/
 }

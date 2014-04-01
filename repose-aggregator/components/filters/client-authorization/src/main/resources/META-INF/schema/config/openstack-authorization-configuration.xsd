@@ -19,7 +19,7 @@
                 <xs:element name="authentication-server" type="rs-auth-z:AuthenticationServer" minOccurs="1"
                             maxOccurs="1"/>
                 <xs:element name="service-endpoint" type="rs-auth-z:ServiceEndpoint" minOccurs="1" maxOccurs="1"/>
-                <xs:element name="service-admin-roles" type="rs-auth-z:service-admin-roles" minOccurs="0" maxOccurs="1" />
+                <xs:element name="ignore-tenant-roles" type="rs-auth-z:ignore-tenant-roles" minOccurs="0" maxOccurs="1" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -125,7 +125,7 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="service-admin-roles">
+    <xs:complexType name="ignore-tenant-roles">
         <xs:annotation>
             <xs:documentation>
                 <html:p>List of service admin role names that can bypass URI tenant comparison.</html:p>
@@ -133,7 +133,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="service-admin-role" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="ignore-tenant-role" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
