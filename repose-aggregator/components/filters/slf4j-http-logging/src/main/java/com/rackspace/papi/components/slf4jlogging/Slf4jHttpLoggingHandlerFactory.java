@@ -4,24 +4,21 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- *
- * @author jhopper
- */
+
 public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<Slf4jHttpLoggingHandler> {
 
-    private final List<Logger> loggers;
+    private final List<Slf4jLoggerWrapper> loggerWrappers;
 
     public Slf4jHttpLoggingHandlerFactory() {
-        loggers = new LinkedList<Logger>();
+        loggerWrappers = new CopyOnWriteArrayList<Slf4jLoggerWrapper>();
     }
 
     @Override
@@ -33,8 +30,8 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
         };
     }
 
-    protected List<Logger> getLoggers() {
-        return loggers;
+    protected List<Slf4jLoggerWrapper> getLoggerWrappers() {
+        return loggerWrappers;
     }
 
     private class Slf4jHttpLoggingConfigurationListener implements UpdateListener<Slf4JHttpLoggingConfig> {
@@ -43,23 +40,41 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
 
         @Override
         public void configurationUpdated(Slf4JHttpLoggingConfig modifiedConfig) {
-            //TODO: Probably destroy the old loggers first, unless we've got conflicting names
-            destroy();
+            List<Slf4jLoggerWrapper> transaction = new LinkedList<Slf4jLoggerWrapper>();
 
             for(Slf4JHttpLog logConfig : modifiedConfig.getSlf4JHttpLog()) {
                 String loggerName = logConfig.getId();
                 String formatString = logConfig.getFormat();
+
+                boolean foundInExisting = false;
+                for(Slf4jLoggerWrapper existingWrapper : loggerWrappers) {
+                    if(existingWrapper.getLogger().getName().equals(loggerName)) {
+                        foundInExisting = true;
+                        //an existing logger has the same name as we're changing
+                        if(formatString.equals(existingWrapper.getFormatString())) {
+                            //They're the same, we'll keep it, nothing actually changed
+                            transaction.add(existingWrapper);
+                        } else {
+                            //and create the new one based on the config
+                            transaction.add(new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString));
+                        }
+                    }
+                }
+
+                //If it wasn't in the existing configs, it's a new one and we have to add it regardless
+                if (!foundInExisting) {
+                    //add it as a completely new wrapper
+                    transaction.add(new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString));
+                }
+
             }
-            //Create the new log4j targets for the log4j backend.
-            //For each item in the configuration, create the new log targets
-            LoggerFactory.getLogger("configured Name");
+
+            //commit the transaction
+            //This will replace the contents of the copy on write array list with the new items.
+            loggerWrappers.clear();
+            loggerWrappers.addAll(transaction);
 
             isInitialized = true;
-        }
-
-        private void destroy() {
-            //Clobber the existing log4j appenders, don't want them any more
-            //Need to only remove the existing appenders, can't risk clobbering more than that.
         }
 
         @Override
@@ -74,6 +89,6 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
         if (!this.isInitialized()) {
             return null;
         }
-        return new Slf4jHttpLoggingHandler(new LinkedList<Logger>(loggers));
+        return new Slf4jHttpLoggingHandler(new LinkedList<Slf4jLoggerWrapper>(loggerWrappers));
     }
 }
