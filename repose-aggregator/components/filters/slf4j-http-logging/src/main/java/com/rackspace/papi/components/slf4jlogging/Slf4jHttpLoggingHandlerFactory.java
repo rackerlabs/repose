@@ -1,9 +1,11 @@
 package com.rackspace.papi.components.slf4jlogging;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,11 +43,16 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
 
         @Override
         public void configurationUpdated(Slf4JHttpLoggingConfig modifiedConfig) {
-            //Clean up~
+            //TODO: Probably destroy the old loggers first, unless we've got conflicting names
             destroy();
 
+            for(Slf4JHttpLog logConfig : modifiedConfig.getSlf4JHttpLog()) {
+                String loggerName = logConfig.getId();
+                String formatString = logConfig.getFormat();
+            }
             //Create the new log4j targets for the log4j backend.
             //For each item in the configuration, create the new log targets
+            LoggerFactory.getLogger("configured Name");
 
             isInitialized = true;
         }

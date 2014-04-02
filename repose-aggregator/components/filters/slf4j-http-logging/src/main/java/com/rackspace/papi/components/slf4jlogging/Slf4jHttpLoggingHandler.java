@@ -28,6 +28,7 @@ public class Slf4jHttpLoggingHandler extends AbstractFilterLogicHandler {
 
         for (Logger logger : loggers) {
             //format the string and send it to the logger
+            logger.info(formattedOutput);
             throw new UnsupportedOperationException("TODO IMPLEMENT ME");
         }
 
