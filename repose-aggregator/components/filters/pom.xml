@@ -13,6 +13,7 @@
     <modules>
         <module>filter-bundle</module>
         <module>http-logging</module>
+        <module>slf4j-http-logging</module>
         <module>client-auth</module>
         <module>header-identity</module>
         <module>header-id-mapping</module>
