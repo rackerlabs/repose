@@ -222,6 +222,12 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>slf4j-http-logging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>translation</artifactId>
                 <version>${project.version}</version>
             </dependency>
