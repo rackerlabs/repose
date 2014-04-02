@@ -42,31 +42,16 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
         public void configurationUpdated(Slf4JHttpLoggingConfig modifiedConfig) {
             List<Slf4jLoggerWrapper> transaction = new LinkedList<Slf4jLoggerWrapper>();
 
-            for(Slf4JHttpLog logConfig : modifiedConfig.getSlf4JHttpLog()) {
+            for (Slf4JHttpLog logConfig : modifiedConfig.getSlf4JHttpLog()) {
                 String loggerName = logConfig.getId();
                 String formatString = logConfig.getFormat();
 
-                boolean foundInExisting = false;
-                for(Slf4jLoggerWrapper existingWrapper : loggerWrappers) {
-                    if(existingWrapper.getLogger().getName().equals(loggerName)) {
-                        foundInExisting = true;
-                        //an existing logger has the same name as we're changing
-                        if(formatString.equals(existingWrapper.getFormatString())) {
-                            //They're the same, we'll keep it, nothing actually changed
-                            transaction.add(existingWrapper);
-                        } else {
-                            //and create the new one based on the config
-                            transaction.add(new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString));
-                        }
-                    }
+                Slf4jLoggerWrapper existingWrapper = updateExisting(loggerWrappers, loggerName, formatString);
+                if (existingWrapper == null) {
+                    existingWrapper = new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString);
                 }
 
-                //If it wasn't in the existing configs, it's a new one and we have to add it regardless
-                if (!foundInExisting) {
-                    //add it as a completely new wrapper
-                    transaction.add(new Slf4jLoggerWrapper(LoggerFactory.getLogger(loggerName), formatString));
-                }
-
+                transaction.add(existingWrapper);
             }
 
             //commit the transaction
@@ -75,6 +60,23 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
             loggerWrappers.addAll(transaction);
 
             isInitialized = true;
+        }
+
+        private Slf4jLoggerWrapper updateExisting(List<Slf4jLoggerWrapper> existing, String name, String formatString) {
+            Slf4jLoggerWrapper returnWrapper = null;
+            for (Slf4jLoggerWrapper existingWrapper : existing) {
+                if (existingWrapper.getLogger().getName().equals(name)) {
+                    //an existing logger has the same name as we're changing
+                    if (formatString.equals(existingWrapper.getFormatString())) {
+                        //They're the same, we'll keep it, nothing actually changed
+                        returnWrapper = existingWrapper;
+                    } else {
+                        //and create the new one based on the config
+                        returnWrapper = new Slf4jLoggerWrapper(LoggerFactory.getLogger(name), formatString);
+                    }
+                }
+            }
+            return returnWrapper;
         }
 
         @Override
