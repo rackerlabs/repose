@@ -57,7 +57,7 @@ class CnormMediaTypeTest extends Specification {
     }
 
     def mockIncomingAccept(String acceptHeader) {
-        if(acceptHeader != null) {
+        if (acceptHeader != null) {
             //Only include the accept header in the list of headers if it's been set
             when(request.getHeaderNames()).thenReturn(Collections.enumeration(["accept"]))
         }
@@ -198,6 +198,47 @@ class CnormMediaTypeTest extends Specification {
         director.requestHeaderManager().headersToRemove().contains("accept")
         director.requestHeaderManager().headersToAdd().containsKey("accept")
         director.requestHeaderManager().headersToAdd().get("accept") == ["application/json"].toSet()
+
+    }
+
+    @Unroll("Additional cases when given #sendAcceptHeaders you get out #acceptHeaders")
+    def "Covering cases from the integration test"() {
+        given:
+        def handler = buildHandler([
+                preferred("application/json"),
+                mediaType("application/xml"),
+                mediaType("application/other")
+        ])
+
+        mockIncomingAccept(sendAcceptHeaders)
+        FilterDirector director
+
+        when:
+        director = handler.handleRequest(request, response)
+
+        then:
+        //TODO: make copypasta assertion go away
+        director.requestHeaderManager().headersToRemove().contains("accept")
+        director.requestHeaderManager().headersToAdd().containsKey("accept")
+        director.requestHeaderManager().headersToAdd().get("accept") == acceptHeaders.split(",").toList().toSet()
+
+        where:
+        sendAcceptHeaders                            | acceptHeaders
+        'application/xml'                            | 'application/xml'
+        'application/xml,application/json'           | 'application/xml,application/json'
+        'application/other'                          | 'application/other'
+        'application/other,application/xml'          | 'application/other,application/xml'
+        'html/text,application/xml'                  | 'application/xml'
+        'application/xml,html/text'                  | 'application/xml'
+        'application/xml,html/text,application/json' | 'application/json'
+        '*/*,application/json'                       | 'application/json'
+        '*/*'                                        | 'application/json'
+        null                                         | 'application/json'
+        'application/json;q=1,application/xml;q=0.5' | 'application/json'
+        'application/xml;q=1,application/json;q=0.5' | 'application/json'
+        'application/xml;q=1'                        | 'application/xml'
+        '*/json'                                     | 'application/json'
+        '*/other'                                    | 'application/json'
 
     }
 }
