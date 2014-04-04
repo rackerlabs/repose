@@ -11,6 +11,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,11 +31,14 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
     private final AuthenticationService authenticationService;
     private final EndpointListCache endpointListCache;
     private final ServiceEndpoint myEndpoint;
+    private final IgnoreTenantRoles ignoreTenantRoles;
 
-    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+    public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache,
+                                       ServiceEndpoint myEndpoint, IgnoreTenantRoles serviceAdminRoles) {
         this.authenticationService = authenticationService;
         this.endpointListCache = endpointListCache;
         this.myEndpoint = myEndpoint;
+        this.ignoreTenantRoles = serviceAdminRoles;
     }
 
     @Override
@@ -45,11 +50,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         if (authenticationWasDelegated(request)) {
             // We do not support delegation
             myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-            LOG.debug("Authentication delegation is not supported by the rackspace authorization filter. Rejecting request.");
+            LOG.debug("Authentication delegation is not supported by the Rackspace authorization filter. Rejecting request.");
         } else {
             authorizeRequest(myDirector, request);
         }
-
 
         return myDirector;
     }
@@ -61,9 +65,40 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+        } else if (ignoreTenantRoles != null && ignoreTenantRoles.getIgnoreTenantRole().size() > 0) {
+            //if service admin roles from cfg populated then compare to x-roles header
+            final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
+
+            if (checkForAdminRoles(xRolesHeaderValueList)) {
+                director.setFilterAction(FilterAction.PASS);
+            } else {
+                checkTenantEndpoints(director, authenticationToken);
+            }
         } else {
             checkTenantEndpoints(director, authenticationToken);
         }
+    }
+
+    private boolean checkForAdminRoles(List<String> xRolesHeaderValueStringList) {
+
+        if (xRolesHeaderValueStringList.size() > 0) {
+            return adminRoleMatchIgnoringCase(xRolesHeaderValueStringList);
+        }
+
+        return false;
+    }
+
+    private boolean adminRoleMatchIgnoringCase(List<String> roleStringList) {
+
+        for (String ignoreTenantRole : ignoreTenantRoles.getIgnoreTenantRole()) {
+            for (String role : roleStringList) {
+                if (ignoreTenantRole.equalsIgnoreCase(role)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void checkTenantEndpoints(FilterDirector director, String userToken) {
@@ -74,16 +109,16 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             if (isEndpointAuthorized(authorizedEndpoints)) {
                 director.setFilterAction(FilterAction.PASS);
             } else {
-                LOG.info("User token: " + userToken + ": The user's service catalog does not contain an endpoint that matches " +
-                        "the endpoint configured in openstack-authorization.cfg.xml: \"" +
-                        myEndpoint.getHref() + "\".  User not authorized to access service.");
+                LOG.info("User token: " + userToken +
+                         ": The user's service catalog does not contain an endpoint that matches " +
+                         "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                         myEndpoint.getHref() + "\".  User not authorized to access service.");
                 director.setResponseStatus(HttpStatusCode.FORBIDDEN);
             }
-        } catch (AuthServiceException ex){
-           LOG.error("Failure in authorization component" + ex.getMessage(), ex);
-           director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        catch (Exception ex) {
+        } catch (AuthServiceException ex) {
+            LOG.error("Failure in authorization component" + ex.getMessage(), ex);
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
             LOG.error("Failure in authorization component: " + ex.getMessage(), ex);
             director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
