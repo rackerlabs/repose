@@ -225,17 +225,17 @@ class CnormMediaTypeTest extends Specification {
         where:
         sendAcceptHeaders                            | acceptHeaders
         'application/xml'                            | 'application/xml'
-        'application/xml,application/json'           | 'application/xml,application/json'
+        'application/xml,application/json'           | 'application/xml,application/json' //should not pass
         'application/other'                          | 'application/other'
-        'application/other,application/xml'          | 'application/other,application/xml'
-        'html/text,application/xml'                  | 'application/xml'
-        'application/xml,html/text'                  | 'application/xml'
-        'application/xml,html/text,application/json' | 'application/json'
+        'application/other,application/xml'          | 'application/other,application/xml' //Should not pass
+        'html/text,application/xml'                  | 'application/xml' //failing
+        'application/xml,html/text'                  | 'application/xml' //failing
+        'application/xml,html/text,application/json' | 'application/json' //failing
         '*/*,application/json'                       | 'application/json'
         '*/*'                                        | 'application/json'
         null                                         | 'application/json'
         'application/json;q=1,application/xml;q=0.5' | 'application/json'
-        'application/xml;q=1,application/json;q=0.5' | 'application/json'
+        'application/xml;q=1,application/json;q=0.5' | 'application/json' //failing...
         'application/xml;q=1'                        | 'application/xml'
         '*/json'                                     | 'application/json'
         '*/other'                                    | 'application/json'
