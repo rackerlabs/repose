@@ -85,9 +85,6 @@
 
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -99,9 +96,6 @@
 
                                 <mapping>
                                     <directory>/etc/init.d</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
                                     <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
@@ -141,9 +135,6 @@
 
                                 <mapping>
                                     <directory>/etc/logrotate.d</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
                                     <directoryIncluded>false</directoryIncluded>
 
                                     <sources>

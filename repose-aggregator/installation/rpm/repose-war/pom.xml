@@ -38,9 +38,6 @@
                                 <mapping>
                                     <!-- This is the location of tomcat as installed by jpackage -->
                                     <directory>/var/lib/tomcat7/webapps</directory>
-                                    <username>tomcat</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>

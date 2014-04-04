@@ -56,9 +56,6 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/etc/init.d</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>755</filemode>
                                     <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
@@ -87,9 +84,6 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/etc/sysconfig</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
                                     <directoryIncluded>false</directoryIncluded>
                                     <sources>
                                         <source>
@@ -99,9 +93,6 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/etc/logrotate.d</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
                                     <directoryIncluded>false</directoryIncluded>
                                     <sources>
                                         <source>
@@ -111,9 +102,6 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../bash/clean-repose-deploy
