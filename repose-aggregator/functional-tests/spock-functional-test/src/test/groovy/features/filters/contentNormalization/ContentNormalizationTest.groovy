@@ -61,9 +61,9 @@ class ContentNormalizationTest extends ReposeValveTest {
         where:
         sendAcceptHeaders                               |acceptHeaders
         'application/xml'                               |'application/xml'
-        'application/xml,application/json'              |'application/xml,application/json'
+        'application/xml,application/json'              |'application/json'
         'application/other'                             |'application/other'
-        'application/other,application/xml'             |'application/other,application/xml'
+        'application/other,application/xml'             |'application/xml'
         'html/text,application/xml'                     |'application/xml'
         'application/xml,html/text'                     |'application/xml'
         'application/xml,html/text,application/json'    |'application/json'
