@@ -138,7 +138,9 @@ class CnormMediaTypeIntegrationTest extends Specification {
         //Set up the incoming request
         request.setRequestURI("http://www.example.com/derp/derp")
         if (sendAcceptHeaders != null) {
-            request.addHeader("accept", sendAcceptHeaders)
+            sendAcceptHeaders.split(",").each {
+                request.addHeader("accept", it)
+            }
         }
 
         when:
