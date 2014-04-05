@@ -47,10 +47,10 @@ class CnormMediaTypeIntegrationTest extends Specification {
             "content-normalization"(
                     "xmlns:xsi": 'http://www.w3.org/2001/XMLSchema-instance',
                     "xmlns": 'http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0',
-                    "xsi:schemaLocation":'http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'
+                    "xsi:schemaLocation": 'http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'
             ) {
                 "media-types" {
-                    mediaTypes.each {mt ->
+                    mediaTypes.each { mt ->
                         "media-type"(name: mt.name, preferred: mt.preferred, "variant-extension": mt.variantExtension)
                     }
                 }
@@ -64,7 +64,7 @@ class CnormMediaTypeIntegrationTest extends Specification {
      * Do all the stuff that we need to do to create/mock/prepare the ContentNormalizationFilter for the MockFilterChain
      * This will let me use the MockFilterChain to see the resultant request/response pairs through the entire filter chain
      */
-    ContentNormalizationFilter configureContentNormalizationFilter(List<MediaType> mediaTypes){
+    ContentNormalizationFilter configureContentNormalizationFilter(List<MediaType> mediaTypes) {
         ContentNormalizationFilter filter = new ContentNormalizationFilter()
         def mockServletContext = new MockServletContext()
 
@@ -121,7 +121,6 @@ class CnormMediaTypeIntegrationTest extends Specification {
     }
 
 
-
     @Unroll("Additional cases when given #sendAcceptHeaders you get out #acceptHeaders")
     def "Covering cases from the integration test"() {
         given:
@@ -155,21 +154,23 @@ class CnormMediaTypeIntegrationTest extends Specification {
 
         where:
         sendAcceptHeaders | acceptHeaders
-        'application/xml'                            | 'application/xml'
-//        'application/xml,application/json'           | 'application/xml,application/json' //should not pass
-        'application/other'                          | 'application/other'
-//        'application/other,application/xml'          | 'application/other,application/xml' //Should not pass
-        'html/text,application/xml'                  | 'application/xml' //failing
-        'application/xml,html/text'                  | 'application/xml' //failing
-        'application/xml,html/text,application/json' | 'application/json' //failing
-        '*/*,application/json'                       | 'application/json'
-        '*/*'                                        | 'application/json'
-        null                                         | 'application/json'
-        'application/json;q=1,application/xml;q=0.5' | 'application/json'
-        'application/xml;q=1,application/json;q=0.5' | 'application/json' //failing...
-        'application/xml;q=1'                        | 'application/xml'
-        '*/json'                                     | 'application/json'
-        '*/other'                                    | 'application/json'
+        'application/xml'                                    | 'application/xml'
+        'application/xml,application/json'                   | 'application/json'
+        'application/other'                                  | 'application/other'
+        'application/other,application/xml'                  | 'application/xml'
+        'application/xml,application/other'                  | 'application/xml'
+        'application/xml,application/other,application/json' | 'application/json'
+        'html/text,application/xml'                          | 'application/xml'
+        'application/xml,html/text'                          | 'application/xml'
+        'application/xml,html/text,application/json'         | 'application/json'
+        '*/*,application/json'                               | 'application/json'
+        '*/*'                                                | 'application/json'
+        null                                                 | 'application/json'
+        'application/json;q=1,application/xml;q=0.5'         | 'application/json'
+        'application/xml;q=1,application/json;q=0.5'         | 'application/json'
+        'application/xml;q=1'                                | 'application/xml'
+        '*/json'                                             | 'application/json'
+        '*/other'                                            | 'application/json'
 
     }
 
