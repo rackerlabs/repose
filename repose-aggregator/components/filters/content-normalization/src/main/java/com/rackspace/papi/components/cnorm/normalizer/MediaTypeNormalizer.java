@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,10 @@ public class MediaTypeNormalizer {
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
         // The preferred media type should only be null if there were no media types specified
         if (preferredMediaType != null) {
-            final boolean requestHasAcceptHeader = request.getHeader(ACCEPT.toString()) != null;
+            //Using request.getHeader(name) seems to return slightly different things.
+            //Using the getHeaders, gives me all of the values for that header, and so if I have more elements before
+            // Asking for the first one, I certainly have at least one. I thought it better to be consistent
+            final boolean requestHasAcceptHeader = request.getHeaders(ACCEPT.toString()).hasMoreElements();
             final MediaType requestedVariantMediaType = getMediaTypeForVariant(request, director);
             HeaderManager headerManager = director.requestHeaderManager();
 
@@ -59,36 +63,40 @@ public class MediaTypeNormalizer {
                 headerManager.putHeader(ACCEPT.toString(), preferredMediaType.getName());
             } else {
                 //We have an Accept header, lets see if it contains something we're looking for
-                Iterator<String> headerIterator = Arrays.asList(request.getHeader(ACCEPT.toString()).split(",")).iterator();
-                List<String> acceptHeaders = new LinkedList<String>();
+                Enumeration<String> headerEnumeration = request.getHeaders(ACCEPT.toString());
+                List<String> sanitizedAcceptHeaders = new LinkedList<String>();
+
                 //doing a map on this, because we don't actually have map :(
                 //Making sure that for each item in the list, we sanitize the accept header.
                 // Eventually we'll pay attention to the ;q=.1 or whatev
-                while(headerIterator.hasNext()) {
-                    String replaced = headerIterator.next().replaceAll(";.*", ""); //Stripping off any ;stuff
-                    acceptHeaders.add(replaced);
+                //Also build up a collection of the original ones, so we can compare things
+                while (headerEnumeration.hasMoreElements()) {
+                    String replaced = headerEnumeration.nextElement().replaceAll(";.*", ""); //Stripping off any ;stuff
+                    sanitizedAcceptHeaders.add(replaced);
                 }
 
                 //If we have an acceptable media type that's in this list, use it, based on exact match
                 //If none match, use preferred
                 String toUse = null;
                 for (MediaType mt : configuredMediaTypes) {
-                    if (acceptHeaders.contains(mt.getName())) {
+                    if (sanitizedAcceptHeaders.contains(mt.getName())) {
                         //use the one it contains, and we're done
                         toUse = mt.getName();
                         break;
                     }
                 }
-                if(toUse == null) {
+                if (toUse == null) {
                     //this means we didn't find one
                     //Use the preferred one
                     toUse = preferredMediaType.getName();
                 }
 
                 //Only actually change it, if we're needing to change it.
-                if(request.getHeader(ACCEPT.toString()) != null && !request.getHeader(ACCEPT.toString()).equals(toUse)) {
-                    headerManager.putHeader(ACCEPT.toString(), toUse);
-                }
+                //If the request header is different than what we're going to use, change it
+                //This is non trivial thanks to a crap collections framework
+                //It's more complicated than its worth. The Enumeration that it returns is a pain in the butt to use.
+                //The code to rebuild the "is this different from the original accepts header?" is not worth it
+                headerManager.putHeader(ACCEPT.toString(), toUse);
             }
         }
     }
