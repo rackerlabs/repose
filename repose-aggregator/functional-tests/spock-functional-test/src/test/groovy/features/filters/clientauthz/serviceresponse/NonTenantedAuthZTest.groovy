@@ -61,10 +61,18 @@ class NonTenantedAuthZTest extends ReposeValveTest{
         mc.receivedResponse.code == respcode
 
         where: "User with #roles expect response code #respcode"
-        roles                   |respcode
-        'user-admin'            |"403"
-        'non-admin'             |"403"
-        'admin'                 |"200"
-        'openstack:admin'       |"200"
+        roles                       |respcode
+        'user-admin'                |"403"
+        'non-admin'                 |"403"
+        'admin'                     |"200"
+        'openstack:admin'           |"200"
+        null                        |"403"
+        ''                          |"403"
+        'openstack,admin'           |"200"
+        'openstack:admin,default'   |"200"
+        'openstack%2Cadmin'         |'403'
+        'admin%20'                  |'403'
+        'admin '                    |'200'
     }
+
 }
