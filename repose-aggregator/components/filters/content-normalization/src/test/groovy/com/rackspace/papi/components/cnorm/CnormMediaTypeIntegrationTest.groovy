@@ -158,7 +158,7 @@ class CnormMediaTypeIntegrationTest extends Specification {
         firstRequest.getHeader(CommonHttpHeader.ACCEPT.toString()) == acceptHeaders
 
         where:
-        sendAcceptHeaders | acceptHeaders
+        sendAcceptHeaders                                    | acceptHeaders
         'application/xml'                                    | 'application/xml'
         'application/xml,application/json'                   | 'application/json'
         'application/other'                                  | 'application/other'

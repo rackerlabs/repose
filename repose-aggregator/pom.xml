@@ -33,7 +33,6 @@
         <jetty.version>8.1.14.v20131031</jetty.version>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.itReportPath>${project.basedir}/repose-aggregator/functional-tests/spock-functional-test/target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <mockrunner.servlet>1.0.0</mockrunner.servlet>
     </properties>
 
     <modules>
