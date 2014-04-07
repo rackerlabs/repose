@@ -123,6 +123,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
                     MessageChain messageChain = deproxy.makeRequest(url:reposeEndpoint, defaultHandler: Handlers.Delay(500 + rand.nextInt(1000)))
                     if (messageChain.receivedResponse.code != "200") {
                         println("ERROR: call received an error response")
+                        println("RESPONSE CODE: ${messageChain.receivedResponse.code}")
                         println("RESPONSE: " + messageChain.receivedResponse.body)
                         totalErrors++
                     }
