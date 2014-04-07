@@ -11,6 +11,7 @@ import com.rackspace.papi.service.context.ServletContextHelper
 import com.rackspace.papi.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -120,6 +121,16 @@ class CnormMediaTypeIntegrationTest extends Specification {
         return filter
     }
 
+    @Shared
+    ContentNormalizationFilter filter
+
+    def setupSpec() {
+        filter = configureContentNormalizationFilter([
+                preferred("application/json"),
+                mediaType("application/xml"),
+                mediaType("application/other")
+        ])
+    }
 
     @Unroll("Additional cases when given #sendAcceptHeaders you get out #acceptHeaders")
     def "Covering cases from the integration test"() {
@@ -127,12 +138,6 @@ class CnormMediaTypeIntegrationTest extends Specification {
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()
         MockHttpServletResponse response = new MockHttpServletResponse()
-
-        ContentNormalizationFilter filter = configureContentNormalizationFilter([
-                preferred("application/json"),
-                mediaType("application/xml"),
-                mediaType("application/other")
-        ])
 
         //Set up the incoming request
         request.setRequestURI("http://www.example.com/derp/derp")
