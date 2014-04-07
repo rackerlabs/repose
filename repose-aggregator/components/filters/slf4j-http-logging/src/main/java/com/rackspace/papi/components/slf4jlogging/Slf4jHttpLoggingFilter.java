@@ -19,7 +19,7 @@ import java.net.URL;
 public class Slf4jHttpLoggingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(Slf4jHttpLoggingFilter.class);
-    private static final String DEFAULT_CONFIG = "http-slf4j-logging.cfg.xml";
+    private static final String DEFAULT_CONFIG = "slf4j-http-logging.cfg.xml";
     private String config;
     private ConfigurationService manager;
     private Slf4jHttpLoggingHandlerFactory handlerFactory;

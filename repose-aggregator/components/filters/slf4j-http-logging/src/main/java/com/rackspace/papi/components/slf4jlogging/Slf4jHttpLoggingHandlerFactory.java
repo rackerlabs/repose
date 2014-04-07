@@ -67,7 +67,7 @@ public class Slf4jHttpLoggingHandlerFactory extends AbstractConfiguredFilterHand
             for (Slf4jLoggerWrapper existingWrapper : existing) {
                 if (existingWrapper.getLogger().getName().equals(name)) {
                     //an existing logger has the same name as we're changing
-                    if (formatString.equals(existingWrapper.getFormatString())) {
+                    if (formatString.equals(existingWrapper.getFormatter())) {
                         //They're the same, we'll keep it, nothing actually changed
                         returnWrapper = existingWrapper;
                     } else {

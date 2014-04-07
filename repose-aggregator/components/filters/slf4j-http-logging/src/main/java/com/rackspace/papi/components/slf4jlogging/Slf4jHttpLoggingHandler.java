@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.slf4jlogging;
 
+import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -25,7 +26,8 @@ public class Slf4jHttpLoggingHandler extends AbstractFilterLogicHandler {
         for (Slf4jLoggerWrapper wrapper : loggers) {
             //format the string and send it to the logger
             //logger.info(formattedOutput);
-            throw new UnsupportedOperationException("TODO IMPLEMENT ME");
+            HttpLogFormatter formatter = wrapper.getFormatter();
+            wrapper.getLogger().info(formatter.format(request,response));
         }
 
         return filterDirector;
