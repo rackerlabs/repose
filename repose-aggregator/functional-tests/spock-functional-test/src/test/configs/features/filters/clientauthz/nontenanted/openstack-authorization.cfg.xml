@@ -6,6 +6,7 @@
     <service-endpoint href="http://localhost2:${targetPort}/"/>
     <ignore-tenant-roles>
         <ignore-tenant-role>admin</ignore-tenant-role>
+        <ignore-tenant-role>openstack:admin</ignore-tenant-role>
     </ignore-tenant-roles>
 
 </rackspace-authorization>
