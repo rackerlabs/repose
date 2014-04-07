@@ -249,13 +249,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.mockrunner</groupId>
-                <artifactId>mockrunner-servlet</artifactId>
-                <version>${mockrunner.servlet}</version>
-                <scope>test</scope>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 </project>
