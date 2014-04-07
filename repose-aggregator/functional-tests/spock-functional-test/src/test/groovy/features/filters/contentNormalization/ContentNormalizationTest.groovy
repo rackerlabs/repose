@@ -25,10 +25,9 @@ class ContentNormalizationTest extends ReposeValveTest {
     @Unroll("Send req with Accept Headers #sendAcceptHeaders when content normalizing will be #acceptHeaders")
     def "When content normalizing with Accept Headers contains #sendAcceptHeaders then Accept Headers #acceptHeaders" () {
         given:
-        def headers = null
+        def headers = []
         def acceptHeaderList = acceptHeaders.split(',')
         if(sendAcceptHeaders != null){
-            headers = []
             sendAcceptHeaders.split(',').each {
                 headers << ['accept': it]
             }
@@ -38,7 +37,7 @@ class ContentNormalizationTest extends ReposeValveTest {
 
         when:
         MessageChain mc = null
-        if(headers == null)
+        if(headers.size() == 0 )
             mc = deproxy.makeRequest(
                     [
                             method: 'GET',
