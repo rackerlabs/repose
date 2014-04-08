@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<slf4j-http-logging xmlns="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0">
+    <!-- The id attribute is the named target of the log output,
+it can then be used in log4j backend to determine which appender to go to -->
+    <!-- The format includes what will be logged. The arguments with % are a subset of the apache mod_log_config
+found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->
+    <slf4j-http-log
+            id="my-special-log"
+            format="Response Time=%T seconds\tResponse Time=%D microseconds\tResponse Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%hRequest Line=&quot;%r&quot;\tRequest Method=%m\tRequest Protocol=%H\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n"/>
+
+    <slf4j-http-log id="my-other-log" format="Remote IP=%a Local IP=%A" />
+</slf4j-http-logging>
