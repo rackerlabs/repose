@@ -117,7 +117,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
     def setupSpec() {
         filter = configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%i\t%r\t%H\t%o\t%D\t%T\t%M")
+                logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
         ])
     }
 
@@ -130,6 +130,7 @@ class Slf4jLoggingIntegrationTest extends Specification {
         //Will need to set up the request and response to verify the log line
         request.setRequestURI("http://www.example.com/derp/derp?herp=derp")
         request.setRequestURL("http://www.example.com/derp/derp?herp=derp")
+        request.addHeader("Accept", "application/xml")
         request.setQueryString("?herp=derp")
         request.setMethod("GET")
         request.setRemoteHost("10.10.220.221")
@@ -139,10 +140,10 @@ class Slf4jLoggingIntegrationTest extends Specification {
         request.addHeader("X-PP-User", "leUser") //Remote user is special for Repose...
 
 
-
         def responseBody = "HEY A BODY"
         response.setContentLength(10)// size of responseBody .. but no
         response.setStatus(200,"OK")
+        response.addHeader("X-Derp-header", "lolwut")
         response.getWriter().print(responseBody)
         response.getWriter().flush()
         response.getWriter().close() //I think this should shove the body in there
@@ -181,9 +182,10 @@ class Slf4jLoggingIntegrationTest extends Specification {
         splitLog[9] == "200" //Status code
         splitLog[10] == "leUser" //Remote user
         splitLog[11] == "http://www.example.com/derp/derp?herp=derp" //URL Requested
-        splitLog[12] == "" //Request header  I have no clue how this "variable extractor" logic works yet, the tests don't either :(
+        splitLog[12] == "application/xml" //Request accept header
         splitLog[13] == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1" //Request line
         splitLog[14] == "HTTP/1.1" //Request Protocol
+        splitLog[15] == "lolwut"
 
         //The rest seem to be somewhat magical, or it's my argument parsing insanity
 
