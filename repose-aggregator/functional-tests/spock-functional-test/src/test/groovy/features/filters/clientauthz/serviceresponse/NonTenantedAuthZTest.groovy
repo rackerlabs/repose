@@ -39,7 +39,7 @@ class NonTenantedAuthZTest extends ReposeValveTest{
         repose.stop()
     }
 
-    @Unroll("Check non-tenanted AuthZ with #roles and expected response code #respcode")
+    @Unroll
     def "Check non-tenanted AuthZ with #roles and expected response code #respcode"() {
         fakeIdentityService.with {
             client_token = "rackerButts"
