@@ -17,6 +17,9 @@ import org.mockito.Mockito
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Specification
 
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
+
 
 class Slf4jLoggingFilterSpecification extends Specification{
 
@@ -61,9 +64,9 @@ class Slf4jLoggingFilterSpecification extends Specification{
         def configService = ServletContextHelper.getInstance(mockFilterConfig.getServletContext()).getPowerApiContext().configurationService()
 
         //Decouple the coupled configs, since I can't replace it
-        def mockResourceResolver = Mockito.mock(ConfigurationResourceResolver.class)
+        def mockResourceResolver = mock(ConfigurationResourceResolver.class)
         configService.setResourceResolver(mockResourceResolver)
-        def cfgUpdateManager = Mockito.mock(ConfigurationUpdateManager.class)
+        def cfgUpdateManager = mock(ConfigurationUpdateManager.class)
         configService.setUpdateManager(cfgUpdateManager)
 
         def configString = buildFakeConfigXml(logEntries)
@@ -94,7 +97,7 @@ class Slf4jLoggingFilterSpecification extends Specification{
         }
 
         //When someone asks for the config for this filter, give them the xml string we built
-        Mockito.when(mockResourceResolver.resolve("slf4j-http-logging.cfg.xml")).thenReturn(configResource)
+        when(mockResourceResolver.resolve("slf4j-http-logging.cfg.xml")).thenReturn(configResource)
 
         //Initialize the filter now
         filter.init(mockFilterConfig)
