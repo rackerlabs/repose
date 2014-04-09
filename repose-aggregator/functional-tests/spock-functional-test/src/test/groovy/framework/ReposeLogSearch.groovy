@@ -31,4 +31,8 @@ class ReposeLogSearch {
         return foundMatches;
 
     }
+    public def cleanLog(){
+        File logFile=new File(logFileLocation);
+        logFile.delete()
+    }
 }
