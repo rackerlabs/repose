@@ -10,7 +10,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
     def setupSpec() {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/httplogging", params)
+        repose.configurationProvider.applyConfigs("features/filters/httplogging/slf4httplogging", params)
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
