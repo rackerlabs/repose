@@ -115,6 +115,7 @@ class MockIdentityService {
     def admin_tenant = 'this-is-the-admin-tenant';
     def admin_username = 'admin_username';
     def service_admin_role = 'service:admin-role1';
+    def endpointUrl = "localhost"
     def admin_userid = 67890;
     Validator validator;
 
@@ -438,10 +439,10 @@ class MockIdentityService {
 
         if (xml) {
             headers.put('Content-type', 'application/xml')
-            template = this.identityEndpointXmlTemplate;
+            template = this.identityEndpointXmlTemplate
         } else {
             headers.put('Content-type', 'application/json')
-            template = this.identityEndpointJsonTemplate;
+            template = this.identityEndpointJsonTemplate
         }
 
         def params = [
@@ -452,6 +453,7 @@ class MockIdentityService {
                 'username'         : this.client_username,
                 'tenant'           : this.client_tenant,
                 'originServicePort': this.originServicePort,
+                'endpointUrl'      : this.endpointUrl
         ];
 
         def body = templateEngine.createTemplate(template).make(params);
@@ -698,17 +700,17 @@ class MockIdentityService {
             type="object-store"
             name="swift"
             region="RegionOne"
-            publicURL="http://localhost:\${originServicePort}/\${tenant}"
-            internalURL="http://localhost:\${originServicePort}/\${tenant}"
-            adminURL="http://localhost:\${originServicePort}/\${tenant}"
+            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
   <endpoint id="2"
             type="compute"
             name="nova_compat"
             region="RegionOne"
-            publicURL="http://localhost:\${originServicePort}/\${tenant}"
-            internalURL="http://localhost:\${originServicePort}/\${tenant}"
-            adminURL="http://localhost:\${originServicePort}/\${tenant}"
+            publicURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            internalURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
+            adminURL="http://\${endpointUrl}:\${originServicePort}/\${tenant}"
             tenantId="\${tenant}"/>
 </endpoints>"""
 

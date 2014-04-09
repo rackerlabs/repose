@@ -123,7 +123,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
+        def cmd = "java -Xmx1024M -Xms1024M -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
