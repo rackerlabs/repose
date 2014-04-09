@@ -24,7 +24,7 @@
 
       <xs:sequence>
          <xs:element name="allowed-hosts" type="dds:HostAccessControlList" minOccurs="1" maxOccurs="1" />
-         <xs:element name="port-config" type="dds:PortConfiguration" minOccurs="0" maxOccurs="1" />
+         <xs:element name="port-config" type="dds:PortConfiguration" minOccurs="1" maxOccurs="1" />
       </xs:sequence>
    </xs:complexType>
     

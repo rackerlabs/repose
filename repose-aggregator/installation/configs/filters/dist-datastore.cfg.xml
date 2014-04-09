@@ -5,4 +5,7 @@
    <allowed-hosts allow-all="false">
       <allow host="127.0.0.1" />
    </allowed-hosts>
+    <port-config>
+        <port port="9999" cluster="repose" />
+    </port-config>
 </distributed-datastore>
