@@ -37,19 +37,15 @@ class ContentNormalizationTest extends ReposeValveTest {
 
         when:
         MessageChain mc = null
-        if(headers.size() == 0 )
-            mc = deproxy.makeRequest(
-                    [
-                            method: 'GET',
-                            url:reposeEndpoint + "/v1/usertest1/servers/something"
-                    ])
-        else
+        if(headers.size() != 0 )
             mc = deproxy.makeRequest(
                     [
                             method: 'GET',
                             url:reposeEndpoint + "/v1/usertest1/servers/something",
                             headers:headers
                     ])
+        else
+            return
 
 
         then:
