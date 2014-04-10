@@ -4,6 +4,8 @@ import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
+import spock.lang.Ignore
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 4/9/14.
@@ -13,8 +15,10 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     def searchError = "Configuration update error. Reason: Validation error on resource"
     def searchReasion = "port-config"
 
-    def "When start data store config without port-config"() {
+    @Unroll
+    def "When start data store config #configuration"() {
         given:
+        searchReasion = searchMsg
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
@@ -29,7 +33,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/noportconfig", params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/"+configuration, params)
 
         when:
         repose.start()
@@ -40,6 +44,11 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         logSearch.searchByString(searchReasion).size() > 0
         logSearch.searchByString("NullPointerException").size() == 0
 
+        where:
+        configuration                   |searchMsg
+        "noportconfig"                  |"port-config"
+        "noportelement"                 |"The content of element 'port-config' is not complete"
+        "noportattribute"               |"Attribute 'port' must appear on element 'port'"
     }
 
     def cleanup() {
