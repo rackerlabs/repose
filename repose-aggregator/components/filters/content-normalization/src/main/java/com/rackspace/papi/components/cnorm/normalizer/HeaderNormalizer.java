@@ -23,26 +23,22 @@ public class HeaderNormalizer {
     }
 
     public void normalizeHeaders(HttpServletRequest request, FilterDirector currentDirector) {
-        filterHeaders(request, currentDirector);
-    }
-
-    private void filterHeaders(HttpServletRequest request, FilterDirector myDirector) {
         final Enumeration<String> headerNames = request.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
             final String requestHeaderName = headerNames.nextElement();
 
             boolean found = false;
-            
+
             for (HttpHeader configuredHeader : headers) {
                 if (configuredHeader.getId().equalsIgnoreCase(requestHeaderName)) {
                     found = true;
                     break;
                 }
             }
-            
+
             if (found && isBlacklist || !found && !isBlacklist) {
-                myDirector.requestHeaderManager().removeHeader(requestHeaderName);
+                currentDirector.requestHeaderManager().removeHeader(requestHeaderName);
             }
         }
     }

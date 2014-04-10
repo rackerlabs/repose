@@ -11,25 +11,28 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
  * @author Dan Daley
  */
 public class ContentNormalizationHandler extends AbstractFilterLogicHandler {
-      private HeaderNormalizer headerNormalizer;
-      private MediaTypeNormalizer mediaTypeNormalizer;
-      
-      public ContentNormalizationHandler(HeaderNormalizer headerNormalizer, MediaTypeNormalizer mediaTypeNormalizer) {
-         this.headerNormalizer = headerNormalizer;
-         this.mediaTypeNormalizer = mediaTypeNormalizer;
-      }
+    private HeaderNormalizer headerNormalizer;
+    private MediaTypeNormalizer mediaTypeNormalizer;
 
-      @Override
-      public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-         final FilterDirector myDirector = new FilterDirectorImpl();
-         myDirector.setFilterAction(FilterAction.PASS);
-         headerNormalizer.normalizeHeaders(request, myDirector);
-         mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
-         return myDirector;
-      }
-   
+    public ContentNormalizationHandler(HeaderNormalizer headerNormalizer, MediaTypeNormalizer mediaTypeNormalizer) {
+        this.headerNormalizer = headerNormalizer;
+        this.mediaTypeNormalizer = mediaTypeNormalizer;
+    }
+
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+        final FilterDirector myDirector = new FilterDirectorImpl();
+        myDirector.setFilterAction(FilterAction.PASS);
+        if(headerNormalizer != null) {
+            headerNormalizer.normalizeHeaders(request, myDirector);
+        }
+        if(mediaTypeNormalizer != null) {
+            mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
+        }
+        return myDirector;
+    }
+
 }

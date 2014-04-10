@@ -35,6 +35,13 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner-servlet</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
