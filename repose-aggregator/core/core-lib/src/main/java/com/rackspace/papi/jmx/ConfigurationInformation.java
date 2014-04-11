@@ -1,5 +1,6 @@
 package com.rackspace.papi.jmx;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
@@ -10,6 +11,10 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.InputNullException;
+import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +34,19 @@ import java.util.*;
 @Component("reposeConfigurationInformation")
 @ManagedResource(objectName = "com.rackspace.papi.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
 public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
-
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
-    private final ConfigurationService configurationService;
-    private ServicePorts ports;
-    private final List<FilterInformation> filterChain;
-    private SystemModelListener systemModelListener;
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
+    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    private final ConfigurationService configurationService;
+    private final List<FilterInformation> filterChain;
+    private final HealthCheckService healthCheckService;
+
+    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private ServicePorts ports;
+    private SystemModelListener systemModelListener;
+    private String healthCheckUid;
 
     public static class FilterInformation {
-
         private final String id;
         private final String name;
         private final String regex;
@@ -100,7 +108,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         }
     }
 
-    private static class SystemModelListener implements UpdateListener<SystemModel> {
+    private class SystemModelListener implements UpdateListener<SystemModel> {
 
         private boolean initialized = false;
         private final List<FilterInformation> filters;
@@ -117,20 +125,27 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             initialized = false;
 
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            ReposeCluster cluster = interrogator.getLocalServiceDomain(systemModel);
+            Optional<ReposeCluster> cluster = interrogator.getLocalServiceDomain(systemModel);
 
-            synchronized (filters) {
-                filters.clear();
+            if (cluster.isPresent()) {
+                synchronized (filters) {
+                    filters.clear();
 
-                if (cluster.getFilters() != null && cluster.getFilters().getFilter() != null) {
-                    for (Filter filter : cluster.getFilters().getFilter()) {
-                        filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
-                                filter.getConfiguration(), false));
+                    if (cluster.get().getFilters() != null && cluster.get().getFilters().getFilter() != null) {
+                        for (Filter filter : cluster.get().getFilters().getFilter()) {
+                            filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
+                                    filter.getConfiguration(), false));
+                        }
                     }
                 }
-            }
 
-            initialized = true;
+                initialized = true;
+
+                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+            } else {
+                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+            }
         }
 
         @Override
@@ -140,10 +155,13 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     }
 
     @Autowired
-    public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService, @Qualifier("servicePorts") ServicePorts ports) {
+    public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService,
+                                    @Qualifier("servicePorts") ServicePorts ports,
+                                    @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
         filterChain = new ArrayList<FilterInformation>();
         this.configurationService = configurationService;
         this.ports = ports;
+        this.healthCheckService = healthCheckService;
     }
 
     @Override
@@ -162,6 +180,15 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         systemModelListener = new SystemModelListener(filterChain, ports);
+
+        try {
+            healthCheckUid = healthCheckService.register(this.getClass());
+        } catch (InputNullException ine) {
+            LOG.error("Could not register with health check service -- this should never happen");
+        }
+
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+
         configurationService.subscribeTo("", "system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 

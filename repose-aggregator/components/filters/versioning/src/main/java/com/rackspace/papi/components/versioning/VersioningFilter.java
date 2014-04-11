@@ -7,12 +7,13 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import java.io.IOException;
-import java.net.URL;
-import javax.servlet.*;
-
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  *
@@ -25,6 +26,7 @@ public class VersioningFilter implements Filter {
     private VersioningHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
     private MetricsService metricsService;
+    private HealthCheckService healthCheckService;
 
     @Override
     public void destroy() {
@@ -47,7 +49,9 @@ public class VersioningFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         metricsService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
                 .metricsService();
-        handlerFactory = new VersioningHandlerFactory(ports, metricsService);
+        healthCheckService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
+                .healthCheckService();
+        handlerFactory = new VersioningHandlerFactory(ports, metricsService, healthCheckService);
         configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");
         configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, ServiceVersionMappingList.class);

@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.versioning;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
@@ -12,7 +13,13 @@ import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.InputNullException;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,18 +27,31 @@ import java.util.List;
 import java.util.Map;
 
 public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFactory<VersioningHandler> {
+    private static final Logger LOG = LoggerFactory.getLogger(VersioningHandlerFactory.class);
+    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
 
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
     private final ContentTransformer transformer;
     private final ServicePorts ports;
     private final MetricsService metricsService;
+
+    private HealthCheckServiceHelper healthCheckServiceHelper;
     private ReposeCluster localDomain;
+    private String healthCheckUid;
     private Node localHost;
 
-    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService) {
+    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService, HealthCheckService healthCheckService) {
         this.ports = ports;
         this.metricsService = metricsService;
+
+        try {
+            healthCheckUid = healthCheckService.register(this.getClass());
+        } catch (InputNullException ine) {
+            LOG.error("Could not register with health check service -- this should never happen");
+        }
+
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         transformer = new ContentTransformer();
     }
@@ -53,17 +73,28 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            localDomain = interrogator.getLocalServiceDomain(configurationObject);
-            localHost = interrogator.getLocalHost(configurationObject);
-            List<Destination> destinations = new ArrayList<Destination>();
+            Optional<ReposeCluster> cluster = interrogator.getLocalServiceDomain(configurationObject);
+            Optional<Node> node = interrogator.getLocalHost(configurationObject);
 
-            destinations.addAll(localDomain.getDestinations().getEndpoint());
-            destinations.addAll(localDomain.getDestinations().getTarget());
-            for (Destination powerApiHost : destinations) {
-                configuredHosts.put(powerApiHost.getId(), powerApiHost);
+            if (cluster.isPresent() && node.isPresent()) {
+                localDomain = cluster.get();
+                localHost = node.get();
+
+                List<Destination> destinations = new ArrayList<Destination>();
+
+                destinations.addAll(localDomain.getDestinations().getEndpoint());
+                destinations.addAll(localDomain.getDestinations().getTarget());
+                for (Destination powerApiHost : destinations) {
+                    configuredHosts.put(powerApiHost.getId(), powerApiHost);
+                }
+
+                isInitialized = true;
+
+                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+            } else {
+                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
-
-            isInitialized = true;
         }
 
         @Override
