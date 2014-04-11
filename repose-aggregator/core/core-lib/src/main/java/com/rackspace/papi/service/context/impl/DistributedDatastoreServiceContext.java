@@ -25,7 +25,6 @@ import java.net.URL;
  */
 @Component("distributedDatastoreServiceContext")
 public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
-
     DistributedDatastoreLauncherService distDatastoreServiceLauncher;
     private boolean initialized = false;
     private SystemModel systemModel;
@@ -37,7 +36,6 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
     private ServicePorts servicePorts;
     private RoutingService routingService;
     private String configDirectory;
-
 
     @Autowired
     public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherService service,
@@ -56,7 +54,6 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
         this.registry = registry;
         this.servicePorts = servicePorts;
         this.routingService = routingService;
-
     }
 
     public void register() {
@@ -88,10 +85,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-
-            systemModel = configurationObject;
-
-            ReposeCluster cluster = findCluster(systemModel);
+            ReposeCluster cluster = findCluster(configurationObject);
 
             boolean listed = serviceListed(cluster);
             if (listed && initialized == false) {
@@ -102,8 +96,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
             } else if (!listed && initialized) { // case when someone has turned off an existing datastore
                 distDatastoreServiceLauncher.stopDistributedDatastoreServlet();
             }
-
-
+            systemModel = configurationObject;
         }
 
         @Override
@@ -112,38 +105,26 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
         }
 
         private ReposeCluster findCluster(SystemModel sysModel) {
-
-            ReposeCluster cluster = null;
-
             for (ReposeCluster cls : sysModel.getReposeCluster()) {
                 if (cls.getId().equals(instanceInfo.getClusterId())) {
-                    cluster = cls;
-                    break;
+                    return cls;
                 }
 
             }
-            return cluster;
-        }
-
-        private boolean servicesDefined(ReposeCluster cluster) {
-
-            return cluster.getServices() != null;
+            return null;
         }
 
         private boolean serviceListed(ReposeCluster cluster) {
-
-            boolean listed = false;
-
-            if (servicesDefined(cluster)) {
+            if (cluster.getServices() != null) {
                 for (Service service : cluster.getServices().getService()) {
                     if (service.getName().equalsIgnoreCase("dist-datastore")) {
                         //launch dist-datastore servlet!!! Pass down the datastore service
-                        listed = true;
+                        return true;
                     }
                 }
             }
 
-            return listed;
+            return false;
         }
     }
 
