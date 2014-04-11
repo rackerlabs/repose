@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.container.config.ContainerConfiguration;
@@ -9,6 +10,12 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.InputNullException;
+import com.rackspace.papi.service.healthcheck.Severity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -19,27 +26,35 @@ import javax.servlet.ServletContextEvent;
 @Component("requestProxyServiceContext")
 @Lazy(true)
 public class RequestProxyServiceContext implements ServiceContext<RequestProxyService> {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceContext.class);
+    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String SERVICE_NAME = "powerapi:/services/proxy";
 
-  public static final String SERVICE_NAME = "powerapi:/services/proxy";
   private final ConfigurationService configurationManager;
   private final RequestProxyService proxyService;
   private final ServiceRegistry registry;
   private final ContainerConfigListener configListener;
   private final SystemModelInterrogator interrogator;
   private final SystemModelListener systemModelListener;
+    private final HealthCheckService healthCheckService;
+
+    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private String healthCheckUid;
 
   @Autowired
   public RequestProxyServiceContext(
           @Qualifier("requestProxyService") RequestProxyService proxyService,
           @Qualifier("serviceRegistry") ServiceRegistry registry,
           @Qualifier("configurationManager") ConfigurationService configurationManager,
-          @Qualifier("modelInterrogator") SystemModelInterrogator interrogator) {
+          @Qualifier("modelInterrogator") SystemModelInterrogator interrogator,
+          @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
     this.proxyService = proxyService;
     this.configurationManager = configurationManager;
     this.registry = registry;
     this.configListener = new ContainerConfigListener();
     this.systemModelListener = new SystemModelListener();
     this.interrogator = interrogator;
+      this.healthCheckService = healthCheckService;
   }
 
   public void register() {
@@ -83,9 +98,17 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
     @Override
     public void configurationUpdated(SystemModel config) {
-      ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(config);
-      proxyService.setRewriteHostHeader(serviceDomain.isRewriteHostHeader());
-      isInitialized = true;
+      Optional<ReposeCluster> serviceDomain = interrogator.getLocalServiceDomain(config);
+
+        if (serviceDomain.isPresent()) {
+            proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());
+            isInitialized = true;
+
+            healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+        } else {
+            healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                    "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+        }
     }
 
     @Override
@@ -96,6 +119,14 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
+      try {
+          healthCheckUid = healthCheckService.register(this.getClass());
+      } catch (InputNullException ine) {
+          LOG.error("Could not register with health check service -- this should never happen");
+      }
+
+      healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+
     configurationManager.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
     configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     register();
