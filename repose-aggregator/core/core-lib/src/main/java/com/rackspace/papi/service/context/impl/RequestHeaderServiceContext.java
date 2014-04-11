@@ -46,9 +46,9 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
     @Autowired
     public RequestHeaderServiceContext(@Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
-            @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("configurationManager") ConfigurationService configurationManager,
-            @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
+                                       @Qualifier("serviceRegistry") ServiceRegistry registry,
+                                       @Qualifier("configurationManager") ConfigurationService configurationManager,
+                                       @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
         this.requestHeaderService = requestHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;

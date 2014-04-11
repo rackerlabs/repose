@@ -12,148 +12,148 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
-import java.net.URL;
-import javax.servlet.ServletContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.URL;
 
 @Component("routingServiceContext")
 public class RoutingServiceContext implements ServiceContext<RoutingService> {
 
-   public static final String SERVICE_NAME = "powerapi:/services/routing";
-   private static final Logger LOG = LoggerFactory.getLogger(RoutingServiceContext.class);
-   private final RoutingService service;
-   private SystemModel config;
-   private ConfigurationService configurationManager;
-   private final PowerApiConfigListener configListener;
-   private final ServiceRegistry registry;
-   private final ServicePorts servicePorts;
-   private String clusterId, nodeId;
-   private ReposeInstanceInfo instanceInfo;
+    public static final String SERVICE_NAME = "powerapi:/services/routing";
+    private static final Logger LOG = LoggerFactory.getLogger(RoutingServiceContext.class);
+    private final RoutingService service;
+    private SystemModel config;
+    private ConfigurationService configurationManager;
+    private final PowerApiConfigListener configListener;
+    private final ServiceRegistry registry;
+    private final ServicePorts servicePorts;
+    private String clusterId, nodeId;
+    private ReposeInstanceInfo instanceInfo;
 
-   @Autowired
-   public RoutingServiceContext(
-           @Qualifier("routingService") RoutingService service,
-           @Qualifier("serviceRegistry") ServiceRegistry registry,
-           @Qualifier("configurationManager") ConfigurationService configurationManager,
-           @Qualifier("servicePorts") ServicePorts servicePorts,
-           @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
-      this.service = service;
-      configListener = new PowerApiConfigListener();
-      this.registry = registry;
-      this.configurationManager = configurationManager;
-      this.servicePorts = servicePorts;
-      this.instanceInfo = instanceInfo;
-   }
+    @Autowired
+    public RoutingServiceContext(
+            @Qualifier("routingService") RoutingService service,
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager,
+            @Qualifier("servicePorts") ServicePorts servicePorts,
+            @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+        this.service = service;
+        configListener = new PowerApiConfigListener();
+        this.registry = registry;
+        this.configurationManager = configurationManager;
+        this.servicePorts = servicePorts;
+        this.instanceInfo = instanceInfo;
+    }
 
-   public void register() {
-      if (registry != null) {
-         registry.addService(this);
-      }
-   }
+    public void register() {
+        if (registry != null) {
+            registry.addService(this);
+        }
+    }
 
-   @Override
-   public String getServiceName() {
-      return SERVICE_NAME;
-   }
+    @Override
+    public String getServiceName() {
+        return SERVICE_NAME;
+    }
 
-   @Override
-   public RoutingService getService() {
-      return service;
-   }
+    @Override
+    public RoutingService getService() {
+        return service;
+    }
 
-   private class PowerApiConfigListener implements UpdateListener<SystemModel> {
+    private class PowerApiConfigListener implements UpdateListener<SystemModel> {
 
-      private boolean isInitialized = false;
+        private boolean isInitialized = false;
 
-      private ServicePorts determinePorts(Node reposeNode) {
-         ServicePorts ports = new ServicePorts();
+        private ServicePorts determinePorts(Node reposeNode) {
+            ServicePorts ports = new ServicePorts();
 
-         if (reposeNode != null) {
-            if (reposeNode.getHttpPort() != 0) {
-               ports.add(new Port("http", reposeNode.getHttpPort()));
-            } else {
-               LOG.error("Http service port not specified for Repose Node " + reposeNode.getId());
+            if (reposeNode != null) {
+                if (reposeNode.getHttpPort() != 0) {
+                    ports.add(new Port("http", reposeNode.getHttpPort()));
+                } else {
+                    LOG.error("Http service port not specified for Repose Node " + reposeNode.getId());
+                }
+
+                if (reposeNode.getHttpsPort() != 0) {
+                    ports.add(new Port("https", reposeNode.getHttpsPort()));
+                } else {
+                    LOG.info("Https service port not specified for Repose Node " + reposeNode.getId());
+                }
             }
 
-            if (reposeNode.getHttpsPort() != 0) {
-               ports.add(new Port("https", reposeNode.getHttpsPort()));
-            } else {
-               LOG.info("Https service port not specified for Repose Node " + reposeNode.getId());
+            return ports;
+        }
+
+        private Node determineReposeNode(String clusterId, String nodeId) {
+
+            for (ReposeCluster cluster : config.getReposeCluster()) {
+
+                if (cluster.getId().equals(clusterId)) {
+                    for (Node node : cluster.getNodes().getNode()) {
+                        if (node.getId().equals(nodeId)) {
+                            return node;
+                        }
+                    }
+                }
             }
-         }
 
-         return ports;
-      }
+            return null;
+        }
 
-      private Node determineReposeNode(String clusterId, String nodeId) {
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            config = configurationObject;
+            service.setSystemModel(config);
 
-         for (ReposeCluster cluster : config.getReposeCluster()) {
 
-            if (cluster.getId().equals(clusterId)) {
-               for (Node node : cluster.getNodes().getNode()) {
-                  if (node.getId().equals(nodeId)) {
-                     return node;
-                  }
-               }
+            if (!isInitialized()) {
+                LOG.info("Determining ports for repose under cluster: " + clusterId);
+                ServicePorts ports = determinePorts(determineReposeNode(clusterId, nodeId));
+                servicePorts.clear();
+                servicePorts.addAll(ports);
             }
-         }
+            isInitialized = true;
+        }
 
-         return null;
-      }
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 
-      @Override
-      public void configurationUpdated(SystemModel configurationObject) {
-         config = configurationObject;
-         service.setSystemModel(config);
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
 
+        ServletContext ctx = servletContextEvent.getServletContext();
 
-         if (!isInitialized()) {
-            LOG.info("Determining ports for repose under cluster: " + clusterId);
-            ServicePorts ports = determinePorts(determineReposeNode(clusterId, nodeId));
-            servicePorts.clear();
-            servicePorts.addAll(ports);
-         }
-         isInitialized = true;
-      }
+        final String clusterIdParam = InitParameter.REPOSE_CLUSTER_ID.getParameterName();
+        final String nodeIdParam = InitParameter.REPOSE_NODE_ID.getParameterName();
 
-      @Override
-      public boolean isInitialized() {
-         return isInitialized;
-      }
-   }
+        clusterId = System.getProperty(clusterIdParam, ctx.getInitParameter(clusterIdParam));
+        nodeId = System.getProperty(nodeIdParam, ctx.getInitParameter(nodeIdParam));
 
-   @Override
-   public void contextInitialized(ServletContextEvent servletContextEvent) {
+        if (instanceInfo == null) {
+            instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
+        } else {
+            instanceInfo.setClusterId(clusterId);
+            instanceInfo.setNodeId(nodeId);
+        }
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, configListener, SystemModel.class);
+        register();
+    }
 
-      ServletContext ctx = servletContextEvent.getServletContext();
-
-      final String clusterIdParam = InitParameter.REPOSE_CLUSTER_ID.getParameterName();
-      final String nodeIdParam = InitParameter.REPOSE_NODE_ID.getParameterName();
-
-      clusterId = System.getProperty(clusterIdParam, ctx.getInitParameter(clusterIdParam));
-      nodeId = System.getProperty(nodeIdParam, ctx.getInitParameter(nodeIdParam));
-
-      if (instanceInfo == null) {
-         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
-      } else {
-         instanceInfo.setClusterId(clusterId);
-         instanceInfo.setNodeId(nodeId);
-      }
-      URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-      configurationManager.subscribeTo("system-model.cfg.xml",xsdURL, configListener, SystemModel.class);
-      register();
-   }
-
-   @Override
-   public void contextDestroyed(ServletContextEvent sce) {
-      if (configurationManager != null) {
-         configurationManager.unsubscribeFrom("system-model.cfg.xml", configListener);
-      }
-   }
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        if (configurationManager != null) {
+            configurationManager.unsubscribeFrom("system-model.cfg.xml", configListener);
+        }
+    }
 }

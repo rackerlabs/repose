@@ -5,12 +5,13 @@ import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.SystemModel;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> implements ApplicationContextAware {
 
@@ -32,8 +33,8 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
     private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
 
         private boolean isInitialized = false;
-    
-       
+
+
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
 
@@ -43,24 +44,24 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
             if (dst == null) {
                 LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain(systemModel).getId());
             }
-            
-             isInitialized=true;
-        }
-        
-     @Override
-     public boolean isInitialized(){
-          return isInitialized;
-      }
 
-        
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+
+
     }
 
     @Override
     protected RoutingTagger buildHandler() {
-        
-      if( !this.isInitialized()){
-           return null;
-       } 
+
+        if (!this.isInitialized()) {
+            return null;
+        }
         return applicationContext.getBean("routingTagger", RoutingTagger.class).setDestination(dst);
     }
 

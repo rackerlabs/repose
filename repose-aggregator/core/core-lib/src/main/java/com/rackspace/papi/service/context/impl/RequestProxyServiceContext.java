@@ -30,113 +30,113 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
     public static final String systemModelConfigHealthReport = "SystemModelConfigError";
     public static final String SERVICE_NAME = "powerapi:/services/proxy";
 
-  private final ConfigurationService configurationManager;
-  private final RequestProxyService proxyService;
-  private final ServiceRegistry registry;
-  private final ContainerConfigListener configListener;
-  private final SystemModelInterrogator interrogator;
-  private final SystemModelListener systemModelListener;
+    private final ConfigurationService configurationManager;
+    private final RequestProxyService proxyService;
+    private final ServiceRegistry registry;
+    private final ContainerConfigListener configListener;
+    private final SystemModelInterrogator interrogator;
+    private final SystemModelListener systemModelListener;
     private final HealthCheckService healthCheckService;
 
     private HealthCheckServiceHelper healthCheckServiceHelper;
     private String healthCheckUid;
 
-  @Autowired
-  public RequestProxyServiceContext(
-          @Qualifier("requestProxyService") RequestProxyService proxyService,
-          @Qualifier("serviceRegistry") ServiceRegistry registry,
-          @Qualifier("configurationManager") ConfigurationService configurationManager,
-          @Qualifier("modelInterrogator") SystemModelInterrogator interrogator,
-          @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
-    this.proxyService = proxyService;
-    this.configurationManager = configurationManager;
-    this.registry = registry;
-    this.configListener = new ContainerConfigListener();
-    this.systemModelListener = new SystemModelListener();
-    this.interrogator = interrogator;
-      this.healthCheckService = healthCheckService;
-  }
-
-  public void register() {
-    if (registry != null) {
-      registry.addService(this);
-    }
-  }
-
-  @Override
-  public String getServiceName() {
-    return SERVICE_NAME;
-  }
-
-  @Override
-  public RequestProxyService getService() {
-    return proxyService;
-  }
-
-  private class ContainerConfigListener implements UpdateListener<ContainerConfiguration> {
-
-    private boolean isInitialized = false;
-
-    @Override
-    public void configurationUpdated(ContainerConfiguration config) {
-      Integer connectionTimeout = config.getDeploymentConfig().getConnectionTimeout();
-      Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
-      Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
-      boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
-      isInitialized = true;
+    @Autowired
+    public RequestProxyServiceContext(
+            @Qualifier("requestProxyService") RequestProxyService proxyService,
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager,
+            @Qualifier("modelInterrogator") SystemModelInterrogator interrogator,
+            @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
+        this.proxyService = proxyService;
+        this.configurationManager = configurationManager;
+        this.registry = registry;
+        this.configListener = new ContainerConfigListener();
+        this.systemModelListener = new SystemModelListener();
+        this.interrogator = interrogator;
+        this.healthCheckService = healthCheckService;
     }
 
-    @Override
-    public boolean isInitialized() {
-      return isInitialized;
-    }
-  }
-
-  private class SystemModelListener implements UpdateListener<SystemModel> {
-
-    private boolean isInitialized = false;
-
-    @Override
-    public void configurationUpdated(SystemModel config) {
-      Optional<ReposeCluster> serviceDomain = interrogator.getLocalServiceDomain(config);
-
-        if (serviceDomain.isPresent()) {
-            proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());
-            isInitialized = true;
-
-            healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
-        } else {
-            healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
-                    "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+    public void register() {
+        if (registry != null) {
+            registry.addService(this);
         }
     }
 
     @Override
-    public boolean isInitialized() {
-      return isInitialized;
+    public String getServiceName() {
+        return SERVICE_NAME;
     }
-  }
 
-  @Override
-  public void contextInitialized(ServletContextEvent sce) {
-      try {
-          healthCheckUid = healthCheckService.register(this.getClass());
-      } catch (InputNullException ine) {
-          LOG.error("Could not register with health check service -- this should never happen");
-      }
-
-      healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
-
-    configurationManager.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
-    configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
-    register();
-  }
-
-  @Override
-  public void contextDestroyed(ServletContextEvent sce) {
-    if (configurationManager != null) {
-      configurationManager.unsubscribeFrom("container.cfg.xml", configListener);
-      configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+    @Override
+    public RequestProxyService getService() {
+        return proxyService;
     }
-  }
+
+    private class ContainerConfigListener implements UpdateListener<ContainerConfiguration> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration config) {
+            Integer connectionTimeout = config.getDeploymentConfig().getConnectionTimeout();
+            Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
+            Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
+            boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    private class SystemModelListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(SystemModel config) {
+            Optional<ReposeCluster> serviceDomain = interrogator.getLocalServiceDomain(config);
+
+            if (serviceDomain.isPresent()) {
+                proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());
+                isInitialized = true;
+
+                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+            } else {
+                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+            }
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        try {
+            healthCheckUid = healthCheckService.register(this.getClass());
+        } catch (InputNullException ine) {
+            LOG.error("Could not register with health check service -- this should never happen");
+        }
+
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+
+        configurationManager.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
+        configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+        register();
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        if (configurationManager != null) {
+            configurationManager.unsubscribeFrom("container.cfg.xml", configListener);
+            configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        }
+    }
 }

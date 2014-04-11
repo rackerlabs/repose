@@ -62,7 +62,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.registry = registry;
         this.healthCheckService = healthCheckService;
-        try{
+        try {
             healthCheckUID = healthCheckService.register(this.getClass());
         } catch (InputNullException e) {
 
@@ -191,7 +191,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         configurationManager.subscribeTo(DEFAULT_CONFIG, dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
 
         try {
-            if(!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()){
+            if (!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()) {
                 solveIssue(datastoreConfigHealthReport);
                 solveIssue(systemModelConfigHealthReport);
             }
@@ -210,10 +210,10 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         }
     }
 
-    private void reportIssue(String rid, String message, Severity severity){
+    private void reportIssue(String rid, String message, Severity severity) {
 
         LOG.debug("Reporting issue to Health Checker Service: " + rid);
-        try{
+        try {
             healthCheckService.reportIssue(healthCheckUID, rid, new HealthCheckReport(message, severity));
         } catch (InputNullException e) {
             LOG.error("Unable to report Issues to Health Check Service");
@@ -223,10 +223,10 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
     }
 
-    private void solveIssue(String rid){
+    private void solveIssue(String rid) {
 
-        try{
-            LOG.debug("Resolving issue: " +rid);
+        try {
+            LOG.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(healthCheckUID, rid);
         } catch (InputNullException e) {
             LOG.error("Unable to solve issue " + rid + "from " + healthCheckUID);
