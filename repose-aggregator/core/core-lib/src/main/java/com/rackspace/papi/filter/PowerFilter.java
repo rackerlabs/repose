@@ -127,6 +127,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
+            currentSystemModel = configurationObject;
+
             // This event must be fired only after we have finished configuring the system.
             // This prevents a race condition illustrated below where the application
             // deployment event is caught but does nothing due to a null configuration
@@ -138,9 +140,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 } else {
                     SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
 
-                    Optional<Node> lh = interrogator.getLocalHost(configurationObject);
-                    Optional<ReposeCluster> sd = interrogator.getLocalServiceDomain(configurationObject);
-                    Optional<Destination> dd = interrogator.getDefaultDestination(configurationObject);
+                    Optional<Node> lh = interrogator.getLocalHost(currentSystemModel);
+                    Optional<ReposeCluster> sd = interrogator.getLocalServiceDomain(currentSystemModel);
+                    Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
 
                     if (lh.isPresent() && sd.isPresent() && dd.isPresent()) {
                         localHost = lh.get();
@@ -148,12 +150,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                         defaultDst = dd.get();
 
                         healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
-
-                        currentSystemModel = configurationObject;
                     } else {
                         healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-                        return;
                     }
 
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
