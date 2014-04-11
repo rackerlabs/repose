@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class PowerFilter extends ApplicationContextAwareFilter {
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-    private static final String systemModelConfigHealthReport = "SystemModelConfigError";
-    private static final String applicationDeploymentHealthReport = "ApplicationDeploymentError";
+    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String applicationDeploymentHealthReport = "ApplicationDeploymentError";
 
     private final Object internalLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
@@ -60,6 +60,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private FilterConfig filterConfig;
     private ReportingService reportingService;
     private HealthCheckService healthCheckService;
+    private HealthCheckServiceHelper healthCheckServiceHelper;
     private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
@@ -101,13 +102,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     localHost = lh.get();
                     serviceDomain = sd.get();
                     defaultDst = dd.get();
-                    resolveIssue(applicationDeploymentHealthReport);
+                    healthCheckServiceHelper.resolveIssue(applicationDeploymentHealthReport);
                 } else {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
-                    reportIssue(applicationDeploymentHealthReport, "Unable to identify the local host in the system " +
-                            "model - please check your system-model.cfg.xml", Severity.BROKEN);
+                    healthCheckServiceHelper.reportIssue(applicationDeploymentHealthReport, "Unable to identify the " +
+                            "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
 
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
@@ -146,12 +147,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                         serviceDomain = sd.get();
                         defaultDst = dd.get();
 
-                        resolveIssue(systemModelConfigHealthReport);
+                        healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
 
                         currentSystemModel = configurationObject;
                     } else {
-                        reportIssue(systemModelConfigHealthReport, "Unable to identify the local host in the system " +
-                                "model - please check your system-model.cfg.xml", Severity.BROKEN);
+                        healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                                "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                        return;
                     }
 
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
@@ -220,6 +222,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         } catch (InputNullException ine) {
             LOG.error("Could not register with health check service -- this should never happen");
         }
+
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUID);
 
         if (papiContext.metricsService() != null) {
             mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
@@ -292,28 +296,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             markResponseCodeHelper(mbcResponseCodes, ((HttpServletResponse) response).getStatus(), LOG, null);
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
-        }
-    }
-
-    private void reportIssue(String rid, String message, Severity severity) {
-        LOG.debug("Reporting issue to Health Checker Service: " + rid);
-        try {
-            healthCheckService.reportIssue(healthCheckUID, rid, new HealthCheckReport(message, severity));
-        } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
-        }
-    }
-
-    private void resolveIssue(String rid) {
-        try {
-            LOG.debug("Resolving issue: " + rid);
-            healthCheckService.solveIssue(healthCheckUID, rid);
-        } catch (InputNullException e) {
-            LOG.error("Unable to solve issue " + rid + "from " + healthCheckUID);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue " + rid + "from " + healthCheckUID);
         }
     }
 
