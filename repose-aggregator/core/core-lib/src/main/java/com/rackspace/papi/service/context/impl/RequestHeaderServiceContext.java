@@ -147,6 +147,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
                 healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
             } else {
+                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                 healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }

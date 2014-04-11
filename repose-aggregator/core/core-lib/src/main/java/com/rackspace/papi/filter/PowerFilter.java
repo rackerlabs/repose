@@ -107,6 +107,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
+                    LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                     healthCheckServiceHelper.reportIssue(applicationDeploymentHealthReport, "Unable to identify the " +
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
@@ -151,6 +152,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
                         healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
                     } else {
+                        LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                         healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
