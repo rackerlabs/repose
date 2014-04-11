@@ -9,7 +9,10 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.*;
+import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
@@ -99,7 +102,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     serviceDomain = sd.get();
                     defaultDst = dd.get();
                     resolveIssue(applicationDeploymentHealthReport);
-                } else{
+                } else {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
@@ -146,7 +149,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                         resolveIssue(systemModelConfigHealthReport);
 
                         currentSystemModel = configurationObject;
-                    } else{
+                    } else {
                         reportIssue(systemModelConfigHealthReport, "Unable to identify the local host in the system " +
                                 "model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
@@ -212,7 +215,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         healthCheckService = papiContext.healthCheckService();
         responseHeaderService = papiContext.responseHeaderService();
 
-        try{
+        try {
             healthCheckUID = healthCheckService.register(this.getClass());
         } catch (InputNullException ine) {
             LOG.error("Could not register with health check service -- this should never happen");
@@ -292,9 +295,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         }
     }
 
-    private void reportIssue(String rid, String message, Severity severity){
+    private void reportIssue(String rid, String message, Severity severity) {
         LOG.debug("Reporting issue to Health Checker Service: " + rid);
-        try{
+        try {
             healthCheckService.reportIssue(healthCheckUID, rid, new HealthCheckReport(message, severity));
         } catch (InputNullException e) {
             LOG.error("Unable to report Issues to Health Check Service");
@@ -303,8 +306,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         }
     }
 
-    private void resolveIssue(String rid){
-        try{
+    private void resolveIssue(String rid) {
+        try {
             LOG.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(healthCheckUID, rid);
         } catch (InputNullException e) {
