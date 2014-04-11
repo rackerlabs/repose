@@ -45,7 +45,7 @@ public class LocalhostFilterListTest {
 
          // TODO Model: HTTPS
          SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(getHttpPortList(8080));
-         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain(mockedPowerProxy);
+         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain(mockedPowerProxy).get();
          
          assertNotNull(localServiceDomain);
          
