@@ -22,7 +22,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getLocalServiceDomain_returnsMatchingCluster() throws Exception {
+    public void "when passed a valid system model, getLocalServiceDomain(...) should return a matching cluster"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<ReposeCluster> returnedCluster = interrogator.getLocalServiceDomain(sysModel)
@@ -39,7 +39,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getLocalServiceDomain_returnsAbsentOptional() throws Exception {
+    public void "when passed a system model missing a matching cluster, getLocalServiceDomain(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
 
@@ -49,7 +49,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getLocalHost_returnsMatchingNode() throws Exception {
+    public void "when passed a valid system model, getLocalHost(...) should return a matching node"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Node> returnedNode = interrogator.getLocalHost(sysModel)
@@ -65,7 +65,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getLocalHost_returnsAbsentOptional() throws Exception {
+    public void "when passed a system model missing a matching node, getLocalHost(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
 
@@ -75,7 +75,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getDefaultDestination_returnsMatchingDestination() throws Exception {
+    public void "when passed a valid system model, getDefaultDestination(...) should return a matching default destination"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Destination> returnedDest = interrogator.getDefaultDestination(sysModel)
@@ -90,7 +90,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void getDefaultDestination_returnsAbsentOptional() throws Exception {
+    public void "when passed a system model missing a matching default destination, getDefaultDestination(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
 
