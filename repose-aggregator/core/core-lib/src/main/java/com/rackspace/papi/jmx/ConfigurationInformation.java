@@ -35,7 +35,8 @@ import java.util.*;
 public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
-    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+
     private final ConfigurationService configurationService;
     private final List<FilterInformation> filterChain;
     private final HealthCheckService healthCheckService;
@@ -140,10 +141,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
                 initialized = true;
 
-                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

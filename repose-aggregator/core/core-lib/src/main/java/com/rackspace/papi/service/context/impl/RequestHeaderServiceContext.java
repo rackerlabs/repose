@@ -27,7 +27,7 @@ import javax.servlet.ServletContextEvent;
 @Component("requestHeaderServiceContext")
 public class RequestHeaderServiceContext implements ServiceContext<RequestHeaderService> {
     private static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceContext.class);
-    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String SERVICE_NAME = "powerapi:/services/request_header";
 
     private final RequestHeaderService requestHeaderService;

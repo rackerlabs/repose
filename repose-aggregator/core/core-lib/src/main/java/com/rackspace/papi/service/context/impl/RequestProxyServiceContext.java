@@ -26,7 +26,7 @@ import javax.servlet.ServletContextEvent;
 @Lazy(true)
 public class RequestProxyServiceContext implements ServiceContext<RequestProxyService> {
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceContext.class);
-    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String SERVICE_NAME = "powerapi:/services/proxy";
 
     private final ConfigurationService configurationManager;
