@@ -103,10 +103,10 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
                 proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }
