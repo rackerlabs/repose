@@ -130,10 +130,10 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
         public void configurationUpdated(SystemModel systemModel) {
 
             final SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Optional<Node> lh = interrogator.getLocalHost(systemModel);
+            Optional<Node> ln = interrogator.getLocalNode(systemModel);
 
-            if (lh.isPresent()) {
-                hostname = lh.get().getHostname();
+            if (ln.isPresent()) {
+                hostname = ln.get().getHostname();
 
                 final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
                 requestHeaderService.updateConfig(viaBuilder);

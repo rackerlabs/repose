@@ -37,7 +37,7 @@ public class SystemModelInterrogator {
         this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), ports);
     }
 
-    //todo: if this is a spring bean, then we shouldn't allow instantiation.
+    //todo: if this object is a spring bean, then we shouldn't allow instantiation.
     public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, ServicePorts ports) {
         this.nameResolver = nameResolver;
         this.networkInterfaceProvider = nip;
@@ -47,7 +47,7 @@ public class SystemModelInterrogator {
     /**
      * Returns the ReposeCluster that the localhost belongs to.
      */
-    public Optional<ReposeCluster> getLocalServiceDomain(SystemModel systemModel) {
+    public Optional<ReposeCluster> getLocalCluster(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             if (getLocalNodeForPorts(cluster, ports).isPresent()) {
                 return Optional.of(cluster);
@@ -60,7 +60,7 @@ public class SystemModelInterrogator {
     /**
      * Returns the Node that matches the localhost.
      */
-    public Optional<Node> getLocalHost(SystemModel systemModel) {
+    public Optional<Node> getLocalNode(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             Optional<Node> node = getLocalNodeForPorts(cluster, ports);
 
@@ -76,7 +76,7 @@ public class SystemModelInterrogator {
      * Returns the default Destination for the cluster that the localhost belongs to.
      */
     public Optional<Destination> getDefaultDestination(SystemModel systemModel) {
-        Optional<ReposeCluster> cluster = getLocalServiceDomain(systemModel);
+        Optional<ReposeCluster> cluster = getLocalCluster(systemModel);
 
         if (!cluster.isPresent()) {
             return Optional.absent();

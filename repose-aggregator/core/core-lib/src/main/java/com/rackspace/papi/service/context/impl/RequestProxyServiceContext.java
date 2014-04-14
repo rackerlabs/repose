@@ -97,7 +97,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
         @Override
         public void configurationUpdated(SystemModel config) {
-            Optional<ReposeCluster> serviceDomain = interrogator.getLocalServiceDomain(config);
+            Optional<ReposeCluster> serviceDomain = interrogator.getLocalCluster(config);
 
             if (serviceDomain.isPresent()) {
                 proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());

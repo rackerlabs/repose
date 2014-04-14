@@ -39,7 +39,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
             Optional<Destination> destination = modelInterrogator.getDefaultDestination(configurationObject);
-            Optional<ReposeCluster> cluster = modelInterrogator.getLocalServiceDomain(configurationObject);
+            Optional<ReposeCluster> cluster = modelInterrogator.getLocalCluster(configurationObject);
 
             dst = destination.orNull();
             if (cluster.isPresent() && !destination.isPresent()) {

@@ -25,7 +25,7 @@ public class SystemModelInterrogatorTest {
     public void "when passed a valid system model, getLocalServiceDomain(...) should return a matching cluster"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalServiceDomain(sysModel)
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
 
         assertTrue(returnedCluster.isPresent())
 
@@ -43,7 +43,7 @@ public class SystemModelInterrogatorTest {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
 
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalServiceDomain(sysModel)
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
 
         assertFalse(returnedCluster.isPresent())
     }
@@ -52,7 +52,7 @@ public class SystemModelInterrogatorTest {
     public void "when passed a valid system model, getLocalHost(...) should return a matching node"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
-        Optional<Node> returnedNode = interrogator.getLocalHost(sysModel)
+        Optional<Node> returnedNode = interrogator.getLocalNode(sysModel)
 
         assertTrue(returnedNode.isPresent())
 
@@ -69,7 +69,7 @@ public class SystemModelInterrogatorTest {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("www.example.com")
 
-        Optional<Node> returnedNode = interrogator.getLocalHost(sysModel)
+        Optional<Node> returnedNode = interrogator.getLocalNode(sysModel)
 
         assertFalse(returnedNode.isPresent())
     }

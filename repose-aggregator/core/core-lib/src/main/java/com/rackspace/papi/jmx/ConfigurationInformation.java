@@ -13,7 +13,6 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
-import com.rackspace.papi.service.healthcheck.InputNullException;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +124,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             initialized = false;
 
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Optional<ReposeCluster> cluster = interrogator.getLocalServiceDomain(systemModel);
+            Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
             if (cluster.isPresent()) {
                 synchronized (filters) {

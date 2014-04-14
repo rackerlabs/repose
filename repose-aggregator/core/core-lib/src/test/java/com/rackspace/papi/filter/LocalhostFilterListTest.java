@@ -45,7 +45,7 @@ public class LocalhostFilterListTest {
 
          // TODO Model: HTTPS
          SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(getHttpPortList(8080));
-         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain(mockedPowerProxy).get();
+         ReposeCluster localServiceDomain = localhostFilterList.getLocalCluster(mockedPowerProxy).get();
          
          assertNotNull(localServiceDomain);
          
@@ -83,7 +83,7 @@ public class LocalhostFilterListTest {
        * List<Host> hosts = new ArrayList<Host>(); when(mockedPowerProxy.getHost()).thenReturn(hosts);
        *
        * SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080);
-       * List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
+       * List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalNode().getFilters().getFilter();
        *
        * assertNotNull(filters); }
        *

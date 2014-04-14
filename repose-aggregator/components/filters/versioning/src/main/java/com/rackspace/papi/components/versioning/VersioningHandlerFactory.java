@@ -67,8 +67,8 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Optional<ReposeCluster> cluster = interrogator.getLocalServiceDomain(configurationObject);
-            Optional<Node> node = interrogator.getLocalHost(configurationObject);
+            Optional<ReposeCluster> cluster = interrogator.getLocalCluster(configurationObject);
+            Optional<Node> node = interrogator.getLocalNode(configurationObject);
 
             if (cluster.isPresent() && node.isPresent()) {
                 localDomain = cluster.get();

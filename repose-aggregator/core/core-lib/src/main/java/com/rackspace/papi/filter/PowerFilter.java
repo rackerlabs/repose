@@ -94,13 +94,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             if (currentSystemModel != null) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
 
-                Optional<Node> lh = interrogator.getLocalHost(currentSystemModel);
-                Optional<ReposeCluster> sd = interrogator.getLocalServiceDomain(currentSystemModel);
+                Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
+                Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
                 Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
 
-                if (lh.isPresent() && sd.isPresent() && dd.isPresent()) {
-                    localHost = lh.get();
-                    serviceDomain = sd.get();
+                if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
+                    localHost = ln.get();
+                    serviceDomain = lc.get();
                     defaultDst = dd.get();
                     healthCheckServiceHelper.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
                 } else {
@@ -141,13 +141,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 } else {
                     SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
 
-                    Optional<Node> lh = interrogator.getLocalHost(currentSystemModel);
-                    Optional<ReposeCluster> sd = interrogator.getLocalServiceDomain(currentSystemModel);
+                    Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
+                    Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
                     Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
 
-                    if (lh.isPresent() && sd.isPresent() && dd.isPresent()) {
-                        localHost = lh.get();
-                        serviceDomain = sd.get();
+                    if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
+                        localHost = ln.get();
+                        serviceDomain = lc.get();
                         defaultDst = dd.get();
 
                         healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
