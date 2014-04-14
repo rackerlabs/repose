@@ -1,5 +1,4 @@
 package com.rackspace.papi.filter
-
 import com.google.common.base.Optional
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
@@ -7,8 +6,9 @@ import com.rackspace.papi.model.*
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertTrue
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.instanceOf
+import static org.junit.Assert.*
 
 public class SystemModelInterrogatorTest {
     private SystemModelInterrogator interrogator
@@ -31,11 +31,10 @@ public class SystemModelInterrogatorTest {
 
         ReposeCluster cluster = returnedCluster.get()
 
-        assertTrue(cluster.getId().equals("cluster1"))
-        assertTrue(cluster.getNodes().getNode().get(0).getId().equals("node1"))
-        assertTrue(cluster.getNodes().getNode().get(0).getHostname().equals("localhost"))
-        assertTrue(cluster.getNodes().getNode().get(0).getId().equals("node1"))
-        assertTrue(cluster.getNodes().getNode().get(0).getHttpPort() == 8080)
+        assertThat(cluster.getId(), equalTo("cluster1"))
+        assertThat(cluster.getNodes().getNode().get(0).getId(), equalTo("node1"))
+        assertThat(cluster.getNodes().getNode().get(0).getHostname(), equalTo("localhost"))
+        assertThat(cluster.getNodes().getNode().get(0).getHttpPort(), equalTo(8080))
     }
 
     @Test
@@ -58,10 +57,9 @@ public class SystemModelInterrogatorTest {
 
         Node node = returnedNode.get()
 
-        assertTrue(node.getId().equals("node1"))
-        assertTrue(node.getHostname().equals("localhost"))
-        assertTrue(node.getId().equals("node1"))
-        assertTrue(node.getHttpPort() == 8080)
+        assertThat(node.getId(), equalTo("node1"))
+        assertThat(node.getHostname(), equalTo("localhost"))
+        assertThat(node.getHttpPort(), equalTo(8080))
     }
 
     @Test
@@ -84,9 +82,10 @@ public class SystemModelInterrogatorTest {
 
         Destination destination = returnedDest.get()
 
-        assertTrue(destination.getId().equals("dest1"))
-        assertTrue(destination.getProtocol().equals("http"))
-        assertTrue(destination instanceof DestinationEndpoint)
+        assertThat(destination.getId(), equalTo("dest1"))
+        assertThat(destination.getProtocol(), equalTo("http"))
+        assertThat(destination.getId(), equalTo("dest1"))
+        assertThat(destination, instanceOf(DestinationEndpoint))
     }
 
     @Test
