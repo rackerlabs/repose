@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFactory<VersioningHandler> {
     private static final Logger LOG = LoggerFactory.getLogger(VersioningHandlerFactory.class);
-    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
 
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
@@ -90,10 +90,10 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

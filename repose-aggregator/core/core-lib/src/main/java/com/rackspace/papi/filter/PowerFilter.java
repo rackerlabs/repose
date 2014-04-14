@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class PowerFilter extends ApplicationContextAwareFilter {
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-    public static final String systemModelConfigHealthReport = "SystemModelConfigError";
-    public static final String applicationDeploymentHealthReport = "ApplicationDeploymentError";
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+    public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
 
     private final Object internalLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
@@ -102,13 +102,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     localHost = lh.get();
                     serviceDomain = sd.get();
                     defaultDst = dd.get();
-                    healthCheckServiceHelper.resolveIssue(applicationDeploymentHealthReport);
+                    healthCheckServiceHelper.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
                 } else {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
                     LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                    healthCheckServiceHelper.reportIssue(applicationDeploymentHealthReport, "Unable to identify the " +
+                    healthCheckServiceHelper.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
 
@@ -150,10 +150,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                         serviceDomain = sd.get();
                         defaultDst = dd.get();
 
-                        healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+                        healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     } else {
                         LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                        healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "Unable to identify the " +
+                        healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
 
