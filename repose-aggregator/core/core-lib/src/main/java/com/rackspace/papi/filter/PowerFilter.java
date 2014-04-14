@@ -218,12 +218,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         healthCheckService = papiContext.healthCheckService();
         responseHeaderService = papiContext.responseHeaderService();
 
-        try {
-            healthCheckUID = healthCheckService.register(this.getClass());
-        } catch (InputNullException ine) {
-            LOG.error("Could not register with health check service -- this should never happen");
-        }
-
+        healthCheckUID = healthCheckService.register(PowerFilter.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUID);
 
         if (papiContext.metricsService() != null) {

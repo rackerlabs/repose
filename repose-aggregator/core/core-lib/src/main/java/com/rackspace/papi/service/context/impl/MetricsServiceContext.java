@@ -49,12 +49,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         this.metricsService = metricsService;
         metricsCfgListener = new MetricsCfgListener();
         this.healthCheckService = healthCheckService;
-        try{
-            healthCheckUID = healthCheckService.register(this.getClass());
-        } catch (InputNullException e) {
-            LOG.error("Unable to register to health check service");
-        }
-
+        healthCheckUID = healthCheckService.register(MetricsServiceContext.class);
     }
 
     private void register() {

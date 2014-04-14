@@ -12,7 +12,6 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
-import com.rackspace.papi.service.healthcheck.InputNullException;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +119,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        try {
-            healthCheckUid = healthCheckService.register(this.getClass());
-        } catch (InputNullException ine) {
-            LOG.error("Could not register with health check service -- this should never happen");
-        }
-
+        healthCheckUid = healthCheckService.register(RequestProxyServiceContext.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         configurationManager.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);

@@ -62,11 +62,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.registry = registry;
         this.healthCheckService = healthCheckService;
-        try {
-            healthCheckUID = healthCheckService.register(this.getClass());
-        } catch (InputNullException e) {
-
-        }
+        healthCheckUID = healthCheckService.register(DistributedDatastoreServiceClusterContext.class);
     }
 
     @Override

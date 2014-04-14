@@ -92,11 +92,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
         this.configurationManager = configurationService;
         this.instanceInfo = instanceInfo;
-        try {
-            healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
-        } catch (InputNullException e) {
-            LOG.error("Error registering to Health Check Service: " + e.getMessage(), e);
-        }
+        healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
         issueId = "disdatastore-config-issue";
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");

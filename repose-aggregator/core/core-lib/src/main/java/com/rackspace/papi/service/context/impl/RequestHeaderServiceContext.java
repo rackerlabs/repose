@@ -15,7 +15,6 @@ import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.request.ViaRequestHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
-import com.rackspace.papi.service.healthcheck.InputNullException;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,12 +77,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
         ports = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getServerPorts();
         reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext().getReposeVersion();
 
-        try {
-            healthCheckUid = healthCheckService.register(this.getClass());
-        } catch (InputNullException ine) {
-            LOG.error("Could not register with health check service -- this should never happen");
-        }
-
+        healthCheckUid = healthCheckService.register(RequestHeaderServiceContext.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);

@@ -182,12 +182,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     public void contextInitialized(ServletContextEvent sce) {
         systemModelListener = new SystemModelListener(filterChain, ports);
 
-        try {
-            healthCheckUid = healthCheckService.register(this.getClass());
-        } catch (InputNullException ine) {
-            LOG.error("Could not register with health check service -- this should never happen");
-        }
-
+        healthCheckUid = healthCheckService.register(ConfigurationInformation.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         configurationService.subscribeTo("", "system-model.cfg.xml", systemModelListener, SystemModel.class);

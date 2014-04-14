@@ -15,7 +15,6 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
-import com.rackspace.papi.service.healthcheck.InputNullException;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
@@ -45,12 +44,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
         this.ports = ports;
         this.metricsService = metricsService;
 
-        try {
-            healthCheckUid = healthCheckService.register(this.getClass());
-        } catch (InputNullException ine) {
-            LOG.error("Could not register with health check service -- this should never happen");
-        }
-
+        healthCheckUid = healthCheckService.register(VersioningHandlerFactory.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         transformer = new ContentTransformer();

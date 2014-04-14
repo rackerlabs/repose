@@ -35,7 +35,7 @@ public class MetricsServiceContextTest {
 
 
         @Before
-        public void setUp() throws InputNullException {
+        public void setUp() {
             serviceRegistry = mock(ServiceRegistry.class);
             configurationService = mock(ConfigurationService.class);
             metricsService = mock(MetricsService.class);
@@ -60,7 +60,7 @@ public class MetricsServiceContextTest {
         }
 
         @Test
-        public void verifyRegisteredToHealthCheckService() throws InputNullException {
+        public void verifyRegisteredToHealthCheckService() {
 
             verify(healthCheckService, times(1)).register(MetricsServiceContext.class);
         }
