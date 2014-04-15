@@ -13,7 +13,6 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/slf4jhttplogging", params)
-        repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
@@ -24,11 +23,12 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         logSearch.cleanLog()
 
         when:
+        repose.start()
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
-        logSearch.searchByString("my-test-log") == 1
-        logSearch.searchByString("my-special-log") == 1
+        logSearch.searchByString("my-test-log  - Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=GET").size() == 1
+        logSearch.searchByString("my-special-log  - Remote User=null\tURL Path Requested=http://localhost:10002//\tRequest Protocol=HTTP/1.1").size() == 1
 
     }
 
