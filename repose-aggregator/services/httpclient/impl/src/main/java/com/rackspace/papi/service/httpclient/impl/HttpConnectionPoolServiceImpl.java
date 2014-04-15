@@ -7,6 +7,7 @@ import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -64,6 +65,9 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
         String clientInstanceId = requestedClient.getParams().getParameter(CLIENT_INSTANCE_ID).toString();
         String userId = httpClientUserManager.addUser(clientInstanceId);
+
+        PoolStats poolStats = ((PoolingClientConnectionManager) requestedClient.getConnectionManager()).getTotalStats();
+        LOG.trace("Client requested, pool currently leased: {}, available: {}, pending: {}, max: {}", poolStats.getLeased(), poolStats.getAvailable(), poolStats.getPending(), poolStats.getMax());
 
         return new HttpClientResponseImpl(requestedClient, clientId, clientInstanceId, userId);
     }
