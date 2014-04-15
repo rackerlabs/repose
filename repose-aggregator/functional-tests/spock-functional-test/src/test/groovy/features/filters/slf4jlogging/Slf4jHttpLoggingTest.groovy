@@ -16,12 +16,12 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanlog()
 
     }
 
     def "Test check slf4log" () {
+        def logSearch = new ReposeLogSearch(properties.logFile)
+        logSearch.cleanLog()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
