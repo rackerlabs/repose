@@ -97,10 +97,10 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
         @Override
         public void configurationUpdated(SystemModel config) {
-            Optional<ReposeCluster> serviceDomain = interrogator.getLocalCluster(config);
+            Optional<ReposeCluster> localCluster = interrogator.getLocalCluster(config);
 
-            if (serviceDomain.isPresent()) {
-                proxyService.setRewriteHostHeader(serviceDomain.get().isRewriteHostHeader());
+            if (localCluster.isPresent()) {
+                proxyService.setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
                 isInitialized = true;
 
                 healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
