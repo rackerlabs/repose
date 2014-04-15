@@ -1,5 +1,6 @@
 package features.filters.slf4jlogging
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -15,15 +16,19 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
+        def logSearch = new ReposeLogSearch(properties.logFile)
+        logSearch.cleanlog()
 
     }
 
     def "Test check slf4log" () {
+
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
-        1 == 1
+        logSearch.searchByString("my-test-log") == 1
+        logSearch.searchByString("my-special-log") == 1
 
     }
 
