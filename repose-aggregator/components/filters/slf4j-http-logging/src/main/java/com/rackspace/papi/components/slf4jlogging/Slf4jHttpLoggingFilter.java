@@ -40,7 +40,7 @@ public class Slf4jHttpLoggingFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new Slf4jHttpLoggingHandlerFactory();
         manager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
-        URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/slf4j-http-logging-configuration.xsd");
         manager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, Slf4JHttpLoggingConfig.class);
     }
 }
