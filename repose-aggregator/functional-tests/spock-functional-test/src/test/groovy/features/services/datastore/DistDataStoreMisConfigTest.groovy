@@ -19,8 +19,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
     def searchError = ""
     def searchReason = ""
 
-    @Unroll
-    def "When start data store config #configuration"() {
+    @Unroll("When start data store config #configuration")
+    def "Test data store with wrong config"() {
         given:
         searchError = "Configuration update error. Reason: Validation error on resource"
         searchReason = searchMsg
@@ -58,8 +58,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
     }
 
-    @Unroll
-    def "When start data store mismatch config #configuration"() {
+    @Unroll("When start data store mismatch config #configuration")
+    def "Test data store with mismatch config"() {
         given:
         def searchError = "Configuration update error. Reason: port out of range:-1"
         deproxy = new Deproxy()
@@ -91,8 +91,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
     }
 
-    @Unroll
-    def "When start data store with port out of range: #port"() {
+    @Unroll("When start data store with port out of range: #port")
+    def "Test data store with port out of range"() {
         given:
         def searchError = "port out of range:"+port
         deproxy = new Deproxy()
@@ -123,9 +123,10 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         port    << [65536,-1]
     }
 
-    @Unroll
-    def "When start data store with reserved: #port"() {
+    @Unroll("When start data store with reserved: #port")
+    def "Test start data store with reserved ports"() {
         given:
+        def searchError = "Unable to start Distributed Datastore Jetty Instance: Permission denied"
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
@@ -151,10 +152,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         logSearch.searchByString(searchError).size() > 0
 
         where:
-        port                    |searchError
-        21                      |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
-        22                      |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
-        1023                    |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
+        port << [21, 22, 23, 1023]
 
     }
 
