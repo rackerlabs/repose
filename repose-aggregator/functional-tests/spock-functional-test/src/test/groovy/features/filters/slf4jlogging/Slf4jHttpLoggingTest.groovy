@@ -49,6 +49,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
 
     }
 
+    @Unroll("Test slf4jlog entry failed tests with #method and response code #responseCode")
     def "Test slf4j log entry for failed tests"(){
         given:
         def xmlResp = { request -> return new Response(responseCode) }
