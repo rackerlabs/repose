@@ -185,7 +185,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         healthCheckUid = healthCheckService.register(ConfigurationInformation.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
-        configurationService.subscribeTo("", "system-model.cfg.xml", systemModelListener, SystemModel.class);
+        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 
     @Override
