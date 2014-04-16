@@ -3,6 +3,7 @@ package features.services.datastore
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.category.Bug
+import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
@@ -12,6 +13,7 @@ import spock.lang.Unroll
 /**
  * Created by jennyvo on 4/9/14.
  */
+@Category(Slow)
 class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
     def searchError = ""
@@ -26,7 +28,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        logSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -64,7 +66,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        logSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -97,7 +99,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        logSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -121,16 +123,14 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         port    << [65536,-1]
     }
 
-    @Category(Bug)  // TimeoutException
     @Unroll
     def "When start data store with reserved: #port"() {
         given:
-        def searchError = error
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        logSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -144,29 +144,28 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         when:
         repose.start()
-        waitUntilReadyToServiceRequests("503")
+        waitUntilReadyToServiceRequests("503", false)
 
         then:
         logSearch.searchByString("NullPointerException").size() == 0
         logSearch.searchByString(searchError).size() > 0
 
         where:
-        port                    |error
-        21                      |"FTP"
-        22                      |"Secure Shell"
-        1023                    |"Reserved"
+        port                    |searchError
+        21                      |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
+        22                      |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
+        1023                    |"Unable to start Distributed Datastore Jetty Instance: Permission denied"
 
     }
 
-    @Category(Bug)  // TimeoutException
     def "When start data store port conflict"() {
         given:
-        def searchError = "port conflict"
+        def searchError = "java.net.BindException: Address already in use"
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        logSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -180,7 +179,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         when:
         repose.start()
-        waitUntilReadyToServiceRequests("503")
+        waitUntilReadyToServiceRequests("503", false)
 
         then:
         logSearch.searchByString("NullPointerException").size() == 0
@@ -193,7 +192,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
             deproxy.shutdown()
 
         if (repose)
-            repose.stop()
+            repose.stop([throwExceptionOnKill: false])
 
     }
 }

@@ -5,6 +5,7 @@ import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 import spock.lang.Specification
+import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 import org.rackspace.deproxy.MessageChain
@@ -74,20 +75,29 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
-    def waitUntilReadyToServiceRequests(String responseCode = '200') {
+    def waitUntilReadyToServiceRequests(String responseCode = '200', boolean throwException = true) {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
         MessageChain mc
-        waitForCondition(clock, '35s', '1s', {
-            try {
-                mc = innerDeproxy.makeRequest([url: reposeEndpoint])
-            } catch (Exception e) {}
-            if (mc != null) {
-                return mc.receivedResponse.code.equals(responseCode)
-            } else {
+        try{
+            waitForCondition(clock, '35s', '1s', {
+                try {
+                    mc = innerDeproxy.makeRequest([url: reposeEndpoint])
+                } catch (Exception e) {}
+                if (mc != null) {
+                    return mc.receivedResponse.code.equals(responseCode)
+                } else {
+                    return false
+                }
+            })
+        } catch (TimeoutException exc){
+            if(throwException){
+                throw exc
+            }else{
                 return false
             }
-        })
+        }
+
     }
 
     // Helper methods to minimize refactoring in all test classes
