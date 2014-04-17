@@ -66,9 +66,6 @@
 
                                 <mapping>
                                     <directory>/usr/bin</directory>
-                                    <username>tomcat</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
