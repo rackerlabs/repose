@@ -29,16 +29,13 @@ class ConfigurationInformationTest extends Specification {
     HealthCheckService healthCheckService
 
     @Shared
-    ServicePorts ports
+    ServicePorts ports = new ServicePorts()
 
     @Shared
-    ByteArrayOutputStream log
+    ByteArrayOutputStream log = new ByteArrayOutputStream()
 
     def setupSpec() {
         def logger = Logger.getLogger(ConfigurationInformation.class)
-
-        ports = new ServicePorts()
-        log = new ByteArrayOutputStream()
 
         logger.addAppender(new WriterAppender(new SimpleLayout(), log))
 
@@ -55,7 +52,7 @@ class ConfigurationInformationTest extends Specification {
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
 
-        doNothing().when(configurationService).subscribeTo(any(String.class), listenerCaptor.capture(), any(Class.class))
+        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
         ports.clear()
@@ -78,7 +75,7 @@ class ConfigurationInformationTest extends Specification {
         def listenerObject
         def listenerCaptor = ArgumentCaptor.forClass(UpdateListener.class)
 
-        doNothing().when(configurationService).subscribeTo(any(String.class), listenerCaptor.capture(), any(Class.class))
+        doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
         ports.clear()
