@@ -90,7 +90,7 @@ public class RequestHeaderServiceContextTest {
 
         listenerObject.configurationUpdated(systemModel);
 
-        verify(healthCheckService).solveIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT));
+        verify(healthCheckService).solveIssue(any(String.class), eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT));
         assertTrue(listenerObject.isInitialized());
     }
 
@@ -110,7 +110,7 @@ public class RequestHeaderServiceContextTest {
 
         listenerObject.configurationUpdated(systemModel);
 
-        verify(healthCheckService).reportIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
+        verify(healthCheckService).reportIssue(any(String.class), eq(RequestHeaderServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
                 any(HealthCheckReport.class));
         assertFalse(listenerObject.isInitialized());
         assertThat(new String(log.toByteArray()), containsString("Unable to identify the local host in the system model"));
