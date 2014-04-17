@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
+           xmlns:slf4jlog="http://docs.rackspacecloud.com/repose/slf4j-http-logging/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="slf4j-http-logging" type="slf4jlog:slf4j-http-logging-config" />
+
+    <xs:complexType name="slf4j-http-logging-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>This is the type definition for SLF4j targeted http logging configuration</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="slf4j-http-log" type="slf4jlog:slf4j-http-log" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="slf4j-http-log">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Root element containing configuration for SLF4j HTTP logging</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                    (Current log4j 1.2) to direct it's output to an appender. See the log4j documentation as for how to
+                    do this.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="format" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The format includes what will be logged. The arguments with % are a subset of the apache
+                        mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

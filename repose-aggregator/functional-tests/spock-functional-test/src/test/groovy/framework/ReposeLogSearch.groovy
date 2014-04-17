@@ -1,5 +1,6 @@
 package framework
 
+import java.nio.channels.FileChannel
 
 /**
 * Responsible for searching log file for an instance of Repose
@@ -30,5 +31,14 @@ class ReposeLogSearch {
 
         return foundMatches;
 
+    }
+
+    public def cleanLog(){
+        new FileOutputStream(logFileLocation).getChannel().truncate(0).close();
+    }
+
+    public def deleteLog(){
+        File logFile=new File(logFileLocation);
+        logFile.delete()
     }
 }

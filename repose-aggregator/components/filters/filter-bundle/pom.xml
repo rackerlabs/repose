@@ -94,6 +94,11 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>slf4j-http-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>translation</artifactId>
         </dependency>
 
