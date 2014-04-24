@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>4.1.4</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
