@@ -17,13 +17,11 @@ import spock.lang.Unroll
 class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
     def searchError = ""
-    def searchReason = ""
 
     @Unroll("When start data store config #configuration")
     def "Test data store with wrong config"() {
         given:
         searchError = "Configuration update error. Reason: Validation error on resource"
-        searchReason = searchMsg
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
@@ -47,7 +45,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         then:
         logSearch.searchByString("NullPointerException").size() == 0
         logSearch.searchByString(searchError).size() > 0
-        logSearch.searchByString(searchReason).size() > 0
+        logSearch.searchByString(searchMsg).size() > 0
 
         where:
         configuration                   |searchMsg
