@@ -53,7 +53,7 @@ public class CompiledRegexAndList {
         
         filterList = new HashSet<String>();
         for(HttpHeader header : headerList){
-            filterList.add(header.getId().toLowerCase());
+            filterList.add(header.getId());
         }
     }
 }

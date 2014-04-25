@@ -19,7 +19,7 @@ public final class HeaderNormalizer {
         
         while(headerNames.hasMoreElements()){
             header = headerNames.nextElement();
-            headersToRemove.add(header.toLowerCase());
+            headersToRemove.add(header);
         }
 
         if(!target.isBlackList()){
