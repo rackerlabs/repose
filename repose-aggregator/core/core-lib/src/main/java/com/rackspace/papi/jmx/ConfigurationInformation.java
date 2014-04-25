@@ -111,13 +111,6 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
         private boolean initialized = false;
-        private final List<FilterInformation> filters;
-        private final ServicePorts ports;
-
-        SystemModelListener(List<FilterInformation> filters, ServicePorts ports) {
-            this.filters = filters;
-            this.ports = ports;
-        }
 
         @Override
         public void configurationUpdated(SystemModel systemModel) {
@@ -128,12 +121,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
             if (cluster.isPresent()) {
-                synchronized (filters) {
-                    filters.clear();
+                synchronized (filterChain) {
+                    filterChain.clear();
 
                     if (cluster.get().getFilters() != null && cluster.get().getFilters().getFilter() != null) {
                         for (Filter filter : cluster.get().getFilters().getFilter()) {
-                            filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
+                            filterChain.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
                                     filter.getConfiguration(), false));
                         }
                     }
@@ -180,10 +173,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        systemModelListener = new SystemModelListener(filterChain, ports);
-
         healthCheckUid = healthCheckService.register(ConfigurationInformation.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+
+        systemModelListener = new SystemModelListener();
 
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
