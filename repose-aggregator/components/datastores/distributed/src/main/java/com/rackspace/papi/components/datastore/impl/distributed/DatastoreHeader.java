@@ -10,7 +10,7 @@ public enum DatastoreHeader implements HeaderConstant {
    private final String headerKey;
 
    private DatastoreHeader(String headerKey) {
-      this.headerKey = headerKey.toLowerCase();
+      this.headerKey = headerKey;
    }
 
    @Override
