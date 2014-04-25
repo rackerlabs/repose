@@ -22,7 +22,7 @@ public class ClassPathUriResolver extends SourceUriResolver {
     @Override
     public Source resolve(String href, String base) throws TransformerException {
 
-        if (href != null && href.toLowerCase().startsWith(CLASSPATH_PREFIX)) {
+        if (href != null && href.startsWith(CLASSPATH_PREFIX)) {
             String path = href.substring(CLASSPATH_PREFIX.length());
             InputStream resource = getClass().getResourceAsStream(path);
             if (resource == null) {
