@@ -3,10 +3,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import com.rackspace.papi.commons.util.http.header.SplittableHeaderUtil;
+import com.rackspace.papi.commons.util.http.header.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -14,8 +11,8 @@ import java.util.*;
 public class ResponseHeaderContainer implements HeaderContainer {
 
     private final HttpServletResponse response;
-    private final List<String> headerNames;
-    private final Map<String, List<HeaderValue>> headerValues;
+    private final List<HeaderNameMapKey> headerNames;
+    private final Map<HeaderNameMapKey, List<HeaderValue>> headerValues;
     private SplittableHeaderUtil splitable;
 
     public ResponseHeaderContainer(HttpServletResponse response) {
@@ -26,33 +23,31 @@ public class ResponseHeaderContainer implements HeaderContainer {
         this.headerValues = extractHeaderValues();
     }
 
-    private List<String> extractHeaderNames() {
-        List<String> result = new LinkedList<String>();
+    private List<HeaderNameMapKey> extractHeaderNames() {
+        List<HeaderNameMapKey> result = new LinkedList<HeaderNameMapKey>();
         if (response != null) {
             Collection<String> names = response.getHeaderNames();
 
             for (String name : names) {
-                result.add(name.toLowerCase());
+                result.add(new HeaderNameMapKey(name));
             }
         }
 
         return result;
     }
 
-    private Map<String, List<HeaderValue>> extractHeaderValues() {
-        Map<String, List<HeaderValue>> valueMap = new HashMap<String, List<HeaderValue>>();
+    private Map<HeaderNameMapKey, List<HeaderValue>> extractHeaderValues() {
+        Map<HeaderNameMapKey, List<HeaderValue>> valueMap = new HashMap<HeaderNameMapKey, List<HeaderValue>>();
 
         if (response != null) {
-            for (String name : getHeaderNames()) {
-                if (splitable.isSplitable(name)) {
-
-                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
-                    valueMap.put(name, parser.parse());
-                }else{
+            for (String headerName : getHeaderNames()) {
+                if (splitable.isSplitable(headerName)) {
+                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(headerName), headerName);
+                    valueMap.put(new HeaderNameMapKey(headerName), parser.parse());
+                } else {
                     List<HeaderValue> values = new ArrayList<HeaderValue>();
-                    values.add(new HeaderValueImpl(response.getHeader(name)));
-                    valueMap.put(name, values);
-
+                    values.add(new HeaderValueImpl(response.getHeader(headerName)));
+                    valueMap.put(new HeaderNameMapKey(headerName), values);
                 }
             }
         }
@@ -63,7 +58,13 @@ public class ResponseHeaderContainer implements HeaderContainer {
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
     public List<String> getHeaderNames() {
-        return headerNames;
+        List<String> names = new LinkedList<String>();
+
+        for (HeaderNameMapKey headerNameMapKey : headerNames) {
+            names.add(headerNameMapKey.getName());
+        }
+
+        return names;
     }
 
     @Override
