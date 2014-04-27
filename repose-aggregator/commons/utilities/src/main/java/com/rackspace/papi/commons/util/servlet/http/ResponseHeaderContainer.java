@@ -40,14 +40,16 @@ public class ResponseHeaderContainer implements HeaderContainer {
         Map<HeaderNameMapKey, List<HeaderValue>> valueMap = new HashMap<HeaderNameMapKey, List<HeaderValue>>();
 
         if (response != null) {
-            for (String headerName : getHeaderNames()) {
-                if (splitable.isSplitable(headerName)) {
-                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(headerName), headerName);
-                    valueMap.put(new HeaderNameMapKey(headerName), parser.parse());
+            for (HeaderNameMapKey headerNameKey : headerNames) {
+                String name = headerNameKey.getName();
+
+                if (splitable.isSplitable(name)) {
+                    HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name), name);
+                    valueMap.put(headerNameKey, parser.parse());
                 } else {
                     List<HeaderValue> values = new ArrayList<HeaderValue>();
-                    values.add(new HeaderValueImpl(response.getHeader(headerName)));
-                    valueMap.put(new HeaderNameMapKey(headerName), values);
+                    values.add(new HeaderValueImpl(response.getHeader(name)));
+                    valueMap.put(headerNameKey, values);
                 }
             }
         }
