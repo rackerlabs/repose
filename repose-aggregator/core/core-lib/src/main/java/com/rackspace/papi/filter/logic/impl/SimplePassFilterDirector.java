@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.AbstractFilterDirector;
@@ -60,12 +61,12 @@ class EmptyHeaderManager implements HeaderManager {
   }
 
   @Override
-  public Map<String, Set<String>> headersToAdd() {
+  public Map<HeaderNameStringWrapper, Set<String>> headersToAdd() {
     return Collections.EMPTY_MAP;
   }
 
   @Override
-  public Set<String> headersToRemove() {
+  public Set<HeaderNameStringWrapper> headersToRemove() {
     return Collections.EMPTY_SET;
   }
 

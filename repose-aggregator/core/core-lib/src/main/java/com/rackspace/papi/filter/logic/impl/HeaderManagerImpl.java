@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.logic.impl;
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
@@ -13,28 +14,28 @@ import java.util.*;
  */
 public class HeaderManagerImpl implements HeaderManager {
 
-    private final Map<String, Set<String>> headersToAdd;
-    private final Set<String> headersToRemove;
+    private final Map<HeaderNameStringWrapper, Set<String>> headersToAdd;
+    private final Set<HeaderNameStringWrapper> headersToRemove;
     private boolean removeAllHeaders;
 
     public HeaderManagerImpl() {
-        headersToAdd = new HashMap<String, Set<String>>();
-        headersToRemove = new HashSet<String>();
+        headersToAdd = new HashMap<HeaderNameStringWrapper, Set<String>>();
+        headersToRemove = new HashSet<HeaderNameStringWrapper>();
         removeAllHeaders = false;
     }
 
     private void applyTo(HeaderApplicationLogic applier) {
         // Remove headers first to make sure put logic stays sane
         if (!removeAllHeaders) {
-            for (String header : headersToRemove()) {
-                applier.removeHeader(header);
+            for (HeaderNameStringWrapper header : headersToRemove()) {
+                applier.removeHeader(header.getName());
             }
         } else {
             applier.removeAllHeaders();
         }
 
-        for (Map.Entry<String, Set<String>> header : headersToAdd().entrySet()) {
-            applier.addHeader(header.getKey(), header.getValue());
+        for (Map.Entry<HeaderNameStringWrapper, Set<String>> header : headersToAdd().entrySet()) {
+            applier.addHeader(header.getKey().getName(), header.getValue());
         }
     }
 
@@ -56,12 +57,12 @@ public class HeaderManagerImpl implements HeaderManager {
     }
 
     @Override
-    public Map<String, Set<String>> headersToAdd() {
+    public Map<HeaderNameStringWrapper, Set<String>> headersToAdd() {
         return headersToAdd;
     }
 
     @Override
-    public Set<String> headersToRemove() {
+    public Set<HeaderNameStringWrapper> headersToRemove() {
         return headersToRemove;
     }
 
@@ -69,23 +70,23 @@ public class HeaderManagerImpl implements HeaderManager {
     public void putHeader(String key, String... values) {
         // We remove the key first to preserve put logic such that any header put
         // will remove the header before setting new values
-        headersToRemove.add(key.toLowerCase());
+        headersToRemove.add(new HeaderNameStringWrapper(key));
 
-        headersToAdd.put(key.toLowerCase(), new LinkedHashSet<String>(Arrays.asList(values)));
+        headersToAdd.put(new HeaderNameStringWrapper(key), new LinkedHashSet<String>(Arrays.asList(values)));
     }
 
     @Override
     public void removeHeader(String key) {
-        headersToRemove.add(key.toLowerCase());
+        headersToRemove.add(new HeaderNameStringWrapper(key));
     }
 
     @Override
     public void appendHeader(String key, String... values) {
-        Set<String> headerValues = headersToAdd.get(key.toLowerCase());
+        Set<String> headerValues = headersToAdd.get(new HeaderNameStringWrapper(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(key.toLowerCase(), headerValues);
+            headersToAdd.put(new HeaderNameStringWrapper(key), headerValues);
         }
 
         headerValues.addAll(Arrays.asList(values));
@@ -101,11 +102,11 @@ public class HeaderManagerImpl implements HeaderManager {
 
     @Override
     public void appendHeader(String key, String value, Double quality) {
-        Set<String> headerValues = headersToAdd.get(key.toLowerCase());
+        Set<String> headerValues = headersToAdd.get(new HeaderNameStringWrapper(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(key.toLowerCase(), headerValues);
+            headersToAdd.put(new HeaderNameStringWrapper(key), headerValues);
         }
 
         headerValues.add(valueWithQuality(value, quality));
@@ -116,9 +117,9 @@ public class HeaderManagerImpl implements HeaderManager {
         final String currentHeaderValue = request.getHeader(key);
 
         if (currentHeaderValue != null) {
-            this.putHeader(key.toLowerCase(), currentHeaderValue + "," + value);
+            this.putHeader(key, currentHeaderValue + "," + value);
         } else {
-            this.putHeader(key.toLowerCase(), value);
+            this.putHeader(key, value);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.logic;
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 
@@ -26,8 +27,8 @@ public interface HeaderManager {
     void removeHeader(String key);
     void removeAllHeaders();
 
-    Map<String, Set<String>> headersToAdd();
-    Set<String> headersToRemove();
+    Map<HeaderNameStringWrapper, Set<String>> headersToAdd();
+    Set<HeaderNameStringWrapper> headersToRemove();
 
     boolean hasHeaders();
 
