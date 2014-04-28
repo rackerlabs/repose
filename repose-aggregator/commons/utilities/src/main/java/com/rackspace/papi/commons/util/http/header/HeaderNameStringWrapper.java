@@ -1,9 +1,9 @@
 package com.rackspace.papi.commons.util.http.header;
 
-public class HeaderNameMapKey {
+public class HeaderNameStringWrapper {
     private String headerName;
 
-    public HeaderNameMapKey(String headerName) {
+    public HeaderNameStringWrapper(String headerName) {
         this.headerName = headerName;
     }
 
@@ -16,7 +16,7 @@ public class HeaderNameMapKey {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
 
-        HeaderNameMapKey that = (HeaderNameMapKey) o;
+        HeaderNameStringWrapper that = (HeaderNameStringWrapper) o;
 
         if (headerName != null ? !headerName.equalsIgnoreCase(that.headerName) : that.headerName != null) { return false; }
 
@@ -30,7 +30,7 @@ public class HeaderNameMapKey {
 
     @Override
     public String toString() {
-        return "HeaderNameMapKey{" +
+        return "HeaderNameStringWrapper{" +
                 "headerName='" + headerName + '\'' +
                 '}';
     }

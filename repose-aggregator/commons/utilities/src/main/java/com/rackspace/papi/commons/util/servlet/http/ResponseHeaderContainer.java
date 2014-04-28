@@ -11,8 +11,8 @@ import java.util.*;
 public class ResponseHeaderContainer implements HeaderContainer {
 
     private final HttpServletResponse response;
-    private final List<HeaderNameMapKey> headerNames;
-    private final Map<HeaderNameMapKey, List<HeaderValue>> headerValues;
+    private final List<HeaderNameStringWrapper> headerNames;
+    private final Map<HeaderNameStringWrapper, List<HeaderValue>> headerValues;
     private SplittableHeaderUtil splitable;
 
     public ResponseHeaderContainer(HttpServletResponse response) {
@@ -23,24 +23,24 @@ public class ResponseHeaderContainer implements HeaderContainer {
         this.headerValues = extractHeaderValues();
     }
 
-    private List<HeaderNameMapKey> extractHeaderNames() {
-        List<HeaderNameMapKey> result = new LinkedList<HeaderNameMapKey>();
+    private List<HeaderNameStringWrapper> extractHeaderNames() {
+        List<HeaderNameStringWrapper> result = new LinkedList<HeaderNameStringWrapper>();
         if (response != null) {
             Collection<String> names = response.getHeaderNames();
 
             for (String name : names) {
-                result.add(new HeaderNameMapKey(name));
+                result.add(new HeaderNameStringWrapper(name));
             }
         }
 
         return result;
     }
 
-    private Map<HeaderNameMapKey, List<HeaderValue>> extractHeaderValues() {
-        Map<HeaderNameMapKey, List<HeaderValue>> valueMap = new HashMap<HeaderNameMapKey, List<HeaderValue>>();
+    private Map<HeaderNameStringWrapper, List<HeaderValue>> extractHeaderValues() {
+        Map<HeaderNameStringWrapper, List<HeaderValue>> valueMap = new HashMap<HeaderNameStringWrapper, List<HeaderValue>>();
 
         if (response != null) {
-            for (HeaderNameMapKey headerNameKey : headerNames) {
+            for (HeaderNameStringWrapper headerNameKey : headerNames) {
                 String name = headerNameKey.getName();
 
                 if (splitable.isSplitable(name)) {
@@ -62,8 +62,8 @@ public class ResponseHeaderContainer implements HeaderContainer {
     public List<String> getHeaderNames() {
         List<String> names = new LinkedList<String>();
 
-        for (HeaderNameMapKey headerNameMapKey : headerNames) {
-            names.add(headerNameMapKey.getName());
+        for (HeaderNameStringWrapper headerNameStringWrapper : headerNames) {
+            names.add(headerNameStringWrapper.getName());
         }
 
         return names;
