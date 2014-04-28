@@ -219,6 +219,6 @@ public class VersioningHandlerTest {
       when(request.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(acceptHeader)));
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
-      assertTrue(director.requestHeaderManager().headersToAdd().get(CommonHttpHeader.ACCEPT.toString().toLowerCase()).contains("application/xml"));
+      assertTrue(director.requestHeaderManager().headersToAdd().get(CommonHttpHeader.ACCEPT.toString()).contains("application/xml"));
    }
 }
