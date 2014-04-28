@@ -23,12 +23,14 @@ public class MediaRangeProcessor {
    }
 
    public MediaType process(HeaderValue headerValue) {
-      MimeType mediaType = MimeType.getMatchingMimeType(headerValue.getValue());
+       String mediaTypeWithParamtersStripped = headerValue.getValue().split(";")[0];
+
+      MimeType mediaType = MimeType.getMatchingMimeType(mediaTypeWithParamtersStripped);
 
       if (MimeType.UNKNOWN.equals(mediaType)) {
-         mediaType = MimeType.guessMediaTypeFromString(headerValue.getValue());
+         mediaType = MimeType.guessMediaTypeFromString(mediaTypeWithParamtersStripped);
       }
       
-      return new MediaType(headerValue.getValue(), mediaType, headerValue.getParameters());
+      return new MediaType(mediaTypeWithParamtersStripped, mediaType, headerValue.getParameters());
    }
 }
