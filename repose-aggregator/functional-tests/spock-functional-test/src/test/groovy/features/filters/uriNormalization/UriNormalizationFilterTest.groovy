@@ -224,4 +224,38 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
+    @Unroll("When header #headerName and #headerValue should be as is")
+    def "headers should be case sensitive"() {
+        given:
+        def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        when: "A request is made to REPOSE"
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + path, method:method, headers:headers)
+
+        then: "Request is forwarded to origin service"
+        mc.handlings.size() == 1
+        def Handling handling = mc.handlings.get(0)
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+        then: "Request sent to origin service matches expected query parameter list"
+        handling.request.path.endsWith("?" + qpAfterRepose)
+
+        where:
+        headerName      | headerValue       | method   | matchingUriRegex    | qpBeforeRepose                      | qpAfterRepose
+        "Accept"        | "application/xml" |"GET"    | "uri_normalization"  | "a=1&a=2&a=3&a=4"                   | "a=1&a=2&a=3&a=4"
+        "accept"        | "application/JSON"|"GET"    | "uri_normalization"  | "a=Add+Space"                       | "a=Add+Space"
+        "Accept"        | "application/XML" |"GET"    | "uri_normalization"  | "r=123&r=second&r=2334&r=1&r=2&r=5" | "r=123&r=second&r=2334"
+        "ACCEPT"        | "APPLICATION/XML" |"GET"    | "uri_normalization"  | "a=1&r=1&r=2&N=test"                | "a=1&r=1&r=2"
+        "Accept"        | "application/Xml" |"GET"    | "uri_normalization"  | "a=1&n=test&N=nonmatchingCase"      | "a=1&n=test"
+        "accept"        | "application/xml" |"GET"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1"
+        "Content-type"  | "application/Json"|"POST"   | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
+        "Content-Type"  | "application/xml" |"PUT"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
+        "Accept"        | "TEXT/PLAIN"      |"DELETE" | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
+    }
 }
