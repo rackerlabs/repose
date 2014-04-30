@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
@@ -106,7 +107,7 @@ public class MutableHttpServletRequestTest {
     public static class WhenGettingHeaderValuesFromMap {
 
         private List<String> headerValues;
-        private Map<String, List<String>> headers;
+        private Map<HeaderNameStringWrapper, List<String>> headers;
 
         @Before
         public void setup() {
@@ -115,9 +116,9 @@ public class MutableHttpServletRequestTest {
             headerValues.add("val2");
             headerValues.add("val3");
 
-            headers = new HashMap<String, List<String>>();
-            headers.put("accept", headerValues);
-            headers.put("ACCEPT-ENCODING", new ArrayList<String>());
+            headers = new HashMap<HeaderNameStringWrapper, List<String>>();
+            headers.put(new HeaderNameStringWrapper("accept"), headerValues);
+            headers.put(new HeaderNameStringWrapper("ACCEPT-ENCODING"), new ArrayList<String>());
         }
 
         @Test

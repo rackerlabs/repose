@@ -13,7 +13,7 @@ import java.util.*;
 public final class HeaderValuesImpl implements HeaderValues {
 
     private static final String HEADERS_PREFIX = "repose.headers.";
-    private final Map<String, List<HeaderValue>> headers;
+    private final Map<HeaderNameStringWrapper, List<HeaderValue>> headers;
     private SplittableHeaderUtil splittable;
 
 
@@ -33,12 +33,12 @@ public final class HeaderValuesImpl implements HeaderValues {
         cloneHeaders(container);
     }
 
-    private Map<String, List<HeaderValue>> initHeaders(HttpServletRequest request, HeaderContainer container) {
-        Map<String, List<HeaderValue>> currentHeaderMap = (Map<String, List<HeaderValue>>) request
+    private Map<HeaderNameStringWrapper, List<HeaderValue>> initHeaders(HttpServletRequest request, HeaderContainer container) {
+        Map<HeaderNameStringWrapper, List<HeaderValue>> currentHeaderMap = (Map<HeaderNameStringWrapper, List<HeaderValue>>) request
                 .getAttribute(HEADERS_PREFIX + container.getContainerType().name());
 
         if (currentHeaderMap == null) {
-            currentHeaderMap = new HashMap<String, List<HeaderValue>>();
+            currentHeaderMap = new HashMap<HeaderNameStringWrapper, List<HeaderValue>>();
             request.setAttribute(HEADERS_PREFIX + container.getContainerType().name(), currentHeaderMap);
         }
 
@@ -47,12 +47,12 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     private void cloneHeaders(HeaderContainer request) {
 
-        final Map<String, List<HeaderValue>> headerMap = new HashMap<String, List<HeaderValue>>();
-        final List<String> headerNames = request.getHeaderNames();
+        final Map<HeaderNameStringWrapper, List<HeaderValue>> headerMap = new HashMap<HeaderNameStringWrapper, List<HeaderValue>>();
+        final List<HeaderNameStringWrapper> headerNames = request.getHeaderNames();
 
-        for (String headerName : headerNames) {
+        for (HeaderNameStringWrapper headerName : headerNames) {
 
-            final List<HeaderValue> headerValues = request.getHeaderValues(headerName.toLowerCase());
+            final List<HeaderValue> headerValues = request.getHeaderValues(headerName.getName());
             headerMap.put(headerName, headerValues);
         }
 
@@ -60,43 +60,45 @@ public final class HeaderValuesImpl implements HeaderValues {
         headers.putAll(headerMap);
     }
 
-    private List<HeaderValue> parseHeaderValues(String value, String headerName) {
-        HeaderFieldParser parser = new HeaderFieldParser(value, headerName);
+    private List<HeaderValue> parseHeaderValues(HeaderNameStringWrapper headerName, String value) {
+        HeaderFieldParser parser = new HeaderFieldParser(value, headerName.getName());
 
         return parser.parse();
     }
 
     @Override
     public void addHeader(String name, String value) {
-        final String lowerCaseName = name.toLowerCase();
+        final HeaderNameStringWrapper wrappedName = new HeaderNameStringWrapper(name);
 
-        List<HeaderValue> headerValues = headers.get(lowerCaseName);
+        List<HeaderValue> headerValues = headers.get(wrappedName);
 
         if (headerValues == null) {
             headerValues = new LinkedList<HeaderValue>();
         }
 
         if (splittable.isSplitable(name)) {
-            headerValues.addAll(parseHeaderValues(value, lowerCaseName));
+            headerValues.addAll(parseHeaderValues(wrappedName, value));
         } else {
             headerValues.add(new HeaderValueImpl(value));
         }
 
-        headers.put(lowerCaseName, headerValues);
+        headers.put(wrappedName, headerValues);
     }
 
     @Override
     public void replaceHeader(String name, String value) {
         final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-        headerValues.addAll(parseHeaderValues(value, name));
+        HeaderNameStringWrapper wrappedName = new HeaderNameStringWrapper(name);
 
-        headers.put(name.toLowerCase(), headerValues);
+        headerValues.addAll(parseHeaderValues(wrappedName, value));
+
+        headers.put(wrappedName, headerValues);
     }
 
     @Override
     public void removeHeader(String name) {
-        headers.remove(name.toLowerCase());
+        headers.remove(new HeaderNameStringWrapper(name));
     }
 
     @Override
@@ -106,29 +108,36 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public String getHeader(String name) {
-        HeaderValue value = fromMap(headers, name.toLowerCase());
+        HeaderValue value = fromMap(headers, name);
         return value != null ? value.toString() : null;
     }
 
     @Override
     public HeaderValue getHeaderValue(String name) {
-        return fromMap(headers, name.toLowerCase());
+        return fromMap(headers, name);
     }
 
-    static <T> T fromMap(Map<String, List<T>> headers, String headerName) {
-        final List<T> headerValues = headers.get(headerName);
+    static <T> T fromMap(Map<HeaderNameStringWrapper, List<T>> headers, String headerName) {
+        final List<T> headerValues = headers.get(new HeaderNameStringWrapper(headerName));
 
         return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return Collections.enumeration(headers.keySet());
+        Set<HeaderNameStringWrapper> headerNamesWrapped = headers.keySet();
+        Set<String> headerNamesAsStrings = new HashSet<String>();
+
+        for (HeaderNameStringWrapper wrappedName : headerNamesWrapped) {
+            headerNamesAsStrings.add(wrappedName.getName());
+        }
+
+        return Collections.enumeration(headerNamesAsStrings);
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        final List<HeaderValue> headerValues = headers.get(name.toLowerCase());
+        final List<HeaderValue> headerValues = headers.get(new HeaderNameStringWrapper(name));
         final List<String> values = new LinkedList<String>();
 
         if (headerValues != null) {
@@ -142,7 +151,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
-        List<HeaderValue> headerValues = headers.get(name.toLowerCase());
+        List<HeaderValue> headerValues = headers.get(new HeaderNameStringWrapper(name));
 
         QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
         List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
@@ -157,7 +166,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue) {
-        List<HeaderValue> headerValues = headers.get(name.toLowerCase());
+        List<HeaderValue> headerValues = headers.get(new HeaderNameStringWrapper(name));
 
         if (headerValues == null || headerValues.isEmpty()) {
             headerValues = new ArrayList<HeaderValue>();
@@ -197,14 +206,14 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public boolean containsHeader(String name) {
-        return headers.containsKey(name);
+        return headers.containsKey(new HeaderNameStringWrapper(name));
     }
 
     @Override
     public void addDateHeader(String name, long value) {
-        final String lowerCaseName = name.toLowerCase();
+        HeaderNameStringWrapper wrappedName = new HeaderNameStringWrapper(name);
 
-        List<HeaderValue> headerValues = headers.get(lowerCaseName);
+        List<HeaderValue> headerValues = headers.get(wrappedName);
 
         if (headerValues == null) {
             headerValues = new LinkedList<HeaderValue>();
@@ -213,17 +222,17 @@ public final class HeaderValuesImpl implements HeaderValues {
         HttpDate date = new HttpDate(new Date(value));
         headerValues.add(new HeaderValueImpl(date.toRFC1123()));
 
-        headers.put(lowerCaseName, headerValues);
+        headers.put(wrappedName, headerValues);
     }
 
     @Override
     public void replaceDateHeader(String name, long value) {
-        headers.remove(name);
+        headers.remove(new HeaderNameStringWrapper(name));
         addDateHeader(name, value);
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headers.get(name);
+        return headers.get(new HeaderNameStringWrapper(name));
     }
 }
