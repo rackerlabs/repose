@@ -59,19 +59,13 @@ public class ResponseHeaderContainer implements HeaderContainer {
 
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
-    public List<String> getHeaderNames() {
-        List<String> names = new LinkedList<String>();
-
-        for (HeaderNameStringWrapper headerNameStringWrapper : headerNames) {
-            names.add(headerNameStringWrapper.getName());
-        }
-
-        return names;
+    public List<HeaderNameStringWrapper> getHeaderNames() {
+        return headerNames;
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(name);
+        return headerValues.get(new HeaderNameStringWrapper(name));
     }
 
     @Override
