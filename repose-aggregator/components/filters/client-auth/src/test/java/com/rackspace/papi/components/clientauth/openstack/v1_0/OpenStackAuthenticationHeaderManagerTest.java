@@ -9,27 +9,22 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.filter.logic.FilterAction;
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openstack.docs.identity.api.v2.*;
 
-import java.util.List;
 import javax.xml.datatype.DatatypeFactory;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Role;
-import org.openstack.docs.identity.api.v2.RoleList;
-import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Token;
-import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
 @RunWith(Enclosed.class)
 public class OpenStackAuthenticationHeaderManagerTest {
@@ -67,7 +62,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         public void shouldAddAuthHeader() {
             filterDirector.setResponseStatusCode(FAIL);
             openStackAuthenticationHeaderManager.setFilterDirectorValues();
-            assertTrue(filterDirector.responseHeaderManager().headersToAdd().containsKey("www-authenticate"));
+            assertTrue(filterDirector.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("www-authenticate")));
         }
         
  
@@ -160,12 +155,12 @@ public class OpenStackAuthenticationHeaderManagerTest {
        @Test
         public void shouldAddHeaders() {
            
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.TENANT_NAME.toString().toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.TENANT_ID.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_NAME.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.USER_ID.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(PowerApiHeader.GROUPS.toString()));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(OpenStackServiceHeader.X_EXPIRATION.toString()));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.TENANT_NAME.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.TENANT_ID.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.USER_NAME.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.USER_ID.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.X_EXPIRATION.toString())));
         }
     }
 }

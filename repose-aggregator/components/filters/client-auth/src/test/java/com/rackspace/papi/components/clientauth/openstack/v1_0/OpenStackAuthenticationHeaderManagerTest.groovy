@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0
 import com.rackspace.auth.AuthGroup
 import com.rackspace.auth.AuthToken
 import com.rackspace.papi.commons.util.http.HttpStatusCode
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
 import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
@@ -39,6 +40,6 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
 
         then:
         openStackAuthenticationHeaderManager.endpointsBase64 == endpointsBase64
-        filterDirector.requestHeaderManager().headersToAdd().containsKey("x-catalog")
+        filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("x-catalog"))
     }
 }
