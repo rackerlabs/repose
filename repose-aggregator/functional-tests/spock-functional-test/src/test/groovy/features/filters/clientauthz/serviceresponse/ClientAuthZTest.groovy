@@ -7,6 +7,7 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 @Category(Slow.class)
 class ClientAuthZTest extends ReposeValveTest {
@@ -93,6 +94,65 @@ class ClientAuthZTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("location").size() == 1
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
+    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    def "Requests - headers should keep its case in requests"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'X-Auth-Token': fakeIdentityService.client_token
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(
+                url: reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss",
+                method: 'GET',
+                headers: headers)
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Accept"           | "text/plain"
+        "ACCEPT"           | "text/PLAIN"
+        "accept"           | "TEXT/plain;q=0.2"
+        "aCCept"           | "text/plain"
+        "CONTENT-Encoding" | "identity"
+        "Content-ENCODING" | "identity"
+        "content-encoding" | "idENtItY"
+        "Content-Encoding" | "IDENTITY"
+    }
+
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'X-Auth-Token': fakeIdentityService.client_token
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss",
+                method: 'GET', defaultHandler: { new Response(201, "Created", headers) })
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Content-Type" | "application/json"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        "content-type" | "application/xMl"
+        "Content-Type" | "APPLICATION/xml"
     }
 
     def "When user is not authorized should receive a 403 FORBIDDEN response"(){

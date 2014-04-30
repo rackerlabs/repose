@@ -149,5 +149,33 @@ class TranslateResponseTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "x-auth-token" | "123445"
+        "X-AUTH-TOKEN" | "239853"
+        "x-AUTH-token" | "slDSFslk&D"
+        "x-auth-TOKEN" | "sl4hsdlg"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        "content-type" | "application/xMl"
+        "Content-Type" | "APPLICATION/xml"
+    }
 
 }

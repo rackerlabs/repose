@@ -192,4 +192,99 @@ class ContentIdentityTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
+    @Unroll("With headers: #xppuser[#xppuservalue],#accept[#acceptvalue],#roles[#rolevalue]")
+    def "Should not toLowerCase headers"() {
+        given:
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+                [
+                        "user-agent": userAgentValue,
+                ]
+        reqHeaders[xppuser.toString()] = xppuservalue.toString()
+        reqHeaders[accept.toString()] = acceptvalue.toString()
+        reqHeaders[roles.toString()] = rolevalue.toString()
+
+        when: "When Requesting resource with headers:#xppuser[#xppuservalue],#accept[#acceptvalue],#roles[#rolevalue]"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
+        def handling = mc.getHandlings()[0]
+
+        then:
+        handling.request.getHeaders().findAll("user-agent").size() == 1
+        handling.request.headers['user-agent'] == userAgentValue
+        handling.request.getHeaders().findAll(xppuser).size() == xppuservalue.split(',').size()
+        handling.request.getHeaders().findAll(accept).size() == acceptvalue.split(',').size()
+        handling.request.headers.contains(xppuser)
+        handling.request.headers.findAll(xppuser) == xppuservalue.split(',')
+        handling.request.headers.contains(accept)
+        handling.request.headers.findAll(accept) == acceptvalue.split(',')
+        handling.request.headers.contains(roles)
+        handling.request.headers.findAll(roles) == rolevalue.split(',')
+
+        where:
+        xppuser     |xppuservalue           |accept     |acceptvalue                        |roles      |rolevalue
+        "x-pp-user" |"usertest1,usertest2"  |"accept"   |"application/xml,application/json" |"x-roles"  |"group1"
+        "X-pp-user" |"User1,user2"          |"Accept"   |"Application/xml,application/JSON" |"X-roles"  |"group1,Group2"
+        "X-PP-User" |"USER1,user2,User2"    |"ACCEPT"   |"APPLICATION/XML"                  |"X-Roles"  |"group1,role1"
+        "X-PP-USER" |"USERTEST"             |"accEPT"   |"application/XML,text/plain"       |"X-ROLES"  |"ROLE1,group1,ROLE30"
+    }
+
+    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    def "Requests - headers should keep its case in requests"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Accept"           | "text/plain"
+        "ACCEPT"           | "text/PLAIN"
+        "accept"           | "TEXT/plain;q=0.2"
+        "aCCept"           | "text/plain"
+        "CONTENT-Encoding" | "identity"
+        "Content-ENCODING" | "identity"
+        "content-encoding" | "idENtItY"
+        "Content-Encoding" | "IDENTITY"
+    }
+
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "x-auth-token" | "123445"
+        "X-AUTH-TOKEN" | "239853"
+        "x-AUTH-token" | "slDSFslk&D"
+        "x-auth-TOKEN" | "sl4hsdlg"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        "content-type" | "application/xMl"
+        "Content-Type" | "APPLICATION/xml"
+    }
 }
