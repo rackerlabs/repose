@@ -22,4 +22,17 @@ class MediaRangeProcessorTest extends Specification {
         then:
         mediaTypeList.get(0).getMimeType() == MimeType.APPLICATION_ATOM_XML
     }
+
+    def "media type parameters stripping should not change behavior when no parameters present"() {
+        given:
+        headerValues = new ArrayList<>()
+        headerValues.add(new HeaderValueImpl("application/atom+xml", 0.1))
+        mediaRangeProcessor = new MediaRangeProcessor(headerValues);
+
+        when:
+        List<MediaType> mediaTypeList = mediaRangeProcessor.process()
+
+        then:
+        mediaTypeList.get(0).getMimeType() == MimeType.APPLICATION_ATOM_XML
+    }
 }
