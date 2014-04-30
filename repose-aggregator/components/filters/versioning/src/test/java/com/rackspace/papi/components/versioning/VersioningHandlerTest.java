@@ -2,6 +2,7 @@ package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
@@ -28,9 +29,6 @@ import static org.mockito.Mockito.when;
  * @author malconis
  */
 public class VersioningHandlerTest {
-
-   public VersioningHandlerTest() {
-   }
    VersioningHandler versioningHandler;
    ContentTransformer contentTransformer;
    ConfigurationData configurationData;
@@ -219,6 +217,6 @@ public class VersioningHandlerTest {
       when(request.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(acceptHeader)));
       FilterDirector director = new FilterDirectorImpl();
       director = versioningHandler.handleRequest(request, null);
-      assertTrue(director.requestHeaderManager().headersToAdd().get(CommonHttpHeader.ACCEPT.toString()).contains("application/xml"));
+      assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(CommonHttpHeader.ACCEPT.toString())).contains("application/xml"));
    }
 }
