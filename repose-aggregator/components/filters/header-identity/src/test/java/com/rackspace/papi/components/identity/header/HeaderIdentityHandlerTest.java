@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.identity.header;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
@@ -74,10 +75,10 @@ public class HeaderIdentityHandlerTest {
         public void shouldSetTheUserHeaderToTheHeaderIpValue() {
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString()));
             assertTrue("Should find IP address in header", values.contains(IP_HEADER_1 + QUALITY_VALUE));
 
-            Set<String> groups = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase());
+            Set<String> groups = result.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString()));
             assertTrue("Should find Group name in header", groups.contains(IP_HEADER_NAME_1 + QUALITY_VALUE));
         }
 
@@ -88,7 +89,7 @@ public class HeaderIdentityHandlerTest {
 
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString()));
             assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
 
             String ip = values.iterator().next();
@@ -102,7 +103,7 @@ public class HeaderIdentityHandlerTest {
 
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString()));
             assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
 
             String ip = values.iterator().next();
