@@ -230,4 +230,42 @@ class ApiValidatorTest extends ReposeValveTest{
         messageChain.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         messageChain.receivedResponse.headers.findAll("via").size() == 1
     }
+
+    @Unroll("With headers: #xppuser-#xppuservalue, #accept-#acceptvalue, #roles-#rolevalue")
+    def "Should not toLowerCase headers"() {
+        given:
+        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders =
+                [
+                        "user-agent": userAgentValue,
+                ]
+        reqHeaders[xppuser.toString()] = xppuservalue.toString()
+        reqHeaders[accept.toString()] = acceptvalue.toString()
+        reqHeaders[roles.toString()] = rolevalue.toString()
+
+        when: "When Requesting resource with x-roles"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
+                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: reqHeaders)
+        def handling = messageChain.getHandlings()[0]
+
+        then:
+        handling.request.getHeaders().findAll("user-agent").size() == 1
+        handling.request.headers['user-agent'] == userAgentValue
+        handling.request.getHeaders().findAll(xppuser).size() == xppuservalue.split(',').size()
+        handling.request.getHeaders().findAll(accept).size() == acceptvalue.split(',').size()
+        handling.request.headers.contains(xppuser)
+        handling.request.headers.findAll(xppuser) == xppuservalue.split(',')
+        handling.request.headers.contains(accept)
+        handling.request.headers.findAll(accept) == acceptvalue.split(',')
+        handling.request.headers.contains(roles)
+        handling.request.headers.findAll(roles) == rolevalue.split(',')
+
+        where:
+        xppuser     |xppuservalue           |accept     |acceptvalue                        |roles      |rolevalue
+        "x-pp-user" |"usertest1,usertest2"  |"accept"   |"application/xml,application/json" |"x-roles"  |"group1"
+        "X-pp-user" |"User1,user2"          |"Accept"   |"Application/xml,application/JSON" |"X-roles"  |"group1,Group2"
+        "X-PP-User" |"USER1,user2,User2"    |"ACCEPT"   |"APPLICATION/XML"                  |"X-Roles"  |"group1,role1"
+        "X-PP-USER" |"USERTEST"             |"accEPT"   |"application/XML,text/plain"       |"X-ROLES"  |"ROLE1,group1,ROLE30"
+    }
 }
