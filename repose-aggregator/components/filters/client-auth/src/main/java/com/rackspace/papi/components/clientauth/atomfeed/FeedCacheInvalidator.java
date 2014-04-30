@@ -5,7 +5,6 @@ import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.common.EndpointsCache;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix;
-import com.rackspace.papi.components.clientauth.rackspace.v1_1.RsAuthCachePrefix;
 import com.rackspace.papi.components.datastore.Datastore;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,20 +44,6 @@ public class FeedCacheInvalidator implements Runnable {
 
       return new FeedCacheInvalidator(tokens, groups, users, endpntsCache, checkInterval);
 
-   }
-
-   public static FeedCacheInvalidator rsAuthInstance(Datastore datastore, long checkInterval) {
-
-      AuthTokenCache tokens = new AuthTokenCache(datastore, RsAuthCachePrefix.TOKEN.toString());
-      AuthGroupCache groups = new AuthGroupCache(datastore, RsAuthCachePrefix.GROUP.toString());
-      AuthUserCache users = new AuthUserCache(datastore, RsAuthCachePrefix.USER.toString());
-
-      return new FeedCacheInvalidator(tokens, groups, users, null, checkInterval);
-
-   }
-
-   public static FeedCacheInvalidator rsAuthInstance(Datastore datastore) {
-      return rsAuthInstance(datastore, DEFAULT_CHECK_INTERVAL);
    }
 
    public static FeedCacheInvalidator openStackInstance(Datastore datastore) {
