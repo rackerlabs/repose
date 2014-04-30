@@ -16,7 +16,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +54,8 @@ public class MutableHttpServletRequestTest {
             originalRequest = mock(HttpServletRequest.class);
 
             when(originalRequest.getHeaderNames()).thenReturn(headerNames);
-            when(originalRequest.getHeaders("accept")).thenReturn(headerValues1);
-            when(originalRequest.getHeaders("accept-encoding")).thenReturn(headerValues2);
+            when(originalRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn(headerValues1);
+            when(originalRequest.getHeaders(argThat(equalToIgnoringCase("accept-encoding")))).thenReturn(headerValues2);
 
             wrappedRequest = MutableHttpServletRequest.wrap(originalRequest);
         }
