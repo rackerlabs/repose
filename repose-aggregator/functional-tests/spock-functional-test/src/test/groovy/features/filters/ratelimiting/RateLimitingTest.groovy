@@ -479,35 +479,6 @@ class RateLimitingTest extends ReposeValveTest {
         "Content-Encoding" | "IDENTITY"
     }
 
-    @Unroll("Responses - headers: #headerName1[#headerValue1] and #headerName2[#headerValue2] keep its case")
-    def "Responses - header keep its case in responses"() {
-
-        when: "make a request with the given header and value"
-        def headers = [
-                'Content-Length': '0',
-                'x-pp-groups'   :'unlimited'
-        ]
-        headers[headerName1.toString()] = headerValue1.toString()
-        headers[headerName2.toString()] = headerValue2.toString()
-
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
-
-        then: "the request should make it to the origin service with the header appropriately split"
-        mc.handlings.size() == 1
-        mc.receivedResponse.headers.contains(headerName1)
-        mc.receivedResponse.headers.getFirstValue(headerName1) == headerValue1
-        mc.receivedResponse.headers.contains(headerName2)
-        mc.receivedResponse.headers.getFirstValue(headerName2) == headerValue2
-
-
-        where:
-        headerName1     | headerValue1                      |headerName2    |headerValue2
-        "x-pp-users"    | "usertest1, usertest2, usertest3" |"CONTENT-Type"  | "application/json"
-        "X-PP-Users"    | "usertest1"                       |"Content-TYPE"  | "application/JSON"
-        "x-pp-Users"    | "test,usertest1"                  |"content-type"  | "application/xMl"
-        "X-PP-USERS"    | "sl4hsdlg, usertest1"             |"Content-Type"  | "APPLICATION/xml"
-    }
-
     // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()

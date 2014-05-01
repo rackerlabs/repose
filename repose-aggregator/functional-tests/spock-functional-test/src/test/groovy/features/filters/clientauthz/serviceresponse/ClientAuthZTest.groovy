@@ -130,15 +130,16 @@ class ClientAuthZTest extends ReposeValveTest {
 
     @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
     def "Responses - header keep its case in responses"() {
-
+        given:
+        def headers = ['X-Auth-Token': fakeIdentityService.client_token]
         when: "make a request with the given header and value"
-        def headers = [
-                'X-Auth-Token': fakeIdentityService.client_token
+        def respHeaders = [
+                "location": "http://somehost.com/blah?a=b,c,d"
         ]
-        headers[headerName.toString()] = headerValue.toString()
+        respHeaders[headerName.toString()] = headerValue.toString()
 
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/"+fakeIdentityService.client_token+"/ss",
-                method: 'GET', defaultHandler: { new Response(201, "Created", headers) })
+                method: 'GET', headers: headers, defaultHandler: { new Response(201, "Created", respHeaders, "") })
 
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
