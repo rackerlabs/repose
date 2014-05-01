@@ -478,7 +478,37 @@ class RateLimitingTest extends ReposeValveTest {
         "content-encoding" | "idENtItY"
         "Content-Encoding" | "IDENTITY"
     }
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+        given:
+        def headers = [
+                "x-pp-user": "usertest1, usertest2, usertest3",
+                "x-pp-groups": "unlimited"
+        ]
+        when: "make a request with the given header and value"
+        def respHeaders = [
+                "Content-Length" : "0",
+                "location": "http://somehost.com/blah?a=b,c,d"
+        ]
+        respHeaders[headerName.toString()] = headerValue.toString()
 
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint,
+                method: 'GET', headers: headers, defaultHandler: { new Response(201, "Created", respHeaders, "") })
+
+        then: "the request should make it to the origin service with the header appropriately split"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Content-Type" | "application/json"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        "content-type" | "application/xMl"
+        "Content-Type" | "APPLICATION/xml"
+    }
     // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
