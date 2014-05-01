@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
 import org.junit.Before
 import org.junit.Test
 
@@ -46,8 +47,8 @@ class RequestHeaderContainerTest {
     @Test
     void testGetHeaderNames() {
         assert container.getHeaderNames().size() == 4
-        assert container.getHeaderNames().contains("accept")
-        assert container.getHeaderNames().contains("via")
+        assert container.getHeaderNames().contains(new HeaderNameStringWrapper("accept"))
+        assert container.getHeaderNames().contains(new HeaderNameStringWrapper("via"))
     }
 
     @Test
@@ -70,10 +71,14 @@ class RequestHeaderContainerTest {
     @Test
     void "header names are not modified"() throws Exception {
         assertThat(container.getHeaderNames().size(), equalTo(4))
-        assertThat(container.getHeaderNames(), hasItems("accept", "via", "BLAH", "Content-Type"))
+        assertThat(container.getHeaderNames(), hasItems(
+                new HeaderNameStringWrapper("accept"),
+                new HeaderNameStringWrapper("via"),
+                new HeaderNameStringWrapper("BLAH"),
+                new HeaderNameStringWrapper("Content-Type")))
     }
 
-    Enumeration<String> createStringEnumeration(String... names) {
+    static Enumeration<String> createStringEnumeration(String... names) {
         Vector<String> namesCollection = new Vector<String>(names.length)
 
         namesCollection.addAll(Arrays.asList(names))
