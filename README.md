@@ -72,6 +72,11 @@ You can install/run Repose by several methods:
 - Proxy Server (via Resource Package Manager (RPM) or via Debian Package (DEB))
 - Proxy Server Cluster
 
+Check out our Configuration Management repositories:
+
+- [Puppet-Repose](https://github.com/rackerlabs/puppet-repose)
+- [Cookbook-Repose](https://github.com/rackerlabs/cookbook-repose)
+
 
 ###Embedded Deployment Method###
 
