@@ -237,7 +237,6 @@ These tests do not cover the following components' configuration files:
   - Destination Router
   - Header Identity Mapping filter
   - Header Normalization
-  - Rackspace Auth 1.1 Content Identity filter
   - Root Context Router
   - Service Authentication filter
   - URI Normalization filter
