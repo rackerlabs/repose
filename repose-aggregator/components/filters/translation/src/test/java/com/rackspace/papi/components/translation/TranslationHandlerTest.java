@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {
@@ -84,16 +85,16 @@ public class TranslationHandlerTest {
             mockedRequest = mock(HttpServletRequest.class);
             when(mockedRequest.getRequestURI()).thenReturn("/129.0.0.1/servers/");
             when(mockedRequest.getMethod()).thenReturn("POST");
-            when(mockedRequest.getHeader(eq("Accept"))).thenReturn("application/xml");
-            when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
+            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/xml");
+            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
             when(mockedRequest.getHeaderNames()).thenReturn((Enumeration) new StringTokenizer("Accept"));
 
             List<String> headerNames = new ArrayList<String>();
             headerNames.add("content-type");
-            
+
             mockedResponse = mock(HttpServletResponse.class);
             when(mockedResponse.getHeaderNames()).thenReturn(headerNames);
-            when(mockedResponse.getHeader(eq("content-type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("content-type")))).thenReturn("application/xml");
             when(mockedResponse.getStatus()).thenReturn(200);
 
         }
@@ -104,7 +105,7 @@ public class TranslationHandlerTest {
             InputStream response = this.getClass().getResourceAsStream("/empty.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
 
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
@@ -126,7 +127,7 @@ public class TranslationHandlerTest {
             InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             mutableHttpResponse.setHeader("Content-Type", "application/xml");
@@ -134,19 +135,19 @@ public class TranslationHandlerTest {
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
             final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
-            
+
             Diff diff1 = new Diff(expected, actual);
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
             assertTrue(diff1.similar());
-        }        
+        }
 
         @Test
         public void shouldTranslateNullResponseBody() throws IOException, SAXException {
 
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(null);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             mutableHttpResponse.setHeader("Content-Type", "application/xml");
@@ -156,18 +157,18 @@ public class TranslationHandlerTest {
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
             assertTrue(actual.isEmpty());
-        }        
+        }
 
         @Test
         public void shouldNotTranslateResponseBodyForUnconfiguredAccept() throws IOException, SAXException {
 
             InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
-            when(mockedRequest.getHeader(eq("Accept"))).thenReturn("application/json");
-            when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/json"));
+            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/json");
+            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/json"));
             when(mockedRequest.getContentType()).thenReturn("application/xml");
             when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             mutableHttpResponse.setHeader("Content-Type", "application/xml");
@@ -237,17 +238,17 @@ public class TranslationHandlerTest {
             mockedRequest = mock(HttpServletRequest.class);
             when(mockedRequest.getRequestURI()).thenReturn("/129.0.0.1/servers/");
             when(mockedRequest.getMethod()).thenReturn("POST");
-            when(mockedRequest.getHeader(eq("Accept"))).thenReturn("application/xml");
-            when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
-            when(mockedRequest.getHeaders(eq("content-type"))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
+            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/xml");
+            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
+            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("content-type")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
             when(mockedRequest.getHeaderNames()).thenReturn((Enumeration) new StringTokenizer("Accept,content-type", ",", false));
 
             List<String> headerNames = new ArrayList<String>();
             headerNames.add("content-type");
-            
+
             mockedResponse = mock(HttpServletResponse.class);
             when(mockedResponse.getHeaderNames()).thenReturn(headerNames);
-            when(mockedResponse.getHeader(eq("content-type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("content-type")))).thenReturn("application/xml");
             when(mockedResponse.getStatus()).thenReturn(200);
 
         }
@@ -258,7 +259,7 @@ public class TranslationHandlerTest {
             ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/empty.xml"));
             when(mockedRequest.getInputStream()).thenReturn(response);
             when(mockedRequest.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
 
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
@@ -282,7 +283,7 @@ public class TranslationHandlerTest {
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             when(mockedRequest.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
@@ -292,17 +293,17 @@ public class TranslationHandlerTest {
 
             assertEquals(director.getFilterAction(), FilterAction.PROCESS_RESPONSE);
             assertTrue(diff1.similar());
-        }        
+        }
 
         @Test
         public void shouldNotTranslateRequestBodyForUnconfiguredAccept() throws IOException, SAXException {
 
             ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.xml"));
             when(mockedRequest.getInputStream()).thenReturn(response);
-            when(mockedRequest.getHeader(eq("Accept"))).thenReturn("application/other");
-            when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/other"));
+            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/other");
+            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/other"));
             when(mockedRequest.getContentType()).thenReturn("application/other");
-            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/other");
+            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/other");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             mutableHttpResponse.setHeader("Content-Type", "application/xml");
