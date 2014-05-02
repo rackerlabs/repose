@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.cnorm.normalizer;
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
 import com.rackspace.papi.components.normalization.config.HeaderFilterList;
 import com.rackspace.papi.components.normalization.config.HttpHeader;
 import com.rackspace.papi.components.normalization.config.HttpHeaderList;
@@ -76,9 +77,9 @@ public class HeaderNormalizerTest {
 
         headerNormalizer = new HeaderNormalizer(headerFilterList, true);
         headerNormalizer.normalizeHeaders(request, director);
-        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header1.getId().toLowerCase()));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header2.getId().toLowerCase()));
-        assertFalse("Accept should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains("accept"));
+        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header1.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header2.getId())));
+        assertFalse("Accept should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper("accept")));
 
     }
 
@@ -87,11 +88,11 @@ public class HeaderNormalizerTest {
     public void shouldOnlyAllowFromWhiteList() {
         headerNormalizer = new HeaderNormalizer(headerFilterList, true);
         headerNormalizer.normalizeHeaders(request, director);
-        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header1.getId().toLowerCase()));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header2.getId().toLowerCase()));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains("accept"));
-        assertFalse("X-Group-Header should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header3.getId().toLowerCase()));
-        assertFalse("Content-Type should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(header4.getId().toLowerCase()));
+        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header1.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header2.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper("accept")));
+        assertFalse("X-Group-Header should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header3.getId())));
+        assertFalse("Content-Type should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(header4.getId())));
 
     }
 }
