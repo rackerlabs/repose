@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.uristripper
 
+import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig
 import com.rackspace.papi.filter.logic.FilterAction
@@ -66,10 +67,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("http://service.com/v1/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("http://service.com/v1/12345/path/to/resource")
 
     }
 
@@ -85,10 +86,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("/v1/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("/v1/12345/path/to/resource")
 
     }
 
@@ -105,10 +106,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("http://service.com/v1/12345/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("http://service.com/v1/12345/to/resource")
 
     }
 
@@ -125,10 +126,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("http://service.com/v2/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("http://service.com/v2/12345/path/to/resource")
 
     }
 
@@ -145,10 +146,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("http://service.com/v1/12345/path/to/resource?a=b&c=d")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("http://service.com/v1/12345/path/to/resource?a=b&c=d")
 
     }
 
@@ -166,10 +167,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get("location").contains("/v1/12345/path/to/resource?a=b&c=d")
+        assert director.responseHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("location")).contains("/v1/12345/path/to/resource?a=b&c=d")
 
     }
 
@@ -182,7 +183,7 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert !director.responseHeaderManager().headersToAdd().containsKey("location")
+        assert !director.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("location"))
 
     }
 
