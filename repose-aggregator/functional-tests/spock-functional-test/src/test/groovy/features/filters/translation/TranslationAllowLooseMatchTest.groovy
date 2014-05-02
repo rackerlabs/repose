@@ -52,8 +52,8 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "201"
-        mc.receivedResponse.body == response_to_client
-        mc.handlings[0].response.body == response_from_origin
+        new String(mc.receivedResponse.body) == response_to_client
+        new String(mc.handlings[0].response.body) == response_from_origin
         mc.receivedResponse.getHeaders().findAll("Content-Type").size() == 1
         !mc.receivedResponse.body.toString().contains("httpx:unknown-content")
 
@@ -66,23 +66,21 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         "application/xml;"                      | xmlPayLoad           | "<a>somebody</a>"
         "application/xml"                       | xmlPayLoad           | "<a>somebody</a>"
         "application/xml;v=1,text/plain;v=1.1"  | xmlPayLoad           | "<a>somebody</a>"
-        "text/plain;v=1.1,application/xml;v=1"  | xmlPayLoad           | "<a>somebody</a>"
         "application/xml;v=1,foo/a,v=1.1"       | xmlPayLoad           | "<a>somebody</a>"
         "application/json"                      | xmlPayLoad           | xmlPayLoad
         "text/plain; v=1"                       | xmlPayLoad           | xmlPayLoad
-        "foo/bar;v=1.1,application/xml;v=1"     | xmlPayLoad           | "<a>somebody</a>"
-        "html/text; v=1"                       | xmlPayLoad           | xmlPayLoad
+        "text/plain;v=1.1,application/xml;v=1"  | xmlPayLoad           | xmlPayLoad
+        //this case invalid since content-type take single type and subtype
+        //"foo/bar;v=1.1,application/xml;v=1"     | xmlPayLoad           | "<a>somebody</a>"
+        "html/text; v=1"                        | xmlPayLoad           | xmlPayLoad
         "foo/plain; v=1"                        | xmlPayLoad           | xmlPayLoad
         "text/*; v=1"                           | xmlPayLoad           | xmlPayLoad
         "*/*; v=1"                              | xmlPayLoad           | xmlPayLoad
-        // these cases below failed with different response body than unknown type
-        /*
         "application/atom"                      | xmlPayLoad           | xmlPayLoad
         "foo/a"                                 | xmlPayLoad           | xmlPayLoad
         "foo/x;"                                | xmlPayLoad           | xmlPayLoad
         "foo/x;foo=bar,bar=foo,type=foo"        | xmlPayLoad           | xmlPayLoad
         "foo=bar;foo/x"                         | xmlPayLoad           | xmlPayLoad
         "foo/x;foo=bar,text/plain;v=1.1"        | xmlPayLoad           | xmlPayLoad
-        */
     }
 }
