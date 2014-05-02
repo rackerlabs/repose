@@ -58,7 +58,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '500'
-        mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
+        mc.receivedResponse.body.toString().toLowerCase().contains("No host key specified in header x-pp-host-key".toLowerCase())
     }
 
     def "GET of invalid key fails with 500 INTERNAL SERVER ERROR"() {
