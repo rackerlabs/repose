@@ -204,9 +204,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         this.filterConfig = filterConfig;
+        ServletContextHelper servletContextHelper = ServletContextHelper.getInstance(filterConfig.getServletContext());
 
-        ports = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
-        papiContext = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
+        ports = servletContextHelper.getServerPorts();
+        papiContext = servletContextHelper.getPowerApiContext();
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
