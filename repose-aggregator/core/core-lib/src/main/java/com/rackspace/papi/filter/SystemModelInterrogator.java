@@ -34,14 +34,8 @@ public class SystemModelInterrogator {
 
     @Autowired
     public SystemModelInterrogator(@Qualifier("servicePorts") ServicePorts ports) {
-        this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), ports);
-    }
-
-    //TODO: if this object is a spring bean, then we shouldn't allow instantiation.
-    //TODO: remove it since the only place it is instantiated is from a deprecated test
-    public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, ServicePorts ports) {
-        this.nameResolver = nameResolver;
-        this.networkInterfaceProvider = nip;
+        this.nameResolver = StaticNetworkNameResolver.getInstance();
+        this.networkInterfaceProvider = StaticNetworkInterfaceProvider.getInstance();
         this.ports = ports;
     }
 

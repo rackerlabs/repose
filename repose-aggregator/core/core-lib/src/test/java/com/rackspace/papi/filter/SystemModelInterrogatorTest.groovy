@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter
 import com.google.common.base.Optional
+import com.rackspace.papi.commons.util.net.NetworkNameResolver
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
 import com.rackspace.papi.model.*
@@ -16,7 +17,8 @@ public class SystemModelInterrogatorTest {
     @Before
     public void setup() throws Exception {
         ServicePorts servicePorts = new ServicePorts()
-        servicePorts.add(new Port("http", 8080))
+        servicePorts << new Port("http", 8080)
+        servicePorts << new Port("https", 8181)
 
         interrogator = new SystemModelInterrogator(servicePorts)
     }
@@ -98,30 +100,91 @@ public class SystemModelInterrogatorTest {
         assertFalse(returnedDestination.isPresent())
     }
 
+    @Test
+    public void "when nameResolver.lookupName throws UnknownHostException, cluster should be absent"() throws UnknownHostException {
+        SystemModel sysModel = getValidSystemModel()
+        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setHostname("thiswillneverexist")
+
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+
+        assertFalse(returnedCluster.isPresent())
+    }
+
+    @Test
+    public void "when no service ports are specified, cluster and destinations both do not exist"(){
+        interrogator = new SystemModelInterrogator(new ServicePorts())
+        SystemModel sysModel = getValidSystemModel()
+
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+
+        assertFalse(returnedCluster.isPresent())
+
+        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
+
+        assertFalse(destination.isPresent())
+    }
+
+    @Test
+    public void "when no destinations are present, cluster exists but destinations are absent"(){
+        SystemModel sysModel = getValidSystemModel()
+        sysModel.reposeCluster[0].destinations = new DestinationList()
+
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+
+        assertTrue(returnedCluster.isPresent())
+
+        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
+
+        assertFalse(destination.isPresent())
+
+    }
+
+    @Test
+    public void "when no clusters are present, cluster and destination are absent"(){
+        SystemModel sysModel = getValidSystemModel()
+        sysModel.reposeCluster = new ArrayList<ReposeCluster>()
+
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+
+        assertFalse(returnedCluster.isPresent())
+
+        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
+
+        assertFalse(destination.isPresent())
+    }
+
+    @Test
+    public void "when service ports do not contain BOTH HTTP and HTTPS ports, cluster and destination are absent"(){
+        ServicePorts servicePorts = new ServicePorts()
+        servicePorts << new Port("http", 8080)
+
+        interrogator = new SystemModelInterrogator(servicePorts)
+
+        SystemModel sysModel = getValidSystemModel()
+
+        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
+
+        assertFalse(returnedCluster.isPresent())
+
+        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
+
+        assertFalse(destination.isPresent())
+    }
+
     /**
      * @return a valid system model
      */
     private SystemModel getValidSystemModel() {
-        Node node = new Node()
-        DestinationEndpoint dest = new DestinationEndpoint()
         ReposeCluster cluster = new ReposeCluster()
         SystemModel sysModel = new SystemModel()
 
-        node.setId("node1")
-        node.setHostname("localhost")
-        node.setHttpPort(8080)
-
-        dest.setHostname("localhost")
-        dest.setPort(9090)
-        dest.setDefault(true)
-        dest.setId("dest1")
-        dest.setProtocol("http")
-
         cluster.setId("cluster1")
         cluster.setNodes(new NodeList())
-        cluster.getNodes().getNode().add(node)
+        cluster.getNodes().getNode() <<
+                new Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
         cluster.setDestinations(new DestinationList())
-        cluster.getDestinations().getEndpoint().add(dest)
+        cluster.getDestinations().getEndpoint() << new DestinationEndpoint(
+                hostname: "localhost", port: 9090, default: true, id: "dest1", protocol: "http")
 
         sysModel.getReposeCluster().add(cluster)
 
