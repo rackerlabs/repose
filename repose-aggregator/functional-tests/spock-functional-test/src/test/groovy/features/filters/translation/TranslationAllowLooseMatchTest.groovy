@@ -83,4 +83,34 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         "foo=bar;foo/x"                         | xmlPayLoad           | xmlPayLoad
         "foo/x;foo=bar,text/plain;v=1.1"        | xmlPayLoad           | xmlPayLoad
     }
+
+    @Unroll("When req with content-type: #contenttype is retained")
+    def "Only matching Content-type configuration sending content-type retains"() {
+        given:
+        def reqHeaders =
+                [
+                        "accept": "application/xml;q=1 , application/json;q=0.5",
+                        "Content-Type" : contenttype
+                ]
+
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.getHeaders().findAll("Content-Type").size() == 1
+        mc.handlings[0].request.headers["Content-Type"] == contenttype
+
+        where:
+        contenttype  <<
+                ["application/xml+atom; type=event",
+                 "application/json; v=1",
+                 "text/plain; */*",
+                 "foo/x",
+                 "foo/x;",
+                 "foo/x;version=1",
+                 "foo/x;foo=bar,bar=foo,type=foo",
+                 "foo=bar;foo/x",
+                 "foo/x;foo=bar,text/plain;v=1.1"]
+    }
 }
