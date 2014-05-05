@@ -6,6 +6,7 @@ import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
@@ -42,15 +43,17 @@ public class VersioningFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ServletContext servletContext = filterConfig.getServletContext();
-        final ServicePorts ports = ServletContextHelper.getInstance(servletContext).getServerPorts();
+        ServletContextHelper contextHelper = ServletContextHelper.getInstance(servletContext);
+        final ServicePorts ports = contextHelper.getServerPorts();
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
-        metricsService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
-                .metricsService();
-        healthCheckService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext()
-                .healthCheckService();
+
+        ContextAdapter contextAdapter = contextHelper.getPowerApiContext();
+        configurationManager = contextAdapter.configurationService();
+        metricsService = contextAdapter.metricsService();
+        healthCheckService = contextAdapter.healthCheckService();
+
         handlerFactory = new VersioningHandlerFactory(ports, metricsService, healthCheckService);
         configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");

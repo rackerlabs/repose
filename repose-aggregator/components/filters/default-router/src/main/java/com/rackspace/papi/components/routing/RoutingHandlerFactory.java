@@ -18,7 +18,6 @@ import java.util.Map;
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
-    private SystemModel systemModel;
     private final SystemModelInterrogator modelInterrogator;
     private Destination dst;
     private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
@@ -48,7 +47,6 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
                 LOG.warn("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
             }
 
-            systemModel = configurationObject;
             isInitialized = true;
         }
 

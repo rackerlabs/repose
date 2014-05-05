@@ -37,7 +37,8 @@ public class SystemModelInterrogator {
         this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), ports);
     }
 
-    //todo: if this object is a spring bean, then we shouldn't allow instantiation.
+    //TODO: if this object is a spring bean, then we shouldn't allow instantiation.
+    //TODO: remove it since the only place it is instantiated is from a deprecated test
     public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, ServicePorts ports) {
         this.nameResolver = nameResolver;
         this.networkInterfaceProvider = nip;

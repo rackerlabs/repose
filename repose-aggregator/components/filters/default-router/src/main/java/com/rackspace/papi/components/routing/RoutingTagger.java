@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
-    private Destination defaultDest;
+   private Destination defaultDest;
 
    public RoutingTagger() {
    }
