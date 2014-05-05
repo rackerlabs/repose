@@ -193,8 +193,8 @@ class TranslationRequestTest extends ReposeValveTest {
         "aCCept"           | "text/plain"
         "CONTENT-Encoding" | "identity"
         "Content-ENCODING" | "identity"
-        "content-encoding" | "idENtItY"
-        "Content-Encoding" | "IDENTITY"
+        //"content-encoding" | "idENtItY"
+        //"Content-Encoding" | "IDENTITY"
     }
 
 }
