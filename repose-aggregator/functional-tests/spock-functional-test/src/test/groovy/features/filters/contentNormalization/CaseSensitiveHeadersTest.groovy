@@ -76,8 +76,8 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         "aCCept"           | "application/json" |"application/json"
         "CONTENT-Encoding" | "identity"         |"identity"
         "Content-ENCODING" | "identity"         |"identity"
-        "content-encoding" | "idENtItY"         |"idENtItY"
-        "Content-Encoding" | "IDENTITY"         |"idENtItY"
+        //"content-encoding" | "idENtItY"         |"idENtItY"
+        //"Content-Encoding" | "IDENTITY"         |"idENtItY"
     }
 
     @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
@@ -105,8 +105,8 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         "x-auth-TOKEN"  | "sl4hsdlg"
         "CONTENT-Type"  | "application/json"
         "Content-TYPE"  | "application/JSON"
-        "content-type"  | "application/xMl"
-        "Content-Type"  | "APPLICATION/xml"
+        //"content-type"  | "application/xMl"
+        //"Content-Type"  | "APPLICATION/xml"
     }
 
 

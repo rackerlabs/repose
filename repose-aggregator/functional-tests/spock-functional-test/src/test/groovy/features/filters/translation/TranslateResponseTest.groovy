@@ -174,8 +174,8 @@ class TranslateResponseTest extends ReposeValveTest {
         "x-auth-TOKEN" | "sl4hsdlg"
         "CONTENT-Type" | "application/json"
         "Content-TYPE" | "application/JSON"
-        "content-type" | "application/xMl"
-        "Content-Type" | "APPLICATION/xml"
+        //"content-type" | "application/xMl"
+        //"Content-Type" | "APPLICATION/xml"
     }
 
 }
