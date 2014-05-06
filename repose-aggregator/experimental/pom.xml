@@ -19,6 +19,7 @@
 
     <modules>
         <module>servlet-contract</module>
+        <module>experimental-bundle</module>
     </modules>
 
 </project>
