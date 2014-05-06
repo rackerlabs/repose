@@ -29,14 +29,16 @@
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
+
+        <!-- adding the experimental filters for solving boogz -->
         <filter.experimental.dir>
-           ${project.set.dir}/experimental/expiremental-filter-bundle/target
+            ${project.set.dir}/experimental/experimental-filter-bundle/target
         </filter.experimental.dir>
+        <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
-        <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
         <target.hostname>localhost</target.hostname>
 
