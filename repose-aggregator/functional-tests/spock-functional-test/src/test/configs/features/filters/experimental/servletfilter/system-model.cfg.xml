@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose">
+
+        <nodes>
+            <node id="config-test" hostname="localhost" http-port="10002"/>
+        </nodes>
+
+
+        <!-- for some reason deproxy isn't starting the repose filter Deproxy never thinks it's started
+        A wget will prove that it works, and our runtime exception is thrown like it's supposed to
+         -->
+
+        <filters>
+            <filter name="servlet-contract-filter" />
+        </filters>
+
+        <destinations>
+            <endpoint id="target" protocol="http" hostname="httpbin.org" port="80" root-path="/get" default="true"/>
+        </destinations>
+
+    </repose-cluster>
+</system-model>
