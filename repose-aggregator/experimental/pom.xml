@@ -18,8 +18,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>servlet-contract</module>
-        <module>experimental-bundle</module>
+        <module>servlet-contract-filter</module>
+        <module>experimental-filter-bundle</module>
     </modules>
 
 </project>
