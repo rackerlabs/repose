@@ -15,8 +15,6 @@ import com.rackspace.papi.components.clientauth.config.URIPattern;
 import com.rackspace.papi.components.clientauth.config.WhiteList;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandlerFactory;
-import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
-import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.components.datastore.Datastore;
@@ -73,12 +71,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             updateUriMatcher(modifiedConfig.getWhiteList());
 
             accountRegexExtractor.clear();
-            if (modifiedConfig.getRackspaceAuth() != null) {
-                authenticationModule = getRackspaceAuthHandler(modifiedConfig);
-                for (AccountMapping accountMapping : modifiedConfig.getRackspaceAuth().getAccountMapping()) {
-                    accountRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
-                }
-            } else if (modifiedConfig.getOpenstackAuth() != null) {
+             if (modifiedConfig.getOpenstackAuth() != null) {
                 authenticationModule = getOpenStackAuthHandler(modifiedConfig);
                 for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
@@ -170,10 +163,6 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
 
         uriMatcher = new UriMatcher(whiteListRegexPatterns);
-    }
-
-    private AuthenticationHandler getRackspaceAuthHandler(ClientAuthConfig cfg) {
-        return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher,httpClientService);
     }
 
     private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
