@@ -36,7 +36,7 @@
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
-        <filter.experimental.ear>experimental-bundle-*.ear</filter.experimental.ear>
+        <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
         <target.hostname>localhost</target.hostname>
 
@@ -411,6 +411,7 @@
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
+
             <testResource>
                 <directory>${filter.experimental.dir}</directory>
                 <includes>
@@ -418,6 +419,7 @@
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
+
             <testResource>
                 <directory>${repose.valve.dir}</directory>
                 <includes>
