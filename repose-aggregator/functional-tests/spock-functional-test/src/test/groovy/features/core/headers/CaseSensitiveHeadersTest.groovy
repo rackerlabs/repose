@@ -9,7 +9,7 @@ import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 
-class CaseSensitivePassthroughHeadersTest extends ReposeValveTest {
+class CaseSensitiveHeadersTest extends ReposeValveTest {
 
     static int originServicePort
     static int reposePort
