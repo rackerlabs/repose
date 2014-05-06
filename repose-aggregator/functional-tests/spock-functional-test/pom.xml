@@ -29,10 +29,14 @@
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
+        <filter.experimental.dir>
+           ${project.set.dir}/experimental/expiremental-filter-bundle/target
+        </filter.experimental.dir>
 
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
+        <filter.experimental.ear>experimental-bundle-*.ear</filter.experimental.ear>
 
         <target.hostname>localhost</target.hostname>
 
@@ -404,6 +408,13 @@
                 <directory>${filter.extensions.dir}</directory>
                 <includes>
                     <include>${filter.extensions.ear}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+            </testResource>
+            <testResource>
+                <directory>${filter.experimental.dir}</directory>
+                <includes>
+                    <include>${filter.experimental.ear}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
