@@ -4,7 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class TestFilterTest extends ReposeValveTest {
+class ExceptionFilterTEst extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
