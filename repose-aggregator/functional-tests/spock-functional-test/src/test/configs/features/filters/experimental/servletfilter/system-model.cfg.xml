@@ -4,7 +4,7 @@
     <repose-cluster id="repose">
 
         <nodes>
-            <node id="config-test" hostname="localhost" http-port="10002"/>
+            <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
         </nodes>
 
 
@@ -17,7 +17,7 @@
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="httpbin.org" port="80" root-path="/get" default="true"/>
+            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/get" default="true"/>
         </destinations>
 
     </repose-cluster>
