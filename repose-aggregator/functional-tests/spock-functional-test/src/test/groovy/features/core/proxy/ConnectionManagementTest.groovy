@@ -1,5 +1,6 @@
 package features.core.proxy
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
@@ -34,9 +35,8 @@ class ConnectionManagementTest extends ReposeValveTest{
 
     @Unroll("When sending a #reqMethod through repose")
     def "should return 413 on request body that is too large"(){
-
         given: "I have a request body that exceed the header size limit"
-        def body = RandomStringUtils.random(32100, charset)
+        def body = makeLargeString(32100)
 
         when: "I send a request to REPOSE with my request body"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, requestBody: body, method: reqMethod)
@@ -94,5 +94,22 @@ class ConnectionManagementTest extends ReposeValveTest{
         mc.handlings[0].request.headers.getCountByName("content-encoding") == 1
         mc.handlings[0].request.headers["content-encoding"] == "gzip"
 
+    }
+
+
+    //Stolen from: http://stackoverflow.com/a/2474496/423218
+    def makeLargeString(int size) {
+        StringBuilder sb = new StringBuilder(size)
+        (0..size).each { count ->
+            sb.append(randomChar())
+        }
+        sb.toString()
+    }
+
+    //Stolen from http://stackoverflow.com/a/2627897/423218
+    def randomChar() {
+        int rnd = (int) (Math.random() * 52)
+        char base = (rnd < 26) ? 'A' : 'a'
+        return (char) (base + rnd % 26)
     }
 }
