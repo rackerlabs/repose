@@ -8,7 +8,6 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-
 class CaseSensitiveHeadersTest extends ReposeValveTest {
 
     static int originServicePort
@@ -60,6 +59,7 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
 
+
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains(headerName)
@@ -89,6 +89,7 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
 
         MessageChain mc = deproxy.makeRequest(url: url, defaultHandler: { new Response(200, null, headers) })
 
+
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.contains(headerName)
@@ -107,15 +108,7 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
 
-
-
-
-
-
-
-
     def cleanupSpec() {
-
         if (repose) {
             repose.stop()
         }
@@ -123,6 +116,5 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
             deproxy.shutdown()
         }
     }
-
 
 }
