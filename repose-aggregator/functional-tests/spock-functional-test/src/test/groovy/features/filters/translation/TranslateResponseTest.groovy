@@ -160,7 +160,7 @@ class TranslateResponseTest extends ReposeValveTest {
 
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
 
-        then: "the request should make it to the origin service with the header appropriately split"
+        then: "the response should keep headerName and headerValue case"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.contains(headerName)
         mc.receivedResponse.headers.getFirstValue(headerName) == headerValue

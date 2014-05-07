@@ -76,7 +76,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         mc.handlings[0].request.headers.contains(headerName)
         mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
 
-        then: "Request sent to origin service matches expected query parameter list"
+        then: "the request should keep headerName and headerValue case"
         handling.request.path.endsWith("?" + qpAfterRepose)
 
         where:
