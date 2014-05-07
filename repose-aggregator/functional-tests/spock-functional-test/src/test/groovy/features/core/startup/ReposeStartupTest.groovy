@@ -1,26 +1,22 @@
 package features.core.startup
-
 import framework.ReposeValveTest
-import framework.category.Bug
-import framework.category.Slow
 import framework.category.Release
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
+import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
-import org.junit.experimental.categories.Category
 import spock.lang.Ignore
 
-import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+import java.util.concurrent.TimeoutException
 
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 /**
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.
  */
-class ReposeStartup extends ReposeValveTest {
+class ReposeStartupTest extends ReposeValveTest {
 
     static def List servers = [
         new Server('ubuntu', '198.101.159.216', deployDeb(), cleanupDeb()),
@@ -40,22 +36,23 @@ class ReposeStartup extends ReposeValveTest {
 
     static def params
 
-    @Category(Bug)
     def "start repose with installation configs"(){
-        given:
+        setup:
         def params = properties.getDefaultTemplateParams()
+
+        //note: Order matters here. The common directory overwrites some of the configs from the core directory.
+        repose.configurationProvider.applyConfigs("../../../../installation/configs/core", params)
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/startup", params)
-        repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
+        repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
         repose.start()
-        waitUntilReadyToServiceRequests()
 
         when:
-        MessageChain mc = deproxy.makeRequest([method: 'GET'])
+        //todo: Grab the port from the system model, and don't do a string replacement.
+        repose.waitForNon500FromUrl(reposeEndpoint.replaceAll(":10000", ":8080"))
 
         then:
-        mc.receivedResponse.code == '301'
+        notThrown(TimeoutException)
 
         cleanup:
         repose.stop()
@@ -71,6 +68,7 @@ class ReposeStartup extends ReposeValveTest {
         //TODO: retention policy
     }
 
+    @Ignore
     @Category(Release)
     def "deploy and start repose - release"() {
         //1. create and deploy repose with configurations - RELEASE
