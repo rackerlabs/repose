@@ -176,9 +176,25 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         "%2F%2D%20"                               | "random encoded characters"
     }
 
-    def "PATCH with really large body within limit (2MEGS 2097152) should return 200"() {
+    //Stolen from: http://stackoverflow.com/a/2474496/423218
+    def makeLargeString(int size) {
+        StringBuilder sb = new StringBuilder(size)
+        (0..size).each { count ->
+            sb.append(randomChar())
+        }
+        sb.toString()
+    }
+
+    //Stolen from http://stackoverflow.com/a/2627897/423218
+    def randomChar() {
+        int rnd = (int) (Math.random() * 52)
+        char base = (rnd < 26) ? 'A' : 'a'
+        return (char) (base + rnd % 26)
+    }
+
+    def "PATCH with really large body within limit (2MEGS 2096139) should return 200"() {
         given:
-        def largeBodyContent = RandomStringUtils.random(2096139, ('A'..'Z').join().toCharArray())
+        def largeBodyContent = makeLargeString(2096139)
         def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(largeBodyContent))
 
         when:
@@ -197,7 +213,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
-        def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(RandomStringUtils.random(2097153, ('A'..'Z').join().toCharArray())))
+        def largeBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(makeLargeString(2097152)))
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
