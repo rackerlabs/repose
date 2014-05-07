@@ -1,10 +1,10 @@
-package features.filters.experimental.servletContract
+package features.filters.experimental.helpers
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class ServletContractFilterTest extends ReposeValveTest {
+class TestFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -12,9 +12,9 @@ class ServletContractFilterTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/experimental/servletfilter", params)
+        repose.configurationProvider.applyConfigs("features/filters/experimental/test", params)
         repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests()
+        waitUntilReadyToServiceRequests("500")
 
     }
 
@@ -23,7 +23,7 @@ class ServletContractFilterTest extends ReposeValveTest {
         deproxy.shutdown()
     }
 
-    def "Proving that a custom filter does in fact work" () {
+    def "Proving that the test filter throws an exception" () {
         when:
         MessageChain mc = null
         mc = deproxy.makeRequest(
@@ -34,8 +34,7 @@ class ServletContractFilterTest extends ReposeValveTest {
 
 
         then:
-        mc.handlings.size() == 1
-        mc.receivedResponse.code == '200'
+        mc.receivedResponse.code == '500'
         mc.receivedResponse.body.contains("<extra> Added by TestFilter, should also see the rest of the content </extra>")
     }
 }
