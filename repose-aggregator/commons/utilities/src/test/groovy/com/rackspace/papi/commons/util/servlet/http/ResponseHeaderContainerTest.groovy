@@ -1,21 +1,20 @@
 package com.rackspace.papi.commons.util.servlet.http
-
 import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
 import org.junit.Before
 import org.junit.Test
 
 import javax.servlet.http.HttpServletResponse
 
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.CoreMatchers.hasItems
+import static junit.framework.Assert.assertFalse
+import static junit.framework.Assert.assertTrue
 import static org.hamcrest.MatcherAssert.assertThat
-import static org.mockito.Matchers.any
+import static org.hamcrest.Matchers.*
+import static org.mockito.Matchers.argThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 class ResponseHeaderContainerTest {
     public static final List<String> HEADER_NAME_LIST = ["via", "BLAH", "Content-Type"] as List<String>
-    public static final List<String> HEADER_VALUE_LIST = [] as List<String>
 
     ResponseHeaderContainer responseHeaderContainer
 
@@ -24,7 +23,12 @@ class ResponseHeaderContainerTest {
         HttpServletResponse response = mock(HttpServletResponse.class)
 
         when(response.getHeaderNames()).thenReturn(HEADER_NAME_LIST)
-        when(response.getHeaders(any(String.class))).thenReturn(HEADER_VALUE_LIST)
+        when(response.getHeaders(argThat(equalToIgnoringCase("via")))).thenReturn(["repose"] as List<String>)
+        when(response.getHeaders(argThat(equalToIgnoringCase("BLAH")))).thenReturn(["blah"] as List<String>)
+        when(response.getHeaders(argThat(equalToIgnoringCase("content-type")))).thenReturn(["text/plain"] as List<String>)
+        when(response.getHeader(argThat(equalToIgnoringCase("via")))).thenReturn("repose")
+        when(response.getHeader(argThat(equalToIgnoringCase("BLAH")))).thenReturn("blah")
+        when(response.getHeader(argThat(equalToIgnoringCase("content-type")))).thenReturn("text/plain")
 
         responseHeaderContainer = new ResponseHeaderContainer(response)
     }
@@ -38,5 +42,21 @@ class ResponseHeaderContainerTest {
                 new HeaderNameStringWrapper("Content-Type")))
     }
 
-    //todo: write tests to cover the rest of the class
+    @Test
+    void "getHeaderValues returns a list with the default quality and a value of \"repose\""() throws Exception {
+        assertThat(responseHeaderContainer.getHeaderValues("via").size(), equalTo(1))
+        assertThat(responseHeaderContainer.getHeaderValues("via").get(0).getValue(), equalTo("repose"))
+        assertThat(responseHeaderContainer.getHeaderValues("via").get(0).getQualityFactor(), equalTo(1.0.doubleValue()))
+    }
+
+    @Test
+    void "containsHeader returns true if a header is present and false otherwise"() throws Exception {
+        assertTrue(responseHeaderContainer.containsHeader("via"))
+        assertFalse(responseHeaderContainer.containsHeader("not-a-header"))
+    }
+
+    @Test
+    void "getContainerType returns the response container type"() throws Exception {
+        assertThat(responseHeaderContainer.getContainerType(), equalTo(HeaderContainerType.RESPONSE))
+    }
 }
