@@ -29,7 +29,11 @@
             <artifactId>exception-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+       <dependency>
+            <groupId>com.rackspace.papi.components.experimental</groupId>
+            <artifactId>tightly-coupled-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
