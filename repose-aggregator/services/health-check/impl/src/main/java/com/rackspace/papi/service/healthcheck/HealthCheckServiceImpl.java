@@ -69,10 +69,9 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public String register(Class T) throws InputNullException {
-
-        if(T == null){
-            throw new InputNullException("Registering Class");
+    public String register(Class T) {
+        if (T == null) {
+            throw new IllegalArgumentException("Registering Class");
         }
         Map<String, HealthCheckReport> reportMap = new HashMap<String, HealthCheckReport>();
         Long rand = UUID.randomUUID().getMostSignificantBits();

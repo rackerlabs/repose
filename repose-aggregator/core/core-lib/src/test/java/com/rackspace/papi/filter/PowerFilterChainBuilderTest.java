@@ -102,8 +102,8 @@ public class PowerFilterChainBuilderTest {
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
          
          SystemModelInterrogator interrogator = new SystemModelInterrogator(getHttpPortList(8080));
-         Node localHost = interrogator.getLocalHost(mockedPowerProxy);
-         ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(mockedPowerProxy);
+         Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
+         ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(
                  mockedEarClassLoaderContextManager,
@@ -149,8 +149,8 @@ public class PowerFilterChainBuilderTest {
          List<ReposeCluster> hosts = createTestHosts();
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
          SystemModelInterrogator interrogator = new SystemModelInterrogator(getHttpPortList(8080));
-         Node localHost = interrogator.getLocalHost(mockedPowerProxy);
-         ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(mockedPowerProxy);
+         Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
+         ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder
                  .buildFilterContexts(mockedEarClassLoaderContextManager, serviceDomain, localHost);

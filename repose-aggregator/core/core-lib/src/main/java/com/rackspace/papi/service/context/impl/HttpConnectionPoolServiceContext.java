@@ -45,11 +45,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
         this.connectionPoolService = connectionPoolService;
         this.healthCheckService = healthCheckService;
         configurationListener = new ConfigurationListener();
-        try {
-            healthCheckUID = healthCheckService.register(this.getClass());
-        } catch (InputNullException e) {
-            LOG.error("Unable to register to health check service");
-        }
+        healthCheckUID = healthCheckService.register(HttpConnectionPoolServiceContext.class);
 
     }
 

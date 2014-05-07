@@ -53,9 +53,8 @@ public interface HealthCheckService {
      * Register to Health Check Service. This will return a unique ID which the caller will associate with issues
      * @param T Class registering with the Health Check Service
      * @return UID with which to report issues
-     * @throws InputNullException If passed a null class for registration
      */
-    String register(Class T) throws InputNullException;
+    String register(Class T);
 
     /**
      * Retrieves map of health reports associated with the given UID

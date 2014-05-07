@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.ResponseCode;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -19,6 +20,7 @@ import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.healthcheck.*;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import org.slf4j.Logger;
@@ -40,13 +42,16 @@ import java.util.concurrent.TimeUnit;
  * This class current instruments the response codes coming from Repose.
  */
 public class PowerFilter extends ApplicationContextAwareFilter {
-
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+    public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
+
     private final Object internalLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
-    private ServicePorts ports;
+
     private boolean firstInitialization;
+    private ServicePorts ports;
     private PowerFilterChainBuilder powerFilterChainBuilder;
     private ContextAdapter papiContext;
     private SystemModel currentSystemModel;
@@ -54,9 +59,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
+    private HealthCheckService healthCheckService;
+    private HealthCheckServiceHelper healthCheckServiceHelper;
     private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
+    private String healthCheckUID;
 
     public PowerFilter() {
         firstInitialization = true;
@@ -85,9 +93,25 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
             if (currentSystemModel != null) {
                 SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-                localHost = interrogator.getLocalHost(currentSystemModel);
-                serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
-                defaultDst = interrogator.getDefaultDestination(currentSystemModel);
+
+                Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
+                Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
+                Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
+
+                if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
+                    localHost = ln.get();
+                    serviceDomain = lc.get();
+                    defaultDst = dd.get();
+                    healthCheckServiceHelper.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
+                } else {
+                    // Note: This should never occur! If it does, the currentSystemModel is being set to something
+                    // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
+                    // this issue will only occur when the config is fixed and the application is redeployed.
+                    LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                    healthCheckServiceHelper.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
+                            "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                }
+
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
                         filterConfig,
                         ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
@@ -116,9 +140,23 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                 } else {
                     SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-                    localHost = interrogator.getLocalHost(currentSystemModel);
-                    serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
-                    defaultDst = interrogator.getDefaultDestination(currentSystemModel);
+
+                    Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
+                    Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
+                    Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
+
+                    if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
+                        localHost = ln.get();
+                        serviceDomain = lc.get();
+                        defaultDst = dd.get();
+
+                        healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                    } else {
+                        LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                        healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                                "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                    }
+
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
                             filterConfig,
                             ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
@@ -166,9 +204,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         this.filterConfig = filterConfig;
+        ServletContextHelper servletContextHelper = ServletContextHelper.getInstance(filterConfig.getServletContext());
 
-        ports = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
-        papiContext = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
+        ports = servletContextHelper.getServerPorts();
+        papiContext = servletContextHelper.getPowerApiContext();
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
@@ -177,7 +216,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 
         reportingService = papiContext.reportingService();
+        healthCheckService = papiContext.healthCheckService();
         responseHeaderService = papiContext.responseHeaderService();
+
+        healthCheckUID = healthCheckService.register(PowerFilter.class);
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUID);
+
         if (papiContext.metricsService() != null) {
             mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
         }
