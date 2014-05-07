@@ -1,10 +1,12 @@
 package features.filters.experimental.helpers
 
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 class ExceptionFilterTest extends ReposeValveTest {
+    def logSearch = new ReposeLogSearch(properties.logFile)
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -14,7 +16,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/experimental/helpers", params)
         repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests("500")
+        waitUntilReadyToServiceRequests("200", true, true)
 
     }
 
@@ -24,6 +26,9 @@ class ExceptionFilterTest extends ReposeValveTest {
     }
 
     def "Proving that the test filter throws an exception" () {
+        given:
+        logSearch.cleanLog()
+        
         when:
         MessageChain mc = null
         mc = deproxy.makeRequest(
@@ -35,6 +40,6 @@ class ExceptionFilterTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '500'
-        mc.receivedResponse.body.contains("<extra> Added by TestFilter, should also see the rest of the content </extra>")
+        logSearch.searchByString("java.lang.RuntimeException: This is just a test filter!  Don't use it in real life!").size() > 0
     }
 }
