@@ -7,11 +7,6 @@
             <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
         </nodes>
 
-
-        <!-- for some reason deproxy isn't starting the repose filter Deproxy never thinks it's started
-        A wget will prove that it works, and our runtime exception is thrown like it's supposed to
-         -->
-
         <filters>
             <filter name="exception-filter" />
         </filters>
