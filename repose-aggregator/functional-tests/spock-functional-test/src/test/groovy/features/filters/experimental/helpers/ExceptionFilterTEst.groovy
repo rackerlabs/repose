@@ -4,7 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
-class ExceptionFilterTEst extends ReposeValveTest {
+class ExceptionFilterTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -12,7 +12,7 @@ class ExceptionFilterTEst extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/experimental/test", params)
+        repose.configurationProvider.applyConfigs("features/filters/experimental/helpers", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("500")
 

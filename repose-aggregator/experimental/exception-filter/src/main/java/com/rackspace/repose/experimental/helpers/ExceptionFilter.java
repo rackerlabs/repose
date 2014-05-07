@@ -1,5 +1,8 @@
 package com.rackspace.repose.experimental.helpers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,17 +32,17 @@ import java.lang.RuntimeException;
  * call to ServletResponse.getHeaders()
  */
 public class ExceptionFilter implements Filter {
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionFilter.class);
 
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
-        System.out.println("Start " + this.getClass().getName());
-    }
+        LOG.warn("start " + this.getClass());    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
+        LOG.warn("in the doFilter method of ExceptionFilter.  About to throw an error!");
 
         //currently, we just want to validate that this filter throws an exception that's caught by repose core (powerfilterchain)
         throw new RuntimeException("This is just a test filter!  Don't use it in real life!");

@@ -24,6 +24,11 @@
             <artifactId>servlet-contract-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.components.experimental</groupId>
+            <artifactId>exception-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -55,6 +60,10 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components.experimental</groupId>
                             <artifactId>servlet-contract-filter</artifactId>
+                        </jarModule>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components.experimental</groupId>
+                            <artifactId>exception-filter</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
