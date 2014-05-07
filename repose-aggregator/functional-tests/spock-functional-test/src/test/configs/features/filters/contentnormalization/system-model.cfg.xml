@@ -12,7 +12,8 @@
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/" default="true"/>
+            <!-- using httpbin.org to guarantee a body response -->
+            <endpoint id="target" protocol="http" hostname="httpbin.org" port="80" root-path="/" default="true"/>
         </destinations>
 
     </repose-cluster>

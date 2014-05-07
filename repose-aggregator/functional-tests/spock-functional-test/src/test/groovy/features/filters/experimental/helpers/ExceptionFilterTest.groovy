@@ -34,7 +34,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         mc = deproxy.makeRequest(
                 [
                         method: 'GET',
-                        url:reposeEndpoint + "/v1/usertest1/servers/something",
+                        url:reposeEndpoint + "/get",
                 ])
 
 
