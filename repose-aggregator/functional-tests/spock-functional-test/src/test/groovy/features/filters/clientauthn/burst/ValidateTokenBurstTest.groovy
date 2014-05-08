@@ -9,6 +9,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
+import java.util.concurrent.atomic.AtomicInteger
+
 class ValidateTokenBurstTest extends ReposeValveTest {
 
     def static originEndpoint
@@ -62,7 +64,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.validateTokenCount = new AtomicInteger(0)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -109,10 +111,10 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
 
         and:
-        fakeIdentityService.groupsCount == 1
+        fakeIdentityService.groupsCount.get() == 1
 
         and:
         missingAuthHeader == false

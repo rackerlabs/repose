@@ -10,6 +10,8 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.atomic.AtomicInteger
+
 @Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
@@ -53,7 +55,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
         Map<String,MessageChain> messageChainList = new HashMap<String,MessageChain>()
 
         DateTime initialTokenValidation = DateTime.now()
@@ -82,11 +84,11 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
 
         DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(30)
         clientThreads = new ArrayList<Thread>()
@@ -109,10 +111,10 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fauxIdentityService.validateTokenCount.get() == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
         clientThreads = new ArrayList<Thread>()
 
         for (int x in 1..uniqueUsers) {
@@ -135,7 +137,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id

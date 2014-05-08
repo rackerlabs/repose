@@ -11,6 +11,7 @@ import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Simulates responses from an Identity Service
@@ -36,10 +37,10 @@ class IdentityServiceResponseSimulator {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean ok = true;
-    int validateTokenCount = 0;
-    int groupsCount = 0;
-    int adminTokenCount = 0;
-    int endpointsCount = 0;
+    AtomicInteger validateTokenCount = new AtomicInteger(0);
+    AtomicInteger groupsCount  = new AtomicInteger(0);
+    AtomicInteger adminTokenCount  = new AtomicInteger(0);
+    AtomicInteger endpointsCount  = new AtomicInteger(0);
 
     /*
      * The tokenExpiresAt field determines when the token expires. Consumers of
@@ -134,7 +135,7 @@ class IdentityServiceResponseSimulator {
     }
 
     Response handleValidateTokenCall(Request request) {
-        validateTokenCount += 1
+        validateTokenCount.incrementAndGet()
 
         if (this.isValidateClientTokenBroken) {
             return new Response(this.errorCode);
@@ -196,7 +197,7 @@ class IdentityServiceResponseSimulator {
     }
 
     Response handleGroupsCall(Request request) {
-        groupsCount += 1
+        groupsCount.incrementAndGet()
 
         if (this.isGetGroupsBroken) {
             return new Response(this.errorCode);
@@ -249,7 +250,7 @@ class IdentityServiceResponseSimulator {
          println("Admin token XSD validation error: " +e);
          return new Response(this.errorCode);
      }
-        adminTokenCount += 1
+        adminTokenCount.incrementAndGet()
 
         if (this.isGetAdminTokenBroken) {
             return new Response(this.errorCode);
@@ -267,7 +268,7 @@ class IdentityServiceResponseSimulator {
     }
 
     Response handleEndpointsCall(Request request) {
-        endpointsCount += 1;
+        endpointsCount.incrementAndGet()
 
         if (this.isGetEndpointsBroken) {
             return new Response(this.errorCode);

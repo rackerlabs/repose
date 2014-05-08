@@ -6,6 +6,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.joda.time.DateTime
 
+import java.util.concurrent.atomic.AtomicInteger
+
 class CacheTokenExpirationTest extends ReposeValveTest {
 
     def originEndpoint
@@ -47,23 +49,23 @@ class CacheTokenExpirationTest extends ReposeValveTest {
                 'identity service', null, fakeIdentityService.handler)
 
         when: "I send a GET request to REPOSE with an X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.validateTokenCount = new AtomicInteger(0)
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
 
         when: "I send a GET request to REPOSE with the same X-Auth-Token header"
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.validateTokenCount = new AtomicInteger(0)
         mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service"
         mc.receivedResponse.code == '200'
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
-        fakeIdentityService.validateTokenCount == 0
+        fakeIdentityService.validateTokenCount.get() == 0
 
         when: "I troubleshoot the REPOSE logs"
         def foundLogs = reposeLogSearch.searchByString("Token TTL \\(" + clientToken + "\\) exceeds max expiration, setting to default max expiration")

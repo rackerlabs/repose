@@ -10,6 +10,8 @@ import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import java.util.concurrent.atomic.AtomicInteger
+
 class GetEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint
@@ -52,7 +54,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
 
         given:
         Map header1 = ['X-Auth-Token': fakeIdentityService.client_token]
-        fakeIdentityService.validateTokenCount = 0
+        fakeIdentityService.validateTokenCount = new AtomicInteger(0)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
@@ -96,7 +98,7 @@ class GetEndpointsBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.endpointsCount == 1
+        fakeIdentityService.endpointsCount.get() == 1
 
         and:
         Bad403Response == false

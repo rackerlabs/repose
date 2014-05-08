@@ -10,6 +10,8 @@ import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import java.util.concurrent.atomic.AtomicInteger
+
 @Category(Slow.class)
 class CacheOffsetTest extends ReposeValveTest {
 
@@ -54,7 +56,7 @@ class CacheOffsetTest extends ReposeValveTest {
         }
 
         when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
         Map<String,MessageChain> messageChainList = new HashMap<String,MessageChain>()
 
         DateTime initialTokenValidation = DateTime.now()
@@ -80,11 +82,11 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount == uniqueUsers
+        fauxIdentityService.validateTokenCount.get() == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
 
         Period cacheExpiration = new Period().withSeconds(20)
         DateTime minimumTokenExpiration = initialTokenValidation.plusSeconds(20)
@@ -105,10 +107,10 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount == 0
+        fauxIdentityService.validateTokenCount.get() == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
-        fauxIdentityService.validateTokenCount = 0
+        fauxIdentityService.validateTokenCount = new AtomicInteger(0)
         clientThreads = new ArrayList<Thread>()
 
         for (int x in 1..uniqueUsers) {
@@ -128,7 +130,7 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount >= uniqueUsers - 2 // adding a little bit of wiggle for slow systems
+        fauxIdentityService.validateTokenCount.get() >= uniqueUsers - 2 // adding a little bit of wiggle for slow systems
 
         where:
         uniqueUsers | initialCallsPerUser
