@@ -1,5 +1,6 @@
 package com.rackspace.repose.experimental.servletContract;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,28 +47,35 @@ public class TightlyCoupledFilter implements Filter {
             throws IOException, ServletException {
 
         //Use the repose internal Wrapper to grab a response and modify it
-        MutableHttpServletResponse respWrap = MutableHttpServletResponse.wrap((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+        MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
+        mutableRequest.setInputStream(servletRequest.getInputStream());
 
-        filterChain.doFilter(servletRequest, respWrap);
+        //WE PREOPTIMIZED FOR PERFORMANCE OR SOMETHING
+        MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+        mutableResponse.commitBufferToServletOutputStream();
+
+        filterChain.doFilter(mutableRequest, mutableResponse);
 
         HttpServletRequest req = (HttpServletRequest) servletRequest;
 
         // Print out info from request & response wrapper
+        LOG.debug("mutable response committed?: " + mutableResponse.isCommitted());
+        mutableResponse.commitBufferToServletOutputStream();
+        LOG.debug("after committing: " + mutableResponse.isCommitted());
         LOG.debug("URI: " + req.getRequestURI());
-        LOG.debug("Status: " + respWrap.getStatus());
-        LOG.debug("content-type: " + respWrap.getContentType());
-        LOG.debug("resp Header 'Content-Type: " + respWrap.getHeader("Content-Type"));
-
-        LOG.debug("Has body: " + respWrap.hasBody());
+        LOG.debug("Status: " + mutableResponse.getStatus());
+        //UNRELIABLE
+        LOG.debug("mutable content-type: " + mutableResponse.getContentType());
+        //UNRELIABLE
+        LOG.debug("regular content-type: " + servletRequest.getContentType());
+        LOG.debug("resp Header 'Content-Type: " + mutableResponse.getHeader("Content-Type"));
+        //UNRELIABLE -- Why does this not work? OH GOD
+        LOG.debug("Has body: " + mutableResponse.hasBody());
 
         String content = "";
-        try {
-            Scanner s = new Scanner(respWrap.getInputStream()).useDelimiter("\\A");
-            if (s.hasNext()) {
-                content = s.next();
-            }
-        } finally {
-            respWrap.getInputStream().close();
+        Scanner s = new Scanner(mutableResponse.getInputStream()).useDelimiter("\\A");
+        if (s.hasNext()) {
+            content = s.next();
         }
 
         LOG.debug("Content Body: '" + content + "'");
@@ -77,7 +85,7 @@ public class TightlyCoupledFilter implements Filter {
             throw new RuntimeException("Content is empty");
         }
 
-        // writer content to the actual servletResponse & append additional content
+        //This should add stuff that we read to the response. Why doesn't it work?
         servletResponse.getWriter().write(content + "<extra> Added by TestFilter, should also see the rest of the content </extra>");
         servletResponse.getWriter().flush();
     }
