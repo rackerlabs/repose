@@ -60,8 +60,6 @@ public class TightlyCoupledFilter implements Filter {
 
         // Print out info from request & response wrapper
         LOG.debug("mutable response committed?: " + mutableResponse.isCommitted());
-        mutableResponse.commitBufferToServletOutputStream();
-        LOG.debug("after committing: " + mutableResponse.isCommitted());
         LOG.debug("URI: " + req.getRequestURI());
         LOG.debug("Status: " + mutableResponse.getStatus());
         //UNRELIABLE
