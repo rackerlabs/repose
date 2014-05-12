@@ -190,7 +190,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
                     } catch (IOException e) {
-                        if (e instanceof ReadLimitReachedException) {
+                        if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
                             servletResponse.setLastException(e);
