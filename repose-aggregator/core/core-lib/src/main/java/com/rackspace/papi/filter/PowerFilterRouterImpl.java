@@ -177,27 +177,25 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         dispatcher.forward(servletRequest, servletResponse);
 
                         // track response code for endpoint & across all endpoints
-                        String endpoint = getEndpoint( configDestinationElement, location );
-                        MeterByCategory mbc = verifyGet( endpoint );
-                        MeterByCategory mbcTimeout = getTimeoutMeter( endpoint );
+                        String endpoint = getEndpoint(configDestinationElement, location);
+                        MeterByCategory mbc = verifyGet(endpoint);
+                        MeterByCategory mbcTimeout = getTimeoutMeter(endpoint);
 
-                        PowerFilter.markResponseCodeHelper( mbc, servletResponse.getStatus(), LOG, endpoint );
-                        PowerFilter.markResponseCodeHelper( mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL );
-                        markRequestTimeoutHelper( mbcTimeout, servletResponse.getStatus(), endpoint );
-                        markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );
+                        PowerFilter.markResponseCodeHelper(mbc, servletResponse.getStatus(), LOG, endpoint);
+                        PowerFilter.markResponseCodeHelper(mbcAllResponse, servletResponse.getStatus(), LOG, MeterByCategorySum.ALL);
+                        markRequestTimeoutHelper(mbcTimeout, servletResponse.getStatus(), endpoint);
+                        markRequestTimeoutHelper(mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints");
 
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
+                    } catch (ReadLimitReachedException e) {
+                        LOG.error("Error reading request content", e);
+                        servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                        servletResponse.setLastException(e);
                     } catch (IOException e) {
-                        if (e instanceof ReadLimitReachedException) {
-                            LOG.error("Error reading request content", e);
-                            servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
-                            servletResponse.setLastException(e);
-                        } else {
-                            LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
-                            ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
-                        }
+                        LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
+                        ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                     }
                 }
             }
