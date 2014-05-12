@@ -1,4 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http
+
+import com.rackspace.papi.commons.util.http.HttpDate
 import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
 import com.rackspace.papi.commons.util.http.header.HeaderValue
 import org.junit.Before
@@ -103,12 +105,12 @@ class HeaderValuesImplTest {
 
     @Test
     void "getPreferredHeaderValues"() throws Exception {
-        //todo
+        //todo: this is "hard" to test as a unit
     }
 
     @Test
     void "getPreferredHeaders"() throws Exception {
-        //todo
+        //todo: this is "hard" to test as a unit
     }
 
     @Test
@@ -155,5 +157,70 @@ class HeaderValuesImplTest {
         assertNull(headerValue)
     }
 
-    //todo: write tests for public void methods
+    @Test
+    void "addHeader stores a header and associated value(s) so that it can be retrieved"() throws Exception {
+        headerValues.addHeader("test-name", "test-value")
+
+        assertThat(headerValues.getHeader("test-name"), equalTo("test-value"))
+    }
+
+    @Test
+    void "replaceHeader"() throws Exception {
+        headerValues.addHeader("test-name", "test-value")
+
+        assertThat(headerValues.getHeader("test-name"), equalTo("test-value"))
+
+        headerValues.replaceHeader("test-name", "new-value")
+
+        assertThat(headerValues.getHeader("test-name"), equalTo("new-value"))
+    }
+
+    @Test
+    void "removeHeader removes a header and its value(s) so that it cannot be retrieved"() throws Exception {
+        headerValues.addHeader("test-name", "test-value")
+
+        assertThat(headerValues.getHeader("test-name"), equalTo("test-value"))
+
+        headerValues.removeHeader("test-name")
+
+        assertNull(headerValues.getHeader("test-name"))
+    }
+
+    @Test
+    void "clearHeaders removes all headers so that they cannot be retrieved"() throws Exception {
+        headerValues.addHeader("test-name", "test-value")
+
+        assertThat(headerValues.getHeader("test-name"), equalTo("test-value"))
+
+        headerValues.clearHeaders()
+
+        assertNull(headerValues.getHeader("test-name"))
+    }
+
+    @Test
+    void "addDateHeader stores a header with an associated date provided so that is can be retrieved"() throws Exception {
+        Date now = new Date()
+        long curTime = now.getTime()
+
+        headerValues.addDateHeader("Date", curTime)
+
+        assertThat(headerValues.getHeader("Date"), equalTo(new HttpDate(now).toRFC1123()))
+    }
+
+    @Test
+    void "replaceDateHeader replaces a given date header with a new value"() throws Exception {
+        Date now = new Date()
+        long oldTime = now.getTime()
+
+        headerValues.addDateHeader("Date", oldTime)
+
+        assertThat(headerValues.getHeader("Date"), equalTo(new HttpDate(now).toRFC1123()))
+
+        now = new Date()
+        long newTime = now.getTime()
+
+        headerValues.replaceDateHeader("Date", newTime)
+
+        assertThat(headerValues.getHeader("Date"), equalTo(new HttpDate(now).toRFC1123()))
+    }
 }
