@@ -46,6 +46,7 @@ class TightlyCoupledFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code == '200'
         mc.receivedResponse.body.contains("<extra> Added by TestFilter, should also see the rest of the content </extra>")
+        println(mc.receivedResponse.body)
 
         cleanup:
         if(started)
