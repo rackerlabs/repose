@@ -13,12 +13,25 @@ public class HeaderNameStringWrapper {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         HeaderNameStringWrapper that = (HeaderNameStringWrapper) o;
 
-        if (headerName != null ? !headerName.equalsIgnoreCase(that.headerName) : that.headerName != null) { return false; }
+        if(headerName != null) {
+            if (!headerName.equalsIgnoreCase(that.headerName)) {
+                return false;
+            }
+        } else {
+            if(that.headerName != null) {
+                return false;
+            }
+        }
 
         return true;
     }
