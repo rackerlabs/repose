@@ -2,7 +2,7 @@ package com.rackspace.papi.components.service.authentication;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -63,7 +63,7 @@ public class ServiceAuthHandlerTest {
 
             director = handler.handleRequest(httpServletRequest, null);
 
-            assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("authorization")).contains(authHash));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderName("authorization")).contains(authHash));
         }
 
         @Test
@@ -96,7 +96,7 @@ public class ServiceAuthHandlerTest {
             when(httpServletResponse.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("delegated");
             director = handler.handleResponse(httpServletRequest, httpServletResponse);
 
-            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
+            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
             assertEquals(director.getResponseStatus(), HttpStatusCode.FORBIDDEN);
         }
 
@@ -110,7 +110,7 @@ public class ServiceAuthHandlerTest {
             director = handler.handleResponse(httpServletRequest, httpServletResponse);
             
 
-            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderNameStringWrapper(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
+            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
             assertEquals(director.getResponseStatus(), HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
     }

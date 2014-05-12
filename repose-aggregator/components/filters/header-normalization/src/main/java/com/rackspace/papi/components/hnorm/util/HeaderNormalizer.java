@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.hnorm.util;
 
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
@@ -12,16 +12,16 @@ public final class HeaderNormalizer {
     
     private HeaderNormalizer(){}
     
-    public static Set<HeaderNameStringWrapper> getHeadersToRemove(HttpServletRequest request, CompiledRegexAndList target) {
+    public static Set<HeaderName> getHeadersToRemove(HttpServletRequest request, CompiledRegexAndList target) {
 
         final Enumeration<String> headerNames = request.getHeaderNames();
-        Set<HeaderNameStringWrapper> headersToRemove = new HashSet<HeaderNameStringWrapper>();
-        Set<HeaderNameStringWrapper> filterList = target.getFilterList();
+        Set<HeaderName> headersToRemove = new HashSet<HeaderName>();
+        Set<HeaderName> filterList = target.getFilterList();
         String header;        
         
         while(headerNames.hasMoreElements()){
             header = headerNames.nextElement();
-            headersToRemove.add(new HeaderNameStringWrapper(header));
+            headersToRemove.add(new HeaderName(header));
         }
 
         if(!target.isBlackList()){

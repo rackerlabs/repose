@@ -11,8 +11,8 @@ import java.util.*;
 public class RequestHeaderContainer implements HeaderContainer {
 
     private final HttpServletRequest request;
-    private final List<HeaderNameStringWrapper> headerNames;
-    private final Map<HeaderNameStringWrapper, List<HeaderValue>> headerValues;
+    private final List<HeaderName> headerNames;
+    private final Map<HeaderName, List<HeaderValue>> headerValues;
     private SplittableHeaderUtil splittable;
 
 
@@ -24,14 +24,14 @@ public class RequestHeaderContainer implements HeaderContainer {
         this.headerValues = extractHeaderValues();
     }
 
-    private List<HeaderNameStringWrapper> extractHeaderNames() {
-        List<HeaderNameStringWrapper> result = new LinkedList<HeaderNameStringWrapper>();
+    private List<HeaderName> extractHeaderNames() {
+        List<HeaderName> result = new LinkedList<HeaderName>();
         if (request != null) {
             Enumeration<String> names = request.getHeaderNames();
 
             if (names != null) {
                 while (names.hasMoreElements()) {
-                    result.add(new HeaderNameStringWrapper(names.nextElement()));
+                    result.add(new HeaderName(names.nextElement()));
                 }
             }
         }
@@ -39,11 +39,11 @@ public class RequestHeaderContainer implements HeaderContainer {
         return result;
     }
 
-    private Map<HeaderNameStringWrapper, List<HeaderValue>> extractHeaderValues() {
-        Map<HeaderNameStringWrapper, List<HeaderValue>> valueMap = new HashMap<HeaderNameStringWrapper, List<HeaderValue>>();
+    private Map<HeaderName, List<HeaderValue>> extractHeaderValues() {
+        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<HeaderName, List<HeaderValue>>();
 
         if (request != null) {
-            for (HeaderNameStringWrapper wrappedName : getHeaderNames()) {
+            for (HeaderName wrappedName : getHeaderNames()) {
                 if (splittable.isSplitable(wrappedName.getName())) {
                     HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(wrappedName.getName()), wrappedName.getName());
                     valueMap.put(wrappedName, parser.parse());
@@ -56,7 +56,7 @@ public class RequestHeaderContainer implements HeaderContainer {
         return valueMap;
     }
 
-    private List<HeaderValue> extractValues(HeaderNameStringWrapper name){
+    private List<HeaderValue> extractValues(HeaderName name){
 
         List<HeaderValue> values = new ArrayList<HeaderValue>();
 
@@ -72,13 +72,13 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
-    public List<HeaderNameStringWrapper> getHeaderNames() {
+    public List<HeaderName> getHeaderNames() {
         return headerNames;
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(new HeaderNameStringWrapper(name));
+        return headerValues.get(new HeaderName(name));
     }
 
     @Override

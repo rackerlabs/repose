@@ -4,7 +4,7 @@
  */
 package com.rackspace.papi.components.header.translation;
 
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -84,17 +84,17 @@ public class HeaderTranslationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header1")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header1")));
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header2")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header2")));
 
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).contains("value1"));
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).contains("value2"));
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).contains("value3"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).contains("value1"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).contains("value2"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).contains("value3"));
 
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).contains("value1"));
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).contains("value2"));
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).contains("value3"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).contains("value1"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).contains("value2"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).contains("value3"));
 
 
             assertEquals("Filter Director should be set to remove original headers",
@@ -116,16 +116,16 @@ public class HeaderTranslationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header1")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header1")));
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header2")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header2")));
 
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).contains("value1"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).contains("value1"));
 
-            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).contains("value1"));
+            assertTrue("Filter Director should be set to add all header values", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).contains("value1"));
 
-            assertTrue("Filter Director should be set to only add one value for 'new-header1' ", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).size() == 1);
-            assertTrue("Filter Director should be set to only add one value for 'new-header2' ", myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).size() == 1);
+            assertTrue("Filter Director should be set to only add one value for 'new-header1' ", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).size() == 1);
+            assertTrue("Filter Director should be set to only add one value for 'new-header2' ", myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).size() == 1);
 
 
             assertEquals("Filter Director should be set to remove original headers",
@@ -156,11 +156,11 @@ public class HeaderTranslationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header1")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header1")));
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header2")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header2")));
 
-            Iterator<String> itr1 = myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header1")).iterator();
+            Iterator<String> itr1 = myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header1")).iterator();
 
             int counter=0;
 
@@ -170,7 +170,7 @@ public class HeaderTranslationHandlerTest {
                 counter++;
             }
 
-            Iterator<String> itr2 = myDirector.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper("new-header2")).iterator();
+            Iterator<String> itr2 = myDirector.requestHeaderManager().headersToAdd().get(new HeaderName("new-header2")).iterator();
 
             counter=0;
 
@@ -257,9 +257,9 @@ public class HeaderTranslationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header1")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header1")));
             assertTrue("Filter Director should be set to add headers",
-                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("new-header2")));
+                    myDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("new-header2")));
 
             assertEquals("Filter Director should be set to remove original headers",
                     myDirector.requestHeaderManager().headersToRemove().size(), 0);

@@ -2,7 +2,7 @@ package com.rackspace.papi.components.identity.ip;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
@@ -55,8 +55,8 @@ public class IpIdentityHandlerTest {
 
       FilterDirector director = handler.handleRequest(request, response);
 
-      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + QUALITY_VALUE));
-      assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + QUALITY_VALUE));
+      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + QUALITY_VALUE));
+      assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + QUALITY_VALUE));
    }
    
    private List<IpAddressRange> buildRanges(WhiteList list) {
@@ -87,8 +87,8 @@ public class IpIdentityHandlerTest {
 
       FilterDirector director = handler.handleRequest(request, response);
 
-      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + WL_QUALITY_VALUE));
-      assertTrue("Should have IP_Super as a group", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEFAULT_WHITELIST_GROUP + WL_QUALITY_VALUE));
+      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + WL_QUALITY_VALUE));
+      assertTrue("Should have IP_Super as a group", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEFAULT_WHITELIST_GROUP + WL_QUALITY_VALUE));
    }
 
    @Test
@@ -108,8 +108,8 @@ public class IpIdentityHandlerTest {
 
       FilterDirector director = handler.handleRequest(request, response);
 
-      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString())).contains(IP + WL_QUALITY_VALUE));
-      assertTrue("Should have IP_Super as a group", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEFAULT_WHITELIST_GROUP + WL_QUALITY_VALUE));
+      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString())).contains(IP + WL_QUALITY_VALUE));
+      assertTrue("Should have IP_Super as a group", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEFAULT_WHITELIST_GROUP + WL_QUALITY_VALUE));
    }
 
    @Test
@@ -129,7 +129,7 @@ public class IpIdentityHandlerTest {
 
       FilterDirector director = handler.handleRequest(request, response);
 
-      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString())).contains(IP + WL_QUALITY_VALUE));
-      assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + QUALITY_VALUE));
+      assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString())).contains(IP + WL_QUALITY_VALUE));
+      assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + QUALITY_VALUE));
    }
 }

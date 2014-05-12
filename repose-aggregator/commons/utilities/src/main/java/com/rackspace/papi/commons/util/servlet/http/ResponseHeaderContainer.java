@@ -11,8 +11,8 @@ import java.util.*;
 public class ResponseHeaderContainer implements HeaderContainer {
 
     private final HttpServletResponse response;
-    private final List<HeaderNameStringWrapper> headerNames;
-    private final Map<HeaderNameStringWrapper, List<HeaderValue>> headerValues;
+    private final List<HeaderName> headerNames;
+    private final Map<HeaderName, List<HeaderValue>> headerValues;
     private SplittableHeaderUtil splitable;
 
     public ResponseHeaderContainer(HttpServletResponse response) {
@@ -23,24 +23,24 @@ public class ResponseHeaderContainer implements HeaderContainer {
         this.headerValues = extractHeaderValues();
     }
 
-    private List<HeaderNameStringWrapper> extractHeaderNames() {
-        List<HeaderNameStringWrapper> result = new LinkedList<HeaderNameStringWrapper>();
+    private List<HeaderName> extractHeaderNames() {
+        List<HeaderName> result = new LinkedList<HeaderName>();
         if (response != null) {
             Collection<String> names = response.getHeaderNames();
 
             for (String name : names) {
-                result.add(new HeaderNameStringWrapper(name));
+                result.add(new HeaderName(name));
             }
         }
 
         return result;
     }
 
-    private Map<HeaderNameStringWrapper, List<HeaderValue>> extractHeaderValues() {
-        Map<HeaderNameStringWrapper, List<HeaderValue>> valueMap = new HashMap<HeaderNameStringWrapper, List<HeaderValue>>();
+    private Map<HeaderName, List<HeaderValue>> extractHeaderValues() {
+        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<HeaderName, List<HeaderValue>>();
 
         if (response != null) {
-            for (HeaderNameStringWrapper headerNameKey : headerNames) {
+            for (HeaderName headerNameKey : headerNames) {
                 String name = headerNameKey.getName();
 
                 if (splitable.isSplitable(name)) {
@@ -59,13 +59,13 @@ public class ResponseHeaderContainer implements HeaderContainer {
 
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
-    public List<HeaderNameStringWrapper> getHeaderNames() {
+    public List<HeaderName> getHeaderNames() {
         return headerNames;
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(new HeaderNameStringWrapper(name));
+        return headerValues.get(new HeaderName(name));
     }
 
     @Override

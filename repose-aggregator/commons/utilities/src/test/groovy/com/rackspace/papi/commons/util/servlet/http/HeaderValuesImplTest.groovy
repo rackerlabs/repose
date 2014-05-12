@@ -1,7 +1,7 @@
 package com.rackspace.papi.commons.util.servlet.http
 
 import com.rackspace.papi.commons.util.http.HttpDate
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
+import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.http.header.HeaderValue
 import org.junit.Before
 import org.junit.Test
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 class HeaderValuesImplTest {
-    Map<HeaderNameStringWrapper, List<HeaderValue>> headers
+    Map<HeaderName, List<HeaderValue>> headers
 
     HeaderValues headerValues
 

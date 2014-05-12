@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper
+
+import com.rackspace.papi.commons.util.http.header.HeaderName
 import org.junit.Before
 import org.junit.Test
 
@@ -37,9 +38,9 @@ class ResponseHeaderContainerTest {
     void "header names are not modified"() throws Exception {
         assertThat(responseHeaderContainer.getHeaderNames().size(), equalTo(3))
         assertThat(responseHeaderContainer.getHeaderNames(), hasItems(
-                new HeaderNameStringWrapper("via"),
-                new HeaderNameStringWrapper("BLAH"),
-                new HeaderNameStringWrapper("Content-Type")))
+                new HeaderName("via"),
+                new HeaderName("BLAH"),
+                new HeaderName("Content-Type")))
     }
 
     @Test

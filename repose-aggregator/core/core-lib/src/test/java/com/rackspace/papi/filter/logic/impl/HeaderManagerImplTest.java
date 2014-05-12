@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class HeaderManagerImplTest {
             headerManagerImpl.putHeader(key, "1");
             headerManagerImpl.appendHeader(key, "2");
 
-            final Iterator<String> valueIterator = headerManagerImpl.headersToAdd().get(new HeaderNameStringWrapper(key)).iterator();
+            final Iterator<String> valueIterator = headerManagerImpl.headersToAdd().get(new HeaderName(key)).iterator();
             final String firstValue = valueIterator.next();
 
             if ("1".equals(firstValue)) {
@@ -52,7 +52,7 @@ public class HeaderManagerImplTest {
 
             headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.toString(), "username;q=1");
 
-            Set<String> values = headerManagerImpl.headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString()));
+            Set<String> values = headerManagerImpl.headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString()));
 
             assertEquals("Should append header value if header already present.", "127.0.0.0;q=.3,username;q=1", values.iterator().next());
         }
@@ -63,7 +63,7 @@ public class HeaderManagerImplTest {
 
             headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.toString(), "username;q=1");
 
-            Set<String> values = headerManagerImpl.headersToAdd().get(new HeaderNameStringWrapper(PowerApiHeader.USER.toString()));
+            Set<String> values = headerManagerImpl.headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString()));
 
             assertEquals("Should put header value if header not present.", "username;q=1", values.iterator().next());
         }
@@ -89,7 +89,7 @@ public class HeaderManagerImplTest {
 
             headerManagerImpl.appendHeader("header1", requestHeaderValues);
 
-            Iterator<String> itr = headerManagerImpl.headersToAdd().get(new HeaderNameStringWrapper("header1")).iterator();
+            Iterator<String> itr = headerManagerImpl.headersToAdd().get(new HeaderName("header1")).iterator();
 
             int counter = 0;
 

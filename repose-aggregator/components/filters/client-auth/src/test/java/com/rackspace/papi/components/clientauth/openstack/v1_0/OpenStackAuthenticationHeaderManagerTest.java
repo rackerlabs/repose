@@ -9,7 +9,7 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
         public void shouldAddAuthHeader() {
             filterDirector.setResponseStatusCode(FAIL);
             openStackAuthenticationHeaderManager.setFilterDirectorValues();
-            assertTrue(filterDirector.responseHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper("www-authenticate")));
+            assertTrue(filterDirector.responseHeaderManager().headersToAdd().containsKey(new HeaderName("www-authenticate")));
         }
         
  
@@ -155,12 +155,12 @@ public class OpenStackAuthenticationHeaderManagerTest {
        @Test
         public void shouldAddHeaders() {
            
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.TENANT_NAME.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.TENANT_ID.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.USER_NAME.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.USER_ID.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(PowerApiHeader.GROUPS.toString())));
-           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderNameStringWrapper(OpenStackServiceHeader.X_EXPIRATION.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(OpenStackServiceHeader.TENANT_NAME.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(OpenStackServiceHeader.TENANT_ID.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(OpenStackServiceHeader.USER_NAME.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(OpenStackServiceHeader.USER_ID.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(PowerApiHeader.GROUPS.toString())));
+           assertTrue(filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName(OpenStackServiceHeader.X_EXPIRATION.toString())));
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.logic.impl;
 
-import com.rackspace.papi.commons.util.http.header.HeaderNameStringWrapper;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
@@ -14,27 +14,27 @@ import java.util.*;
  */
 public class HeaderManagerImpl implements HeaderManager {
 
-    private final Map<HeaderNameStringWrapper, Set<String>> headersToAdd;
-    private final Set<HeaderNameStringWrapper> headersToRemove;
+    private final Map<HeaderName, Set<String>> headersToAdd;
+    private final Set<HeaderName> headersToRemove;
     private boolean removeAllHeaders;
 
     public HeaderManagerImpl() {
-        headersToAdd = new HashMap<HeaderNameStringWrapper, Set<String>>();
-        headersToRemove = new HashSet<HeaderNameStringWrapper>();
+        headersToAdd = new HashMap<HeaderName, Set<String>>();
+        headersToRemove = new HashSet<HeaderName>();
         removeAllHeaders = false;
     }
 
     private void applyTo(HeaderApplicationLogic applier) {
         // Remove headers first to make sure put logic stays sane
         if (!removeAllHeaders) {
-            for (HeaderNameStringWrapper header : headersToRemove()) {
+            for (HeaderName header : headersToRemove()) {
                 applier.removeHeader(header.getName());
             }
         } else {
             applier.removeAllHeaders();
         }
 
-        for (Map.Entry<HeaderNameStringWrapper, Set<String>> header : headersToAdd().entrySet()) {
+        for (Map.Entry<HeaderName, Set<String>> header : headersToAdd().entrySet()) {
             applier.addHeader(header.getKey().getName(), header.getValue());
         }
     }
@@ -57,12 +57,12 @@ public class HeaderManagerImpl implements HeaderManager {
     }
 
     @Override
-    public Map<HeaderNameStringWrapper, Set<String>> headersToAdd() {
+    public Map<HeaderName, Set<String>> headersToAdd() {
         return headersToAdd;
     }
 
     @Override
-    public Set<HeaderNameStringWrapper> headersToRemove() {
+    public Set<HeaderName> headersToRemove() {
         return headersToRemove;
     }
 
@@ -70,23 +70,23 @@ public class HeaderManagerImpl implements HeaderManager {
     public void putHeader(String key, String... values) {
         // We remove the key first to preserve put logic such that any header put
         // will remove the header before setting new values
-        headersToRemove.add(new HeaderNameStringWrapper(key));
+        headersToRemove.add(new HeaderName(key));
 
-        headersToAdd.put(new HeaderNameStringWrapper(key), new LinkedHashSet<String>(Arrays.asList(values)));
+        headersToAdd.put(new HeaderName(key), new LinkedHashSet<String>(Arrays.asList(values)));
     }
 
     @Override
     public void removeHeader(String key) {
-        headersToRemove.add(new HeaderNameStringWrapper(key));
+        headersToRemove.add(new HeaderName(key));
     }
 
     @Override
     public void appendHeader(String key, String... values) {
-        Set<String> headerValues = headersToAdd.get(new HeaderNameStringWrapper(key));
+        Set<String> headerValues = headersToAdd.get(new HeaderName(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(new HeaderNameStringWrapper(key), headerValues);
+            headersToAdd.put(new HeaderName(key), headerValues);
         }
 
         headerValues.addAll(Arrays.asList(values));
@@ -102,11 +102,11 @@ public class HeaderManagerImpl implements HeaderManager {
 
     @Override
     public void appendHeader(String key, String value, Double quality) {
-        Set<String> headerValues = headersToAdd.get(new HeaderNameStringWrapper(key));
+        Set<String> headerValues = headersToAdd.get(new HeaderName(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(new HeaderNameStringWrapper(key), headerValues);
+            headersToAdd.put(new HeaderName(key), headerValues);
         }
 
         headerValues.add(valueWithQuality(value, quality));
