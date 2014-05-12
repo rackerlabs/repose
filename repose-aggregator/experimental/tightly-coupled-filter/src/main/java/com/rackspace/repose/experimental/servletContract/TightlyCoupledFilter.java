@@ -50,26 +50,26 @@ public class TightlyCoupledFilter implements Filter {
         MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
         mutableRequest.setInputStream(servletRequest.getInputStream());
 
-        //WE PREOPTIMIZED FOR PERFORMANCE OR SOMETHING
+        //Use a repose internal mutable response
         MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
-        mutableResponse.commitBufferToServletOutputStream();
 
+        //Fire off the next one in the filter chain
         filterChain.doFilter(mutableRequest, mutableResponse);
 
         HttpServletRequest req = (HttpServletRequest) servletRequest;
 
         // Print out info from request & response wrapper
-        LOG.debug("mutable response committed?: " + mutableResponse.isCommitted());
         LOG.debug("URI: " + req.getRequestURI());
         LOG.debug("Status: " + mutableResponse.getStatus());
-        //UNRELIABLE
+        //I don't know why this doesn't work :(
         LOG.debug("mutable content-type: " + mutableResponse.getContentType());
-        //UNRELIABLE
+        //I don't know why this doesn't work either :(
         LOG.debug("regular content-type: " + servletRequest.getContentType());
         LOG.debug("resp Header 'Content-Type: " + mutableResponse.getHeader("Content-Type"));
-        //UNRELIABLE -- Why does this not work? OH GOD
+        //THis is not reliable either. You'll have to check the body proper by getting the input stream and reading it
         LOG.debug("Has body: " + mutableResponse.hasBody());
 
+        //Just a scanner to read in the entire content
         String content = "";
         Scanner s = new Scanner(mutableResponse.getInputStream()).useDelimiter("\\A");
         if (s.hasNext()) {
@@ -78,14 +78,14 @@ public class TightlyCoupledFilter implements Filter {
 
         LOG.debug("Content Body: '" + content + "'");
 
-        // verify that the content is not empty.  This fails in repose but works in tomcat
+        // verify that the content is not empty.
         if (content.isEmpty()) {
             throw new RuntimeException("Content is empty");
         }
 
-        //This should add stuff that we read to the response. Why doesn't it work?
-        servletResponse.getWriter().write(content + "<extra> Added by TestFilter, should also see the rest of the content </extra>");
-        servletResponse.getWriter().flush();
+        //Make the changes to the body you want to do here, then commit it.
+        mutableResponse.getWriter().write(content + "<extra> Added by TestFilter, should also see the rest of the content </extra>");
+        mutableResponse.commitBufferToServletOutputStream(); //THIS MUST BE CALLED HERE TO GET THE THINGS INTO THE BODY
     }
 
     @Override
