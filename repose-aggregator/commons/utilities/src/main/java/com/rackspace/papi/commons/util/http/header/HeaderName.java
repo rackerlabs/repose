@@ -3,7 +3,7 @@ package com.rackspace.papi.commons.util.http.header;
 public class HeaderName {
     private String name;
 
-    public HeaderName(String name) {
+    private HeaderName(String name) {
         this.name = name;
     }
 
@@ -46,5 +46,9 @@ public class HeaderName {
         return "HeaderName{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    public static HeaderName wrap(String name) {
+        return new HeaderName(name);
     }
 }

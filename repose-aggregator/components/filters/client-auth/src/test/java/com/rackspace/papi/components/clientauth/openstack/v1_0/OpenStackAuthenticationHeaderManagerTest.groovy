@@ -40,6 +40,6 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
 
         then:
         openStackAuthenticationHeaderManager.endpointsBase64 == endpointsBase64
-        filterDirector.requestHeaderManager().headersToAdd().containsKey(new HeaderName("x-catalog"))
+        filterDirector.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("x-catalog"))
     }
 }

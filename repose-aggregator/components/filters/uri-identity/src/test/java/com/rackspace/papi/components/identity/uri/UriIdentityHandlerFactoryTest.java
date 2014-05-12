@@ -86,7 +86,7 @@ public class UriIdentityHandlerFactoryTest {
 
         FilterDirector result = handler.handleRequest(request, response);
 
-        Set<String> values = result.requestHeaderManager().headersToAdd().get(new HeaderName(PowerApiHeader.USER.toString()));
+        Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
 
         String userName = values.iterator().next();

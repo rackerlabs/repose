@@ -132,8 +132,8 @@ public class MediaTypeNormalizerTest {
             when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri"));
             normalizer.normalizeContentMediaType(request, director);
             
-            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(new HeaderName("accept")));
-            assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderName("accept")).contains("application/xml"));
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("accept")));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).contains("application/xml"));
         }
         
         @Test
@@ -160,8 +160,8 @@ public class MediaTypeNormalizerTest {
             when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri.xml"));
             normalizer.normalizeContentMediaType(request, director);
             
-            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(new HeaderName("accept")));
-            assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderName("accept")).contains("application/xml"));
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("accept")));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).contains("application/xml"));
         }
 
         @Test

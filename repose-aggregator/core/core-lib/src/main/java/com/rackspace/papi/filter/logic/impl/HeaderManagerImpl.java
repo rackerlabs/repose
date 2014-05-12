@@ -70,23 +70,23 @@ public class HeaderManagerImpl implements HeaderManager {
     public void putHeader(String key, String... values) {
         // We remove the key first to preserve put logic such that any header put
         // will remove the header before setting new values
-        headersToRemove.add(new HeaderName(key));
+        headersToRemove.add(HeaderName.wrap(key));
 
-        headersToAdd.put(new HeaderName(key), new LinkedHashSet<String>(Arrays.asList(values)));
+        headersToAdd.put(HeaderName.wrap(key), new LinkedHashSet<String>(Arrays.asList(values)));
     }
 
     @Override
     public void removeHeader(String key) {
-        headersToRemove.add(new HeaderName(key));
+        headersToRemove.add(HeaderName.wrap(key));
     }
 
     @Override
     public void appendHeader(String key, String... values) {
-        Set<String> headerValues = headersToAdd.get(new HeaderName(key));
+        Set<String> headerValues = headersToAdd.get(HeaderName.wrap(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(new HeaderName(key), headerValues);
+            headersToAdd.put(HeaderName.wrap(key), headerValues);
         }
 
         headerValues.addAll(Arrays.asList(values));
@@ -102,11 +102,11 @@ public class HeaderManagerImpl implements HeaderManager {
 
     @Override
     public void appendHeader(String key, String value, Double quality) {
-        Set<String> headerValues = headersToAdd.get(new HeaderName(key));
+        Set<String> headerValues = headersToAdd.get(HeaderName.wrap(key));
 
         if (headerValues == null) {
             headerValues = new LinkedHashSet<String>();
-            headersToAdd.put(new HeaderName(key), headerValues);
+            headersToAdd.put(HeaderName.wrap(key), headerValues);
         }
 
         headerValues.add(valueWithQuality(value, quality));

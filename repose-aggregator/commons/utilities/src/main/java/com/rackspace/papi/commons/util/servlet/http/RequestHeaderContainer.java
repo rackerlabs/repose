@@ -31,7 +31,7 @@ public class RequestHeaderContainer implements HeaderContainer {
 
             if (names != null) {
                 while (names.hasMoreElements()) {
-                    result.add(new HeaderName(names.nextElement()));
+                    result.add(HeaderName.wrap(names.nextElement()));
                 }
             }
         }
@@ -78,7 +78,7 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(new HeaderName(name));
+        return headerValues.get(HeaderName.wrap(name));
     }
 
     @Override

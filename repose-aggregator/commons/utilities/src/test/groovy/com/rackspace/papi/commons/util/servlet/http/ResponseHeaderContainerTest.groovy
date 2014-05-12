@@ -38,9 +38,9 @@ class ResponseHeaderContainerTest {
     void "header names are not modified"() throws Exception {
         assertThat(responseHeaderContainer.getHeaderNames().size(), equalTo(3))
         assertThat(responseHeaderContainer.getHeaderNames(), hasItems(
-                new HeaderName("via"),
-                new HeaderName("BLAH"),
-                new HeaderName("Content-Type")))
+                HeaderName.wrap("via"),
+                HeaderName.wrap("BLAH"),
+                HeaderName.wrap("Content-Type")))
     }
 
     @Test

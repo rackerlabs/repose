@@ -119,8 +119,8 @@ public class MutableHttpServletRequestTest {
             headerValues.add("val3");
 
             headers = new HashMap<HeaderName, List<String>>();
-            headers.put(new HeaderName("accept"), headerValues);
-            headers.put(new HeaderName("ACCEPT-ENCODING"), new ArrayList<String>());
+            headers.put(HeaderName.wrap("accept"), headerValues);
+            headers.put(HeaderName.wrap("ACCEPT-ENCODING"), new ArrayList<String>());
         }
 
         @Test

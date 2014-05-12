@@ -47,8 +47,8 @@ class RequestHeaderContainerTest {
     @Test
     void testGetHeaderNames() {
         assert container.getHeaderNames().size() == 4
-        assert container.getHeaderNames().contains(new HeaderName("accept"))
-        assert container.getHeaderNames().contains(new HeaderName("via"))
+        assert container.getHeaderNames().contains(HeaderName.wrap("accept"))
+        assert container.getHeaderNames().contains(HeaderName.wrap("via"))
     }
 
     @Test
@@ -72,10 +72,10 @@ class RequestHeaderContainerTest {
     void "header names are not modified"() throws Exception {
         assertThat(container.getHeaderNames().size(), equalTo(4))
         assertThat(container.getHeaderNames(), hasItems(
-                new HeaderName("accept"),
-                new HeaderName("via"),
-                new HeaderName("BLAH"),
-                new HeaderName("Content-Type")))
+                HeaderName.wrap("accept"),
+                HeaderName.wrap("via"),
+                HeaderName.wrap("BLAH"),
+                HeaderName.wrap("Content-Type")))
     }
 
     static Enumeration<String> createStringEnumeration(String... names) {

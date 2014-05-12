@@ -144,10 +144,10 @@ public class RackspaceAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
             assertTrue("Auth component must set X Authorization header when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).iterator().next()
                                .equalsIgnoreCase(xAuthProxy));
             assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-identity-status")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-identity-status")).iterator().next()
                                .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
             assertEquals("Auth component must pass requests with null or blank credentials when in delegated mode",
                          FilterAction.PASS, requestDirector.getFilterAction());
@@ -160,10 +160,10 @@ public class RackspaceAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
             assertTrue("Auth component must set X Authorization header when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).iterator().next()
                                .equalsIgnoreCase(xAuthProxy + " accountId"));
             assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-identity-status")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-identity-status")).iterator().next()
                                .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
             assertEquals("Auth component must pass requests with null or blank auth token when in delegated mode",
                          FilterAction.PASS, requestDirector.getFilterAction());
@@ -177,10 +177,10 @@ public class RackspaceAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
             assertTrue("Auth component must set X Authorization header when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).iterator().next()
                                .equalsIgnoreCase(xAuthProxy));
             assertTrue("Auth component must set X Identity Status to Indeterminate when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-identity-status")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-identity-status")).iterator().next()
                                .equalsIgnoreCase(IdentityStatus.Indeterminate.name()));
             assertEquals("Auth component must pass requests with null or blank account id when in delegated mode",
                          FilterAction.PASS, requestDirector.getFilterAction());
@@ -215,14 +215,14 @@ public class RackspaceAuthenticationHandlerTest {
 
             assertTrue("When groups exist, handler must add X-PP-Groups header",
                        requestDirector.requestHeaderManager().headersToAdd()
-                               .get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains("group-id;q=1"));
+                               .get(HeaderName.wrap(PowerApiHeader.GROUPS.toString())).contains("group-id;q=1"));
             assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd()
-                    .get(new HeaderName(PowerApiHeader.USER.toString())).contains("accountId;q=1"));
+                    .get(HeaderName.wrap(PowerApiHeader.USER.toString())).contains("accountId;q=1"));
             assertTrue("Auth component must set X Authorization header when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).iterator().next()
                                .equalsIgnoreCase(xAuthProxy + " accountId"));
             assertTrue("Auth component must set X Identity Status to Confirmed when in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-identity-status")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-identity-status")).iterator().next()
                                .equalsIgnoreCase(IdentityStatus.Confirmed.name()));
             assertEquals("Auth component must pass valid credentials when in delegated mode", FilterAction.PASS,
                          requestDirector.getFilterAction());
@@ -322,12 +322,12 @@ public class RackspaceAuthenticationHandlerTest {
 
             assertTrue("When groups exist, handler must add X-PP-Groups header",
                     requestDirector.requestHeaderManager().headersToAdd()
-                            .get(new HeaderName(PowerApiHeader.GROUPS.toString())).contains("group-id;q=1")
+                            .get(HeaderName.wrap(PowerApiHeader.GROUPS.toString())).contains("group-id;q=1")
             );
             assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd()
-                    .get(new HeaderName(PowerApiHeader.USER.toString())).contains("accountId;q=1"));
+                    .get(HeaderName.wrap(PowerApiHeader.USER.toString())).contains("accountId;q=1"));
             assertTrue("Auth component must set X Authorization header when not in delegated mode",
-                       requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).iterator().next()
+                       requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).iterator().next()
                                .equalsIgnoreCase(xAuthProxy + " accountId"));
             assertEquals("Auth component must pass valid credentials when not in delegated mode", FilterAction.PASS,
                          requestDirector.getFilterAction());
@@ -359,7 +359,7 @@ public class RackspaceAuthenticationHandlerTest {
             assertEquals(
                     "Auth component must modify WWW-Authenticate header when Delegable origin service returns a 401",
                     expected, responseDirector.responseHeaderManager().headersToAdd()
-                    .get(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
+                    .get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test
@@ -375,7 +375,7 @@ public class RackspaceAuthenticationHandlerTest {
             assertEquals(
                     "Auth component must modify WWW-Authenticate header when Delegable origin service returns a 403",
                     expected, responseDirector.responseHeaderManager().headersToAdd()
-                    .get(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
+                    .get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test

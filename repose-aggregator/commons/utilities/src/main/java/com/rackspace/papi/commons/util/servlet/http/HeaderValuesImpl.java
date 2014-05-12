@@ -68,7 +68,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public void addHeader(String name, String value) {
-        final HeaderName wrappedName = new HeaderName(name);
+        final HeaderName wrappedName = HeaderName.wrap(name);
 
         List<HeaderValue> headerValues = headers.get(wrappedName);
 
@@ -89,7 +89,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     public void replaceHeader(String name, String value) {
         final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-        HeaderName wrappedName = new HeaderName(name);
+        HeaderName wrappedName = HeaderName.wrap(name);
 
         headerValues.addAll(parseHeaderValues(wrappedName, value));
 
@@ -98,7 +98,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public void removeHeader(String name) {
-        headers.remove(new HeaderName(name));
+        headers.remove(HeaderName.wrap(name));
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     }
 
     static <T> T fromMap(Map<HeaderName, List<T>> headers, String headerName) {
-        final List<T> headerValues = headers.get(new HeaderName(headerName));
+        final List<T> headerValues = headers.get(HeaderName.wrap(headerName));
 
         return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
     }
@@ -137,7 +137,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        final List<HeaderValue> headerValues = headers.get(new HeaderName(name));
+        final List<HeaderValue> headerValues = headers.get(HeaderName.wrap(name));
         final List<String> values = new LinkedList<String>();
 
         if (headerValues != null) {
@@ -151,7 +151,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
-        List<HeaderValue> headerValues = headers.get(new HeaderName(name));
+        List<HeaderValue> headerValues = headers.get(HeaderName.wrap(name));
 
         QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
         List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
@@ -166,7 +166,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue) {
-        List<HeaderValue> headerValues = headers.get(new HeaderName(name));
+        List<HeaderValue> headerValues = headers.get(HeaderName.wrap(name));
 
         if (headerValues == null || headerValues.isEmpty()) {
             headerValues = new ArrayList<HeaderValue>();
@@ -206,12 +206,12 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public boolean containsHeader(String name) {
-        return headers.containsKey(new HeaderName(name));
+        return headers.containsKey(HeaderName.wrap(name));
     }
 
     @Override
     public void addDateHeader(String name, long value) {
-        HeaderName wrappedName = new HeaderName(name);
+        HeaderName wrappedName = HeaderName.wrap(name);
 
         List<HeaderValue> headerValues = headers.get(wrappedName);
 
@@ -227,12 +227,12 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public void replaceDateHeader(String name, long value) {
-        headers.remove(new HeaderName(name));
+        headers.remove(HeaderName.wrap(name));
         addDateHeader(name, value);
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headers.get(new HeaderName(name));
+        return headers.get(HeaderName.wrap(name));
     }
 }

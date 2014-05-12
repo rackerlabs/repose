@@ -54,7 +54,7 @@ public class CompiledRegexAndList {
         
         filterList = new HashSet<HeaderName>();
         for(HttpHeader header : headerList){
-            filterList.add(new HeaderName(header.getId()));
+            filterList.add(HeaderName.wrap(header.getId()));
         }
     }
 }

@@ -67,10 +67,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("http://service.com/v1/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("http://service.com/v1/12345/path/to/resource")
 
     }
 
@@ -86,10 +86,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("/v1/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("/v1/12345/path/to/resource")
 
     }
 
@@ -106,10 +106,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("http://service.com/v1/12345/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("http://service.com/v1/12345/to/resource")
 
     }
 
@@ -126,10 +126,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("http://service.com/v2/12345/path/to/resource")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("http://service.com/v2/12345/path/to/resource")
 
     }
 
@@ -146,10 +146,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("http://service.com/v1/12345/path/to/resource?a=b&c=d")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("http://service.com/v1/12345/path/to/resource?a=b&c=d")
 
     }
 
@@ -167,10 +167,10 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
 
-        assert director.responseHeaderManager().headersToAdd().get(new HeaderName("location")).contains("/v1/12345/path/to/resource?a=b&c=d")
+        assert director.responseHeaderManager().headersToAdd().get(HeaderName.wrap("location")).contains("/v1/12345/path/to/resource?a=b&c=d")
 
     }
 
@@ -183,7 +183,7 @@ class UriStripperHandlerFactoryTest {
 
         FilterDirector director = handler.handleResponse(request, response)
 
-        assert !director.responseHeaderManager().headersToAdd().containsKey(new HeaderName("location"))
+        assert !director.responseHeaderManager().headersToAdd().containsKey(HeaderName.wrap("location"))
 
     }
 

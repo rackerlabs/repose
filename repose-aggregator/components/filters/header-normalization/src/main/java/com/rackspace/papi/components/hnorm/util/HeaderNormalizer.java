@@ -21,7 +21,7 @@ public final class HeaderNormalizer {
         
         while(headerNames.hasMoreElements()){
             header = headerNames.nextElement();
-            headersToRemove.add(new HeaderName(header));
+            headersToRemove.add(HeaderName.wrap(header));
         }
 
         if(!target.isBlackList()){

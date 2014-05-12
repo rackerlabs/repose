@@ -29,7 +29,7 @@ public class ResponseHeaderContainer implements HeaderContainer {
             Collection<String> names = response.getHeaderNames();
 
             for (String name : names) {
-                result.add(new HeaderName(name));
+                result.add(HeaderName.wrap(name));
             }
         }
 
@@ -65,7 +65,7 @@ public class ResponseHeaderContainer implements HeaderContainer {
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(new HeaderName(name));
+        return headerValues.get(HeaderName.wrap(name));
     }
 
     @Override

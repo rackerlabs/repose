@@ -63,7 +63,7 @@ public class ServiceAuthHandlerTest {
 
             director = handler.handleRequest(httpServletRequest, null);
 
-            assertTrue(director.requestHeaderManager().headersToAdd().get(new HeaderName("authorization")).contains(authHash));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("authorization")).contains(authHash));
         }
 
         @Test
@@ -96,7 +96,7 @@ public class ServiceAuthHandlerTest {
             when(httpServletResponse.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("delegated");
             director = handler.handleResponse(httpServletRequest, httpServletResponse);
 
-            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
+            assertTrue(director.responseHeaderManager().headersToRemove().contains(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
             assertEquals(director.getResponseStatus(), HttpStatusCode.FORBIDDEN);
         }
 
@@ -110,7 +110,7 @@ public class ServiceAuthHandlerTest {
             director = handler.handleResponse(httpServletRequest, httpServletResponse);
             
 
-            assertTrue(director.responseHeaderManager().headersToRemove().contains(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
+            assertTrue(director.responseHeaderManager().headersToRemove().contains(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())));
             assertEquals(director.getResponseStatus(), HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
     }

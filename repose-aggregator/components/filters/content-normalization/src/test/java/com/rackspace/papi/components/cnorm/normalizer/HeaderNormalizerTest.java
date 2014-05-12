@@ -77,9 +77,9 @@ public class HeaderNormalizerTest {
 
         headerNormalizer = new HeaderNormalizer(headerFilterList, true);
         headerNormalizer.normalizeHeaders(request, director);
-        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header1.getId())));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header2.getId())));
-        assertFalse("Accept should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName("accept")));
+        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header1.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header2.getId())));
+        assertFalse("Accept should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept")));
 
     }
 
@@ -88,11 +88,11 @@ public class HeaderNormalizerTest {
     public void shouldOnlyAllowFromWhiteList() {
         headerNormalizer = new HeaderNormalizer(headerFilterList, true);
         headerNormalizer.normalizeHeaders(request, director);
-        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header1.getId())));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header2.getId())));
-        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName("accept")));
-        assertFalse("X-Group-Header should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header3.getId())));
-        assertFalse("Content-Type should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(new HeaderName(header4.getId())));
+        assertTrue("X-Auth-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header1.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header2.getId())));
+        assertTrue("X-User-Header should be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept")));
+        assertFalse("X-Group-Header should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header3.getId())));
+        assertFalse("Content-Type should not be flagged for removal", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap(header4.getId())));
 
     }
 }

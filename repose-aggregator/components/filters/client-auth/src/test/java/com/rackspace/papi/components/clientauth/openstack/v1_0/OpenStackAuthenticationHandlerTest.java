@@ -533,7 +533,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test
@@ -545,7 +545,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(new HeaderName(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test
@@ -671,7 +671,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
             when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertFalse(requestDirector.requestHeaderManager().headersToAdd().get(new HeaderName("x-authorization")).toString().equalsIgnoreCase("[Proxy usertest1]"));
+            assertFalse(requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).toString().equalsIgnoreCase("[Proxy usertest1]"));
         }
     }
 }
