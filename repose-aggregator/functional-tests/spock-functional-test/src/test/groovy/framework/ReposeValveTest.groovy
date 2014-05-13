@@ -52,7 +52,7 @@ abstract class ReposeValveTest extends Specification {
     def configureReposeValve() {
 
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(properties)
-        reposeConfigProvider.cleanConfigDirectory()
+
         repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(logFile);
