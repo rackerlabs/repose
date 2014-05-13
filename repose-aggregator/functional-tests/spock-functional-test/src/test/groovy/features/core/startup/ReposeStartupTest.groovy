@@ -36,11 +36,13 @@ class ReposeStartupTest extends ReposeValveTest {
 
     static def params
 
-    def "start repose with installation configs"(){
+    def "repose should start with installation configs"(){
         setup:
         def params = properties.getDefaultTemplateParams()
 
         //note: Order matters here. The common directory overwrites some of the configs from the core directory.
+        //      This means that the core configs we provide may not get tested, but due to the structure of our tests,
+        //      this is currently "hard" to fix.
         repose.configurationProvider.applyConfigs("../../../../installation/configs/core", params)
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
@@ -48,8 +50,8 @@ class ReposeStartupTest extends ReposeValveTest {
         repose.start()
 
         when:
-        //todo: Grab the port from the system model, and don't do a string replacement.
-        repose.waitForNon500FromUrl(reposeEndpoint.replaceAll(":10000", ":8080"))
+        //todo: use a dynamic port (will require tinkering with [a copy of] the installation system-model).
+        repose.waitForNon500FromUrl("http://localhost:8080")
 
         then:
         notThrown(TimeoutException)
