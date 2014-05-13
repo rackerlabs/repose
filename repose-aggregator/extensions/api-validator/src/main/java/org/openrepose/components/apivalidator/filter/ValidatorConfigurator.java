@@ -1,6 +1,7 @@
 package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
+import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
@@ -110,6 +111,8 @@ public class ValidatorConfigurator {
                 LOG.warn("Cannot write to DOT file: " + dotPath, ex);
             }
         }
+        //added instrumented handler that will check counts!
+        handlers.add(new InstrumentedHandler());
         return new DispatchHandler(handlers.toArray(new ResultHandler[handlers.size()]));
     }
 
