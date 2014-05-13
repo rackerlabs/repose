@@ -38,7 +38,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/services/datastore/"+configuration, params)
 
         when:
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("503")
 
         then:
@@ -76,7 +76,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/services/datastore/"+configuration, params)
 
         when:
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("503")
 
         then:
@@ -109,7 +109,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/services/datastore/portranges", params)
 
         when:
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("503")
 
         then:
@@ -141,7 +141,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/services/datastore/portranges", params)
 
         when:
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("503", false)
 
         then:
@@ -173,7 +173,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/services/datastore/portconflict", params)
 
         when:
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("503", false)
 
         then:
