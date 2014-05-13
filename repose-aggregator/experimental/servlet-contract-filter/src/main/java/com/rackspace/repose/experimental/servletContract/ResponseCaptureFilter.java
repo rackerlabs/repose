@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * This test is to verify that repose supports the contract on the ServletResponse.getOutputStream()
+ * This experimental filter is to verify that repose supports the contract on the ServletResponse.getOutputStream()
  * and ServletResponse.getWriter() methods.
  * <p/>
  * If I pass a ResponseWrapper along the filter chain and override the getOutputStream() & getWriter() methods, I should
