@@ -1,8 +1,6 @@
 package features.core.proxy
 
-import framework.ReposeLogSearch
 import framework.ReposeValveTest
-import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -18,6 +16,8 @@ class ConnectionManagementTest extends ReposeValveTest{
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
+        //todo: remove this once this test is in master. this problem has been addressed in the future
+        repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/requestsize", params)
         repose.configurationProvider.applyConfigs("features/core/connectionmanagement", params)
