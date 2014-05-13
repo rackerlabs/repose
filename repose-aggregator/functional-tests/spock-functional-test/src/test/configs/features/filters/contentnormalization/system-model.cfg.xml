@@ -12,7 +12,6 @@
         </filters>
 
         <destinations>
-            <!-- using httpbin.org to guarantee a body response -->
             <endpoint id="target" protocol="http" hostname="localhost" port="${targetPort}" root-path="/" default="true"/>
         </destinations>
 

@@ -5,6 +5,7 @@ import framework.ReposeValveTest
 import org.junit.Assume
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 
 class ExceptionFilterTest extends ReposeValveTest {
     def logSearch = new ReposeLogSearch(properties.logFile)
@@ -33,7 +34,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests("200", true, true)
 
 
-        waitUntilReadyToServiceRequests("200")
+        waitUntilReadyToServiceRequests("200", false, true)
 
     def "Proving that the test filter throws an exception" () {
         given:
@@ -45,6 +46,9 @@ class ExceptionFilterTest extends ReposeValveTest {
                 [
                         method: 'GET',
                         url:reposeEndpoint + "/get",
+                        defaultHandler: {
+                            new Response(200, null, null, "This should be the body")
+                        }
                 ])
 
 

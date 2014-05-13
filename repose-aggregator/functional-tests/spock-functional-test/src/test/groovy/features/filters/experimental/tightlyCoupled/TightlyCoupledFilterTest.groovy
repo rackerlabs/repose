@@ -7,8 +7,6 @@ import org.rackspace.deproxy.Response
 
 class TightlyCoupledFilterTest extends ReposeValveTest {
 
-    def splodeDate = new Date(2014 - 1900, Calendar.JULY, 1, 9, 0);
-
     /**
      * This test fails because repose does not properly support the servlet filter contract.
      * It should not fail.
@@ -29,7 +27,7 @@ class TightlyCoupledFilterTest extends ReposeValveTest {
         def started = true
         repose.start([waitOnJmxAfterStarting: false])
 
-        waitUntilReadyToServiceRequests("200")
+        waitUntilReadyToServiceRequests("200", false, true)
 
         when:
         MessageChain mc = null
