@@ -81,7 +81,8 @@ abstract class ReposeValveTest extends Specification {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
         def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.cleanLog()
+        if(checkLogMessage)
+            logSearch.cleanLog()
         MessageChain mc
         try{
             waitForCondition(clock, '35s', '1s', {
