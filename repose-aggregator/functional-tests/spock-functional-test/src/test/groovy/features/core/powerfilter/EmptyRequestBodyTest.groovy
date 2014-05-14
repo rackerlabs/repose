@@ -31,7 +31,7 @@ class EmptyRequestBodyTest extends ReposeValveTest {
         method << ["PUT", "POST", "PATCH", "DELETE"]
     }
 
-    @Category(Bug.class)
+    @Category(Bug)
     @Unroll("#method should not have its body removed")
     def "Repose should not remove request bodies unless filters do so explicitly - bug"() {
         when:
