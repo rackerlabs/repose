@@ -14,11 +14,11 @@
         
         <endpoints-in-header format="XML" cache-timeout="600000" identity-contract-version="2"/>
         
-        <service-admin-roles>
+        <ignore-tenant-roles>
             <role>role-1</role>
             <role>role-2</role>
             <role>role-3</role>
-        </service-admin-roles>
+        </ignore-tenant-roles>
     </openstack-auth>
 
     <white-list>
