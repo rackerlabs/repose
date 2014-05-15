@@ -32,9 +32,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/experimental/helpers", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("200", true, true)
-
-
-        waitUntilReadyToServiceRequests("200", false, true)
+    }
 
     def "Proving that the test filter throws an exception" () {
         given:
