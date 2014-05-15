@@ -14,9 +14,8 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
     }
 
     def setup() {
-        cleanLogDirectory()
+        reposeLogSearch.cleanLog()
     }
-
     def cleanupSpec() {
         if (deproxy)
             deproxy.shutdown()
@@ -59,6 +58,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig", params, /*sleepTime*/ 25)
 
         then: "The HttpClientService should log the first pool as destroyed"
+        println createdLog
         def uuid = createdLog.get(0).tokenize(" ").reverse().get(3) //reverse done to account for different log formatting
         def logLines = reposeLogSearch.searchByString("HTTP connection pool " + uuid + " has been destroyed.")
         logLines.size() == 1

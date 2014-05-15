@@ -30,6 +30,12 @@
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
 
+        <!-- adding the experimental filters for solving boogz -->
+        <filter.experimental.dir>
+            ${project.set.dir}/experimental/experimental-filter-bundle/target
+        </filter.experimental.dir>
+        <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
+
         <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
@@ -407,6 +413,15 @@
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
+
+            <testResource>
+                <directory>${filter.experimental.dir}</directory>
+                <includes>
+                    <include>${filter.experimental.ear}</include>
+                </includes>
+                <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
+            </testResource>
+
             <testResource>
                 <directory>${repose.valve.dir}</directory>
                 <includes>

@@ -75,12 +75,22 @@ abstract class ReposeValveTest extends Specification {
         FileUtils.deleteQuietly(new File(logFile))
     }
 
-    def waitUntilReadyToServiceRequests(String responseCode = '200', boolean throwException = true) {
+    def waitUntilReadyToServiceRequests(String responseCode = '200',
+                                        boolean throwException = true,
+                                        boolean checkLogMessage = false) {
         def clock = new SystemClock()
         def innerDeproxy = new Deproxy()
+        def logSearch = new ReposeLogSearch(properties.logFile)
+        if(checkLogMessage)
+            logSearch.cleanLog()
         MessageChain mc
         try{
             waitForCondition(clock, '35s', '1s', {
+                if(checkLogMessage &&
+                        logSearch.searchByString(
+                                "com.rackspace.papi.filter.PowerFilter  - Repose ready").size() > 0){
+                    return true
+                }
                 try {
                     mc = innerDeproxy.makeRequest([url: reposeEndpoint])
                 } catch (Exception e) {}

@@ -44,6 +44,7 @@
         <module>extensions</module>
         <module>installation</module>
         <module>management</module>
+        <module>experimental</module>
         <module>functional-tests</module>
     </modules>
 
