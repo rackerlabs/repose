@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.identity.header_mapping;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
@@ -78,14 +79,14 @@ public class HeaderIdMappingHandlerTest {
       public void shouldSetTheUserHeaderToTheHeaderValue() {
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
          assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
          
          String userHeader = values.iterator().next();
          
          assertEquals("Should find value in header", USER_HEADER_1 + QUALITY_VALUE, userHeader);
          
-         Set<String> groups = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase());
+         Set<String> groups = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString()));
          assertFalse("Should have " + PowerApiHeader.GROUPS.toString() + " header set.", groups.isEmpty());
          
          String group = groups.iterator().next();
@@ -100,14 +101,14 @@ public class HeaderIdMappingHandlerTest {
 
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
          assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
          
          String userHeader = values.iterator().next();
          
          assertEquals("Should find 2nd IP address in header", USER_HEADER_2 + DEFAULT_QUALITY_VALUE, userHeader);
 
-         Set<String> groups = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase());
+         Set<String> groups = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString()));
          assertFalse("Should have " + PowerApiHeader.GROUPS.toString() + " header set.", groups.isEmpty());
          
          String group = groups.iterator().next();

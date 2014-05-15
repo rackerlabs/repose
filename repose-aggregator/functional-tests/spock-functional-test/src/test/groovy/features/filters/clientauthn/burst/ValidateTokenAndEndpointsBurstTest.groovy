@@ -10,6 +10,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
+import java.util.concurrent.atomic.AtomicInteger
+
 class ValidateTokenAndEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint

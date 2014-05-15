@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.hnorm;
 
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;
@@ -113,7 +114,7 @@ public class HeaderNormalizationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertFalse("Filter Director should be set to remove headers", myDirector.requestHeaderManager().headersToRemove().isEmpty());
-            assertTrue("Filter Director should be set to remove the 'X-Group-Header'", myDirector.requestHeaderManager().headersToRemove().contains("x-group-header"));
+            assertTrue("Filter Director should be set to remove the 'X-Group-Header'", myDirector.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("x-group-header")));
             assertEquals("Filter Director should be set to remove 4 headers", myDirector.requestHeaderManager().headersToRemove().size(), 4);
 
         }
@@ -364,7 +365,7 @@ public class HeaderNormalizationHandlerTest {
             myDirector = handler.handleRequest(request, null);
 
             assertFalse("Filter Director should be set to remove headers", myDirector.requestHeaderManager().headersToRemove().isEmpty());
-            assertTrue("Filter Director should be set to remove the 'X-Auth-Token'", myDirector.requestHeaderManager().headersToRemove().contains("x-auth-token"));
+            assertTrue("Filter Director should be set to remove the 'X-Auth-Token'", myDirector.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("x-auth-token")));
             assertEquals("Filter Director should be set to remove 4 headers", myDirector.requestHeaderManager().headersToRemove().size(), 4);
 
         }

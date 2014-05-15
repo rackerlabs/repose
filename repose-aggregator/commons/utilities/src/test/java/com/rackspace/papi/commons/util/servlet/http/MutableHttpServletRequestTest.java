@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
@@ -15,7 +16,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,8 +54,8 @@ public class MutableHttpServletRequestTest {
             originalRequest = mock(HttpServletRequest.class);
 
             when(originalRequest.getHeaderNames()).thenReturn(headerNames);
-            when(originalRequest.getHeaders("accept")).thenReturn(headerValues1);
-            when(originalRequest.getHeaders("accept-encoding")).thenReturn(headerValues2);
+            when(originalRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn(headerValues1);
+            when(originalRequest.getHeaders(argThat(equalToIgnoringCase("accept-encoding")))).thenReturn(headerValues2);
 
             wrappedRequest = MutableHttpServletRequest.wrap(originalRequest);
         }
@@ -106,7 +109,7 @@ public class MutableHttpServletRequestTest {
     public static class WhenGettingHeaderValuesFromMap {
 
         private List<String> headerValues;
-        private Map<String, List<String>> headers;
+        private Map<HeaderName, List<String>> headers;
 
         @Before
         public void setup() {
@@ -115,9 +118,9 @@ public class MutableHttpServletRequestTest {
             headerValues.add("val2");
             headerValues.add("val3");
 
-            headers = new HashMap<String, List<String>>();
-            headers.put("accept", headerValues);
-            headers.put("ACCEPT-ENCODING", new ArrayList<String>());
+            headers = new HashMap<HeaderName, List<String>>();
+            headers.put(HeaderName.wrap("accept"), headerValues);
+            headers.put(HeaderName.wrap("ACCEPT-ENCODING"), new ArrayList<String>());
         }
 
         @Test
@@ -234,7 +237,7 @@ public class MutableHttpServletRequestTest {
 
             headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING", "header3");
 
-            headerValues1 = createStringEnumeration("val1.1;q=1.0", "val1.2;q=0.5","val1.5;q=1.0", "val1.3;q=0.2", "val1.4;q=0.5");
+            headerValues1 = createStringEnumeration("val1.1;q=1.0", "val1.2;q=0.5", "val1.5;q=1.0", "val1.3;q=0.2", "val1.4;q=0.5");
             headerValues2 = createStringEnumeration("val2.1;q=0.8");
             headerValues3 = createStringEnumeration("val3.1;q=1.0");
 
@@ -252,17 +255,17 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldReturnPreferedOrderListofHeaders() {
             final HeaderValue defaultValue = new HeaderValueImpl("default", -1);
-            
+
             List<HeaderValue> list = wrappedRequest.getPreferredHeaders("accept", defaultValue);
-            assertEquals("First Element should be first occurrence of the highest quality value",list.get(0).getValue(),"val1.1");
-            assertEquals("Second Element should be the second occurrence of the highest quality value",list.get(1).getValue(), "val1.5");
+            assertEquals("First Element should be first occurrence of the highest quality value", list.get(0).getValue(), "val1.1");
+            assertEquals("Second Element should be the second occurrence of the highest quality value", list.get(1).getValue(), "val1.5");
             assertEquals(list.get(4).getValue(), "val1.3");
-            
-            
+
+
         }
     }
 
-    public static class WhenGettingEntityLength{
+    public static class WhenGettingEntityLength {
 
         private HttpServletRequest request;
         private MutableHttpServletRequest wrappedRequest;
@@ -289,7 +292,7 @@ public class MutableHttpServletRequestTest {
 
             final int realEntitySize = wrappedRequest.getRealBodyLength();
 
-            assertEquals("Real entity length should reflect what is in the inputstream",realEntitySize,msg.length());
+            assertEquals("Real entity length should reflect what is in the inputstream", realEntitySize, msg.length());
             assertFalse("Real entity length should not match content-length", String.valueOf(realEntitySize).equals(request.getHeader("content-length")));
         }
 
@@ -314,7 +317,7 @@ public class MutableHttpServletRequestTest {
 
             String newMsg = new String(os.toByteArray());
 
-            assertEquals("Retrieving size of message should not alter message",msg,newMsg);
+            assertEquals("Retrieving size of message should not alter message", msg, newMsg);
 
         }
 
@@ -333,7 +336,7 @@ public class MutableHttpServletRequestTest {
         }
     }
 
-    public static class WhenDealingWithNonSplittableHeaders{
+    public static class WhenDealingWithNonSplittableHeaders {
 
         private HttpServletRequest request;
         private Enumeration<String> headerNames;
@@ -347,7 +350,7 @@ public class MutableHttpServletRequestTest {
 
             headerNames = createStringEnumeration("header1", "header2", "header3");
 
-            headerValues1 = createStringEnumeration("val1","val2","val3");
+            headerValues1 = createStringEnumeration("val1", "val2", "val3");
             headerValues2 = createStringEnumeration("val4");
             headerValues3 = createStringEnumeration("val5,val6,val7");
 
@@ -363,7 +366,7 @@ public class MutableHttpServletRequestTest {
         }
 
         @Test
-        public void shouldNotSplitHeaders(){
+        public void shouldNotSplitHeaders() {
 
             Integer expected, actual = 0;
             expected = 1;
@@ -375,7 +378,7 @@ public class MutableHttpServletRequestTest {
                 headerNames.nextElement();
             }
 
-            assertEquals(actual,expected);
+            assertEquals(actual, expected);
 
         }
 

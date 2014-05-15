@@ -1,6 +1,7 @@
 
 package com.rackspace.papi.components.hnorm.util;
 
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeader;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
 
@@ -16,7 +17,7 @@ public class CompiledRegexAndList {
     private Pattern pattern;
     private List<HttpMethod> methodList;
     private Boolean isBlackList;
-    private Set<String> filterList;
+    private Set<HeaderName> filterList;
     
     public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList){
         //sets this as the catch-all
@@ -45,15 +46,15 @@ public class CompiledRegexAndList {
         return pattern;
     }
 
-    public Set<String> getFilterList() {
+    public Set<HeaderName> getFilterList() {
         return filterList;
     }
     
     private void setFilterList(List<HttpHeader> headerList){
         
-        filterList = new HashSet<String>();
+        filterList = new HashSet<HeaderName>();
         for(HttpHeader header : headerList){
-            filterList.add(header.getId().toLowerCase());
+            filterList.add(HeaderName.wrap(header.getId()));
         }
     }
 }

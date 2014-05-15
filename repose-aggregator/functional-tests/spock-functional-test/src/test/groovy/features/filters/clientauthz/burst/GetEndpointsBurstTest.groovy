@@ -1,5 +1,4 @@
 package features.filters.clientauthz.burst
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone

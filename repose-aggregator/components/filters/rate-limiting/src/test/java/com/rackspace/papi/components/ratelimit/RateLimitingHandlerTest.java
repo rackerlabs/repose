@@ -2,6 +2,7 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.datastore.Patch;
@@ -157,10 +158,10 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
       final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-      assertTrue("Filter Director is set to add an accept type header", director.requestHeaderManager().headersToAdd().containsKey("accept"));
-      assertTrue("Filter Director is set to remove the accept type header", director.requestHeaderManager().headersToRemove().contains("accept"));
+      assertTrue("Filter Director is set to add an accept type header", director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept")));
+      assertTrue("Filter Director is set to remove the accept type header", director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept")));
       assertTrue("Filter Director is set to add application/xml to the accept header",
-              director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+              director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
     }
 
     @Test
@@ -201,7 +202,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
       assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
       assertTrue("Filter Director is set to add application/xml to the accept header",
-              director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+              director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
     }
   }
 

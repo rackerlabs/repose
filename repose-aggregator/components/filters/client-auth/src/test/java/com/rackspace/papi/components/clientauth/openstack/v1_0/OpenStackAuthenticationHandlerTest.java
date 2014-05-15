@@ -10,6 +10,7 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -556,7 +557,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test
@@ -568,7 +569,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString())).iterator().next());
         }
 
         @Test
@@ -694,7 +695,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
             when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertFalse(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
+            assertFalse(requestDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-authorization")).toString().equalsIgnoreCase("[Proxy usertest1]"));
         }
     }
 }

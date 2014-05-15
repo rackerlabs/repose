@@ -448,6 +448,67 @@ class RateLimitingTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
+    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    def "Requests - headers should keep its case in requests"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0',
+                "x-pp-user": "usertest1, usertest2, usertest3",
+                "x-pp-groups": "unlimited"
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+
+        then: "the request should keep headerName and headerValue case"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Accept"           | "text/plain"
+        "ACCEPT"           | "text/PLAIN"
+        "accept"           | "TEXT/plain;q=0.2"
+        "aCCept"           | "text/plain"
+        "CONTENT-Encoding" | "identity"
+        "Content-ENCODING" | "identity"
+        //"content-encoding" | "idENtItY"
+        //"Content-Encoding" | "IDENTITY"
+    }
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+        given:
+        def headers = [
+                "x-pp-user": "usertest1, usertest2, usertest3",
+                "x-pp-groups": "unlimited"
+        ]
+        when: "make a request with the given header and value"
+        def respHeaders = [
+                "Content-Length" : "0",
+                "location": "http://somehost.com/blah?a=b,c,d"
+        ]
+        respHeaders[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint,
+                method: 'GET', headers: headers, defaultHandler: { new Response(201, "Created", respHeaders, "") })
+
+        then: "the response should keep headerName and headerValue case"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Content-Type" | "application/json"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        //"content-type" | "application/xMl"
+        //"Content-Type" | "APPLICATION/xml"
+    }
     // Helper methods
     private int parseRemainingFromXML(String s, int limit) {
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()

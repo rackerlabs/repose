@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation.httpx;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.servlet.http.HeaderContainer;
 import com.rackspace.papi.commons.util.servlet.http.RequestHeaderContainer;
@@ -31,12 +32,12 @@ public class HttpxProducer {
     HeaderList result = OBJECT_FACTORY.createHeaderList();
     List<QualityNameValuePair> headerList = result.getHeader();
 
-    for (String name : container.getHeaderNames()) {
-      List<HeaderValue> values = container.getHeaderValues(name);
+    for (HeaderName name : container.getHeaderNames()) {
+      List<HeaderValue> values = container.getHeaderValues(name.getName());
       for (HeaderValue value : values) {
         QualityNameValuePair header = new QualityNameValuePair();
 
-        header.setName(name);
+        header.setName(name.getName());
         header.setValue(value.getValue());
         header.setQuality(value.getQualityFactor());
 

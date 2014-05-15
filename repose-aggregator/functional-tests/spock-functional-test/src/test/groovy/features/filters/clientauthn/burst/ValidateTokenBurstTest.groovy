@@ -10,6 +10,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 
+import java.util.concurrent.atomic.AtomicInteger
+
 class ValidateTokenBurstTest extends ReposeValveTest {
 
     def static originEndpoint
@@ -96,7 +98,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.validateTokenCount == 1
+        fakeIdentityService.validateTokenCount.get() == 1
 
         and:
         fakeIdentityService.getGroupsCount == 1

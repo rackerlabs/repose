@@ -215,7 +215,11 @@
                         <configuration>
                             <excludedGroups>
                                 framework.category.Bug,framework.category.Flaky,framework.category.Benchmark,
+<<<<<<< HEAD
                                 framework.category.SaxonEE,framework.category.Release
+=======
+                                framework.category.SaxonEE
+>>>>>>> REP-238
                             </excludedGroups>
                         </configuration>
                     </plugin>
@@ -518,6 +522,34 @@
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
+<<<<<<< HEAD
+=======
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.6.4.201312101107</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+
+>>>>>>> REP-238
                         </goals>
                         <configuration>
                             <includes>

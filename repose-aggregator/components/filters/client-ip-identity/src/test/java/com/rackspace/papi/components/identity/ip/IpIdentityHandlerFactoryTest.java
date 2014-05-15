@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.identity.ip;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -54,8 +55,8 @@ public class IpIdentityHandlerFactoryTest {
         handler = factory.buildHandler();
         
         FilterDirector director = handler.handleRequest(request, response);
-        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString()).contains(DEFAULT_IP_VALUE+QUALITY2_VALUE));
-        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString()).contains(IpIdentityGroup.DEST_GROUP+QUALITY2_VALUE));
+        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + QUALITY2_VALUE));
+        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + QUALITY2_VALUE));
          
     }
     
@@ -69,8 +70,8 @@ public class IpIdentityHandlerFactoryTest {
         handler = factory.buildHandler();
         
         FilterDirector director = handler.handleRequest(request, response);
-        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString()).contains(DEFAULT_IP_VALUE+DEFAULT_QUALITY_VALUE));
-        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString()).contains(IpIdentityGroup.DEST_GROUP+DEFAULT_QUALITY_VALUE));
+        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + DEFAULT_QUALITY_VALUE));
+        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP + DEFAULT_QUALITY_VALUE));
     }
     
     @Test
@@ -84,7 +85,7 @@ public class IpIdentityHandlerFactoryTest {
         handler = factory.buildHandler();
         
         FilterDirector director = handler.handleRequest(request, response);
-        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString()).contains(DEFAULT_IP_VALUE+DEFAULT_QUALITY_VALUE));
-        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString()).contains(IpIdentityGroup.DEST_GROUP+DEFAULT_QUALITY_VALUE));
+        assertTrue("Should have Requests Source IP as x-pp-user", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString())).contains(DEFAULT_IP_VALUE + DEFAULT_QUALITY_VALUE));
+        assertTrue("Should have IP_Standard as a group", director.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.GROUPS.toString())).contains(IpIdentityGroup.DEST_GROUP+DEFAULT_QUALITY_VALUE));
     }
 }

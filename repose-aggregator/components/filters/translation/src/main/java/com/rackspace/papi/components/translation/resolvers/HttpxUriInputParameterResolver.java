@@ -92,11 +92,11 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     public Source resolve(String href, String base) throws TransformerException {
 
         if (href != null) {
-            if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
+            if (href.startsWith(HEADERS_PREFIX)) {
                 return new StreamSource(marshaller.marshall(getHeaders()));
-            } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
+            } else if (href.startsWith(REQUEST_INFO_PREFIX)) {
                 return new StreamSource(marshaller.marshall(getRequestInformation()));
-            } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
+            } else if (href.startsWith(PARAMS_PREFIX)) {
                 return new StreamSource(marshaller.marshall(getRequestParameters()));
             }
         }

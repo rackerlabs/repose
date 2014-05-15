@@ -172,4 +172,62 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
+    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    def "Requests - headers should keep its case in requests"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+
+        then: "the request should keep headerName and headerValue case"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Accept"           | "text/plain"
+        "ACCEPT"           | "text/PLAIN"
+        "accept"           | "TEXT/plain;q=0.2"
+        "aCCept"           | "text/plain"
+        //"CONTENT-Encoding" | "identity"
+        //"Content-ENCODING" | "identity"
+        //"content-encoding" | "idENtItY"
+        //"Content-Encoding" | "IDENTITY"
+    }
+
+    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
+    def "Responses - header keep its case in responses"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+
+        then: "the response should keep headerName and headerValue case"
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.contains(headerName)
+        mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "x-auth-token" | "123445"
+        "X-AUTH-TOKEN" | "239853"
+        "x-AUTH-token" | "slDSFslk&D"
+        "x-auth-TOKEN" | "sl4hsdlg"
+        "CONTENT-Type" | "application/json"
+        "Content-TYPE" | "application/JSON"
+        //"content-type" | "application/xMl"
+        //"Content-Type" | "APPLICATION/xml"
+    }
 }

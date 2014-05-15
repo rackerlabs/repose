@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.unorm.normalizer;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.components.uri.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -131,8 +132,8 @@ public class MediaTypeNormalizerTest {
             when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri"));
             normalizer.normalizeContentMediaType(request, director);
             
-            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains("accept"));
-            assertTrue(director.requestHeaderManager().headersToAdd().get("accept").contains("application/xml"));
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("accept")));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).contains("application/xml"));
         }
         
         @Test
@@ -159,8 +160,8 @@ public class MediaTypeNormalizerTest {
             when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri.xml"));
             normalizer.normalizeContentMediaType(request, director);
             
-            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains("accept"));
-            assertTrue(director.requestHeaderManager().headersToAdd().get("accept").contains("application/xml"));
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("accept")));
+            assertTrue(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")).contains("application/xml"));
         }
 
         @Test

@@ -2,8 +2,8 @@ package features.core.powerfilter
 
 import framework.ReposeValveTest
 import framework.category.Smoke
-import org.rackspace.deproxy.Deproxy
 import org.junit.experimental.categories.Category
+import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 class ApiValidatorRunSmokeTest extends ReposeValveTest {
@@ -37,8 +37,8 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
         MessageChain mc1 =  deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get",headers:['X-Roles':'role-1','x-trace-request': 'true']])
 
         then:
-        mc1.receivedResponse.getHeaders().names.contains("x-api-validator-time")
-        mc1.receivedResponse.getHeaders().names.contains("x-ip-identity-time")
+        mc1.receivedResponse.getHeaders().names.contains("X-api-validator-Time")
+        mc1.receivedResponse.getHeaders().names.contains("X-ip-identity-Time")
 
      }
 

@@ -3,10 +3,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import com.rackspace.papi.commons.util.http.header.SplittableHeaderUtil;
+import com.rackspace.papi.commons.util.http.header.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -14,8 +11,8 @@ import java.util.*;
 public class RequestHeaderContainer implements HeaderContainer {
 
     private final HttpServletRequest request;
-    private final List<String> headerNames;
-    private final Map<String, List<HeaderValue>> headerValues;
+    private final List<HeaderName> headerNames;
+    private final Map<HeaderName, List<HeaderValue>> headerValues;
     private SplittableHeaderUtil splittable;
 
 
@@ -27,14 +24,14 @@ public class RequestHeaderContainer implements HeaderContainer {
         this.headerValues = extractHeaderValues();
     }
 
-    private List<String> extractHeaderNames() {
-        List<String> result = new LinkedList<String>();
+    private List<HeaderName> extractHeaderNames() {
+        List<HeaderName> result = new LinkedList<HeaderName>();
         if (request != null) {
             Enumeration<String> names = request.getHeaderNames();
 
             if (names != null) {
                 while (names.hasMoreElements()) {
-                    result.add(names.nextElement().toLowerCase());
+                    result.add(HeaderName.wrap(names.nextElement()));
                 }
             }
         }
@@ -42,29 +39,28 @@ public class RequestHeaderContainer implements HeaderContainer {
         return result;
     }
 
-    private Map<String, List<HeaderValue>> extractHeaderValues() {
-        Map<String, List<HeaderValue>> valueMap = new HashMap<String, List<HeaderValue>>();
+    private Map<HeaderName, List<HeaderValue>> extractHeaderValues() {
+        Map<HeaderName, List<HeaderValue>> valueMap = new HashMap<HeaderName, List<HeaderValue>>();
 
         if (request != null) {
-            for (String name : getHeaderNames()) {
-                if (splittable.isSplitable(name)) {
-                    HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(name), name);
-                    valueMap.put(name, parser.parse());
+            for (HeaderName wrappedName : getHeaderNames()) {
+                if (splittable.isSplitable(wrappedName.getName())) {
+                    HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(wrappedName.getName()), wrappedName.getName());
+                    valueMap.put(wrappedName, parser.parse());
                 } else {
-                    valueMap.put(name, extractValues(name));
+                    valueMap.put(wrappedName, extractValues(wrappedName));
                 }
-
             }
         }
 
         return valueMap;
     }
 
-    private List<HeaderValue> extractValues(String name){
+    private List<HeaderValue> extractValues(HeaderName name){
 
         List<HeaderValue> values = new ArrayList<HeaderValue>();
 
-        Enumeration<String> vals = request.getHeaders(name);
+        Enumeration<String> vals = request.getHeaders(name.getName());
 
         while (vals.hasMoreElements()) {
             values.add(new HeaderValueImpl(vals.nextElement()));
@@ -76,13 +72,13 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
-    public List<String> getHeaderNames() {
+    public List<HeaderName> getHeaderNames() {
         return headerNames;
     }
 
     @Override
     public List<HeaderValue> getHeaderValues(String name) {
-        return headerValues.get(name);
+        return headerValues.get(HeaderName.wrap(name));
     }
 
     @Override

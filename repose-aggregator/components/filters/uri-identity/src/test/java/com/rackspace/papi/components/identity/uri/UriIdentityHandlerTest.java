@@ -3,18 +3,21 @@ package com.rackspace.papi.components.identity.uri;
 
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +61,7 @@ public class UriIdentityHandlerTest {
 
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
             assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
 
             String userName = values.iterator().next();
@@ -72,7 +75,7 @@ public class UriIdentityHandlerTest {
 
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
             assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
 
             String userName = values.iterator().next();
@@ -86,7 +89,7 @@ public class UriIdentityHandlerTest {
 
             FilterDirector result = handler.handleRequest(request, response);
 
-            Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+            Set<String> values = result.requestHeaderManager().headersToAdd().get(HeaderName.wrap(PowerApiHeader.USER.toString()));
             assertTrue("Should not have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
 
         }

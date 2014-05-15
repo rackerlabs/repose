@@ -167,4 +167,34 @@ class TranslationRequestTest extends ReposeValveTest {
         mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
+
+    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
+    def "Requests - headers should keep its case in requests"() {
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+        headers[headerName.toString()] = headerValue.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+
+        then: "the request should keep headerName and headerValue case"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(headerName)
+        mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
+
+
+        where:
+        headerName | headerValue
+        "Accept"           | "text/plain"
+        "ACCEPT"           | "text/PLAIN"
+        "accept"           | "TEXT/plain;q=0.2"
+        "aCCept"           | "text/plain"
+        "CONTENT-Encoding" | "identity"
+        "Content-ENCODING" | "identity"
+        //"content-encoding" | "idENtItY"
+        //"Content-Encoding" | "IDENTITY"
+    }
+
 }
