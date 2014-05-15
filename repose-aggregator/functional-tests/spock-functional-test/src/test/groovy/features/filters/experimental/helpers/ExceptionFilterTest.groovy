@@ -10,20 +10,8 @@ import org.rackspace.deproxy.Response
 class ExceptionFilterTest extends ReposeValveTest {
     def logSearch = new ReposeLogSearch(properties.logFile)
 
-    def splodeDate = new Date(2014 - 1900, Calendar.JULY, 1, 9, 0);
-
-    /**
-     * This test fails because repose does not properly support the servlet filter contract.
-     * It should not fail.
-     *
-     * This test is ignored until JULY of 2014. The same splosion date as other ones. It should probably be ignored
-     * until further than that, but I'm not sure what to do about that there.
-     * @return
-     */
-    def "Proving that a custom filter does in fact work" () {
-        setup:
-        Assume.assumeTrue(new Date() > splodeDate)
-
+    def "Proving that the test filter throws an exception" () {
+        given:
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         def started = true
@@ -32,12 +20,8 @@ class ExceptionFilterTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/filters/experimental/helpers", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests("200", true, true)
-    }
-
-    def "Proving that the test filter throws an exception" () {
-        given:
         logSearch.cleanLog()
-        
+
         when:
         MessageChain mc = null
         mc = deproxy.makeRequest(
