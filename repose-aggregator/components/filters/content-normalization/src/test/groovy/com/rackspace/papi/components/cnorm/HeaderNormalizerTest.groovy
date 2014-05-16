@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.cnorm
 
+import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.components.cnorm.normalizer.HeaderNormalizer
 import com.rackspace.papi.components.normalization.config.HeaderFilterList
 import com.rackspace.papi.components.normalization.config.HttpHeader
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServletRequest
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-
 
 class HeaderNormalizerTest extends Specification {
 
@@ -62,11 +62,11 @@ class HeaderNormalizerTest extends Specification {
         def headersToRemove = director.requestHeaderManager().headersToRemove()
 
         then:
-        headersToRemove.contains(authHeader.getId().toLowerCase())
-        headersToRemove.contains(userHeader.getId().toLowerCase())
-        !headersToRemove.contains("accept")
-        !headersToRemove.contains(groupHeader.getId().toLowerCase())
-        !headersToRemove.contains(contentType.getId().toLowerCase())
+        headersToRemove.contains(HeaderName.wrap(authHeader.getId()))
+        headersToRemove.contains(HeaderName.wrap(userHeader.getId()))
+        !headersToRemove.contains(HeaderName.wrap("accept"))
+        !headersToRemove.contains(HeaderName.wrap(groupHeader.getId()))
+        !headersToRemove.contains(HeaderName.wrap(contentType.getId()))
     }
 
 }
