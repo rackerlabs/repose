@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.cnorm
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader
+import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
 import com.rackspace.papi.components.normalization.config.MediaType
@@ -83,9 +84,9 @@ class CnormMediaTypeTest extends Specification {
         director = handler.handleRequest(request, response)
 
         then:
-        director.requestHeaderManager().headersToRemove().contains("accept")
-        director.requestHeaderManager().headersToAdd().containsKey("accept")
-        director.requestHeaderManager().headersToAdd().get("accept") == ["application/json"].toSet()
+        director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")) == ["application/json"].toSet()
 
         where:
 
@@ -113,9 +114,9 @@ class CnormMediaTypeTest extends Specification {
 
         then:
         //TODO: make copypasta assertion go away
-        director.requestHeaderManager().headersToRemove().contains("accept")
-        director.requestHeaderManager().headersToAdd().containsKey("accept")
-        director.requestHeaderManager().headersToAdd().get("accept") == ["application/xml"].toSet()
+        director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")) == ["application/xml"].toSet()
 
         where:
         incomingAccept << [
@@ -144,9 +145,9 @@ class CnormMediaTypeTest extends Specification {
 
         then:
         //TODO: make copypasta assertion go away
-        director.requestHeaderManager().headersToRemove().contains("accept")
-        director.requestHeaderManager().headersToAdd().containsKey("accept")
-        director.requestHeaderManager().headersToAdd().get("accept") == ["application/json"].toSet()
+        director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")) == ["application/json"].toSet()
 
         where:
         incomingAccept << [
@@ -176,9 +177,9 @@ class CnormMediaTypeTest extends Specification {
 
         then:
         //TODO: make copypasta assertion go away
-        director.requestHeaderManager().headersToRemove().contains("accept")
-        director.requestHeaderManager().headersToAdd().containsKey("accept")
-        director.requestHeaderManager().headersToAdd().get("accept") == [incomingAccept].toSet()
+        director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")) == [incomingAccept].toSet()
 
         where:
         incomingAccept << [
@@ -203,9 +204,9 @@ class CnormMediaTypeTest extends Specification {
 
         then:
         //TODO: make copypasta assertion go away
-        director.requestHeaderManager().headersToRemove().contains("accept")
-        director.requestHeaderManager().headersToAdd().containsKey("accept")
-        director.requestHeaderManager().headersToAdd().get("accept") == ["application/json"].toSet()
+        director.requestHeaderManager().headersToRemove().contains(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().containsKey(HeaderName.wrap("accept"))
+        director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("accept")) == ["application/json"].toSet()
 
     }
 }
