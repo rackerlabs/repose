@@ -1,14 +1,12 @@
 package com.rackspace.papi.components.uristripper
-
 import com.rackspace.papi.commons.util.http.CommonHttpHeader
+import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig
-import com.rackspace.papi.filter.logic.HeaderManager
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletRequest
-
 
 class NewUriStripperHandlerFactoryTest extends Specification {
 
@@ -73,8 +71,8 @@ class NewUriStripperHandlerFactoryTest extends Specification {
 
         stripper.token == value
         def addingHeaders = filterDirector.responseHeaderManager().headersToAdd()
-        addingHeaders.keySet().contains(locationHeader)
-        def valueSet = addingHeaders.get(locationHeader)
+        addingHeaders.keySet().contains(HeaderName.wrap(locationHeader))
+        def valueSet = addingHeaders.get(HeaderName.wrap(locationHeader))
         valueSet.size() == 1
         valueSet.first() == newLocation
 
@@ -111,7 +109,7 @@ class NewUriStripperHandlerFactoryTest extends Specification {
         stripper.token == value
         def addingHeaders = filterDirector.responseHeaderManager().headersToAdd()
 
-        !addingHeaders.keySet().contains(locationHeader)
+        !addingHeaders.keySet().contains(HeaderName.wrap(locationHeader))
 
         where:
         resourcePath              | index | value   | originalLocation
