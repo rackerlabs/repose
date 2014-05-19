@@ -1,16 +1,11 @@
 package features.filters.clientauthn.cache
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import framework.mocks.MockIdentityService
-import org.apache.commons.lang.RandomStringUtils
 import org.joda.time.DateTime
-import org.joda.time.Period
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-
-import java.util.concurrent.atomic.AtomicInteger
 
 @Category(Slow.class)
 class CacheOffsetTest extends ReposeValveTest {
@@ -79,7 +74,7 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount.get() == uniqueUsers
+        fauxIdentityService.validateTokenCount == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the token timeout - cache offset (since some requests may expire at that time)"
@@ -100,7 +95,7 @@ class CacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount.get() == 0
+        fauxIdentityService.validateTokenCount == 0
 
         when: "Cache has expired for all tokens (token timeout + cache offset), and new GETs are issued"
         fauxIdentityService.resetCounts()
