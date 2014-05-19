@@ -1,5 +1,4 @@
 package features.filters.clientauthn.burst
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.joda.time.DateTimeZone
@@ -9,8 +8,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-
-import java.util.concurrent.atomic.AtomicInteger
 
 class ValidateTokenBurstTest extends ReposeValveTest {
 
@@ -98,7 +95,7 @@ class ValidateTokenBurstTest extends ReposeValveTest {
         clientThreads*.join()
 
         then:
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
 
         and:
         fakeIdentityService.getGroupsCount == 1

@@ -3,19 +3,15 @@
  * and open the template in the editor.
  */
 
-package features.filters.clientauthn.tokenexpireheader;
-
+package features.filters.clientauthn.tokenexpireheader
 import framework.ReposeValveTest
-import framework.mocks.MockIdentityService;
-import org.rackspace.deproxy.Deproxy;
-import org.rackspace.deproxy.MessageChain;
+import framework.mocks.MockIdentityService
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.DateTimeZone
-
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 /**
 B-50304
 Pass token expiration in header
@@ -121,7 +117,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         then: "Repose should use the cache, not call out to the fake identity service, and pass the request to origin service with the same X-Token-Expires header as before"
         mc.receivedResponse.code == "200"
-        fakeIdentityService.validateTokenCount.get() == 0
+        fakeIdentityService.validateTokenCount == 0
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
