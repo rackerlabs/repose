@@ -1,6 +1,8 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
+
 import java.util.Enumeration;
 import java.util.List;
 
@@ -14,8 +16,18 @@ public interface HeaderValues {
     
     HeaderValue getHeaderValue(String name);
 
+    /**
+     * @deprecated  {@link #getHeaderNamesAsList() getHeaderNamesAsList} should be used instead
+     */
+    @Deprecated
     Enumeration<String> getHeaderNames();
 
+    List<HeaderName> getHeaderNamesAsList();
+
+    /**
+     * @deprecated  {@link #getHeaderValues(String) getHeaderValues} should be used instead
+     */
+    @Deprecated
     Enumeration<String> getHeaders(String name);
     
     List<HeaderValue> getHeaderValues(String name);

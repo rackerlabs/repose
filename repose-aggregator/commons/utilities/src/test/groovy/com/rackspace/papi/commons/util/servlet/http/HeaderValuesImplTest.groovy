@@ -89,6 +89,13 @@ class HeaderValuesImplTest {
     }
 
     @Test
+    void "getHeaderNamesAsList returns a list of header names"() {
+        List<HeaderName> headerNames = headerValues.getHeaderNamesAsList()
+
+        assertThat(headerNames, hasItems(HeaderName.wrap("Accept"), HeaderName.wrap("User-Agent")))
+    }
+
+    @Test
     void "getHeaders returns an enumeration of all header values if the header is present"() throws Exception {
         List<String> acceptHeaders = Collections.list(headerValues.getHeaders("Accept"))
 

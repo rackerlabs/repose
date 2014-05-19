@@ -135,6 +135,10 @@ public final class HeaderValuesImpl implements HeaderValues {
         return Collections.enumeration(headerNamesAsStrings);
     }
 
+    public List<HeaderName> getHeaderNamesAsList() {
+        return new LinkedList<HeaderName>(headers.keySet());
+    }
+
     @Override
     public Enumeration<String> getHeaders(String name) {
         final List<HeaderValue> headerValues = headers.get(HeaderName.wrap(name));
