@@ -34,11 +34,10 @@ class PasswordLogging extends ReposeValveTest {
         List<String> logs = reposeLogSearch.searchByString("Configuration Updated")
 
         then: "passwords in the DEBUG log are not logged in plaintext"
-        logs.size() == 4
+        logs.size() == 3
         logs[0].contains("password=*******") == true
         logs[1].contains("password=*******") == true
         logs[2].contains("password=*******") == true
-        logs[3].contains("password=*******") == true
     }
 
 
