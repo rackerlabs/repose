@@ -102,7 +102,7 @@ class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
         then: "Repose should validate the token and path the token's expiration date/time as the X-Token-Expires header to the origin service"
         mc.receivedResponse.code == "200"
-        fakeIdentityService.validateTokenCount.get() == 1
+        fakeIdentityService.validateTokenCount == 1
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request = mc.handlings[0].request
