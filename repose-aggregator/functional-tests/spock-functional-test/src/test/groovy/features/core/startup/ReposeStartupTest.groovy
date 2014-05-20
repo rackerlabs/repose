@@ -9,6 +9,7 @@ import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Ignore
+import spock.lang.Unroll
 
 import java.util.concurrent.TimeoutException
 
@@ -17,13 +18,6 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.
  */
 class ReposeStartupTest extends ReposeValveTest {
-
-    static def List servers = [
-        new Server('ubuntu', '198.101.159.216', deployDeb(), cleanupDeb()),
-        new Server('centos', '198.61.176.151', deployRpm(), cleanupRpm()),
-        new Server('rhel', '198.61.179.61', deployRpm(), cleanupRpm()),
-        new Server('debian', '198.61.224.119', deployDeb(), cleanupDeb())
-    ]
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -60,18 +54,8 @@ class ReposeStartupTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Ignore
-    def "deploy and start repose - snapshots"() {
-        //1. copy over repose to server - SNAPSHOT
-        //2. call until get back a 301
-        //3. update system-model to include all filters
-        //4. call until get back a non 500
-        //5. remove repose
-        //TODO: retention policy
-    }
-
-    @Ignore
     @Category(Release)
+    @Unroll("deploy and start #server.name")
     def "deploy and start repose - release"() {
         //1. create and deploy repose with configurations - RELEASE
         //2. call until get back a 200
@@ -83,7 +67,7 @@ class ReposeStartupTest extends ReposeValveTest {
 
         server.deploymentSteps.each {
             i ->
-                def execution = "ssh ${server.ip} ${i}"
+                def execution = "ssh -t -oStrictHostKeyChecking=no ${server.ip} ${i}"
                 println execution
                 def proc = """${execution}""".execute()
                 proc.waitFor()
@@ -116,7 +100,7 @@ class ReposeStartupTest extends ReposeValveTest {
         cleanup:
         server.cleanupSteps.each {
             i ->
-                def execution = "ssh ${server.ip} ${i}"
+                def execution = "ssh -t -oStrictHostKeyChecking=no ${server.ip} ${i}"
                 println execution
                 def proc = """${execution}""".execute()
                 proc.waitFor()
@@ -125,14 +109,34 @@ class ReposeStartupTest extends ReposeValveTest {
         }
 
         where:
-        server << getServers()
+        server << [
+                new Server(
+                        name: 'ubuntu 14.04', ip: '192.237.216.53',
+                        deploymentSteps: deployDeb(), cleanupSteps: cleanupDeb()),
+                new Server(
+                        name: 'centos 6.5', ip: '192.237.212.239',
+                        deploymentSteps: deployRpm(), cleanupSteps: cleanupRpm()),
+// RHEL defaults to IBM jvm which doesn't support xerces by default
+//                new Server(
+//                        name: 'rhel 6.5', ip: '192.237.216.86',
+//                        deploymentSteps: deployRpm(), cleanupSteps: cleanupRpm()),
+                new Server(
+                        name: 'debian 7', ip: '192.237.216.68',
+                        deploymentSteps: deployDeb(), cleanupSteps: cleanupDeb())//,
+// Fedora has filesystems package that conflicts with repose-valve in /usr/local/bin
+//                new Server(
+//                        name: 'fedora 20', ip: '192.237.216.166',
+//                        deploymentSteps: deployRpm(), cleanupSteps: cleanupRpm())
+        ]
     }
 
     static def deployDeb(){
         return [
+                'sudo apt-get update -y',
+                'sudo apt-get install openjdk-6-jdk -y',
                 'sudo wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -',
-                'sudo echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list',
-                'sudo apt-get update',
+                'sudo sh -c \'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list\'',
+                'sudo apt-get update -y',
                 'sudo apt-get install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle',
                 'sudo /etc/init.d/repose-valve start'
         ]
@@ -140,9 +144,15 @@ class ReposeStartupTest extends ReposeValveTest {
 
     static def deployRpm(){
         return [
+                'sudo yum update -y',
+                'sudo yum install java-1.6.0-openjdk -y',
                 'sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo',
+                'sudo yum update -y',
                 'sudo yum install -y repose-valve repose-filters repose-filters repose-extension-filters',
-                'sudo /etc/init.d/repose-valve start'
+                'sudo chmod +x /etc/init.d/repose-valve',
+                'sudo /etc/init.d/repose-valve start',
+                'sudo /etc/init.d/iptables stop',
+                'sudo /etc/init.d/iptables save'
         ]
     }
 
@@ -160,7 +170,9 @@ class ReposeStartupTest extends ReposeValveTest {
                 'sudo killall java',
                 'sudo yum -y remove repose-valve',
                 'sudo rm -rf /usr/share/repose',
-                'sudo rm -rf /etc/repose/*'
+                'sudo rm -rf /etc/repose/*',
+                'sudo /etc/init.d/iptables start',
+                'sudo /etc/init.d/iptables save'
         ]
     }
 
@@ -169,11 +181,4 @@ class ReposeStartupTest extends ReposeValveTest {
 
 class Server{
     def name, ip, deploymentSteps, cleanupSteps
-
-    Server(name, ip, deploymentSteps, cleanupSteps){
-        this.name = name
-        this.ip = ip
-        this.deploymentSteps = deploymentSteps
-        this.cleanupSteps = cleanupSteps
-    }
 }
