@@ -77,11 +77,18 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
                     def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: header1)
 
                     if (messageChain.receivedResponse.code.equalsIgnoreCase("500")) {
+                        println messageChain.receivedResponse.body
+                        if(messageChain.orphanedHandlings.size() > 0) {
+                            println messageChain.orphanedHandlings[0].request.body
+                            println messageChain.orphanedHandlings[0].response.body
+                        }
                         missingAuthResponse = true
-                    }
-                    def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
-                    if (sentToOrigin.request.headers.findAll("x-roles").empty) {
-                        missingAuthHeader = true
+                    } else {
+                        def sentToOrigin = ((MessageChain) messageChain).getHandlings()[0]
+                        if (sentToOrigin.request.headers.findAll("x-roles").empty) {
+                            println sentToOrigin.request.headers
+                            missingAuthHeader = true
+                        }
                     }
                 }
             }
