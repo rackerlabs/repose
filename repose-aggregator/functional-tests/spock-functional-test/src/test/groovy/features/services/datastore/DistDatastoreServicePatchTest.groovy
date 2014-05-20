@@ -1,9 +1,7 @@
 package features.services.datastore
-
 import com.rackspace.papi.commons.util.io.ObjectSerializer
 import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeValveTest
-import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
@@ -138,7 +136,7 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '401'
-        mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
+        mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])

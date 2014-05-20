@@ -128,7 +128,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '401'
-        mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
+        mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])

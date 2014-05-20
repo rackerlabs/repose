@@ -69,7 +69,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == '401'
-        mc.receivedResponse.body.toString().contains("No host key specified in header x-pp-host-key")
+        mc.receivedResponse.body.toString().contains("No host key specified in header X-PP-Host-Key")
     }
 
     def "GET of invalid key fails with 404 NOT FOUND"() {
