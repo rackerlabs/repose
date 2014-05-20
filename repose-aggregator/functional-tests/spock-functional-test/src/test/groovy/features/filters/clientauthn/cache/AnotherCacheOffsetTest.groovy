@@ -13,7 +13,6 @@ import spock.lang.Unroll
 
 import java.util.concurrent.atomic.AtomicInteger
 
-@Category(Flaky)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
@@ -78,8 +77,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fauxIdentityService.validateTokenCount.get() == uniqueUsers
-
+        fauxIdentityService.getValidateTokenCount() == uniqueUsers
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
         fauxIdentityService.resetCounts()
@@ -102,7 +100,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fauxIdentityService.validateTokenCount.get() == 0
+        fauxIdentityService.getValidateTokenCount() == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
         fauxIdentityService.resetCounts()
@@ -126,7 +124,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fauxIdentityService.validateTokenCount.get() == uniqueUsers
+        fauxIdentityService.getValidateTokenCount() == uniqueUsers
 
         where:
         uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id | tokenTimeout | cacheOffset
