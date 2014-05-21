@@ -189,28 +189,6 @@ public class PowerFilterChain implements FilterChain {
         String jsonStringOfRequestLog = objectMapper.writeValueAsString(requestLog);
 
         return jsonStringOfRequestLog;
-
-/*
-        //common log items
-        String output = "- Request Intrafilter Log - /n/n";
-
-        output += "Timestamp: " + new DateTime() + "/n";
-        output += "Request URI: " + mutableHttpRequest.getRequestURI() + "/n";
-        output += "Currently in the " + filterContext.getFilterConfig().getName() + "filter. /n/n";
-
-        //begin request log items
-        output += "Request Info /n/n";
-
-        output += "Request Headers: /n";
-        while (mutableHttpRequest.getHeaderNames().hasMoreElements()) {
-            String headerName = mutableHttpRequest.getHeaderNames().nextElement();
-            output += headerName + ":" + mutableHttpRequest.getHeader(headerName) + "/n";
-        }
-
-        output += readEntireBody(mutableHttpRequest.getInputStream()) + "/n";
-
-        return output;
-*/
     }
 
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
@@ -228,28 +206,6 @@ public class PowerFilterChain implements FilterChain {
         ObjectMapper objectMapper = new ObjectMapper();
 
         return objectMapper.writeValueAsString(requestLog);
-
-/*
-        //common log items
-        String output = "- Response Intrafilter Log - /n/n";
-
-        output += "Timestamp: " + new DateTime() + "/n";
-        output += "Currently in the " + filterContext.getFilterConfig().getName() + "filter. /n/n";
-
-        //begin response log items
-        output += "Response Info /n/n";
-        output += "Status Code: " + Integer.toString(mutableHttpResponse.getStatus()) + "/n";
-
-        output += "Response Headers: /n";
-        for (String headerName : mutableHttpResponse.getHeaderNames()) {
-            output += headerName + ":" + mutableHttpResponse.getHeader(headerName) + "/n";
-        }
-
-        output += "Response message: " + readEntireBody(mutableHttpResponse.getBufferedOutputAsInputStream()) + "/n/n";
-        output += "End Response Log /n";
-
-        return output;
-*/
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
