@@ -82,12 +82,12 @@ class DistDatastoreServiceGlassfishTest extends Specification {
 
         repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
 
-        repose1.start([waitOnJmxAfterStarting: false])
+        repose1.start()
         repose1.waitForNon500FromUrl(reposeGlassfishEndpoint1, 120)
         repose1.waitForNon500FromUrl(datastoreGlassfishEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
-        repose2.start([waitOnJmxAfterStarting: false])
+        repose2.start()
 
         repose2.waitForNon500FromUrl(reposeGlassfishEndpoint2, 120)
         repose2.waitForNon500FromUrl(datastoreGlassfishEndpoint2, 120)

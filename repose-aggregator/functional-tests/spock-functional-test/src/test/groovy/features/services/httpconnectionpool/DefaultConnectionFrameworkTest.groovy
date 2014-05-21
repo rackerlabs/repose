@@ -16,6 +16,13 @@ class DefaultConnectionFrameworkTest extends ReposeValveTest {
         cleanLogDirectory()
     }
 
+    def cleanup(){
+        if(deproxy)
+            deproxy.shutdown()
+        if(repose)
+            repose.stop()
+    }
+
     def "DEPRECATED: jersey as default connection framework"() {
 
         given: "Repose is configured with no connection framework specified"
