@@ -22,7 +22,7 @@ public class ResponseLog {
     public ResponseLog(MutableHttpServletResponse mutableHttpServletResponse,
                        FilterContext filterContext) throws IOException {
 
-        preamble = "intrafilter Response Log";
+        preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
         currentFilter = filterContext.getFilterConfig().getName();
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
