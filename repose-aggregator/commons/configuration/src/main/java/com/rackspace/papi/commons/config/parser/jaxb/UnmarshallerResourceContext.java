@@ -3,6 +3,8 @@ package com.rackspace.papi.commons.config.parser.jaxb;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -14,6 +16,7 @@ import java.io.IOException;
  */
 public class UnmarshallerResourceContext implements ResourceContext<UnmarshallerValidator, Object> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(UnmarshallerResourceContext.class);
    private final ConfigurationResource cfgResource;
 
    public UnmarshallerResourceContext(ConfigurationResource cfgResource) {
@@ -28,6 +31,10 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
 
           return resource.validateUnmarshal( cfgResource.newInputStream() );
       } catch (JAXBException jaxbe) {
+          if(LOG.isTraceEnabled()) {
+              LOG.trace(jaxbe.getMessage());
+              jaxbe.printStackTrace();
+          }
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()+ " - "+jaxbe.getCause()
                  + " - Error code: "
                  + jaxbe.getErrorCode()
