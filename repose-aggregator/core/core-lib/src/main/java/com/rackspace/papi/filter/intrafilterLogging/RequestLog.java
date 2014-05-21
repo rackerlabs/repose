@@ -29,7 +29,10 @@ public class RequestLog {
         httpMethod = mutableHttpServletRequest.getMethod();
         requestURI = mutableHttpServletRequest.getRequestURI();
         headers = convertRequestHeadersToMap(mutableHttpServletRequest);
+
+        mutableHttpServletRequest.getInputStream().mark(Integer.MAX_VALUE);
         requestBody = IOUtils.toString(mutableHttpServletRequest.getInputStream()); //http://stackoverflow.com/a/309448
+        mutableHttpServletRequest.getInputStream().reset();
     }
 
     private LinkedHashMap<String, String> convertRequestHeadersToMap(

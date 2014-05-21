@@ -212,7 +212,7 @@ public class PowerFilterChain implements FilterChain {
     private String convertPojoToJsonString(Object object) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);//http://stackoverflow.com/a/8395924
-        String prettyJsonStringOfPojo = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        String prettyJsonStringOfPojo = objectMapper.writeValueAsString(object);
 
         return prettyJsonStringOfPojo;
     }

@@ -26,7 +26,10 @@ public class ResponseLog {
         currentFilter = filterContext.getFilterConfig().getName();
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
-        responseBody = IOUtils.toString(mutableHttpServletResponse.getInputStream());
+
+        mutableHttpServletResponse.getBufferedOutputAsInputStream().mark(Integer.MAX_VALUE);
+        responseBody = IOUtils.toString(mutableHttpServletResponse.getBufferedOutputAsInputStream());
+        mutableHttpServletResponse.getBufferedOutputAsInputStream().reset();
     }
 
     private LinkedHashMap<String, String> convertResponseHeadersToMap(
