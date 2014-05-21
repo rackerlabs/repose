@@ -5,9 +5,13 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.filter.intrafilterLogging.RequestLog;
+import com.rackspace.papi.filter.intrafilterLogging.ResponseLog;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
+    private static final Logger INTRAFILTER_LOG = LoggerFactory.getLogger("intrafilter-logging");
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
     private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
@@ -146,8 +152,17 @@ public class PowerFilterChain implements FilterChain {
         ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
 
         mutableHttpResponse.pushOutputStream();
+
         try {
+            if (INTRAFILTER_LOG.isTraceEnabled()) {
+                INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext));
+            }
+
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
+
+            if (INTRAFILTER_LOG.isTraceEnabled()) {
+                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext));
+            }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
@@ -156,6 +171,85 @@ public class PowerFilterChain implements FilterChain {
             mutableHttpResponse.popOutputStream();
             setClassLoader(previousClassLoader);
         }
+    }
+
+    private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
+                                         FilterContext filterContext) throws IOException {
+
+        //adding a UUID header
+        String tracingHeaderName = "Intrafilter-Request-UUID";
+        if (StringUtils.isEmpty(mutableHttpRequest.getHeader(tracingHeaderName))) {
+            UUID requestTracingUUID = UUID.randomUUID();
+            mutableHttpRequest.addHeader(tracingHeaderName, requestTracingUUID.toString());
+        }
+
+        //converting log object to json string
+        RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonStringOfRequestLog = objectMapper.writeValueAsString(requestLog);
+
+        return jsonStringOfRequestLog;
+
+/*
+        //common log items
+        String output = "- Request Intrafilter Log - /n/n";
+
+        output += "Timestamp: " + new DateTime() + "/n";
+        output += "Request URI: " + mutableHttpRequest.getRequestURI() + "/n";
+        output += "Currently in the " + filterContext.getFilterConfig().getName() + "filter. /n/n";
+
+        //begin request log items
+        output += "Request Info /n/n";
+
+        output += "Request Headers: /n";
+        while (mutableHttpRequest.getHeaderNames().hasMoreElements()) {
+            String headerName = mutableHttpRequest.getHeaderNames().nextElement();
+            output += headerName + ":" + mutableHttpRequest.getHeader(headerName) + "/n";
+        }
+
+        output += readEntireBody(mutableHttpRequest.getInputStream()) + "/n";
+
+        return output;
+*/
+    }
+
+    private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
+                                          FilterContext filterContext) throws IOException {
+
+        //adding a UUID header
+        String tracingHeaderName = "Intrafilter-Response-UUID";
+        if (StringUtils.isEmpty(mutableHttpResponse.getHeader(tracingHeaderName))) {
+            UUID requestTracingUUID = UUID.randomUUID();
+            mutableHttpResponse.addHeader(tracingHeaderName, requestTracingUUID.toString());
+        }
+
+        //converting log object to json string
+        ResponseLog requestLog = new ResponseLog(mutableHttpResponse, filterContext);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        return objectMapper.writeValueAsString(requestLog);
+
+/*
+        //common log items
+        String output = "- Response Intrafilter Log - /n/n";
+
+        output += "Timestamp: " + new DateTime() + "/n";
+        output += "Currently in the " + filterContext.getFilterConfig().getName() + "filter. /n/n";
+
+        //begin response log items
+        output += "Response Info /n/n";
+        output += "Status Code: " + Integer.toString(mutableHttpResponse.getStatus()) + "/n";
+
+        output += "Response Headers: /n";
+        for (String headerName : mutableHttpResponse.getHeaderNames()) {
+            output += headerName + ":" + mutableHttpResponse.getHeader(headerName) + "/n";
+        }
+
+        output += "Response message: " + readEntireBody(mutableHttpResponse.getBufferedOutputAsInputStream()) + "/n/n";
+        output += "End Response Log /n";
+
+        return output;
+*/
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
