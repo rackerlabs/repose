@@ -1,12 +1,9 @@
 package features.core.powerfilter
-
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
-import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-
 /**
  * Created by jennyvo on 5/19/14.
  * This test checking TRACE log configuration.

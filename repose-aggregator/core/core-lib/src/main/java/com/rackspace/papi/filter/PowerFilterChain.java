@@ -11,6 +11,8 @@ import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,8 +187,7 @@ public class PowerFilterChain implements FilterChain {
 
         //converting log object to json string
         RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonStringOfRequestLog = objectMapper.writeValueAsString(requestLog);
+        String jsonStringOfRequestLog = convertPojoToJsonString(requestLog);
 
         return jsonStringOfRequestLog;
     }
@@ -202,10 +203,18 @@ public class PowerFilterChain implements FilterChain {
         }
 
         //converting log object to json string
-        ResponseLog requestLog = new ResponseLog(mutableHttpResponse, filterContext);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
+        String jsonStringOfResponseLog = convertPojoToJsonString(responseLog);
 
-        return objectMapper.writeValueAsString(requestLog);
+        return jsonStringOfResponseLog;
+    }
+
+    private String convertPojoToJsonString(Object object) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);//http://stackoverflow.com/a/8395924
+        String prettyJsonStringOfPojo = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+
+        return prettyJsonStringOfPojo;
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
