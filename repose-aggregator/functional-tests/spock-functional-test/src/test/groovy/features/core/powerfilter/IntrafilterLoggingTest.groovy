@@ -2,6 +2,7 @@ package features.core.powerfilter
 import framework.ReposeLogSearch
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import org.codehaus.jettison.json.JSONObject
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 /**
@@ -58,24 +59,36 @@ class IntrafilterLoggingTest extends ReposeValveTest{
         then: "checking for response code and handlings"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+        logSearch.searchByString("TRACE intrafilter-logging").size() == 4
+        logSearch.searchByString("Intrafilter Request Log").size() == 2
+        logSearch.searchByString("intrafilter Response Log").size() == 2
 
-        // This part of test by imagination of what will be in the TRACE log to expect
+        // This part of test what will be in the TRACE log to expect
         and: "checking for client-auth - enter"
-        logSearch.searchByString("client-auth - enter: Headers: .* Content: .* Status Code: .* Request Path: .*").size() == 1
+        def firstReq = logSearch.searchByString("Intrafilter Request Log").get(0)
+        JSONObject authreqline = new JSONObject(firstReq)
+        authreqline.getString("currentFilter") == "client-auth"
+        authreqline.getString("httpMethod") == "GET"
 
         and: "checking for client-auth - exit"
-        def client_auth_exit = logSearch.searchByString("client-auth - exit: Headers: .* Content: .* Status Code: .* Request Path: .*")
-        client_auth_exit.size() == 1
-        def exit_content = client_auth_exit.toString().substring(22)
+        def firstResp = logSearch.searchByString("Intrafilter Response Log").get(0)
+        JSONObject authrespline = new JSONObject(firstResp)
+        authrespline.getString("currentFilter") == "client-auth"
+        authrespline.getString("httpMethod") == "GET"
+        def getrespheader = authrespline.getString("headers")
 
         and: "checking for ip-identity - enter"
-        def ip_identity_enter = logSearch.searchByString("client-auth - enter: Headers: .* Content: .* Status Code: .* Request Path: .*")
-        ip_identity_enter.size() == 1
-        def enter_content = ip_identity_enter.toString().substring(22)
-        exit_content == enter_content
+        def secondReq = logSearch.searchByString("Intrafilter Request Log").get(1)
+        JSONObject ipidentityreqline = new JSONObject(secondReq)
+        ipidentityreqline.getString("currentFilter") == "ip-identity"
+        ipidentityreqline.getString("httpMethod") == "GET"
+        ipidentityreqline.getString("headers") == getrespheader
 
         and: "checking for ip-identity - exit"
-        logSearch.searchByString("client-auth - exit: Headers: .* Content: .* Status Code: .* Request Path: .*").size() == 1
+        def secondResp = logSearch.searchByString("Intrafilter Response Log").get(1)
+        JSONObject ipidentityrespline = new JSONObject(secondResp)
+        ipidentityrespline.getString("currentFilter") == "ip-identity"
+        ipidentityrespline.getString("httpMethod") == "GET"
 
         and: "additional checking for ip"
         sentRequest.request.getHeaders().findAll("x-pp-user").size() == 2
