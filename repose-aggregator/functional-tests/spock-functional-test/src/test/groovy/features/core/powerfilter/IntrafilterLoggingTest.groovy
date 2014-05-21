@@ -30,7 +30,7 @@ class IntrafilterLoggingTest extends ReposeValveTest{
         repose.configurationProvider.applyConfigs("features/core/powerfilter/common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/intrafilterlogging", params)
 
-        repose.start()
+        repose.start([waitOnJmxAfterStarting:false])
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
