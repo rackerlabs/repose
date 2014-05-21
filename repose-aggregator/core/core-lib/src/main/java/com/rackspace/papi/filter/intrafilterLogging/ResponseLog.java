@@ -5,6 +5,7 @@ import com.rackspace.papi.filter.FilterContext;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,9 +28,8 @@ public class ResponseLog {
         httpResponseCode = Integer.toString(mutableHttpServletResponse.getStatus());
         headers = convertResponseHeadersToMap(mutableHttpServletResponse);
 
-        mutableHttpServletResponse.getBufferedOutputAsInputStream().mark(Integer.MAX_VALUE);
-        responseBody = IOUtils.toString(mutableHttpServletResponse.getBufferedOutputAsInputStream());
-        mutableHttpServletResponse.getBufferedOutputAsInputStream().reset();
+        responseBody = IOUtils.toString(mutableHttpServletResponse.getBufferedOutputAsInputStream()); //http://stackoverflow.com/a/309448
+        mutableHttpServletResponse.setInputStream(new ByteArrayInputStream(responseBody.getBytes()));
     }
 
     private LinkedHashMap<String, String> convertResponseHeadersToMap(
