@@ -85,6 +85,7 @@
 
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -97,6 +98,7 @@
                                 <mapping>
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -136,6 +138,7 @@
                                 <mapping>
                                     <directory>/etc/logrotate.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
 
                                     <sources>
                                         <source>

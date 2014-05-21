@@ -66,6 +66,7 @@
 
                                 <mapping>
                                     <directory>/usr/bin</directory>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>

@@ -57,6 +57,7 @@
                                 <mapping>
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -85,6 +86,7 @@
                                 <mapping>
                                     <directory>/etc/sysconfig</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/sysconfig/repose</location>
@@ -94,6 +96,7 @@
                                 <mapping>
                                     <directory>/etc/logrotate.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/logrotate.d/repose</location>
@@ -102,6 +105,7 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
+                                    <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../bash/clean-repose-deploy
