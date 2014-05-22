@@ -232,6 +232,10 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         hasBody = true;
       }
     } catch (IOException ignored) {
+        if(LOG.isTraceEnabled()) {
+            LOG.trace(ignored.getMessage());
+            ignored.printStackTrace();
+        }
       hasBody = false;
     }
 

@@ -16,6 +16,9 @@
 
 package com.rackspace.external.pjlcompression;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +50,7 @@ import java.util.zip.ZipOutputStream;
  * @author Sean Owen
  */
 abstract class CompressingStreamFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(CompressingStreamFactory.class);
 
 	/**
 	 * Implementation based on {@link GZIPOutputStream} and {@link GZIPInputStream}.
@@ -307,6 +311,10 @@ abstract class CompressingStreamFactory {
 				} catch (NumberFormatException nfe) {
 					// That's bad -- browser sent an invalid number. All we can do is ignore it, and
 					// pretend that no q value was specified, so that it effectively defaults to 1.0
+                    if(LOG.isTraceEnabled()) {
+                        LOG.trace(nfe.getMessage());
+                        nfe.printStackTrace();
+                    }
 				}
 			}
 		} else {
