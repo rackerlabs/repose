@@ -56,6 +56,7 @@ public class PowerFilterChain implements FilterChain {
     private boolean filterChainAvailable;
     private MetricsService metricsService;
     private TimerByCategory filterTimer;
+    private UUID intrafilterUuid;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
             ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
@@ -77,6 +78,7 @@ public class PowerFilterChain implements FilterChain {
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
         resourceMonitor.use();
+        intrafilterUuid = UUID.randomUUID();
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -154,7 +156,6 @@ public class PowerFilterChain implements FilterChain {
         final MutableHttpServletResponse mutableHttpResponse =
                 MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
         ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
-        UUID intrafilterUuid = UUID.randomUUID();
 
         mutableHttpResponse.pushOutputStream();
 
