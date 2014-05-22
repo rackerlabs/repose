@@ -51,6 +51,7 @@ public class RequestNode extends ObjectFactoryUser implements ComplexNode {
                     break;
                 case BODY :
                     this.addChildNode(new RequestBodyNode(request, messageRequest, jsonProcessing));
+                    break;
             }
         }
 

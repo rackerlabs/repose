@@ -37,6 +37,7 @@ public class ResponseHeadNode extends ObjectFactoryUser implements ComplexNode {
             switch (headDetail) {
                 case HEADERS:
                     this.addChildNode(new ResponseHeadersNode(response, head, headersFidelity));
+                    break;
             }
         }
 

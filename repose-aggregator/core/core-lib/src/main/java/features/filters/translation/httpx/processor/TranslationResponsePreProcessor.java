@@ -42,6 +42,7 @@ public class TranslationResponsePreProcessor {
                 break;
             default:
                 result = getUnknownContentProcessor().process(response.getInputStream());
+                break;
         }
 
         return result;

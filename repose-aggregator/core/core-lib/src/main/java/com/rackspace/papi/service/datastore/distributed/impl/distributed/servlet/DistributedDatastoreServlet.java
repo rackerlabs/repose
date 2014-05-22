@@ -104,6 +104,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                     break;
                 default:
                     resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    break;
             }
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
@@ -151,6 +152,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                         break;
                     default:
                         resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                        break;
                 }
             }
         } else {
@@ -242,6 +244,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                break;
         }
 
     }

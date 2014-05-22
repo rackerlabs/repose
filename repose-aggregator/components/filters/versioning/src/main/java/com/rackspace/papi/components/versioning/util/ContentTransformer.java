@@ -52,11 +52,11 @@ public class ContentTransformer {
             case APPLICATION_XML:
                 xmlStreamTransform.transform(element, outputStream);
                 break;
-
             case APPLICATION_JSON:
             case UNKNOWN:
             default:
                 jsonStreamTransform.transform(element, outputStream);
+                break;
         }
     }
 

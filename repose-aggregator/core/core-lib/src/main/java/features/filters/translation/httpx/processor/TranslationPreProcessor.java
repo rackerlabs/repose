@@ -41,6 +41,7 @@ public class TranslationPreProcessor {
                 break;
             default:
                 result = getUnknownContentProcessor().process(input);
+                break;
         }
 
         return result;

@@ -63,6 +63,7 @@ public class HeaderValueParser {
         throw new MalformedHeaderValueException("Valid parameter expected for header. Got: " + unparsedParameter);
       default:
         parameters.put(keyValueSplit[0].trim(), concat(keyValueSplit, 1, "="));
+        break;
     }
   }
 }

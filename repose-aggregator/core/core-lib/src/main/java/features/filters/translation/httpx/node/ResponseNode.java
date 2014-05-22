@@ -47,6 +47,7 @@ public class ResponseNode extends ObjectFactoryUser implements ComplexNode {
                     break;
                 case BODY:
                     this.addChildNode(new ResponseBodyNode(response, messageResponse, jsonProcessing));
+                    break;
             }
         }
 
