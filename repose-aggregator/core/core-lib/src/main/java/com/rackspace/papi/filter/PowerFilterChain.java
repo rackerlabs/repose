@@ -43,6 +43,8 @@ public class PowerFilterChain implements FilterChain {
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
     private static final Logger INTRAFILTER_LOG = LoggerFactory.getLogger("intrafilter-logging");
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
+    private static final String INTRAFILTER_UUID = "Intrafilter-UUID";
+
     private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
@@ -180,9 +182,8 @@ public class PowerFilterChain implements FilterChain {
                                          FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
-        String tracingHeaderName = "Intrafilter-UUID";
-        if (StringUtils.isEmpty(mutableHttpRequest.getHeader(tracingHeaderName))) {
-            mutableHttpRequest.addHeader(tracingHeaderName, uuid.toString());
+        if (StringUtils.isEmpty(mutableHttpRequest.getHeader(INTRAFILTER_UUID))) {
+            mutableHttpRequest.addHeader(INTRAFILTER_UUID, uuid.toString());
         }
 
         //converting log object to json string
@@ -196,9 +197,8 @@ public class PowerFilterChain implements FilterChain {
                                           FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
-        String tracingHeaderName = "Intrafilter-UUID";
-        if (StringUtils.isEmpty(mutableHttpResponse.getHeader(tracingHeaderName))) {
-            mutableHttpResponse.addHeader(tracingHeaderName, uuid.toString());
+        if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
+            mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid.toString());
         }
 
         //converting log object to json string
