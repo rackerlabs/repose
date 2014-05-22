@@ -152,18 +152,19 @@ public class PowerFilterChain implements FilterChain {
         final MutableHttpServletResponse mutableHttpResponse =
                 MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
         ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
+        UUID intrafilterUuid = UUID.randomUUID();
 
         mutableHttpResponse.pushOutputStream();
 
         try {
             if (INTRAFILTER_LOG.isTraceEnabled()) {
-                INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext));
+                INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
             }
 
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
 
             if (INTRAFILTER_LOG.isTraceEnabled()) {
-                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext));
+                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext, intrafilterUuid));
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
@@ -176,13 +177,12 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
-                                         FilterContext filterContext) throws IOException {
+                                         FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
         String tracingHeaderName = "Intrafilter-Request-UUID";
         if (StringUtils.isEmpty(mutableHttpRequest.getHeader(tracingHeaderName))) {
-            UUID requestTracingUUID = UUID.randomUUID();
-            mutableHttpRequest.addHeader(tracingHeaderName, requestTracingUUID.toString());
+            mutableHttpRequest.addHeader(tracingHeaderName, uuid.toString());
         }
 
         //converting log object to json string
@@ -193,13 +193,12 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
-                                          FilterContext filterContext) throws IOException {
+                                          FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
         String tracingHeaderName = "Intrafilter-Response-UUID";
         if (StringUtils.isEmpty(mutableHttpResponse.getHeader(tracingHeaderName))) {
-            UUID requestTracingUUID = UUID.randomUUID();
-            mutableHttpResponse.addHeader(tracingHeaderName, requestTracingUUID.toString());
+            mutableHttpResponse.addHeader(tracingHeaderName, uuid.toString());
         }
 
         //converting log object to json string
