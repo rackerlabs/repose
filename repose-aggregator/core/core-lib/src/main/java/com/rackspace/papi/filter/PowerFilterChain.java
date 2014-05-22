@@ -56,7 +56,6 @@ public class PowerFilterChain implements FilterChain {
     private boolean filterChainAvailable;
     private MetricsService metricsService;
     private TimerByCategory filterTimer;
-    private UUID intrafilterUuid;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
             ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
@@ -78,7 +77,6 @@ public class PowerFilterChain implements FilterChain {
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
         resourceMonitor.use();
-        intrafilterUuid = UUID.randomUUID();
 
         try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -161,13 +159,15 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             if (INTRAFILTER_LOG.isTraceEnabled()) {
+                UUID intrafilterUuid = UUID.randomUUID();
                 INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
             }
 
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
 
             if (INTRAFILTER_LOG.isTraceEnabled()) {
-                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext, intrafilterUuid));
+                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
+                                                             mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
             }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
@@ -195,11 +195,11 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
-                                          FilterContext filterContext, UUID uuid) throws IOException {
+                                          FilterContext filterContext, String uuid) throws IOException {
 
         //adding a UUID header
         if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
-            mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid.toString());
+            mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid);
         }
 
         //converting log object to json string
