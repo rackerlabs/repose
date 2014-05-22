@@ -180,7 +180,7 @@ public class PowerFilterChain implements FilterChain {
                                          FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
-        String tracingHeaderName = "Intrafilter-Request-UUID";
+        String tracingHeaderName = "Intrafilter-UUID";
         if (StringUtils.isEmpty(mutableHttpRequest.getHeader(tracingHeaderName))) {
             mutableHttpRequest.addHeader(tracingHeaderName, uuid.toString());
         }
@@ -196,7 +196,7 @@ public class PowerFilterChain implements FilterChain {
                                           FilterContext filterContext, UUID uuid) throws IOException {
 
         //adding a UUID header
-        String tracingHeaderName = "Intrafilter-Response-UUID";
+        String tracingHeaderName = "Intrafilter-UUID";
         if (StringUtils.isEmpty(mutableHttpResponse.getHeader(tracingHeaderName))) {
             mutableHttpResponse.addHeader(tracingHeaderName, uuid.toString());
         }
