@@ -86,6 +86,7 @@ public class ValidatorConfigurator {
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
         config.setEnableRaxRolesExtension(validatorItem.isEnableRaxRoles());
+        config.setMaskRaxRoles403(validatorItem.isMaskRaxRoles403());
 
         return config;
     }
