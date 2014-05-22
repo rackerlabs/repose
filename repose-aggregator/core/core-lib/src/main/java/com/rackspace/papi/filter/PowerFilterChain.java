@@ -5,9 +5,15 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.filter.intrafilterLogging.RequestLog;
+import com.rackspace.papi.filter.intrafilterLogging.ResponseLog;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonMethod;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,7 +41,10 @@ import java.util.concurrent.TimeUnit;
 public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
+    private static final Logger INTRAFILTER_LOG = LoggerFactory.getLogger("intrafilter-logging");
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
+    private static final String INTRAFILTER_UUID = "Intrafilter-UUID";
+
     private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
@@ -146,8 +156,19 @@ public class PowerFilterChain implements FilterChain {
         ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
 
         mutableHttpResponse.pushOutputStream();
+
         try {
+            if (INTRAFILTER_LOG.isTraceEnabled()) {
+                UUID intrafilterUuid = UUID.randomUUID();
+                INTRAFILTER_LOG.trace(intrafilterRequestLog(mutableHttpRequest, filterContext, intrafilterUuid));
+            }
+
             filterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
+
+            if (INTRAFILTER_LOG.isTraceEnabled()) {
+                INTRAFILTER_LOG.trace(intrafilterResponseLog(mutableHttpResponse, filterContext,
+                                                             mutableHttpRequest.getHeader(INTRAFILTER_UUID)));
+            }
         } catch (Exception ex) {
             String filterName = filterContext.getFilter().getClass().getSimpleName();
             LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
@@ -156,6 +177,44 @@ public class PowerFilterChain implements FilterChain {
             mutableHttpResponse.popOutputStream();
             setClassLoader(previousClassLoader);
         }
+    }
+
+    private String intrafilterRequestLog(MutableHttpServletRequest mutableHttpRequest,
+                                         FilterContext filterContext, UUID uuid) throws IOException {
+
+        //adding a UUID header
+        if (StringUtils.isEmpty(mutableHttpRequest.getHeader(INTRAFILTER_UUID))) {
+            mutableHttpRequest.addHeader(INTRAFILTER_UUID, uuid.toString());
+        }
+
+        //converting log object to json string
+        RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
+        String jsonStringOfRequestLog = convertPojoToJsonString(requestLog);
+
+        return jsonStringOfRequestLog;
+    }
+
+    private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
+                                          FilterContext filterContext, String uuid) throws IOException {
+
+        //adding a UUID header
+        if (StringUtils.isEmpty(mutableHttpResponse.getHeader(INTRAFILTER_UUID))) {
+            mutableHttpResponse.addHeader(INTRAFILTER_UUID, uuid);
+        }
+
+        //converting log object to json string
+        ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
+        String jsonStringOfResponseLog = convertPojoToJsonString(responseLog);
+
+        return jsonStringOfResponseLog;
+    }
+
+    private String convertPojoToJsonString(Object object) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);//http://stackoverflow.com/a/8395924
+        String prettyJsonStringOfPojo = objectMapper.writeValueAsString(object);
+
+        return prettyJsonStringOfPojo;
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
