@@ -73,7 +73,6 @@ class ReposeValveControllerContextTest extends Specification {
         then:
         reposeValveControllerContext.containerConfigurationListener.initialized
         reposeValveControllerContext.systemModelConfigurationListener.initialized
-
     }
 
 

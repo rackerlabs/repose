@@ -1,7 +1,6 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.context.impl.RoutingServiceContext;
@@ -21,7 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author fran
@@ -52,7 +53,7 @@ public class RequestFilterChainStateTest {
             when(context.getAttribute(ServletContextHelper.SERVLET_CONTEXT_HELPER)).thenReturn(instance);
 
             ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo("repose", "node");
-            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ResourceMonitor.class), mock(PowerFilterRouter.class), instanceInfo, null);
+            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(PowerFilterRouter.class), instanceInfo, null);
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);

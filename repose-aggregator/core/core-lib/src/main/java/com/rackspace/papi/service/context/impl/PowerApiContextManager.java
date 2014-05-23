@@ -107,7 +107,6 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
       ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
       ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
-      ca.getContext(FilterChainGCServiceContext.class).contextInitialized(sce);
       ca.getContext(RequestProxyServiceContext.class).contextInitialized(sce);
       ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
