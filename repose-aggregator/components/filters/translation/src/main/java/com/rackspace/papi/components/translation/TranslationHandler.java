@@ -20,7 +20,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.httpx.processor.TranslationPreProcessor;
+import features.filters.translation.httpx.processor.TranslationPreProcessor;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
