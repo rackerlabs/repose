@@ -99,7 +99,7 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         "Warning"          | "199 fred \"Misc. warning\""                                         | 1
         "Warning"          | "199 fred \"Misc. warning\", 199 ethel \"Another warning\""          | 2
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="                                 | 1
-        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 2
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 1
         "Accept-Encoding"  | "identity"                                                           | 1
         "Accept-Encoding"  | "*"                                                                  | 1
         "Accept-Encoding"  | "compress, gzip"                                                     | 2
@@ -156,14 +156,16 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getCountByName(headerName) == 1
 
         where:
-        headerName      | headerValue
-        "User-Agent"    | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:23.0) Gecko/20100101 Firefox/23.0"
-        "Accept-Ranges" | "bytes, something"
-        "Content-type"  | "text/plain, application/json"
-        "If-Match"      | "entity-tag-1, entity-tag-2"
-        "If-None-Match" | "entity-tag-1, entity-tag-2"
-        "Server"        | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
-        "Vary"          | "header-1, header-2, header-3"
+        headerName         | headerValue
+        "User-Agent"       | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:23.0) Gecko/20100101 Firefox/23.0"
+        "Accept-Ranges"    | "bytes, something"
+        "Content-type"     | "text/plain, application/json"
+        "If-Match"         | "entity-tag-1, entity-tag-2"
+        "If-None-Match"    | "entity-tag-1, entity-tag-2"
+        "Server"           | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
+        "Vary"             | "header-1, header-2, header-3"
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg=="
     }
 
     @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should split into #expectedCount parts")
@@ -263,7 +265,7 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         "Warning"          | "199 fred \"Misc. warning\""                                         | 1
         "Warning"          | "199 fred \"Misc. warning\", 199 ethel \"Another warning\""          | 2
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="                                 | 1
-        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 2
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 1
         "Accept-Encoding"  | "identity"                                                           | 1
         "Accept-Encoding"  | "*"                                                                  | 1
         "Accept-Encoding"  | "compress, gzip"                                                     | 2
