@@ -183,7 +183,7 @@ class RaxRolesTest extends ReposeValveTest {
         "POST"   | "/a"   | ["x-roles": "test_user4, a:creator"]          | "200"
         "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, a:creator"]   | "200"
         "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, a:admin"]     | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, b:creator"]   | "200"
+        "POST"   | "/a"   | ["x-roles": "test_user4, a:foo, b:creator"]   | "403"
         "POST"   | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "405"
         "POST"   | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "405"
         "POST"   | "/a/c" | ["x-roles": "test_user4, a:creator"]          | "404"
@@ -196,9 +196,10 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a"   | ["x-roles": "test_user4, a:admin"]            | "405"
         "PUT"    | "/a"   | ["x-roles": "test_user4"]                     | "405"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin"]            | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user4, a:admin, b:observer"] | "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, a:creator"]          | "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, b:creator"]          | "200"
-        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer a:admin"] | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer, a:admin"] | "200"
         "PUT"    | "/a/b" | ["x-roles": "test_user4, b:observer"]         | "403"
         "PUT"    | "/a/b" | ["x-roles": "test_user4"]                     | "403"
         "PUT"    | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
@@ -213,8 +214,11 @@ class RaxRolesTest extends ReposeValveTest {
         "DELETE" | "/a/b" | null                                          | "403"
         "DELETE" | "/a/c" | ["x-roles": "test_user4, b:creator"]          | "404"
     }
-
-/*
+    /*
+        When enable-rax-role is set to true, and wadl has roles with #all will open to access by
+        all roles.
+        i.e. GET method /a will be no restriction and GET /b will be no restriction
+     */
     @Unroll("User5:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true and wadl has roles with #all"() {
 
@@ -235,21 +239,46 @@ class RaxRolesTest extends ReposeValveTest {
         "GET"  | "/a"   | ["x-roles": "test_user5, a:abar, a:admin"]   | "200"
         "GET"  | "/a"   | ["x-roles": "test_user5, a:admin"]           | "200"
         "GET"  | "/a"   | ["x-roles": "test_user5"]                    | "200"
-        "PUT"  | "/a"   | ["x-roles": "test_user5, a:admin"]           | "200"
-        "PUT"  | "/a"   | ["x-roles": "test_user5, a:bar, a:admin"]    | "200"
-        "PUT"  | "/a"   | ["x-roles": "test_user5, a:observer, a:bar"] | "403"
-        "PUT"  | "/a"   | ["x-roles": "test_user5"]                    | "403"
+        "GET"  | "/a/aa"| ["x-roles": "test_user5"]                    | "200"
+        "GET"  | "/a/aa"| ["x-roles": "test_user5, a:foo"]             | "200"
+        "POST" | "/a"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "POST" | "/a"   | ["x-roles": "test_user5, a:creator"]         | "200"
+        "POST" | "/a"   | ["x-roles": "test_user5, a:observer"]        | "403"
+        "PUT"  | "/a"   | ["x-roles": "test_user5, a:admin"]           | "405"
+        "PUT"  | "/a/aa"| ["x-roles": "test_user5, a:bar, a:admin"]    | "200"
+        "PUT"  | "/a/aa"| ["x-roles": "test_user5, a:bar"]             | "403"
+        "PUT"  | "/a/aa"| ["x-roles": "test_user5"]                    | "403"
+        "DELETE"| "/a"   | ["x-roles": "test_user5, a:admin"]           | "405"
+        "DELETE"| "/a/aa"| ["x-roles": "test_user5, a:admin"]           | "200"
+        "DELETE"| "/a/aa"| ["x-roles": "test_user5, a:foo"]             | "403"
+        "DELETE"| "/a/aa"| ["x-roles": "test_user5, a:creator"]         | "403"
+        "DELETE"| "/a/aa"| ["x-roles": "test_user5"]                    | "403"
         "GET"  | "/b"   | ["x-roles": "test_user5, a:admin"]           | "200"
         "GET"  | "/b"   | ["x-roles": "test_user5"]                    | "200"
         "GET"  | "/b"   | ["x-roles": "test_user5, bar"]               | "200"
-        "POST" | "/b"   | ["x-roles": "test_user5, a:admin"]           | "405"
-        "POST" | "/b"   | ["x-roles": "test_user5"]                    | "405"
-        "POST" | "/b/c" | ["x-roles": "test_user5, a:admin"]           | "200"
-        "POST" | "/b/c" | ["x-roles": "test_user5"]                    | "200"
-        "POST" | "/b/c" | ["x-roles": "test_user5, bar"]               | "200"
+        "GET"  | "/b/c" | ["x-roles": "test_user5, c:admin"]           | "200"
+        "GET"  | "/b/c" | ["x-roles": "test_user5, c:observer"]        | "200"
+        "GET"  | "/b/c" | ["x-roles": "test_user5, bar"]               | "200"
+        "GET"  | "/b/c" | ["x-roles": "test_user5"]                    | "200"
+        "POST" | "/b"   | ["x-roles": "test_user5, b:creator"]         | "200"
+        "POST" | "/b"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "POST" | "/b"   | ["x-roles": "test_user5"]                    | "200"
+        "POST" | "/b/c" | ["x-roles": "test_user5, c:admin"]           | "405"
+        "POST" | "/b"   | ["x-roles": "test_user5, a:admin"]           | "200"
+        "POST" | "/b/c" | ["x-roles": "test_user5"]                    | "405"
+        "DELETE"| "/b"  | ["x-roles": "test_user5"]                    | "405"
+        "DELETE"| "/b"  | ["x-roles": "test_user5, b:admin"]           | "405"
+        "DELETE"| "/b/c"| ["x-roles": "test_user5"]                    | "200"
+        "DELETE"| "/b/c"| ["x-roles": "test_user5, c:admin"]           | "200"
+        "DELETE"| "/b/c"| ["x-roles": "test_user5, c:creator"]         | "200"
+        "DELETE"| "/a/c"| ["x-roles": "test_user5, c:creator"]         | "404"
 
     }
-
+    /*
+        When enable-rax-role is set to false, and check-headers doesn't affect
+        all method available in wadl will be accessible by
+        all roles.
+     */
     @Unroll("User7:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is false and check-headers does not affect it"() {
 
@@ -264,20 +293,30 @@ class RaxRolesTest extends ReposeValveTest {
 
         where:
         method   | path | headers                                | responseCode
-        "PUT"    | "/a" | ["x-roles": "test_user7, a:noone"]     | "200"
-        "PUT"    | "/a" | ["x-roles": "test_user7, a:creator"]   | "200"
-        "PUT"    | "/a" | ["x-roles": "test_user7"]              | "200"
+        "POST"   | "/a" | ["x-roles": "test_user7, a:noone"]     | "200"
+        "POST"   | "/a" | ["x-roles": "test_user7, a:creator"]   | "200"
+        "POST"   | "/a" | ["x-roles": "test_user7"]              | "200"
+        "POST"   | "/a/b" | ["x-roles": "test_user7"]            | "405"
+        "PUT"    | "/a" | ["x-roles": "test_user7"]              | "405"
         "DELETE" | "/a" | ["x-roles": "test_user7"]              | "405"
-        "GET"    | "/b" | ["x-roles": "test_user7, a:noone"]     | "404"
-
-        "PUT"    | "/a" | ["x-roles": "test_user7.1, a:noone"]   | "200"
-        "PUT"    | "/a" | ["x-roles": "test_user7.1, a:creator"] | "200"
+        "GET"    | "/a" | ["x-roles": "test_user7"]              | "405"
+        "GET"    | "/a/b"| ["x-roles": "test_user7, a:noone"]    | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user7, a:noone"]     | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user7"]              | "200"
+        "DELETE" | "/a/b" | ["x-roles": "test_user7"]              | "200"
+        "PUT"    | "/a/b" | ["x-roles": "test_user7.1, a:creator"] | "200"
         "PUT"    | "/a" | ["x-roles": "test_user7.1"]            | "200"
+        "PUT"    | "/a/b"| ["x-roles": "test_user7.1"]           | "200"
         "DELETE" | "/a" | ["x-roles": "test_user7.1"]            | "405"
+        "DELETE" | "/a/b"| ["x-roles": "test_user7.1"]           | "200"
         "GET"    | "/b" | ["x-roles": "test_user7.1, a:noone"]   | "404"
 
     }
-
+    /*
+        When enable-rax-role is set to true, rax roles will not inherit from siblings
+        if the path, method are not set to require specific roles then will be accessible
+        to all roles.
+     */
     @Unroll("User8:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true, Rax Roles will not inherit from siblings"() {
 
@@ -300,7 +339,11 @@ class RaxRolesTest extends ReposeValveTest {
         "GET"  | "/b/c" | ["x-roles": "test_user8"]                    | "200"
         "POST" | "/b/c" | ["x-roles": "test_user8"]                    | "200"
     }
-
+    /*
+        When enable-rax-role is set to true, wadl has nested resources, even though
+        nested resource doesn't set to require any specific role but it still inherit
+        from 'parent' resource (path).
+     */
     @Unroll("User9:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true, Wadl has nested resources"() {
 
@@ -336,7 +379,12 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a/b" | ["x-roles": "test_user9"]                      | "403"
         "PUT"    | "/a/b" | ["x-roles": "test_user9, observer"]            | "403"
     }
-
+    /*
+        When enable-rax-role is set to true with remove-dups true, wadl has nested resources,
+        even though nested resource doesn't set to require any specific role but it still inherit
+        from 'parent' resource (path).
+        ??? don't really under stand how remove-dups work in this case.
+     */
     @Unroll("User10:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true, Remove Duplications is true"() {
 
@@ -372,7 +420,12 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a/b" | ["x-roles": "test_user10"]                      | "403"
         "PUT"    | "/a/b" | ["x-roles": "test_user10, observer"]            | "403"
     }
-
+    /*
+        When enable-rax-role is set to true with check-headers true, wadl has nested resources,
+        even though nested resource doesn't set to require any specific role but it still inherit
+        from 'parent' resource (path).
+        ??? check-headers doesn't really make any different in this case.
+     */
     @Unroll("User11:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true, Check Headers is false"() {
 
@@ -408,7 +461,10 @@ class RaxRolesTest extends ReposeValveTest {
         "PUT"    | "/a/b" | ["x-roles": "test_user11"]                      | "403"
         "PUT"    | "/a/b" | ["x-roles": "test_user11, observer"]            | "403"
     }
-
+    /*
+        When enable-rax-role is set to true, hrefs to methods outside of the resource
+        resource should be adhered to when appropriate.
+     */
     @Unroll("User12:method=#method,headers=#headers,expected response=#responseCode path=#path")
     def "when enable-rax-roles is true, hrefs to methods outside of the resource should be adhered to when appropriate"() {
 
@@ -423,27 +479,32 @@ class RaxRolesTest extends ReposeValveTest {
 
         where:
         method   | path   | headers                                         | responseCode
-        "GET"    | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
-        "POST"   | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
-        "PUT"    | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
-        "DELETE" | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
-        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:hrefRole"]          | "200"
-        "GET"    | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
-        "GET"    | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
-        "GET"    | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
-        "POST"   | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
-        "POST"   | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
-        "POST"   | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
-        "PUT"    | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
-        "PUT"    | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
-        "PUT"    | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
-        "DELETE" | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
-        "DELETE" | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
-        "DELETE" | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
-        "PATCH"  | "/bad" | ["x-roles": "test_user12, a:hrefRole"]          | "404"
-        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:bad"]               | "403"
-        "PATCH"  | "/a"   | ["x-roles": "bad, a:hrefRole"]                  | "403"
-        "GET"    | "/a"   | ["x-roles": "test_user12"]                      | "403"
+        "GET"    | "/a"   | ["x-roles": "test_user12, a:admin" ]            | "200"
+        "GET"    | "/a"   | ["x-roles": "test_user12, a:observer" ]         | "200"
+        "GET"    | "/a"   | ["x-roles": "test_user12, a:foo"]               | "403"
+        "GET"    | "/b"   | ["x-roles": "test_user12, a:admin"]             | "404"
+        "POST"   | "/a"   | ["x-roles": "test_user12, a:admin"]             | "200"
+        "POST"   | "/a"   | ["x-roles": "test_user12, a:creator"]           | "200"
+        "POST"   | "/a"   | ["x-roles": "test_user12"]                      | "403"
+        "POST"   | "/b"   | ["x-roles": "test_user12, a:admin"]             | "404"
+        "PUT"    | "/a"   | ["x-roles": "test_user12, a:admin"]             | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user12, a:creator"]           | "200"
+        "PUT"    | "/a"   | ["x-roles": "test_user12, a:foo"]               | "403"
+        "PUT"    | "/b"   | ["x-roles": "test_user12, a:admin"]             | "404"
+        "DELETE" | "/a"   | ["x-roles": "test_user12, a:admin"]             | "200"
+        "DELETE" | "/a"   | ["x-roles": "test_user12, a:creator"]           | "403"
+        "DELETE" | "/a"   | ["x-roles": "test_user12"]                      | "403"
+        "DELETE" | "/b"   | ["x-roles": "test_user12, a:admin"]             | "404"
+        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:admin"]             | "200"
+        "PATCH"  | "/a"   | ["x-roles": "test_user12, a:creator"]           | "403"
+        "PATCH"  | "/a"   | ["x-roles": "test_user12"]                      | "403"
+        "PATCH"  | "/b"   | ["x-roles": "test_user12, a:admin"]             | "404"
+        "PATCH"  | "/a"   | ["x-roles": "test_user, a:admin"]               | "403"
+        "PUT"    | "/a"   | ["x-roles": "test_user, a:admin"]               | "403"
+        "POST"   | "/a"   | ["x-roles": "test_user, a:admin"]               | "403"
+        "GET"    | "/a"   | ["x-roles": "test_user, a:admin"]               | "403"
+        "GET"    | "/v"   | ["x-roles": "test_user12"]                      | "200"
+        "GET"    | "/v"   | ["x-roles": "test_user12, a:admin"]             | "200"
+        "GET"    | "/v"   | ["x-roles": "test_user12, a:foo"]               | "200"
     }
-    */
 }
