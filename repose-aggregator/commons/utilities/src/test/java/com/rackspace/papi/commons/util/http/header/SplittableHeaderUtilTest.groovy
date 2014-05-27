@@ -58,4 +58,11 @@ class SplittableHeaderUtilTest {
 
 
     }
+
+    @Test
+    public void testWWWAuthenticateNotSplit() throws Exception {
+        SplittableHeaderUtil splitable = new SplittableHeaderUtil()
+
+        assert !splitable.isSplitable("www-authenticate")
+    }
 }
