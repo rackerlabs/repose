@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components.api-checker</groupId>
             <artifactId>checker-core</artifactId>
-            <version>1.0.16</version>
+            <version>1.0.17</version>
         </dependency>
     </dependencies>
 
