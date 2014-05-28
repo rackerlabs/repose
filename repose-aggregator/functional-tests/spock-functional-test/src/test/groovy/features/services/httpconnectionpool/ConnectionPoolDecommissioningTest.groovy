@@ -28,7 +28,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
 
         when: "Repose is up and the HTTPClientService has been configured"
         waitUntilReadyToServiceRequests()
@@ -48,7 +48,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
         waitUntilReadyToServiceRequests()
@@ -76,7 +76,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
 
         when:
@@ -107,7 +107,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/" + firstConfig, params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
 
         and: "Alot of concurrent users are making requests to Repose"
@@ -138,7 +138,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         def reconfigureThread = Thread.start {
             while (keepReconfiguring) {
                 println("Reconfiguring...")
-                sleep(16000) //TODO: better strategy to know when Repose has been reconfigured
+                waitUntilReadyToServiceRequests()
                 if (reconfigureCount % 2) {
                     repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/" + secondConfig, params, /*sleepTime*/ 25)
                 } else {

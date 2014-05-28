@@ -95,6 +95,7 @@ abstract class ReposeValveTest extends Specification {
                     mc = innerDeproxy.makeRequest([url: reposeEndpoint])
                 } catch (Exception e) {}
                 if (mc != null) {
+                    println mc.receivedResponse.code
                     return mc.receivedResponse.code.equals(responseCode)
                 } else {
                     return false

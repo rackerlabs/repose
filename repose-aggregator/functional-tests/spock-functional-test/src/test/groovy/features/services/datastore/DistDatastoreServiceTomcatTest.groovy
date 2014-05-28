@@ -25,9 +25,6 @@ class DistDatastoreServiceTomcatTest extends Specification {
     static ReposeLauncher repose1
     static ReposeLauncher repose2
 
-    static ReposeLogSearch reposeLogSearch1
-    static ReposeLogSearch reposeLogSearch2
-
     static def params
 
     def setupSpec() {
@@ -84,13 +81,11 @@ class DistDatastoreServiceTomcatTest extends Specification {
         config1.applyConfigs("common", params)
 
         repose1 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
-        reposeLogSearch1 = new ReposeLogSearch(logFile);
 
         repose1.start()
         repose1.waitForNon500FromUrl(reposeTomcatEndpoint1, 120)
 
         repose2 = new ReposeContainerLauncher(config1, properties.getTomcatJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
-        reposeLogSearch2 = new ReposeLogSearch(logFile);
         repose2.start()
         repose2.waitForNon500FromUrl(reposeTomcatEndpoint2, 120)
 
@@ -149,8 +144,6 @@ class DistDatastoreServiceTomcatTest extends Specification {
         then:
         mc.receivedResponse.code == "413"
 
-//        def List<String> logMatches = reposeLogSearch1.searchByString("damaged node");
-//        logMatches.size() == 0
     }
 
     def "PATCH a new cache object should return 200 response" () {

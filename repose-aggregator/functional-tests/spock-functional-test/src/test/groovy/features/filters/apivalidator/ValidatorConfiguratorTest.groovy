@@ -16,6 +16,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
     def setup() {
         cleanLogDirectory()
+        reposeLogSearch = new ReposeLogSearch(logFile)
     }
 
     def cleanup() {
@@ -38,9 +39,8 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/good", params)
-        repose.start()
-        sleep(10000)
-        reposeLogSearch = new ReposeLogSearch(logFile);
+        repose.start([waitOnJmxAfterStarting: false])
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
         def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers:['X-Roles':'test_user']])
@@ -59,9 +59,8 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/wadlpath/bad", params)
-        repose.start()
-        sleep(15000)
-        reposeLogSearch = new ReposeLogSearch(logFile);
+        repose.start([waitOnJmxAfterStarting: false])
+        repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
         def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers:['X-Roles':'test_user']])

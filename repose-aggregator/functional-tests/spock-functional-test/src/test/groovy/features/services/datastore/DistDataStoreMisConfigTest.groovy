@@ -24,8 +24,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        reposeLogSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -42,9 +41,9 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503")
 
         then:
-        logSearch.searchByString("NullPointerException").size() == 0
-        logSearch.searchByString(searchError).size() > 0
-        logSearch.searchByString(searchMsg).size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString(searchError).size() > 0
+        reposeLogSearch.searchByString(searchMsg).size() > 0
 
         where:
         configuration                   |searchMsg
@@ -62,8 +61,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        reposeLogSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -80,8 +78,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503")
 
         then:
-        logSearch.searchByString("NullPointerException").size() == 0
-        logSearch.searchByString(searchError).size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString(searchError).size() > 0
 
         where:
         configuration << ["clustermismatch","nodemismatch"]
@@ -95,8 +93,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        reposeLogSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -113,8 +110,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503")
 
         then:
-        logSearch.searchByString("NullPointerException").size() == 0
-        logSearch.searchByString(searchError).size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString(searchError).size() > 0
 
         where:
         port    << [65536,-1]
@@ -127,8 +124,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = port
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        reposeLogSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -145,8 +141,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503", false)
 
         then:
-        logSearch.searchByString("NullPointerException").size() == 0
-        logSearch.searchByString(searchError).size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString(searchError).size() > 0
 
         where:
         port << [21, 22, 23, 1023]
@@ -159,8 +155,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.Singleton.getNextOpenPort()
-        def logSearch = new ReposeLogSearch(properties.logFile)
-        logSearch.deleteLog()
+        reposeLogSearch.deleteLog()
 
         datastoreEndpoint = "http://localhost:${dataStorePort}"
 
@@ -177,8 +172,8 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests("503", false)
 
         then:
-        logSearch.searchByString("NullPointerException").size() == 0
-        logSearch.searchByString(searchError).size() > 0
+        reposeLogSearch.searchByString("NullPointerException").size() == 0
+        reposeLogSearch.searchByString(searchError).size() > 0
 
     }
 
