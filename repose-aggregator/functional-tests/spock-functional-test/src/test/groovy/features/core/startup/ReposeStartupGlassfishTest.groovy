@@ -1,8 +1,16 @@
 package features.core.startup
 import framework.*
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Ignore
 import spock.lang.Specification
 
+/**
+ * This test was written to verify the startup behavior of Repose running in a container. It would leverage the
+ * embedded container testing framework. Unfortunately, that framework does not currently support logging of Repose
+ * startup events, and thus is not sufficient to test startup conditions.
+ */
+
+@Ignore
 class ReposeStartupGlassfishTest extends Specification {
     static def reposeGlassfishEndpoint
 
