@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,9 +41,17 @@ public final class EmptyServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         if (System.getProperty(InitParameter.REPOSE_CLUSTER_ID.getParameterName()) == null) {
-            throw new javax.servlet.UnavailableException("repose-cluster-id not provided -- Repose cannot start");
+            UnavailableException ue = new UnavailableException("repose-cluster-id not provided -- Repose cannot start");
+
+            LOG.error("repose-cluster-id not provided -- Repose could not start", ue);
+
+            throw ue;
         } else if (System.getProperty(InitParameter.REPOSE_NODE_ID.getParameterName()) == null) {
-            throw new javax.servlet.UnavailableException("repose-node-id not provided -- Repose cannot start");
+            UnavailableException ue = new UnavailableException("repose-node-id not provided -- Repose cannot start");
+
+            LOG.error("repose-node-id not provided -- Repose could not start", ue);
+
+            throw ue;
         }
     }
 
