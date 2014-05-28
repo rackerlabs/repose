@@ -3,7 +3,7 @@
     <parent>
         <artifactId>datastore-service-support</artifactId>
         <groupId>com.rackspace.papi.service</groupId>
-        <version>3.0.6</version>
+        <version>3.0.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
