@@ -14,28 +14,28 @@ import java.io.IOException;
 
 public final class EmptyServlet extends HttpServlet {
 
-   private static final Logger LOG = LoggerFactory.getLogger(EmptyServlet.class);
-   private boolean initialized = false;
+    private static final Logger LOG = LoggerFactory.getLogger(EmptyServlet.class);
+    private boolean initialized = false;
 
-   private boolean isRequestFilterChainComplete(HttpServletRequest req) {
-      return (Boolean)req.getAttribute("filterChainAvailableForRequest");
-   }
+    private boolean isRequestFilterChainComplete(HttpServletRequest req) {
+        return (Boolean) req.getAttribute("filterChainAvailableForRequest");
+    }
 
-   private boolean isPowerApiContextManagerIntiliazed() {
-      if (initialized) {
-         return true;
-      }
+    private boolean isPowerApiContextManagerIntiliazed() {
+        if (initialized) {
+            return true;
+        }
 
-      PowerApiContextManager manager = (PowerApiContextManager) getServletContext().getAttribute("powerApiContextManager");
+        PowerApiContextManager manager = (PowerApiContextManager) getServletContext().getAttribute("powerApiContextManager");
 
-      if (manager == null || !manager.isContextInitialized()) {
-         return false;
-      }
+        if (manager == null || !manager.isContextInitialized()) {
+            return false;
+        }
 
-      initialized = true;
+        initialized = true;
 
-      return initialized;
-   }
+        return initialized;
+    }
 
     @Override
     public void init() throws ServletException {
@@ -46,11 +46,11 @@ public final class EmptyServlet extends HttpServlet {
         }
     }
 
-   @Override
-   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-      if (!isPowerApiContextManagerIntiliazed() || !isRequestFilterChainComplete(req)) {
-         LOG.debug("Filter chain is not available to process request.");
-         resp.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Filter chain is not available to process request");
-      }
-   }
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!isPowerApiContextManagerIntiliazed() || !isRequestFilterChainComplete(req)) {
+            LOG.debug("Filter chain is not available to process request.");
+            resp.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Filter chain is not available to process request");
+        }
+    }
 }
