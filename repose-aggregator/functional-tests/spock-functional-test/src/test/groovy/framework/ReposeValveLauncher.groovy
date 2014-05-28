@@ -123,7 +123,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
+        def cmd = "java -Xmx1536M -Xms1024M -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
         if (!connFramework.isEmpty()) {
             cmd = cmd + " -cf ${connFramework}"
         }
