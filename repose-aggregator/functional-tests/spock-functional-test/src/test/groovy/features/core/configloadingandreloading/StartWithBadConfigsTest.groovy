@@ -1,7 +1,6 @@
 package features.core.configloadingandreloading
 
 import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.category.Slow
@@ -19,7 +18,6 @@ class StartWithBadConfigsTest extends Specification {
     String url
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
-    ReposeLogSearch reposeLogSearch
     ReposeValveLauncher repose
     Map params = [:]
     Deproxy deproxy
@@ -65,7 +63,6 @@ class StartWithBadConfigsTest extends Specification {
                 stopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForDesiredResponseCodeFromUrl(url, [503])
@@ -115,7 +112,6 @@ class StartWithBadConfigsTest extends Specification {
                 stopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile());
         repose.start(killOthersBeforeStarting: false,
                      waitOnJmxAfterStarting: false)
         sleep 35000

@@ -31,7 +31,7 @@ class Slf4jHttpLoggingTest extends ReposeValveTest{
         logSearch.cleanLog()
 
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method)
+        deproxy.makeRequest(url: reposeEndpoint, method: method)
 
         then:
         logSearch.searchByString("my-test-log  - Remote IP=127.0.0.1 Local IP=127.0.0.1 Request Method=$method").size() == 1

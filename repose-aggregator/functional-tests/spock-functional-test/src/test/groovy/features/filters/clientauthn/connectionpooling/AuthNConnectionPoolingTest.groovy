@@ -1,7 +1,6 @@
 package features.filters.clientauthn.connectionpooling
 
 import framework.ReposeConfigurationProvider
-import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
 import framework.mocks.MockIdentityService
@@ -33,7 +32,6 @@ class AuthNConnectionPoolingTest extends Specification {
     def logFile
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
-    ReposeLogSearch reposeLogSearch
 
     def setup() {
 
@@ -71,7 +69,6 @@ class AuthNConnectionPoolingTest extends Specification {
                 reposeStopPort
         )
         repose.enableDebug()
-        reposeLogSearch = new ReposeLogSearch(logFile);
 
         def params = properties.getDefaultTemplateParams()
         reposeConfigProvider.applyConfigs("common", params)
