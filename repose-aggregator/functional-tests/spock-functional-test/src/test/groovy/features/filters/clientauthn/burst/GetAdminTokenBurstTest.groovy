@@ -55,6 +55,11 @@ class GetAdminTokenBurstTest extends ReposeValveTest {
         repose.stop()
     }
 
+    /**
+     * This test occasionally fails because threading problems
+     * https://repose.atlassian.net/browse/REP-558
+     * @return
+     */
     def "under heavy load should only retrieve admin token once"() {
 
         given:
