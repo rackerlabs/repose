@@ -232,9 +232,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         hasBody = true;
       }
     } catch (IOException ignored) {
-        if(LOG.isTraceEnabled()) {
-            LOG.trace("input stream error: " + ignored);
-        }
+        LOG.trace("input stream error: ", ignored);
       hasBody = false;
     }
 
