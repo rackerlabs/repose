@@ -21,18 +21,9 @@ public class HealthCheckServiceHelper {
         try {
             healthCheckService.reportIssue(uid, rid, new HealthCheckReport(message, severity));
         } catch (InputNullException e) {
-            if(logger.isTraceEnabled()){
-                logger.trace(e.getMessage());
-                e.printStackTrace();
-            }
-
-            logger.error("Unable to report Issues to Health Check Service");
+            logger.error("Unable to report Issues to Health Check Service" + e);
         } catch (NotRegisteredException e) {
-            if(logger.isTraceEnabled()){
-                logger.trace(e.getMessage());
-                e.printStackTrace();
-            }
-            logger.error("Unable to report Issues to Health Check Service");
+            logger.error("Unable to report Issues to Health Check Service" + e);
         }
     }
 
@@ -41,17 +32,9 @@ public class HealthCheckServiceHelper {
             logger.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(uid, rid);
         } catch (InputNullException e) {
-            if(logger.isTraceEnabled()){
-                logger.trace(e.getMessage());
-                e.printStackTrace();
-            }
-            logger.error("Unable to solve issue " + rid + "from " + uid);
+            logger.error("Unable to solve issue " + rid + "from " + uid + e);
         } catch (NotRegisteredException e) {
-            if(logger.isTraceEnabled()){
-                logger.trace(e.getMessage());
-                e.printStackTrace();
-            }
-            logger.error("Unable to solve issue " + rid + "from " + uid);
+            logger.error("Unable to solve issue " + rid + "from " + uid + e);
         }
     }
 }

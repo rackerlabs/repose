@@ -23,8 +23,7 @@ public class ThreadContextAwareObjectInputStream extends ObjectInputStream {
          return threadContextClassLoader.loadClass(desc.getName());
       } catch (ClassNotFoundException ignored) {
           if(LOG.isTraceEnabled()) {
-              LOG.trace("class not found " + ignored.getMessage());
-              ignored.printStackTrace();
+              LOG.trace("class not found " + desc.getName() + ignored);
           }
       }
 

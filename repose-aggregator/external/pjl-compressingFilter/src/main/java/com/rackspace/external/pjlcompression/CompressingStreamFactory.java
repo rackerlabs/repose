@@ -312,8 +312,7 @@ abstract class CompressingStreamFactory {
 					// That's bad -- browser sent an invalid number. All we can do is ignore it, and
 					// pretend that no q value was specified, so that it effectively defaults to 1.0
                     if(LOG.isTraceEnabled()) {
-                        LOG.trace(nfe.getMessage());
-                        nfe.printStackTrace();
+                        LOG.trace("unable to parse qvalueString: " + qvalueString + nfe);
                     }
 				}
 			}

@@ -131,8 +131,7 @@ public final class StringUriUtilities {
             encodedUri = URLEncoder.encode(uri, "UTF8");
         } catch (UnsupportedEncodingException ignored) {
             if(LOG.isTraceEnabled()) {
-                LOG.trace(ignored.getMessage());
-                ignored.printStackTrace();
+                LOG.trace("failed to encode uri: " + uri + ignored);
             }
         }
 

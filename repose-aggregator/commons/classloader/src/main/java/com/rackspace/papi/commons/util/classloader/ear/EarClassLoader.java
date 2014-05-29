@@ -62,10 +62,9 @@ public class EarClassLoader extends ClassLoader {
          } catch (ClassNotFoundException e) {
             // ClassNotFoundException thrown if class not found
             // from the non-null parent class loader
-            if(LOG.isTraceEnabled()) {
-                LOG.trace("class not found " + e.getMessage());
-                e.printStackTrace();
-            }
+             if(LOG.isTraceEnabled()) {
+                 LOG.trace("class not found " + e);
+             }
             c = findClass(name);
          }
 
@@ -163,8 +162,7 @@ public class EarClassLoader extends ClassLoader {
 
       } catch (MalformedURLException murle) {
           if(LOG.isTraceEnabled()) {
-              LOG.trace("malformed url: " + murle.getMessage());
-              murle.printStackTrace();
+              LOG.trace("malformed url: " + murle);
           }
           return null;
       }
