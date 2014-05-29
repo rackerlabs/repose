@@ -1,13 +1,8 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
-
 import com.rackspace.papi.service.context.ServletContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
+import java.util.List;
 
 /**
  *
@@ -26,7 +25,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChainBuilderImpl.class);
     private final PowerFilterRouter router;
-    private final ResourceConsumerCounter resourceConsumerMonitor;
     private List<FilterContext> currentFilterChain;
     private ReposeCluster domain;
     private Node localhost;
@@ -38,7 +36,6 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         Thread.currentThread().setName(instanceInfo.toString());
         LOG.info("Creating filter chain builder");
         this.router = router;
-        this.resourceConsumerMonitor = new ResourceConsumerCounter();
         this.instanceInfo = instanceInfo;
     }
 
@@ -52,18 +49,14 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         this.router.initialize(domain, localhost, servletContext, defaultDst);
     }
 
-    @Override
-    public ResourceConsumerCounter getResourceConsumerMonitor() {
-        return resourceConsumerMonitor;
-    }
 
     @Override
     public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain) throws PowerFilterChainException {
         if (router == null) {
             throw new PowerFilterChainException("Power Filter Router has not been initialized yet.");
         }
-        return new PowerFilterChain(currentFilterChain, containerFilterChain, resourceConsumerMonitor, router,
-                instanceInfo, ServletContextHelper.getInstance(servletContext).getPowerApiContext().metricsService());
+        return new PowerFilterChain(currentFilterChain, containerFilterChain, router, instanceInfo,
+                                    ServletContextHelper.getInstance(servletContext).getPowerApiContext().metricsService());
     }
 
     @Override

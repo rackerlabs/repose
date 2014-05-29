@@ -1,8 +1,6 @@
 package com.rackspace.cloud.valve.controller.service.context.impl
 
-import com.mockrunner.mock.web.MockServletContext
 import com.rackspace.cloud.valve.controller.service.ControllerService
-import com.rackspace.papi.commons.config.manager.UpdateListener
 import com.rackspace.papi.container.config.ContainerConfiguration
 import com.rackspace.papi.model.DestinationEndpoint
 import com.rackspace.papi.model.DestinationList
@@ -10,21 +8,12 @@ import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.naming.ServiceContext
-import org.junit.experimental.runners.Enclosed
-import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Qualifier
 import spock.lang.Specification
 
 import javax.servlet.ServletContextEvent
 
-import static org.mockito.Matchers.anyString
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.any
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.times
-import static org.mockito.Mockito.when
+import static org.mockito.Matchers.any
+import static org.mockito.Mockito.*
 
 class ReposeValveControllerContextTest extends Specification {
     ServletContextEvent sce
@@ -37,36 +26,6 @@ class ReposeValveControllerContextTest extends Specification {
         registry = mock(ServiceRegistry)
         controllerService = mock(ControllerService)
         configurationService = mock(ConfigurationService)
-
-    }
-
-    def "Register - happy path"() {
-        given:
-        def reposeValveControllerContext = new ReposeValveControllerContext(
-                controllerService, registry, configurationService)
-
-        when:
-        reposeValveControllerContext.register()
-
-        then:
-        verify(registry, times(1)).addService(any(ServiceContext))
-
-
-    }
-
-    def "Context Initialized - happy path"() {
-        given:
-        when(sce.getServletContext()).thenReturn(new MockServletContext())
-        def reposeValveControllerContext = new ReposeValveControllerContext(
-                controllerService, registry, configurationService)
-
-        when:
-        reposeValveControllerContext.contextInitialized(sce)
-
-        then:
-        verify(registry, times(1)).addService(any(ServiceContext))
-        verify(controllerService, times(1)).setConfigDirectory(anyString())
-        !reposeValveControllerContext.isInsecure
 
     }
 
@@ -114,7 +73,6 @@ class ReposeValveControllerContextTest extends Specification {
         then:
         reposeValveControllerContext.containerConfigurationListener.initialized
         reposeValveControllerContext.systemModelConfigurationListener.initialized
-
     }
 
 

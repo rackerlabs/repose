@@ -7,7 +7,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.intrafilterLogging.RequestLog;
 import com.rackspace.papi.filter.intrafilterLogging.ResponseLog;
-import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +44,6 @@ public class PowerFilterChain implements FilterChain {
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
     private static final String INTRAFILTER_UUID = "Intrafilter-UUID";
 
-    private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final ClassLoader containerClassLoader;
@@ -58,13 +56,12 @@ public class PowerFilterChain implements FilterChain {
     private TimerByCategory filterTimer;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
-            ResourceMonitor resourceMonitor, PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
+            PowerFilterRouter router, ReposeInstanceInfo instanceInfo, MetricsService metricsService)
             throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
-        this.resourceMonitor = resourceMonitor;
         this.router = router;
         this.metricsService = metricsService;
         if (metricsService != null) {
@@ -76,9 +73,7 @@ public class PowerFilterChain implements FilterChain {
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
             throws IOException, ServletException {
-        resourceMonitor.use();
 
-        try {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
 
             boolean useTrace;
@@ -94,9 +89,6 @@ public class PowerFilterChain implements FilterChain {
             servletRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
 
             doFilter(servletRequest, servletResponse);
-        } finally {
-            resourceMonitor.released();
-        }
     }
 
     /**

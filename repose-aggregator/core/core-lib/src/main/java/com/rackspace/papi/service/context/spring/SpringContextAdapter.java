@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.context.spring;
 
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -12,16 +11,16 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.logging.LoggingService;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.threading.ThreadingService;
 import org.springframework.context.ApplicationContext;
 
@@ -89,11 +88,6 @@ public class SpringContextAdapter implements ContextAdapter {
    @Override
    public EventService eventService() {
       return getService(ServiceContextName.EVENT_MANAGER_SERVICE_CONTEXT);
-   }
-
-   @Override
-   public GarbageCollectionService filterChainGarbageCollectorService() {
-      return getService(ServiceContextName.FILTER_CHAIN_GC_SERVICE_CONTEXT);
    }
 
    @Override

@@ -20,13 +20,19 @@ import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
-import com.rackspace.papi.service.healthcheck.*;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -172,15 +178,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         }
     }
 
-    // This is written like this in case requests are already processing against the
-    // existing filterChain.  If that is the case we create a new one for the deployment
-    // update but the old list stays in memory as the garbage collector won't clean
-    // it up until all RequestFilterChainState objects are no longer referencing it.
     private void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
         synchronized (internalLock) {
-            if (powerFilterChainBuilder != null) {
-                papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
-            }
             try {
                 String dftDst = "";
 
