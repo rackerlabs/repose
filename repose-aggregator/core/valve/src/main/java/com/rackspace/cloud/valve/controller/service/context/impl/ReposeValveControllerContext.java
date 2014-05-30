@@ -39,7 +39,6 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
     private final SystemModelConfigurationListener systemModelConfigurationListener;
     private final ContainerConfigurationListener containerConfigurationListener;
     private String configDir;
-    private String connectionFramework;
     private boolean isInsecure;
     private Set<String> curNodes = new HashSet<String>();
     private boolean initialized = false;
@@ -75,7 +74,6 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         this.configDir = sce.getServletContext().getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
-        this.connectionFramework = sce.getServletContext().getInitParameter(InitParameter.CONNECTION_FRAMEWORK.getParameterName());
         this.isInsecure = Boolean.parseBoolean(sce.getServletContext().getInitParameter(InitParameter.INSECURE.getParameterName()));
         controllerService.setConfigDirectory(configDir);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
@@ -129,10 +127,6 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
 
                 if (StringUtilities.isBlank(controllerService.getConfigDirectory())) {
                     controllerService.setConfigDirectory(configDir);
-                }
-
-                if (StringUtilities.isBlank(controllerService.getConnectionFramework())) {
-                    controllerService.setConnectionFramework(connectionFramework);
                 }
 
                 controllerService.setIsInsecure(isInsecure);

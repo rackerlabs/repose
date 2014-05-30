@@ -33,7 +33,6 @@ public class ControllerServiceImpl implements ControllerService {
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
     private static final String REPOSE_NODE = "Repose node ";
    private String configDir;
-   private String connectionFramework;
    private boolean isInsecure;
 
    @Override
@@ -64,8 +63,7 @@ public class ControllerServiceImpl implements ControllerService {
          List<Port> ports = getNodePorts(curNode);
 
 
-
-         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), connectionFramework, isInsecure, entry.getValue().getResult(), curNode.getId()).newServer();
+         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), isInsecure, entry.getValue().getResult(), curNode.getId()).newServer();
          try {
             serverInstance.start();
             serverInstance.setStopAtShutdown(true);
@@ -108,18 +106,8 @@ public class ControllerServiceImpl implements ControllerService {
    }
 
    @Override
-   public void setConnectionFramework(String framework) {
-      this.connectionFramework = framework;
-   }
-
-   @Override
    public String getConfigDirectory() {
       return this.configDir;
-   }
-
-   @Override
-   public String getConnectionFramework() {
-      return this.connectionFramework;
    }
 
    private List<Port> getNodePorts(Node node) {

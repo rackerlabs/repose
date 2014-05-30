@@ -28,17 +28,15 @@ public class ValveJettyServerBuilder {
     private final ServicePorts ports = new ServicePorts();
     private String configurationPathAndFile = "";
     private final SslConfiguration sslConfiguration;
-    private final String connectionFramework;
     private final boolean insecure;
     private final String clusterId;
     private final String nodeId;
 
-    public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure,
+    public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, boolean insecure,
             String clusterId, String nodeId) {
         this.ports.addAll(ports);
         this.configurationPathAndFile = configurationPathAndFile;
         this.sslConfiguration = sslConfiguration;
-        this.connectionFramework = connectionFramework;
         this.insecure = insecure;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -94,7 +92,6 @@ public class ValveJettyServerBuilder {
     private ServletContextHandler buildRootContext(Server serverReference) {
         final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
         servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
-        servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
         servletContext.getInitParams().put(InitParameter.REPOSE_CLUSTER_ID.getParameterName(), clusterId);
         servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), nodeId);
