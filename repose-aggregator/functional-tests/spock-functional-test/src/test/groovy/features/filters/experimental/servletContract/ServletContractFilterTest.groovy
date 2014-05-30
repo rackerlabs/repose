@@ -24,7 +24,7 @@ class ServletContractFilterTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/experimental/tightlycoupled", params)
+        repose.configurationProvider.applyConfigs("features/filters/experimental/servletcontract", params)
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
