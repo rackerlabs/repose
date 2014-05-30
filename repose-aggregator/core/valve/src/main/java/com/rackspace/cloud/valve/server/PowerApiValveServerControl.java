@@ -33,7 +33,6 @@ public class PowerApiValveServerControl {
     private Integer httpsPort;
     private Integer stopPort;
     private String configDirectory;
-    private String connectionFramework;
     private Boolean insecure;
 
     private Server serverInstance = null;
@@ -43,14 +42,12 @@ public class PowerApiValveServerControl {
             Integer httpsPort,
             Integer stopPort,
             String configDirectory,
-            String connectionFramework,
             Boolean insecure) {
 
         this.httpPort = httpPort;
         this.httpsPort = httpsPort;
         this.stopPort = stopPort;
         this.configDirectory = configDirectory;
-        this.connectionFramework = connectionFramework;
         this.insecure = insecure;
 
         if (httpPort != null) {
@@ -120,7 +117,6 @@ public class PowerApiValveServerControl {
             validateSsl();
             serverInstance = new ValveControllerServerBuilder(
                     configDirectory,
-                    connectionFramework,
                     (insecure != null ? insecure : false))
                     .newServer();
             serverInstance.setStopAtShutdown(true);

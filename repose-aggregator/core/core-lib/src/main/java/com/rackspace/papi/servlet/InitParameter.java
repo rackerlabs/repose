@@ -26,7 +26,6 @@ public enum InitParameter {
     PORT("repose-bound-port"),
     CONNECTION_TIMEOUT("connection-timeout"),
     READ_TIMEOUT("read-timeout"),
-    CONNECTION_FRAMEWORK("connection-framework"),
     INSECURE("insecure"),
     MANAGEMENT_PORT("com.rackspace.repose.management.port"),
     MANAGEMENT_CONTEXT("com.rackspace.repose.management.context"),

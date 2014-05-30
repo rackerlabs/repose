@@ -10,13 +10,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 public class ValveControllerServerBuilder {
 
     private String configurationPathAndFile = "";
-    private final String connectionFramework;
     private final boolean insecure;
 
     public ValveControllerServerBuilder(String configPath,
-            String connectionFramework, boolean insecure) {
+            boolean insecure) {
         this.configurationPathAndFile = configPath;
-        this.connectionFramework = connectionFramework;
         this.insecure = insecure;
     }
 
@@ -36,7 +34,6 @@ public class ValveControllerServerBuilder {
         final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
         servletContext.getInitParams()
                 .put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
-        servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
 
 

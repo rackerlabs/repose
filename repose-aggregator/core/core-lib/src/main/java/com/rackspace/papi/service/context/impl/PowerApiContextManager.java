@@ -45,16 +45,7 @@ public class PowerApiContextManager implements ServletContextListener {
    }
 
    private AbstractApplicationContext initApplicationContext(ServletContext servletContext) {
-      final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
-      final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
-
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringWithServices.class);
-      if (StringUtilities.isNotBlank(connectionFramework)) {
-          LOG.warn("***DEPRECATED*** The ability to define the connection framework of jersey, ning, or apache has been deprecated!" +
-                  " The default and only available connection framework is Apache HttpClient");
-      } else {
-          LOG.warn("***DEPRECATED*** The default connection framework has changed from Jersey to Apache HttpClient!");
-      }
 
       configurePorts(context);
       configureReposeInfo(context);
