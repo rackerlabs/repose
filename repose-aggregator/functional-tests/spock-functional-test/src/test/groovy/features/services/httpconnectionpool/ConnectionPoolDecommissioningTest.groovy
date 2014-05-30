@@ -138,7 +138,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         def reconfigureThread = Thread.start {
             while (keepReconfiguring) {
                 println("Reconfiguring...")
-                waitUntilReadyToServiceRequests()
+                waitUntilReadyToServiceRequests("200", false, true)
                 if (reconfigureCount % 2) {
                     repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/" + secondConfig, params, /*sleepTime*/ 25)
                 } else {
