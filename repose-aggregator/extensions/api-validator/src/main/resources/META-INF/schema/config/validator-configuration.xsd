@@ -358,6 +358,18 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="mask-rax-roles-403" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Mask rax-roles with 404 and 405 errors. By default rax-roles responds with a 403 if there
+                        is a role mismatch, if this is set to true, then the response will be 404 if no methods are
+                        accessible or 405 if some methods are available.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:assert vc:minVersion="1.1"
                    test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
                    xerces:message="Roles list must contain unique roles"
