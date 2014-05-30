@@ -77,7 +77,7 @@ public class Message implements Serializable {
 
         @Override
         public int hashCode() {
-            return (key != null ? key.hashCode() : 0);
+            return key != null ? key.hashCode() : 0;
         }
         
         @Override

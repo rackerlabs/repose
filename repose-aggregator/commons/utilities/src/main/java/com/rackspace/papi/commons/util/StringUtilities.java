@@ -61,11 +61,11 @@ public final class StringUtilities {
     }
 
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
-        return one == null ? (two == null) : (two != null) && one.equalsIgnoreCase(two);
+        return one == null ? two == null : (two != null && one.equalsIgnoreCase(two));
     }
 
     public static boolean nullSafeEquals(String one, String two) {
-        return one == null ? (two == null) : (two != null) && one.equals(two);
+        return one == null ? two == null : (two != null && one.equals(two));
     }
 
     public static boolean nullSafeStartsWith(String one, String two) {

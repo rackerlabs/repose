@@ -40,7 +40,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
    public CyclicByteBuffer(ByteArrayProvider byteArrayProvider, CyclicByteBuffer byteBuffer) {
       this.byteArrayProvider = byteArrayProvider;
       final int readableLength = byteBuffer.available();
-      final int allocationSize = (readableLength > 0 && readableLength > DEFAULT_BUFFER_SIZE ? readableLength : DEFAULT_BUFFER_SIZE);
+      final int allocationSize = readableLength > 0 && readableLength > DEFAULT_BUFFER_SIZE ? readableLength : DEFAULT_BUFFER_SIZE;
       initialSize = allocationSize;
 
       if (byteBuffer.buffer != null) {

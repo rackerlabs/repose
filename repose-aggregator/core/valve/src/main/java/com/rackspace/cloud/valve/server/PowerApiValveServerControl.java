@@ -117,7 +117,7 @@ public class PowerApiValveServerControl {
             validateSsl();
             serverInstance = new ValveControllerServerBuilder(
                     configDirectory,
-                    (insecure != null ? insecure : false))
+                    insecure != null ? insecure : false)
                     .newServer();
             serverInstance.setStopAtShutdown(true);
             serverInstance.start();

@@ -187,7 +187,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         markRequestTimeoutHelper( mbcAllTimeouts, servletResponse.getStatus(), "All Endpoints" );
 
                         final long stopTime = System.currentTimeMillis();
-                        reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
+                        reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), stopTime - startTime);
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
                     } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {

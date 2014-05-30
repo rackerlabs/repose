@@ -79,7 +79,7 @@ public class IpAddressRange {
     * @return true if the first "bits" bit values of byte1 and byte2 match.
     */
    private boolean match(byte byte1, byte byte2, int bits) {
-      int shift = (BYTE_SIZE - bits);
+      int shift = BYTE_SIZE - bits;
 
       int first = (byte1 >> shift) << shift;
       int second = (byte2 >> shift) << shift;

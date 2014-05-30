@@ -90,6 +90,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     private boolean httpMethodMatches(List<HttpMethod> configMethods, String requestMethod) {
-        return (configMethods.contains(HttpMethod.ALL) || configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase())));
+        return configMethods.contains(HttpMethod.ALL) || configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase()));
     }
 }
