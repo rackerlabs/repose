@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletOutputStream;
@@ -30,7 +31,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
             ? (MutableHttpServletResponse) response
             : new MutableHttpServletResponse(request, response);
   }
-  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MutableHttpServletResponse.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MutableHttpServletResponse.class);
   private static final int DEFAULT_BUFFER_SIZE = 1024;
   private static final String RESPONSE_ID = "responseId";
   private ByteBuffer internalBuffer;
@@ -234,6 +235,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     } catch (IOException ignored) {
         LOG.trace("input stream error: ", ignored);
       hasBody = false;
+      LOG.trace("Couldn't Get and/or Read the InputStream.", ignored);
     }
 
     return hasBody;
