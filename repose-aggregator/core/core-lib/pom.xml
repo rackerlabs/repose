@@ -175,7 +175,10 @@
            <version>${project.version}</version>
        </dependency>
 
-        <!-- CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator -->
+        <!--
+        CLASSLOADER WORKAROUND: Adding library here to be available in Repose when initializing API Validator
+        see: https://github.com/rackerlabs/api-checker/issues/170
+         -->
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
