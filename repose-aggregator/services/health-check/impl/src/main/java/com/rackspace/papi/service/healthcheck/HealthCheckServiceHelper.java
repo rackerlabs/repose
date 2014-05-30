@@ -32,9 +32,9 @@ public class HealthCheckServiceHelper {
             logger.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(uid, rid);
         } catch (InputNullException e) {
-            logger.error("Unable to solve issue " + rid + "from " + uid, e);
+            logger.error("Unable to solve issue {} from {}", rid, uid, e);
         } catch (NotRegisteredException e) {
-            logger.error("Unable to solve issue " + rid + "from " + uid, e);
+            logger.error("Unable to solve issue {} from {}", rid, uid, e);
         }
     }
 }
