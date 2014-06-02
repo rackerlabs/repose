@@ -107,11 +107,6 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(HttpConnectionPoolServiceContext.class).contextInitialized(sce);
       ca.getContext(AkkaServiceClientContext.class).contextInitialized(sce);
 
-      // Start management server
-      if (isManagementServerEnabled()) {
-         ca.getContext(ManagementServiceContext.class).contextInitialized(sce);
-      }
-
       Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
 
       for (ServletContextAware bean : contextAwareBeans.values()) {
