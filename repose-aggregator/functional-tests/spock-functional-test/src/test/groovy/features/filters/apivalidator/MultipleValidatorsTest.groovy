@@ -21,6 +21,7 @@ class MultipleValidatorsTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
 
+        repose.configurationProvider.applyConfigs("common",params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/common",params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/multiValidatorsPreProcess/", params)
         repose.start()
