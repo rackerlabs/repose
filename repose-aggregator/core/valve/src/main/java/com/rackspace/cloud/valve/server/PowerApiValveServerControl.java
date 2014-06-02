@@ -148,7 +148,7 @@ public class PowerApiValveServerControl {
             try {
                 serverInstance.stop();
             } catch (Exception e) {
-                LOG.error("An error occurred while trying to stop the Repose Controller. Reason: {}", e.getMessage(), e);
+                LOG.error("An error occurred while trying to stop the Repose Controller.", e);
             }
         }
 
