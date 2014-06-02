@@ -6,10 +6,13 @@ import com.rackspace.papi.test.ReposeContainerProps;
 import com.rackspace.papi.test.mocks.util.MocksUtil;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 
 public class ReposeTomcatContainer extends ReposeContainer {
+    private static final Logger LOG = LoggerFactory.getLogger(ReposeTomcatContainer.class);
 
     private Tomcat tomcat;
     protected ContainerMonitorThread monitor;
@@ -43,6 +46,7 @@ public class ReposeTomcatContainer extends ReposeContainer {
             System.out.println("Tomcat Container Running");
             tomcat.getServer().await();
         } catch (LifecycleException e) {
+            LOG.error("Unable To Start Tomcat Server", e);
             System.err.println("Unable To Start Tomcat Server");
         }
     }
@@ -54,6 +58,7 @@ public class ReposeTomcatContainer extends ReposeContainer {
             tomcat.stop();
             tomcat.getServer().stop();
         } catch (LifecycleException e) {
+            LOG.error("Error stopping Repose Tomcat", e);
             System.err.println("Error stopping Repose Tomcat");
         }
     }
