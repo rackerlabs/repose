@@ -115,7 +115,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         final boolean allow = allowAccount(account);
 
-        if ((!StringUtilities.isBlank(authToken) && allow)) {
+        if (!StringUtilities.isBlank(authToken) && allow) {
             token = checkToken(account, authToken);
 
             if (token == null) {

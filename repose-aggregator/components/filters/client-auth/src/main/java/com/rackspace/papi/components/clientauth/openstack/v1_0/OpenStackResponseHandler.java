@@ -38,7 +38,7 @@ public class OpenStackResponseHandler {
                 myDirector = updateHttpResponse(myDirector, wwwAuthenticateHeader);
                 break;
             case NOT_IMPLEMENTED:
-                if ((!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED))) {
+                if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains(DELEGATED)) {
                     myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                     LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
                 } else {

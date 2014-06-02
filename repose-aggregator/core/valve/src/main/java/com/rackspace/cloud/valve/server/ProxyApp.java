@@ -81,7 +81,7 @@ public final class ProxyApp {
          valid = false;
       }
 
-      if ((!(portIsInRange(commandLineArgs.getStopPort())))) {
+      if (!(portIsInRange(commandLineArgs.getStopPort()))) {
          LOG.info("Invalid Repose stop port, use a value between 1024 and 49150");
          valid = false;
       }
@@ -106,6 +106,6 @@ public final class ProxyApp {
    }
 
    private static boolean portIsInRange(int portNum) {
-      return ((portNum < UPPER_PORT) && (portNum > LOWER_PORT));
+      return (portNum < UPPER_PORT) && (portNum > LOWER_PORT);
    }
 }

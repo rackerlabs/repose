@@ -153,10 +153,10 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
 
         if (StringUtilities.nullSafeEquals(localName, "product") && StringUtilities.isNotBlank(curResource)) {
             if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/user")
-                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), ("USER"))) {
+                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "USER")) {
                 curType = CacheKeyType.USER;
             } else if (StringUtilities.nullSafeEquals(uri, "http://docs.rackspace.com/event/identity/token")
-                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), ("TOKEN"))) {
+                    && StringUtilities.nullSafeEquals(attributes.getValue("resourceType"), "TOKEN")) {
                 curType = CacheKeyType.TOKEN;
             }
         }

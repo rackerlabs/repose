@@ -27,7 +27,7 @@ public class AcceptHeaderNode extends ObjectFactoryUser implements Node {
     public void build() {
         AcceptHeader acceptHeader = getObjectFactory().createAcceptHeader();
 
-        if (StringUtilities.isNotBlank((requestAcceptHeader))) {
+        if (StringUtilities.isNotBlank(requestAcceptHeader)) {
             final List<MediaType> mediaRanges = new MediaRangeParser(requestAcceptHeader).parse();
 
             for (com.rackspace.papi.commons.util.http.media.MediaType range : mediaRanges) {

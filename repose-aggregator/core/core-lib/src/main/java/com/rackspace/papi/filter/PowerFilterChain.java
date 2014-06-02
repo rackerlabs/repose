@@ -103,7 +103,7 @@ public class PowerFilterChain implements FilterChain {
     private List<FilterContext> getFilterChainForRequest(String uri) {
         List<FilterContext> filters = new LinkedList<FilterContext>();
         for (FilterContext filter : filterChainCopy) {
-            if ((filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches())) {
+            if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
                 filters.add(filter);
             }
         }

@@ -27,7 +27,7 @@ public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
         {
             InputStream urlInput = null;
             try {
-                final MessageDigesterOutputStream mdos = new MessageDigesterOutputStream(MessageDigest.getInstance(("MD5")));
+                final MessageDigesterOutputStream mdos = new MessageDigesterOutputStream(MessageDigest.getInstance("MD5"));
                 urlInput = url.openStream();
 
                 int read;

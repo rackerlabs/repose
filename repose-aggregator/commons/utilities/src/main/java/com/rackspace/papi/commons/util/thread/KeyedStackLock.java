@@ -30,7 +30,7 @@ public class KeyedStackLock {
       try {
          lockInterruptibly(key);
       } catch (InterruptedException ie) {
-         String keyString = (key != null ? key.toString() : "UNDEFINED");
+         String keyString = key != null ? key.toString() : "UNDEFINED";
          LOG.warn("failed lock attempt using key: " + keyString, ie);
 
          Thread.currentThread().interrupt();
