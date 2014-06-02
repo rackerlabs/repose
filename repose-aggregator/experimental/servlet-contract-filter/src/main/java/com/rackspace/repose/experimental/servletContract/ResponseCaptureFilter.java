@@ -1,5 +1,8 @@
 package com.rackspace.repose.experimental.servletContract;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +31,7 @@ import java.io.PrintWriter;
  * call to ServletResponse.getHeaders()
  */
 public class ResponseCaptureFilter implements Filter {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseCaptureFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -106,6 +109,7 @@ public class ResponseCaptureFilter implements Filter {
                 stream.flush();
                 stream.close();
             } catch (IOException e) {
+                LOG.trace("Caught Exception while flushing and closing stream.", e);
                 e.printStackTrace();
             }
             return stream.toString();
