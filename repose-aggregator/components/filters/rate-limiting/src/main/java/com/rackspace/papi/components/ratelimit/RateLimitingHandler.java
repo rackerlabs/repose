@@ -70,7 +70,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             // Record limits
             pass = recordLimitedRequest(request, director);
         } catch (DatastoreOperationException doe) {
-            LOG.error("Unable to communicate with dist-datastore.", doe.getMessage(), doe);
+            LOG.error("Unable to communicate with dist-datastore. {}", doe.getMessage(), doe);
             response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
 
@@ -79,8 +79,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         describeLimitsForRequest(request, director, preferredMediaType);
       }
     } else {
-      LOG.warn("Expected header: " + PowerApiHeader.USER.toString()
-              + " was not supplied in the request. Rate limiting requires this header to operate.");
+      LOG.warn("Expected header: {} was not supplied in the request. Rate limiting requires this header to operate.", PowerApiHeader.USER.toString());
 
       // Auto return a 401 if the request does not meet expectations
       director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
@@ -134,6 +133,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     try {
       rateLimitingServiceHelper.trackLimits(request,datastoreWarnLimit);
     } catch (OverLimitException e) {
+      LOG.trace("Over Limit", e);
       new LimitLogger(e.getUser(), request).log(e.getConfiguredLimit(), Integer.toString(e.getCurrentLimitAmount()));
       final HttpDate nextAvailableTime = new HttpDate(e.getNextAvailableTime());
 
@@ -157,7 +157,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
 
     } catch (CacheException e) {
-      LOG.error("Failure when tracking limits. Reason: " + e.getMessage(), e);
+      LOG.error("Failure when tracking limits. Reason: {}", e.getMessage(), e);
 
       director.setFilterAction(FilterAction.RETURN);
       director.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
