@@ -123,6 +123,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
             default: // If we receive anything other than a 200 or a 401 there is an error with the atom feed
                 LOG.warn("Unable to retrieve atom feed from Feed" + feedId + ": " + targetFeed + "\n Response Code: " + resp.getStatusCode());
                 moreData = false;
+                break;
 
         }
         return resp;

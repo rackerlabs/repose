@@ -1,6 +1,8 @@
 package com.rackspace.papi.commons.util;
 
 import com.rackspace.papi.commons.util.string.JCharSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,6 +16,7 @@ import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.jchars
  * @author zinic
  */
 public final class StringUriUtilities {
+    private static final Logger LOG = LoggerFactory.getLogger(StringUriUtilities.class);
 
     public static int indexOfUriFragment(String st, String uriFragment) {
         return indexOfUriFragment(jchars(st), uriFragment);
@@ -127,6 +130,7 @@ public final class StringUriUtilities {
         try {
             encodedUri = URLEncoder.encode(uri, "UTF8");
         } catch (UnsupportedEncodingException ignored) {
+            LOG.trace("failed to encode uri: " + uri, ignored);
         }
 
         return encodedUri;

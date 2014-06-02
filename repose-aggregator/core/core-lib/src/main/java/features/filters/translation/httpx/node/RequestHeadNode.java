@@ -40,6 +40,7 @@ public class RequestHeadNode extends ObjectFactoryUser implements ComplexNode {
                     break;
                 case HEADERS:
                     this.addChildNode(new RequestHeadersNode(request, head, headersFidelity));
+                    break;
             }
         }
 
