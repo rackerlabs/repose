@@ -17,6 +17,28 @@ import spock.lang.Unroll
 class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
 
+    /**
+     * Takes a boolean closure that will indicate whatever it's looking for
+     * If the timeout hits, it's going to fail via throwing an exception
+     * This could probably be reused in many places.
+     * @param timeoutSeconds
+     * @param block
+     */
+    def timedSearch(int timeoutSeconds, Closure block) {
+        def startTime = System.currentTimeMillis()
+        boolean foundIt = false
+        while(System.currentTimeMillis() < startTime + timeoutSeconds * 1000 && !foundIt) {
+            foundIt = block.call()
+            Thread.sleep(500)
+        }
+
+        if(!foundIt) {
+            throw new Exception("Unable to satisfy condition within ${timeoutSeconds} seconds")
+        }
+        foundIt
+    }
+
+
     @Unroll("When start data store config #configuration")
     def "Test data store with wrong config"() {
         given:
@@ -42,8 +64,12 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString(searchError).size() > 0
-        reposeLogSearch.searchByString(searchMsg).size() > 0
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchError).size() > 0
+        }
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchMsg).size() > 0
+        }
 
         where:
         configuration                   |searchMsg
@@ -79,7 +105,9 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString(searchError).size() > 0
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchError).size() > 0
+        }
 
         where:
         configuration << ["clustermismatch","nodemismatch"]
@@ -111,7 +139,9 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString(searchError).size() > 0
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchError).size() > 0
+        }
 
         where:
         port    << [65536,-1]
@@ -142,7 +172,9 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString(searchError).size() > 0
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchError).size() > 0
+        }
 
         where:
         port << [21, 22, 23, 1023]
@@ -173,7 +205,9 @@ class DistDataStoreMisConfigTest extends ReposeValveTest{
 
         then:
         reposeLogSearch.searchByString("NullPointerException").size() == 0
-        reposeLogSearch.searchByString(searchError).size() > 0
+        timedSearch(10) {
+            reposeLogSearch.searchByString(searchError).size() > 0
+        }
 
     }
 
