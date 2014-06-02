@@ -52,7 +52,6 @@ public final class ProxyApp {
               commandLineArgs.getHttpsPort(),
               commandLineArgs.getStopPort(),
               commandLineArgs.getConfigDirectory(),
-              commandLineArgs.getConnectionFramework(),
               commandLineArgs.getInsecure());
 
       if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {

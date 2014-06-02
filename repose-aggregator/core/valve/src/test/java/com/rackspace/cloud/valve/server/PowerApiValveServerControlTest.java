@@ -27,7 +27,6 @@ public class PowerApiValveServerControlTest {
                     commandLineArguments.getHttpsPort(),
                     commandLineArguments.getStopPort(),
                     commandLineArguments.getConfigDirectory(),
-                    commandLineArguments.getConnectionFramework(),
                     commandLineArguments.getInsecure());
         }
 

@@ -17,7 +17,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     def boolean debugEnabled
     def String reposeJar
     def String configDir
-    def String connFramework = "jersey"
 
     def clock = new SystemClock()
 
@@ -49,8 +48,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                         String reposeEndpoint,
                         String configDir,
                         int reposePort,
-                        int shutdownPort,
-                        String connFramework="jersey") {
+                        int shutdownPort) {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
@@ -124,9 +122,6 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         def cmd = "java -Xmx1536M -Xms1024M -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
-        if (!connFramework.isEmpty()) {
-            cmd = cmd + " -cf ${connFramework}"
-        }
         cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 

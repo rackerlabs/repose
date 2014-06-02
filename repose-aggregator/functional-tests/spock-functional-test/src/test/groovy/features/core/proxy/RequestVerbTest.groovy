@@ -15,7 +15,6 @@ class RequestVerbTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
-        repose.connFramework = "apache"
         repose.start()
         waitUntilReadyToServiceRequests()
     }
