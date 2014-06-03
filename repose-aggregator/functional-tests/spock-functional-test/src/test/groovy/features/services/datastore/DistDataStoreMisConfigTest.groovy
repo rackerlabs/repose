@@ -10,33 +10,14 @@ import org.rackspace.deproxy.PortFinder
 import spock.lang.Ignore
 import spock.lang.Unroll
 
+import static framework.TestUtils.timedSearch
+
 /**
  * Created by jennyvo on 4/9/14.
  */
 @Category(Slow)
 class DistDataStoreMisConfigTest extends ReposeValveTest{
     static def datastoreEndpoint
-
-    /**
-     * Takes a boolean closure that will indicate whatever it's looking for
-     * If the timeout hits, it's going to fail via throwing an exception
-     * This could probably be reused in many places.
-     * @param timeoutSeconds
-     * @param block
-     */
-    def timedSearch(int timeoutSeconds, Closure block) {
-        def startTime = System.currentTimeMillis()
-        boolean foundIt = false
-        while(System.currentTimeMillis() < startTime + timeoutSeconds * 1000 && !foundIt) {
-            foundIt = block.call()
-            Thread.sleep(500)
-        }
-
-        if(!foundIt) {
-            throw new Exception("Unable to satisfy condition within ${timeoutSeconds} seconds")
-        }
-        foundIt
-    }
 
 
     @Unroll("When start data store config #configuration")
