@@ -61,19 +61,10 @@ public class HeaderValueParserTest {
 
       }
 
-       @Test
+       @Test(expected = MalformedHeaderValueException.class)
        public void throwMalformedHeaderValExceptionIfNeeded() {
-
            final String headerValueString = ";=";
-           try {
-               final HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
-               assertTrue(false);
-           } catch (MalformedHeaderValueException e) {
-               assertEquals("Valid parameter expected for header. Got: =" , e.getMessage());
-               assertTrue(true);
-           }
-
-
+           final HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
        }
    }
 }
