@@ -143,9 +143,9 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
             healthCheckService.reportIssue(healthCheckUID, metricsServiceConfigReport,
                     new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
         } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         }
 
     }
@@ -156,9 +156,9 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
             LOG.debug("Resolving issue: " + metricsServiceConfigReport);
             healthCheckService.solveIssue(healthCheckUID, metricsServiceConfigReport);
         } catch (InputNullException e) {
-            LOG.error("Unable to solve issue " + metricsServiceConfigReport + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue " + metricsServiceConfigReport + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
         }
 
     }

@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class DefaultLogConfigurator {
 
@@ -17,6 +19,7 @@ public final class DefaultLogConfigurator {
    private static Log4jAppender consoleAppender = new Log4jAppender("consoleOut", "ConsoleAppender", DEFAULT_LAYOUT, DEFAULT_LOG_FRMT);
    private static Log4jAppender fileAppender = new Log4jAppender("defaultFile", "RollingFileAppender", DEFAULT_LAYOUT, DEFAULT_LOG_FRMT);
    private static Log4jPropertiesBuilder log4jPropertiesBuilder = new Log4jPropertiesBuilder();
+   private static final Logger LOG = LoggerFactory.getLogger(DefaultLogConfigurator.class);
 
    private DefaultLogConfigurator() {
    }
@@ -87,7 +90,8 @@ public final class DefaultLogConfigurator {
          try {
             logFile = File.createTempFile(DEFAULT_LOG_PREFIX, DEFAULT_LOG_SUFFIX).getAbsolutePath();
          } catch (IOException ex) {
-            System.out.println("Error creating temporary log file." + ex.getMessage());
+             System.out.println("Error creating temporary log file." + ex.getMessage());
+             LOG.error("Error creating temporary log file.", ex);
          }
       } else {
          String path = logDir.getAbsolutePath();

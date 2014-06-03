@@ -16,9 +16,6 @@
 
 package com.rackspace.external.pjlcompression;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +34,8 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Implementations of this abstract class can add compression of a particular type to a given {@link OutputStream}.
@@ -308,10 +307,10 @@ abstract class CompressingStreamFactory {
 			if (qvalueString.startsWith("q=")) {
 				try {
 					q = Double.parseDouble(qvalueString.substring(2));
-				} catch (NumberFormatException nfe) {
+				} catch (NumberFormatException ignored) {
 					// That's bad -- browser sent an invalid number. All we can do is ignore it, and
 					// pretend that no q value was specified, so that it effectively defaults to 1.0
-                    LOG.trace("unable to parse qvalueString: " + qvalueString, nfe);
+                    LOG.trace("Couldn't parse a Double from {}.", qvalueString.substring(2), ignored);
 				}
 			}
 		} else {

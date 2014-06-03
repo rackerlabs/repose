@@ -2,6 +2,8 @@ package features.filters.translation.httpx.processor.json.elements;
 
 import features.filters.translation.httpx.processor.common.Element;
 import org.codehaus.jackson.JsonToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO:Review - Dangerous try-catch statements
 public enum ElementFactory {
@@ -23,7 +25,8 @@ public enum ElementFactory {
    private final String tokenName;
    private final String elementName;
    private final Class elementClass;
-   
+   private static final Logger LOG = LoggerFactory.getLogger(ElementFactory.class);
+
    ElementFactory(String tokenName, String elementName, Class elementClass) {
       this.tokenName = tokenName;
       this.elementName = elementName;
@@ -46,6 +49,7 @@ public enum ElementFactory {
                   result = (Element) element.elementClass.getConstructors()[0].newInstance(element.elementName, name);
                } catch (Exception ex) {
                   result = null;
+                  LOG.trace("Caught Unknown Exception", ex);
                }
             }
             break;
@@ -63,6 +67,7 @@ public enum ElementFactory {
                      result = (Element) element.elementClass.getConstructors()[0].newInstance(element.elementName, name, value);
                   } catch (Exception ex) {
                      result = null;
+                     LOG.trace("Caught Unknown Exception", ex);
                   }
                } else {
                   result = new ScalarElement<T>(element.elementName, name, value);

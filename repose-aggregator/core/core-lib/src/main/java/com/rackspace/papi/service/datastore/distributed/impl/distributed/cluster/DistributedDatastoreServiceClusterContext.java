@@ -192,7 +192,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
                 solveIssue(systemModelConfigHealthReport);
             }
         } catch (IOException e) {
-            LOG.error("Unable to search for " + DEFAULT_CONFIG);
+            LOG.error("Unable to search for {}", DEFAULT_CONFIG, e);
         }
         sce.getServletContext().setAttribute("ddClusterViewService", service);
         register();
@@ -212,9 +212,9 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         try {
             healthCheckService.reportIssue(healthCheckUID, rid, new HealthCheckReport(message, severity));
         } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         }
 
     }
@@ -225,9 +225,9 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
             LOG.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(healthCheckUID, rid);
         } catch (InputNullException e) {
-            LOG.error("Unable to solve issue " + rid + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", rid, healthCheckUID, e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue " + rid + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", rid, healthCheckUID, e);
         }
 
     }

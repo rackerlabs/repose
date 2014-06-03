@@ -80,7 +80,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
                 solveIssue();
             }
         } catch (IOException io) {
-            LOG.error("Error attempting to search for " + DEFAULT_CONFIG_NAME);
+            LOG.error("Error attempting to search for {}", DEFAULT_CONFIG_NAME, io);
         }
         register();
     }
@@ -116,9 +116,9 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
             healthCheckService.reportIssue(healthCheckUID, httpConnectionPoolServiceReport,
                     new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
         } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service");
+            LOG.error("Unable to report Issues to Health Check Service", e);
         }
 
     }
@@ -129,9 +129,9 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
             LOG.debug("Resolving issue: " + httpConnectionPoolServiceReport);
             healthCheckService.solveIssue(healthCheckUID, httpConnectionPoolServiceReport);
         } catch (InputNullException e) {
-            LOG.error("Unable to solve issue " + httpConnectionPoolServiceReport + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", httpConnectionPoolServiceReport, healthCheckUID, e);
         } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue " + httpConnectionPoolServiceReport + "from " + healthCheckUID);
+            LOG.error("Unable to solve issue {} from {}", httpConnectionPoolServiceReport, healthCheckUID, e);
         }
 
     }

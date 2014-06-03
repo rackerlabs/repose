@@ -10,7 +10,6 @@ import java.io.ObjectStreamClass;
 
 public class ThreadContextAwareObjectInputStream extends ObjectInputStream {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadContextAwareObjectInputStream.class);
-
    public ThreadContextAwareObjectInputStream(InputStream in) throws IOException {
       super(in);
    }
@@ -22,7 +21,7 @@ public class ThreadContextAwareObjectInputStream extends ObjectInputStream {
       try {
          return threadContextClassLoader.loadClass(desc.getName());
       } catch (ClassNotFoundException ignored) {
-          LOG.trace("class not found " + desc.getName(), ignored);
+          LOG.trace("Couldn't load class {}.", desc.getName(), ignored);
       }
 
       return super.resolveClass(desc);
