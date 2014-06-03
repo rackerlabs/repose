@@ -1,9 +1,5 @@
 package framework
 
-import org.apache.http.client.ClientProtocolException
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
@@ -31,7 +27,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     def Process process
 
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
-                            String clusterId = "cluster1", String nodeId = "node1",
+                            String clusterId, String nodeId,
                             String rootWarLocation, int reposePort, int stopPort, String... appWars) {
         this.configurationProvider = configurationProvider
         this.containerJar = containerJar
@@ -47,7 +43,13 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     void start() {
         String configDirectory = configurationProvider.getReposeConfigDir()
 
-        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory} -Drepose-cluster-id=${clusterId} -Drepose-node-id=${nodeId}"
+        String webXmlOverrides = "-Dpowerapi-config-directory=${configDirectory}"
+        if (clusterId != null) {
+            webXmlOverrides += " -Drepose-cluster-id=${clusterId}"
+        }
+        if (nodeId != null) {
+            webXmlOverrides += " -Drepose-node-id=${nodeId}"
+        }
 
         if (debugEnabled) {
 
