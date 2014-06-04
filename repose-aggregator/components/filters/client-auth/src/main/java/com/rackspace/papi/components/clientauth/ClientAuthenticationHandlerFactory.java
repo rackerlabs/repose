@@ -71,7 +71,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             updateUriMatcher(modifiedConfig.getWhiteList());
 
             accountRegexExtractor.clear();
-             if (modifiedConfig.getOpenstackAuth() != null) {
+            if (modifiedConfig.getOpenstackAuth() != null) {
                 authenticationModule = getOpenStackAuthHandler(modifiedConfig);
                 for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                     accountRegexExtractor.addPattern(clientMapping.getIdRegex());
