@@ -1,11 +1,11 @@
-package com.rackspace.papi.components.translation.xslt;
+package com.rackspace.papi.components.translation.xslt
+import org.junit.Test
 
-
-import org.junit.Test;
-
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.hamcrest.CoreMatchers.allOf
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.nullValue
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty
+import static org.junit.Assert.*
 
 public class StyleSheetInfoTest {
 
@@ -15,10 +15,8 @@ public class StyleSheetInfoTest {
         String systemId = "sysID";
         StyleSheetInfo sheet = new StyleSheetInfo("id",null,"sysID");
 
-        assertTrue(sheet.getId().equals("id"));
-        assertNull(sheet.getXsl());
-        assertNull(sheet.getUri());
-        assertTrue(sheet.getSystemId().equals("sysID"));
+        assertThat(sheet, allOf(hasProperty("id",equalTo(id)), hasProperty("uri",nullValue()), hasProperty("xsl",nullValue()),
+                hasProperty("systemId",equalTo(systemId))))
     }
 }
 

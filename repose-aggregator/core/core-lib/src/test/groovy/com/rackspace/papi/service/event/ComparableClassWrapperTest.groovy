@@ -1,8 +1,9 @@
 package com.rackspace.papi.service.event
 import org.junit.Test
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertTrue
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.not
+import static org.junit.Assert.*
 
 public class ComparableClassWrapperTest {
 
@@ -10,14 +11,14 @@ public class ComparableClassWrapperTest {
     public void testNonNullHash() {
         Integer num = new Integer(5);
         ComparableClassWrapper<Number> wrap = new ComparableClassWrapper<Number>(num.getClass());
-        assertTrue(wrap.hashCode() == (7 *89) + num.getClass().hashCode());
 
+        assertThat(wrap.hashCode(), equalTo((7 *89) + num.getClass().hashCode()))
     }
 
     @Test
     public void testNullWrappedHash() {
         ComparableClassWrapper<Enum> wrap = new ComparableClassWrapper<Enum>(null);
-        assertTrue(wrap.hashCode() == (7 *89));
+        assertThat(wrap.hashCode(), equalTo(7 *89));
     }
 
     @Test
@@ -25,7 +26,7 @@ public class ComparableClassWrapperTest {
         Integer num = new Integer(5);
         ComparableClassWrapper<Number> wrap = new ComparableClassWrapper<Number>(num.getClass());
         LinkedList<Integer> list = new LinkedList<Integer>();
-        assertFalse(wrap.equals(list));
+        assertThat(wrap, not(list));
     }
 
     @Test
@@ -34,6 +35,6 @@ public class ComparableClassWrapperTest {
         ComparableClassWrapper<Number> wrap = new ComparableClassWrapper<Number>(num.getClass());
         Double num2 = new Double(5.0);
         ComparableClassWrapper<Number> wrap2 = new ComparableClassWrapper<Number>(num2.getClass());
-        assertFalse(wrap.equals(wrap2));
+        assertThat(wrap, not(wrap2))
     }
 }

@@ -1,10 +1,10 @@
-package com.rackspace.papi.commons.util.http.header;
+package com.rackspace.papi.commons.util.http.header
+import org.junit.Test
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.hamcrest.CoreMatchers.allOf
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty
+import static org.junit.Assert.*
 /**
  *
  * @author zinic
@@ -16,45 +16,46 @@ public class HeaderValueParserTest {
     public void shouldReturnEmptyParameterMapWhenNoParametersAreSpecified() {
         String headerValueString = "the value";
         HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
+        HashMap<String, String> eMap = new HashMap<String,String>();
 
-        assertEquals("Should parse the acutal header value correctly", "the value", headerValue.getValue());
-        assertTrue("Parameter map should be empty", headerValue.getParameters().isEmpty());
+        assertThat(headerValue, allOf(hasProperty("parameters",equalTo(eMap)), hasProperty("value",equalTo("the value"))))
     }
 
     @Test
     public void shouldParseParameters() {
         String headerValueString = "the value; q=0.5; a=apple ; b= banana; c = clementine";
         HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
+        HashMap<String, String> eMap = new HashMap<String,String>();
+        eMap.put("a","apple")
+        eMap.put("b","banana")
+        eMap.put("c","clementine")
+        eMap.put("q","0.5")
 
-        assertEquals("Should parse the acutal header value correctly", "the value", headerValue.getValue());
-        assertEquals("Should parse quality factor as a double", Double.valueOf(0.5), Double.valueOf(headerValue.getQualityFactor()));
-        assertEquals("Should parse parameter 'a' correctly", headerValue.getParameters().get("a"), "apple");
-        assertEquals("Should parse parameter 'b' correctly", headerValue.getParameters().get("b"), "banana");
-        assertEquals("Should parse parameter 'c' correctly", headerValue.getParameters().get("c"), "clementine");
+        assertThat(headerValue, allOf(hasProperty("parameters",equalTo(eMap)),hasProperty("qualityFactor",equalTo(Double.valueOf(0.5))),
+                hasProperty("value",equalTo("the value"))))
     }
 
     @Test
     public void shouldAppendSemicolonIfNoEquals() {
         String headerValueString = "the; value";
         HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
-
-        assertEquals("Should parse the acutal header value correctly", "the; value", headerValue.getValue());
-        assertTrue("Parameter map should be empty", headerValue.getParameters().isEmpty());
+        HashMap<String, String> eMap = new HashMap<String,String>();
+        assertThat(headerValue,allOf(hasProperty("parameters",equalTo(eMap)),hasProperty("value",equalTo("the; value"))))
     }
 
     @Test
     public void concatBecauseOfEqualInValue() {
         String headerValueString = "the value; q=0.5; a=apple ; b= banana; c = clementine; z = lemon=lime";
         HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
+        HashMap<String, String> eMap = new HashMap<String,String>();
+        eMap.put("a","apple")
+        eMap.put("b","banana")
+        eMap.put("c","clementine")
+        eMap.put("z","lemon=lime")
+        eMap.put("q","0.5")
 
-        assertEquals("Should parse the acutal header value correctly", "the value", headerValue.getValue());
-        assertEquals("Should parse quality factor as a double", Double.valueOf(0.5), Double.valueOf(headerValue.getQualityFactor()));
-        assertEquals("Should parse parameter 'a' correctly", headerValue.getParameters().get("a"), "apple");
-        assertEquals("Should parse parameter 'b' correctly", headerValue.getParameters().get("b"), "banana");
-        assertEquals("Should parse parameter 'c' correctly", headerValue.getParameters().get("c"), "clementine");
-        assertEquals("Should parse parameter 'z' correctly", headerValue.getParameters().get("z"), "lemon=lime");
-
-
+        assertThat(headerValue,allOf(hasProperty("parameters",equalTo(eMap)),hasProperty("qualityFactor",equalTo(Double.valueOf(0.5))),
+                hasProperty("value",equalTo("the value"))))
     }
 
     @Test(expected = MalformedHeaderValueException.class)
@@ -62,5 +63,4 @@ public class HeaderValueParserTest {
         String headerValueString = ";=";
         HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
     }
-
 }
