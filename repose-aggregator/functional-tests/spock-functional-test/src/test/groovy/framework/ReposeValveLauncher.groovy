@@ -1,9 +1,5 @@
 package framework
 import framework.client.jmx.JmxClient
-import org.apache.http.client.ClientProtocolException
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
@@ -189,7 +185,9 @@ class ReposeValveLauncher extends ReposeLauncher {
                 !isUp()
             })
 
-        } catch (Exception) {
+        } catch (Exception e) {
+            println ""
+            println "HERE IS THE ERROR: " + e.printStackTrace()
 
             this.process.waitForOrKill(5000)
 
@@ -246,6 +244,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     public boolean isUp() {
+        println TestUtils.getJvmProcesses()
         return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }
 
