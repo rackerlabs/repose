@@ -230,4 +230,43 @@ class CompressionHeaderTest extends ReposeValveTest {
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
+    /*
+        Check Accept-Encoding header is removed from request through compression filter
+     */
+    @Unroll("When request sending #acceptheader header #encoding is removed through compression filter")
+    def "Check if Accept-encoding header is removed from request"() {
+        when: "the compressed content is sent to the origin service through Repose with accept_encoding " + encoding
+        def headers = [
+            "Content-Encoding" : encoding,
+            acceptheader : encoding
+        ]
+
+        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers: headers,
+                requestBody: zippedContent)
+
+
+        then: "the compressed content should be decompressed and the content-encoding header should be absent"
+        mc.sentRequest.headers.contains("Content-Encoding")
+        mc.sentRequest.headers.contains(acceptheader)
+        mc.handlings.size == 1
+        !mc.handlings[0].request.headers.contains("Content-Encoding")
+        !mc.handlings[0].request.headers.contains(acceptheader)
+
+        if(!encoding.equals("identity")) {
+            mc.sentRequest.body != mc.handlings[0].request.body
+            mc.handlings[0].request.body.toString().equals(unzippedContent)
+        } else {
+            mc.sentRequest.body == mc.handlings[0].request.body
+            mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
+        }
+
+        where:
+        acceptheader        |encoding    | unzippedContent | zippedContent
+        "accept-encoding"   |"gzip"      | content         | gzipCompressedContent
+        "Accept-encoding"   |"x-gzip"    | content         | gzipCompressedContent
+        "Accept-Encoding"   |"deflate"   | content         | deflateCompressedContent
+        "accept-Encoding"   |"identity"  | content         | content
+
+    }
+
 }
