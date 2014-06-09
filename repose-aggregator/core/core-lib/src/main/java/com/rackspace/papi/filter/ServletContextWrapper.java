@@ -1,7 +1,14 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import javax.servlet.*;
+import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -11,12 +18,6 @@ import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.ServletRegistration.Dynamic;
-import javax.servlet.*;
-import javax.servlet.descriptor.JspConfigDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -132,6 +133,11 @@ public class ServletContextWrapper implements ServletContext {
     @Override
     public InputStream getResourceAsStream(String path) {
         return context.getResourceAsStream(path);
+    }
+
+    @Override
+    public String getVirtualServerName() {
+        return context.getVirtualServerName();
     }
 
     private RequestDispatcher getDispatcher() {

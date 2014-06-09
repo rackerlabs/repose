@@ -10,8 +10,7 @@ import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -49,9 +48,9 @@ public class ValveJettyServerBuilder {
 
         for (Port p : ports) {
             if ("http".equalsIgnoreCase(p.getProtocol())) {
-                connectors.add(createHttpConnector(p));
+                connectors.add(createHttpConnector(server, p));
             } else if ("https".equalsIgnoreCase(p.getProtocol())) {
-                connectors.add(createHttpsConnector(p));
+                connectors.add(createHttpsConnector(server, p));
             }
         }
 
@@ -69,23 +68,22 @@ public class ValveJettyServerBuilder {
         return server;
     }
 
-    private Connector createHttpConnector(Port port) {
-        SelectChannelConnector connector = new SelectChannelConnector();
+    private Connector createHttpConnector(Server server, Port port) {
+        ServerConnector connector = new ServerConnector(server);
         connector.setPort(port.getPort());
 
         return connector;
     }
 
-    private Connector createHttpsConnector(Port port) {
-        SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+    private Connector createHttpsConnector(Server server, Port port) {
+        SslContextFactory cf = new SslContextFactory();
 
-        sslConnector.setPort(port.getPort());
-        SslContextFactory cf = sslConnector.getSslContextFactory();
-
-        cf.setKeyStore(configurationPathAndFile + File.separator + sslConfiguration.getKeystoreFilename());
+        cf.setKeyStorePath(configurationPathAndFile + File.separator + sslConfiguration.getKeystoreFilename());
         cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
         cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 
+        ServerConnector sslConnector = new ServerConnector(server, cf);
+        sslConnector.setPort(port.getPort());
         return sslConnector;
     }
 

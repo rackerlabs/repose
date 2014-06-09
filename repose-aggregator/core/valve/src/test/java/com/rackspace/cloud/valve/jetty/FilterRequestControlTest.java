@@ -24,7 +24,6 @@ public class FilterRequestControlTest {
 
     public FilterRequestControlTest(int port) throws Exception {
         jettyServerReference = new Server(port);
-        jettyServerReference.setSendServerVersion(false);
 
         rootContext = buildRootContext(jettyServerReference);
 
