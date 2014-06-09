@@ -235,38 +235,57 @@ class CompressionHeaderTest extends ReposeValveTest {
      */
     @Unroll("When request sending #acceptheader header #encoding is removed through compression filter")
     def "Check if Accept-encoding header is removed from request"() {
-        when: "the compressed content is sent to the origin service through Repose with accept_encoding " + encoding
+        when: "the content is sent to the origin service through Repose with accept-encoding " + encoding
         def headers = [
-            "Content-Encoding" : encoding,
             acceptheader : encoding
         ]
 
         def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:"POST", headers: headers,
-                requestBody: zippedContent)
+                requestBody: content, defaultHandler: { new Response(200, content, headers) })
 
 
-        then: "the compressed content should be decompressed and the content-encoding header should be absent"
-        mc.sentRequest.headers.contains("Content-Encoding")
+        then: "the accept-encoding header should be absent"
         mc.sentRequest.headers.contains(acceptheader)
         mc.handlings.size == 1
-        !mc.handlings[0].request.headers.contains("Content-Encoding")
         !mc.handlings[0].request.headers.contains(acceptheader)
 
-        if(!encoding.equals("identity")) {
-            mc.sentRequest.body != mc.handlings[0].request.body
-            mc.handlings[0].request.body.toString().equals(unzippedContent)
-        } else {
-            mc.sentRequest.body == mc.handlings[0].request.body
-            mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
-        }
+        mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
+        mc.handlings[0].response.message.toString().equals(content)
 
         where:
-        acceptheader        |encoding    | unzippedContent | zippedContent
-        "accept-encoding"   |"gzip"      | content         | gzipCompressedContent
-        "Accept-encoding"   |"x-gzip"    | content         | gzipCompressedContent
-        "Accept-Encoding"   |"deflate"   | content         | deflateCompressedContent
-        "accept-Encoding"   |"identity"  | content         | content
-
+        acceptheader        |encoding    | unzippedContent
+        "accept-encoding"   |"gzip"      | content
+        "Accept-encoding"   |"x-gzip"    | content
+        "Accept-Encoding"   |"deflate"   | content
+        "accept-Encoding"   |"identity"  | content
     }
+    /*
+        Check Accept-Encoding header is removed from request through compression filter
+     */
+    @Unroll("When GET request #acceptheader header #encoding is removed through compression filter")
+    def "Check if GET request with Accept-encoding header is removed from request"() {
+        when: "the content is sent to the origin service through Repose with accept-encoding " + encoding
+        def headers = [
+                'Content-Length': '0',
+                acceptheader : encoding
+        ]
 
+        def MessageChain mc = deproxy.makeRequest(url:reposeEndpoint, method:'GET', headers: headers,
+                defaultHandler: { new Response(200, content, headers) })
+
+
+        then: "the accept-encoding header should be absent"
+        mc.sentRequest.headers.contains(acceptheader)
+        mc.handlings.size == 1
+        !mc.handlings[0].request.headers.contains(acceptheader)
+
+        mc.handlings[0].response.message.toString().equals(content)
+
+        where:
+        acceptheader        |encoding
+        "accept-encoding"   |"gzip"
+        "Accept-encoding"   |"x-gzip"
+        "Accept-Encoding"   |"deflate"
+        "accept-Encoding"   |"identity"
+    }
 }
