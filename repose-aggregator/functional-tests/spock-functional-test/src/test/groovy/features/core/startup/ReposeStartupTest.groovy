@@ -8,7 +8,6 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeoutException
@@ -51,7 +50,7 @@ class ReposeStartupTest extends ReposeValveTest {
         notThrown(TimeoutException)
 
         cleanup:
-        repose.stop()
+        repose.stop([throwExceptionOnKill: false])
     }
 
     @Category(Release)

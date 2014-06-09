@@ -244,6 +244,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     public boolean isUp() {
+        println TestUtils.getJvmProcesses()
         return TestUtils.getJvmProcesses().contains("repose-valve.jar")
     }
 
