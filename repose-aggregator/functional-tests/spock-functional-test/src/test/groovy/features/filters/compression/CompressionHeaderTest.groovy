@@ -76,13 +76,9 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.sentRequest.headers.contains("Content-Encoding")
         mc.handlings.size == 1
         !mc.handlings[0].request.headers.contains("Content-Encoding")
-        if(!encoding.equals("identity")) {
-            mc.sentRequest.body != mc.handlings[0].request.body
-            mc.handlings[0].request.body.toString().equals(unzippedContent)
-        } else {
-            mc.sentRequest.body == mc.handlings[0].request.body
-            mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
-        }
+        mc.sentRequest.body == zippedContent
+        convertStreamToString((byte[])mc.handlings[0].request.body).equals(unzippedContent)
+
 
         where:
         encoding    | unzippedContent | zippedContent
