@@ -4,8 +4,6 @@ Modularize Dist Datastore
     [X] services/datastore
     [X] services/datastore/api
     [X] services/datastore/impl/distributed
-    [X] services/datastore/impl/replicated
-
 
 [X] API module
     [X] Move core-lib/com/rackspace/papi/service/datastore interfaces and exceptions
@@ -53,7 +51,6 @@ Modularize Dist Datastore
         [X] MutableClusterView
             [X] Remove method getListenPorts() - unused and depends on ServicePorts from core-lib
             [X] Refactored out ServicePorts and Port dependency, moved iface and impl classes
-    [X] Move replicated datastore impl to services/datastore/impl/replicated
     [X] EHCACHE implementation
         [X] Create maven module: services/datastore/impl/ehcache
         [X] Move code from core-lib to services/datastore/impl/ehcache
@@ -99,11 +96,6 @@ Modularize Dist Datastore
 
 [X] DistDatastoreServiceTest and DistDatastoreFilterTest - smoke test is failing
 
-[X] Replicated Datastore Filter
-    [X] REMOVE: Functional tests around Replicated Datastore Service
-    [X] REMOVE: Deprecate the Replicated Datastore Filter
-    [-] ReplicatedDatastoreFilterTest - Evaluate tests
-
 TECHNICAL DEBT (out of scope)
 =================================================================
 [X] NEW STORY: Cleanup package tangling between commons and services/httpclient.  Cleanup package tangling
@@ -119,9 +111,3 @@ QUESTIONS FOR THE TEAM
 
 [X] Where do the implementations of "Datastore" belong???
     TEAM: move components/datastores/api, components/datastores/ehcache, ...
-
-[X] PRODUCT: remove ability to use ReplicatedDatastoreFilter with this next release.
-    PRODUCT WEIGH-IN: YES!
-    [X] If yes, remove the filter
-    [X] If yes, remove DatastoreService.registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
-    [X] Document removal in release notes

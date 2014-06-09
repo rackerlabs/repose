@@ -16,6 +16,5 @@
         <module>api</module>
         <module>ehcache</module>
         <module>distributed</module>
-        <module>replicated</module>
     </modules>
 </project>
