@@ -102,7 +102,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="api-coverage" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="enable-api-coverage" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
