@@ -27,7 +27,7 @@ class ValidatorConfiguratorTest {
         v2.setWadl(wadl)
         cnf.getValidator().add(v1)
         cnf.getValidator().add(v2)
-        validatorConfigurator = new ValidatorConfigurator();
+        validatorConfigurator = new ValidatorConfigurator()
     }
 
     @Test
@@ -50,17 +50,12 @@ class ValidatorConfiguratorTest {
 
     @Test
     void whenApiCoverageIsTrueThenAnInstrumentedHandlerShouldBePresent() {
-        validatorConfigurator.processConfiguration(cnf, getFilePath(resource), wadl)
+        ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
+        ValidatorItem vItem = new ValidatorItem()
+        vItem.setApiCoverage(true)
 
-        int instrumentedHandlerPresent = 0
-        for (ValidatorInfo info : validatorConfigurator.getValidators()) {
-            for (int i = 0; i < info.getValidator().config().getResultHandler().handlers.length; ++i) {
-                if (info.getValidator().config().getResultHandler().handlers[i] instanceof InstrumentedHandler) {
-                    ++instrumentedHandlerPresent
-                }
-            }
-        }
-        assert instrumentedHandlerPresent == 1
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
+        assert handlers.handlers[0] instanceof InstrumentedHandler
     }
 
     static String getFilePath(URL path) {
