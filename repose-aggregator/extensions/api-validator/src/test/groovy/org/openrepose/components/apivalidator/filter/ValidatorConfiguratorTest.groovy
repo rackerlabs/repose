@@ -51,15 +51,16 @@ class ValidatorConfiguratorTest {
     @Test
     void whenApiCoverageIsTrueThenAnInstrumentedHandlerShouldBePresent() {
         validatorConfigurator.processConfiguration(cnf, getFilePath(resource), wadl)
-        int instrumentedHandlerPresent = 0;
+
+        int instrumentedHandlerPresent = 0
         for (ValidatorInfo info : validatorConfigurator.getValidators()) {
             for (int i = 0; i < info.getValidator().config().getResultHandler().handlers.length; ++i) {
                 if (info.getValidator().config().getResultHandler().handlers[i] instanceof InstrumentedHandler) {
-                    ++instrumentedHandlerPresent;
+                    ++instrumentedHandlerPresent
                 }
             }
         }
-        assert instrumentedHandlerPresent == 1;
+        assert instrumentedHandlerPresent == 1
     }
 
     static String getFilePath(URL path) {
