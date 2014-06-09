@@ -19,6 +19,7 @@ package com.rackspace.external.pjlcompression;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -53,16 +54,32 @@ public final class StatsInputStreamTest extends TestCase {
 		assertBytesRead(16);
 	}
 
-	private void assertBytesRead(int numBytes) {
+    public void testMarkSkipReset() throws Exception {
+        assertTrue(statsIn.markSupported());
+        statsIn.mark(40);
+        statsIn.skip(50);
+        assertBytesRead(50);
+        try {
+            statsIn.reset();
+            // This should have throw an {@link IOException} as per {@link InputStream}
+            // since we read 50 which is past the mark of 40 by 10.
+            // However there is a note in {@link ByteArrayInputStream} that states:
+            // Note: The readAheadLimit for this class has no meaning.
+            //fail( "Did not receive the expected Exception???" );
+        } catch (IOException expectedException) {
+        }
+        statsIn.close();
+    }
+
+    private void assertBytesRead(int numBytes) {
 		assertEquals(numBytes, callback.totalBytesRead);
 		assertEquals(numBytes, 100 - bais.available());
 	}
 
 	private static final class MockStatsCallback implements StatsInputStream.StatsCallback {
-		private int totalBytesRead;
-		public void bytesRead(int numBytes) {
+		private long totalBytesRead;
+		public void bytesRead(long numBytes) {
 			totalBytesRead += numBytes;
 		}
 	}
-
 }
