@@ -56,7 +56,6 @@ The configuration files to be tested are:
   - client-auth-n.cfg.xml
   - openstack-authorization.cfg.xml
   - dist-datastore.cfg.xml
-  - http-logging.cfg.xml
   - uri-identity.cfg.xml
   - header-identity.cfg.xml
   - ip-identity.cfg.xml

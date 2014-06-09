@@ -1,6 +1,6 @@
 # Creating a new filter
 
-Use an existing filter, say for example the HTTP-logging filter as an example.
+Use an existing filter, say for example the header-translation filter as an example.
 
 I copied the existing directory structure and then renamed the artifacts in the pom, and went through the dependencies
 to be proper.

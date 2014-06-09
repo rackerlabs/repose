@@ -14,7 +14,6 @@
         <filter name="header-identity"/>
         <filter name="header-normalization"/>
         <filter name="header-translation"/>
-        <filter name="http-logging"/>
         <filter name="client-authorization"/>
         <filter name="rate-limiting"/>
         <filter name="service-authentication"/>

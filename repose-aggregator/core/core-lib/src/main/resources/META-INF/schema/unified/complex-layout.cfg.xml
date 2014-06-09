@@ -30,7 +30,6 @@
       </nodes>      
 
       <filters>
-         <filter name="http-Logging" />
          <filter name="translation" />
          <filter name="default-router" />
       </filters>

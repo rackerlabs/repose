@@ -89,11 +89,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>http-logging</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>slf4j-http-logging</artifactId>
         </dependency>
 
@@ -191,11 +186,6 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>header-normalization</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>http-logging</artifactId>
                         </jarModule>
 
                         <jarModule>
