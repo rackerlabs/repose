@@ -245,8 +245,8 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings.size == 1
         !mc.handlings[0].request.headers.contains(acceptheader)
 
-        mc.handlings[0].request.body.toString().trim().equals(unzippedContent.trim())
-        mc.handlings[0].response.message.toString().equals(content)
+        mc.handlings[0].request.body.toString() == unzippedContent
+        mc.handlings[0].response.message.toString() == content
 
         where:
         acceptheader        |encoding    | unzippedContent
@@ -275,7 +275,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.handlings.size == 1
         !mc.handlings[0].request.headers.contains(acceptheader)
 
-        mc.handlings[0].response.message.toString().equals(content)
+        mc.handlings[0].response.message.toString() == content
 
         where:
         acceptheader        |encoding
