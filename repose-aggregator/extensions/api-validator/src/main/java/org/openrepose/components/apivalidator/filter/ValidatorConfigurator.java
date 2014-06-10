@@ -99,7 +99,7 @@ public class ValidatorConfigurator {
             handlers.add(new ServletResultHandler());
         }
 
-        if (validatorItem.isApiCoverage()) {
+        if (validatorItem.isEnableApiCoverage()) {
             handlers.add(new InstrumentedHandler());
         }
 
