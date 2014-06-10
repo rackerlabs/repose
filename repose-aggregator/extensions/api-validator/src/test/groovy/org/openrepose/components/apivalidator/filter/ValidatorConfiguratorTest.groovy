@@ -22,7 +22,6 @@ class ValidatorConfiguratorTest {
         ValidatorItem v1 = new ValidatorItem()
         v1.setDefault(true)
         v1.setWadl(wadl)
-        v1.setApiCoverage(true)
         ValidatorItem v2 = new ValidatorItem()
         v2.setWadl(wadl)
         cnf.getValidator().add(v1)
@@ -52,7 +51,7 @@ class ValidatorConfiguratorTest {
     void whenApiCoverageIsTrueThenAnInstrumentedHandlerShouldBePresent() {
         ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
         ValidatorItem vItem = new ValidatorItem()
-        vItem.setApiCoverage(true)
+        vItem.setEnableApiCoverage(true)
 
         DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
         assert handlers.handlers[0] instanceof InstrumentedHandler
