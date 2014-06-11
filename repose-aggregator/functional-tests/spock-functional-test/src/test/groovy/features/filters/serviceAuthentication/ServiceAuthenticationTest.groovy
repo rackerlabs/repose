@@ -157,7 +157,7 @@ class ServiceAuthenticationTest extends ReposeValveTest {
         "x-AUTH-token" | "slDSFslk&D"
         "x-auth-TOKEN" | "sl4hsdlg"
         "CONTENT-Type" | "application/json"
-        "Content-TYPE" | "application/JSON"
+        "Content-TYPE" | "application/json"
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }
