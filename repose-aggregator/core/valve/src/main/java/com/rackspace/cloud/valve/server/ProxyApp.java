@@ -50,7 +50,6 @@ public final class ProxyApp {
       final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(
               commandLineArgs.getHttpPort(),
               commandLineArgs.getHttpsPort(),
-              commandLineArgs.getStopPort(),
               commandLineArgs.getConfigDirectory(),
               commandLineArgs.getInsecure());
 
@@ -78,11 +77,6 @@ public final class ProxyApp {
       Integer httpsPort = commandLineArgs.getHttpsPort();
       if (httpsPort != null && !portIsInRange(httpsPort)) {
          LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
-         valid = false;
-      }
-
-      if (!(portIsInRange(commandLineArgs.getStopPort()))) {
-         LOG.info("Invalid Repose stop port, use a value between 1024 and 49150");
          valid = false;
       }
 
