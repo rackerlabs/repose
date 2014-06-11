@@ -249,6 +249,11 @@ public final class CompressingFilter implements Filter {
       if(isForRepose){
          MutableHttpServletRequest mutableHttpServletRequest = MutableHttpServletRequest.wrap((HttpServletRequest)chainRequest);
          mutableHttpServletRequest.setInputStream(chainRequest.getInputStream());
+
+         // Remove the accept-encoding header before forwarding the request so that downstream servers do not attempt to
+         // compress the response. Compression/decompression is handled solely by this filter with Repose.
+         mutableHttpServletRequest.removeHeader(CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER);
+         chainRequest = mutableHttpServletRequest;
       }
       chain.doFilter(chainRequest, chainResponse);
 
