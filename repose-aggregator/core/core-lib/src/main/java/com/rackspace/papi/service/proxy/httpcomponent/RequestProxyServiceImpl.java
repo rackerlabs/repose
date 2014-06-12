@@ -143,7 +143,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             return new ServiceClientResponse(responseCode.getCode(), stream);
         } catch (IOException ex) {
-            LOG.error("Error executing request", ex);
+            LOG.error("Error executing request to {}", base.getURI().toString(), ex);
         } finally {
             base.releaseConnection();
             httpClientService.releaseClient(httpClientResponse);
