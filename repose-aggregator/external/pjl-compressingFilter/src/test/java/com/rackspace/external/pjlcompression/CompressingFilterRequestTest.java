@@ -49,91 +49,92 @@ import static org.junit.Assert.assertTrue;
  */
 public final class CompressingFilterRequestTest {
 
-	private static final byte[] BIG_DOCUMENT;
-	static {
-		// Make up a random, but repeatable String
-		Random r = new Random(0xDEADBEEFL);
-		BIG_DOCUMENT = new byte[10000];
-		r.nextBytes(BIG_DOCUMENT);
-	}
+    private static final byte[] BIG_DOCUMENT;
 
-	private WebMockObjectFactory factory;
-	private ServletTestModule module;
+    static {
+        // Make up a random, but repeatable String
+        Random r = new Random(0xDEADBEEFL);
+        BIG_DOCUMENT = new byte[10000];
+        r.nextBytes(BIG_DOCUMENT);
+    }
+
+    private WebMockObjectFactory factory;
+    private ServletTestModule module;
 
     @Before
-	public void setUp() throws Exception {
-		factory = new WebMockObjectFactory();
-		MockFilterConfig config = factory.getMockFilterConfig();
-		config.setInitParameter("debug", "true");
-		config.setInitParameter("statsEnabled", "true");
-		module = new ServletTestModule(factory);
-		module.addFilter(new CompressingFilter(), true);
-		module.setDoChain(true);
-	}
+    public void setUp() throws Exception {
+        factory = new WebMockObjectFactory();
+        MockFilterConfig config = factory.getMockFilterConfig();
+        config.setInitParameter("debug", "true");
+        config.setInitParameter("statsEnabled", "true");
+        module = new ServletTestModule(factory);
+        module.addFilter(new CompressingFilter(), true);
+        module.setDoChain(true);
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		factory = null;
-		module = null;
-	}
+    @After
+    public void tearDown() throws Exception {
+        factory = null;
+        module = null;
+    }
 
     @Test
-	public void testBigOutput() throws Exception {
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream(10000);
-		if (module.getServlet() == null) {
-			module.setServlet(new HttpServlet() {
-				@Override
-				public void doGet(HttpServletRequest request,
-				                  HttpServletResponse response) throws IOException {
-					InputStream sis = request.getInputStream();
-					byte[] buffer = new byte[1024];
-					int bytesRead;
-					while ((bytesRead = sis.read(buffer)) > 0) {
-						baos.write(buffer, 0, bytesRead);
-					}
-					baos.close();
-				}
-			});
-		}
-		MockHttpServletRequest request = factory.getMockRequest();
-		request.addHeader("Content-Encoding", "gzip");
-		byte[] compressedBigDoc = getCompressedOutput(BIG_DOCUMENT);
-		request.setBodyContent(compressedBigDoc);
+    public void testBigOutput() throws Exception {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(10000);
+        if (module.getServlet() == null) {
+            module.setServlet(new HttpServlet() {
+                @Override
+                public void doGet(HttpServletRequest request,
+                                  HttpServletResponse response) throws IOException {
+                    InputStream sis = request.getInputStream();
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = sis.read(buffer)) > 0) {
+                        baos.write(buffer, 0, bytesRead);
+                    }
+                    baos.close();
+                }
+            });
+        }
+        MockHttpServletRequest request = factory.getMockRequest();
+        request.addHeader("Content-Encoding", "gzip");
+        byte[] compressedBigDoc = getCompressedOutput(BIG_DOCUMENT);
+        request.setBodyContent(compressedBigDoc);
 
-		module.doGet();
+        module.doGet();
 
-		MockHttpServletResponse response = factory.getMockResponse();
-		assertEquals(HttpServletResponse.SC_OK, response.getStatusCode());
-		assertFalse(response.wasRedirectSent());
-		assertFalse(response.wasErrorSent());
+        MockHttpServletResponse response = factory.getMockResponse();
+        assertEquals(HttpServletResponse.SC_OK, response.getStatusCode());
+        assertFalse(response.wasRedirectSent());
+        assertFalse(response.wasErrorSent());
 
-		assertTrue(Arrays.equals(BIG_DOCUMENT, baos.toByteArray()));
+        assertTrue(Arrays.equals(BIG_DOCUMENT, baos.toByteArray()));
 
-		CompressingFilterStats stats = (CompressingFilterStats)
-			factory.getMockServletContext().getAttribute(CompressingFilterStats.STATS_KEY);
-		assertNotNull(stats);
+        CompressingFilterStats stats = (CompressingFilterStats)
+                factory.getMockServletContext().getAttribute(CompressingFilterStats.STATS_KEY);
+        assertNotNull(stats);
 
-		assertEquals(1, stats.getNumRequestsCompressed());
-		assertEquals(0, stats.getTotalRequestsNotCompressed());
-		assertEquals((double) BIG_DOCUMENT.length / (double) compressedBigDoc.length, stats.getRequestAverageCompressionRatio(), 0.0001);
-		assertEquals((long) compressedBigDoc.length, stats.getRequestCompressedBytes());
-		assertEquals((long) BIG_DOCUMENT.length, stats.getRequestInputBytes());
+        assertEquals(1, stats.getNumRequestsCompressed());
+        assertEquals(0, stats.getTotalRequestsNotCompressed());
+        assertEquals((double) BIG_DOCUMENT.length / (double) compressedBigDoc.length, stats.getRequestAverageCompressionRatio(), 0.0001);
+        assertEquals((long) compressedBigDoc.length, stats.getRequestCompressedBytes());
+        assertEquals((long) BIG_DOCUMENT.length, stats.getRequestInputBytes());
 
-		assertEquals(0, stats.getNumResponsesCompressed());
-		assertEquals(1, stats.getTotalResponsesNotCompressed());
-		assertEquals(0.0, stats.getResponseAverageCompressionRatio(), 0.0001);
-		assertEquals(0L, stats.getResponseCompressedBytes());
-		assertEquals(0L, stats.getResponseInputBytes());
-	}
+        assertEquals(0, stats.getNumResponsesCompressed());
+        assertEquals(1, stats.getTotalResponsesNotCompressed());
+        assertEquals(0.0, stats.getResponseAverageCompressionRatio(), 0.0001);
+        assertEquals(0L, stats.getResponseCompressedBytes());
+        assertEquals(0L, stats.getResponseInputBytes());
+    }
 
-	private static byte[] getCompressedOutput(byte[] output) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
-		gzipOut.write(output);
-		gzipOut.finish();
-		gzipOut.close();
-		baos.close();
-		return baos.toByteArray();
-	}
+    private static byte[] getCompressedOutput(byte[] output) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DeflaterOutputStream gzipOut = new GZIPOutputStream(baos);
+        gzipOut.write(output);
+        gzipOut.finish();
+        gzipOut.close();
+        baos.close();
+        return baos.toByteArray();
+    }
 
 }

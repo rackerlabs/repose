@@ -29,8 +29,8 @@ import java.io.OutputStream;
  */
 interface CompressingOutputStream {
 
-	OutputStream getCompressingOutputStream();
+    OutputStream getCompressingOutputStream();
 
-	void finish() throws IOException;
+    void finish() throws IOException;
 
 }

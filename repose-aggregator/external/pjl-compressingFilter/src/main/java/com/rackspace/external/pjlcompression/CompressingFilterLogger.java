@@ -17,9 +17,13 @@
 package com.rackspace.external.pjlcompression;
 
 public interface CompressingFilterLogger {
-	void log(String message);
-	void log(String message, Throwable t);
-	void logDebug(String message);
-	void logDebug(String message, Throwable t);
-  boolean isDebug();
+    void log(String message);
+
+    void log(String message, Throwable t);
+
+    void logDebug(String message);
+
+    void logDebug(String message, Throwable t);
+
+    boolean isDebug();
 }

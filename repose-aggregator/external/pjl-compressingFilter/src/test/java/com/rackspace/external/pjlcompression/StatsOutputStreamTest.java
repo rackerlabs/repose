@@ -31,42 +31,43 @@ import static org.junit.Assert.assertEquals;
  */
 public final class StatsOutputStreamTest {
 
-	private ByteArrayOutputStream baos;
-	private MockStatsCallback callback;
-	private OutputStream statsOut;
+    private ByteArrayOutputStream baos;
+    private MockStatsCallback callback;
+    private OutputStream statsOut;
 
-	@Before
-	public void setUp() throws Exception {
-		baos = new ByteArrayOutputStream();
-		callback = new MockStatsCallback();
-		statsOut = new StatsOutputStream(baos, callback);
-	}
+    @Before
+    public void setUp() throws Exception {
+        baos = new ByteArrayOutputStream();
+        callback = new MockStatsCallback();
+        statsOut = new StatsOutputStream(baos, callback);
+    }
 
     @Test
-	public void testStats() throws Exception {
-		assertBytesWritten(0);
-		statsOut.write(0);
-		assertBytesWritten(1);
-		statsOut.write(new byte[10]);
-		assertBytesWritten(11);
-		statsOut.write(new byte[10], 0, 5);
-		assertBytesWritten(16);
-		statsOut.flush();
-		assertBytesWritten(16);
-		statsOut.close();
-		assertBytesWritten(16);
-	}
+    public void testStats() throws Exception {
+        assertBytesWritten(0);
+        statsOut.write(0);
+        assertBytesWritten(1);
+        statsOut.write(new byte[10]);
+        assertBytesWritten(11);
+        statsOut.write(new byte[10], 0, 5);
+        assertBytesWritten(16);
+        statsOut.flush();
+        assertBytesWritten(16);
+        statsOut.close();
+        assertBytesWritten(16);
+    }
 
-	private void assertBytesWritten(int numBytes) {
-		assertEquals(numBytes, callback.totalBytesWritten);
-		assertEquals(numBytes, baos.size());
-	}
+    private void assertBytesWritten(int numBytes) {
+        assertEquals(numBytes, callback.totalBytesWritten);
+        assertEquals(numBytes, baos.size());
+    }
 
-	private static final class MockStatsCallback implements StatsOutputStream.StatsCallback {
-		private int totalBytesWritten;
-		public void bytesWritten(int numBytes) {
-			totalBytesWritten += numBytes;
-		}
-	}
+    private static final class MockStatsCallback implements StatsOutputStream.StatsCallback {
+        private int totalBytesWritten;
+
+        public void bytesWritten(int numBytes) {
+            totalBytesWritten += numBytes;
+        }
+    }
 
 }

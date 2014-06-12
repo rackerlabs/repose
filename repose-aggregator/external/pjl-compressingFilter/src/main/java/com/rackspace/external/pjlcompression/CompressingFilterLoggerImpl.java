@@ -29,85 +29,85 @@ import java.lang.reflect.InvocationTargetException;
  */
 final class CompressingFilterLoggerImpl implements CompressingFilterLogger {
 
-	private static final String MESSAGE_PREFIX = " [CompressingFilter/" + CompressingFilter.VERSION + "] ";
+    private static final String MESSAGE_PREFIX = " [CompressingFilter/" + CompressingFilter.VERSION + "] ";
 
-	private final ServletContext servletContext;
-	private final boolean debug;
-	private final CompressingFilterLogger delegate;
+    private final ServletContext servletContext;
+    private final boolean debug;
+    private final CompressingFilterLogger delegate;
 
-	CompressingFilterLoggerImpl(ServletContext ctx,
-	                            boolean debug,
-	                            String delegateLoggerName,
-	                            boolean isJavaUtilLogger) throws ServletException {
-		assert ctx != null;
-		servletContext = ctx;
-		this.debug = debug;
+    CompressingFilterLoggerImpl(ServletContext ctx,
+                                boolean debug,
+                                String delegateLoggerName,
+                                boolean isJavaUtilLogger) throws ServletException {
+        assert ctx != null;
+        servletContext = ctx;
+        this.debug = debug;
 
-		if (delegateLoggerName == null) {
-			delegate = null;
-		} else if (isJavaUtilLogger) {
-			delegate = new JavaUtilLoggingImpl(delegateLoggerName);
-		} else {
-			try {
-				// Load by reflection to avoid a hard dependence on Jakarta Commons Logging
-				Class<?> delegateClass =
-					Class.forName("com.planetj.servlet.filter.compression.JakartaCommonsLoggingImpl");
-				Constructor<?> constructor =
-					delegateClass.getConstructor(String.class);
-				delegate = (CompressingFilterLogger) constructor.newInstance(delegateLoggerName);
-			} catch (ClassNotFoundException cnfe) {
-				throw new ServletException(cnfe);
-			} catch (NoSuchMethodException nsme) {
-				throw new ServletException(nsme);
-			} catch (InvocationTargetException ite) {
-				throw new ServletException(ite);
-			} catch (IllegalAccessException iae) {
-				throw new ServletException(iae);
-			} catch (InstantiationException ie) {
-				throw new ServletException(ie);
-			}
-		}
-	}
+        if (delegateLoggerName == null) {
+            delegate = null;
+        } else if (isJavaUtilLogger) {
+            delegate = new JavaUtilLoggingImpl(delegateLoggerName);
+        } else {
+            try {
+                // Load by reflection to avoid a hard dependence on Jakarta Commons Logging
+                Class<?> delegateClass =
+                        Class.forName("com.planetj.servlet.filter.compression.JakartaCommonsLoggingImpl");
+                Constructor<?> constructor =
+                        delegateClass.getConstructor(String.class);
+                delegate = (CompressingFilterLogger) constructor.newInstance(delegateLoggerName);
+            } catch (ClassNotFoundException cnfe) {
+                throw new ServletException(cnfe);
+            } catch (NoSuchMethodException nsme) {
+                throw new ServletException(nsme);
+            } catch (InvocationTargetException ite) {
+                throw new ServletException(ite);
+            } catch (IllegalAccessException iae) {
+                throw new ServletException(iae);
+            } catch (InstantiationException ie) {
+                throw new ServletException(ie);
+            }
+        }
+    }
 
-	public boolean isDebug() {
-		return debug;
-	}
+    public boolean isDebug() {
+        return debug;
+    }
 
-	public void log(String message) {
-		servletContext.log(MESSAGE_PREFIX + message);
-		if (delegate != null) {
-			delegate.log(message);
-		}
-	}
+    public void log(String message) {
+        servletContext.log(MESSAGE_PREFIX + message);
+        if (delegate != null) {
+            delegate.log(message);
+        }
+    }
 
-	public void log(String message, Throwable t) {
-		servletContext.log(MESSAGE_PREFIX + message, t);
-		if (delegate != null) {
-			delegate.log(message, t);
-		}
-	}
+    public void log(String message, Throwable t) {
+        servletContext.log(MESSAGE_PREFIX + message, t);
+        if (delegate != null) {
+            delegate.log(message, t);
+        }
+    }
 
-	public void logDebug(String message) {
-		if (debug) {
-      servletContext.log(MESSAGE_PREFIX + message);
-			if (delegate != null) {
-				delegate.logDebug(message);
-			}
-		}
-	}
+    public void logDebug(String message) {
+        if (debug) {
+            servletContext.log(MESSAGE_PREFIX + message);
+            if (delegate != null) {
+                delegate.logDebug(message);
+            }
+        }
+    }
 
-	public void logDebug(String message, Throwable t) {
-		if (debug) {
-      servletContext.log(MESSAGE_PREFIX + message, t);
-			if (delegate != null) {
-				delegate.logDebug(message, t);
-			}
-		}
-	}
+    public void logDebug(String message, Throwable t) {
+        if (debug) {
+            servletContext.log(MESSAGE_PREFIX + message, t);
+            if (delegate != null) {
+                delegate.logDebug(message, t);
+            }
+        }
+    }
 
-	@Override
-	public String toString() {
-		return "CompressingFilterLoggerImpl";
-	}
+    @Override
+    public String toString() {
+        return "CompressingFilterLoggerImpl";
+    }
 
 }

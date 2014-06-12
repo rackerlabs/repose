@@ -31,48 +31,48 @@ import java.io.InputStream;
  */
 final class StatsInputStream extends InputStream {
 
-	private final InputStream inputStream;
-	private final StatsCallback statsCallback;
+    private final InputStream inputStream;
+    private final StatsCallback statsCallback;
 
-	StatsInputStream(InputStream inputStream, StatsCallback statsCallback) {
-		assert inputStream != null && statsCallback != null;
-		this.inputStream = inputStream;
-		this.statsCallback = statsCallback;
-	}
+    StatsInputStream(InputStream inputStream, StatsCallback statsCallback) {
+        assert inputStream != null && statsCallback != null;
+        this.inputStream = inputStream;
+        this.statsCallback = statsCallback;
+    }
 
-	@Override
-	public int read() throws IOException {
-		int result = inputStream.read();
-		if (result >= 0) {
-			// here, result is the byte read, or -1 if EOF
-			statsCallback.bytesRead(1);
-		}
-		return result;
-	}
+    @Override
+    public int read() throws IOException {
+        int result = inputStream.read();
+        if (result >= 0) {
+            // here, result is the byte read, or -1 if EOF
+            statsCallback.bytesRead(1);
+        }
+        return result;
+    }
 
-	@Override
-	public int read(byte[] b) throws IOException {
-		int result = inputStream.read(b);
-		if (result > 0) {
-			// here, result is number of bytes read
-			statsCallback.bytesRead(result);
-		}
-		return result;
-	}
+    @Override
+    public int read(byte[] b) throws IOException {
+        int result = inputStream.read(b);
+        if (result > 0) {
+            // here, result is number of bytes read
+            statsCallback.bytesRead(result);
+        }
+        return result;
+    }
 
-	@Override
-	public int read(byte[] b, int offset, int length) throws IOException {
-		int result = inputStream.read(b, offset, length);
-		if (result > 0) {
-			// here, result is number of bytes read
-			statsCallback.bytesRead(result);
-		}
-		return result;
-	}
+    @Override
+    public int read(byte[] b, int offset, int length) throws IOException {
+        int result = inputStream.read(b, offset, length);
+        if (result > 0) {
+            // here, result is number of bytes read
+            statsCallback.bytesRead(result);
+        }
+        return result;
+    }
 
-	// Leave implementation of readLine() in superclass alone, even if it's not so efficient
+    // Leave implementation of readLine() in superclass alone, even if it's not so efficient
 
-	@Override
+    @Override
     public long skip(long n) throws IOException {
         final long result = inputStream.skip(n);
         if (result > 0) {
@@ -82,37 +82,37 @@ final class StatsInputStream extends InputStream {
         return result;
     }
 
-	@Override
-	public int available() throws IOException {
-		return inputStream.available();
-	}
+    @Override
+    public int available() throws IOException {
+        return inputStream.available();
+    }
 
-	@Override
-	public void close() throws IOException {
-		inputStream.close();
-	}
+    @Override
+    public void close() throws IOException {
+        inputStream.close();
+    }
 
-	@Override
-	public synchronized void mark(int readlimit) {
-		inputStream.mark(readlimit);
-	}
+    @Override
+    public synchronized void mark(int readlimit) {
+        inputStream.mark(readlimit);
+    }
 
-	@Override
-	public synchronized void reset() throws IOException {
-		inputStream.reset();
-	}
+    @Override
+    public synchronized void reset() throws IOException {
+        inputStream.reset();
+    }
 
-	@Override
-	public boolean markSupported() {
-		return inputStream.markSupported();
-	}
+    @Override
+    public boolean markSupported() {
+        return inputStream.markSupported();
+    }
 
-	@Override
-	public String toString() {
-		return "StatsInputStream[" + inputStream + ']';
-	}
+    @Override
+    public String toString() {
+        return "StatsInputStream[" + inputStream + ']';
+    }
 
-	interface StatsCallback {
-		void bytesRead(long numBytes);
-	}
+    interface StatsCallback {
+        void bytesRead(long numBytes);
+    }
 }

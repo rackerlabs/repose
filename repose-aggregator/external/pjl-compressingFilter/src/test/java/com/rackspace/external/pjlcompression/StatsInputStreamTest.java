@@ -34,29 +34,29 @@ import static org.junit.Assert.assertTrue;
  */
 public final class StatsInputStreamTest {
 
-	private ByteArrayInputStream bais;
-	private MockStatsCallback callback;
-	private InputStream statsIn;
+    private ByteArrayInputStream bais;
+    private MockStatsCallback callback;
+    private InputStream statsIn;
 
-	@Before
-	public void setUp() throws Exception {
-		bais = new ByteArrayInputStream(new byte[100]);
-		callback = new MockStatsCallback();
-		statsIn = new StatsInputStream(bais, callback);
-	}
+    @Before
+    public void setUp() throws Exception {
+        bais = new ByteArrayInputStream(new byte[100]);
+        callback = new MockStatsCallback();
+        statsIn = new StatsInputStream(bais, callback);
+    }
 
     @Test
-	public void testStats() throws Exception {
-		assertBytesRead(0);
-		assertEquals(0, statsIn.read());
-		assertBytesRead(1);
-		assertEquals(10, statsIn.read(new byte[10]));
-		assertBytesRead(11);
-		assertEquals(5, statsIn.read(new byte[10], 0, 5));
-		assertBytesRead(16);
-		statsIn.close();
-		assertBytesRead(16);
-	}
+    public void testStats() throws Exception {
+        assertBytesRead(0);
+        assertEquals(0, statsIn.read());
+        assertBytesRead(1);
+        assertEquals(10, statsIn.read(new byte[10]));
+        assertBytesRead(11);
+        assertEquals(5, statsIn.read(new byte[10], 0, 5));
+        assertBytesRead(16);
+        statsIn.close();
+        assertBytesRead(16);
+    }
 
     @Test
     public void testMarkSkipReset() throws Exception {
@@ -77,14 +77,15 @@ public final class StatsInputStreamTest {
     }
 
     private void assertBytesRead(int numBytes) {
-		assertEquals(numBytes, callback.totalBytesRead);
-		assertEquals(numBytes, 100 - bais.available());
-	}
+        assertEquals(numBytes, callback.totalBytesRead);
+        assertEquals(numBytes, 100 - bais.available());
+    }
 
-	private static final class MockStatsCallback implements StatsInputStream.StatsCallback {
-		private long totalBytesRead;
-		public void bytesRead(long numBytes) {
-			totalBytesRead += numBytes;
-		}
-	}
+    private static final class MockStatsCallback implements StatsInputStream.StatsCallback {
+        private long totalBytesRead;
+
+        public void bytesRead(long numBytes) {
+            totalBytesRead += numBytes;
+        }
+    }
 }

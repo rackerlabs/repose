@@ -27,26 +27,26 @@ import java.util.Iterator;
  */
 final class IteratorEnumeration implements Enumeration<Object> {
 
-	private final Iterator<?> iterator;
+    private final Iterator<?> iterator;
 
-	IteratorEnumeration(Iterator<?> iterator) {
-		if (iterator == null) {
-			throw new IllegalArgumentException();
-		}
-		this.iterator = iterator;
-	}
+    IteratorEnumeration(Iterator<?> iterator) {
+        if (iterator == null) {
+            throw new IllegalArgumentException();
+        }
+        this.iterator = iterator;
+    }
 
-	public boolean hasMoreElements() {
-		return iterator.hasNext();
-	}
+    public boolean hasMoreElements() {
+        return iterator.hasNext();
+    }
 
-	public Object nextElement() {
-		return iterator.next();
-	}
+    public Object nextElement() {
+        return iterator.next();
+    }
 
-	@Override
-	public String toString() {
-		return "IteratorEnumeration";
-	}
+    @Override
+    public String toString() {
+        return "IteratorEnumeration";
+    }
 
 }

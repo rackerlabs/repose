@@ -30,20 +30,20 @@ import java.lang.reflect.Constructor;
 public final class LogTest {
 
     @Test
-	public void testJakartaImpl() throws Exception {
-		Class<?> delegateClass =
-			Class.forName("com.rackspace.external.pjlcompression.JakartaCommonsLoggingImpl");
-		Constructor<?> constructor = delegateClass.getConstructor(String.class);
-		// Verify this works
-		constructor.newInstance("foo");
-	}
+    public void testJakartaImpl() throws Exception {
+        Class<?> delegateClass =
+                Class.forName("com.rackspace.external.pjlcompression.JakartaCommonsLoggingImpl");
+        Constructor<?> constructor = delegateClass.getConstructor(String.class);
+        // Verify this works
+        constructor.newInstance("foo");
+    }
 
     @Test
-	public void testJavaUtiImpl() throws Exception {
-		Class<?> delegateClass = Class.forName("com.rackspace.external.pjlcompression.JavaUtilLoggingImpl");
-		Constructor<?> constructor = delegateClass.getConstructor(String.class);
-		// Verify this works
-		constructor.newInstance("foo");
-	}
+    public void testJavaUtiImpl() throws Exception {
+        Class<?> delegateClass = Class.forName("com.rackspace.external.pjlcompression.JavaUtilLoggingImpl");
+        Constructor<?> constructor = delegateClass.getConstructor(String.class);
+        // Verify this works
+        constructor.newInstance("foo");
+    }
 
 }

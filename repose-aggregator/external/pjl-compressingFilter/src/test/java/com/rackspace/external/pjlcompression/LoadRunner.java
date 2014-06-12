@@ -35,51 +35,51 @@ import java.util.Random;
  */
 public final class LoadRunner {
 
-	private LoadRunner() {
-		// do nothing
-	}
+    private LoadRunner() {
+        // do nothing
+    }
 
-	public static void main(String... args) {
+    public static void main(String... args) {
 
-		WebMockObjectFactory factory = new WebMockObjectFactory();
-		MockServletContext context = factory.getMockServletContext();
-		context.setInitParameter("debug", "true");
-		context.setInitParameter("statsEnabled", "true");
-		ServletTestModule module = new ServletTestModule(factory);
-		module.addFilter(new CompressingFilter(), true);
-		module.setDoChain(true);
+        WebMockObjectFactory factory = new WebMockObjectFactory();
+        MockServletContext context = factory.getMockServletContext();
+        context.setInitParameter("debug", "true");
+        context.setInitParameter("statsEnabled", "true");
+        ServletTestModule module = new ServletTestModule(factory);
+        module.addFilter(new CompressingFilter(), true);
+        module.setDoChain(true);
 
-		Random r = new Random(0xDEADBEEFL);
-		final String[] data = new String[200];
-		for (int i = 0; i < data.length; i++) {
-			byte[] bytes = new byte[50];
-			r.nextBytes(bytes);
-			data[i] = new String(bytes);
-		}
+        Random r = new Random(0xDEADBEEFL);
+        final String[] data = new String[200];
+        for (int i = 0; i < data.length; i++) {
+            byte[] bytes = new byte[50];
+            r.nextBytes(bytes);
+            data[i] = new String(bytes);
+        }
 
-		module.setServlet(new HttpServlet() {
-			@Override			
-			public void doGet(HttpServletRequest request,
-			                  HttpServletResponse response) throws IOException {
-				PrintWriter writer = response.getWriter();
-				for (String string : data) {
-					writer.print(string);
-				}
-			}
-		});
-		MockHttpServletRequest request = factory.getMockRequest();
-		request.addHeader("Accept-Encoding", "gzip");
+        module.setServlet(new HttpServlet() {
+            @Override
+            public void doGet(HttpServletRequest request,
+                              HttpServletResponse response) throws IOException {
+                PrintWriter writer = response.getWriter();
+                for (String string : data) {
+                    writer.print(string);
+                }
+            }
+        });
+        MockHttpServletRequest request = factory.getMockRequest();
+        request.addHeader("Accept-Encoding", "gzip");
 
-    long start = System.currentTimeMillis();
-    int iterations = 1000;
-		for (int i = 0; i < iterations; i++) {
-			module.doGet();
-		}
-    long end = System.currentTimeMillis();
-    long time = end - start;
-    System.out.println("Completed in " + time + "ms (" + (double) time / iterations + " per request)");
+        long start = System.currentTimeMillis();
+        int iterations = 1000;
+        for (int i = 0; i < iterations; i++) {
+            module.doGet();
+        }
+        long end = System.currentTimeMillis();
+        long time = end - start;
+        System.out.println("Completed in " + time + "ms (" + (double) time / iterations + " per request)");
 
-	}
+    }
 
 
 }

@@ -27,33 +27,33 @@ import java.util.NoSuchElementException;
  */
 final class EmptyEnumeration implements Enumeration<Object> {
 
-	private static final Enumeration<?> INSTANCE = new EmptyEnumeration();
+    private static final Enumeration<?> INSTANCE = new EmptyEnumeration();
 
-	private EmptyEnumeration() {
-		// do nothing
-	}
+    private EmptyEnumeration() {
+        // do nothing
+    }
 
-	public static Enumeration<?> getInstance() {
-		return INSTANCE;
-	}
+    public static Enumeration<?> getInstance() {
+        return INSTANCE;
+    }
 
-	/**
-	 * @return false always
-	 */
-	public boolean hasMoreElements() {
-		return false;
-	}
+    /**
+     * @return false always
+     */
+    public boolean hasMoreElements() {
+        return false;
+    }
 
-	/**
-	 * @throws NoSuchElementException always
-	 */
-	public Object nextElement() {
-		throw new NoSuchElementException();
-	}
+    /**
+     * @throws NoSuchElementException always
+     */
+    public Object nextElement() {
+        throw new NoSuchElementException();
+    }
 
-	@Override
-	public String toString() {
-		return "EmptyEnumeration";
-	}
+    @Override
+    public String toString() {
+        return "EmptyEnumeration";
+    }
 
 }

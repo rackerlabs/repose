@@ -26,42 +26,42 @@ import java.util.logging.Logger;
  */
 public final class JavaUtilLoggingImpl implements CompressingFilterLogger {
 
-	private final Logger logger;
+    private final Logger logger;
 
-	/**
-	 * This constructor is public so that it may be instantiated by reflection.
-	 *
-	 * @param loggerName {@link Logger} name
-	 */
-	public JavaUtilLoggingImpl(String loggerName) {
-		logger = Logger.getLogger(loggerName);
-	}
-
-	public void log(String message) {
-		logger.info(message);
-	}
-
-	public void log(String message, Throwable t) {
-		logger.log(Level.INFO, message, t);
-	}
-
-	public void logDebug(String message) {
-    if (logger.isLoggable(Level.FINE)) {
-      logger.fine(message);
+    /**
+     * This constructor is public so that it may be instantiated by reflection.
+     *
+     * @param loggerName {@link Logger} name
+     */
+    public JavaUtilLoggingImpl(String loggerName) {
+        logger = Logger.getLogger(loggerName);
     }
-  }
 
-	public void logDebug(String message, Throwable t) {
-		logger.log(Level.FINE, message, t);
-	}
+    public void log(String message) {
+        logger.info(message);
+    }
 
-  public boolean isDebug() {
-    return logger.isLoggable(Level.FINE);
-  }
+    public void log(String message, Throwable t) {
+        logger.log(Level.INFO, message, t);
+    }
 
-	@Override
-	public String toString() {
-		return "JavaUtilLoggingImpl[" + logger + ']';
-	}
+    public void logDebug(String message) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(message);
+        }
+    }
+
+    public void logDebug(String message, Throwable t) {
+        logger.log(Level.FINE, message, t);
+    }
+
+    public boolean isDebug() {
+        return logger.isLoggable(Level.FINE);
+    }
+
+    @Override
+    public String toString() {
+        return "JavaUtilLoggingImpl[" + logger + ']';
+    }
 
 }

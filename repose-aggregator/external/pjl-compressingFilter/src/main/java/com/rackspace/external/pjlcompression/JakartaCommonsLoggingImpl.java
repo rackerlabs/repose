@@ -26,40 +26,40 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class JakartaCommonsLoggingImpl implements CompressingFilterLogger {
 
-	private final Log logger;
+    private final Log logger;
 
-	/**
-	 * This constructor is public so that it may be instantiated by reflection.
-	 *
-	 * @param loggerName Jakarta Log name
-	 */
-	public JakartaCommonsLoggingImpl(String loggerName) {
-		logger = LogFactory.getLog(loggerName);
-	}
+    /**
+     * This constructor is public so that it may be instantiated by reflection.
+     *
+     * @param loggerName Jakarta Log name
+     */
+    public JakartaCommonsLoggingImpl(String loggerName) {
+        logger = LogFactory.getLog(loggerName);
+    }
 
-	public void log(String message) {
-		logger.info(message);
-	}
+    public void log(String message) {
+        logger.info(message);
+    }
 
-	public void log(String message, Throwable t) {
-		logger.info(message, t);
-	}
+    public void log(String message, Throwable t) {
+        logger.info(message, t);
+    }
 
-	public void logDebug(String message) {
-		logger.debug(message);
-	}
+    public void logDebug(String message) {
+        logger.debug(message);
+    }
 
-	public void logDebug(String message, Throwable t) {
-		logger.debug(message, t);
-	}
+    public void logDebug(String message, Throwable t) {
+        logger.debug(message, t);
+    }
 
-  public boolean isDebug() {
-    return logger.isDebugEnabled();
-  }
+    public boolean isDebug() {
+        return logger.isDebugEnabled();
+    }
 
-	@Override
-	public String toString() {
-		return "JakartaCommonsLoggingImpl[" + logger + ']';
-	}
+    @Override
+    public String toString() {
+        return "JakartaCommonsLoggingImpl[" + logger + ']';
+    }
 
 }
