@@ -1,15 +1,16 @@
 Repose uses "datastores" to store various data.
 
-By default, the local datastore is used. A distributed datastore can be turned on, which
-allows consisten data storage across multiple nodes in a cluster.
+By default, the local datastore is used, implemented as an in memory eh cache.
+A distributed datastore can be turned on, which allows consistent data storage
+across multiple nodes in a cluster.
 
 Datastores implement a specific API which defines behavior of datastores, outlined below:
 
     get(key) - access data associated with a specific key value
 
     put(key, value) - stores a piece of data and associates it with a key value
-        put(key, value, time, unit) can be used to specify a duration of time in specific units
-        this gives a specific lifetime to the data
+        put(key, value, time, unit) can be used to specify a duration of the data's
+        time to live in specific units.
 
     patch(key, value) - used to update a specific value in the datastore
         patch(key, value, time, unit) can be used to update a specific value in the datastore
