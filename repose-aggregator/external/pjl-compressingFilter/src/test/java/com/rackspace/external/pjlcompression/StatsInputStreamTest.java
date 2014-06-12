@@ -16,11 +16,15 @@
 
 package com.rackspace.external.pjlcompression;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests {@link StatsInputStream}.
@@ -28,20 +32,20 @@ import java.io.InputStream;
  * @author Sean Owen
  * @since 1.6
  */
-public final class StatsInputStreamTest extends TestCase {
+public final class StatsInputStreamTest {
 
 	private ByteArrayInputStream bais;
 	private MockStatsCallback callback;
 	private InputStream statsIn;
 
-	@Override
+	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		bais = new ByteArrayInputStream(new byte[100]);
 		callback = new MockStatsCallback();
 		statsIn = new StatsInputStream(bais, callback);
 	}
 
+    @Test
 	public void testStats() throws Exception {
 		assertBytesRead(0);
 		assertEquals(0, statsIn.read());
@@ -54,6 +58,7 @@ public final class StatsInputStreamTest extends TestCase {
 		assertBytesRead(16);
 	}
 
+    @Test
     public void testMarkSkipReset() throws Exception {
         assertTrue(statsIn.markSupported());
         statsIn.mark(40);

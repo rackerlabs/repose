@@ -16,7 +16,7 @@
 
 package com.rackspace.external.pjlcompression;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 
@@ -27,8 +27,9 @@ import java.lang.reflect.Constructor;
  * @author Sean Owen
  * @since 1.6.2
  */
-public final class LogTest extends TestCase {
+public final class LogTest {
 
+    @Test
 	public void testJakartaImpl() throws Exception {
 		Class<?> delegateClass =
 			Class.forName("com.rackspace.external.pjlcompression.JakartaCommonsLoggingImpl");
@@ -37,6 +38,7 @@ public final class LogTest extends TestCase {
 		constructor.newInstance("foo");
 	}
 
+    @Test
 	public void testJavaUtiImpl() throws Exception {
 		Class<?> delegateClass = Class.forName("com.rackspace.external.pjlcompression.JavaUtilLoggingImpl");
 		Constructor<?> constructor = delegateClass.getConstructor(String.class);

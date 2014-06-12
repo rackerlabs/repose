@@ -17,26 +17,30 @@
 package com.rackspace.external.pjlcompression;
 
 import com.mockrunner.mock.web.WebMockObjectFactory;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.servlet.FilterConfig;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests {@link CompressingFilter}.
  *
  * @author Sean Owen
  */
-public final class ThresholdOutputStreamTest extends TestCase {
+public final class ThresholdOutputStreamTest {
 
 	private ByteArrayOutputStream baos;
 	private Callback callback;
 	private ThresholdOutputStream tos;
 
-	@Override	
+	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		baos = new ByteArrayOutputStream();
 		callback = new Callback();
 		WebMockObjectFactory factory = new WebMockObjectFactory();
@@ -50,6 +54,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
                     logger);
 	}
 
+    @Test
 	public void testWriteFlush() throws Exception {
 		tos.write(0);
 		tos.write(new byte[10]);
@@ -65,6 +70,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
 		assertTrue(callback.compressingStreamCommitted);
 	}
 
+    @Test
 	public void testReset() throws Exception {
 		tos.write(new byte[10]);
 		assertEquals(0, baos.size());
@@ -76,6 +82,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
 		assertFalse(callback.compressingStreamCommitted);
 	}
 
+    @Test
 	public void testNoCompression() throws Exception {
 		byte[] bytes = CompressingFilterResponseTest.SMALL_DOCUMENT.getBytes();
 		tos.write(bytes);
@@ -85,6 +92,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
 		assertFalse(callback.compressingStreamCommitted);
 	}
 
+    @Test
 	public void testForceNoCompression() throws Exception {
 		byte[] bytes = CompressingFilterResponseTest.BIG_DOCUMENT.getBytes();
 		tos.forceOutputStream1();
@@ -96,6 +104,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
 		assertFalse(callback.compressingStreamCommitted);
 	}
 
+    @Test
 	public void testCompression() throws Exception {
 		byte[] bytes = CompressingFilterResponseTest.BIG_DOCUMENT.getBytes();
 		tos.write(bytes);
@@ -106,6 +115,7 @@ public final class ThresholdOutputStreamTest extends TestCase {
 		assertTrue(callback.compressingStreamCommitted);
 	}
 
+    @Test
 	public void testForceCompression() throws Exception {
 		byte[] bytes = CompressingFilterResponseTest.SMALL_DOCUMENT.getBytes();
 		tos.switchToOutputStream2();

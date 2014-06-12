@@ -21,7 +21,9 @@ import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.mockrunner.mock.web.MockHttpServletResponse;
 import com.mockrunner.mock.web.WebMockObjectFactory;
 import com.mockrunner.servlet.ServletTestModule;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -34,13 +36,18 @@ import java.util.Random;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Tests {@link CompressingFilter} compressed requests.
  *
  * @author Sean Owen
  * @since 1.6
  */
-public final class CompressingFilterRequestTest extends TestCase {
+public final class CompressingFilterRequestTest {
 
 	private static final byte[] BIG_DOCUMENT;
 	static {
@@ -53,9 +60,8 @@ public final class CompressingFilterRequestTest extends TestCase {
 	private WebMockObjectFactory factory;
 	private ServletTestModule module;
 
-	@Override
+    @Before
 	public void setUp() throws Exception {
-		super.setUp();
 		factory = new WebMockObjectFactory();
 		MockFilterConfig config = factory.getMockFilterConfig();
 		config.setInitParameter("debug", "true");
@@ -65,14 +71,13 @@ public final class CompressingFilterRequestTest extends TestCase {
 		module.setDoChain(true);
 	}
 
-	@Override
+	@After
 	public void tearDown() throws Exception {
 		factory = null;
 		module = null;
-		super.tearDown();
 	}
 
-
+    @Test
 	public void testBigOutput() throws Exception {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream(10000);
 		if (module.getServlet() == null) {
@@ -110,13 +115,13 @@ public final class CompressingFilterRequestTest extends TestCase {
 
 		assertEquals(1, stats.getNumRequestsCompressed());
 		assertEquals(0, stats.getTotalRequestsNotCompressed());
-		assertEquals((double) BIG_DOCUMENT.length / (double) compressedBigDoc.length, stats.getRequestAverageCompressionRatio());
+		assertEquals((double) BIG_DOCUMENT.length / (double) compressedBigDoc.length, stats.getRequestAverageCompressionRatio(), 0.0001);
 		assertEquals((long) compressedBigDoc.length, stats.getRequestCompressedBytes());
 		assertEquals((long) BIG_DOCUMENT.length, stats.getRequestInputBytes());
 
 		assertEquals(0, stats.getNumResponsesCompressed());
 		assertEquals(1, stats.getTotalResponsesNotCompressed());
-		assertEquals(0.0, stats.getResponseAverageCompressionRatio());
+		assertEquals(0.0, stats.getResponseAverageCompressionRatio(), 0.0001);
 		assertEquals(0L, stats.getResponseCompressedBytes());
 		assertEquals(0L, stats.getResponseInputBytes());
 	}
