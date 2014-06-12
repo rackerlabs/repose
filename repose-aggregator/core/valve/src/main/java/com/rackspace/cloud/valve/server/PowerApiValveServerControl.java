@@ -20,7 +20,7 @@ import java.util.List;
 
 public class PowerApiValveServerControl {
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
-    private final List<Port> ports = new ArrayList<>();
+    private final List<Port> ports = new ArrayList<Port>();
     private final Server serverInstance;
 
     public PowerApiValveServerControl(

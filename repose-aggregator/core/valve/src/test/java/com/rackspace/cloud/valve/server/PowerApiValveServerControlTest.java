@@ -25,7 +25,6 @@ public class PowerApiValveServerControlTest {
             powerApiValveServerControl = new PowerApiValveServerControl(
                     commandLineArguments.getHttpPort(),
                     commandLineArguments.getHttpsPort(),
-                    commandLineArguments.getStopPort(),
                     commandLineArguments.getConfigDirectory(),
                     commandLineArguments.getInsecure());
         }

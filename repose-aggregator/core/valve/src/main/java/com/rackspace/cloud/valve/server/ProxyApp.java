@@ -53,12 +53,7 @@ public final class ProxyApp {
               commandLineArgs.getConfigDirectory(),
               commandLineArgs.getInsecure());
 
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
-         serverControl.startPowerApiValve();
-      }
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
-         serverControl.stopPowerApiValve();
-      }
+       serverControl.startPowerApiValve();
    }
    
    private ProxyApp(){
@@ -95,7 +90,7 @@ public final class ProxyApp {
    @SuppressWarnings("PMD.SystemPrintln")
    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
       System.err.println(e.getMessage());
-      System.err.println("java -jar repose-valve.jar [options...] arguments...");
+      System.err.println("java -jar repose-valve.jar [options...]");
       cmdLineParser.printUsage(System.err);
    }
 
