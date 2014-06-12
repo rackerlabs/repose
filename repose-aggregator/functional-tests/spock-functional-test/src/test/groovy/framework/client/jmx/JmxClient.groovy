@@ -93,6 +93,29 @@ class JmxClient {
 
         mbeans
     }
+    /**
+     * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
+     *
+     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
+     *
+     * @param beanName
+     * @return
+     */
+    def getMBeanNames(domain) {
+
+        def mbeans
+
+        try {
+            waitForCondition(clock, '25s', '1s', {
+                mbeans = server.queryNames(new ObjectName(domain), null)
+                mbeans != null && mbeans.size() >= 1
+            })
+        } catch (TimeoutException) {
+            // ignore this and simply return the total mbeans found
+        }
+
+        mbeans
+    }
 
     /**
      * Accounting for some test flakiness caused by some latency in MBeans being available to JMX clients.
