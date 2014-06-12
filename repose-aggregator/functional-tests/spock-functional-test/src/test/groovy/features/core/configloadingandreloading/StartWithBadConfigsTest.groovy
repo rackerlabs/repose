@@ -81,7 +81,6 @@ class StartWithBadConfigsTest extends Specification {
         "client-auth-n"           | _
         "openstack-authorization" | _
         "dist-datastore"          | _
-        "http-logging"            | _
         "uri-identity"            | _
         "header-identity"         | _
         "ip-identity"             | _

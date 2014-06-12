@@ -12,7 +12,6 @@
 
     <modules>
         <module>filter-bundle</module>
-        <module>http-logging</module>
         <module>slf4j-http-logging</module>
         <module>client-auth</module>
         <module>header-identity</module>
@@ -211,12 +210,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>flush-output</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>http-logging</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

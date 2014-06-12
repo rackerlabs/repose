@@ -91,7 +91,6 @@ class StartWithGoodConfigsTest extends Specification {
         "client-auth-n"           | 200
         "openstack-authorization" | 401
         "dist-datastore"          | 200
-        "http-logging"            | 200
         "uri-identity"            | 200
         "header-identity"         | 200
         "ip-identity"             | 200
