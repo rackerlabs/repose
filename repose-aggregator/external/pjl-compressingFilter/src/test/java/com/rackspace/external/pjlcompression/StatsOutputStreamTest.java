@@ -16,30 +16,33 @@
 
 package com.rackspace.external.pjlcompression;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link StatsOutputStream}.
  *
  * @author Sean Owen
  */
-public final class StatsOutputStreamTest extends TestCase {
+public final class StatsOutputStreamTest {
 
 	private ByteArrayOutputStream baos;
 	private MockStatsCallback callback;
 	private OutputStream statsOut;
 
-	@Override	
+	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		baos = new ByteArrayOutputStream();
 		callback = new MockStatsCallback();
 		statsOut = new StatsOutputStream(baos, callback);
 	}
 
+    @Test
 	public void testStats() throws Exception {
 		assertBytesWritten(0);
 		statsOut.write(0);

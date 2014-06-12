@@ -271,14 +271,14 @@ public final class CompressingFilterStats implements Serializable {
 			this.field = field;
 		}
 
-		public void bytesRead(int numBytes) {
+		public void bytesRead(long numBytes) {
 			assert numBytes >= 0;
 			switch (field) {
 				case REQUEST_INPUT_BYTES:
-					requestInputBytes += (long) numBytes;
+					requestInputBytes += numBytes;
 					break;
 				case REQUEST_COMPRESSED_BYTES:
-					requestCompressedBytes += (long) numBytes;
+					requestCompressedBytes += numBytes;
 					break;
 				default:
 					throw new IllegalStateException();

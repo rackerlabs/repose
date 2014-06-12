@@ -53,7 +53,7 @@ final class StatsInputStream extends InputStream {
 	@Override
 	public int read(byte[] b) throws IOException {
 		int result = inputStream.read(b);
-		if (result >= 0) {
+		if (result > 0) {
 			// here, result is number of bytes read
 			statsCallback.bytesRead(result);
 		}
@@ -63,8 +63,8 @@ final class StatsInputStream extends InputStream {
 	@Override
 	public int read(byte[] b, int offset, int length) throws IOException {
 		int result = inputStream.read(b, offset, length);
-		if (result >= 0) {
-			// here, result is number of bytes read			
+		if (result > 0) {
+			// here, result is number of bytes read
 			statsCallback.bytesRead(result);
 		}
 		return result;
@@ -73,9 +73,14 @@ final class StatsInputStream extends InputStream {
 	// Leave implementation of readLine() in superclass alone, even if it's not so efficient
 
 	@Override
-	public long skip(long n) throws IOException {
-		return inputStream.skip(n);
-	}
+    public long skip(long n) throws IOException {
+        final long result = inputStream.skip(n);
+        if (result > 0) {
+            // here, result is number of bytes skipped
+            statsCallback.bytesRead(result);
+        }
+        return result;
+    }
 
 	@Override
 	public int available() throws IOException {
@@ -107,9 +112,7 @@ final class StatsInputStream extends InputStream {
 		return "StatsInputStream[" + inputStream + ']';
 	}
 
-
 	interface StatsCallback {
-		void bytesRead(int numBytes);
+		void bytesRead(long numBytes);
 	}
-
 }
