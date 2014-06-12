@@ -19,7 +19,6 @@ public class ReposeGlassFishContainer extends ReposeContainer {
     public ReposeGlassFishContainer(ReposeContainerProps props) throws GlassFishException {
 
         super(props);
-        monitor = new ContainerMonitorThread(this, Integer.parseInt(stopPort));
         GlassFishProperties properties = new GlassFishProperties();
         GlassFishRuntime runtime = GlassFishRuntime.bootstrap();
         properties.setPort("http-listener", Integer.parseInt(listenPort));
@@ -35,10 +34,17 @@ public class ReposeGlassFishContainer extends ReposeContainer {
         try {
             glassfish.start();
             monitor.start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    stopRepose();
+                }
+            });
+
             File war = new File(warLocation);
             Deployer deployer = glassfish.getDeployer();
             deployer.deploy(war, "--name=repose", "--contextroot=/", "--force=true");
-
         } catch (GlassFishException e) {
             LOG.trace("Unable to start glassfish container", e);
             System.err.println("Unable to start glassfish container");

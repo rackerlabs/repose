@@ -34,8 +34,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
                 tomcat.addWebapp("/"+ MocksUtil.getServletPath(originService), originService);
             }
         }
-
-        monitor = new ContainerMonitorThread(this, Integer.parseInt(stopPort));
     }
 
     @Override
@@ -43,6 +41,14 @@ public class ReposeTomcatContainer extends ReposeContainer {
         try {
             monitor.start();
             tomcat.start();
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    stopRepose();
+                }
+            });
+
             System.out.println("Tomcat Container Running");
             tomcat.getServer().await();
         } catch (LifecycleException e) {
