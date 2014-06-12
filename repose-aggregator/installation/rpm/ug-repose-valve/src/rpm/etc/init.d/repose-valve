@@ -10,7 +10,6 @@
 . /etc/rc.d/init.d/functions
 
 RUN_PORT=8774
-SHUTDOWN_PORT=8123
 CONFIG_DIRECTORY=/etc/repose
 
 USER=root
@@ -40,13 +39,13 @@ fi
 
 daemonize=/usr/sbin/daemonize
 daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
-run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
+run_opts="-p $RUN_PORT -c $CONFIG_DIRECTORY"
 
 start()
 {
   echo -n "Starting $NAME: "
   $CLEAN $CONFIG_DIRECTORY
-  daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
+  daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar $run_opts
   echo
 }
 
@@ -54,7 +53,6 @@ stop()
 {
   echo -n "Stopping $NAME: "
 
-  /usr/bin/java -jar $DAEMON_HOME/$NAME.jar STOP $run_opts > /dev/null 2>&1
   killproc -p $PID_FILE -d 3 $NAME && rm -f /var/lock/subsys/$NAME
   echo
 }
