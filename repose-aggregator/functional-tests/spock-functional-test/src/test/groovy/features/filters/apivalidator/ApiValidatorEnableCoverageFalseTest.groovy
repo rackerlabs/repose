@@ -13,13 +13,6 @@ import org.junit.experimental.categories.Category
 @Category(Slow.class)
 class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
     String intrumentedHandler = '\"com.rackspace.com.papi.components.checker.handler\":*'
-    def static s0_count = 0
-    def S0 = 0
-    def SA = 0
-    def S0_a_admin = 0
-    String s0str = 'name=\"S0\"'
-    String sastr = 'name=\"SA\"'
-    String s0adminstr = 'name=\"S0_a_admin\"'
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -55,8 +48,6 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/a", method: method, headers: headers)
-        if(headers != null)
-            s0_count = s0_count + 1
 
         def getBeanObj = repose.jmx.getMBeanNames(intrumentedHandler)
 
@@ -67,7 +58,7 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest{
         def getMBeanObj = repose.jmx.getMBeanNames(validatorBeanDomain)
 
         def strIt = getMBeanObj[0].toString()
-        println(strIt)
+        //println(strIt)
         if(strIt.contains(checkstrscope))
             check = true
 
