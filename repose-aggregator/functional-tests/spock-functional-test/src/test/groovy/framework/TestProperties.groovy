@@ -24,7 +24,6 @@ class TestProperties {
     String mocksWar
 
     int reposePort
-    int reposeShutdownPort
 
     // Property settings that aren't set for every test
     int targetPort
@@ -59,7 +58,7 @@ class TestProperties {
             reposeJar = properties.getProperty("repose.jar")
             reposeRootWar = properties.getProperty("repose.root.war")
             reposePort = PortFinder.Singleton.getNextOpenPort()
-            reposeShutdownPort = PortFinder.Singleton.getNextOpenPort()
+
 
             glassfishJar = properties.getProperty("glassfish.jar")
             tomcatJar = properties.getProperty("tomcat.jar")

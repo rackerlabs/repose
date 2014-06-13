@@ -3,9 +3,6 @@ import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
-import java.nio.charset.Charset
-import java.util.concurrent.TimeoutException
-
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeValveLauncher extends ReposeLauncher {
@@ -152,9 +149,9 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     void stop() {
-        // todo: Force kill after destroy?
-
         process.destroy()
+        process.waitFor()
+        // todo: Force kill after destroy?
     }
 
     @Override
