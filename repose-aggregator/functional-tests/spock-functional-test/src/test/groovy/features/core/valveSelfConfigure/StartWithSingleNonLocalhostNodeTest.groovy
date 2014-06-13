@@ -16,7 +16,6 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
     Endpoint endpoint
 
     int port
-    int stopPort
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
@@ -31,7 +30,7 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
         endpoint = deproxy.addEndpoint(targetPort)
 
         port = properties.reposePort
-        stopPort = properties.reposeShutdownPort
+
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
@@ -51,8 +50,7 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
                 properties.getReposeJar(),
                 "http://localhost:${port}",
                 properties.getConfigDirectory(),
-                port,
-                stopPort
+                port
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

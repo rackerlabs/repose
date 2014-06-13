@@ -20,8 +20,7 @@ class DestinationClusterTest extends Specification {
         deproxy.addEndpoint(originServicePort1)
         deproxy.addEndpoint(originServicePort2)
 
-        int reposePort = properties.getReposePort()
-        int shutdownPort = properties.getReposeShutdownPort()
+
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
@@ -45,7 +44,7 @@ class DestinationClusterTest extends Specification {
         config.applyConfigs("features/core/proxy/clusterdestination", params)
         config.applyConfigs("common", params)
 
-        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort)
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()

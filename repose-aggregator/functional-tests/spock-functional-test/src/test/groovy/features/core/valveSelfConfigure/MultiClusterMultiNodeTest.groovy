@@ -23,7 +23,6 @@ class MultiClusterMultiNodeTest extends Specification {
     int port12
     int port21
     int port22
-    int stopPort
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
@@ -43,7 +42,7 @@ class MultiClusterMultiNodeTest extends Specification {
         port12 = PortFinder.Singleton.getNextOpenPort()
         port21 = PortFinder.Singleton.getNextOpenPort()
         port22 = PortFinder.Singleton.getNextOpenPort()
-        stopPort = properties.reposeShutdownPort
+
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
@@ -63,8 +62,7 @@ class MultiClusterMultiNodeTest extends Specification {
                 properties.getReposeJar(),
                 "http://localhost:${port11}",
                 properties.getConfigDirectory(),
-                port11,
-                stopPort
+                port11
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

@@ -32,8 +32,7 @@ class PatchMethodTest extends Specification {
                 properties.reposeJar,
                 properties.reposeEndpoint,
                 properties.configDirectory,
-                properties.reposePort,
-                properties.reposeShutdownPort
+                properties.reposePort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

@@ -17,7 +17,6 @@ import spock.lang.Specification
 class AuthNConnectionPoolingTest extends Specification {
 
     int reposePort
-    int reposeStopPort
     int originServicePort
     int identityServicePort
     String urlBase
@@ -38,7 +37,6 @@ class AuthNConnectionPoolingTest extends Specification {
         // get ports
         properties = new TestProperties()
         reposePort = properties.reposePort
-        reposeStopPort = properties.reposeShutdownPort
         originServicePort = properties.targetPort
         identityServicePort = properties.identityPort
 
@@ -65,8 +63,7 @@ class AuthNConnectionPoolingTest extends Specification {
                 properties.reposeJar,
                 urlBase,
                 configDirectory,
-                reposePort,
-                reposeStopPort
+                reposePort
         )
         repose.enableDebug()
 

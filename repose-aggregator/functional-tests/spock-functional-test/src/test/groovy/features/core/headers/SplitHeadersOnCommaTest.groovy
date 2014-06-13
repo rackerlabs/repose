@@ -13,7 +13,6 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
 
     static int originServicePort
     static int reposePort
-    static int shutdownPort
     static String url
     static ReposeConfigurationProvider reposeConfigProvider
 
@@ -23,7 +22,6 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
         deproxy.addEndpoint(originServicePort)
 
         reposePort = properties.reposePort
-        shutdownPort = properties.reposeShutdownPort
         url = "http://localhost:${reposePort}"
 
         reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
@@ -32,8 +30,7 @@ class SplitHeadersOnCommaTest extends ReposeValveTest {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                shutdownPort
+                reposePort
         )
         repose.enableDebug()
 

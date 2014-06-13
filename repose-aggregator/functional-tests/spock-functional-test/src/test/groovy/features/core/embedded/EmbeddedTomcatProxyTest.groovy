@@ -5,10 +5,8 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.TestProperties
-import framework.TestUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class EmbeddedTomcatProxyTest extends Specification {
@@ -25,7 +23,6 @@ class EmbeddedTomcatProxyTest extends Specification {
         deproxy.addEndpoint(originServicePort)
 
         int reposePort = properties.reposePort
-        int shutdownPort = properties.reposeShutdownPort
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.getConfigDirectory()
@@ -52,7 +49,7 @@ class EmbeddedTomcatProxyTest extends Specification {
         config.applyConfigs("features/core/embedded", params)
 
         repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
-                reposePort, shutdownPort, mocksWar)
+                reposePort, mocksWar)
         repose.clusterId = "repose"
         repose.start()
         repose.waitForNon500FromUrl(tomcatEndpoint, 120)

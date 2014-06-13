@@ -18,7 +18,6 @@ class TransitionBadToGoodConfigsTest extends Specification {
     static Deproxy deproxy
 
     int reposePort
-    int stopPort
     String url
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
@@ -30,7 +29,6 @@ class TransitionBadToGoodConfigsTest extends Specification {
 
         properties = new TestProperties()
         this.reposePort = properties.reposePort
-        this.stopPort = properties.reposeShutdownPort
         this.targetPort = properties.targetPort
         this.url = properties.reposeEndpoint
 
@@ -57,8 +55,7 @@ class TransitionBadToGoodConfigsTest extends Specification {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                reposePort
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());

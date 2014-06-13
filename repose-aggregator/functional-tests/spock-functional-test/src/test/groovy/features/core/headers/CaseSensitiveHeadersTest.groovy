@@ -12,7 +12,6 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
 
     static int originServicePort
     static int reposePort
-    static int shutdownPort
     static String url
     static ReposeConfigurationProvider reposeConfigProvider
 
@@ -22,7 +21,6 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         deproxy.addEndpoint(originServicePort)
 
         reposePort = properties.reposePort
-        shutdownPort = properties.reposeShutdownPort
         url = "http://localhost:${reposePort}"
 
         reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
@@ -31,8 +29,7 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                shutdownPort
+                reposePort
         )
         repose.enableDebug()
 

@@ -15,7 +15,6 @@ class ReposeStartupGlassfishTest extends Specification {
     static def reposeGlassfishEndpoint
 
     static int reposePort
-    static int shutdownPort
     static String rootWar
     static Deproxy deproxy
     static ReposeLauncher repose
@@ -32,7 +31,6 @@ class ReposeStartupGlassfishTest extends Specification {
 
         rootWar = properties.getReposeRootWar()
         reposePort = properties.reposePort
-        shutdownPort = properties.reposeShutdownPort
 
         configProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
 
@@ -60,7 +58,7 @@ class ReposeStartupGlassfishTest extends Specification {
 
     def "when Repose is started without the repose-cluster-id property, a message should be logged and Repose should stop"() {
         given:
-        repose = new ReposeContainerLauncher(configProvider, properties.getGlassfishJar(), null, "node", rootWar, reposePort, shutdownPort)
+        repose = new ReposeContainerLauncher(configProvider, properties.getGlassfishJar(), null, "node", rootWar, reposePort)
 
         when:
         repose.start()

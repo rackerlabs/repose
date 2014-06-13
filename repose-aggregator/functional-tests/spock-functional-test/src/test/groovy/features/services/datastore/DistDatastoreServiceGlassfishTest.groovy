@@ -45,8 +45,7 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         int reposePort2 = PortFinder.Singleton.getNextOpenPort()
         int dataStorePort1 = PortFinder.Singleton.getNextOpenPort()
         int dataStorePort2 = PortFinder.Singleton.getNextOpenPort()
-        int shutdownPort1 = properties.reposeShutdownPort
-        int shutdownPort2 = PortFinder.Singleton.getNextOpenPort()
+
 
         println("repose1: ${reposePort1}")
         println("repose2: ${reposePort2}")
@@ -80,13 +79,13 @@ class DistDatastoreServiceGlassfishTest extends Specification {
         config1.applyConfigs("features/services/datastore/multinode", params)
         config1.applyConfigs("common", params)
 
-        repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1, shutdownPort1)
+        repose1 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node1", rootWar, reposePort1)
 
         repose1.start()
         repose1.waitForNon500FromUrl(reposeGlassfishEndpoint1, 120)
         repose1.waitForNon500FromUrl(datastoreGlassfishEndpoint1, 120)
 
-        repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2, shutdownPort2)
+        repose2 = new ReposeContainerLauncher(config1, properties.getGlassfishJar(), "repose1", "node2", rootWar, reposePort2)
         repose2.start()
 
         repose2.waitForNon500FromUrl(reposeGlassfishEndpoint2, 120)

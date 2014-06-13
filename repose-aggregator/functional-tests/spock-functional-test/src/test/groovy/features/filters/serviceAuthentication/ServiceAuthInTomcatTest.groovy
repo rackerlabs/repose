@@ -26,7 +26,7 @@ class ServiceAuthInTomcatTest extends Specification {
         deproxy.addEndpoint(originServicePort)
 
         int reposePort = properties.reposePort
-        int shutdownPort = properties.reposeShutdownPort
+
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.configDirectory
@@ -42,7 +42,7 @@ class ServiceAuthInTomcatTest extends Specification {
         config.applyConfigs("features/filters/serviceAuthentication", params)
         config.applyConfigs("common", params)
 
-        repose = new ReposeContainerLauncher(config, properties.tomcatJar, "repose1", "node1", rootWar, reposePort, shutdownPort)
+        repose = new ReposeContainerLauncher(config, properties.tomcatJar, "repose1", "node1", rootWar, reposePort)
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()
