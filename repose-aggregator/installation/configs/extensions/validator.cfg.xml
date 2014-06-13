@@ -5,6 +5,7 @@
       role="default"
       default="true"
       wadl="pass.wadl"
+      api-coverage="true"
       dot-output="/tmp/default.dot"
       check-well-formed="false"
       check-xsd-grammar="true"

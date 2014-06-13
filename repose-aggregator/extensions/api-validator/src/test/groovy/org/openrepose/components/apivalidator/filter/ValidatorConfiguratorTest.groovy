@@ -1,5 +1,7 @@
 package org.openrepose.components.apivalidator.filter
 
+import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
+import com.rackspace.com.papi.components.checker.handler.ResultHandler
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
@@ -24,7 +26,7 @@ class ValidatorConfiguratorTest {
         v2.setWadl(wadl)
         cnf.getValidator().add(v1)
         cnf.getValidator().add(v2)
-        validatorConfigurator = new ValidatorConfigurator();
+        validatorConfigurator = new ValidatorConfigurator()
     }
 
     @Test
@@ -43,6 +45,16 @@ class ValidatorConfiguratorTest {
         for (ValidatorInfo info : validatorConfigurator.getValidators()) {
             assert !info.getValidator().config().preserveRequestBody
         }
+    }
+
+    @Test
+    void whenApiCoverageIsTrueThenAnInstrumentedHandlerShouldBePresent() {
+        ValidatorConfigurator vldtrConfigurator = new ValidatorConfigurator()
+        ValidatorItem vItem = new ValidatorItem()
+        vItem.setEnableApiCoverage(true)
+
+        DispatchHandler handlers = vldtrConfigurator.getHandlers(vItem, true, "")
+        assert handlers.handlers[0] instanceof InstrumentedHandler
     }
 
     static String getFilePath(URL path) {

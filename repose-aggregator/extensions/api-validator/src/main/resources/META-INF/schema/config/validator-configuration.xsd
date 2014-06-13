@@ -102,6 +102,18 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="enable-api-coverage" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true, this validator will record, via JMX, the number of times each state in the
+                        generated state machine (the mechanism underlying api validation) is accessed. These values may
+                        be used to determine api usage and coverage.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>

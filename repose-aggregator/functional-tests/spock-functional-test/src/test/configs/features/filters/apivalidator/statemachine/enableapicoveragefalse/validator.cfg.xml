@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators multi-role-match="false" xmlns='http://openrepose.org/repose/validator/v1.0'>
+    <validator role="raxRolesEnabled"
+               default="false"
+               enable-rax-roles="true"
+               mask-rax-roles-403="true"
+               enable-api-coverage="false"
+               dot-output="output.dot">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/a">
+                    <method name="GET" rax:roles="a:observer a:admin"/>
+                    <method name="POST" rax:roles="a:admin"/>
+                    <method name="DELETE" rax:roles="a:admin"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
+</validators>

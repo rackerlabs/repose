@@ -4,7 +4,8 @@
    <validator
       role="default"
       default="true"
-      wadl="file://my/wadl/file.wadl" 
+      wadl="file://my/wadl/file.wadl"
+      api-coverage="true"
       dot-output="/tmp/default.dot"
       check-well-formed="false" 
       check-xsd-grammar="true"

@@ -1,6 +1,7 @@
 package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
+import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
@@ -98,12 +99,16 @@ public class ValidatorConfigurator {
             handlers.add(new ServletResultHandler());
         }
 
+        if (validatorItem.isEnableApiCoverage()) {
+            handlers.add(new InstrumentedHandler());
+        }
+
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
             final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput(), configRoot));
             File out = new File(dotPath);
             try {
                 if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
-                    handlers.add(new SaveDotHandler(out, true, true));
+                    handlers.add(new SaveDotHandler(out, !validatorItem.isEnableApiCoverage(), true));
                 } else {
                     LOG.warn("Cannot write to DOT file: " + dotPath);
                 }
