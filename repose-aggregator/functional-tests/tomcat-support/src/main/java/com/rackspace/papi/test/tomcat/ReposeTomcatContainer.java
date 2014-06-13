@@ -1,6 +1,5 @@
 package com.rackspace.papi.test.tomcat;
 
-import com.rackspace.papi.test.ContainerMonitorThread;
 import com.rackspace.papi.test.ReposeContainer;
 import com.rackspace.papi.test.ReposeContainerProps;
 import com.rackspace.papi.test.mocks.util.MocksUtil;
@@ -15,7 +14,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
     private static final Logger LOG = LoggerFactory.getLogger(ReposeTomcatContainer.class);
 
     private Tomcat tomcat;
-    protected ContainerMonitorThread monitor;
     private static final String BASE_DIRECTORY = System.getProperty("java.io.tmpdir");
 
 
@@ -29,7 +27,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
         tomcat.addWebapp("/", warLocation).setCrossContext(true);
 
         if(props.getOriginServiceWars() != null && props.getOriginServiceWars().length != 0){
-
             for(String originService: props.getOriginServiceWars()){
                 tomcat.addWebapp("/"+ MocksUtil.getServletPath(originService), originService);
             }
@@ -39,7 +36,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
     @Override
     protected void startRepose() {
         try {
-            monitor.start();
             tomcat.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread() {

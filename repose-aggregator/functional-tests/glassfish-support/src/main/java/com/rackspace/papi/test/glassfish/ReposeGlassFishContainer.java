@@ -1,6 +1,5 @@
 package com.rackspace.papi.test.glassfish;
 
-import com.rackspace.papi.test.ContainerMonitorThread;
 import com.rackspace.papi.test.ReposeContainer;
 import com.rackspace.papi.test.ReposeContainerProps;
 import org.glassfish.embeddable.*;
@@ -13,8 +12,6 @@ public class ReposeGlassFishContainer extends ReposeContainer {
     private static final Logger LOG = LoggerFactory.getLogger(ReposeGlassFishContainer.class);
 
     private GlassFish glassfish;
-    protected ContainerMonitorThread monitor;
-
 
     public ReposeGlassFishContainer(ReposeContainerProps props) throws GlassFishException {
 
@@ -24,16 +21,12 @@ public class ReposeGlassFishContainer extends ReposeContainer {
         properties.setPort("http-listener", Integer.parseInt(listenPort));
 
         glassfish = runtime.newGlassFish(properties);
-
-
     }
 
     @Override
     protected void startRepose() {
-
         try {
             glassfish.start();
-            monitor.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
