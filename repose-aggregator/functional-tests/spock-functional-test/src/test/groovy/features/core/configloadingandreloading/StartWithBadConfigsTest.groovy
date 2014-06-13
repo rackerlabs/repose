@@ -13,7 +13,6 @@ import spock.lang.Unroll
 class StartWithBadConfigsTest extends Specification {
 
     int reposePort
-    int stopPort
     int targetPort
     String url
     TestProperties properties
@@ -27,7 +26,6 @@ class StartWithBadConfigsTest extends Specification {
 
         properties = new TestProperties()
         this.reposePort = properties.reposePort
-        this.stopPort = properties.reposeShutdownPort
         this.targetPort = properties.targetPort
         this.url = properties.reposeEndpoint
 
@@ -59,8 +57,7 @@ class StartWithBadConfigsTest extends Specification {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                reposePort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
@@ -108,8 +105,7 @@ class StartWithBadConfigsTest extends Specification {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                reposePort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

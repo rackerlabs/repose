@@ -17,7 +17,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     def clock = new SystemClock()
 
     def reposeEndpoint
-    def int shutdownPort
     def int reposePort
 
     def JmxClient jmx
@@ -35,21 +34,18 @@ class ReposeValveLauncher extends ReposeLauncher {
                 properties.reposeJar,
                 properties.reposeEndpoint,
                 properties.configDirectory,
-                properties.reposePort,
-                properties.reposeShutdownPort
+                properties.reposePort
         )
     }
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         String reposeJar,
                         String reposeEndpoint,
                         String configDir,
-                        int reposePort,
-                        int shutdownPort) {
+                        int reposePort) {
         this.configurationProvider = configurationProvider
         this.reposeJar = reposeJar
         this.reposeEndpoint = reposeEndpoint
         this.reposePort = reposePort
-        this.shutdownPort = shutdownPort
         this.configDir = configDir
     }
 
@@ -117,7 +113,7 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -s $shutdownPort -c $configDir"
+        def cmd = "java -Xmx1536M -Xms1024M -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
         cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
@@ -156,45 +152,9 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     void stop() {
-        this.stop([:])
-    }
-    void stop(Map params) {
+        // todo: Force kill after destroy?
 
-        def timeout = params?.timeout ?: 45000
-        def throwExceptionOnKill = true
-        if (params.containsKey("throwExceptionOnKill")) {
-            throwExceptionOnKill = params.throwExceptionOnKill
-        }
-
-        stop(timeout, throwExceptionOnKill)
-    }
-    void stop(int timeout, boolean throwExceptionOnKill) {
-
-        int socketTimeout = (timeout < 5000 ? timeout : 5000)
-
-        try {
-
-            Socket s = new Socket()
-            s.setSoTimeout(socketTimeout)
-            s.connect(new InetSocketAddress("localhost", shutdownPort), socketTimeout)
-            s.outputStream.write("\r\n".getBytes(Charset.forName("US-ASCII")))
-            s.outputStream.flush()
-            s.close()
-
-            waitForCondition(clock, "${timeout}", '1s', {
-                !isUp()
-            })
-
-        } catch (Exception e) {
-            println ""
-            println "HERE IS THE ERROR: " + e.printStackTrace()
-
-            this.process.waitForOrKill(5000)
-
-            if (throwExceptionOnKill) {
-                throw new TimeoutException("Repose failed to stop cleanly")
-            }
-        }
+        process.destroy()
     }
 
     @Override
