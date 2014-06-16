@@ -94,7 +94,7 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>../../../../LICENSE.txt</location>
+                                            <location>${basedir}../../../../LICENSE.txt</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -121,6 +121,7 @@
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
+                            <group/>
                         </configuration>
                     </plugin>
                 </plugins>
