@@ -120,11 +120,11 @@
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
-                                    <directoryIncluded>false</directoryIncluded>
+                                    <directoryIncluded>true</directoryIncluded>
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/LICENSE.txt</location>
+                                            <location>${project.basedir}/LICENSE.txt</location>
                                         </source>
                                     </sources>
                                 </mapping>
