@@ -20,6 +20,7 @@ class DestinationClusterTest extends Specification {
         deproxy.addEndpoint(originServicePort1)
         deproxy.addEndpoint(originServicePort2)
 
+        int reposePort = properties.getReposePort()
 
         tomcatEndpoint = "http://localhost:${reposePort}"
 

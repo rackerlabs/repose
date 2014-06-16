@@ -23,6 +23,6 @@ public class ReposeContainerUtil {
 
         cmdline = parser.parse(options, args);
 
-        return new ReposeContainerProps(cmdline.getOptionValue("p"), cmdline.getOptionValue("s"), cmdline.getOptionValue("w"), cmdline.getOptionValues("war"));
+        return new ReposeContainerProps(cmdline.getOptionValue("p"), cmdline.getOptionValue("w"), cmdline.getOptionValues("war"));
     }
 }
