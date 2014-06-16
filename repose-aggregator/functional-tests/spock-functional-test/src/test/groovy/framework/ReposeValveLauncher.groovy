@@ -111,7 +111,6 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         def cmd = "java -Xmx1536M -Xms1024M -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
-        cmd = cmd + " start"
         println("Starting repose: ${cmd}")
 
         def th = new Thread({ this.process = cmd.execute() });
