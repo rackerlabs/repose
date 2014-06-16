@@ -124,7 +124,7 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../LICENSE.txt</location>
+                                            <location>${basedir}/../../../LICENSE.txt</location>
                                         </source>
                                     </sources>
                                 </mapping>
