@@ -12,7 +12,12 @@
     <artifactId>datastores-support</artifactId>
 
     <name>Repose Components - Datastores POM</name>
-    <description>Repose uses "datastores" to store various data.
+    <description>
+        Repose uses "datastores" to store various data.
+
+        By default, the local datastore is used, implemented as an in memory EH Cache.
+        A distributed datastore can be configured, which allows "striped" data storage
+        across all the nodes in a cluster.
 
         Datastores implement a specific API which is outlined below:
 
