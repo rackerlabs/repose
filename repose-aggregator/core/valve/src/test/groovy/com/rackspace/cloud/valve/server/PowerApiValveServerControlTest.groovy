@@ -36,11 +36,14 @@ public class PowerApiValveServerControlTest {
     }
 
     @Test
-    public void shouldStopAfterStartingAndRunShutdownHook() throws Exception {
+    public void shouldStopAfterStartingSuccessfully() throws Exception {
         powerApiValveServerControl.startPowerApiValve()
+
+        assertTrue(powerApiValveServerControl.serverInstance.isStarted())
+
         powerApiValveServerControl.stopPowerApiValve()
 
         assertTrue(powerApiValveServerControl.serverInstance.isStopped())
-        assertTrue(AppenderForTesting.getMessages()[915].startsWith("Repose has been stopped"))
+        assertTrue(AppenderForTesting.getMessages().contains("Repose has been stopped"))
     }
 }
