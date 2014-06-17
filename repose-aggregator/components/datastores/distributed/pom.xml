@@ -7,8 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- TODO: Shouldn't this have a groupId element? -->
-    <!--groupId>com.rackspace.papi.components</groupId-->
     <artifactId>datastore-distributed</artifactId>
 
     <name>Repose Components - Datastores - Distributed Impl</name>
@@ -18,7 +16,13 @@
         piece of data is stored on is determined by the hash of the key for that data.
 
         It communicates via a RESTful API at the ports specified in the
-        dist-datastore configuration file.
+        dist-datastore configuration file. The response is a serialized object
+        rather than a marshaled XML or JSON stream.
+
+        NOTE:   The distributed datastore does NOT use the datastore service
+                rather the DistributedDatastoreServlet. However the datastore
+                service exposes any configured datastore, including a
+                distributed datastore.
 
         If at any time the required remote datastore is not accessible,
         then the local datastore is utilized until the connection is reestablished.
@@ -26,8 +30,6 @@
         For a more in depth explanation of the dist-datastore,
         see repose/documentation/raw/dist-datastore.txt
     </description>
-    <!-- TODO: Shouldn't this have a packaging element? -->
-    <!--packaging>jar</packaging-->
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>

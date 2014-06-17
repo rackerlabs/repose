@@ -7,8 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- TODO: Shouldn't this have a groupId element? -->
-    <!--groupId>com.rackspace.papi.components</groupId-->
     <artifactId>datastores-support</artifactId>
 
     <name>Repose Components - Datastores POM</name>

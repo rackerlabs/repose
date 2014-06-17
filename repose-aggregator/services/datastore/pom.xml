@@ -12,15 +12,8 @@
 
     <name>Repose Services - Datastore POM</name>
     <description>
-        By default, a Repose datastore is local, but a distributed datastore
-        can be configured. This allows the data for an entire cluster to be
-        "striped" across all of the nodes.
-
-        This is accomplished by each node exposing it's own local datastore to
-        the cluster via this Service. It is also necessary to configure each of
-        the nodes in a cluster being with the same hash-ring seed. The node a
-        specific piece of data is stored on is determined by the hash of the
-        key for that data.
+        The datastore service is used to expose a datastore to other
+        services/filters that are running on that node.
     </description>
     <packaging>pom</packaging>
 

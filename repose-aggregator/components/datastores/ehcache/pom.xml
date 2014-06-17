@@ -7,8 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- TODO: Shouldn't this have a groupId element? -->
-    <!--groupId>com.rackspace.papi.components</groupId-->
     <artifactId>datastore-ehcache</artifactId>
 
     <name>Repose Components - Datastores - Ehcache Impl</name>
@@ -16,8 +14,6 @@
         This is the default datastore implementation which wraps the EH Cache
         API with the datastore API.
     </description>
-    <!-- TODO: Shouldn't this have a packaging element? -->
-    <!--packaging>jar</packaging-->
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>

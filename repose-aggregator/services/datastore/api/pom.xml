@@ -12,10 +12,10 @@
 
     <name>Repose Services - Datastore Service API</name>
     <description>
-        The API that Repose uses to expose a datastore for distrubuted use is
-        documented here. This allows for if the default implementation provided
-        by Repose is not adequate for a given deployment, then a new one can be
-        created that is usable by Repose.
+        The API that Repose uses to expose a datastore is documented here. This
+        allows for if the default implementation provided by Repose is not
+        adequate for a given deployment, then a new one can be created that is
+        usable by Repose.
     </description>
     <packaging>jar</packaging>
 

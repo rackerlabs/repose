@@ -7,18 +7,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- TODO: Shouldn't this have a groupId element? -->
-    <!--groupId>com.rackspace.papi.components</groupId-->
     <artifactId>datastore-service</artifactId>
 
     <name>Repose Services - Datastore Service Impl</name>
     <description>
-        This is the default implementation of a datastore service used to convert
-        a local datastore into a distributed data store so that other nodes in the
-        cluster can access it.
+        This is the default implementation of a datastore service used to expose
+        a datastore to other services/filters that are running on that node.
     </description>
-    <!-- TODO: Shouldn't this have a packaging element? -->
-    <!--packaging>jar</packaging-->
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>

@@ -7,8 +7,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- TODO: Shouldn't this have a groupId element? -->
-    <!--groupId>com.rackspace.papi.components</groupId-->
     <artifactId>datastore-api</artifactId>
 
     <name>Repose Components - Datastores - API</name>
@@ -18,8 +16,6 @@
         for a given deployment, then a new one can be created that is usable by
         Repose.
     </description>
-    <!-- TODO: Shouldn't this have a packaging element? -->
-    <!--packaging>jar</packaging-->
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
