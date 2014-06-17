@@ -87,7 +87,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         "ACCEPT"        | "APPLICATION/XML" |"GET"    | "uri_normalization"  | "a=1&r=1&r=2&N=test"                | "a=1&r=1&r=2"
         "Accept"        | "application/Xml" |"GET"    | "uri_normalization"  | "a=1&n=test&N=nonmatchingCase"      | "a=1&n=test"
         "accept"        | "application/xml" |"GET"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1"
-        "Content-type"  | "application/Json"|"POST"   | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
+        "Content-type"  | "application/json"|"POST"   | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
         "Content-Type"  | "application/xml" |"PUT"    | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
         "Accept"        | "TEXT/PLAIN"      |"DELETE" | "uri_normalization"  | "a=1&filter_me=true"                | "a=1&filter_me=true"
     }

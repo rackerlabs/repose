@@ -1,12 +1,10 @@
 package features.filters.ipidentity
-
 import framework.ReposeValveTest
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -169,7 +167,7 @@ class IpIdentityTest extends ReposeValveTest {
         "x-AUTH-token" | "slDSFslk&D"
         "x-auth-TOKEN" | "sl4hsdlg"
         "CONTENT-Type" | "application/json"
-        "Content-TYPE" | "application/JSON"
+        "Content-TYPE" | "application/json"
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }

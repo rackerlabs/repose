@@ -45,8 +45,8 @@ class RequestSizeTest extends ReposeValveTest {
         where:
         headerName | headerSize
         "Header1"  | 32000
-        "Header1"  | 8000
-        "Header1"  | 6000
+        "Header1"  | 16000
+        "Header1"  | 8068
     }
 
     @Unroll("request with header size of #headerSize should respond with 200")
@@ -70,7 +70,7 @@ class RequestSizeTest extends ReposeValveTest {
 
         where:
         headerName | headerSize
-        "Header1"  | 5980
+        "Header1"  | 8067
         "Header1"  | 5000
         "Header1"  | 4500
         "Header1"  | 4000

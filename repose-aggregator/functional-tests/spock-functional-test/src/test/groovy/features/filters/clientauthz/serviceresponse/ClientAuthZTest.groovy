@@ -160,7 +160,7 @@ class ClientAuthZTest extends ReposeValveTest {
         headerName | headerValue
         "Content-Type" | "application/json"
         "CONTENT-Type" | "application/json"
-        "Content-TYPE" | "application/JSON"
+        "Content-TYPE" | "application/json"
         //"content-type" | "application/xMl"
         //"Content-Type" | "APPLICATION/xml"
     }

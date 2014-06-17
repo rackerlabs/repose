@@ -7,7 +7,7 @@ import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -37,7 +37,7 @@ public class DistributedDatastoreJettyServerBuilder {
 
         List<Connector> connectors = new ArrayList<Connector>();
 
-        SelectChannelConnector conn = new SelectChannelConnector();
+        ServerConnector conn = new ServerConnector(server);
         conn.setPort(port);
         connectors.add(conn);
 
