@@ -79,7 +79,7 @@
 
                                 <!--This adds the license file on installation.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/Repose/</directory>
+                                    <directory>/usr/share/doc/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
