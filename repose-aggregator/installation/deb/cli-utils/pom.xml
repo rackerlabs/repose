@@ -82,7 +82,7 @@
 
                                         <!--This adds the license file on installation.-->
                                         <data>
-                                        <src>${basedir}/LICENSE.txt</src>
+                                        <src>${basedir}/../../../../LICENSE.txt</src>
                                         <type>file</type>
                                         <mapper>
                                             <type>perm</type>
