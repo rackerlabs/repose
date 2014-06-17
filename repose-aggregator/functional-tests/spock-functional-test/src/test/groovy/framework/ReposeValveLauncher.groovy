@@ -1,7 +1,10 @@
 package framework
+
 import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
+
+import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -19,7 +22,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     def JmxClient jmx
     def jmxPort = null
     def debugPort = null
-    def classPaths =[]
+    def classPaths = []
 
     Process process
 
@@ -34,6 +37,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 properties.reposePort
         )
     }
+
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         String reposeJar,
                         String reposeEndpoint,
@@ -50,6 +54,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     void start() {
         this.start([:])
     }
+
     void start(Map params) {
 
         boolean killOthersBeforeStarting = true
@@ -63,6 +68,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         start(killOthersBeforeStarting, waitOnJmxAfterStarting)
     }
+
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
         File jarFile = new File(reposeJar)
@@ -101,12 +107,12 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
         jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
-        if(!classPaths.isEmpty()){
+        if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
 
         }
 
-        if(System.getProperty('jacocoArguements')) {
+        if (System.getProperty('jacocoArguements')) {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
@@ -148,9 +154,39 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     @Override
     void stop() {
-        process.destroy()
-        process.waitFor()
-        // todo: Force kill after destroy?
+        this.stop([:])
+    }
+
+    void stop(Map params) {
+        def timeout = params?.timeout ?: 45000
+        def throwExceptionOnKill = true
+
+        if (params.containsKey("throwExceptionOnKill")) {
+            throwExceptionOnKill = params.throwExceptionOnKill
+        }
+
+        stop(timeout, throwExceptionOnKill)
+    }
+
+    void stop(int timeout, boolean throwExceptionOnKill) {
+        try {
+            println("Stopping Repose");
+            this.process.destroy()
+
+            print("Waiting for Repose to shutdown")
+            waitForCondition(clock, "${timeout}", '1s', {
+                print(".")
+                !isUp()
+            })
+
+            println()
+        } catch (IOException ioex) {
+            this.process.waitForOrKill(5000)
+            killIfUp()
+            if (throwExceptionOnKill) {
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+            }
+        }
     }
 
     @Override
@@ -159,11 +195,11 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     @Override
-    void addToClassPath(String path){
+    void addToClassPath(String path) {
         classPaths.add(path)
     }
 
-     /**
+    /**
      * TODO: introspect the system model for expected filters in filter chain and validate that they
      * are all present and accounted for
      * @return
@@ -209,10 +245,10 @@ class ReposeValveLauncher extends ReposeLauncher {
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
 
-            for (int i=1;i<=matcher.size();i++){
-            String pid = matcher[0][i]
+            for (int i = 1; i <= matcher.size(); i++) {
+                String pid = matcher[0][i]
 
-                if (pid!=null && !pid.isEmpty()) {
+                if (pid != null && !pid.isEmpty()) {
                     println("Killing running repose-valve process: " + pid)
                     Runtime rt = Runtime.getRuntime();
                     if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)

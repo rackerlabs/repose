@@ -1,6 +1,11 @@
 package framework
+
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
+
+import java.util.concurrent.TimeoutException
+
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeContainerLauncher extends AbstractReposeLauncher {
 
@@ -14,7 +19,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String[] appWars
     String debugPort
 
-    def boolean  debugEnabled = true
+    def boolean debugEnabled = true
 
     def clock = new SystemClock()
     def Process process
@@ -49,7 +54,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            webXmlOverrides = webXmlOverrides +  " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+            webXmlOverrides = webXmlOverrides + " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
         def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
@@ -69,8 +74,39 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
 
     @Override
     void stop() {
-        process.destroy()
-        process.waitFor()
+        this.stop([:])
+    }
+
+    void stop(Map params) {
+        def timeout = params?.timeout ?: 45000
+        def throwExceptionOnKill = true
+
+        if (params.containsKey("throwExceptionOnKill")) {
+            throwExceptionOnKill = params.throwExceptionOnKill
+        }
+
+        stop(timeout, throwExceptionOnKill)
+    }
+
+    void stop(int timeout, boolean throwExceptionOnKill) {
+        try {
+            println("Stopping Repose");
+            this.process.destroy()
+
+            print("Waiting for Repose Container to shutdown")
+            waitForCondition(clock, "${timeout}", '1s', {
+                print(".")
+                !isUp()
+            })
+
+            println()
+        } catch (IOException ioex) {
+            this.process.waitForOrKill(5000)
+            killIfUp()
+            if (throwExceptionOnKill) {
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
+            }
+        }
     }
 
     private void killIfUp() {
