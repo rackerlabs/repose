@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datastore-service-support</artifactId>
         <groupId>com.rackspace.papi.service</groupId>
+        <artifactId>datastore-service-support</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datastore-service</artifactId>
+
     <name>Repose Services - Datastore Service Impl</name>
+    <description>
+        This is the default implementation of a datastore service used to expose
+        a datastore to other services/filters that are running on that node.
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>

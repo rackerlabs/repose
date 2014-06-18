@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>datastores-support</artifactId>
         <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>datastores-support</artifactId>
         <version>5.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>datastore-distributed</artifactId>
+
     <name>Repose Components - Datastores - Distributed Impl</name>
+    <description>
+        The distributed datastore allows storing of information on the entire repose cluster.
+        Repose hosts a hash-ring object store across all nodes in the cluster. The node a specific
+        piece of data is stored on is determined by the hash of the key for that data.
 
-    <description>The distributed datastore allows storing of information on the entire repose cluster.
-        Repose hosts a hash-ring object store across all nodes in the cluster. The node
-        data is stored on is determined by the hash of the key for that data.
+        It communicates via a RESTful API at the ports specified in the
+        dist-datastore configuration file. The response is a serialized object
+        rather than a marshaled XML or JSON stream.
 
-        It communicates via ports specified in the dist-datastore configuration file.
+        NOTE:   The distributed datastore does NOT use the datastore service
+                rather the DistributedDatastoreServlet. However the datastore
+                service exposes any configured datastore, including a
+                distributed datastore.
+
+        If at any time the required remote datastore is not accessible,
+        then the local datastore is utilized until the connection is reestablished.
 
         For a more in depth explanation of the dist-datastore,
-        see repose/documentation/raw/dist-datastore.txt</description>
+        see repose/documentation/raw/dist-datastore.txt
+    </description>
 
     <properties>
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>

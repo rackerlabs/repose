@@ -11,7 +11,10 @@
     <artifactId>datastore-service-support</artifactId>
 
     <name>Repose Services - Datastore POM</name>
-
+    <description>
+        The datastore service is used to expose a datastore to other
+        services/filters that are running on that node.
+    </description>
     <packaging>pom</packaging>
 
     <modules>
