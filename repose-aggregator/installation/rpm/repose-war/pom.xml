@@ -83,6 +83,22 @@
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                 </mapping>
+
+                                <!--This adds the license file.-->
+                                <mapping>
+                                    <directory>/usr/share/doc/repose/</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>770</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
                             </mappings>
 
                             <requires>
@@ -105,6 +121,7 @@
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
+                            <group/>
                         </configuration>
                     </plugin>
                 </plugins>
