@@ -10,7 +10,6 @@
 . /etc/rc.d/init.d/functions
 
 RUN_PORT=8080
-SHUTDOWN_PORT=8818
 CONFIG_DIRECTORY=/etc/repose
 
 NAME=papi
@@ -53,7 +52,7 @@ start()
 {
   echo -n "Starting $NAME: "
 
-  daemon java -jar /usr/lib/repose/$NAME.jar START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY > $LOG_PATH/$LOG_FILE 2>&1 &
+  daemon java -jar /usr/lib/repose/$NAME.jar START -p $RUN_PORT -c $CONFIG_DIRECTORY > $LOG_PATH/$LOG_FILE 2>&1 &
   EXIT_STATUS=$?
 
   echo
