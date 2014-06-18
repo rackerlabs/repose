@@ -4,7 +4,7 @@
     <parent>
         <artifactId>functional-test-support</artifactId>
         <groupId>com.rackspace.papi.test</groupId>
-        <version>6.0.1</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.external.testing</groupId>
