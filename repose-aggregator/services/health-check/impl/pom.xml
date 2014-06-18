@@ -3,7 +3,7 @@
     <parent>
         <artifactId>health-check-service-support</artifactId>
         <groupId>com.rackspace.papi.service</groupId>
-        <version>6.0.0</version>
+        <version>6.1.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.service</groupId>
