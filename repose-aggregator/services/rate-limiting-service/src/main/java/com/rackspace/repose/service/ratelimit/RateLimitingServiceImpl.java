@@ -94,12 +94,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
-        if (configuredQueryParams.size() == 0) {
-            return true;
-        } else if (requestParameterMap.isEmpty()) {
-            return false;
-        }
-
         // todo worry about decoding
 
         for (String paramName : configuredQueryParams) {
