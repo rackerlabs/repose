@@ -16,6 +16,7 @@ public class AbstractFilterLogicHandlerTest {
         assertThat(aflh.handleRequest(null,null),equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
     }
 
+    @Test
     public void testHandleResponse() {
         AbstractFilterLogicHandler aflh = new AbstractFilterLogicHandler();
         assertThat(aflh.handleResponse(null,null),equalTo(SimplePassFilterDirector.SINGLETON_INSTANCE));
