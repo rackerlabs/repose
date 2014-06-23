@@ -4,12 +4,11 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.http.media.MediaType;
-
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.repose.service.limits.schema.RateLimitList;
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;
+import com.rackspace.repose.service.limits.schema.RateLimitList;
 import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 
@@ -45,8 +44,8 @@ public class RateLimitingServiceHelper {
       return getReposeMimeType(mediaType);
    }
 
-   public void trackLimits(HttpServletRequest request,int datastoreWarnLimit) throws OverLimitException {
-      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getMethod(),datastoreWarnLimit);
+   public void trackLimits(HttpServletRequest request, int datastoreWarnLimit) throws OverLimitException {
+      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getParameterMap(), request.getMethod(),datastoreWarnLimit);
    }
 
    public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {

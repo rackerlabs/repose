@@ -53,7 +53,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     @Override
-    public void trackLimits(String user, List<String> groups, String uri, String httpMethod, int datastoreWarnLimit) throws OverLimitException {
+    public void trackLimits(String user, List<String> groups, String uri, Map<String, String[]> parameterMap, String httpMethod, int datastoreWarnLimit) throws OverLimitException {
 
         if (StringUtilities.isBlank(user)) {
             throw new IllegalArgumentException("User required when tracking rate limits.");
@@ -75,7 +75,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
 
             // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod)) {
+            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParameterNames(), parameterMap)) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
                         rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
 
@@ -91,5 +91,22 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
     private boolean httpMethodMatches(List<HttpMethod> configMethods, String requestMethod) {
         return configMethods.contains(HttpMethod.ALL) || configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase()));
+    }
+
+    private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
+        if (configuredQueryParams.size() == 0) {
+            return true;
+        } else if (requestParameterMap.isEmpty()) {
+            return false;
+        }
+
+        // todo worry about decoding
+
+        for (String paramName : configuredQueryParams) {
+            if (!requestParameterMap.keySet().contains(paramName)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
