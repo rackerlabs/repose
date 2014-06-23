@@ -97,16 +97,18 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private Future getFuture(ConsistentHashable hashableRequest) {
         Object hashKey = hashableRequest.consistentHashKey();
-        Future<Object> newFuture;
-        if (!quickFutureCache.asMap().containsKey(hashKey)) {
-            synchronized (quickFutureCache) {
+        Future<Object> newFuture = null;
+        synchronized (quickFutureCache) {
+            if (!quickFutureCache.asMap().containsKey(hashKey)) {
                 if (!quickFutureCache.asMap().containsKey(hashKey)) {
                     newFuture = ask(tokenActorRef, hashableRequest, t);
                     quickFutureCache.asMap().putIfAbsent(hashKey, newFuture);
                 }
+            } else {
+                newFuture = quickFutureCache.asMap().get(hashKey);
             }
         }
-        return quickFutureCache.asMap().get(hashKey);
+        return newFuture;
     }
 
     public ServiceClient getServiceClient(HttpClientService httpClientService) {
