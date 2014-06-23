@@ -56,15 +56,17 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         methods.add(HttpMethod.DELETE);
         getMethod.add(HttpMethod.GET);
 
-        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods)));
+        LinkedList<String> queryNames = new LinkedList<String>();
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods));
+        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames)));
 
-        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods)));
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods));
+        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames)));
 
-        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod));
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames));
+
+        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod, queryNames));
 
         config.getLimitGroup().add(configuredLimitGroup);
 
@@ -111,7 +113,7 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         when(cache.updateLimit(any(String.class), any(List.class),
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
-        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
+        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", null, datastoreWarnLimit);
     }
 
     @Test
@@ -130,7 +132,7 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
         try {
-            rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
+            rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET", null, datastoreWarnLimit);
         } catch (OverLimitException e) {
             assertEquals("User should be returned", e.getUser(), "user");
             assertTrue("Next available time should be returned", e.getNextAvailableTime().compareTo(nextAvail) == 0);
@@ -151,7 +153,7 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         when(cache.updateLimit(any(String.class), any(List.class),
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
-        rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", datastoreWarnLimit);
+        rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET", null, datastoreWarnLimit);
     }
 
 
@@ -168,6 +170,11 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         when(cache.updateLimit(any(String.class), any(List.class),
                 any(TimeUnit.class), anyInt())).thenReturn(new NextAvailableResponse(Pair.of(mockConfiguredRateLimit, mockCachedRateLimit)));
 
-        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", datastoreWarnLimit);
+        rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET", null, datastoreWarnLimit);
+    }
+
+    @Test
+    public void shouldTrackQueryParamLimits() throws Exception {
+
     }
 }
