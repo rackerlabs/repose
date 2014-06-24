@@ -170,13 +170,23 @@ public class RateLimitingServiceHelperTest {
         }
 
         @Test
-        public void shouldDecodeEncodedURI() throws Exception {
+        public void shouldDecodeUppercaseEncodedURI() throws Exception {
             MockHttpServletRequest request = new MockHttpServletRequest();
-            request.setRequestURI("/foo/%62%61%72/baz");
+            request.setRequestURI("/foo/%6A%61%72/baz");
 
             rateLimitingServiceHelper.trackLimits(request, 1000);
 
-            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/bar/baz"), any(String.class), anyInt());
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/jar/baz"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeLowercaseEncodedURI() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/%6a%61%72/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/jar/baz"), any(String.class), anyInt());
         }
 
         @Test
@@ -187,6 +197,16 @@ public class RateLimitingServiceHelperTest {
             rateLimitingServiceHelper.trackLimits(request, 1000);
 
             verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/bar/baz +"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeEncodedURIWithEncodedForwardSlash() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/ba%2Fr/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/ba/r/baz"), any(String.class), anyInt());
         }
     }
 }
