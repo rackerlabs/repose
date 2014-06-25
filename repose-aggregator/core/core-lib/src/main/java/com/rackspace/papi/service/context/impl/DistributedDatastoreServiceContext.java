@@ -4,8 +4,8 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.Service;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.Service;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
@@ -116,8 +116,8 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
 
         private boolean serviceListed(ReposeCluster cluster) {
             if (cluster.getServices() != null) {
-                for (Service service : cluster.getServices().getService()) {
-                    if (service.getName().equalsIgnoreCase("dist-datastore")) {
+                for (com.rackspace.papi.model.Service service : cluster.getServices().getService()) {
+                    if (service.getName().equalsIgnoreCase(Service.DISTRIBUTED_DATASTORE.getServiceName())) {
                         //launch dist-datastore servlet!!! Pass down the datastore service
                         return true;
                     }

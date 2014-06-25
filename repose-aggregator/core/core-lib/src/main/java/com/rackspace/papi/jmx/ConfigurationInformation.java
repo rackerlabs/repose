@@ -6,9 +6,7 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -132,6 +130,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                     }
                 }
 
+                if(!validServiceNames(systemModel)) {
+                    // todo
+                }
+
                 initialized = true;
 
                 healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
@@ -145,6 +147,27 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         @Override
         public boolean isInitialized() {
             return initialized;
+        }
+
+        private boolean validServiceNames(SystemModel systemModel) {
+            for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
+                for (com.rackspace.papi.model.Service service : reposeCluster.getServices().getService()) {
+                    boolean found = false;
+
+                    for (com.rackspace.papi.service.Service listedService : com.rackspace.papi.service.Service.values()) {
+                        if(service.getName().equalsIgnoreCase(listedService.getServiceName())) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 
