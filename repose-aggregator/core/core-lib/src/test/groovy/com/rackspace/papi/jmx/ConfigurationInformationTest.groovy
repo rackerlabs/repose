@@ -67,7 +67,7 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckService).solveIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckService).solveIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
@@ -90,7 +90,7 @@ class ConfigurationInformationTest extends Specification {
         then:
         !listenerObject.isInitialized()
         new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
-        verify(healthCheckService).reportIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
+        verify(healthCheckService).reportIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT),
                 any(HealthCheckReport.class))
     }
 
