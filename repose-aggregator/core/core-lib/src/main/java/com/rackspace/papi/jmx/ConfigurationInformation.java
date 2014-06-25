@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.*;
+import com.rackspace.papi.service.DefinedService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -132,6 +133,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
                 if(!validServiceNames(systemModel)) {
                     // todo
+                    healthCheckServiceHelper.reportIssue("", "", Severity.BROKEN);
                 }
 
                 initialized = true;
@@ -149,19 +151,26 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             return initialized;
         }
 
+        /**
+         * Determines if the services listed in the system model match services defined in Repose (determined by
+         * their existence in the DefinedService enum).
+         */
         private boolean validServiceNames(SystemModel systemModel) {
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
-                for (com.rackspace.papi.model.Service service : reposeCluster.getServices().getService()) {
-                    boolean found = false;
+                for (Service service : reposeCluster.getServices().getService()) {
+                    boolean validServiceName = false;
 
-                    for (com.rackspace.papi.service.Service listedService : com.rackspace.papi.service.Service.values()) {
-                        if(service.getName().equalsIgnoreCase(listedService.getServiceName())) {
-                            found = true;
+                    for (DefinedService definedService : DefinedService.values()) {
+                        if(service.getName().equalsIgnoreCase(definedService.getServiceName())) {
+                            validServiceName = true;
                             break;
                         }
                     }
 
-                    if (!found) {
+                    if (!validServiceName) {
+                        LOG.error("\"" + service.getName() + "\"" + " is not a valid service. Please check the " +
+                                "services listed in your system model. The following are valid service names:\n" +
+                                DefinedService.listServices());
                         return false;
                     }
                 }
