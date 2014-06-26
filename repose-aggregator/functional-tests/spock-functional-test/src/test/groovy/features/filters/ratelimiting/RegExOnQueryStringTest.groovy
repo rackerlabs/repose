@@ -43,26 +43,29 @@ class RegExOnQueryStringTest extends ReposeValveTest {
 
 
         where:
-        url                             | group         | respcode
-        "/domain?name=query1"           |"dbaas"        |"200"
-        "/domain?name=query1"           |"dbaas"        |"200"
-        "/domain?name=query1"           |"dbaas"        |"200"
-        "/domain?name=query1"           |"dbaas"        |"413"
-        "/domain?search=query1"         |"dbaas"        |"200"
-        "/domain?search=query2"         |"dbaas"        |"200"
-        "/domain?name=query2"           |"dbaas"        |"413"
-        "/domain?name=query1"           |"test"         |"200"
-        "/domain?name=query2"           |"test"         |"200"
-        "/domain?search=query1"         |"dbaas2"       |"200"
-        "/domain?search=query2"         |"dbaas2"       |"200"
-        "/domain?search=query3"         |"dbaas2"       |"200"
-        "/domain?search=query4"         |"dbaas2"       |"413"
+        url                                    | group         | respcode
+        "/domain?name=query1"                  | "dbaas"       | "200"
+        "/domain?name=query1"                  | "dbaas"       | "200"
+        "/domain?name=query1"                  | "dbaas"       | "200"
+        "/domain?name=query1"                  | "dbaas"       | "413"
+        "/domain?search=query1"                | "dbaas"       | "200"
+        "/domain?search=query2"                | "dbaas"       | "200"
+        "/domain?name=query2"                  | "dbaas"       | "413"
+        "/domain?name=query1"                  | "test"        | "200"
+        "/domain?name=query2"                  | "test"        | "200"
+        "/domain?search=query1"                | "dbaas2"      | "200"
+        "/domain?search=query2"                | "dbaas2"      | "200"
+        "/domain?search=query3"                | "dbaas2"      | "200"
+        "/domain?search=query4"                | "dbaas2"      | "413"
         //multiple queries
-        "/domain?name=query1&search=query2"    |"dbaas2"      |"413"
-        "/domain?time=query2&name=query1"      |"dbaas2"      |"200"
-        "/domain?name=query1&search=query2"    |"dbaas"       |"413"
-        "/domain?name=query1%26search=query2"  |"dbaas"       |"413"
-        "/domain%3Fname=query2&search=query3"  |"dbaas"       |"413"
-        "/domain?n%61me=query2&search=query3"  |"dbaas"       |"413"
+        "/domain?name=query1&search=query2"    | "dbaas2"      | "413"
+        "/domain?time=query2&name=query1"      | "dbaas2"      | "200"
+        "/domain?name=query1&search=query2"    | "dbaas"       | "413"
+        "/domain?name=query1%26search=query2"  | "dbaas"       | "413"
+        /* So I don't think the next test is valid. I believe the question mark that delimits the query string cannot
+         * be percent encoded. Again, this is referencing http://tools.ietf.org/html/rfc3986#appendix-A where an
+         * explicit question mark precedes the query element. */
+        //"/domain%3Fname=query2&search=query3"  | "dbaas"       | "413"
+        "/domain?n%61me=query2&search=query3"  | "dbaas"       | "413"
     }
 }

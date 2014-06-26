@@ -5,11 +5,11 @@
     <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
 
     <limit-group id="domain-queries" groups="dbaas" default="false">
-        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-parameter-names="name" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-parameter-regexes="name" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 
     <limit-group id="domain-queries2" groups="dbaas2" default="false">
-        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-parameter-names="search" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-parameter-regexes="search" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 
 </rate-limiting>
