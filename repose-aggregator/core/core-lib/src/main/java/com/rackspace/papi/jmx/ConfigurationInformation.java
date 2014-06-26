@@ -172,21 +172,23 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             boolean serviceNamesValid = true;
 
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
-                for (Service service : reposeCluster.getServices().getService()) {
-                    boolean validServiceName = false;
+                if (reposeCluster.getServices() != null) {
+                    for (Service service : reposeCluster.getServices().getService()) {
+                        boolean validServiceName = false;
 
-                    for (DefinedService definedService : DefinedService.values()) {
-                        if(service.getName().equalsIgnoreCase(definedService.getServiceName())) {
-                            validServiceName = true;
-                            break;
+                        for (DefinedService definedService : DefinedService.values()) {
+                            if(service.getName().equalsIgnoreCase(definedService.getServiceName())) {
+                                validServiceName = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if (!validServiceName) {
-                        LOG.error("\"" + service.getName() + "\"" + " is not a valid service. Please check the " +
-                                "services listed in your system model. The following are valid service names:\n" +
-                                DefinedService.listServices());
-                        serviceNamesValid = false;
+                        if (!validServiceName) {
+                            LOG.error("\"" + service.getName() + "\"" + " is not a valid service. Please check the " +
+                                    "services listed in your system model. The following are valid service names:\n" +
+                                    DefinedService.listServices());
+                            serviceNamesValid = false;
+                        }
                     }
                 }
             }
