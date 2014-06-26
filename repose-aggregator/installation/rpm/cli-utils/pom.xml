@@ -79,7 +79,7 @@
 
                                 <!--This adds the license file on installation.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/</directory>
+                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
@@ -102,6 +102,7 @@
                                 <require>java &gt;= 1.6.0</require>
                                 <require>repose</require>
                             </requires>
+                            <group/>
                         </configuration>
                     </plugin>
                 </plugins>
