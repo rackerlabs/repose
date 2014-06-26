@@ -11,6 +11,7 @@ import com.rackspace.repose.service.ratelimit.util.StringUtilities;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,13 +95,11 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
-        // todo worry about decoding
-
         for (String paramName : configuredQueryParams) {
             boolean matchFound = false;
 
             for (String requestParameter : requestParameterMap.keySet()) {
-                if (Pattern.compile(paramName).matcher(requestParameter).matches()) {
+                if (Pattern.compile(paramName).matcher(decodeURI(requestParameter)).matches()) {
                     matchFound = true;
                     break;
                 }
@@ -110,5 +109,9 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         return true;
+    }
+
+    private String decodeURI(String uri) {
+        return URI.create(uri).getPath();
     }
 }
