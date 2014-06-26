@@ -126,7 +126,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             if (!serviceNamesValid && localhostIdentified) {
                 healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT, "Unable to identify a " +
                         "service name in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-
+                LOG.error("Unable to identify a service name in the system model - please check your system-model.cfg.xml");
                 healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT);
             } else if (serviceNamesValid && !localhostIdentified) {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
@@ -137,6 +137,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             } else if (!serviceNamesValid && !localhostIdentified) {
                 healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT, "Unable to identify a " +
                         "service name in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                LOG.error("Unable to identify a service name in the system model - please check your system-model.cfg.xml");
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                 healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
