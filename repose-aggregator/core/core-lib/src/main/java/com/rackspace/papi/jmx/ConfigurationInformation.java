@@ -120,12 +120,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
-            boolean serviceNamesValid = false;
-            if(systemModel.getServiceCluster().size() == 0) {
-                serviceNamesValid = true;
-            } else {
-                 serviceNamesValid = validServiceNames(systemModel);
-            }
+            boolean serviceNamesValid = validServiceNames(systemModel);
             boolean localhostIdentified = cluster.isPresent();
 
             if (!serviceNamesValid && localhostIdentified) {
