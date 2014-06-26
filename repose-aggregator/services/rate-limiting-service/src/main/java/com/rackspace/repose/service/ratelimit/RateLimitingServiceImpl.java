@@ -97,10 +97,18 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         // todo worry about decoding
 
         for (String paramName : configuredQueryParams) {
-            if (!requestParameterMap.keySet().contains(paramName)) {
-                return false;
+            boolean matchFound = false;
+
+            for (String requestParameter : requestParameterMap.keySet()) {
+                if (Pattern.compile(paramName).matcher(requestParameter).matches()) {
+                    matchFound = true;
+                    break;
+                }
             }
+
+            if (!matchFound) { return false; }
         }
+
         return true;
     }
 }
