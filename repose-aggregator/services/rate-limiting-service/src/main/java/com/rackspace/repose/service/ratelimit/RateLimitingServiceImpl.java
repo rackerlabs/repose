@@ -75,7 +75,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
 
             // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParameterNames(), parameterMap)) {
+            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParameterRegexes(), parameterMap)) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
                         rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
 
