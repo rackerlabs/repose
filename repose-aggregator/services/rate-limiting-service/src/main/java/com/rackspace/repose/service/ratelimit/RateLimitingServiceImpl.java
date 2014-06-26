@@ -11,6 +11,8 @@ import com.rackspace.repose.service.ratelimit.util.StringUtilities;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,13 +96,24 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
-        // todo worry about decoding
-
         for (String paramName : configuredQueryParams) {
-            if (!requestParameterMap.keySet().contains(paramName)) {
+            if (!requestParameterMap.keySet().contains(decodeQueryString(paramName))) {
                 return false;
             }
         }
         return true;
+    }
+
+    private String decodeQueryString(String queryString) {
+        String processedQueryString = queryString;
+
+        try {
+            processedQueryString = URLDecoder.decode(processedQueryString.replace("+", "%2B"), "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            /* Since we've hardcoded the UTF-8 encoding, this should never occur. */
+            LOG.error("RateLimitingService.decodeQueryString - Unsupported Encoding", uee);
+        }
+
+        return processedQueryString;
     }
 }

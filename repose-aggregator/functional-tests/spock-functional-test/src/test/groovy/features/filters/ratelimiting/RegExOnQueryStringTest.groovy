@@ -62,7 +62,7 @@ class RegExOnQueryStringTest extends ReposeValveTest {
         "/domain?time=query2&name=query1"      |"dbaas2"      |"200"
         "/domain?name=query1&search=query2"    |"dbaas"       |"413"
         "/domain?name=query1%26search=query2"  |"dbaas"       |"413"
-        //"/domain%3Fname=query2&search=query3"  |"dbaas"       |"413"
-        //"/domain?n%61me=query2&search=query3"  |"dbaas"       |"413"
+        "/domain%3Fname=query2&search=query3"  |"dbaas"       |"413"
+        "/domain?n%61me=query2&search=query3"  |"dbaas"       |"413"
     }
 }
