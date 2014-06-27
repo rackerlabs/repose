@@ -87,7 +87,7 @@
                                 <require>repose</require>
                                 <require>repose-filters</require>
                             </requires>
-                            <group/>
+                            <group>Repose</group>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -176,7 +176,7 @@
                                 <require>logrotate</require>
                                 <require>daemonize</require>
                             </requires>
-                            <group/>
+                            <group>Repose</group>
                         </configuration>
                     </plugin>
                 </plugins>
