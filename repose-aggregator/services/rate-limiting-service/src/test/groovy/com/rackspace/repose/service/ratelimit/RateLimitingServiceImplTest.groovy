@@ -14,7 +14,6 @@ import com.rackspace.repose.service.ratelimit.exception.OverLimitException
 import org.apache.commons.lang3.tuple.Pair
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
@@ -22,9 +21,7 @@ import java.lang.reflect.Modifier
 import static org.junit.Assert.*
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyInt
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
-import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.*
 
 public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
     private Map<String, CachedRateLimit> cacheMap
@@ -66,19 +63,17 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         methods.add(HttpMethod.DELETE)
         getMethod.add(HttpMethod.GET)
 
-        LinkedList<String> queryNames = new LinkedList<String>()
+        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, "")))
 
-        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames)))
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, ""))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames))
+        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, "")))
 
-        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames)))
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, ""))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames))
+        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod, ""))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod, queryNames))
-
-        queryParamLimitGroup.getLimit().add(newLimitConfig("query-param-test", "*", ".*", methods, ["index"].asList()))
+        queryParamLimitGroup.getLimit().add(newLimitConfig("query-param-test", "*", ".*", methods, "index=.*"))
 
         config.getLimitGroup().add(queryParamLimitGroup)
         config.getLimitGroup().add(configuredLimitGroup)
@@ -202,7 +197,7 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         RateLimitingServiceImpl rateLimitingService = new RateLimitingServiceImpl(null, config)
         rateLimiterField.set(rateLimitingService, limiter)
 
-        rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", ["index" : ["0"] as String[]], "GET", 1000)
+        rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", "index=107", "GET", 1000)
 
         verify(limiter).handleRateLimit(any(String.class), any(List.class), any(TimeUnit.class), anyInt())
     }
