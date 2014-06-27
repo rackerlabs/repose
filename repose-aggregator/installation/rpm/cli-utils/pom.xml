@@ -102,7 +102,7 @@
                                 <require>java &gt;= 1.6.0</require>
                                 <require>repose</require>
                             </requires>
-                            <group>Repose</group>
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>

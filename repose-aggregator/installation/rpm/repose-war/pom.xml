@@ -121,7 +121,7 @@
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
-                            <group>Repose</group>
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>

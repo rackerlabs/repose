@@ -74,7 +74,7 @@
                             <requires>
                                 <require>repose</require>
                             </requires>
-                            <group>Repose</group>
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>

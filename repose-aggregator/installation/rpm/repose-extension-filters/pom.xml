@@ -87,7 +87,7 @@
                                 <require>repose</require>
                                 <require>repose-filters</require>
                             </requires>
-                            <group>Repose</group>
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>
