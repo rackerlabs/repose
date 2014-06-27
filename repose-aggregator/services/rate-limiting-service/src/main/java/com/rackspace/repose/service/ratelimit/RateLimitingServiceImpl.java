@@ -97,9 +97,16 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
     private boolean queryParameterNameMatches(List<String> configuredQueryParams, Map<String, String[]> requestParameterMap) {
         for (String paramName : configuredQueryParams) {
-            if (!requestParameterMap.keySet().contains(decodeQueryString(paramName))) {
-                return false;
+            boolean matchFound = false;
+
+            for (String p : requestParameterMap.keySet()) {
+                if (paramName.equalsIgnoreCase(decodeQueryString(p))) {
+                    matchFound = true;
+                    break;
+                }
             }
+
+            if (!matchFound) { return false; }
         }
         return true;
     }
