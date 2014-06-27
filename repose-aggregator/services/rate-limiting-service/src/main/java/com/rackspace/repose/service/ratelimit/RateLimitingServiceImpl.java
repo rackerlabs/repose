@@ -76,10 +76,12 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 uriMatcher = Pattern.compile(rateLimit.getUriRegex()).matcher(uri);
             }
 
-            // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryStringMatches(rateLimit.getQueryStringRegex(), queryString)) {
+            // Did we find a limit that matches the incoming uri, http method, and query string?
+            QueryStringMatcher queryStringMatcher = newQueryStringMatcher(rateLimit.getQueryStringRegex(), queryString);
+            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryStringMatcher.matches()) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
-                        rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
+                        rateLimit.getId(), uriMatcher, queryStringMatcher.getMatchingMatchers(), useCaptureGroups),
+                        rateLimit));
 
                 if (largestUnit == null || rateLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = rateLimit.getUnit();
@@ -95,10 +97,12 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         return configMethods.contains(HttpMethod.ALL) || configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase()));
     }
 
-    private boolean queryStringMatches(String configuredQueryStringRegex, String requestQueryString) {
+    private QueryStringMatcher newQueryStringMatcher(String configuredQueryStringRegex, String requestQueryString) {
         /* Check pre-conditions */
-        if (configuredQueryStringRegex == null || configuredQueryStringRegex.length() == 0) { return true; }
-        else if (requestQueryString == null) { return false; }
+        if (configuredQueryStringRegex == null || configuredQueryStringRegex.length() == 0) { return new QueryStringMatcher(true, null); }
+        else if (requestQueryString == null || requestQueryString.length() == 0) { return new QueryStringMatcher(false, null); }
+
+        ArrayList<Matcher> matchingMatchers = new ArrayList<>();
 
         /* The following splits should be safe since '&' is reserved as a delimiter in a query string according to
          * RFC 3986 */
@@ -110,16 +114,18 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             Pattern pattern = Pattern.compile(parameterRegex);
 
             for (String requestParameter : requestParameters) {
-                if (pattern.matcher(decodeQueryString(requestParameter)).matches()) {
+                Matcher matcher = pattern.matcher(decodeQueryString(requestParameter));
+                if (matcher.matches()) {
+                    matchingMatchers.add(matcher);
                     matchFound = true;
                     break;
                 }
             }
 
-            if (!matchFound) { return false; }
+            if (!matchFound) { return new QueryStringMatcher(false, null); }
         }
 
-        return true;
+        return new QueryStringMatcher(true, matchingMatchers);
     }
 
     private String decodeQueryString(String queryString) {
@@ -133,5 +139,24 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         return processedQueryString;
+    }
+
+    /* This class holds the result of query string matching and provides descriptive methods */
+    private class QueryStringMatcher {
+        private final boolean matches;
+        private final List<Matcher> matchingMatchers;
+
+        private QueryStringMatcher(boolean matches, List<Matcher> matchingMatchers) {
+            this.matches = matches;
+            this.matchingMatchers = matchingMatchers;
+        }
+
+        public boolean matches() {
+            return matches;
+        }
+
+        public List<Matcher> getMatchingMatchers() {
+            return matchingMatchers == null ? new ArrayList<Matcher>() : matchingMatchers;
+        }
     }
 }

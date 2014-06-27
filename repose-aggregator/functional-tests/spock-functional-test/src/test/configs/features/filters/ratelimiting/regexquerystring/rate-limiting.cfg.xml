@@ -13,7 +13,8 @@
     </limit-group>
 
     <limit-group id="domain-queries3" groups="dbaas3" default="false">
-        <limit id="test" uri="/domain?name=* query=*" uri-regex="/domain(.*)" query-string-regex="name=Bob&amp;search=.*" http-methods="ALL" unit="MINUTE" value="0"/>
+        <limit id="test1" uri="/domain?name=T(*) query=*" uri-regex="/domain(.*)" query-string-regex="name=T(.*)&amp;search=.*" http-methods="ALL" unit="MINUTE" value="1"/>
+        <limit id="test2" uri="/domain?name=Bob query=*" uri-regex="/domain(.*)" query-string-regex="name=Bob&amp;search=.*" http-methods="ALL" unit="MINUTE" value="0"/>
     </limit-group>
 
 </rate-limiting>

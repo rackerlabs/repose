@@ -68,6 +68,9 @@ class RegExOnQueryStringTest extends ReposeValveTest {
         //"/domain%3Fname=query2&search=query3"  | "dbaas"       | "413"
         "/domain?n%61me=query2&search=query3"  | "dbaas"         | "413"
         "/domain?name=Tom&search=query"        | "dbaas3"        | "200"
+        "/domain?name=Tom&search=query"        | "dbaas3"        | "413"
+        "/domain?name=Tim&search=query"        | "dbaas3"        | "200"
+        "/domain?name=Tim&search=query"        | "dbaas3"        | "413"
         "/domain?name=Bob&search=query"        | "dbaas3"        | "413"
     }
 }
