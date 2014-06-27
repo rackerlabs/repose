@@ -310,6 +310,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="query-string-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Query parameter regex that this rate limit will match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
     
     

@@ -11,6 +11,8 @@ import com.rackspace.repose.service.ratelimit.util.StringUtilities;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
     }
 
     @Override
-    public void trackLimits(String user, List<String> groups, String uri, String httpMethod, int datastoreWarnLimit) throws OverLimitException {
+    public void trackLimits(String user, List<String> groups, String uri, String queryString, String httpMethod, int datastoreWarnLimit) throws OverLimitException {
 
         if (StringUtilities.isBlank(user)) {
             throw new IllegalArgumentException("User required when tracking rate limits.");
@@ -74,10 +76,12 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 uriMatcher = Pattern.compile(rateLimit.getUriRegex()).matcher(uri);
             }
 
-            // Did we find a limit that matches the incoming uri and http method?
-            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod)) {
+            // Did we find a limit that matches the incoming uri, http method, and query string?
+            QueryStringMatcher queryStringMatcher = newQueryStringMatcher(rateLimit.getQueryStringRegex(), queryString);
+            if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryStringMatcher.matches()) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
-                        rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
+                        rateLimit.getId(), uriMatcher, queryStringMatcher.getMatchingMatchers(), useCaptureGroups),
+                        rateLimit));
 
                 if (largestUnit == null || rateLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = rateLimit.getUnit();
@@ -91,5 +95,68 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
     private boolean httpMethodMatches(List<HttpMethod> configMethods, String requestMethod) {
         return configMethods.contains(HttpMethod.ALL) || configMethods.contains(HttpMethod.valueOf(requestMethod.toUpperCase()));
+    }
+
+    private QueryStringMatcher newQueryStringMatcher(String configuredQueryStringRegex, String requestQueryString) {
+        /* Check pre-conditions */
+        if (configuredQueryStringRegex == null || configuredQueryStringRegex.length() == 0) { return new QueryStringMatcher(true, null); }
+        else if (requestQueryString == null || requestQueryString.length() == 0) { return new QueryStringMatcher(false, null); }
+
+        ArrayList<Matcher> matchingMatchers = new ArrayList<>();
+
+        /* The following splits should be safe since '&' is reserved as a delimiter in a query string according to
+         * RFC 3986 */
+        String[] configuredParameterRegexes = configuredQueryStringRegex.split("&");
+        String[] requestParameters = requestQueryString.split("&");
+
+        for (String parameterRegex : configuredParameterRegexes) {
+            boolean matchFound = false;
+            Pattern pattern = Pattern.compile(parameterRegex);
+
+            for (String requestParameter : requestParameters) {
+                Matcher matcher = pattern.matcher(decodeQueryString(requestParameter));
+                if (matcher.matches()) {
+                    matchingMatchers.add(matcher);
+                    matchFound = true;
+                    break;
+                }
+            }
+
+            if (!matchFound) { return new QueryStringMatcher(false, null); }
+        }
+
+        return new QueryStringMatcher(true, matchingMatchers);
+    }
+
+    private String decodeQueryString(String queryString) {
+        String processedQueryString = queryString;
+
+        try {
+            processedQueryString = URLDecoder.decode(processedQueryString.replace("+", "%2B"), "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            /* Since we've hardcoded the UTF-8 encoding, this should never occur. */
+            LOG.error("RateLimitingService.decodeQueryString - Unsupported Encoding", uee);
+        }
+
+        return processedQueryString;
+    }
+
+    /* This class holds the result of query string matching and provides descriptive methods */
+    private class QueryStringMatcher {
+        private final boolean matches;
+        private final List<Matcher> matchingMatchers;
+
+        private QueryStringMatcher(boolean matches, List<Matcher> matchingMatchers) {
+            this.matches = matches;
+            this.matchingMatchers = matchingMatchers;
+        }
+
+        public boolean matches() {
+            return matches;
+        }
+
+        public List<Matcher> getMatchingMatchers() {
+            return matchingMatchers == null ? new ArrayList<Matcher>() : matchingMatchers;
+        }
     }
 }

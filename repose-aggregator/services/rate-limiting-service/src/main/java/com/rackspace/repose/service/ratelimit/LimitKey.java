@@ -2,6 +2,7 @@ package com.rackspace.repose.service.ratelimit;
 
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.regex.Matcher;
 
 /*
@@ -14,11 +15,9 @@ public class LimitKey {
 
     private LimitKey() {}
 
-    public static String getLimitKey(String limitGroup, String limitId, Matcher uriMatcher, boolean useCaptureGroups) {
+    public static String getLimitKey(String limitGroup, String limitId, Matcher uriMatcher, List<Matcher> queryStringMatchers, boolean useCaptureGroups) {
         // The group count represents the number of elements that will go into
         // generating the unique cache id for the requested URI
-        final int groupCount = uriMatcher.groupCount();
-
         final StringBuilder cacheIdBuffer = new StringBuilder();
 
         // All cacheId's contain the unique limit group
@@ -29,8 +28,13 @@ public class LimitKey {
 
         // If using capture groups, captured text is hashed and appended
         if (useCaptureGroups) {
-            for (int i = 1; i <= groupCount; ++i) {
+            for (int i = 1; i <= uriMatcher.groupCount(); ++i) {
                 cacheIdBuffer.append(":" + String.valueOf(uriMatcher.group(i).hashCode()));
+            }
+            for (Matcher queryMatcher : queryStringMatchers) {
+                for (int i = 1; i <= queryMatcher.groupCount(); ++i) {
+                    cacheIdBuffer.append(":" + String.valueOf(queryMatcher.group(i).hashCode()));
+                }
             }
         }
 
