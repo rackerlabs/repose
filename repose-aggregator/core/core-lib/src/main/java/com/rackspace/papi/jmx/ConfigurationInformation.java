@@ -6,9 +6,8 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.*;
+import com.rackspace.papi.service.DefinedService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -35,7 +34,8 @@ import java.util.*;
 public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
-    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+    public static final String SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT = "SystemModelError - LocalHostNotListed";
+    public static final String SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT = "SystemModelError - ServiceNotListed";
 
     private final ConfigurationService configurationService;
     private final List<FilterInformation> filterChain;
@@ -120,7 +120,27 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
 
-            if (cluster.isPresent()) {
+            boolean serviceNamesValid = validServiceNames(systemModel);
+            boolean localhostIdentified = cluster.isPresent();
+
+            if (!serviceNamesValid && localhostIdentified) {
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT, "Unable to identify a " +
+                        "service name in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT);
+            } else if (serviceNamesValid && !localhostIdentified) {
+                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT);
+            } else if (!serviceNamesValid && !localhostIdentified) {
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT, "Unable to identify a " +
+                        "service name in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+            } else {
                 synchronized (filterChain) {
                     filterChain.clear();
 
@@ -132,19 +152,48 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                     }
                 }
 
-                initialized = true;
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_LOCALHOST_HEALTH_REPORT);
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_SERVICE_HEALTH_REPORT);
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
-            } else {
-                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+                initialized = true;
             }
         }
 
         @Override
         public boolean isInitialized() {
             return initialized;
+        }
+
+        /**
+         * Determines if the services listed in the system model match services defined in Repose (determined by
+         * their existence in the DefinedService enum).
+         */
+        private boolean validServiceNames(SystemModel systemModel) {
+            boolean serviceNamesValid = true;
+
+            for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
+                if (reposeCluster.getServices() != null) {
+                    for (Service service : reposeCluster.getServices().getService()) {
+                        boolean validServiceName = false;
+
+                        for (DefinedService definedService : DefinedService.values()) {
+                            if(service.getName().equalsIgnoreCase(definedService.getServiceName())) {
+                                validServiceName = true;
+                                break;
+                            }
+                        }
+
+                        if (!validServiceName) {
+                            LOG.error("\"" + service.getName() + "\"" + " is not a valid service. Please check the " +
+                                    "services listed in your system model. The following are valid service names:\n" +
+                                    DefinedService.listServices());
+                            serviceNamesValid = false;
+                        }
+                    }
+                }
+            }
+
+            return serviceNamesValid;
         }
     }
 

@@ -29,12 +29,13 @@ public class HealthCheckServiceHelper {
 
     public void resolveIssue(String rid) {
         try {
-            logger.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(uid, rid);
-        } catch (InputNullException e) {
-            logger.error("Unable to solve issue {} from {}", rid, uid, e);
-        } catch (NotRegisteredException e) {
-            logger.error("Unable to solve issue {} from {}", rid, uid, e);
+            logger.debug("Resolving issue: " + rid);
+        } catch (InputNullException ine) {
+            logger.error("Unable to solve null uid issue", ine);
+        } catch (NotRegisteredException nre) {
+            // issue is not registered which means we're OK, don't log this (to prevent log spamming -- the health
+            // check service needs to be cleaned up so that we don't have to handle exceptions as often)
         }
     }
 }
