@@ -229,21 +229,24 @@
     </xs:complexType>
 
     <xs:complexType name="Service">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Defines a filter that can be used to process and route requests</html:p>
-                </xs:documentation>
-            </xs:annotation>
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a filter that can be used to process and route requests</html:p>
+            </xs:documentation>
+        </xs:annotation>
 
-        <xs:attribute name="name" type="xs:string" use="required">
+        <xs:attribute name="name" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The system context specific name of the service to be used</html:p>
                 </xs:documentation>
             </xs:annotation>
-            <xs:restriction base="xs:string">
-                <xs:enumration value="dist-datastore"/>
-            </xs:restriction>
+
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="dist-datastore"/>
+                </xs:restriction>
+            </xs:simpleType>
         </xs:attribute>
     </xs:complexType>
 
