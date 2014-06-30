@@ -115,7 +115,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         String processedQueryString = queryString;
 
         try {
-            processedQueryString = URLDecoder.decode(processedQueryString.replace("+", "%2B"), "UTF-8");
+            processedQueryString = URLDecoder.decode(processedQueryString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
             /* Since we've hardcoded the UTF-8 encoding, this should never occur. */
             LOG.error("RateLimitingService.decodeQueryString - Unsupported Encoding", uee);
