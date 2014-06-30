@@ -15,4 +15,8 @@
     <limit-group id="domain-queries3" groups="dbaas3" default="false">
         <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-param-names="name age query" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
+
+    <limit-group id="domain-queries4" groups="dbaas4" default="false">
+        <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-param-names="time%20search other" http-methods="ALL" unit="MINUTE" value="2"/>
+    </limit-group>
 </rate-limiting>
