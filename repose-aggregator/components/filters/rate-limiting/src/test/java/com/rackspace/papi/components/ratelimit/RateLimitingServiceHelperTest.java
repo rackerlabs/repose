@@ -1,22 +1,25 @@
 package com.rackspace.papi.components.ratelimit;
 
+import com.mockrunner.mock.web.MockHttpServletRequest;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.media.MimeType;
+import com.rackspace.repose.service.ratelimit.RateLimitingService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.ws.rs.core.MediaType;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -152,5 +155,58 @@ public class RateLimitingServiceHelperTest {
       }
    }
 
+    public static class WhenGettingURI {
+        private final RateLimitingService rateLimitingService = mock(RateLimitingService.class);
+        private final RateLimitingServiceHelper rateLimitingServiceHelper = new RateLimitingServiceHelper(rateLimitingService, null, null);
 
+        @Test
+        public void shouldNotAlterUnencodedURI() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/bar/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/bar/baz"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeUppercaseEncodedURI() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/%6A%61%72/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/jar/baz"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeLowercaseEncodedURI() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/%6a%61%72/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/jar/baz"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeEncodedURIWithPlusSignAndSpace() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/%62%61%72/baz%20+");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/bar/baz +"), any(String.class), anyInt());
+        }
+
+        @Test
+        public void shouldDecodeEncodedURIWithEncodedForwardSlash() throws Exception {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setRequestURI("/foo/ba%2Fr/baz");
+
+            rateLimitingServiceHelper.trackLimits(request, 1000);
+
+            verify(rateLimitingService).trackLimits(any(String.class), any(List.class), eq("/foo/ba/r/baz"), any(String.class), anyInt());
+        }
+    }
 }

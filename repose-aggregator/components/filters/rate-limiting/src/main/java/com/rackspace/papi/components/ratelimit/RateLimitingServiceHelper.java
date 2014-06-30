@@ -16,6 +16,7 @@ import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class RateLimitingServiceHelper {
    }
 
    public void trackLimits(HttpServletRequest request,int datastoreWarnLimit) throws OverLimitException {
-      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getMethod(),datastoreWarnLimit);
+      service.trackLimits(getPreferredUser(request), getPreferredGroups(request), decodeURI(request.getRequestURI()), request.getMethod(),datastoreWarnLimit);
    }
 
    public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
@@ -75,4 +76,8 @@ public class RateLimitingServiceHelper {
 
       return groups;
    }
+
+    private String decodeURI(String uri) {
+        return URI.create(uri).getPath();
+    }
 }
