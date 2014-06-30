@@ -26,7 +26,7 @@ public class RateLimitServiceTestContext {
         configuredRateLimit.setUriRegex(uriRegex);
         configuredRateLimit.setValue(20);
         for (String qn : queryNames) {
-            configuredRateLimit.getQueryParameterNames().add(qn);
+            configuredRateLimit.getQueryParamNames().add(qn);
         }
         for (HttpMethod m : methods) {
             configuredRateLimit.getHttpMethods().add(m);
