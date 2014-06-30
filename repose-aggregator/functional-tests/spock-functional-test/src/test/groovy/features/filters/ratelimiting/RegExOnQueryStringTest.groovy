@@ -67,5 +67,14 @@ class RegExOnQueryStringTest extends ReposeValveTest {
          * explicit question mark precedes the query element. */
         //"/domain%3Fname=query2&search=query3"  | "dbaas"       | "413"
         "/domain?n%61me=query2&search=query3"  | "dbaas"       | "413"
+        //multi query parameters
+        "/info?id=123&name='test'"              |"dbaas3"   |"200"
+        "/info?id=234"                          |"dbaas3"   |"200"
+        "/info?name='test'"                     |"dbaas3"   |"200"
+        "/info?age=69&name='repose'"            |"dbaas3"   |"200"
+        "/info?id=123&name='test'"              |"dbaas3"   |"413"
+        "/info?query='test'"                    |"dbaas3"   |"413"
+        "/info?age=100"                         |"dbaas3"   |"413"
+        "/info?name='test'"                     |"dbaas3"   |"413"
     }
 }
