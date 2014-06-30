@@ -100,7 +100,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             boolean matchFound = false;
 
             for (String requestParamKey : requestParameterMap.keySet()) {
-                if (configuredParamKey.equalsIgnoreCase(decodeQueryString(requestParamKey))) {
+                if (decodeQueryString(configuredParamKey).equalsIgnoreCase(decodeQueryString(requestParamKey))) {
                     matchFound = true;
                     break;
                 }
