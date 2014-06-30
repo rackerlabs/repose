@@ -241,6 +241,9 @@
                     <html:p>The system context specific name of the service to be used</html:p>
                 </xs:documentation>
             </xs:annotation>
+            <xs:restriction base="xs:string">
+                <xs:enumration value="dist-datastore"/>
+            </xs:restriction>
         </xs:attribute>
     </xs:complexType>
 
