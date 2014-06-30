@@ -105,5 +105,9 @@ class RegExOnQueryStringTest extends ReposeValveTest {
         "/info?time%20search='06-30-2014%2012:59.00.000'&other='test'" | "dbaas4" | "200"
         "/info?time%20search='06-30-2014%2012:00.00.000'&other='test'&search='test'" | "dbaas4" | "413"
         "/info?time='06-30-2014%2012:00.00.000'" | "dbaas4" | "200"
+        "/domain?name=Bob&name=Bill" | "dbaas5" | "200"
+        "/domain?name=Bill&name=Bob" | "dbaas5" | "413"
+        "/domain?name=Bill" | "dbaas5" | "200"
+        "/domain?name=Bob" | "dbaas5" | "200"
     }
 }

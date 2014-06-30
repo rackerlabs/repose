@@ -73,19 +73,20 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
         methods.add(HttpMethod.DELETE)
         getMethod.add(HttpMethod.GET)
 
-        LinkedList<String> queryNames = new LinkedList<String>()
+        HashMap<String, String> queryParams = new HashMap<>()
+        queryParams.put("index", ".*")
 
-        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames)))
+        cacheMap.put(SIMPLE_URI, new CachedRateLimit(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, new HashMap<String, String>())))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, queryNames))
+        configuredLimitGroup.getLimit().add(newLimitConfig(SIMPLE_ID, SIMPLE_URI, SIMPLE_URI_REGEX, methods, new HashMap<String, String>()))
 
-        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames)))
+        cacheMap.put(COMPLEX_URI_REGEX, new CachedRateLimit(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, new HashMap<String, String>())))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, queryNames))
+        configuredLimitGroup.getLimit().add(newLimitConfig(COMPLEX_ID, COMPLEX_URI, COMPLEX_URI_REGEX, methods, new HashMap<String, String>()))
 
-        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod, queryNames))
+        configuredLimitGroup.getLimit().add(newLimitConfig("groups-id", GROUPS_URI, GROUPS_URI_REGEX, getMethod, new HashMap<String, String>()))
 
-        queryParamLimitGroup.getLimit().add(newLimitConfig("query-param-test", "*", ".*", methods, ["index"].asList()))
+        queryParamLimitGroup.getLimit().add(newLimitConfig("query-param-test", "*", ".*", methods, queryParams))
 
         config.getLimitGroup().add(queryParamLimitGroup)
         config.getLimitGroup().add(configuredLimitGroup)
