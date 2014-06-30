@@ -13,6 +13,6 @@
     </limit-group>
 
     <limit-group id="domain-queries3" groups="dbaas3" default="false">
-        <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-parameter-names="name age%20q.+" http-methods="ALL" unit="MINUTE" value="3"/>
+        <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-parameter-names="name age query" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
 </rate-limiting>
