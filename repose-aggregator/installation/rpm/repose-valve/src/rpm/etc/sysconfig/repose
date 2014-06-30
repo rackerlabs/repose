@@ -1,5 +1,4 @@
 RUN_PORT=9090
-SHUTDOWN_PORT=8188
 CONFIG_DIRECTORY=/etc/repose
 NAME=repose-valve
 DAEMON_HOME=/usr/share/lib/repose
@@ -9,4 +8,4 @@ USER=repose
 
 daemonize=/usr/sbin/daemonize
 daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
-run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
+run_opts="-p $RUN_PORT -c $CONFIG_DIRECTORY"

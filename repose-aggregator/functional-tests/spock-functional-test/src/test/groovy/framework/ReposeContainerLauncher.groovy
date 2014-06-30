@@ -3,14 +3,12 @@ package framework
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
-import java.nio.charset.Charset
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 class ReposeContainerLauncher extends AbstractReposeLauncher {
 
-    int shutdownPort
     int reposePort
 
     String clusterId
@@ -21,21 +19,21 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String[] appWars
     String debugPort
 
-    def boolean  debugEnabled = true
+    def boolean debugEnabled = true
 
     def clock = new SystemClock()
     def Process process
 
     ReposeContainerLauncher(ReposeConfigurationProvider configurationProvider, String containerJar,
                             String clusterId, String nodeId,
-                            String rootWarLocation, int reposePort, int stopPort, String... appWars) {
+                            String rootWarLocation, int reposePort, String... appWars) {
         this.configurationProvider = configurationProvider
         this.containerJar = containerJar
         this.clusterId = clusterId
         this.nodeId = nodeId
         this.reposePort = reposePort
         this.rootWarLocation = rootWarLocation
-        this.shutdownPort = stopPort
+
         this.appWars = appWars
     }
 
@@ -56,10 +54,10 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
-            webXmlOverrides = webXmlOverrides +  " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
+            webXmlOverrides = webXmlOverrides + " -Xdebug -Xrunjdwp:transport=dt_socket,address=${debugPort},server=y,suspend=n"
         }
 
-        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} -s ${shutdownPort}"
+        def cmd = "java ${webXmlOverrides} -jar ${containerJar} -p ${reposePort} -w ${rootWarLocation} "
 
         if (appWars != null || appWars.length != 0) {
             for (String path : appWars) {
@@ -80,9 +78,9 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     }
 
     void stop(Map params) {
-
         def timeout = params?.timeout ?: 45000
         def throwExceptionOnKill = true
+
         if (params.containsKey("throwExceptionOnKill")) {
             throwExceptionOnKill = params.throwExceptionOnKill
         }
@@ -91,38 +89,29 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     }
 
     void stop(int timeout, boolean throwExceptionOnKill) {
-
         try {
-            final Socket s = new Socket(InetAddress.getByName("127.0.0.1"), shutdownPort);
-            final OutputStream out = s.getOutputStream();
-
-            println("Sending Repose stop request to port $shutdownPort");
-
-            out.write(("\r\n").getBytes(Charset.forName("UTF-8")));
-            out.flush();
-            s.close();
+            println("Stopping Repose");
+            this.process.destroy()
 
             print("Waiting for Repose Container to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
                 print(".")
                 !isUp()
             })
+
             println()
-
         } catch (IOException ioex) {
-
             this.process.waitForOrKill(5000)
             killIfUp()
             if (throwExceptionOnKill) {
                 throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
             }
         }
-
     }
 
     private void killIfUp() {
         String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) ROOT.war -s ${shutdownPort} .*/
+        def regex = /(\d*) ROOT.war .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
 

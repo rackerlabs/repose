@@ -15,7 +15,6 @@ import spock.lang.Unroll
 class TransitionGoodToBadConfigsTest extends Specification {
 
     int reposePort
-    int stopPort
     int targetPort
     String url
     TestProperties properties
@@ -29,7 +28,6 @@ class TransitionGoodToBadConfigsTest extends Specification {
 
         properties = new TestProperties()
         this.reposePort = properties.reposePort
-        this.stopPort = properties.reposeShutdownPort
         this.targetPort = properties.targetPort
         this.url = properties.reposeEndpoint
 
@@ -64,8 +62,7 @@ class TransitionGoodToBadConfigsTest extends Specification {
                 properties.getReposeJar(),
                 url,
                 properties.getConfigDirectory(),
-                reposePort,
-                stopPort
+                reposePort
         )
         repose.enableDebug()
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile());

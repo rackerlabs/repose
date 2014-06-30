@@ -50,16 +50,10 @@ public final class ProxyApp {
       final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(
               commandLineArgs.getHttpPort(),
               commandLineArgs.getHttpsPort(),
-              commandLineArgs.getStopPort(),
               commandLineArgs.getConfigDirectory(),
               commandLineArgs.getInsecure());
 
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
-         serverControl.startPowerApiValve();
-      }
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
-         serverControl.stopPowerApiValve();
-      }
+       serverControl.startPowerApiValve();
    }
    
    private ProxyApp(){
@@ -81,11 +75,6 @@ public final class ProxyApp {
          valid = false;
       }
 
-      if (!(portIsInRange(commandLineArgs.getStopPort()))) {
-         LOG.info("Invalid Repose stop port, use a value between 1024 and 49150");
-         valid = false;
-      }
-
       return valid;
    }
 
@@ -101,7 +90,7 @@ public final class ProxyApp {
    @SuppressWarnings("PMD.SystemPrintln")
    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
       System.err.println(e.getMessage());
-      System.err.println("java -jar repose-valve.jar [options...] arguments...");
+      System.err.println("java -jar repose-valve.jar [options...]");
       cmdLineParser.printUsage(System.err);
    }
 

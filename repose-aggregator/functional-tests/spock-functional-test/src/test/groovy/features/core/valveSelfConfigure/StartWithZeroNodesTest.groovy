@@ -16,7 +16,7 @@ class StartWithZeroNodesTest extends Specification {
     Endpoint endpoint
 
     int port
-    int stopPort
+
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
@@ -31,7 +31,6 @@ class StartWithZeroNodesTest extends Specification {
         endpoint = deproxy.addEndpoint(targetPort)
 
         port = properties.reposePort
-        stopPort = properties.reposeShutdownPort
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
@@ -51,8 +50,7 @@ class StartWithZeroNodesTest extends Specification {
                 properties.getReposeJar(),
                 "http://localhost:${port}",
                 properties.getConfigDirectory(),
-                port,
-                stopPort
+                port
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

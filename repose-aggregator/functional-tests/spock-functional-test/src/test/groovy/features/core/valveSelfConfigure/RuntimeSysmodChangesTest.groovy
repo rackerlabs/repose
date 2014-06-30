@@ -20,7 +20,6 @@ class RuntimeSysmodChangesTest extends Specification {
     int port1
     int port2
     int port3
-    int stopPort
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
     ReposeValveLauncher repose
@@ -38,7 +37,6 @@ class RuntimeSysmodChangesTest extends Specification {
         port1 = properties.reposePort
         port2 = PortFinder.Singleton.getNextOpenPort()
         port3 = PortFinder.Singleton.getNextOpenPort()
-        stopPort = properties.reposeShutdownPort
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
@@ -63,8 +61,7 @@ class RuntimeSysmodChangesTest extends Specification {
                 properties.getReposeJar(),
                 "http://localhost:${port1}",
                 properties.getConfigDirectory(),
-                port1,
-                stopPort
+                port1
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,

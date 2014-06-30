@@ -26,7 +26,6 @@ class HeaderNormalizationJMXTest extends Specification {
     String HEADER_NORMALIZATION_ACROSS_ALL = "${PREFIX},name=\"ACROSS ALL\""
 
     int reposePort
-    int reposeStopPort
     int originServicePort
     String urlBase
 
@@ -43,7 +42,6 @@ class HeaderNormalizationJMXTest extends Specification {
 
         // get ports
         reposePort = properties.reposePort
-        reposeStopPort = properties.reposeShutdownPort
         originServicePort = properties.targetPort
 
         // start deproxy
@@ -62,8 +60,7 @@ class HeaderNormalizationJMXTest extends Specification {
                 properties.getReposeJar(),
                 urlBase,
                 properties.getConfigDirectory(),
-                reposePort,
-                reposeStopPort
+                reposePort
         )
         repose.enableDebug()
 

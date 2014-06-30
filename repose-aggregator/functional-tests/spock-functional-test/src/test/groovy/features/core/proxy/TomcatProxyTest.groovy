@@ -1,8 +1,11 @@
 package features.core.proxy
-import framework.*
+
+import framework.ReposeConfigurationProvider
+import framework.ReposeContainerLauncher
+import framework.ReposeLauncher
+import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import spock.lang.Specification
 
 class TomcatProxyTest extends Specification {
@@ -20,7 +23,6 @@ class TomcatProxyTest extends Specification {
         deproxy.addEndpoint(originServicePort)
 
         int reposePort = properties.reposePort
-        int shutdownPort = properties.reposeShutdownPort
         tomcatEndpoint = properties.reposeEndpoint
 
         def configDirectory = properties.getConfigDirectory()
@@ -39,7 +41,7 @@ class TomcatProxyTest extends Specification {
         config.applyConfigs("common", params)
 
 
-        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort, shutdownPort)
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar, reposePort)
         repose.clusterId = "repose"
         repose.nodeId = "simple-node"
         repose.start()
