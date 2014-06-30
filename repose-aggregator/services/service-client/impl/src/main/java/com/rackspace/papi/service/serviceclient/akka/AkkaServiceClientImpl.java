@@ -21,6 +21,8 @@ import scala.concurrent.duration.Duration;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static akka.pattern.Patterns.ask;
@@ -64,11 +66,11 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
         ServiceClientResponse reusableServiceserviceClientResponse = null;
         AuthGetRequest authGetRequest = new AuthGetRequest(key, uri, headers);
-        Future<ServiceClientResponse> future = getFuture(authGetRequest);
         try {
+            Future<ServiceClientResponse> future = getFuture(authGetRequest);
             reusableServiceserviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
         } catch (Exception e) {
-            LOG.error("error with akka future: " + e.getMessage(), e);
+            LOG.error("Error acquiring value from akka (GET) or the cache", e);
         }
         return reusableServiceserviceClientResponse;
     }
@@ -77,14 +79,12 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType) {
         ServiceClientResponse scr = null;
         AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, mediaType);
-        Future<ServiceClientResponse> future = getFuture(apr);
-
         try {
+            Future<ServiceClientResponse> future = getFuture(apr);
             scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
         } catch (Exception e) {
-            LOG.error("Error awaiting result for akka post: " + e.getMessage(), e);
+            LOG.error("Error acquiring value from akka (POST) or the cache", e);
         }
-
         return scr;
     }
 
@@ -92,23 +92,21 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     @Override
     public void shutdown() {
         actorSystem.shutdown();
-
     }
 
-    private Future getFuture(ConsistentHashable hashableRequest) {
+    private Future getFuture(final ConsistentHashable hashableRequest) throws ExecutionException {
         Object hashKey = hashableRequest.consistentHashKey();
-        Future<Object> newFuture = null;
-        synchronized (quickFutureCache) {
-            if (!quickFutureCache.asMap().containsKey(hashKey)) {
-                if (!quickFutureCache.asMap().containsKey(hashKey)) {
-                    newFuture = ask(tokenActorRef, hashableRequest, t);
-                    quickFutureCache.asMap().putIfAbsent(hashKey, newFuture);
-                }
-            } else {
-                newFuture = quickFutureCache.asMap().get(hashKey);
+
+        //http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/Cache.html#get%28K,%20java.util.concurrent.Callable%29
+        // Using this method, according to guava, is the right way to do the "cache pattern"
+        return quickFutureCache.get(hashKey, new Callable<Future<Object>>() {
+
+            @Override
+            public Future<Object> call() throws Exception {
+                return ask(tokenActorRef, hashableRequest, t);
             }
-        }
-        return newFuture;
+        });
+
     }
 
     public ServiceClient getServiceClient(HttpClientService httpClientService) {
