@@ -147,8 +147,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
      *         against the request query parameters. Otherwise, <code>null</code> is returned.
      */
     private List<Matcher> getQueryParamMatchers(List<QueryParam> configuredQueryParams, Map<String, String[]> requestParameterMap) {
-        // TODO: Allow for multiple values in the XSD to match against
-
         List<Matcher> matchingMatchers = new ArrayList<>();
         
         for (QueryParam configuredQueryParam : configuredQueryParams) {
