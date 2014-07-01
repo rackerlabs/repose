@@ -88,7 +88,7 @@
 
                                 <!--This adds the license file.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/</directory>
+                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
@@ -113,6 +113,7 @@
                             <requires>
                                 <require>valve</require>
                             </requires>
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>

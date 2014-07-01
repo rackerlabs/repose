@@ -86,7 +86,7 @@
 
                                 <!--This adds the license file.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/</directory>
+                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
@@ -121,7 +121,7 @@
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
-                            <group />
+                            <group>Applications/Internet</group>
                         </configuration>
                     </plugin>
                 </plugins>
