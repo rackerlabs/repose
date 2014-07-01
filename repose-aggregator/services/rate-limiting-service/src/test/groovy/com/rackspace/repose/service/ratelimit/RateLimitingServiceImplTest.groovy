@@ -190,17 +190,8 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
     public void shouldTrackQueryParamLimits() {
         RateLimiter limiter = mock(RateLimiter.class)
 
-        // Reflection to make the rateLimiter field accessible so that we can mock it to verify behavior
-        Field rateLimiterField = RateLimitingServiceImpl.class.getDeclaredField("rateLimiter")
-        rateLimiterField.setAccessible(true)
-
-        Field modifiersField = Field.class.getDeclaredField("modifiers")
-        modifiersField.setAccessible(true)
-        modifiersField.setInt(rateLimiterField, rateLimiterField.getModifiers() & ~Modifier.FINAL)
-        //
-
         RateLimitingServiceImpl rateLimitingService = new RateLimitingServiceImpl(null, config)
-        rateLimiterField.set(rateLimitingService, limiter)
+        rateLimitingService.rateLimiter = limiter
 
         rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", ["index" : ["0"] as String[]], "GET", 1000)
 

@@ -24,9 +24,10 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingServiceImpl.class);
     private final RateLimitCache cache;
-    private final RateLimiter rateLimiter;
     private final RateLimitingConfigHelper helper;
     private final boolean useCaptureGroups;
+
+    private RateLimiter rateLimiter;
 
     public RateLimitingServiceImpl(RateLimitCache cache, RateLimitingConfiguration rateLimitingConfiguration) {
 
