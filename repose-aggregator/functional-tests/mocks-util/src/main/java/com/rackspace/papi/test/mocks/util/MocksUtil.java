@@ -105,8 +105,8 @@ public final class MocksUtil {
 
     public static String getServletPath(String filePath){
 
-        int dot = filePath.lastIndexOf(".");
-        int slash = filePath.lastIndexOf("/");
+        int dot = filePath.lastIndexOf('.');
+        int slash = filePath.lastIndexOf('/');
 
         return filePath.substring(slash+1, dot);
 
