@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by jennyvo on 7/1/14.
  */
-public class AuthGroupsTests {
+public class AuthGroupsTest {
     Group group1,group2,group3;
     AuthGroups authGroups;
     AuthGroup testGroup1,testGroup2,testGroup3;

@@ -4,23 +4,23 @@
  */
 package com.rackspace.auth.rackspace;
 
-import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -174,5 +174,16 @@ public class RackspaceTokenTest {
         String result = rackspaceToken.getImpersonatorUsername();
         assertEquals(expResult, result);
      
+    }
+    /**
+     * Test of getDefaultRegion method, of class RackspaceToken.
+     */
+    @Test
+    public void testGetDefaultRegion() {
+
+        String expResult = "";
+        String result = rackspaceToken.getDefaultRegion();
+        assertEquals(expResult, result);
+
     }
 }
