@@ -54,7 +54,7 @@ public class SystemModelConfigTest {
                             "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
                             "        </nodes>\n" +
                             "        <services>\n" +
-                            "            <service name=\"distributed-datastore\"/>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
                             "        </services>\n" +
                             "        <destinations>\n" +
                             "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"\n" +
