@@ -3,8 +3,7 @@ package com.rackspace.papi.commons.util.logging.apache.format.converters;
 public enum DateConversionFormat {
 
     RFC_1123("E, dd MMM yyyy HH:mm:ss z"),
-    ISO_8601("yyyy-MM-dd'T'HH:mm:ss'Z'");  //this is incorrect, but there isn't a right solution in java 1.6
-//    ISO_8601("yyyy-MM-dd'T'HH:mm:ssX");  //use this one when we switch to java 1.7 it's correct
+    ISO_8601("yyyy-MM-dd'T'HH:mm:ssX");
     private String pattern;
 
     DateConversionFormat(String pattern) {
