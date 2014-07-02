@@ -25,6 +25,17 @@
             </resources>
         </application>
     </validator>
+    <validator role="role-with-dashes" default="false" enable-rax-roles="true">
+        <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+            <resources base="http://localhost:${targetPort}">
+                <resource path="/a">
+                    <method name="GET" rax:roles="This-Is-A-Role"/>
+                    <method name="POST" rax:roles="a:admin"/>
+                    <method name="DELETE" rax:roles="a:admin"/>
+                </resource>
+            </resources>
+        </application>
+    </validator>
 
     <validator role="test_user3" default="false" enable-rax-roles="true">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
