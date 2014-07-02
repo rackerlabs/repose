@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import static org.junit.Assert.*;
 
 /**
  * Created by jennyvo on 7/1/14.
@@ -48,14 +49,14 @@ public class AuthGroupsTest {
     @Test
     public void shouldReturnGroupList(){
         authGroups = new AuthGroups(groupsList);
-        assert authGroups.getGroups().size() == 3;
-        assert authGroups.getGroups() == groupsList;
+        assertEquals(authGroups.getGroups().size(), 3);
+        assertEquals(authGroups.getGroups(), groupsList);
     }
 
     @Test
     public void shouldReturnEmptyList(){
         authGroups = new AuthGroups(null);
-        assert authGroups.getGroups().isEmpty();
+        assertTrue(authGroups.getGroups().isEmpty());
     }
 
 }
