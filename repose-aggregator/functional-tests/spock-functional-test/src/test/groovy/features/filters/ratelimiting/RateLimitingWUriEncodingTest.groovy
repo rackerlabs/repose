@@ -39,8 +39,7 @@ class RateLimitingWUriEncodingTest extends Specification{
                 properties.getReposeJar(),
                 properties.reposeEndpoint,
                 properties.getConfigDirectory(),
-                properties.reposePort,
-                properties.reposeShutdownPort
+                properties.reposePort
         )
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
