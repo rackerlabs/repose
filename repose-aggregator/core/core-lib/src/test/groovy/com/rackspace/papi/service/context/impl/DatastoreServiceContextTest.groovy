@@ -23,11 +23,10 @@ public class DatastoreServiceContextTest {
         assertThat(registries,hasItemInArray(dsc));
     }
 
-    @Test(expected = NullPointerException)
-    public void testRegisterNull() {
+    @Test
+    public void testRegistryNull() {
         DatastoreServiceContext dsc = new DatastoreServiceContext(null,null,null);
-        int initialSize = dsc.registry.boundServiceContexts.size(); //this line should produce the exception
-        dsc.register();
+        assertThat(dsc.registry,nullValue());
     }
 
     @Test
