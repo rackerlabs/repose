@@ -1,50 +1,30 @@
 package features.filters.ratelimiting
 
-import framework.ReposeConfigurationProvider
-import framework.ReposeValveLauncher
-import framework.TestProperties
+import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.PortFinder
-import spock.lang.Specification
 import spock.lang.Unroll
-
 /**
  * Created by jennyvo on 6/25/14.
  */
-class RateLimitingWUriEncodingTest extends Specification{
-
-    static Deproxy deproxy
-
-    static TestProperties properties
-    static ReposeConfigurationProvider reposeConfigProvider
-    static ReposeValveLauncher repose
-
+class RateLimitingWUriEncodingTest extends ReposeValveTest{
     def setupSpec() {
-
-        properties = new TestProperties()
-
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        properties.reposePort = PortFinder.Singleton.getNextOpenPort()
-
-        reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
-
         def params = properties.getDefaultTemplateParams()
-        reposeConfigProvider.cleanConfigDirectory()
-        reposeConfigProvider.applyConfigs("common", params)
-        reposeConfigProvider.applyConfigs("features/filters/ratelimiting/uriencoding", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                properties.reposeEndpoint,
-                properties.getConfigDirectory(),
-                properties.reposePort
-        )
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/uriencoding", params)
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
+    }
+
+    def cleanupSpec() {
+        if (repose)
+            repose.stop()
+        if (deproxy)
+            deproxy.shutdown()
     }
 
     @Unroll("Request with uri #uri should be applied the same limit group #group")

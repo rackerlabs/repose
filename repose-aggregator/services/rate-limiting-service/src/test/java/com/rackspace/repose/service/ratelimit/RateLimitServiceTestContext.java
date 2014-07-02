@@ -5,6 +5,7 @@ import com.rackspace.repose.service.limits.schema.TimeUnit;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class RateLimitServiceTestContext {
     public static final String SIMPLE_URI_REGEX = "/loadbalancer/.*";
@@ -16,7 +17,7 @@ public class RateLimitServiceTestContext {
     public static final String SIMPLE_ID = "12345-ABCDE";
     public static final String COMPLEX_ID = "09876-ZYXWV";
 
-    protected ConfiguredRatelimit newLimitConfig(String limitId, String uri, String uriRegex, LinkedList<HttpMethod> methods) {
+    protected ConfiguredRatelimit newLimitConfig(String limitId, String uri, String uriRegex, List<HttpMethod> methods, List<String> queryNames) {
         final ConfiguredRatelimit configuredRateLimit = new ConfiguredRatelimit();
 
         configuredRateLimit.setId(limitId);
@@ -24,6 +25,9 @@ public class RateLimitServiceTestContext {
         configuredRateLimit.setUri(uri);
         configuredRateLimit.setUriRegex(uriRegex);
         configuredRateLimit.setValue(20);
+        for (String qn : queryNames) {
+            configuredRateLimit.getQueryParamNames().add(qn);
+        }
         for (HttpMethod m : methods) {
             configuredRateLimit.getHttpMethods().add(m);
         }

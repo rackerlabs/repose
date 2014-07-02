@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"
+               use-capture-groups="true">
+
+    <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
+
+    <limit-group id="domain-queries" groups="dbaas" default="false">
+        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-param-names="name" http-methods="ALL" unit="MINUTE" value="3"/>
+    </limit-group>
+
+    <limit-group id="domain-queries2" groups="dbaas2" default="false">
+        <limit id="test" uri="/domain?queries=*" uri-regex="/domain(.*)" query-param-names="search" http-methods="ALL" unit="MINUTE" value="3"/>
+    </limit-group>
+
+    <limit-group id="domain-queries3" groups="dbaas3" default="false">
+        <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-param-names="name age query" http-methods="ALL" unit="MINUTE" value="3"/>
+    </limit-group>
+
+    <limit-group id="domain-queries4" groups="dbaas4" default="false">
+        <limit id="test" uri="/info?queries=*" uri-regex="/info(.*)" query-param-names="time%20search other" http-methods="ALL" unit="MINUTE" value="2"/>
+    </limit-group>
+</rate-limiting>

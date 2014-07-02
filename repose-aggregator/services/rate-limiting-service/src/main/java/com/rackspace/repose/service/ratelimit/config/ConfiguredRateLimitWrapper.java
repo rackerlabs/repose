@@ -78,6 +78,11 @@ public class ConfiguredRateLimitWrapper extends ConfiguredRatelimit {
     }
 
     @Override
+    public List<String> getQueryParamNames() {
+        return configuredRateLimit.getQueryParamNames();
+    }
+
+    @Override
     public String toString() {
         return configuredRateLimit.toString();
     }

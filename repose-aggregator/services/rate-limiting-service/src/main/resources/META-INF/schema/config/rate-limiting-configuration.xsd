@@ -310,6 +310,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="query-param-names" type="rl:StringList" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of query parameter names/keys that this rate limit will match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
     
     

@@ -157,7 +157,7 @@ public class RateLimitingServiceHelperTest extends Specification {
         rateLimitingServiceHelper.trackLimits(request, 1000)
 
         then:
-        verify(mockRlService).trackLimits(any(String.class), any(List.class), eq(decodedURI), any(String.class), anyInt())
+        verify(mockRlService).trackLimits(any(String.class), any(List.class), eq(decodedURI), any(Map.class), any(String.class), anyInt())
 
         where:
         requestURI               | decodedURI       | expectedBehavior
