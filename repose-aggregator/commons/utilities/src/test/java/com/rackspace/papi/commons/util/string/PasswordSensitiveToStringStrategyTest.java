@@ -33,4 +33,19 @@ public class PasswordSensitiveToStringStrategyTest {
         assertEquals("password=*******, ", result.toString());
        
     }
+
+    @Test
+    public void testAppendFieldNotPassword() {
+
+        ObjectLocator objectLocator = mock( ObjectLocator.class);
+        Object o = null;
+        String s = "abcd";
+        StringBuilder stringBuilder = new StringBuilder();
+        Object o1 = mock(Object.class);
+        PasswordSensitiveToStringStrategy instance = new PasswordSensitiveToStringStrategy();
+        StringBuilder result = instance.appendField(objectLocator, o, "field", stringBuilder, o1);
+        assertEquals("field="+o1.toString()+", ", result.toString());
+
+    }
+
 }
