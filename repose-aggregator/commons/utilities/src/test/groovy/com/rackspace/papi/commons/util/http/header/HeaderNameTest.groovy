@@ -37,4 +37,35 @@ class HeaderNameTest {
 
         assertThat(headerNameMapKey.hashCode(), equalTo(headerNameMapKeyLower.hashCode()))
     }
+
+    @Test
+    void "equals properly compares two null header names"() throws Exception {
+        HeaderName headerNameMapKeyNull1 = HeaderName.wrap(null)
+        HeaderName headerNameMapKeyNull2 = HeaderName.wrap(null)
+
+        assertThat(headerNameMapKeyNull1, equalTo(headerNameMapKeyNull2))
+    }
+
+    @Test
+    void "equals properly compares null and non-null header names"() throws Exception {
+        HeaderName headerNameMapKeyNonNull = HeaderName.wrap(HEADER_NAME)
+        HeaderName headerNameMapKeyNull = HeaderName.wrap(null)
+
+        assertThat(headerNameMapKeyNonNull, not(equalTo(headerNameMapKeyNull)))
+    }
+
+    @Test
+    void "equals properly compares the same object"() throws Exception {
+        HeaderName headerNameMapKey = HeaderName.wrap(HEADER_NAME)
+
+        assertThat(headerNameMapKey, equalTo(headerNameMapKey))
+    }
+
+    @Test
+    void "equals properly compares object of different type"() throws Exception {
+        HeaderName headerNameMapKey = HeaderName.wrap(HEADER_NAME)
+        String notAHeaderName = ""
+
+        assertThat(headerNameMapKey, not(equalTo(notAHeaderName)))
+    }
 }
