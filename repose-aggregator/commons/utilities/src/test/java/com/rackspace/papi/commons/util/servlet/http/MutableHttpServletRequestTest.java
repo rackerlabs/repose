@@ -108,28 +108,28 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldRemoveMapHeaderNamesAndValues() {
             wrappedRequest.removeHeader("accept");
-            assertThat(null, equalTo(wrappedRequest.getHeader("accept")));
+            assertThat(wrappedRequest.getHeader("accept"), equalTo(null));
         }
 
         @Test
         public void shouldClearMapHeaderNamesAndValues() {
             wrappedRequest.clearHeaders();
-            assertThat(null, equalTo(wrappedRequest.getHeader("accept")));
-            assertThat(null, equalTo(wrappedRequest.getHeader("accept-encoding")));
+            assertThat(wrappedRequest.getHeader("accept"), equalTo(null));
+            assertThat(wrappedRequest.getHeader("accept-encoding"), equalTo(null));
         }
 
         @Test
         public void shouldReplaceMapHeaderNamesAndValues() {
             String expected = "val3.1";
             wrappedRequest.replaceHeader("accept", expected);
-            assertThat(expected, equalTo(wrappedRequest.getHeader("accept")));
+            assertThat(wrappedRequest.getHeader("accept"), equalTo(expected));
         }
 
         @Test
         public void shouldAddMapHeaderNamesAndValues() {
             String expected = "val3.1";
             wrappedRequest.addHeader("header3", expected);
-            assertThat(expected, equalTo(wrappedRequest.getHeader("header3")));
+            assertThat(wrappedRequest.getHeader("header3"), equalTo(expected));
         }
     }
 
