@@ -1,7 +1,5 @@
 package com.rackspace.papi.commons.util.logging.apache.format.converters
 
-import org.junit.Assume
-import org.junit.Ignore
 import org.junit.Test
 /**
  * Created with IntelliJ IDEA.
