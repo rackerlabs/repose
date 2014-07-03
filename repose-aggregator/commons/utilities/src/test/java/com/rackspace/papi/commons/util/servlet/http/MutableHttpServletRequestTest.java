@@ -47,7 +47,6 @@ public class MutableHttpServletRequestTest {
         @Before
         public void setup() {
             headerNames = createStringEnumeration("accept", "ACCEPT-ENCODING");
-
             headerValues1 = createStringEnumeration("val1.1", "val1.2");
             headerValues2 = createStringEnumeration("val2.1");
 
@@ -103,6 +102,33 @@ public class MutableHttpServletRequestTest {
             actual = MutableHttpServletRequest.wrap(original);
 
             assertNotSame(original, actual);
+        }
+
+        @Test
+        public void shouldRemoveMapHeaderNamesAndValues() {
+            wrappedRequest.removeHeader("accept");
+            assertNull(wrappedRequest.getHeader("accept"));
+        }
+
+        @Test
+        public void shouldClearMapHeaderNamesAndValues() {
+            wrappedRequest.clearHeaders();
+            assertNull(wrappedRequest.getHeader("accept"));
+            assertNull(wrappedRequest.getHeader("accept-encoding"));
+        }
+
+        @Test
+        public void shouldReplaceMapHeaderNamesAndValues() {
+            String expected = "val3.1";
+            wrappedRequest.replaceHeader("accept", expected);
+            assertEquals(expected, wrappedRequest.getHeader("accept"));
+        }
+
+        @Test
+        public void shouldAddMapHeaderNamesAndValues() {
+            String expected = "val3.1";
+            wrappedRequest.addHeader("header3", expected);
+            assertEquals(expected, wrappedRequest.getHeader("header3"));
         }
     }
 
