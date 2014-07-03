@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -107,28 +108,28 @@ public class MutableHttpServletRequestTest {
         @Test
         public void shouldRemoveMapHeaderNamesAndValues() {
             wrappedRequest.removeHeader("accept");
-            assertNull(wrappedRequest.getHeader("accept"));
+            assertThat(null, equalTo(wrappedRequest.getHeader("accept")));
         }
 
         @Test
         public void shouldClearMapHeaderNamesAndValues() {
             wrappedRequest.clearHeaders();
-            assertNull(wrappedRequest.getHeader("accept"));
-            assertNull(wrappedRequest.getHeader("accept-encoding"));
+            assertThat(null, equalTo(wrappedRequest.getHeader("accept")));
+            assertThat(null, equalTo(wrappedRequest.getHeader("accept-encoding")));
         }
 
         @Test
         public void shouldReplaceMapHeaderNamesAndValues() {
             String expected = "val3.1";
             wrappedRequest.replaceHeader("accept", expected);
-            assertEquals(expected, wrappedRequest.getHeader("accept"));
+            assertThat(expected, equalTo(wrappedRequest.getHeader("accept")));
         }
 
         @Test
         public void shouldAddMapHeaderNamesAndValues() {
             String expected = "val3.1";
             wrappedRequest.addHeader("header3", expected);
-            assertEquals(expected, wrappedRequest.getHeader("header3"));
+            assertThat(expected, equalTo(wrappedRequest.getHeader("header3")));
         }
     }
 
