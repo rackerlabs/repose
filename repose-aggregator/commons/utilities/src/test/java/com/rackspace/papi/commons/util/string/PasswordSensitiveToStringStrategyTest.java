@@ -7,7 +7,8 @@ package com.rackspace.papi.commons.util.string;
 import org.junit.Test;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -30,7 +31,7 @@ public class PasswordSensitiveToStringStrategyTest {
         Object o1 = mock(Object.class);
         PasswordSensitiveToStringStrategy instance = new PasswordSensitiveToStringStrategy();
         StringBuilder result = instance.appendField(objectLocator, o, "password", stringBuilder, o1);
-        assertEquals("password=*******, ", result.toString());
+        assertThat(result.toString(), equalTo("password=*******, "));
        
     }
 
@@ -44,7 +45,7 @@ public class PasswordSensitiveToStringStrategyTest {
         Object o1 = mock(Object.class);
         PasswordSensitiveToStringStrategy instance = new PasswordSensitiveToStringStrategy();
         StringBuilder result = instance.appendField(objectLocator, o, "field", stringBuilder, o1);
-        assertEquals("field="+o1.toString()+", ", result.toString());
+        assertThat(result.toString(), equalTo("field="+o1.toString()+", "));
 
     }
 
