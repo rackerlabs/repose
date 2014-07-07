@@ -27,7 +27,7 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     public EventManagerServiceContext(
             @Qualifier("eventManager") EventService eventManager,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("threadingService") ThreadingService threadingService,
+            @Qualifier("threadingServiceImpl") ThreadingService threadingService,
             @Qualifier("powerProxyEventKernel") PowerProxyEventKernel eventKernel) {
        this.eventManager = eventManager;
        this.registry = registry;

@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component("threadingService")
+@Component
 public class ThreadingServiceImpl implements ThreadingService {
     private final Set<WeakReference<Thread>> liveThreadReferences;
 
