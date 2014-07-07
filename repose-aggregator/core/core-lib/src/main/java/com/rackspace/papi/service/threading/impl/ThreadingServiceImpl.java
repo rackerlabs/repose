@@ -9,8 +9,6 @@ import java.util.Set;
 
 @Component("threadingService")
 public class ThreadingServiceImpl implements ThreadingService {
-    public static final String SERVICE_NAME = "powerapi:/kernel/threading";
-
     private final Set<WeakReference<Thread>> liveThreadReferences;
 
     public ThreadingServiceImpl() {
