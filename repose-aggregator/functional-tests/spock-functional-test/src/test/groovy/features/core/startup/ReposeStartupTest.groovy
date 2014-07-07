@@ -1,6 +1,7 @@
 package features.core.startup
 import framework.ReposeValveTest
 import framework.category.Release
+import org.apache.commons.io.FileUtils
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -8,8 +9,10 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.junit.experimental.categories.Category
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.PortFinder
 import spock.lang.Unroll
 
+import java.nio.file.Path
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -32,6 +35,7 @@ class ReposeStartupTest extends ReposeValveTest {
     def "repose should start with installation configs"(){
         setup:
         def params = properties.getDefaultTemplateParams()
+        def nextPort = PortFinder.Singleton.getNextOpenPort()
 
         //note: Order matters here. The common directory overwrites some of the configs from the core directory.
         //      This means that the core configs we provide may not get tested, but due to the structure of our tests,
@@ -40,11 +44,23 @@ class ReposeStartupTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
+        String systemModelTemp = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml.new"
+        String systemModelSource = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml"
+        new File(systemModelTemp).withWriter {
+            out ->
+            new File(systemModelSource).eachLine {
+                line ->
+                    out << line.replaceAll("http-port=\"8080\"", "http-port=\"${nextPort}\"")
+            }
+        }
+        FileUtils.copyFile(new File(systemModelTemp), new File(systemModelSource))
+
         repose.start()
+
 
         when:
         //todo: use a dynamic port (will require tinkering with [a copy of] the installation system-model).
-        repose.waitForNon500FromUrl("http://localhost:8080")
+        repose.waitForNon500FromUrl("http://localhost:${nextPort}")
 
         then:
         notThrown(TimeoutException)
