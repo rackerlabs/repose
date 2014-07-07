@@ -8,7 +8,6 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
 import com.rackspace.papi.service.context.impl.LoggingServiceContext;
 import com.rackspace.papi.service.context.impl.ReportingServiceContext;
-import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
 import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ public class ReposeValveControllerContextManager implements ServletContextListen
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
       ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
       ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
       ca.getContext(LoggingServiceContext.class).contextInitialized(sce);

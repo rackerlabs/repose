@@ -5,11 +5,12 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.PowerProxyEventKernel;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
-import javax.servlet.ServletContextEvent;
+import com.rackspace.papi.service.threading.ThreadingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
 
 @Component("eventManagerServiceContext")
 public class EventManagerServiceContext implements ServiceContext<EventService> {
@@ -19,18 +20,18 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     private final EventService eventManager;
     private DestroyableThreadWrapper eventKernelThread;
     private final ServiceRegistry registry;
-    private final ThreadingServiceContext threadingContext;
+    private final ThreadingService threadingService;
     private final PowerProxyEventKernel eventKernel;
 
     @Autowired
     public EventManagerServiceContext(
             @Qualifier("eventManager") EventService eventManager,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("threadingServiceContext") ThreadingServiceContext threadingContext,
+            @Qualifier("threadingService") ThreadingService threadingService,
             @Qualifier("powerProxyEventKernel") PowerProxyEventKernel eventKernel) {
        this.eventManager = eventManager;
        this.registry = registry;
-       this.threadingContext = threadingContext;
+       this.threadingService = threadingService;
        this.eventKernel = eventKernel;
     }
 
@@ -52,7 +53,7 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        eventKernelThread = new DestroyableThreadWrapper(threadingContext.getService().newThread(eventKernel, "Event Kernel Thread"), eventKernel);
+        eventKernelThread = new DestroyableThreadWrapper(threadingService.newThread(eventKernel, "Event Kernel Thread"), eventKernel);
         eventKernelThread.start();
         register();
     }
