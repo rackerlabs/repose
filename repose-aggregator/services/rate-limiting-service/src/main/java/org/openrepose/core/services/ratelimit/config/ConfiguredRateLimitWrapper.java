@@ -32,7 +32,7 @@ public class ConfiguredRateLimitWrapper extends ConfiguredRatelimit {
     public ConfiguredRateLimitWrapper(ConfiguredRatelimit configuredRateLimit) {
         this.configuredRateLimit = configuredRateLimit;
         this.regexPattern = Pattern.compile(configuredRateLimit.getUriRegex());
-        // todo : optimize so that query params are only computed once
+        // todo : optimize so that query params are only computed once (like uri-regex above)
     }
 
     public Pattern getRegexPattern() {
