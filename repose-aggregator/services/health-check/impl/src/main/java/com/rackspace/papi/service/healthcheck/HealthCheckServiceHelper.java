@@ -20,9 +20,7 @@ public class HealthCheckServiceHelper {
         logger.debug("Reporting issue to Health Checker Service: " + rid);
         try {
             healthCheckService.reportIssue(uid, rid, new HealthCheckReport(message, severity));
-        } catch (InputNullException e) {
-            logger.error("Unable to report Issues to Health Check Service", e);
-        } catch (NotRegisteredException e) {
+        } catch (InputNullException | NotRegisteredException e) {
             logger.error("Unable to report Issues to Health Check Service", e);
         }
     }
@@ -31,9 +29,7 @@ public class HealthCheckServiceHelper {
         try {
             logger.debug("Resolving issue: " + rid);
             healthCheckService.solveIssue(uid, rid);
-        } catch (InputNullException e) {
-            logger.error("Unable to solve issue {} from {}", rid, uid, e);
-        } catch (NotRegisteredException e) {
+        } catch (InputNullException | NotRegisteredException e) {
             logger.error("Unable to solve issue {} from {}", rid, uid, e);
         }
     }
