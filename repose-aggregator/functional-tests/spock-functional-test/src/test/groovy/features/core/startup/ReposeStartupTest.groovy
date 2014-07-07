@@ -44,7 +44,7 @@ class ReposeStartupTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/extensions", params)
         repose.configurationProvider.applyConfigs("../../../../installation/configs/filters", params)
-        String systemModelTemp = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml.new"
+        String systemModelTemp = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml.${nextPort}"
         String systemModelSource = "${repose.configurationProvider.reposeConfigDir}/system-model.cfg.xml"
         new File(systemModelTemp).withWriter {
             out ->
