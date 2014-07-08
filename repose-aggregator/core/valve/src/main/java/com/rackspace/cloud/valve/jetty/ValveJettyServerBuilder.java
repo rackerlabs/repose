@@ -7,6 +7,7 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
+import com.rackspace.papi.service.context.impl.ReposeInfo;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -15,6 +16,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.springframework.web.context.ContextLoaderListener;
 
 import javax.servlet.DispatcherType;
 import java.io.File;
@@ -93,17 +95,11 @@ public class ValveJettyServerBuilder {
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
         servletContext.getInitParams().put(InitParameter.REPOSE_CLUSTER_ID.getParameterName(), clusterId);
         servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), nodeId);
-        
-        ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
-        try {
-            PowerApiContextManager contextManager = PowerApiContextManager.class.newInstance();
-            contextManager.setPorts(ports,instanceInfo);
-            servletContext.addEventListener(contextManager);
-        } catch (InstantiationException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        } catch (IllegalAccessException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        }
+
+        //This is okay, since valve depends on core!
+        servletContext.setAttribute(ReposeInfo.PORT_LIST_ATTRIBUTE, ports);
+
+        servletContext.addEventListener(new ContextLoaderListener());
 
         return servletContext;
     }
