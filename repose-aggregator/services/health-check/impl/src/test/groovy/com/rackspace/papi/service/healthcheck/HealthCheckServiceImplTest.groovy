@@ -187,8 +187,8 @@ class HealthCheckServiceImplTest {
         healthCheckService.reportIssue(null, "rid", h1);
     }
 
-    @Test(expected = InputNullException)
-    void shouldReturnInputNullExceptionForRegisteringNullClass(){
+    @Test(expected = IllegalArgumentException)
+    void shouldReturnIllegalArgumentExceptionForRegisteringNullClass(){
 
         healthCheckService.register(null)
     }
