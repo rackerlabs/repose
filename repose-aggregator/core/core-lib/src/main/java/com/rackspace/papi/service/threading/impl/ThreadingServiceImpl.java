@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Component
 public class ThreadingServiceImpl implements ThreadingService {
-    private final Set<WeakReference<Thread>> liveThreadReferences;
+    private Set<WeakReference<Thread>> liveThreadReferences;
 
     public ThreadingServiceImpl() {
         liveThreadReferences = new HashSet<WeakReference<Thread>>();
