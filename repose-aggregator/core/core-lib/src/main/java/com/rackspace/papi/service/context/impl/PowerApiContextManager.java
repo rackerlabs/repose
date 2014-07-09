@@ -10,7 +10,6 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
-import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringWithServices;
 import org.slf4j.Logger;
