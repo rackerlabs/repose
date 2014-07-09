@@ -1,12 +1,22 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
+import com.google.common.base.Optional;
+import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.container.config.ContainerConfiguration;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.http.proxy.HttpException;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
@@ -20,7 +30,11 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -31,13 +45,98 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
+@Component
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
+    private final ConfigurationService configurationService;
+    private final SystemModelInterrogator systemModelInterrogator;
+    private final HealthCheckService healthCheckService;
+    private String healthCheckUid;
+    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
+
     private boolean rewriteHostHeader = false;
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpClientService httpClientService;
+    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private ContainerConfigListener configListener;
+    private SystemModelListener systemModelListener;
+
+    @Autowired
+    public RequestProxyServiceImpl(ConfigurationService configurationService,
+                                   SystemModelInterrogator systemModelInterrogator,
+                                   HealthCheckService healthCheckService) {
+        this.configurationService = configurationService;
+        this.systemModelInterrogator = systemModelInterrogator;
+        this.healthCheckService = healthCheckService;
+    }
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        this.configListener = new ContainerConfigListener();
+        this.systemModelListener = new SystemModelListener();
+
+
+        healthCheckUid = healthCheckService.register(RequestProxyServiceImpl.class);
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+
+        configurationService.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
+        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (configurationService != null) {
+            configurationService.unsubscribeFrom("container.cfg.xml", configListener);
+            configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        }
+    }
+
+    private class ContainerConfigListener implements UpdateListener<ContainerConfiguration> {
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration config) {
+            Integer connectionTimeout = config.getDeploymentConfig().getConnectionTimeout();
+            Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
+            Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
+            boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    private class SystemModelListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(SystemModel config) {
+            Optional<ReposeCluster> localCluster = systemModelInterrogator.getLocalCluster(config);
+
+            if (localCluster.isPresent()) {
+                setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
+                isInitialized = true;
+
+                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+            } else {
+                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
+            }
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
 
     private HttpHost getProxiedHost(String targetHost) throws HttpException {
         try {
@@ -49,8 +148,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    public RequestProxyServiceImpl() {
-    }
 
     private HttpClientResponse getClient() {
         try {
@@ -70,7 +167,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             final boolean isChunkedConfigured = httpClientResponse.getHttpClient().getParams().getBooleanParameter(CHUNKED_ENCODING_PARAM, true);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
-            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader,isChunkedConfigured);
+            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, isChunkedConfigured);
             final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
 
             if (method != null) {
@@ -78,9 +175,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
                 return executeProxyRequest(processedMethod, response);
             }
-        } catch (URISyntaxException ex) {
-            LOG.error("Error processing request", ex);
-        } catch (HttpException ex) {
+        } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
         } finally {
             httpClientService.releaseClient(httpClientResponse);
