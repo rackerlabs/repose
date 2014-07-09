@@ -6,7 +6,7 @@ import org.junit.Test
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertThat
 
-class ThreadingServgiceImplTest {
+class ThreadingServiceImplTest {
     ThreadingServiceImpl threadingService
 
     Runnable emptyRunnable = new Runnable() {
