@@ -37,16 +37,12 @@ public class DistributedDatastoreServletContextManager implements ServletContext
    }
    
    public void configureReposeInfo(ApplicationContext context) {
-      if (instanceInfo == null) {
-
-         String clusterId = System.getProperty("repose-cluster-id");
-         String nodeId = System.getProperty("repose-node-id");
-         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
-      }
+       //TODO: dont' configure instance info here, get it from the parent spring context
       if (context == null) {
          return;
       }
 
+      //JIMMY NOOOOOOOOOOOo
       ReposeInstanceInfo reposeInstanceInfo = context.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
       reposeInstanceInfo.setClusterId(instanceInfo.getClusterId());
       reposeInstanceInfo.setNodeId(instanceInfo.getNodeId());
