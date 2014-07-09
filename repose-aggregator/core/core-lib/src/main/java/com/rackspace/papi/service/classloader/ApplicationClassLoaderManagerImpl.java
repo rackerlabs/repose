@@ -2,39 +2,77 @@ package com.rackspace.papi.service.classloader;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
+import com.rackspace.papi.service.event.common.Event;
+import com.rackspace.papi.service.event.common.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.*;
 
-@Component("classLoaderManager")
+@Component
 public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {
 
+    private final EventService eventService;
     private final Map<String, EarClassLoaderContext> classLoaderMap;
 
-    public ApplicationClassLoaderManagerImpl() {
+    @Autowired
+    public ApplicationClassLoaderManagerImpl(EventService eventService) {
+        this.eventService = eventService;
         this.classLoaderMap = new HashMap<String, EarClassLoaderContext>();
     }
 
-   @Override
-    public synchronized void removeApplication(String contextName) {
-        classLoaderMap.remove(contextName);
+    @PostConstruct
+    public void afterPropertiesSet() {
+        eventService.listen(
+                new com.rackspace.papi.service.event.common.EventListener<ApplicationDeploymentEvent, List<EarClassLoaderContext>>() {
+
+                    @Override
+                    public void onEvent(Event<ApplicationDeploymentEvent, List<EarClassLoaderContext>> e) {
+                        final List<EarClassLoaderContext> contexts = e.payload();
+                        final List<String> applications = new ArrayList<String>();
+
+                        for (EarClassLoaderContext ctx : contexts) {
+                            putApplication(ctx.getEarDescriptor().getApplicationName(), ctx);
+                            applications.add(ctx.getEarDescriptor().getApplicationName());
+                        }
+                        e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, applications);
+                    }
+                }, ApplicationDeploymentEvent.APPLICATION_LOADED);
+
+        eventService.listen(
+                new com.rackspace.papi.service.event.common.EventListener<ApplicationDeploymentEvent, String>() {
+
+                    @Override
+                    public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+                        final List<String> applications = new ArrayList<String>();
+                        removeApplication(e.payload());
+                        applications.add(e.payload());
+                        e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, applications);
+                    }
+                }, ApplicationDeploymentEvent.APPLICATION_DELETED);
     }
 
-   @Override
-    public synchronized void putApplication(String contextName, EarClassLoaderContext context) {
-        classLoaderMap.put(contextName, context);
-    }
-
+    @PreDestroy
     @Override
-    public synchronized void destroy() {
+    public void destroy() {
         // There is no need to destroy the internal references of the map - the
         // class loaders can not be de-referenced until all active instances of
         // classes they manage are de-referenced. That may take a while so we'll
         // just remove our references to the class loaders.
         classLoaderMap.clear();
+    }
+
+    @Override
+    public synchronized void removeApplication(String contextName) {
+        classLoaderMap.remove(contextName);
+    }
+
+    @Override
+    public synchronized void putApplication(String contextName, EarClassLoaderContext context) {
+        classLoaderMap.put(contextName, context);
     }
 
     @Override
@@ -46,7 +84,7 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
                 }
             }
         }
-        
+
         return false;
     }
 
