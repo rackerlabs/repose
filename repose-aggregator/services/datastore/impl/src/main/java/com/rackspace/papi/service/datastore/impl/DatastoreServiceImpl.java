@@ -31,7 +31,6 @@ public class DatastoreServiceImpl implements DatastoreService {
 
     @PreDestroy
     public void destroy() {
-        LOG.info("Destroying datastore service");
         shutdown();
     }
 
