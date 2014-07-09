@@ -3,11 +3,9 @@ package com.rackspace.cloud.valve.jetty;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
-import com.rackspace.papi.service.context.impl.PowerApiContextManager;
-import com.rackspace.papi.service.context.impl.ReposeInfo;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -97,7 +95,7 @@ public class ValveJettyServerBuilder {
         servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), nodeId);
 
         //This is okay, since valve depends on core!
-        servletContext.setAttribute(ReposeInfo.PORT_LIST_ATTRIBUTE, ports);
+        servletContext.setAttribute(ReposeInstanceInfo.PORT_LIST_ATTRIBUTE, ports);
 
         servletContext.addEventListener(new ContextLoaderListener());
 
