@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentMap;
 public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {
 
     private final EventService eventService;
-    private final ConcurrentMap<String, EarClassLoaderContext> classLoaderMap;
+
+    private ConcurrentMap<String, EarClassLoaderContext> classLoaderMap;
 
     @Autowired
     public ApplicationClassLoaderManagerImpl(EventService eventService) {
