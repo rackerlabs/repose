@@ -10,7 +10,8 @@
 
     <!-- Import Repose Services -->
 
-    <context:component-scan base-package="com.rackspace"/>
+    <context:component-scan base-package="com.rackspace,org.openrepose"/>
+
     <context:annotation-config/>
     <!-- <context:mbean-export/> -->
 
