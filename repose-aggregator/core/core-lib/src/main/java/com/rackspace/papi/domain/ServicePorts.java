@@ -5,6 +5,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Can't quite delete it yet, because it's in all the things, will be easier later
+ * TODO: use ReposeInstanceInfo instead, it provides a list of ports (not the "ServicePorts" class)
+ * This is a bad abstraction.
+ */
+@Deprecated()
 @Component("servicePorts")
 public class ServicePorts extends ArrayList<Port> {
     
