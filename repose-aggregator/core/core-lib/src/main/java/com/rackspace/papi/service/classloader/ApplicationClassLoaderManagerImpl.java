@@ -11,17 +11,19 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {
 
     private final EventService eventService;
-    private final Map<String, EarClassLoaderContext> classLoaderMap;
+    private final ConcurrentMap<String, EarClassLoaderContext> classLoaderMap;
 
     @Autowired
     public ApplicationClassLoaderManagerImpl(EventService eventService) {
         this.eventService = eventService;
-        this.classLoaderMap = new HashMap<String, EarClassLoaderContext>();
+        this.classLoaderMap = new ConcurrentHashMap<>();
     }
 
     @PostConstruct
@@ -56,7 +58,6 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
     }
 
     @PreDestroy
-    @Override
     public void destroy() {
         // There is no need to destroy the internal references of the map - the
         // class loaders can not be de-referenced until all active instances of
@@ -66,12 +67,12 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
     }
 
     @Override
-    public synchronized void removeApplication(String contextName) {
+    public void removeApplication(String contextName) {
         classLoaderMap.remove(contextName);
     }
 
     @Override
-    public synchronized void putApplication(String contextName, EarClassLoaderContext context) {
+    public void putApplication(String contextName, EarClassLoaderContext context) {
         classLoaderMap.put(contextName, context);
     }
 
@@ -90,14 +91,15 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
 
 
     @Override
-    public synchronized EarClassLoader getApplication(String contextName) {
+    public EarClassLoader getApplication(String contextName) {
         final EarClassLoaderContext ctx = classLoaderMap.get(contextName);
 
         return ctx != null ? ctx.getClassLoader() : null;
     }
 
     @Override
-    public synchronized Collection<EarClassLoaderContext> getLoadedApplications() {
+    public Collection<EarClassLoaderContext> getLoadedApplications() {
+        //This is legit, as values will return a modifyable thing, we probably don't want them to do this
         return Collections.unmodifiableCollection(classLoaderMap.values());
     }
 }
