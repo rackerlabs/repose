@@ -5,25 +5,34 @@ import com.rackspace.papi.components.datastore.DatastoreManager;
 import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
 import com.rackspace.papi.components.datastore.distributed.DistributedDatastore;
 import com.rackspace.papi.components.datastore.impl.distributed.HashRingDatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastoreManager;
+import com.rackspace.papi.service.datastore.DatastoreService;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component("datastoreService")
+@Component
 public class DatastoreServiceImpl implements DatastoreService {
+    private static final Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
 
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
-
+    @Autowired
     public DatastoreServiceImpl() {
         localDatastoreManager = new EHCacheDatastoreManager();
         distributedManagers = new HashMap<String, DatastoreManager>();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOG.info("Destroying datastore service");
+        shutdown();
     }
 
     @Override
