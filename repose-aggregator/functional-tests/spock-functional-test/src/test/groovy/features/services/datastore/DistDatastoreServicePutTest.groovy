@@ -2,9 +2,12 @@ package features.services.datastore
 import com.rackspace.papi.commons.util.io.ObjectSerializer
 import framework.ReposeValveTest
 import org.apache.commons.lang.RandomStringUtils
+import org.junit.Ignore
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
+import static org.junit.Assert.*
+import static org.junit.Assert.assertTrue;
 
 class DistDatastoreServicePutTest extends ReposeValveTest {
 
@@ -166,6 +169,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         "%2F%2D%20"                               | "random encoded characters"
     }
 
+    //@Ignore
     def "PUT with really large body within limit (2MEGS 2097152) should return 202"() {
         given:
         def largeBodyContent = RandomStringUtils.random(2006139, ('A'..'Z').join().toCharArray())
@@ -175,16 +179,17 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '202'
+        assertEquals(mc.receivedResponse.code, "202")
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '200'
-        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]) == largeBodyContent
+        assertEquals(mc.receivedResponse.code, "200")
+        assertEquals(ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]), largeBodyContent)
     }
 
+    //@Ignore
     def "PUT with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
         given:
         def largeBody = ObjectSerializer.instance().writeObject(
@@ -194,13 +199,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '413'
-        mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
+        assertEquals(mc.receivedResponse.code, "413")
+        assertTrue(mc.receivedResponse.body.toString().contains("Object is too large to store into the cache"))
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '404'
+        assertEquals(mc.receivedResponse.code, "404")
     }
 }

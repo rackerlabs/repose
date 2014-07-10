@@ -6,6 +6,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
+import static org.junit.Assert.*
+
 class DistDatastoreServicePatchTest extends ReposeValveTest {
 
     String DD_URI
@@ -199,14 +201,14 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '200'
+        assertEquals(mc.receivedResponse.code, "200")
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '200'
-        ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]).value == largeBodyContent
+        assertEquals(mc.receivedResponse.code, "200")
+        assertEquals(ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]), largeBodyContent)
     }
 
     def "PATCH with really large body outside limit (2MEGS 2097152) should return 413 Entity Too Large"() {
@@ -217,13 +219,13 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        mc.receivedResponse.code == '413'
-        mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
+        assertEquals(mc.receivedResponse.code, "413")
+        assertTrue(mc.receivedResponse.body.toString().contains("Object is too large to store into the cache"))
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '404'
+        assertEquals(mc.receivedResponse.code, "404")
     }
 }
