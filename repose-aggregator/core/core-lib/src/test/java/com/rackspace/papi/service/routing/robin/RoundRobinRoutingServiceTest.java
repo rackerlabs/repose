@@ -4,12 +4,14 @@
  */
 package com.rackspace.papi.service.routing.robin;
 
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.DestinationList;
 import com.rackspace.papi.model.FilterList;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.NodeList;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -29,8 +31,10 @@ public class RoundRobinRoutingServiceTest {
 
       @Before
       public void setUp() {
-         
-         robinRoutingService = new RoundRobinRoutingService();
+
+         final ServicePorts servicePorts = null;
+         final ConfigurationService configurationManager = null;
+         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager);
 
          systemModel = new SystemModel();
 
