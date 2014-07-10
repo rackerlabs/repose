@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,7 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Component
-public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService, ServletContextAware {
+public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService {
     public static final String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServiceClusterViewServiceImpl.class);
@@ -54,19 +53,16 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
 
     @Autowired
-    public DistributedDatastoreServiceClusterViewServiceImpl(ConfigurationService configurationManager,
+    public DistributedDatastoreServiceClusterViewServiceImpl(ServletContext servletContext,
+                                                             ConfigurationService configurationManager,
                                                              ReposeInstanceInfo reposeInstanceInfo,
                                                              HealthCheckService healthCheckService) {
+        this.servletContext = servletContext;
         this.configurationManager = configurationManager;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService,
                 LOG,
                 healthCheckService.register(DistributedDatastoreServiceClusterViewServiceImpl.class));
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
     }
 
     @PostConstruct
