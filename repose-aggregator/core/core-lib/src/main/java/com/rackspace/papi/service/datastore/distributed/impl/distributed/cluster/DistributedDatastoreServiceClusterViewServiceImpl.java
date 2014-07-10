@@ -33,7 +33,6 @@ import java.util.List;
 
 @Component
 public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService, ServletContextAware {
-    public static final String SERVICE_NAME = "distributedDatastoreClusterView";
     public static final String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServiceClusterViewServiceImpl.class);
