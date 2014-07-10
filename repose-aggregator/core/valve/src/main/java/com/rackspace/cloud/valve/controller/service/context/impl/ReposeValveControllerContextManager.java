@@ -31,7 +31,6 @@ public class ReposeValveControllerContextManager implements ServletContextListen
       ContextAdapter ca = helper.getPowerApiContext();
 
       ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
-      ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
       ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       ca.getContext(ReposeValveControllerContext.class).contextInitialized(sce);
 
