@@ -179,14 +179,14 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        assertEquals(mc.receivedResponse.code, "202")
+        mc.receivedResponse.code == "202"
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        assertEquals(mc.receivedResponse.code, "200")
-        assertEquals(ObjectSerializer.instance().readObject(mc.receivedResponse.body as byte[]), largeBodyContent)
+        mc.receivedResponse.code == "200"
+        assertEquals(ObjectSerializer.instance().readObject(mc.receivedResponse.body), largeBodyContent)
     }
 
     //@Ignore
@@ -199,13 +199,13 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: DD_HEADERS, requestBody: largeBody])
 
         then:
-        assertEquals(mc.receivedResponse.code, "413")
-        assertTrue(mc.receivedResponse.body.toString().contains("Object is too large to store into the cache"))
+        mc.receivedResponse.code == "413"
+        mc.receivedResponse.body.toString().contains("Object is too large to store into the cache")
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url:DD_URI + KEY, headers:DD_HEADERS])
 
         then:
-        assertEquals(mc.receivedResponse.code, "404")
+        mc.receivedResponse.code == "404"
     }
 }
