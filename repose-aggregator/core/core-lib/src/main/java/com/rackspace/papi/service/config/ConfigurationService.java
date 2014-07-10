@@ -8,11 +8,8 @@ import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import java.net.URL;
 
-public interface ConfigurationService extends Destroyable {
-    
-    
-
-    ConfigurationInformation getConfigurationInformation(); 
+public interface ConfigurationService {
+    ConfigurationInformation getConfigurationInformation();
     void setConfigurationInformation(ConfigurationInformation configurationInformation); 
     void setResourceResolver(ConfigurationResourceResolver resourceResolver);
     ConfigurationResourceResolver getResourceResolver();
