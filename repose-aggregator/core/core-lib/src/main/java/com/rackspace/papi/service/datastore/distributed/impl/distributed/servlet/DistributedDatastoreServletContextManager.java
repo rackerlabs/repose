@@ -1,10 +1,8 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -36,7 +34,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
               applicationContext);
       servletContext.setAttribute("datastoreService", datastoreService);
       configureReposeInfo(applicationContext);
-      initializeService(sce);
    }
    
    public void configureReposeInfo(ApplicationContext context) {
@@ -62,14 +59,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
    public void setDatastoreSystemProperties(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
       this.datastoreService = datastore;
       this.instanceInfo = instanceInfo;
-   }
-
-   private void initializeService(ServletContextEvent sce) {
-
-      ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
-      ContextAdapter ca = helper.getPowerApiContext();
-
-      ca.getContext(DistributedDatastoreServiceClusterContext.class).contextInitialized(sce);
    }
 
     @Override

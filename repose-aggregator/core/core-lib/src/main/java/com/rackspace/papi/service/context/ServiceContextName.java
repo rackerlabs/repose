@@ -22,7 +22,6 @@ public enum ServiceContextName {
     POWER_FILTER_CHAIN_BUILDER("powerFilterChainBuilder"),
     REPOSE_CONFIGURATION_INFORMATION("reposeConfigurationInformation"),
     DISTRIBUTED_DATASTORE_SERVICE_CONTEXT("distributedDatastoreServiceContext"),
-    DISTRIBUTED_DATASTORE_SERVICE_CLUSTER_CONTEXT("distributedDatastoreServiceClusterContext"),
     HEALTH_CHECK_SERVICE_CONTEXT("healthCheckServiceContext");
     private String serviceContextName;
 
