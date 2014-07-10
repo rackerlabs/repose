@@ -5,7 +5,6 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.impl.LoggingServiceContext;
 import com.rackspace.papi.service.context.impl.ReportingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
 import net.sf.ehcache.CacheManager;

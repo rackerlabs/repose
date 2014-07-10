@@ -10,7 +10,6 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
-import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringWithServices;
 import org.slf4j.Logger;
@@ -91,7 +90,6 @@ public class PowerApiContextManager implements ServletContextListener {
       PapiBanner.print(LOG);
       ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
       // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-      ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
       ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);

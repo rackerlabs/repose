@@ -34,19 +34,7 @@
     </bean>
 
     <!-- Service Contexts -->
-    <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
-        <constructor-arg index="0" ref="artifactManager"/>
-        <constructor-arg index="1" ref="eventManager"/>
-        <constructor-arg index="2" ref="containerConfigurationListener"/>
-        <constructor-arg index="3" ref="serviceRegistry"/>
-        <constructor-arg index="4" ref="configurationManager"/>
-        <constructor-arg index="5" ref="threadingServiceContext"/>
-    </bean>
-
     <!-- Services -->
-    <bean name="artifactManager" class="com.rackspace.papi.service.deploy.ArtifactManager">
-        <constructor-arg index="0" ref="containerConfigurationListener"/>
-    </bean>
 
     <bean name="healthCheckServiceContext"
           class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
