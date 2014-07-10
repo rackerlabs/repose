@@ -16,7 +16,6 @@
  */
 package com.rackspace.papi.service.rms;
 
-import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ import java.util.List;
  *
  * @author jhopper
  */
-public interface ResponseMessageService extends Destroyable {
+public interface ResponseMessageService {
     
    void setInitialized();
    boolean isInitialized();
