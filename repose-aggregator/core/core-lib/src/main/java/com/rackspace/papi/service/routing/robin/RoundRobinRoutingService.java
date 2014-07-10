@@ -21,25 +21,21 @@ import javax.servlet.ServletContext;
 import java.net.URL;
 
 @Component
-public class RoundRobinRoutingService implements RoutingService, ServletContextAware {
+public class RoundRobinRoutingService implements RoutingService {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
     private Clusters domains;
     private SystemModel config;
     private final ConfigurationService configurationManager;
     private final PowerApiConfigListener configurationListener;
     private final ServicePorts servicePorts;
-    private ServletContext ctx;
+    private final ServletContext ctx;
 
 
     @Autowired
-    public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager) {
+    public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager, final ServletContext servletContext) {
         this.configurationManager = configurationManager;
         this.configurationListener = new PowerApiConfigListener();
         this.servicePorts = servicePorts;
-    }
-
-    @Override
-    public void setServletContext(final ServletContext servletContext) {
         this.ctx = servletContext;
     }
 
