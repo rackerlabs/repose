@@ -3,7 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.context.impl.RoutingServiceContext;
+import com.rackspace.papi.service.routing.robin.RoundRobinRoutingService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class RequestFilterChainStateTest {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
             ServletContext context = mock(ServletContext.class);
             ApplicationContext appContext = mock(ApplicationContext.class);
-            RoutingServiceContext routingContext = mock(RoutingServiceContext.class);
+            RoundRobinRoutingService routingContext = mock(RoundRobinRoutingService.class);
             ContainerConfigurationService containerConfigurationService = mock(ContainerConfigurationService.class);
             when(containerConfigurationService.getVia()).thenReturn("");
             when(mockedFilterContext.getFilter()).thenReturn(mockedFilter);
