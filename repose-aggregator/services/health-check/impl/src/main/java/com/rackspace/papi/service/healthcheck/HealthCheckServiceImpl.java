@@ -1,23 +1,28 @@
 package com.rackspace.papi.service.healthcheck;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class HealthCheckServiceImpl implements HealthCheckService {
+    private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
-    Map<String, Map<String, HealthCheckReport>> reports;
+    private Map<String, Map<String, HealthCheckReport>> reports;
 
+    @Autowired
     public HealthCheckServiceImpl() {
-
-        reports = new ConcurrentHashMap<String, Map<String, HealthCheckReport>>();
+        reports = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean isHealthy() {
-
         for (Map.Entry<String, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
-
                 if (entry.getValue().getLevel().equals(Severity.BROKEN)) {
                     return false;
                 }
@@ -35,7 +40,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     @Override
     public void reportIssue(String UID, String RID, HealthCheckReport report) throws NotRegisteredException, InputNullException {
-
         checkUid(UID);
         checkIdNull(RID);
         reports.get(UID).put(RID, report);
@@ -43,21 +47,18 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     @Override
     public Set<String> getReportIds(String UID) throws NotRegisteredException, InputNullException {
-
         checkUid(UID);
         return reports.get(UID).keySet();
     }
 
     @Override
     public void solveIssue(String UID, String id) throws NotRegisteredException, InputNullException {
-
         checkUid(UID);
         checkIdNull(id);
         solveIssue(id, reports.get(UID));
     }
 
     private void solveIssue(String id, Map<String, HealthCheckReport> reportMap) {
-
         Iterator<String> itr = reportMap.keySet().iterator();
 
         while (itr.hasNext()) {
@@ -82,14 +83,12 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     @Override
     public Map<String, HealthCheckReport> getReports(String UID) throws NotRegisteredException, InputNullException {
-
         checkUid(UID);
         return reports.get(UID);
 
     }
 
     private void checkUid(String uid) throws NotRegisteredException, InputNullException {
-
         checkIdNull(uid);
         if (!reports.containsKey(uid)) {
             throw new NotRegisteredException(uid);
@@ -97,7 +96,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     private void checkIdNull(String id) throws InputNullException {
-
         if (id == null) {
             throw new InputNullException();
         }

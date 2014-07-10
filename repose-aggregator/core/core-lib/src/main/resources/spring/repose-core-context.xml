@@ -36,12 +36,6 @@
     <!-- Service Contexts -->
     <!-- Services -->
 
-    <bean name="healthCheckServiceContext"
-          class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
-
-    <bean name="healthCheckService" scope="singleton" lazy-init="true"
-          class="com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl"/>
-
     <bean name="distributedDatastoreServiceContext"
           class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
 
