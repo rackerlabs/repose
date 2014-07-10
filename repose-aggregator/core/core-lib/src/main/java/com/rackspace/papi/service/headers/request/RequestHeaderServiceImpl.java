@@ -19,14 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
 
 @Component
-public class RequestHeaderServiceImpl implements RequestHeaderService, ServletContextAware {
+public class RequestHeaderServiceImpl implements RequestHeaderService {
     public static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
 
@@ -44,7 +43,10 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
     private HealthCheckServiceHelper healthCheckServiceHelper;
 
     @Autowired
-    public RequestHeaderServiceImpl(ConfigurationService configurationService, HealthCheckService healthCheckService) {
+    public RequestHeaderServiceImpl(ServletContext servletContext,
+                                    ConfigurationService configurationService,
+                                    HealthCheckService healthCheckService) {
+        this.servletContext = servletContext;
         this.configurationService = configurationService;
         this.healthCheckService = healthCheckService;
     }
@@ -65,11 +67,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
     public void destroy() {
         configurationService.unsubscribeFrom("container.cfg.xml", configurationListener);
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
     }
 
     @Override
