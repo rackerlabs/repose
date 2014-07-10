@@ -43,10 +43,11 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     // responses?
     def "when sending requests, response code counters should be incremented"() {
         given:
+        // the initial values are equivalent the the number of calls made in the when block
         def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
-        repose2XXtarget = (repose2XXtarget == null) ? 0 : repose2XXtarget
+        repose2XXtarget = (repose2XXtarget == null) ? 3 : repose2XXtarget + 3
         def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 0 : all2XXtarget
+        all2XXtarget = (all2XXtarget == null) ? 3 : all2XXtarget + 3
         def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
         repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
         def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
@@ -59,8 +60,8 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         responses.add(deproxy.makeRequest(url:reposeEndpoint + "/cluster"))
 
         then:
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == (repose2XXtarget + 3)
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == (all2XXtarget + 3)
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
+        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
         repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count").is(null)
         repose.jmx.getMBeanAttribute(ALL_5XX, "Count").is(null)
 
@@ -72,13 +73,13 @@ class ResponseCodeJMXTest extends ReposeValveTest {
     def "when responses have 2XX and 5XX status codes, should increment 2XX and 5XX mbeans"() {
         given:
         def repose2XXtarget = repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count")
-        repose2XXtarget = (repose2XXtarget == null) ? 0 : repose2XXtarget
+        repose2XXtarget = (repose2XXtarget == null) ? 1 : repose2XXtarget + 1
         def all2XXtarget = repose.jmx.getMBeanAttribute(ALL_2XX, "Count")
-        all2XXtarget = (all2XXtarget == null) ? 0 : all2XXtarget
+        all2XXtarget = (all2XXtarget == null) ? 1 : all2XXtarget + 1
         def repose5XXtarget = repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count")
-        repose5XXtarget = (repose5XXtarget == null) ? 0 : repose5XXtarget
+        repose5XXtarget = (repose5XXtarget == null) ? 1 : repose5XXtarget + 1
         def all5XXtarget = repose.jmx.getMBeanAttribute(ALL_5XX, "Count")
-        all5XXtarget = (all5XXtarget == null) ? 0 : all5XXtarget
+        all5XXtarget = (all5XXtarget == null) ? 1 : all5XXtarget + 1
 
         when:
         MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/endpoint", defaultHandler: handler5XX])
@@ -87,10 +88,10 @@ class ResponseCodeJMXTest extends ReposeValveTest {
         then:
         mc1.receivedResponse.code == "502"
         mc2.receivedResponse.code == "200"
-        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == (repose2XXtarget + 1)
-        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == (all2XXtarget + 1)
-        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == (repose5XXtarget + 1)
-        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == (all5XXtarget + 1)
+        repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == repose2XXtarget
+        repose.jmx.getMBeanAttribute(ALL_2XX, "Count") == all2XXtarget
+        repose.jmx.getMBeanAttribute(REPOSE_5XX, "Count") == repose5XXtarget
+        repose.jmx.getMBeanAttribute(ALL_5XX, "Count") == all5XXtarget
     }
 
     /**
