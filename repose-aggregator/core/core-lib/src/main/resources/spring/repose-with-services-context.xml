@@ -10,10 +10,6 @@
     <bean name="httpConnectionPoolService" scope="singleton"
           class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
 
-    <bean name="requestProxyService" class="com.rackspace.papi.service.proxy.httpcomponent.RequestProxyServiceImpl">
-        <property name="httpClientService" ref="httpConnectionPoolService"/>
-    </bean>
-
     <bean name="httpConnectionPoolServiceContext"
           class="com.rackspace.papi.service.context.impl.HttpConnectionPoolServiceContext">
       

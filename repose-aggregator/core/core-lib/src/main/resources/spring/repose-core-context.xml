@@ -34,30 +34,7 @@
     </bean>
 
     <!-- Service Contexts -->
-    <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
-        <constructor-arg index="0" ref="artifactManager"/>
-        <constructor-arg index="1" ref="eventManager"/>
-        <constructor-arg index="2" ref="containerConfigurationListener"/>
-        <constructor-arg index="3" ref="serviceRegistry"/>
-        <constructor-arg index="4" ref="configurationManager"/>
-        <constructor-arg index="5" ref="threadingServiceContext"/>
-    </bean>
-
-    <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
-        <constructor-arg index="0" ref="log4jLoggingService"/>
-        <constructor-arg index="1" ref="serviceRegistry"/>
-        <constructor-arg index="2" ref="configurationManager"/>
-    </bean>
-
     <!-- Services -->
-    <bean name="artifactManager" class="com.rackspace.papi.service.deploy.ArtifactManager">
-        <constructor-arg index="0" ref="containerConfigurationListener"/>
-    </bean>
-
-    <bean name="log4jLoggingService" class="com.rackspace.papi.service.logging.LoggingServiceImpl">
-        <constructor-arg index="0" value="LOG4J"/>
-    </bean>
-
 
     <bean name="healthCheckServiceContext"
           class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
@@ -67,8 +44,4 @@
 
     <bean name="distributedDatastoreServiceContext"
           class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
-
-    <bean name="distributedDatastoreServiceClusterContext"
-          class="com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
-
 </beans>

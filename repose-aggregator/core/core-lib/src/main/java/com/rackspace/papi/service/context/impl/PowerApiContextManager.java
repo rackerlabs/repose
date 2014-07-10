@@ -10,8 +10,6 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
-import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
-import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringWithServices;
 import org.slf4j.Logger;
@@ -86,21 +84,9 @@ public class PowerApiContextManager implements ServletContextListener {
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
-      ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
-      ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
       ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
-      ca.getContext(RoutingServiceContext.class).contextInitialized(sce);
-      ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
       PapiBanner.print(LOG);
-      ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
       // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-      ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
-      ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
-      ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
-      ca.getContext(RequestProxyServiceContext.class).contextInitialized(sce);
-      ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
-      ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
       ca.getContext(MetricsServiceContext.class).contextInitialized( sce );
