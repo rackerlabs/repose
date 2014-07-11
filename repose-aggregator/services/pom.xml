@@ -15,7 +15,6 @@
 
     <modules>
         <module>service-client</module>
-        <module>configuration</module>
         <module>datastore</module>
         <module>httpclient</module>
         <module>rate-limiting-service</module>
