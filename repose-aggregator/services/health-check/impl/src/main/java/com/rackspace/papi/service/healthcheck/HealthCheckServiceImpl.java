@@ -66,7 +66,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
         Map<String, HealthCheckReport> reportMap = new HashMap<>();
         Long rand = UUID.randomUUID().getMostSignificantBits();
-        String uid = T.getName() + ":" + rand.toString();
+        String uid = T.getName() + ":" + rand.toString(); // TODO: Decide whether or not to tie each UID to a specific class
         reports.put(uid, reportMap);
         return new HealthCheckServiceProxyImpl(uid);
     }
