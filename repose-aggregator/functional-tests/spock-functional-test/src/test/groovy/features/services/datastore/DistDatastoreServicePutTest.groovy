@@ -186,7 +186,7 @@ class DistDatastoreServicePutTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == "200"
-        assertEquals(ObjectSerializer.instance().readObject(mc.receivedResponse.body), largeBodyContent)
+        assertEquals(largeBodyContent.size(), ObjectSerializer.instance().readObject(mc.receivedResponse.body).size())
     }
 
     //@Ignore
