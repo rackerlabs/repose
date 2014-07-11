@@ -1,6 +1,10 @@
 package com.rackspace.papi.service.reporting.metrics;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import com.rackspace.papi.service.reporting.metrics.impl.MetricsServiceImpl;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
@@ -14,7 +18,12 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 
-import javax.management.*;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(Enclosed.class)
 public class MetricsServiceImplTest {
@@ -30,6 +41,8 @@ public class MetricsServiceImplTest {
 
         protected MetricsService metricsService;
         protected ReposeJmxNamingStrategy reposeStrat;
+        protected ConfigurationService configurationService;
+        protected HealthCheckService healthCheckService;
 
         @Before
         public void setUp() {
@@ -38,11 +51,11 @@ public class MetricsServiceImplTest {
             reposeInstanceInfo.setNodeId( "node1" );
             reposeInstanceInfo.setClusterId( "cluster1" );
 
-            reposeStrat = new ReposeJmxNamingStrategy( new AnnotationJmxAttributeSource(),
-                                                       reposeInstanceInfo );
+            reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(), reposeInstanceInfo);
+            configurationService = new PowerApiConfigurationManager("1");
+            healthCheckService = new HealthCheckServiceImpl();
 
-            metricsService = new MetricsServiceImpl( reposeStrat );
-
+            metricsService = new MetricsServiceImpl(reposeStrat, configurationService, healthCheckService);
         }
 
         protected Object getAttribute( Class klass, String name, String scope, String att )
@@ -248,6 +261,12 @@ public class MetricsServiceImplTest {
 
             metricsService.setEnabled(true);
             assertTrue(metricsService.isEnabled());
+        }
+
+        @Test
+        public void verifyRegisteredToHealthCheckService() {
+
+            verify(healthCheckService, times(1)).register(MetricsServiceImpl.class);
         }
     }
 }
