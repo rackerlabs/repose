@@ -3,42 +3,81 @@ package com.rackspace.cloud.valve.controller.service.impl;
 import com.rackspace.cloud.valve.controller.service.ControllerService;
 import com.rackspace.cloud.valve.jetty.ValveJettyServerBuilder;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
+import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource;
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component("controllerService")
+@Component
 public class ControllerServiceImpl implements ControllerService {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
-
-    //TODO: Find a better way than using a ConcurrentHashMap for this.
-    private Map<String, Server> managedServers = new ConcurrentHashMap<>();
     private static final String REPOSE_NODE = "Repose node ";
+
+    private final ServletContext servletContext;
+    private final ConfigurationService configurationService;
+    private final SystemModelConfigurationListener systemModelConfigurationListener = new SystemModelConfigurationListener();
+    private final ContainerConfigurationListener containerConfigurationListener = new ContainerConfigurationListener();
+
     private String configDir;
     private boolean isInsecure;
+    private SystemModel systemModel;
+    private boolean initialized = false;
+    private Set<String> curNodes = new HashSet<>();
+    private Map<String, Server> managedServers = new ConcurrentHashMap<>(); //TODO: Find a better way than using a ConcurrentHashMap for this
+
+    @Autowired
+    public ControllerServiceImpl(ServletContext servletContext, ConfigurationService configurationService) {
+        this.servletContext = servletContext;
+        this.configurationService = configurationService;
+    }
+
+    @PostConstruct
+    public void afterPropertiesSet() {
+        this.configDir = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
+        this.isInsecure = Boolean.parseBoolean(servletContext.getInitParameter(InitParameter.INSECURE.getParameterName()));
+        setConfigDirectory(configDir);
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+        configurationService.subscribeTo("container.cfg.xml", containerXsdURL, containerConfigurationListener, ContainerConfiguration.class);
+        configurationService.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
+        Set<String> instances = getManagedInstances();
+        updateManagedInstances(null, instances);
+        curNodes.clear();
+    }
 
     @Override
     public Set<String> getManagedInstances() {
         return managedServers.keySet();
-
     }
 
     @Override
@@ -49,6 +88,31 @@ public class ControllerServiceImpl implements ControllerService {
         if (updatedInstances != null && !updatedInstances.isEmpty()) {
             startValveServers(updatedInstances);
         }
+    }
+
+    @Override
+    public Boolean reposeInstancesInitialized() {
+        return managedServers.isEmpty();
+    }
+
+    @Override
+    public void setConfigDirectory(String directory) {
+        this.configDir = directory;
+    }
+
+    @Override
+    public String getConfigDirectory() {
+        return this.configDir;
+    }
+
+    @Override
+    public void setIsInsecure(boolean isInsecure) {
+        this.isInsecure = isInsecure;
+    }
+
+    @Override
+    public Boolean isInsecure() {
+        return isInsecure;
     }
 
     private void startValveServers(Map<String, ExtractorResult<Node>> updatedInstances) {
@@ -92,21 +156,6 @@ public class ControllerServiceImpl implements ControllerService {
         }
     }
 
-    @Override
-    public Boolean reposeInstancesInitialized() {
-        return managedServers.isEmpty();
-    }
-
-    @Override
-    public void setConfigDirectory(String directory) {
-        this.configDir = directory;
-    }
-
-    @Override
-    public String getConfigDirectory() {
-        return this.configDir;
-    }
-
     private List<Port> getNodePorts(Node node) {
         List<Port> ports = new LinkedList<>();
 
@@ -118,16 +167,6 @@ public class ControllerServiceImpl implements ControllerService {
         }
 
         return ports;
-    }
-
-    @Override
-    public void setIsInsecure(boolean isInsecure) {
-        this.isInsecure = isInsecure;
-    }
-
-    @Override
-    public Boolean isInsecure() {
-        return isInsecure;
     }
 
     private SslConfiguration validateSsl(Node node) {
@@ -175,6 +214,99 @@ public class ControllerServiceImpl implements ControllerService {
     private void logReposeLaunch(List<Port> ports) {
         for (Port port : ports) {
             LOG.info("Repose node listening on " + port.getProtocol() + " on port " + port.getPort());
+        }
+    }
+
+    private Map<String, ExtractorResult<Node>> getLocalReposeInstances(SystemModel systemModel) {
+        Map<String, ExtractorResult<Node>> updatedSystem = new HashMap<>();
+
+        for (ReposeCluster cluster : systemModel.getReposeCluster()) {
+            for (Node node : cluster.getNodes().getNode()) {
+                if (NetUtilities.isLocalHost(node.getHostname())) {
+                    updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort() + node.getHttpsPort(), new ExtractorResult<>(cluster.getId(), node));
+                }
+            }
+        }
+
+        return updatedSystem;
+    }
+
+    private Set<String> getNodesToShutdown(Map<String, ExtractorResult<Node>> nodes) {
+        Set<String> shutDownNodes = new HashSet<>();
+
+        for (String key : curNodes) {
+            if (!nodes.containsKey(key)) {
+                shutDownNodes.add(key);
+            }
+        }
+
+        return shutDownNodes;
+    }
+
+    private Map<String, ExtractorResult<Node>> getNodesToStart(Map<String, ExtractorResult<Node>> newModel) {
+        Map<String, ExtractorResult<Node>> startUps = new HashMap<>();
+
+        Set<Entry<String, ExtractorResult<Node>>> entrySet = newModel.entrySet();
+        for (Entry<String, ExtractorResult<Node>> entry : entrySet) {
+            if (!curNodes.contains(entry.getKey())) {
+                startUps.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return startUps;
+    }
+
+    private void checkDeployment() {
+        if (getManagedInstances().isEmpty()) {
+            LOG.warn("No Repose Instances started. Waiting for suitable update");
+        }
+    }
+
+    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration configurationObject) {
+            if (configurationObject != null) {
+                this.isInitialized = true;
+
+                if (!systemModelConfigurationListener.isInitialized()) {
+                    systemModelConfigurationListener.configurationUpdated(systemModel);
+                }
+            }
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return this.isInitialized;
+        }
+    }
+
+    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            systemModel = configurationObject;
+
+            if (containerConfigurationListener.isInitialized() && systemModel != null) {
+                curNodes = getManagedInstances();
+
+                if (StringUtilities.isBlank(getConfigDirectory())) {
+                    setConfigDirectory(configDir);
+                }
+
+                setIsInsecure(isInsecure);
+
+                Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
+                updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
+
+                checkDeployment();
+                initialized = true;
+            }
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return initialized;
         }
     }
 }
