@@ -6,12 +6,12 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.ReposeValveTest
-import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
-import spock.lang.Specification
+import org.spockframework.runtime.SpockAssertionError
+import static org.junit.Assert.*;
 import spock.lang.Unroll
 
 /**
@@ -66,6 +66,7 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
     @Unroll("When start repose container #containerName")
     def "Test repose container with multi-nodes"() {
         given:
+        reposeLogSearch.deleteLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         def rootWar = properties.getReposeRootWar()
@@ -211,7 +212,14 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
         ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
         ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
 
-        //additional test
+        //set timebomb to go back review this bug
+        //timeBomb()
+        //ignore test - when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded
+        //rate limiting is set to 3 an hour"
+        def user = UUID.randomUUID().toString();
+        makeRequestsWRateLimit(reposeEndpoint1,reposeEndpoint2, user, true)
+
+        //additional tests
         when: "User send request to repose hould not split request headers according to rfc"
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
@@ -233,6 +241,24 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
         containerName       | serviceContainer
         "Tomcat"            | properties.getTomcatJar()
         "GlassFist"         | properties.getGlassfishJar()
+    }
+
+    private void makeRequestsWRateLimit(endpoint1,endpoint2, user, ignore=true){
+        if(ignore){
+            println("Do nothing")
+            assert new Date() < new Date(2014 - 1900, Calendar.AUGUST, 31, 9, 0)
+        }
+        else {
+            for (int i = 0; i < 3; i++) {
+                MessageChain mc = deproxy.makeRequest(url: endpoint1 + "/test", headers: ['X-PP-USER': user])
+                if (mc.receivedResponse.code == 200) {
+                    throw new SpockAssertionError("Expected 200 response from repose")
+                }
+            }
+            //this call should rate limit when calling the second node
+            MessageChain mc = deproxy.makeRequest(url: endpoint2 + "/test", headers: ['X-PP-USER': user])
+            assertEquals(mc.receivedResponse.code, "413")
+        }
     }
 
     def cleanup() {
