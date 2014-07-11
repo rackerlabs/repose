@@ -43,12 +43,11 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public void solveIssue(String uid, String id) {
-        solveIssue(id, reports.get(uid));
+    public void resolveIssue(String uid, String id) {
+        resolveIssue(id, reports.get(uid));
     }
 
-    private void solveIssue(String id, Map<String, HealthCheckReport> reportMap) {
-
+    private void resolveIssue(String id, Map<String, HealthCheckReport> reportMap) {
         Iterator<String> itr = reportMap.keySet().iterator();
 
         while (itr.hasNext()) {
@@ -94,8 +93,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public void reportIssue(String rid, HealthCheckReport report) {
-            HealthCheckServiceImpl.this.reportIssue(uid, rid, report);
+        public void reportIssue(String rid, String message, Severity severity) {
+            HealthCheckServiceImpl.this.reportIssue(uid, rid, new HealthCheckReport(message, severity));
         }
 
         @Override
@@ -104,8 +103,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public void solveIssue(String id) {
-            HealthCheckServiceImpl.this.solveIssue(uid, id);
+        public void resolveIssue(String id) {
+            HealthCheckServiceImpl.this.resolveIssue(uid, id);
         }
 
         @Override

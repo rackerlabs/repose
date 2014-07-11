@@ -43,7 +43,4 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
    public DatastoreAccessControl getAccessControl() {
       return accessControl;
    }
-   
-   
-   
 }

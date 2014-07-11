@@ -100,6 +100,6 @@ class HttpConnectionPoolServiceContextTest {
 
         assert(httpConnectionPoolServiceContext.configurationListener.initialized)
         verify(httpClientService, times(1)).configure(any(HttpConnectionPoolConfig.class));
-        verify(healthCheckService, times(1)).solveIssue(anyString(), anyString());
+        verify(healthCheckService, times(1)).resolveIssue(anyString(), anyString());
     }
 }

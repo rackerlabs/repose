@@ -14,7 +14,6 @@ import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
@@ -35,19 +34,16 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
     private final ServicePorts ports;
     private final MetricsService metricsService;
 
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
     private ReposeCluster localDomain;
-    private String healthCheckUid;
     private Node localHost;
 
     public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService, HealthCheckService healthCheckService) {
         this.ports = ports;
         this.metricsService = metricsService;
 
-        healthCheckUid = healthCheckService.register(VersioningHandlerFactory.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
-
-        transformer = new ContentTransformer();
+        this.healthCheckServiceProxy = healthCheckService.register(VersioningHandlerFactory.class);
+        this.transformer = new ContentTransformer();
     }
 
     @Override
@@ -74,7 +70,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
                 localDomain = cluster.get();
                 localHost = node.get();
 
-                List<Destination> destinations = new ArrayList<Destination>();
+                List<Destination> destinations = new ArrayList<>();
 
                 destinations.addAll(localDomain.getDestinations().getEndpoint());
                 destinations.addAll(localDomain.getDestinations().getTarget());
@@ -84,10 +80,10 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }
@@ -125,8 +121,8 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
             return null;
         }
 
-        final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
-        final Map<String, Destination> copiedHostDefinitions = new HashMap<String, Destination>(configuredHosts);
+        final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<>(configuredMappings);
+        final Map<String, Destination> copiedHostDefinitions = new HashMap<>(configuredHosts);
 
         final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
 

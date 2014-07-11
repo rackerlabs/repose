@@ -44,7 +44,7 @@ public interface HealthCheckService {
      * @param uid Id of class/user which reported the issue. If null, behavior undefined.
      * @param id  The id of issue. If null, behavior undefined.
      */
-    void solveIssue(String uid, String id);
+    void resolveIssue(String uid, String id);
 
     /**
      * Register to Health Check Service. This will return a unique ID which the caller will associate with issues
@@ -73,11 +73,11 @@ public interface HealthCheckService {
 
         HealthCheckReport getDiagnosis(String id);
 
-        void reportIssue(String rid, HealthCheckReport report);
+        void reportIssue(String rid, String message, Severity severity);
 
         Set<String> getReportIds();
 
-        void solveIssue(String id);
+        void resolveIssue(String id);
 
         Map<String, HealthCheckReport> getReports();
     }

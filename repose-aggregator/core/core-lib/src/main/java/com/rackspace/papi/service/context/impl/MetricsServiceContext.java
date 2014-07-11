@@ -4,13 +4,13 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.healthcheck.*;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +24,6 @@ import java.net.URL;
  */
 @Component("metricsServiceContext")
 public class MetricsServiceContext implements ServiceContext<MetricsService> {
-
     public static final String SERVICE_NAME = "MetricsService";
     public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";
 
@@ -35,10 +34,9 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
     private final ServiceRegistry registry;
     private final ConfigurationService configurationService;
     private final MetricsCfgListener metricsCfgListener;
-    private final HealthCheckService healthCheckService;
-    private String healthCheckUID;
 
-    @Autowired
+    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+
     public MetricsServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                  @Qualifier("configurationManager") ConfigurationService configurationService,
                                  @Qualifier("metricsService") MetricsService metricsService,
@@ -48,8 +46,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         metricsCfgListener = new MetricsCfgListener();
-        this.healthCheckService = healthCheckService;
-        healthCheckUID = healthCheckService.register(MetricsServiceContext.class);
+        this.healthCheckServiceProxy = healthCheckService.register(MetricsServiceContext.class);
     }
 
     private void register() {
@@ -74,7 +71,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        reportIssue();
+        healthCheckServiceProxy.reportIssue(metricsServiceConfigReport, "Metrics Service Configuration Error", Severity.BROKEN);
         URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, metricsCfgListener, MetricsConfiguration.class);
 
@@ -83,7 +80,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         // and the initial health check error should be cleared.
         try{
             if(!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()){
-                solveIssue();
+                healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
             }
         }catch(IOException io){
             LOG.error("Error attempting to search for " + DEFAULT_CONFIG_NAME);
@@ -125,7 +122,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
                 }
             }
 
-            solveIssue();
+            healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
             metricsService.setEnabled(metricsC.isEnabled());
             initialized = true;
         }
@@ -135,32 +132,4 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
             return initialized;
         }
     }
-
-    private void reportIssue(){
-
-        LOG.debug("Reporting issue to Health Checker Service: " + metricsServiceConfigReport);
-        try{
-            healthCheckService.reportIssue(healthCheckUID, metricsServiceConfigReport,
-                    new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
-        } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        }
-
-    }
-
-    private void solveIssue(){
-
-        try{
-            LOG.debug("Resolving issue: " + metricsServiceConfigReport);
-            healthCheckService.solveIssue(healthCheckUID, metricsServiceConfigReport);
-        } catch (InputNullException e) {
-            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
-        }
-
-    }
-
 }
