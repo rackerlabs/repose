@@ -13,7 +13,6 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private final SystemModelListener systemModelListener = new SystemModelListener();
     private final ContainerConfigurationListener configurationListener = new ContainerConfigurationListener();
     private final ConfigurationService configurationService;
-    private final HealthCheckService healthCheckService;
 
     private String reposeVersion = "";
     private String viaReceivedBy = "";
@@ -40,7 +38,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private ServicePorts ports;
     private ServletContext servletContext;
     private ViaHeaderBuilder viaHeaderBuilder;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Autowired
     public RequestHeaderServiceImpl(ServletContext servletContext,
@@ -48,16 +46,13 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
                                     HealthCheckService healthCheckService) {
         this.servletContext = servletContext;
         this.configurationService = configurationService;
-        this.healthCheckService = healthCheckService;
+        this.healthCheckServiceProxy = healthCheckService.register(RequestHeaderServiceImpl.class);
     }
 
     @PostConstruct
     public void afterPropertiesSet() {
         ports = ServletContextHelper.getInstance(servletContext).getServerPorts();
         reposeVersion = ServletContextHelper.getInstance(servletContext).getPowerApiContext().getReposeVersion();
-
-        String healthCheckUid = healthCheckService.register(RequestHeaderServiceImpl.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 
         configurationService.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
@@ -133,10 +128,10 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
                 updateConfig(viaBuilder);
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

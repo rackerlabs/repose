@@ -10,40 +10,40 @@ import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.Port;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
-import com.rackspace.papi.service.healthcheck.*;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
 @Component("distributedDatastoreLauncher")
 public class DistributedDatastoreLauncherServiceImpl implements DistributedDatastoreLauncherService {
-
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherServiceImpl.class);
-    private DistributedDatastoreJettyServerBuilder builder;
-    private ConfigurationService configurationManager;
-    private DistributedDatastoreConfiguration distributedDatastoreConfiguration;
+
+    private final Object configLock = new Object();
+
+    private int datastorePort;
+    private Server server;
     private ReposeInstanceInfo instanceInfo;
+    private DatastoreService datastoreService;
+    private ConfigurationService configurationManager;
+    private DistributedDatastoreJettyServerBuilder builder;
+    private DistributedDatastoreServletContextManager manager;
+    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private DistributedDatastoreConfiguration distributedDatastoreConfiguration;
     private DistributedDatastoreConfigurationListener distributedDatastoreConfigurationListener;
 
     @Autowired
-    @Qualifier("distributedDatastoreServletContextManager")
-    private DistributedDatastoreServletContextManager manager;
-
-    @Autowired
-    @Qualifier("healthCheckService")
-    private HealthCheckService healthCheckService;
-
-    private int datastorePort;
-    private final Object configLock = new Object();
-    private DatastoreService datastoreService;
-    private Server server;
-    private String issueId, healthServiceUID;
+    public DistributedDatastoreLauncherServiceImpl(DistributedDatastoreServletContextManager manager,
+                                                   HealthCheckService healthCheckService) {
+        this.manager = manager;
+        this.healthCheckServiceProxy = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
+    }
 
     @Override
     public void startDistributedDatastoreServlet() {
@@ -92,18 +92,15 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
         this.configurationManager = configurationService;
         this.instanceInfo = instanceInfo;
-        healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
-        issueId = "disdatastore-config-issue";
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
         configurationManager.subscribeTo("", "dist-datastore.cfg.xml", xsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
         this.datastoreService = datastoreService;
         builder = new DistributedDatastoreJettyServerBuilder(datastorePort, instanceInfo, configDirectory, manager);
-
-
     }
 
     private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
+        private final String issueId = "dist-datastore-config-issue";
 
         private boolean initialized = false;
 
@@ -116,12 +113,12 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             try {
                 datastorePort = determinePort();
                 initialized = true;
-                if (!healthCheckService.getReportIds(healthServiceUID).isEmpty()) {
-                    healthCheckService.solveIssue(healthServiceUID, issueId);
+                if (!healthCheckServiceProxy.getReportIds().isEmpty()) {
+                    healthCheckServiceProxy.resolveIssue(issueId);
                 }
             } catch (Exception ex) {
                 LOG.trace("Exception caught on an updated configuration", ex);
-                reportError(ex.getMessage());
+                healthCheckServiceProxy.reportIssue(issueId, "Dist-Datastore Configuration Issue:" + ex.getMessage(), Severity.BROKEN);
             }
         }
 
@@ -152,18 +149,6 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             }
 
             return port;
-        }
-
-        private void reportError(String message) {
-            try {
-                healthCheckService.reportIssue(healthServiceUID, issueId,
-                        new HealthCheckReport("Dist-Datastore Configuration Issue:" + message, Severity.BROKEN));
-            } catch (NotRegisteredException nre) {
-                LOG.error("Health Check Service not registered: " + nre.getMessage(), nre);
-            } catch (InputNullException e) {
-                LOG.error("Error reporting to Health Check Service: " + e.getMessage(), e);
-            }
-
         }
     }
 }

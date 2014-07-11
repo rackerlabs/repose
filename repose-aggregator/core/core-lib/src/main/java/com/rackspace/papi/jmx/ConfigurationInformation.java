@@ -12,7 +12,6 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +38,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
     private final ConfigurationService configurationService;
     private final List<FilterInformation> filterChain;
-    private final HealthCheckService healthCheckService;
 
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
     private ServicePorts ports;
     private SystemModelListener systemModelListener;
-    private String healthCheckUid;
 
     public static class FilterInformation {
         private final String id;
@@ -134,10 +131,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
                 initialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }
@@ -151,17 +148,17 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     @Autowired
     public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService,
                                     @Qualifier("servicePorts") ServicePorts ports,
-                                    @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
-        filterChain = new ArrayList<FilterInformation>();
+                                    HealthCheckService healthCheckService) {
+        filterChain = new ArrayList<>();
         this.configurationService = configurationService;
         this.ports = ports;
-        this.healthCheckService = healthCheckService;
+        this.healthCheckServiceProxy = healthCheckService.register(ConfigurationInformation.class);
     }
 
     @Override
     @ManagedOperation
     public List<CompositeData> getFilterChain() throws OpenDataException {
-        List<CompositeData> list = new ArrayList<CompositeData>();
+        List<CompositeData> list = new ArrayList<>();
         synchronized (filterChain) {
             for (FilterInformation filter : filterChain) {
                 list.add(new ConfigurationInformationCompositeDataBuilder(filter).toCompositeData());
@@ -173,9 +170,6 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        healthCheckUid = healthCheckService.register(ConfigurationInformation.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
-
         systemModelListener = new SystemModelListener();
 
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
