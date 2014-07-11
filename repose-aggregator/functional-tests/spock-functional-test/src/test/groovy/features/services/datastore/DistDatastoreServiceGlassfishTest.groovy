@@ -12,7 +12,7 @@ import spock.lang.Specification
 /**
  * Test the Distributed Datastore Service in 2 multinode containers
  */
-
+@Ignore
 class DistDatastoreServiceGlassfishTest extends Specification {
 
     static def reposeGlassfishEndpoint1
