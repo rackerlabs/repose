@@ -20,7 +20,7 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
-class RequestProxyServiceContextTest extends Specification {
+class RequestProxyServiceImplTest extends Specification {
     @Shared
     def RequestProxyServiceImpl requestProxyService
 
@@ -71,7 +71,7 @@ class RequestProxyServiceContextTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckService).solveIssue(any(String.class), eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckService).solveIssue(any(String.class), eq(RequestProxyServiceImpl.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
