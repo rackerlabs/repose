@@ -20,8 +20,8 @@
     </context-param>
     
     <listener>
-        <display-name>Repose Context Loader</display-name>
-        <listener-class>com.rackspace.papi.service.context.impl.PowerApiContextManager</listener-class>
+        <display-name>Spring Context Loader Listener</display-name>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
     <!-- Servlets -->

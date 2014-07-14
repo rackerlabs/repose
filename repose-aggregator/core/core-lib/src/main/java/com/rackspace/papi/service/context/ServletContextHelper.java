@@ -8,6 +8,12 @@ import org.springframework.context.ApplicationContext;
 import javax.servlet.ServletContext;
 import java.io.Serializable;
 
+/**
+ * TODO: delete this class entirely! You should not do this
+ * Eventually we will give each filter its own spring context, and they will use the core context as a parent context
+ * to inject the things
+ */
+@Deprecated
 public final class ServletContextHelper implements Serializable {
 
     public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
