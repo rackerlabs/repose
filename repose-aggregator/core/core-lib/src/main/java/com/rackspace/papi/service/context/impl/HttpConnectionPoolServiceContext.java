@@ -9,7 +9,7 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 
 import javax.servlet.ServletContextEvent;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
     private final HealthCheckService healthCheckService;
     private String healthCheckUID;
 
-    @Autowired
+    @Inject
     public HttpConnectionPoolServiceContext(ServiceRegistry registry,
                                             ConfigurationService configurationService,
                                             HttpClientService connectionPoolService,

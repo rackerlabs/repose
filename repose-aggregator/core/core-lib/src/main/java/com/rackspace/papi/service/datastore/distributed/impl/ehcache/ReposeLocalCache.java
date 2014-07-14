@@ -7,7 +7,7 @@ import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -25,7 +25,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
     private final DatastoreService datastoreService;
 
-    @Autowired
+    @Inject
     public ReposeLocalCache(@Qualifier("datastoreService") DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
     }

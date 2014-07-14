@@ -4,7 +4,7 @@ import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -24,7 +24,7 @@ public class ReposeReport implements ReposeReportMBean {
     private static final int STATUS_CODE_500 = 500;
     private final ReportingService reportingService;
 
-    @Autowired
+    @Inject
     public ReposeReport(@Qualifier("reportingService") ReportingService reportingService) {
         this.reportingService = reportingService;
     }

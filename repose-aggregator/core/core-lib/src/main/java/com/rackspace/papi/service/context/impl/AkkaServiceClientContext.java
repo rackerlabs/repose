@@ -5,7 +5,7 @@ import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.context.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 
 import javax.servlet.ServletContextEvent;
 
@@ -22,7 +22,7 @@ public class AkkaServiceClientContext implements ServiceContext<AkkaServiceClien
     private final ServiceRegistry registry;
 
 
-    @Autowired
+    @Inject
     public AkkaServiceClientContext(ServiceRegistry registry,
                                     AkkaServiceClient akkaServiceClientService) {
         this.registry = registry;

@@ -9,7 +9,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.response.LocationHeaderBuilder;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.headers.response.ViaResponseHeaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,7 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     private final ContainerConfigurationListener configurationListener;
     private String reposeVersion = "";
 
-    @Autowired
+    @Inject
     public ResponseHeaderServiceContext(@Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
             @Qualifier("configurationManager") ConfigurationService configurationManager) {

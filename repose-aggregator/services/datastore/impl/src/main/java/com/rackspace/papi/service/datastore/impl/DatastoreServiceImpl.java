@@ -9,7 +9,7 @@ import com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastoreMana
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -23,7 +23,7 @@ public class DatastoreServiceImpl implements DatastoreService {
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    @Autowired
+    @Inject
     public DatastoreServiceImpl() {
         localDatastoreManager = new EHCacheDatastoreManager();
         distributedManagers = new HashMap<String, DatastoreManager>();

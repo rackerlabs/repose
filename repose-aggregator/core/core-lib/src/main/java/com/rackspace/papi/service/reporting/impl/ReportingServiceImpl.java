@@ -9,7 +9,7 @@ import com.rackspace.papi.service.reporting.ReposeInfo;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.destinations.impl.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -36,7 +36,7 @@ public class ReportingServiceImpl implements ReportingService {
     private Timer timer;
     private ReportingTimerTask reportingTimerTask;
 
-    @Autowired
+    @Inject
     public ReportingServiceImpl(ConfigurationService configurationService) {
         this.configurationService = configurationService;
 

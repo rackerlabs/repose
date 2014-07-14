@@ -7,7 +7,7 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,7 +27,7 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     private static final int THREAD_POOL_SIZE = 20;
     private static final Logger LOG = LoggerFactory.getLogger(ContainerConfigurationServiceImpl.class);
 
-    @Autowired
+    @Inject
     public ContainerConfigurationServiceImpl(ServicePorts ports, ConfigurationService configurationManager) {
         this.ports.addAll(ports);
         this.configurationManager = configurationManager;

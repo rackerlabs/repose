@@ -24,7 +24,7 @@ import com.yammer.metrics.reporting.GraphiteReporter;
 import com.yammer.metrics.reporting.JmxReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -79,7 +79,7 @@ public class MetricsServiceImpl implements MetricsService {
     private boolean enabled;
     private String healthCheckUID;
 
-    @Autowired
+    @Inject
     public MetricsServiceImpl(ReposeJmxNamingStrategy reposeStratP, ConfigurationService configurationService,
                               HealthCheckService healthCheckService) {
         this.metrics = new MetricsRegistry();

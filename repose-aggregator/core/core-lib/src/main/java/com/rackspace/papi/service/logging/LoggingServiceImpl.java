@@ -9,7 +9,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,7 +27,7 @@ public class LoggingServiceImpl implements LoggingService {
     private ConfigurationService configurationManager;
     private String loggingConfigurationConfig = "";
 
-    @Autowired
+    @Inject
     public LoggingServiceImpl(ConfigurationService configurationManager) {
         this.configurationManager = configurationManager;
 

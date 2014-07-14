@@ -13,7 +13,7 @@ import com.rackspace.papi.service.event.listener.SingleFireEventListener;
 import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +37,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     private DestroyableThreadWrapper watcherThread;
 
-    @Autowired
+    @Inject
     public ArtifactManager(EventService eventService,
                            ConfigurationService configurationService,
                            ThreadingService threadingService,

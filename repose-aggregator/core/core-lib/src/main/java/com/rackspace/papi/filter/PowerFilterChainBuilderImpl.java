@@ -6,11 +6,11 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import java.util.List;
@@ -31,7 +31,7 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private ReposeInstanceInfo instanceInfo;
     private ServletContext servletContext;
 
-    @Autowired
+    @Inject
     public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
         Thread.currentThread().setName(instanceInfo.toString());
         LOG.info("Creating filter chain builder");

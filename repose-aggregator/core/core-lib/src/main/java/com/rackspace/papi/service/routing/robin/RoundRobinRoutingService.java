@@ -11,7 +11,7 @@ import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
@@ -31,7 +31,7 @@ public class RoundRobinRoutingService implements RoutingService {
     private final ServletContext ctx;
 
 
-    @Autowired
+    @Inject
     public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager, final ServletContext servletContext) {
         this.configurationManager = configurationManager;
         this.configurationListener = new PowerApiConfigListener();

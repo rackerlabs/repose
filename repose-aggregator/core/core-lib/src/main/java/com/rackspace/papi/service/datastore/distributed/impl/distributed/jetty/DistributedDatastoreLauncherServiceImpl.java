@@ -15,7 +15,7 @@ import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +31,11 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private ReposeInstanceInfo instanceInfo;
     private DistributedDatastoreConfigurationListener distributedDatastoreConfigurationListener;
 
-    @Autowired
+    @Inject
     @Qualifier("distributedDatastoreServletContextManager")
     private DistributedDatastoreServletContextManager manager;
 
-    @Autowired
+    @Inject
     @Qualifier("healthCheckService")
     private HealthCheckService healthCheckService;
 

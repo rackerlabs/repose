@@ -13,7 +13,7 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
     private RoutingService routingService;
     private String configDirectory;
 
-    @Autowired
+    @Inject
     public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherService service,
                                               @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
                                               @Qualifier("configurationManager") ConfigurationService configurationManager,

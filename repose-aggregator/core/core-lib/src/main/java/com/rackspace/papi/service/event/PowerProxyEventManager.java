@@ -11,7 +11,7 @@ import com.rackspace.papi.service.event.impl.SimpleEvent;
 import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +34,7 @@ public class PowerProxyEventManager implements EventService {
 
     private DestroyableThreadWrapper eventKernelThread;
 
-    @Autowired
+    @Inject
     public PowerProxyEventManager(PowerProxyEventKernel eventKernel, ThreadingService threadingService) {
         this.threadingService = threadingService;
         this.eventKernel = eventKernel;

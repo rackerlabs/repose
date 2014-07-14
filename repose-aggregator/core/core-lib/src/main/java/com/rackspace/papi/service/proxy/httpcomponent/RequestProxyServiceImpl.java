@@ -30,7 +30,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -63,7 +63,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ContainerConfigListener configListener;
     private SystemModelListener systemModelListener;
 
-    @Autowired
+    @Inject
     public RequestProxyServiceImpl(ConfigurationService configurationService,
                                    SystemModelInterrogator systemModelInterrogator,
                                    HealthCheckService healthCheckService) {

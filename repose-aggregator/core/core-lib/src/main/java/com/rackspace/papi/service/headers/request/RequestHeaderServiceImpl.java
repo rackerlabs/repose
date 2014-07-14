@@ -17,7 +17,7 @@ import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -42,7 +42,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private ViaHeaderBuilder viaHeaderBuilder;
     private HealthCheckServiceHelper healthCheckServiceHelper;
 
-    @Autowired
+    @Inject
     public RequestHeaderServiceImpl(ServletContext servletContext,
                                     ConfigurationService configurationService,
                                     HealthCheckService healthCheckService) {

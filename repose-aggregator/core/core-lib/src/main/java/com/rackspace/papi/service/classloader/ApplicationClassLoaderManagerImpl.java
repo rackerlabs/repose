@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +21,7 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
 
     private ConcurrentMap<String, EarClassLoaderContext> classLoaderMap;
 
-    @Autowired
+    @Inject
     public ApplicationClassLoaderManagerImpl(EventService eventService) {
         this.eventService = eventService;
         this.classLoaderMap = new ConcurrentHashMap<>();

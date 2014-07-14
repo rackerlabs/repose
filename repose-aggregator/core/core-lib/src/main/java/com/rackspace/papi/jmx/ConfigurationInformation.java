@@ -16,7 +16,7 @@ import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -148,7 +148,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         }
     }
 
-    @Autowired
+    @Inject
     public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService,
                                     @Qualifier("servicePorts") ServicePorts ports,
                                     @Qualifier("healthCheckService") HealthCheckService healthCheckService) {

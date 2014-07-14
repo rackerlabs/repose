@@ -20,7 +20,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -50,7 +50,7 @@ public class ControllerServiceImpl implements ControllerService {
     private Set<String> curNodes = new HashSet<>();
     private Map<String, Server> managedServers = new ConcurrentHashMap<>(); //TODO: Find a better way than using a ConcurrentHashMap for this
 
-    @Autowired
+    @Inject
     public ControllerServiceImpl(ServletContext servletContext, ConfigurationService configurationService) {
         this.servletContext = servletContext;
         this.configurationService = configurationService;

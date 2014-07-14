@@ -13,7 +13,7 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -40,7 +40,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private static final long FUTURE_CACHE_TTL = 500;
 
-    @Autowired
+    @Inject
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
         this.serviceClient = getServiceClient(httpClientService);
         numberOfActors = serviceClient.getPoolSize();

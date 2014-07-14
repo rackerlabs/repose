@@ -20,7 +20,7 @@ import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -68,7 +68,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private MetricsService metricsService;
 
-    @Autowired
+    @Inject
     public PowerFilterRouterImpl(
           @Qualifier("metricsService") MetricsService metricsService,
           @Qualifier("reportingService") ReportingService reportingService,

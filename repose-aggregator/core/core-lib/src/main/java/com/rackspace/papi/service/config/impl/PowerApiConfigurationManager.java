@@ -17,7 +17,7 @@ import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
@@ -45,7 +45,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     private ConfigurationInformation configurationInformation;
     private ServletContext servletContext;
 
-    @Autowired
+    @Inject
     public PowerApiConfigurationManager(EventService eventService, ServletContext servletContext) {
         this.eventService = eventService;
         this.servletContext = servletContext;

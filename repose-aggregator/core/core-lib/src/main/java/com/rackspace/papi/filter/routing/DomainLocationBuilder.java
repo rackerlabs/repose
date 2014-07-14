@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ public class DomainLocationBuilder implements LocationBuilder {
     private static final String HTTPS_PROTOCOL = "https";
     private final RoutingService routingService;
 
-    @Autowired
+    @Inject
     public DomainLocationBuilder(@Qualifier("routingService") RoutingService routingService) {
         this.routingService = routingService;
     }

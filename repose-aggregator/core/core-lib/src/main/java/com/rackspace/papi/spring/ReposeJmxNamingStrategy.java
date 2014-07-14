@@ -8,7 +8,7 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
@@ -25,7 +25,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private final ReposeInstanceInfo reposeId;
     private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
 
-    @Autowired
+    @Inject
     public ReposeJmxNamingStrategy(@Qualifier("jmxAttributeSource") AnnotationJmxAttributeSource attributeSource, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeId) {
         super(attributeSource);
         this.reposeId = reposeId;

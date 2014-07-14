@@ -15,7 +15,7 @@ import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -52,7 +52,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private HealthCheckServiceHelper healthCheckServiceHelper;
     private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
 
-    @Autowired
+    @Inject
     public DistributedDatastoreServiceClusterViewServiceImpl(ServletContext servletContext,
                                                              ConfigurationService configurationManager,
                                                              ReposeInstanceInfo reposeInstanceInfo,

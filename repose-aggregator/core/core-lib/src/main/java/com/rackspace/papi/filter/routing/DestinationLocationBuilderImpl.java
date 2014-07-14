@@ -7,7 +7,7 @@ import com.rackspace.papi.model.Node;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class DestinationLocationBuilderImpl implements DestinationLocationBuilde
     private final EndpointLocationBuilder endpointLocationBuilder;
     private final LocationBuilder domainLocationBuilder;
 
-    @Autowired
+    @Inject
     public DestinationLocationBuilderImpl(
             @Qualifier("domainLocationBuilder") DomainLocationBuilder domainLocationBuilder,
             @Qualifier("endpointLocationBuilder") EndpointLocationBuilder endpointLocationBuilder

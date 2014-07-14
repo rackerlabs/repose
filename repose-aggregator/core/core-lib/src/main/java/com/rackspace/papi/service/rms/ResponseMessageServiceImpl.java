@@ -19,7 +19,7 @@ import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -46,7 +46,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     private ImmutableFormatTemplates immutableFormatTemplates;
 
 
-    @Autowired
+    @Inject
     public ResponseMessageServiceImpl(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }

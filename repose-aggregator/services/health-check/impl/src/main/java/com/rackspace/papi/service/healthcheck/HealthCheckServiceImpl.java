@@ -2,7 +2,7 @@ package com.rackspace.papi.service.healthcheck;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -14,7 +14,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     private Map<String, Map<String, HealthCheckReport>> reports;
 
-    @Autowired
+    @Inject
     public HealthCheckServiceImpl() {
         reports = new ConcurrentHashMap<>();
     }
