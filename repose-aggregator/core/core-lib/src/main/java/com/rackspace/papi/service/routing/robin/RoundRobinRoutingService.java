@@ -21,22 +21,26 @@ import javax.servlet.ServletContext;
 import java.net.URL;
 
 @Named
-public class RoundRobinRoutingService implements RoutingService {
+public class RoundRobinRoutingService implements RoutingService, ServletContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
     private Clusters domains;
     private SystemModel config;
     private final ConfigurationService configurationManager;
     private final PowerApiConfigListener configurationListener;
     private final ServicePorts servicePorts;
-    private final ServletContext ctx;
+    private ServletContext servletContext;
 
 
     @Inject
-    public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager, final ServletContext servletContext) {
+    public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager) {
         this.configurationManager = configurationManager;
         this.configurationListener = new PowerApiConfigListener();
         this.servicePorts = servicePorts;
-        this.ctx = servletContext;
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     @PostConstruct
@@ -112,8 +116,8 @@ public class RoundRobinRoutingService implements RoutingService {
             if (!isInitialized()) {
                 final String clusterIdParam = InitParameter.REPOSE_CLUSTER_ID.getParameterName();
                 final String nodeIdParam = InitParameter.REPOSE_NODE_ID.getParameterName();
-                final String clusterId = System.getProperty(clusterIdParam, ctx.getInitParameter(clusterIdParam));
-                final String nodeId = System.getProperty(nodeIdParam, ctx.getInitParameter(nodeIdParam));
+                final String clusterId = System.getProperty(clusterIdParam, servletContext.getInitParameter(clusterIdParam));
+                final String nodeId = System.getProperty(nodeIdParam, servletContext.getInitParameter(nodeIdParam));
                 LOG.info("Determining ports for repose under cluster: " + clusterId);
                 final ServicePorts ports = determinePorts(determineReposeNode(clusterId, nodeId));
                 servicePorts.clear();

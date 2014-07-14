@@ -1,6 +1,7 @@
 package com.rackspace.papi.domain;
 
 import com.rackspace.papi.servlet.InitParameter;
+import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -15,7 +16,7 @@ import java.util.List;
  * Should be used everywhere the "servicePorts" bean was used and the "instanceInfo" bean
  */
 @Named
-public class ReposeInstanceInfo {
+public class ReposeInstanceInfo implements ServletContextAware {
 
     public static final String PORT_LIST_ATTRIBUTE = "org.openrepose.server.PortList";
 
@@ -25,10 +26,9 @@ public class ReposeInstanceInfo {
 
     private ServletContext servletContext;
 
-    @Inject
-    public ReposeInstanceInfo(ServletContext servletContext) {
+    @Override
+    public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
-
     }
 
     @PostConstruct

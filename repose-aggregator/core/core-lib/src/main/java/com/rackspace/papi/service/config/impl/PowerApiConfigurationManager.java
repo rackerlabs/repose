@@ -35,7 +35,7 @@ import java.util.Map;
  */
 
 @Named
-public class PowerApiConfigurationManager implements ConfigurationService {
+public class PowerApiConfigurationManager implements ConfigurationService, ServletContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
@@ -46,12 +46,15 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     private ServletContext servletContext;
 
     @Inject
-    public PowerApiConfigurationManager(EventService eventService, ServletContext servletContext) {
+    public PowerApiConfigurationManager(EventService eventService) {
         this.eventService = eventService;
-        this.servletContext = servletContext;
         parserLookaside = new HashMap<>();
     }
 
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
 
     @PostConstruct
     public void afterPropertiesSet() {

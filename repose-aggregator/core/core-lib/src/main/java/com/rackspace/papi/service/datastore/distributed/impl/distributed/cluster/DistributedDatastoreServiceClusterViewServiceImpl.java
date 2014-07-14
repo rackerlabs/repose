@@ -15,6 +15,9 @@ import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletConfigAware;
+import org.springframework.web.context.ServletContextAware;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -31,7 +34,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Named
-public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService {
+public class DistributedDatastoreServiceClusterViewServiceImpl implements DistributedDatastoreServiceClusterViewService,
+        ServletContextAware {
     public static final String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServiceClusterViewServiceImpl.class);
@@ -53,17 +57,21 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
 
     @Inject
-    public DistributedDatastoreServiceClusterViewServiceImpl(ServletContext servletContext,
-                                                             ConfigurationService configurationManager,
+    public DistributedDatastoreServiceClusterViewServiceImpl(ConfigurationService configurationManager,
                                                              ReposeInstanceInfo reposeInstanceInfo,
                                                              HealthCheckService healthCheckService) {
-        this.servletContext = servletContext;
         this.configurationManager = configurationManager;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService,
                 LOG,
                 healthCheckService.register(DistributedDatastoreServiceClusterViewServiceImpl.class));
     }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
 
     @PostConstruct
     public void afterPropertiesSet() {

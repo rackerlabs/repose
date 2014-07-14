@@ -17,6 +17,8 @@ import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletContextAware;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -25,7 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
 
 @Named
-public class RequestHeaderServiceImpl implements RequestHeaderService {
+public class RequestHeaderServiceImpl implements RequestHeaderService, ServletContextAware {
     public static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
 
@@ -43,12 +45,15 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private HealthCheckServiceHelper healthCheckServiceHelper;
 
     @Inject
-    public RequestHeaderServiceImpl(ServletContext servletContext,
-                                    ConfigurationService configurationService,
+    public RequestHeaderServiceImpl(ConfigurationService configurationService,
                                     HealthCheckService healthCheckService) {
-        this.servletContext = servletContext;
         this.configurationService = configurationService;
         this.healthCheckService = healthCheckService;
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     @PostConstruct

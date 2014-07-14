@@ -16,11 +16,11 @@ import javax.servlet.ServletContext;
  * things. They're fired once, and then that's persistent throughout the entire JVM...
  */
 @Named
-public class ReposeStartupTasks {
+public class ReposeStartupTasks implements ServletContextAware {
     private ServletContext servletContext;
 
-    @Inject
-    public ReposeStartupTasks(ServletContext servletContext) {
+    @Override
+    public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
 
