@@ -26,7 +26,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private final DatastoreService datastoreService;
 
     @Inject
-    public ReposeLocalCache(@Qualifier("datastoreService") DatastoreService datastoreService) {
+    public ReposeLocalCache( DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
     }
 

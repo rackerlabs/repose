@@ -25,7 +25,7 @@ public class ReposeReport implements ReposeReportMBean {
     private final ReportingService reportingService;
 
     @Inject
-    public ReposeReport(@Qualifier("reportingService") ReportingService reportingService) {
+    public ReposeReport( ReportingService reportingService) {
         this.reportingService = reportingService;
     }
 

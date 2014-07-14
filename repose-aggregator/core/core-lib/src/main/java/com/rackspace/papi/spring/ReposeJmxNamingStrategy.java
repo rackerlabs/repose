@@ -26,7 +26,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private final String defaultDomainPrefix = UUID.randomUUID().toString() + SEPARATOR;
 
     @Inject
-    public ReposeJmxNamingStrategy(@Qualifier("jmxAttributeSource") AnnotationJmxAttributeSource attributeSource, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeId) {
+    public ReposeJmxNamingStrategy( AnnotationJmxAttributeSource attributeSource,  ReposeInstanceInfo reposeId) {
         super(attributeSource);
         this.reposeId = reposeId;
         

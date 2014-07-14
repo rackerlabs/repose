@@ -26,9 +26,9 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     private String reposeVersion = "";
 
     @Inject
-    public ResponseHeaderServiceContext(@Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
+    public ResponseHeaderServiceContext( ResponseHeaderService responseHeaderService,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("configurationManager") ConfigurationService configurationManager) {
+             ConfigurationService configurationManager) {
         this.responseHeaderService = responseHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;

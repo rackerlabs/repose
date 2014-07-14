@@ -17,7 +17,7 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
     private volatile boolean shouldContinue;
 
     @Inject
-    public PowerProxyEventKernel(@Qualifier("eventManager") EventService eventManager) {
+    public PowerProxyEventKernel( EventService eventManager) {
         this.eventManager = eventManager;
     }
 

@@ -20,6 +20,8 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletContextAware;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -34,11 +36,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Named
-public class ControllerServiceImpl implements ControllerService {
+public class ControllerServiceImpl implements ControllerService, ServletContextAware {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
     private static final String REPOSE_NODE = "Repose node ";
 
-    private final ServletContext servletContext;
+    private ServletContext servletContext;
     private final ConfigurationService configurationService;
     private final SystemModelConfigurationListener systemModelConfigurationListener = new SystemModelConfigurationListener();
     private final ContainerConfigurationListener containerConfigurationListener = new ContainerConfigurationListener();
@@ -51,10 +53,15 @@ public class ControllerServiceImpl implements ControllerService {
     private Map<String, Server> managedServers = new ConcurrentHashMap<>(); //TODO: Find a better way than using a ConcurrentHashMap for this
 
     @Inject
-    public ControllerServiceImpl(ServletContext servletContext, ConfigurationService configurationService) {
-        this.servletContext = servletContext;
+    public ControllerServiceImpl(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
 
     @PostConstruct
     public void afterPropertiesSet() {

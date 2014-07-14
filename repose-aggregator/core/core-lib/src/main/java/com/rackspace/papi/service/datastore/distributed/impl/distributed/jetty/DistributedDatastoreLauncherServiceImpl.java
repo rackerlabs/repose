@@ -32,11 +32,11 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private DistributedDatastoreConfigurationListener distributedDatastoreConfigurationListener;
 
     @Inject
-    @Qualifier("distributedDatastoreServletContextManager")
+
     private DistributedDatastoreServletContextManager manager;
 
     @Inject
-    @Qualifier("healthCheckService")
+
     private HealthCheckService healthCheckService;
 
     private int datastorePort;

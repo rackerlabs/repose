@@ -28,7 +28,7 @@ public class DomainLocationBuilder implements LocationBuilder {
     private final RoutingService routingService;
 
     @Inject
-    public DomainLocationBuilder(@Qualifier("routingService") RoutingService routingService) {
+    public DomainLocationBuilder( RoutingService routingService) {
         this.routingService = routingService;
     }
 

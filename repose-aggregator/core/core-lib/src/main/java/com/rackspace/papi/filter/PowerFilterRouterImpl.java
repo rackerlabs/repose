@@ -70,11 +70,11 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     @Inject
     public PowerFilterRouterImpl(
-          @Qualifier("metricsService") MetricsService metricsService,
-          @Qualifier("reportingService") ReportingService reportingService,
-          @Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
-          @Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
-          @Qualifier("destinationLocationBuilder") DestinationLocationBuilder locationBuilder) {
+           MetricsService metricsService,
+           ReportingService reportingService,
+           RequestHeaderService requestHeaderService,
+           ResponseHeaderService responseHeaderService,
+           DestinationLocationBuilder locationBuilder) {
         LOG.info("Creating Repose Router");
         this.destinations = new HashMap<String, Destination>();
         this.reportingService = reportingService;

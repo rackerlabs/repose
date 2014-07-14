@@ -149,9 +149,9 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     }
 
     @Inject
-    public ConfigurationInformation(@Qualifier("configurationManager") ConfigurationService configurationService,
+    public ConfigurationInformation( ConfigurationService configurationService,
                                     @Qualifier("servicePorts") ServicePorts ports,
-                                    @Qualifier("healthCheckService") HealthCheckService healthCheckService) {
+                                     HealthCheckService healthCheckService) {
         filterChain = new ArrayList<FilterInformation>();
         this.configurationService = configurationService;
         this.ports = ports;

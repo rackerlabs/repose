@@ -20,8 +20,8 @@ public class DestinationLocationBuilderImpl implements DestinationLocationBuilde
 
     @Inject
     public DestinationLocationBuilderImpl(
-            @Qualifier("domainLocationBuilder") DomainLocationBuilder domainLocationBuilder,
-            @Qualifier("endpointLocationBuilder") EndpointLocationBuilder endpointLocationBuilder
+             DomainLocationBuilder domainLocationBuilder,
+             EndpointLocationBuilder endpointLocationBuilder
             ) {
         this.domainLocationBuilder = domainLocationBuilder;
         this.endpointLocationBuilder = endpointLocationBuilder;

@@ -38,13 +38,13 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
     private String configDirectory;
 
     @Inject
-    public DistributedDatastoreServiceContext(@Qualifier("distributedDatastoreLauncher") DistributedDatastoreLauncherService service,
-                                              @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
-                                              @Qualifier("configurationManager") ConfigurationService configurationManager,
-                                              @Qualifier("datastoreService") DatastoreService datastoreService,
+    public DistributedDatastoreServiceContext( DistributedDatastoreLauncherService service,
+                                               ReposeInstanceInfo reposeInstanceInfo,
+                                               ConfigurationService configurationManager,
+                                               DatastoreService datastoreService,
                                               @Qualifier("serviceRegistry") ServiceRegistry registry,
                                               @Qualifier("servicePorts") ServicePorts servicePorts,
-                                              @Qualifier("routingService") RoutingService routingService) {
+                                               RoutingService routingService) {
 
         this.distDatastoreServiceLauncher = service;
         this.instanceInfo = reposeInstanceInfo;
