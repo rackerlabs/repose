@@ -36,6 +36,8 @@ public class ValveControllerServerBuilder {
                 .put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
 
+        servletContext.getInitParams().put("contextConfigLocation", "classpath:applicationContext.xml");
+
         servletContext.addEventListener(new ContextLoaderListener());
 
         return servletContext;
