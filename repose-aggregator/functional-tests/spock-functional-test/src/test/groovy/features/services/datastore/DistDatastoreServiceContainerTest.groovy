@@ -102,12 +102,11 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
 
         when: "Send a PATCH request"
         MessageChain mc = deproxy.makeRequest(
-                        [
                                 method: 'PATCH',
                                 url: strurl,
                                 headers:headers,
                                 requestBody: body
-                        ])
+                            )
         then:
         mc.receivedResponse.code == '200'
 
@@ -183,28 +182,25 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
         body = ObjectSerializer.instance().writeObject(new StringValue.Patch("original value"))
         def newBody = ObjectSerializer.instance().writeObject(new StringValue.Patch(" patched on value"))
         mc1 = deproxy.makeRequest(
-                [
                         method: 'PATCH',
                         url:strurl,
                         headers:headers,
                         requestBody: body
-                ])
+                )
 
         mc2 = deproxy.makeRequest(
-                [
                         method: 'PATCH',
                         url: strurl,
                         headers:headers,
                         requestBody: newBody
-                ])
+                )
 
         and: "I get the value for the key"
         MessageChain mc3 = deproxy.makeRequest(
-                [
                         method: 'GET',
                         url: strurl,
                         headers:headers
-                ])
+                )
 
         then:"The body of the get response should be the patched value"
         mc1.receivedResponse.code == "200"
@@ -212,8 +208,6 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
         ObjectSerializer.instance().readObject(mc2.receivedResponse.body as byte[]).value == "original value patched on value"
         ObjectSerializer.instance().readObject(mc3.receivedResponse.body as byte[]).value == "original value patched on value"
 
-        //set timebomb to go back review this bug
-        //timeBomb()
         //ignore test - when configured with at least 2 nodes, limits are shared and no 'damaged node' errors are recorded
         //rate limiting is set to 3 an hour"
         def user = UUID.randomUUID().toString();
