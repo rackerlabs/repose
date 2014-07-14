@@ -52,7 +52,7 @@ public class MetricsServiceImplTest {
 
             reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(), reposeInstanceInfo);
             configurationService = mock(PowerApiConfigurationManager.class);
-            healthCheckService = new HealthCheckServiceImpl();
+            healthCheckService = mock(HealthCheckServiceImpl.class);
 
             metricsService = new MetricsServiceImpl(reposeStrat, configurationService, healthCheckService);
         }
