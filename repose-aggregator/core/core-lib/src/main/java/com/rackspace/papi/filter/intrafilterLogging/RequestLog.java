@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 
 public class RequestLog {
@@ -18,7 +19,7 @@ public class RequestLog {
     String httpMethod;
     String requestURI;
     String requestBody;
-    LinkedHashMap<String, String> headers;
+    HashMap<String, String> headers;
 
     public RequestLog(MutableHttpServletRequest mutableHttpServletRequest,
                       FilterContext filterContext) throws IOException {
@@ -35,10 +36,10 @@ public class RequestLog {
         mutableHttpServletRequest.getInputStream().reset();
     }
 
-    private LinkedHashMap<String, String> convertRequestHeadersToMap(
+    private HashMap<String, String> convertRequestHeadersToMap(
             MutableHttpServletRequest mutableHttpServletRequest) {
 
-        LinkedHashMap<String, String> headerMap = new LinkedHashMap<String, String>();
+        HashMap<String, String> headerMap = new LinkedHashMap<String, String>();
         List<String> headerNames = Collections.list(mutableHttpServletRequest.getHeaderNames());
 
         for (String headername : headerNames) {
