@@ -66,6 +66,93 @@ public class SystemModelConfigTest {
             validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
         }
 
+        @Test
+        public void shouldValidateWhenOnlyOneDestinationWithDefault() throws Exception {
+            String xml =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
+                            "    <repose-cluster id=\"repose\">\n" +
+                            "        <nodes>\n" +
+                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
+                            "        </nodes>\n" +
+                            "        <services>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
+                            "        </services>\n" +
+                            "        <destinations>\n" +
+                            "            <endpoint id=\"openrepose\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"/>\n" +
+                            "        </destinations>\n" +
+                            "    </repose-cluster>\n" +
+                            "</system-model>\n";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldValidateWhenTwoDestinationsWithOneDefault() throws Exception {
+            String xml =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
+                            "    <repose-cluster id=\"repose\">\n" +
+                            "        <nodes>\n" +
+                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
+                            "        </nodes>\n" +
+                            "        <services>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
+                            "        </services>\n" +
+                            "        <destinations>\n" +
+                            "            <endpoint id=\"openrepose1\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\" default=\"false\"/>\n" +
+                            "            <endpoint id=\"openrepose2\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\" default=\"true\"/>\n" +
+                            "        </destinations>\n" +
+                            "    </repose-cluster>\n" +
+                            "</system-model>\n";
+
+            validator.validate(new StreamSource(new ByteArrayInputStream(xml.getBytes())));
+        }
+
+        @Test
+        public void shouldNotValidateWhenTwoDestinationsWithTwoDefaults() throws Exception {
+            String xml =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
+                            "    <repose-cluster id=\"repose\">\n" +
+                            "        <nodes>\n" +
+                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
+                            "        </nodes>\n" +
+                            "        <services>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
+                            "        </services>\n" +
+                            "        <destinations>\n" +
+                            "            <endpoint id=\"openrepose1\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"/>\n" +
+                            "            <endpoint id=\"openrepose2\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\"/>\n" +
+                            "        </destinations>\n" +
+                            "    </repose-cluster>\n" +
+                            "</system-model>\n";
+
+            assertInvalidConfig(xml, "There should only be one default destination");
+        }
+
+        @Test
+        public void shouldNotValidateWhenTwoDestinationsWithNoDefault() throws Exception {
+            String xml =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<system-model xmlns=\"http://docs.rackspacecloud.com/repose/system-model/v2.0\">\n" +
+                            "    <repose-cluster id=\"repose\">\n" +
+                            "        <nodes>\n" +
+                            "            <node id=\"node1\" hostname=\"localhost\" http-port=\"8000\"/>\n" +
+                            "        </nodes>\n" +
+                            "        <services>\n" +
+                            "            <service name=\"dist-datastore\"/>\n" +
+                            "        </services>\n" +
+                            "        <destinations>\n" +
+                            "            <endpoint id=\"openrepose1\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\" default=\"true\"/>\n" +
+                            "            <endpoint id=\"openrepose2\" protocol=\"http\" hostname=\"50.57.189.15\" root-path=\"/\" port=\"8080\" default=\"true\"/>\n" +
+                            "        </destinations>\n" +
+                            "    </repose-cluster>\n" +
+                            "</system-model>\n";
+
+            assertInvalidConfig(xml, "There should only be one default destination");
+        }
+
         private void assertInvalidConfig(String xml, String errorMessage) {
             final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(xml.getBytes()));
             Exception caught = null;
@@ -80,6 +167,5 @@ public class SystemModelConfigTest {
 
             assertTrue(caught.getLocalizedMessage().contains(errorMessage));
         }
-
     }
 }
