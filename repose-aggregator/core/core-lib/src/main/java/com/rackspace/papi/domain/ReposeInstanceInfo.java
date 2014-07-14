@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  * Should be used everywhere the "servicePorts" bean was used and the "instanceInfo" bean
  */
 @Component
-public class ReposeInstanceInfo implements ServletContextAware {
+public class ReposeInstanceInfo {
 
     public static final String PORT_LIST_ATTRIBUTE = "org.openrepose.server.PortList";
 
@@ -25,13 +26,10 @@ public class ReposeInstanceInfo implements ServletContextAware {
 
     private ServletContext servletContext;
 
-    public ReposeInstanceInfo() {
-
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
+    @Inject
+    public ReposeInstanceInfo(ServletContext servletContext) {
         this.servletContext = servletContext;
+
     }
 
     @PostConstruct
