@@ -33,32 +33,26 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public HealthCheckReport getDiagnosis(String UID, String id) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        return reports.get(UID).get(id);
+    public HealthCheckReport getDiagnosis(String uid, String id) {
+        return reports.get(uid).get(id);
     }
 
     @Override
-    public void reportIssue(String UID, String RID, HealthCheckReport report) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        checkIdNull(RID);
-        reports.get(UID).put(RID, report);
+    public void reportIssue(String uid, String rid, HealthCheckReport report) {
+        reports.get(uid).put(rid, report);
     }
 
     @Override
-    public Set<String> getReportIds(String UID) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        return reports.get(UID).keySet();
+    public Set<String> getReportIds(String uid) {
+        return reports.get(uid).keySet();
     }
 
     @Override
-    public void solveIssue(String UID, String id) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        checkIdNull(id);
-        solveIssue(id, reports.get(UID));
+    public void resolveIssue(String uid, String id) {
+        resolveIssue(id, reports.get(uid));
     }
 
-    private void solveIssue(String id, Map<String, HealthCheckReport> reportMap) {
+    private void resolveIssue(String id, Map<String, HealthCheckReport> reportMap) {
         Iterator<String> itr = reportMap.keySet().iterator();
 
         while (itr.hasNext()) {
@@ -70,34 +64,57 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     @Override
-    public String register(Class T) {
+    public HealthCheckServiceProxy register(Class T) {
         if (T == null) {
             throw new IllegalArgumentException("Registering Class");
         }
-        Map<String, HealthCheckReport> reportMap = new HashMap<String, HealthCheckReport>();
+        Map<String, HealthCheckReport> reportMap = new HashMap<>();
         Long rand = UUID.randomUUID().getMostSignificantBits();
-        String UID = T.getName() + ":" + rand.toString();
-        reports.put(UID, reportMap);
-        return UID;
+        String uid = T.getName() + ":" + rand.toString(); // TODO: Decide whether or not to tie each UID to a specific class
+        reports.put(uid, reportMap);
+        return new HealthCheckServiceProxyImpl(uid);
     }
 
     @Override
-    public Map<String, HealthCheckReport> getReports(String UID) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        return reports.get(UID);
-
+    public Map<String, HealthCheckReport> getReports(String uid) {
+        return reports.get(uid);
     }
 
-    private void checkUid(String uid) throws NotRegisteredException, InputNullException {
-        checkIdNull(uid);
-        if (!reports.containsKey(uid)) {
-            throw new NotRegisteredException(uid);
+    private class HealthCheckServiceProxyImpl implements HealthCheckServiceProxy {
+        private String uid;
+
+        private HealthCheckServiceProxyImpl(String uid) {
+            this.uid = uid;
         }
-    }
 
-    private void checkIdNull(String id) throws InputNullException {
-        if (id == null) {
-            throw new InputNullException();
+        @Override
+        public boolean isHealthy() {
+            return HealthCheckServiceImpl.this.isHealthy();
+        }
+
+        @Override
+        public HealthCheckReport getDiagnosis(String id) {
+            return HealthCheckServiceImpl.this.getDiagnosis(uid, id);
+        }
+
+        @Override
+        public void reportIssue(String rid, String message, Severity severity) {
+            HealthCheckServiceImpl.this.reportIssue(uid, rid, new HealthCheckReport(message, severity));
+        }
+
+        @Override
+        public Set<String> getReportIds() {
+            return HealthCheckServiceImpl.this.getReportIds(uid);
+        }
+
+        @Override
+        public void resolveIssue(String id) {
+            HealthCheckServiceImpl.this.resolveIssue(uid, id);
+        }
+
+        @Override
+        public Map<String, HealthCheckReport> getReports() {
+            return HealthCheckServiceImpl.this.getReports(uid);
         }
     }
 }
