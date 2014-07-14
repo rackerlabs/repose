@@ -7,14 +7,13 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-
-import java.net.URL;
-import javax.servlet.ServletContextEvent;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
+import java.net.URL;
 
 @Component("containerServiceContext")
 public class ContainerServiceContext implements ServiceContext<ContainerConfigurationService> {
@@ -68,12 +67,6 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
             DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
             String via = deployConfig.getVia();
 
-            if (doesContainDepricatedConfigs(deployConfig)) {
-                LOG.warn("***DEPRECATED*** The ability to define \"connection-timeout\", \"read-timeout\", " +
-                        "and \"proxy-thread-pool\" within the container.cfg.xml file has been deprecated." +
-                        "Please define these configurations within an http-connection-pool.cfg.xml file");
-            }
-
             Long maxResponseContentSize = deployConfig.getContentBodyReadLimit();
             containerConfigurationService.setVia(via);
             containerConfigurationService.setContentBodyReadLimit(maxResponseContentSize);
@@ -98,13 +91,5 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
         if (configurationManager != null) {
             configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
         }
-    }
-
-    private boolean doesContainDepricatedConfigs(DeploymentConfiguration config) {
-
-        return config.getConnectionTimeout() != THIRTY_SECONDS_MILLIS ||
-                config.getReadTimeout() != THIRTY_SECONDS_MILLIS ||
-                config.getProxyThreadPool() != THREAD_POOL_SIZE;
-
     }
 }
