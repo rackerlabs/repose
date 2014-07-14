@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.jmx;
 
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.impl.ReportingServiceImpl;
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -32,7 +35,7 @@ public class ReposeReportTest {
          destinationIds.add("id_2");
          destinationIds.add("id_7");
 
-         reportingService = new ReportingServiceImpl();
+         reportingService = new ReportingServiceImpl(mock(PowerApiConfigurationManager.class));
          reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
 
          report = new ReposeReport(reportingService);

@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting;
 
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.impl.ReportingServiceImpl;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class ReportingServiceImplTest {
@@ -27,7 +29,7 @@ public class ReportingServiceImplTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl();
+            reportingService = new ReportingServiceImpl(mock(PowerApiConfigurationManager.class));
             reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
         }
 

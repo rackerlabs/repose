@@ -11,6 +11,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class DistributedDatastoreJettyServerBuilderTest {
@@ -24,7 +25,7 @@ public class DistributedDatastoreJettyServerBuilderTest {
       public void setUp() {
          
          datastoreService = new DatastoreServiceImpl();
-         instanceInfo = new ReposeInstanceInfo("repose", "node1");
+         instanceInfo = mock(ReposeInstanceInfo.class);
       }
       
       @Test

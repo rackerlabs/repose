@@ -34,7 +34,7 @@ public class PowerFilterChainBuilderTest {
       public void shouldInitialize() {
          FilterConfig mockedFilterConfig = mock(FilterConfig.class);
          ApplicationContext context = mock(ApplicationContext.class);
-         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+         ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
          
          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
@@ -93,7 +93,7 @@ public class PowerFilterChainBuilderTest {
          when(mockedFilter.getName()).thenReturn("filterName");
 
          ApplicationContext context = mock(ApplicationContext.class);
-         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+          ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
 
@@ -141,7 +141,7 @@ public class PowerFilterChainBuilderTest {
          when(mockedFilter.getName()).thenReturn("filterName");
 
          ApplicationContext context = mock(ApplicationContext.class);
-         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+          ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
 

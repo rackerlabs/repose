@@ -18,6 +18,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 
+import javax.servlet.ServletContext;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
@@ -34,7 +36,7 @@ public class RoundRobinRoutingServiceTest {
 
          final ServicePorts servicePorts = null;
          final ConfigurationService configurationManager = null;
-         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager);
+         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager, mock(ServletContext.class));
 
          systemModel = new SystemModel();
 
