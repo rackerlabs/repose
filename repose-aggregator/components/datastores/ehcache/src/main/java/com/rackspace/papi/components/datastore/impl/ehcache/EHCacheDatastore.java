@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class EHCacheDatastore implements Datastore {
 
     private final Ehcache ehCacheInstance;
-    private final static String NAME = "local/default";
+    private static final  String NAME = "local/default";
 
     public EHCacheDatastore(Ehcache ehCacheInstance) {
         this.ehCacheInstance = ehCacheInstance;
