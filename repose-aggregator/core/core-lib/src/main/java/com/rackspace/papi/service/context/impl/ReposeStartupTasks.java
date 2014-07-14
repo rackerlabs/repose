@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 /**
@@ -15,11 +16,11 @@ import javax.servlet.ServletContext;
  * things. They're fired once, and then that's persistent throughout the entire JVM...
  */
 @Component
-public class ReposeStartupTasks implements ServletContextAware {
+public class ReposeStartupTasks {
     private ServletContext servletContext;
 
-    @Override
-    public void setServletContext(ServletContext servletContext) {
+    @Inject
+    public ReposeStartupTasks(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
 
