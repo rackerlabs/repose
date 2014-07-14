@@ -90,13 +90,6 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
         public void configurationUpdated(ContainerConfiguration configurationObject) {
             DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
             String via = deployConfig.getVia();
-
-            if (doesContainDepricatedConfigs(deployConfig)) {
-                LOG.warn("***DEPRECATED*** The ability to define \"connection-timeout\", \"read-timeout\", " +
-                        "and \"proxy-thread-pool\" within the container.cfg.xml file has been deprecated." +
-                        "Please define these configurations within an http-connection-pool.cfg.xml file");
-            }
-
             Long maxResponseContentSize = deployConfig.getContentBodyReadLimit();
             setVia(via);
             setContentBodyReadLimit(maxResponseContentSize);
@@ -108,13 +101,4 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
             return isInitialized;
         }
     }
-
-    private boolean doesContainDepricatedConfigs(DeploymentConfiguration config) {
-
-        return config.getConnectionTimeout() != THIRTY_SECONDS_MILLIS ||
-                config.getReadTimeout() != THIRTY_SECONDS_MILLIS ||
-                config.getProxyThreadPool() != THREAD_POOL_SIZE;
-
-    }
-
 }

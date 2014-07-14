@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.context.container
 
-import com.rackspace.papi.container.config.DeploymentConfiguration
 import com.rackspace.papi.domain.ServicePorts
 import org.junit.Test
 
@@ -47,16 +46,4 @@ public class ContainerConfigurationServiceImplTest {
         ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
         assertThat(testImpl.getServicePorts(),equalTo(new ServicePorts()));
     }
-
-    @Test
-    public void testDeprecatedConfigs() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
-        DeploymentConfiguration dc = new DeploymentConfiguration();
-        dc.setReadTimeout(25000);
-        dc.setConnectionTimeout(25000);
-        dc.setProxyThreadPool(15);
-        assertThat(testImpl.doesContainDepricatedConfigs(dc),equalTo(true));
-    }
-
-
 }
