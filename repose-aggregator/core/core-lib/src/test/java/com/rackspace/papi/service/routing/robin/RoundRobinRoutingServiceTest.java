@@ -36,7 +36,7 @@ public class RoundRobinRoutingServiceTest {
 
          final ServicePorts servicePorts = null;
          final ConfigurationService configurationManager = null;
-         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager, mock(ServletContext.class));
+         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager);
 
          systemModel = new SystemModel();
 

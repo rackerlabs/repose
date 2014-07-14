@@ -26,7 +26,7 @@ public class RequestHeaderServiceImplTest {
         public void setup() {
             request = mock(MutableHttpServletRequest.class);
             viaBuilder = mock(ViaHeaderBuilder.class);
-            instance = new RequestHeaderServiceImpl(mock(ServletContext.class), mock(PowerApiConfigurationManager.class), mock(HealthCheckService.class));
+            instance = new RequestHeaderServiceImpl(mock(PowerApiConfigurationManager.class), mock(HealthCheckService.class));
         }
         
         @Test
