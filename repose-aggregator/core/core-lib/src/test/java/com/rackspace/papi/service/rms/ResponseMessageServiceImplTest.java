@@ -40,7 +40,7 @@ public class ResponseMessageServiceImplTest {
 
    public static class WhenHandlingResponse {
 
-       ConfigurationService configurationService = new PowerApiConfigurationManager("1");
+       ConfigurationService configurationService = mock(PowerApiConfigurationManager.class);
       private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(configurationService);
       private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
       private Enumeration<String> headerValueEnumeration = null;

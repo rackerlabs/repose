@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -47,12 +48,10 @@ public class MetricsServiceImplTest {
         @Before
         public void setUp() {
 
-            ReposeInstanceInfo reposeInstanceInfo = new ReposeInstanceInfo();
-            reposeInstanceInfo.setNodeId( "node1" );
-            reposeInstanceInfo.setClusterId( "cluster1" );
+            ReposeInstanceInfo reposeInstanceInfo = mock(ReposeInstanceInfo.class);
 
             reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(), reposeInstanceInfo);
-            configurationService = new PowerApiConfigurationManager("1");
+            configurationService = mock(PowerApiConfigurationManager.class);
             healthCheckService = new HealthCheckServiceImpl();
 
             metricsService = new MetricsServiceImpl(reposeStrat, configurationService, healthCheckService);

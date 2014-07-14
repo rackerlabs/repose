@@ -2,11 +2,16 @@ package com.rackspace.papi.service.headers.request;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.ServletContext;
+
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -21,7 +26,7 @@ public class RequestHeaderServiceImplTest {
         public void setup() {
             request = mock(MutableHttpServletRequest.class);
             viaBuilder = mock(ViaHeaderBuilder.class);
-            instance = new RequestHeaderServiceImpl();
+            instance = new RequestHeaderServiceImpl(mock(ServletContext.class), mock(PowerApiConfigurationManager.class), mock(HealthCheckService.class));
         }
         
         @Test

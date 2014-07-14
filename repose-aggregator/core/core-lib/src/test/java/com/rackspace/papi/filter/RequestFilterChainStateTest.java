@@ -52,7 +52,7 @@ public class RequestFilterChainStateTest {
             ServletContextHelper instance = ServletContextHelper.configureInstance(context, appContext);
             when(context.getAttribute(ServletContextHelper.SERVLET_CONTEXT_HELPER)).thenReturn(instance);
 
-            ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo("repose", "node");
+            ReposeInstanceInfo instanceInfo = mock(ReposeInstanceInfo.class);
             PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(PowerFilterRouter.class), instanceInfo, null);
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
