@@ -175,7 +175,7 @@ public class PowerProxyEventManagerTest {
 
         @Before
         public void standUp() {
-            manager = new PowerProxyEventManager(null, null);
+            manager = new PowerProxyEventManager();
         }
 
         @Test
