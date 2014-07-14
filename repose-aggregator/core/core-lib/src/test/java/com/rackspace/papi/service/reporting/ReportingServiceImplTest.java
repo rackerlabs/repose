@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.reporting;
 
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.impl.ReportingServiceImpl;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class ReportingServiceImplTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl(mock(PowerApiConfigurationManager.class));
+            reportingService = new ReportingServiceImpl(mock(ConfigurationServiceImpl.class));
             reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
         }
 

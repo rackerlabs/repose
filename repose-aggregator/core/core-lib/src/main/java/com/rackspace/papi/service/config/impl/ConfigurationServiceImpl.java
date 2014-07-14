@@ -11,7 +11,6 @@ import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceReso
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
@@ -35,9 +34,9 @@ import java.util.Map;
  */
 
 @Named
-public class PowerApiConfigurationManager implements ConfigurationService, ServletContextAware {
+public class ConfigurationServiceImpl implements ConfigurationService, ServletContextAware {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
     private final EventService eventService;
     private ConfigurationUpdateManager updateManager;
@@ -46,8 +45,10 @@ public class PowerApiConfigurationManager implements ConfigurationService, Servl
     private ServletContext servletContext;
 
     @Inject
-    public PowerApiConfigurationManager(EventService eventService) {
+    public ConfigurationServiceImpl(EventService eventService,
+                                    ConfigurationInformation configurationInformation) {
         this.eventService = eventService;
+        this.configurationInformation = configurationInformation;
         parserLookaside = new HashMap<>();
     }
 
@@ -69,7 +70,6 @@ public class PowerApiConfigurationManager implements ConfigurationService, Servl
         }
 
         setResourceResolver(new FileDirectoryResourceResolver(configurationRoot));
-        setConfigurationInformation((ConfigurationInformation) ServletContextHelper.getInstance(servletContext).getPowerApiContext().reposeConfigurationInformation());
 
         final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
         papiUpdateManager.initialize(servletContext);

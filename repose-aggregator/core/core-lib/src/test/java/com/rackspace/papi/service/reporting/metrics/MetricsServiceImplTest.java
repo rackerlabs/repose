@@ -2,7 +2,7 @@ package com.rackspace.papi.service.reporting.metrics;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
@@ -51,7 +51,7 @@ public class MetricsServiceImplTest {
             ReposeInstanceInfo reposeInstanceInfo = mock(ReposeInstanceInfo.class);
 
             reposeStrat = new ReposeJmxNamingStrategy(new AnnotationJmxAttributeSource(), reposeInstanceInfo);
-            configurationService = mock(PowerApiConfigurationManager.class);
+            configurationService = mock(ConfigurationServiceImpl.class);
             healthCheckService = mock(HealthCheckServiceImpl.class);
 
             metricsService = new MetricsServiceImpl(reposeStrat, configurationService, healthCheckService);

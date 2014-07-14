@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.proxy.httpcomponent
 
 import com.rackspace.papi.filter.SystemModelInterrogator
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientService
@@ -32,7 +32,7 @@ class RequestProxyServiceImplTest extends Specification {
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
         HttpClientService httpClientService = mock(HttpClientService)
         when(httpClientService.getClient(Mockito.any(String))).thenReturn(httpClientResponse)
-        requestProxyService = new RequestProxyServiceImpl(mock(PowerApiConfigurationManager.class), mock(SystemModelInterrogator.class), mock(HealthCheckService.class))
+        requestProxyService = new RequestProxyServiceImpl(mock(ConfigurationServiceImpl.class), mock(SystemModelInterrogator.class), mock(HealthCheckService.class))
         requestProxyService.setHttpClientService(httpClientService)
     }
 

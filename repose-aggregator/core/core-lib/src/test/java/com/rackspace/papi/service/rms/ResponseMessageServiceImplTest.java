@@ -8,7 +8,7 @@ import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.OverwriteType;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
@@ -40,7 +40,7 @@ public class ResponseMessageServiceImplTest {
 
    public static class WhenHandlingResponse {
 
-       ConfigurationService configurationService = mock(PowerApiConfigurationManager.class);
+       ConfigurationService configurationService = mock(ConfigurationServiceImpl.class);
       private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(configurationService);
       private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
       private Enumeration<String> headerValueEnumeration = null;
