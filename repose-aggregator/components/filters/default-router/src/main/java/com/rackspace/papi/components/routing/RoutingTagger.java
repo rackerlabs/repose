@@ -33,9 +33,4 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       }
       return myDirector;
    }
-
-   @Override
-   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-      return super.handleResponse(request, response);
-   }
 }
