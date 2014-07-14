@@ -5,6 +5,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
@@ -31,7 +32,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
     private final ServiceRegistry registry;
     private final ConfigurationService configurationService;
     private final ConfigurationListener configurationListener;
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     public HttpConnectionPoolServiceContext(ServiceRegistry registry,
                                             ConfigurationService configurationService,

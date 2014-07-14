@@ -16,7 +16,7 @@ class HealthCheckServiceImplTest {
     Severity h3Severity = Severity.BROKEN
     Severity h4Severity = Severity.WARNING
     Severity h5Severity = Severity.WARNING
-    HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Before
     void setUp() {
@@ -86,7 +86,7 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
         healthCheckServiceProxy.reportIssue("id3", h3Message, h3Severity);
 
-        HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy2 = healthCheckService.register(HealthCheckServiceImplTest.class)
+        HealthCheckServiceProxy healthCheckServiceProxy2 = healthCheckService.register(HealthCheckServiceImplTest.class)
 
         healthCheckServiceProxy2.reportIssue("id4", h4Message, h4Severity);
         healthCheckServiceProxy2.reportIssue("id5", h5Message, h5Severity);

@@ -11,7 +11,7 @@ import java.util.Set;
  * <p/>
  * See method documentation on the {@link HealthCheckService} interface.
  */
-interface HealthCheckServiceProxy {
+public interface HealthCheckServiceProxy {
     boolean isHealthy();
 
     HealthCheckReport getDiagnosis(String id);
