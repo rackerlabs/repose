@@ -1,11 +1,11 @@
 package com.rackspace.cloud.valve.jetty;
 
-import com.rackspace.cloud.valve.controller.service.context.impl.ReposeValveControllerContextManager;
 import com.rackspace.cloud.valve.jetty.servlet.ControllerServlet;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.web.context.ContextLoaderListener;
 
 public class ValveControllerServerBuilder {
 
@@ -36,16 +36,7 @@ public class ValveControllerServerBuilder {
                 .put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
 
-
-        try {
-            ReposeValveControllerContextManager contextManager =
-                    ReposeValveControllerContextManager.class.newInstance();
-            servletContext.addEventListener(contextManager);
-        } catch (InstantiationException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        } catch (IllegalAccessException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        }
+        servletContext.addEventListener(new ContextLoaderListener());
 
         return servletContext;
     }
