@@ -2,7 +2,6 @@ package com.rackspace.papi.service.healthcheck;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -12,16 +11,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HealthCheckServiceImpl implements HealthCheckService {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
-    private Map<String, Map<String, HealthCheckReport>> reports;
-
-    @Autowired
-    public HealthCheckServiceImpl() {
-        reports = new ConcurrentHashMap<>();
-    }
+    private Map<UUID, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();
 
     @Override
-    public boolean isHealthy() {
-        for (Map.Entry<String, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
+    public HealthCheckServiceProxy register() {
+        Map<String, HealthCheckReport> reportMap = new HashMap<>();
+        UUID rand = UUID.randomUUID();
+        reports.put(rand, reportMap);
+        return new HealthCheckServiceProxyImpl(rand);
+    }
+
+    public void deregister(UUID uid) {
+        reports.remove(uid);
+    }
+
+    private boolean isHealthy() {
+        for (Map.Entry<UUID, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
                 if (entry.getValue().getLevel().equals(Severity.BROKEN)) {
                     return false;
@@ -32,23 +37,19 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return true;
     }
 
-    @Override
-    public HealthCheckReport getDiagnosis(String uid, String id) {
+    private HealthCheckReport getDiagnosis(UUID uid, String id) {
         return reports.get(uid).get(id);
     }
 
-    @Override
-    public void reportIssue(String uid, String rid, HealthCheckReport report) {
+    private void reportIssue(UUID uid, String rid, HealthCheckReport report) {
         reports.get(uid).put(rid, report);
     }
 
-    @Override
-    public Set<String> getReportIds(String uid) {
+    private Set<String> getReportIds(UUID uid) {
         return reports.get(uid).keySet();
     }
 
-    @Override
-    public void resolveIssue(String uid, String id) {
+    private void resolveIssue(UUID uid, String id) {
         resolveIssue(id, reports.get(uid));
     }
 
@@ -63,28 +64,20 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
     }
 
-    @Override
-    public HealthCheckServiceProxy register(Class T) {
-        if (T == null) {
-            throw new IllegalArgumentException("Registering Class");
-        }
-        Map<String, HealthCheckReport> reportMap = new HashMap<>();
-        Long rand = UUID.randomUUID().getMostSignificantBits();
-        String uid = T.getName() + ":" + rand.toString(); // TODO: Decide whether or not to tie each UID to a specific class
-        reports.put(uid, reportMap);
-        return new HealthCheckServiceProxyImpl(uid);
-    }
-
-    @Override
-    public Map<String, HealthCheckReport> getReports(String uid) {
+    private Map<String, HealthCheckReport> getReports(UUID uid) {
         return reports.get(uid);
     }
 
     private class HealthCheckServiceProxyImpl implements HealthCheckServiceProxy {
-        private String uid;
+        private UUID uid;
 
-        private HealthCheckServiceProxyImpl(String uid) {
+        private HealthCheckServiceProxyImpl(UUID uid) {
             this.uid = uid;
+        }
+
+        @Override
+        public UUID getUid() {
+            return uid;
         }
 
         @Override
@@ -115,6 +108,11 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         @Override
         public Map<String, HealthCheckReport> getReports() {
             return HealthCheckServiceImpl.this.getReports(uid);
+        }
+
+        @Override
+        public void deregister() {
+            HealthCheckServiceImpl.this.deregister(uid);
         }
     }
 }
