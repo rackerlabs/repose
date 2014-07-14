@@ -137,8 +137,7 @@ public class ServiceClient {
             return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), stream);
         } catch (ServiceClientException  ex){
             LOG.error("Failed to obtain an HTTP default client connection", ex);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             LOG.error("Error executing request", ex);
         } finally {
             base.releaseConnection();

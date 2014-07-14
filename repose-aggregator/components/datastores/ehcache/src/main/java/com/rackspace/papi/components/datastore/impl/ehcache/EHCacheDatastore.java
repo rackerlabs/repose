@@ -33,8 +33,7 @@ public class EHCacheDatastore implements Datastore {
         Element element = ehCacheInstance.get(key);
         if(element != null) {
             return element.getValue();
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -68,8 +67,7 @@ public class EHCacheDatastore implements Datastore {
         if(currentElement == null) {
             returnValue = SerializationUtils.clone(potentialNewValue);
             currentElement = element;
-        }
-        else {
+        } else {
             returnValue = (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
         }
 
