@@ -11,6 +11,7 @@ import com.rackspace.papi.service.datastore.distributed.config.DistributedDatast
 import com.rackspace.papi.service.datastore.distributed.config.Port;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.routing.RoutingService;
 import org.eclipse.jetty.server.Server;
@@ -34,7 +35,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private ConfigurationService configurationManager;
     private DistributedDatastoreJettyServerBuilder builder;
     private DistributedDatastoreServletContextManager manager;
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private DistributedDatastoreConfiguration distributedDatastoreConfiguration;
     private DistributedDatastoreConfigurationListener distributedDatastoreConfigurationListener;
 

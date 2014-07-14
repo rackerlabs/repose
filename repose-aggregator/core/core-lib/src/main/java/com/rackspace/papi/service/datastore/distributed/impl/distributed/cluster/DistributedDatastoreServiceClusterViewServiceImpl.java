@@ -11,6 +11,7 @@ import com.rackspace.papi.service.datastore.distributed.config.DistributedDatast
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private DatastoreAccessControl accessControl;
     private ReposeInstanceInfo reposeInstanceInfo;
     private ConfigurationService configurationManager;
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
 
     @Autowired

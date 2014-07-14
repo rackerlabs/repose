@@ -13,6 +13,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     private ServicePorts ports;
     private ServletContext servletContext;
     private ViaHeaderBuilder viaHeaderBuilder;
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Autowired
     public RequestHeaderServiceImpl(ServletContext servletContext,

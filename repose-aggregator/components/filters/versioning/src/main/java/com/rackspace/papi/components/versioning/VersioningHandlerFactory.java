@@ -14,6 +14,7 @@ import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
     private final ServicePorts ports;
     private final MetricsService metricsService;
 
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ReposeCluster localDomain;
     private Node localHost;
 

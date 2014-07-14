@@ -15,6 +15,7 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientResponse;
@@ -56,7 +57,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpClientService httpClientService;
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ContainerConfigListener configListener;
     private SystemModelListener systemModelListener;
 

@@ -5,6 +5,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
@@ -35,7 +36,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
     private final ConfigurationService configurationService;
     private final MetricsCfgListener metricsCfgListener;
 
-    private HealthCheckService.HealthCheckServiceProxy healthCheckServiceProxy;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     public MetricsServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                  @Qualifier("configurationManager") ConfigurationService configurationService,
@@ -78,11 +79,11 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         // The Metrics config is optional so in the case where the configuration listener doesn't mark it iniitalized
         // and the file doesn't exist, this means that the Metrics service will load its own default configuration
         // and the initial health check error should be cleared.
-        try{
-            if(!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()){
+        try {
+            if (!metricsCfgListener.isInitialized() && !configurationService.getResourceResolver().resolve("metrics.cfg.xml").exists()) {
                 healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
             }
-        }catch(IOException io){
+        } catch (IOException io) {
             LOG.error("Error attempting to search for " + DEFAULT_CONFIG_NAME);
         }
         register();
