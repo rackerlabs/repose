@@ -2,7 +2,6 @@ package com.rackspace.papi.service.context;
 
 public enum ServiceContextName {
 
-    CONFIGURATION_SERVICE_CONTEXT("configurationServiceContext"),
     CONTAINER_SERVICE_CONTEXT("containerServiceContext"),
     METRICS_SERVICE_CONTEXT( "metricsServiceContext" ),
     HTTP_CONNECTION_POOL_SERVICE_CONTEXT("httpConnectionPoolServiceContext"),
