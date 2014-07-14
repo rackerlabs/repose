@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.event;
 
-import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventDispatcher;
 import com.rackspace.papi.service.event.common.EventListener;
@@ -8,14 +7,11 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
-import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -29,16 +25,9 @@ public class PowerProxyEventManager implements EventService {
     private final Queue<Event> eventQueue;
     private final Lock eventQueueLock;
     private final Condition queueNotEmpty;
-    private final ThreadingService threadingService;
-    private final PowerProxyEventKernel eventKernel;
-
-    private DestroyableThreadWrapper eventKernelThread;
 
     @Inject
-    public PowerProxyEventManager(PowerProxyEventKernel eventKernel, ThreadingService threadingService) {
-        this.threadingService = threadingService;
-        this.eventKernel = eventKernel;
-
+    public PowerProxyEventManager() {
         listenerMap = new TreeMap<>();
         eventQueue = new LinkedList<>();
 
@@ -46,16 +35,6 @@ public class PowerProxyEventManager implements EventService {
         queueNotEmpty = eventQueueLock.newCondition();
     }
 
-    @PostConstruct
-    public void afterPropertiesSet() {
-        eventKernelThread = new DestroyableThreadWrapper(threadingService.newThread(eventKernel, "Event Kernel Thread"), eventKernel);
-        eventKernelThread.start();
-    }
-
-    @PreDestroy
-    public void destroy() {
-        eventKernelThread.destroy();
-    }
 
     @Override
     public void newEvent(Enum e, Object payload) {
