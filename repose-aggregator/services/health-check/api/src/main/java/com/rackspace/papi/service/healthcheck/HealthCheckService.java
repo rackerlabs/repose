@@ -61,24 +61,4 @@ public interface HealthCheckService {
      * @return Map of all reports corresponding to the UID provided
      */
     Map<String, HealthCheckReport> getReports(String uid);
-
-    /**
-     * An API proxy returned when registering with the HealthCheckService.
-     *
-     * This proxy stores a UID to uniquely identify the caller of the register method and provides a simplified API
-     * by eliminating the need to provide a UID on each request.
-     */
-    interface HealthCheckServiceProxy {
-        boolean isHealthy();
-
-        HealthCheckReport getDiagnosis(String id);
-
-        void reportIssue(String rid, String message, Severity severity);
-
-        Set<String> getReportIds();
-
-        void resolveIssue(String id);
-
-        Map<String, HealthCheckReport> getReports();
-    }
 }
