@@ -27,7 +27,7 @@ public class PowerProxyEventManagerTest {
         @Before
         public void standUp() {
             eventFiredTracker = false;
-            manager = new PowerProxyEventManager(null, null);
+            manager = new PowerProxyEventManager();
         }
 
         @Test
