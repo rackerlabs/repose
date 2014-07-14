@@ -14,7 +14,7 @@ import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Named
 public class ArtifactManager implements EventListener<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactManager.class);

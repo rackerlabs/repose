@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.naming.MetadataNamingStrategy;
 import org.springframework.jmx.export.naming.ObjectNamingStrategy;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("reposeJmxNamingStrategy")
+@Named("reposeJmxNamingStrategy")
 @Lazy(true)
 public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements ObjectNamingStrategy, InitializingBean {
 

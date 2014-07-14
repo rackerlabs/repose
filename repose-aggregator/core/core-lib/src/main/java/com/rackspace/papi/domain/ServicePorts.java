@@ -1,6 +1,6 @@
 package com.rackspace.papi.domain;
 
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * This is a bad abstraction.
  */
 @Deprecated()
-@Component("servicePorts")
+@Named("servicePorts")
 public class ServicePorts extends ArrayList<Port> {
     
     public ServicePorts() {

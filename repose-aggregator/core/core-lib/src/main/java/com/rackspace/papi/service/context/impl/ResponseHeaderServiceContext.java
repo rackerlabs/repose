@@ -11,11 +11,11 @@ import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.headers.response.ViaResponseHeaderBuilder;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.servlet.ServletContextEvent;
 
-@Component("responseHeaderServiceContext")
+@Named("responseHeaderServiceContext")
 public class ResponseHeaderServiceContext implements ServiceContext<ResponseHeaderService> {
 
     public static final String SERVICE_NAME = "powerapi:/services/response_header";

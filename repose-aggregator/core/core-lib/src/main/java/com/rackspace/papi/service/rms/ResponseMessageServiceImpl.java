@@ -20,7 +20,7 @@ import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-@Component
+@Named
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);

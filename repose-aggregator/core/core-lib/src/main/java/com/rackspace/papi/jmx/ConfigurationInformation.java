@@ -20,7 +20,7 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -30,7 +30,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.util.*;
 
-@Component("reposeConfigurationInformation")
+@Named("reposeConfigurationInformation")
 @ManagedResource(objectName = "com.rackspace.papi.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
 public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);

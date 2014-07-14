@@ -12,7 +12,7 @@ import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -21,7 +21,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component
+@Named
 public class PowerProxyEventManager implements EventService {
     private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventManager.class);
 

@@ -1,13 +1,13 @@
 package com.rackspace.papi.service.threading.impl;
 
 import com.rackspace.papi.service.threading.ThreadingService;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
+@Named
 public class ThreadingServiceImpl implements ThreadingService {
     private Set<WeakReference<Thread>> liveThreadReferences;
 

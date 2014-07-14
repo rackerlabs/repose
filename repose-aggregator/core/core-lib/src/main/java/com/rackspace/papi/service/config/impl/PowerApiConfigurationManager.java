@@ -18,7 +18,7 @@ import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +34,7 @@ import java.util.Map;
  * This class uses configuration info to subscribe and unsubscribe from filters.
  */
 
-@Component
+@Named
 public class PowerApiConfigurationManager implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);

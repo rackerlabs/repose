@@ -10,13 +10,13 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+@Named
 public class DatastoreServiceImpl implements DatastoreService {
     private static final Logger LOG = LoggerFactory.getLogger(DatastoreServiceImpl.class);
 

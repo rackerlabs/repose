@@ -11,11 +11,11 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.security.NoSuchAlgorithmException;
 
-@Component("reposeLocalDatastore")
+@Named("reposeLocalDatastore")
 @ManagedResource(objectName = "com.rackspace.papi.service.datastore.impl.ehcache:type=ReposeLocalCache",
                  description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {

@@ -3,12 +3,12 @@ package com.rackspace.papi.service.healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Named
 public class HealthCheckServiceImpl implements HealthCheckService {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 

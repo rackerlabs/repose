@@ -12,9 +12,9 @@ import com.rackspace.papi.service.event.common.EventService;
 import java.io.File;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("containerConfigurationListener")
+@Named("containerConfigurationListener")
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
    private ArtifactDirectoryWatcher dirWatcher;

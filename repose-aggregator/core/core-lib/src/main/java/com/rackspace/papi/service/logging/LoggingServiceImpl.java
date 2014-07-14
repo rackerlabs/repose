@@ -10,14 +10,14 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.URL;
 import java.util.Properties;
 
-@Component
+@Named
 public class LoggingServiceImpl implements LoggingService {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceImpl.class);
 

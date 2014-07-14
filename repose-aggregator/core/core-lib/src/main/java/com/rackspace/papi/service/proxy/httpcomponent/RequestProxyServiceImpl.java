@@ -31,7 +31,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -45,7 +45,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 
-@Component
+@Named
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);

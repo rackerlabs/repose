@@ -6,7 +6,7 @@ import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Component
+@Named
 public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {
 
     private final EventService eventService;

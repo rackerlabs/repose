@@ -25,7 +25,7 @@ import com.yammer.metrics.reporting.JmxReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  * repose/repose-aggregator/functional-tests/spock-functional-test/src/test/groovy/features/core/powerfilter/ResponseCodeJMXTest.groovy
  * provide an example on how you might verify your instrumentation.
  */
-@Component
+@Named
 public class MetricsServiceImpl implements MetricsService {
 
     public static final String DEFAULT_CONFIG_NAME = "metrics.cfg.xml";

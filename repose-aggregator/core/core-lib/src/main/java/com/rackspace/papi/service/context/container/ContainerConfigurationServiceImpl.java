@@ -8,14 +8,14 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.URL;
 
 
-@Component
+@Named
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
     private final ServicePorts ports = new ServicePorts();

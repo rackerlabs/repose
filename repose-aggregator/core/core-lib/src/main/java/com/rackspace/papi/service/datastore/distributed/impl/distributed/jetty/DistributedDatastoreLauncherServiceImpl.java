@@ -17,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.net.URL;
 
-@Component("distributedDatastoreLauncher")
+@Named("distributedDatastoreLauncher")
 public class DistributedDatastoreLauncherServiceImpl implements DistributedDatastoreLauncherService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherServiceImpl.class);

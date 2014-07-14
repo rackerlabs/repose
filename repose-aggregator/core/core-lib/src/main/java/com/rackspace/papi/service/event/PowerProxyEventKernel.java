@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("powerProxyEventKernel")
+@Named("powerProxyEventKernel")
 public class PowerProxyEventKernel implements Runnable, Destroyable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventKernel.class);

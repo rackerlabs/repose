@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author zinic
  */
-@Component("powerFilterChainBuilder")
+@Named("powerFilterChainBuilder")
 @Scope("prototype")
 public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
 

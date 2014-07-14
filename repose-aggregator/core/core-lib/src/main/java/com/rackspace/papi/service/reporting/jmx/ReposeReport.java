@@ -8,14 +8,14 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.management.openmbean.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component("reposeReport")
+@Named("reposeReport")
 @ManagedResource(objectName = "com.rackspace.papi.service.reporting:type=ReposeReport", description="Repose report MBean.")
 public class ReposeReport implements ReposeReportMBean {
 

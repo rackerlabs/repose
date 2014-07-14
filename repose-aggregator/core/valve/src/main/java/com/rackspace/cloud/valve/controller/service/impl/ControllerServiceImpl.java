@@ -21,7 +21,7 @@ import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+@Named
 public class ControllerServiceImpl implements ControllerService {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
     private static final String REPOSE_NODE = "Repose node ";

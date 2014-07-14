@@ -3,7 +3,7 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpsURLConnectionSslInitializer;
 import com.rackspace.papi.servlet.InitParameter;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
@@ -15,7 +15,7 @@ import javax.servlet.ServletContext;
  * These things happened in the PAPIContextManager, and need to happen early on, but I'm not sure before what
  * things. They're fired once, and then that's persistent throughout the entire JVM...
  */
-@Component
+@Named
 public class ReposeStartupTasks {
     private ServletContext servletContext;
 

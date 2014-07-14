@@ -15,7 +15,7 @@ import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.servlet.ServletContextEvent;
 import java.net.URL;
@@ -23,7 +23,7 @@ import java.net.URL;
 /*
  * Class that will listen to system-model.cfg.xml and dist-datastore.cfg.xml file to launch the distributed-datastore servlet
  */
-@Component("distributedDatastoreServiceContext")
+@Named("distributedDatastoreServiceContext")
 public class DistributedDatastoreServiceContext implements ServiceContext<DistributedDatastoreLauncherService> {
     DistributedDatastoreLauncherService distDatastoreServiceLauncher;
     private boolean initialized = false;

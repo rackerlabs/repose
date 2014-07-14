@@ -1,11 +1,10 @@
 package com.rackspace.papi.domain;
 
 import com.rackspace.papi.servlet.InitParameter;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
  * Specifically around collecting the ClusterID, NodeID, and Port list, so that other beans can access it.
  * Should be used everywhere the "servicePorts" bean was used and the "instanceInfo" bean
  */
-@Component
+@Named
 public class ReposeInstanceInfo {
 
     public static final String PORT_LIST_ATTRIBUTE = "org.openrepose.server.PortList";

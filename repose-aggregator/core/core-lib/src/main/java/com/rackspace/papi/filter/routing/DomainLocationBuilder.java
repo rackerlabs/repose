@@ -14,14 +14,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 /**
  * Given a destination object which defines an endpoint from the system-model.cfg.xml, creates a
  * {@link com.rackspace.papi.filter.routing.DestinationLocation} which contains the full URI to the endpoint with all
  * necessary query parameters from the request.
  */
-@Component("domainLocationBuilder")
+@Named("domainLocationBuilder")
 public class DomainLocationBuilder implements LocationBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);
     private static final String HTTPS_PROTOCOL = "https";

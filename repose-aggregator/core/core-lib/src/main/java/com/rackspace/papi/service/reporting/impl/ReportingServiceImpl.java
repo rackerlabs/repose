@@ -10,14 +10,14 @@ import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.destinations.impl.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
 import javax.inject.Inject;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.URL;
 import java.util.*;
 
-@Component
+@Named
 public class ReportingServiceImpl implements ReportingService {
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
     private static final int ONE_THOUSAND = 1000;

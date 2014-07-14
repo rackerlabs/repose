@@ -9,9 +9,9 @@ import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("responseHeaderService")
+@Named("responseHeaderService")
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);

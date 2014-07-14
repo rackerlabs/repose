@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.inject.Inject;
 import java.net.InetAddress;
@@ -25,7 +25,7 @@ import java.util.List;
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
  */
-@Component("modelInterrogator")
+@Named("modelInterrogator")
 public class SystemModelInterrogator {
     private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
 

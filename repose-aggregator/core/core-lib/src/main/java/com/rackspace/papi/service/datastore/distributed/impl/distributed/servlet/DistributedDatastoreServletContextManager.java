@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -17,7 +17,7 @@ import javax.servlet.ServletContextListener;
 /*
  * Builds servlet context for the distributed datastore servlet
  */
-@Component("distributedDatastoreServletContextManager")
+@Named("distributedDatastoreServletContextManager")
 public class DistributedDatastoreServletContextManager implements ServletContextListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServletContextManager.class);
 

@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("destinationLocationBuilder")
+@Named("destinationLocationBuilder")
 @Scope("prototype")
 public class DestinationLocationBuilderImpl implements DestinationLocationBuilder {
     private final EndpointLocationBuilder endpointLocationBuilder;
