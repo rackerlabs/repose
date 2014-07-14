@@ -12,7 +12,7 @@
     </filters>
 
     <destinations>
-        <endpoint id="target" root-path="/${appPath}" default="true" />
+        <endpoint id="target" root-path="/${appPath}" port="${targetPort}" default="true"/>
     </destinations>
 
   </repose-cluster>
