@@ -4,7 +4,6 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
 import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
@@ -15,6 +14,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+/**
+ * The stuff this class does should be solved by using the ContextLoaderListener.
+ * Things are fired up and shut down based on when the servlet context starts and ends.
+ */
+@Deprecated
 public class ReposeValveControllerContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(ReposeValveControllerContextManager.class);
@@ -28,7 +32,8 @@ public class ReposeValveControllerContextManager implements ServletContextListen
       ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
       ContextAdapter ca = helper.getPowerApiContext();
 
-      ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
+       //This service no longer exists
+      //ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
 
       servletContext.setAttribute("reposeValveControllerContextManager", this);
    }

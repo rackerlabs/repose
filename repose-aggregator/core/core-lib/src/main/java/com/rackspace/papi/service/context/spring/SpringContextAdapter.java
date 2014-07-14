@@ -23,7 +23,9 @@ import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.threading.ThreadingService;
 import org.springframework.context.ApplicationContext;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+@Deprecated
 public class SpringContextAdapter implements ContextAdapter {
 
    private final ApplicationContext applicationContext;
@@ -42,7 +44,7 @@ public class SpringContextAdapter implements ContextAdapter {
    }
 
    public ServiceContext<ClassLoaderManagerService> classLoaderContext() {
-      return (ServiceContext<ClassLoaderManagerService>) applicationContext.getBean(ServiceContextName.CLASS_LOADER_SERVICE_CONTEXT.getServiceContextName());
+       throw new NotImplementedException();
    }
 
    @Override
@@ -72,7 +74,7 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public ConfigurationService configurationService() {
-      return getService(ServiceContextName.CONFIGURATION_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
@@ -82,17 +84,17 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public DatastoreService datastoreService() {
-      return getService(ServiceContextName.DATASTORE_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
    public EventService eventService() {
-      return getService(ServiceContextName.EVENT_MANAGER_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
    public LoggingService loggingService() {
-      return getService(ServiceContextName.LOGGING_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
@@ -107,17 +109,17 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public ResponseMessageService responseMessageService() {
-      return getService(ServiceContextName.RESPONSE_MESSAGE_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
    public RoutingService routingService() {
-      return getService(ServiceContextName.ROUTING_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
    public ThreadingService threadingService() {
-      return getService(ServiceContextName.THREADING_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
@@ -137,13 +139,12 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public ReportingService reportingService() {
-      return getService(ServiceContextName.REPORTING_SERVICE_CONTEXT);
+       throw new NotImplementedException();
    }
 
    @Override
    public RequestHeaderService requestHeaderService() {
-      return getService(ServiceContextName.REQUEST_HEADER_SERVICE_CONTEXT);
-   }
+       throw new NotImplementedException();   }
 
    @Override
    public ResponseHeaderService responseHeaderService() {
@@ -162,7 +163,7 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService() {
-      return getService(ServiceContextName.DISTRIBUTED_DATASTORE_SERVICE_CLUSTER_CONTEXT);
+       throw new NotImplementedException();
    }
 
     @Override
