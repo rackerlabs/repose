@@ -26,7 +26,6 @@ public class PowerProxyEventManager implements EventService {
     private final Lock eventQueueLock;
     private final Condition queueNotEmpty;
 
-    @Inject
     public PowerProxyEventManager() {
         listenerMap = new TreeMap<>();
         eventQueue = new LinkedList<>();
