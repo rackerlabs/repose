@@ -11,7 +11,7 @@ import spock.lang.Specification
 /**
  * Created by jennyvo on 7/15/14.
  */
-class ReloadConfigCheckRemoveDeprecatedTest extends Specification{
+class CheckRemoveDeprecatedWarningTest extends Specification{
 
     int reposePort
     int targetPort
