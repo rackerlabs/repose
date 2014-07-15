@@ -2,7 +2,6 @@ package com.rackspace.papi.service.healthcheck;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * An API proxy returned when registering with the HealthCheckService.
