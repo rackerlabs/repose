@@ -28,7 +28,6 @@ class EmbeddedTomcatProxyTest extends Specification {
         def configDirectory = properties.getConfigDirectory()
         def configTemplates = properties.getRawConfigDirectory()
         def rootWar = properties.getReposeRootWar()
-        def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()
         def mocksPath = MocksUtil.getServletPath(mocksWar)
 
@@ -39,18 +38,16 @@ class EmbeddedTomcatProxyTest extends Specification {
                 'reposePort': reposePort,
                 'targetPort': originServicePort,
                 'repose.config.directory': configDirectory,
-                'repose.cluster.id': "repose1",
+                'repose.cluster.id': "repose",
                 'repose.node.id': 'node1',
                 'appPath':  mocksPath
         ]
         config.applyConfigs("common", params)
         config.applyConfigs("features/filters/ipidentity", params)
-
         config.applyConfigs("features/core/embedded", params)
 
-        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose1", "node1", rootWar,
+        repose = new ReposeContainerLauncher(config, properties.getTomcatJar(), "repose", "node1", rootWar,
                 reposePort, mocksWar)
-        repose.clusterId = "repose"
         repose.start()
         repose.waitForNon500FromUrl(tomcatEndpoint, 120)
     }
