@@ -43,7 +43,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     public DistributedDatastoreLauncherServiceImpl(DistributedDatastoreServletContextManager manager,
                                                    HealthCheckService healthCheckService) {
         this.manager = manager;
-        this.healthCheckServiceProxy = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
     }
 
     @Override

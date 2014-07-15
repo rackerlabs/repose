@@ -43,7 +43,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
         this.ports = ports;
         this.metricsService = metricsService;
 
-        this.healthCheckServiceProxy = healthCheckService.register(VersioningHandlerFactory.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
         this.transformer = new ContentTransformer();
     }
 

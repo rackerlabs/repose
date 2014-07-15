@@ -14,7 +14,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.request.ViaRequestHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +36,11 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     private final ContainerConfigurationListener configurationListener;
     private final SystemModelListener systemModelListener;
     private final HealthCheckService healthCheckService;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ServicePorts ports;
     private String reposeVersion = "";
     private String viaReceivedBy = "";
     private String hostname = "Repose";
-    private String healthCheckUid;
 
     @Autowired
     public RequestHeaderServiceContext(@Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
@@ -77,8 +76,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
         ports = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getServerPorts();
         reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext().getReposeVersion();
 
-        healthCheckUid = healthCheckService.register(RequestHeaderServiceContext.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+        healthCheckServiceProxy = healthCheckService.register();
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
@@ -139,10 +137,10 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
                 requestHeaderService.updateConfig(viaBuilder);
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

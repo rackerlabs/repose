@@ -47,7 +47,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
         this.configurationService = configurationService;
         this.metricsService = metricsService;
         metricsCfgListener = new MetricsCfgListener();
-        this.healthCheckServiceProxy = healthCheckService.register(MetricsServiceContext.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
     }
 
     private void register() {

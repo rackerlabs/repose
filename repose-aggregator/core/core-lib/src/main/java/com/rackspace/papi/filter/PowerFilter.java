@@ -210,7 +210,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         reportingService = papiContext.reportingService();
         responseHeaderService = papiContext.responseHeaderService();
 
-        healthCheckServiceProxy = papiContext.healthCheckService().register(PowerFilter.class);
+        healthCheckServiceProxy = papiContext.healthCheckService().register();
 
         if (papiContext.metricsService() != null) {
             mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);

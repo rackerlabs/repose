@@ -41,7 +41,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
         this.registry = registry;
         this.configurationService = configurationService;
         this.connectionPoolService = connectionPoolService;
-        this.healthCheckServiceProxy = healthCheckService.register(HttpConnectionPoolServiceContext.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
         configurationListener = new ConfigurationListener();
     }
 

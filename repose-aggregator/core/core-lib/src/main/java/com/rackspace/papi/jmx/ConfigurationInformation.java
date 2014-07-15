@@ -153,7 +153,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         filterChain = new ArrayList<>();
         this.configurationService = configurationService;
         this.ports = ports;
-        this.healthCheckServiceProxy = healthCheckService.register(ConfigurationInformation.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
     }
 
     @Override
