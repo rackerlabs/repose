@@ -21,20 +21,20 @@ public interface HealthCheckServiceProxy {
     /**
      * Retrieves message associated with the latest issue
      *
-     * @param id  The id of issue. If null, behavior undefined.
+     * @param issueName  The id of issue. If null, behavior undefined.
      * @return HealthCheckReport containing details of issue reported
      */
-    HealthCheckReport getDiagnosis(String id);
+    HealthCheckReport getDiagnosis(String issueName);
 
     /**
      * Reports an issue to the health service
      *
-     * @param rid    The id of issue. If null, behavior undefined.
+     * @param issueName    The id of issue. If null, behavior undefined.
      * @param message A detailed message to include in the HealthCheckReport
      * @param severity The severity of the issues. If broken, Repose will return response code 503 until the issue
      *                 is resolved.
      */
-    void reportIssue(String rid, String message, Severity severity);
+    void reportIssue(String issueName, String message, Severity severity);
 
     /**
      * Retrieves the ids of all reported problems for a given UID
@@ -46,9 +46,9 @@ public interface HealthCheckServiceProxy {
     /**
      * Tells the Health Check Service that the issue has been resolved.
      *
-     * @param id  The id of issue. If null, behavior undefined.
+     * @param issueName The id of issue. If null, behavior undefined.
      */
-    void resolveIssue(String id);
+    void resolveIssue(String issueName);
 
     /**
      * Retrieves map of health reports associated with the given UID

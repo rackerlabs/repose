@@ -32,28 +32,28 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return true;
     }
 
-    private HealthCheckReport getDiagnosis(UUID uid, String id) {
-        return reports.get(uid).get(id);
+    private HealthCheckReport getDiagnosis(UUID uid, String issueName) {
+        return reports.get(uid).get(issueName);
     }
 
-    private void reportIssue(UUID uid, String rid, HealthCheckReport report) {
-        reports.get(uid).put(rid, report);
+    private void reportIssue(UUID uid, String issueName, HealthCheckReport report) {
+        reports.get(uid).put(issueName, report);
     }
 
     private Set<String> getReportIds(UUID uid) {
         return reports.get(uid).keySet();
     }
 
-    private void resolveIssue(UUID uid, String id) {
-        resolveIssue(id, reports.get(uid));
+    private void resolveIssue(UUID uid, String issueName) {
+        resolveIssue(issueName, reports.get(uid));
     }
 
-    private void resolveIssue(String id, Map<String, HealthCheckReport> reportMap) {
+    private void resolveIssue(String issueName, Map<String, HealthCheckReport> reportMap) {
         Iterator<String> itr = reportMap.keySet().iterator();
 
         while (itr.hasNext()) {
             String cur = itr.next();
-            if (id.equals(cur)) {
+            if (issueName.equals(cur)) {
                 itr.remove();
             }
         }
@@ -76,13 +76,13 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public HealthCheckReport getDiagnosis(String id) {
-            return HealthCheckServiceImpl.this.getDiagnosis(uid, id);
+        public HealthCheckReport getDiagnosis(String issueName) {
+            return HealthCheckServiceImpl.this.getDiagnosis(uid, issueName);
         }
 
         @Override
-        public void reportIssue(String rid, String message, Severity severity) {
-            HealthCheckServiceImpl.this.reportIssue(uid, rid, new HealthCheckReport(message, severity));
+        public void reportIssue(String issueName, String message, Severity severity) {
+            HealthCheckServiceImpl.this.reportIssue(uid, issueName, new HealthCheckReport(message, severity));
         }
 
         @Override
@@ -91,8 +91,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public void resolveIssue(String id) {
-            HealthCheckServiceImpl.this.resolveIssue(uid, id);
+        public void resolveIssue(String issueName) {
+            HealthCheckServiceImpl.this.resolveIssue(uid, issueName);
         }
 
         @Override
