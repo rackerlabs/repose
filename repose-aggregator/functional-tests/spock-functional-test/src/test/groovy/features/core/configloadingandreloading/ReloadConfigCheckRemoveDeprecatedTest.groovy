@@ -39,8 +39,6 @@ class ReloadConfigCheckRemoveDeprecatedTest extends Specification{
                 'datastorePort' : dataStorePort,
         ]
 
-
-        // start a deproxy
         deproxy = new Deproxy()
         deproxy.addEndpoint(this.targetPort)
 
@@ -78,7 +76,7 @@ class ReloadConfigCheckRemoveDeprecatedTest extends Specification{
                 "features/core/configloadingandreloading/container-reconfig", params)
         sleep 15000
 
-        then: "Repose should still return good"
+        then: "Repose should still return good and DEPRECATED msg not appear"
         deproxy.makeRequest(url: url).receivedResponse.code == "200"
         reposeLogSearch.searchByString("DEPRECATED").size() == 0
     }
