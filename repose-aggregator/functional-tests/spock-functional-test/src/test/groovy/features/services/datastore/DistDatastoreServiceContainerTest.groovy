@@ -5,12 +5,16 @@ import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
+import framework.ReposeLogSearch
 import framework.ReposeValveTest
+import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import org.spockframework.runtime.SpockAssertionError
+import spock.lang.Specification
+
 import static org.junit.Assert.*;
 import spock.lang.Unroll
 
@@ -18,7 +22,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 7/10/14.
  * Test the Distributed Datastore Service in 2 multinode containers
  */
-class DistDatastoreServiceContainerTest extends ReposeValveTest {
+class DistDatastoreServiceContainerTest extends Specification {
     static def datastoreEndpoint1
     static def datastoreEndpoint2
     static def reposeEndpoint1
@@ -34,7 +38,16 @@ class DistDatastoreServiceContainerTest extends ReposeValveTest {
     static int dataStorePort1
     static int dataStorePort2
 
+    static def TestProperties properties
+    static def logFile
+    static def ReposeLogSearch reposeLogSearch
+    static Deproxy deproxy
+
     def setupSpec() {
+
+        properties = new TestProperties()
+        logFile = properties.logFile
+        reposeLogSearch = new ReposeLogSearch(logFile)
 
         reposePort1 = properties.reposePort
         reposePort2 = PortFinder.Singleton.getNextOpenPort()
