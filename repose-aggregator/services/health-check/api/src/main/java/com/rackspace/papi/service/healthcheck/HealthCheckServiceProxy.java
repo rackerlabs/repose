@@ -12,11 +12,6 @@ import java.util.UUID;
  */
 public interface HealthCheckServiceProxy {
     /**
-     * @return The UUID identifying this proxy to the HealthCheckService
-     */
-    UUID getUid();
-
-    /**
      * Reports whether there is an issue with the current Repose Deployment
      *
      * @return boolean indicating whether or not there is an issue with the current Repose deployment

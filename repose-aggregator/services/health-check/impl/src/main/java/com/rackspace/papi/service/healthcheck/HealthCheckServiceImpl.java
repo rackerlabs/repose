@@ -71,11 +71,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public UUID getUid() {
-            return uid;
-        }
-
-        @Override
         public boolean isHealthy() {
             return HealthCheckServiceImpl.this.isHealthy();
         }
