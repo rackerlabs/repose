@@ -15,11 +15,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return new HealthCheckServiceProxyImpl(rand);
     }
 
-    public void deregister(UUID uid) {
-        reports.remove(uid);
-    }
-
-    private boolean isHealthy() {
+    @Override
+    public boolean isHealthy() {
         for (Map.Entry<UUID, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
 
@@ -30,6 +27,10 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         return true;
+    }
+
+    public void deregister(UUID uid) {
+        reports.remove(uid);
     }
 
     private HealthCheckReport getDiagnosis(UUID uid, String issueName) {
@@ -68,11 +69,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
         private HealthCheckServiceProxyImpl(UUID uid) {
             this.uid = uid;
-        }
-
-        @Override
-        public boolean isHealthy() {
-            return HealthCheckServiceImpl.this.isHealthy();
         }
 
         @Override

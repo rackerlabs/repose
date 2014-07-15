@@ -12,13 +12,6 @@ import java.util.UUID;
  */
 public interface HealthCheckServiceProxy {
     /**
-     * Reports whether there is an issue with the current Repose Deployment
-     *
-     * @return boolean indicating whether or not there is an issue with the current Repose deployment
-     */
-    boolean isHealthy();
-
-    /**
      * Retrieves message associated with the latest issue
      *
      * @param issueName  The id of issue. If null, behavior undefined.
