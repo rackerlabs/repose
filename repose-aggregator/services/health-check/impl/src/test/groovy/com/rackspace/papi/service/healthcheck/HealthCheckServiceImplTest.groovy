@@ -21,7 +21,7 @@ class HealthCheckServiceImplTest {
     @Before
     void setUp() {
         healthCheckService = new HealthCheckServiceImpl();
-        healthCheckServiceProxy = healthCheckService.register(HealthCheckServiceImplTest.class);
+        healthCheckServiceProxy = healthCheckService.register();
     }
 
     @Test
@@ -29,7 +29,7 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
         healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
 
-        assert !healthCheckServiceProxy.isHealthy()
+        assert !healthCheckService.isHealthy()
     }
 
     @Test
@@ -86,7 +86,7 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
         healthCheckServiceProxy.reportIssue("id3", h3Message, h3Severity);
 
-        HealthCheckServiceProxy healthCheckServiceProxy2 = healthCheckService.register(HealthCheckServiceImplTest.class)
+        HealthCheckServiceProxy healthCheckServiceProxy2 = healthCheckService.register()
 
         healthCheckServiceProxy2.reportIssue("id4", h4Message, h4Severity);
         healthCheckServiceProxy2.reportIssue("id5", h5Message, h5Severity);
@@ -99,7 +99,7 @@ class HealthCheckServiceImplTest {
 
     @Test
     void shouldProvideHealthyResponseWhenNoIssuesReported() {
-        assert healthCheckServiceProxy.isHealthy()
+        assert healthCheckService.isHealthy()
     }
 
     @Test
@@ -111,16 +111,11 @@ class HealthCheckServiceImplTest {
     void shouldGenerateUniqueUids() {
         def list = []
         for (int i = 0; i < 1000; i++) {
-            list.push(healthCheckService.register(HealthCheckServiceImplTest.class).uid)
+            list.push(healthCheckService.register().uid)
         }
 
         def set = list as Set
 
         assert set.size() == 1000
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void shouldReturnIllegalArgumentExceptionForRegisteringNullClass() {
-        healthCheckService.register(null)
     }
 }

@@ -5,17 +5,15 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.impl.MetricsServiceContext;
-import com.rackspace.papi.service.healthcheck.HealthCheckReport;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.InputNullException;
-import com.rackspace.papi.service.healthcheck.NotRegisteredException;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
+import com.rackspace.papi.service.healthcheck.Severity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.ServletContextEvent;
-
 import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +29,7 @@ public class MetricsServiceContextTest {
         protected ConfigurationService configurationService;
         protected MetricsService metricsService;
         protected HealthCheckService healthCheckService;
+        protected HealthCheckServiceProxy healthCheckServiceProxy;
         protected ServletContextEvent sce;
 
 
@@ -40,7 +39,8 @@ public class MetricsServiceContextTest {
             configurationService = mock(ConfigurationService.class);
             metricsService = mock(MetricsService.class);
             healthCheckService = mock(HealthCheckService.class);
-            when(healthCheckService.register(MetricsServiceContext.class)).thenReturn("UID");
+            healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
+            when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
             metricsServiceContext = new MetricsServiceContext(serviceRegistry, configurationService, metricsService, healthCheckService);
             sce = mock(ServletContextEvent.class);
         }
@@ -62,11 +62,11 @@ public class MetricsServiceContextTest {
         @Test
         public void verifyRegisteredToHealthCheckService() {
 
-            verify(healthCheckService, times(1)).register(MetricsServiceContext.class);
+            verify(healthCheckService, times(1)).register();
         }
 
         @Test
-        public void verifyIssueReported() throws InputNullException, NotRegisteredException, IOException {
+        public void verifyIssueReported() throws IOException {
 
             ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
             ConfigurationResource configurationResource = mock(ConfigurationResource.class);
@@ -76,7 +76,7 @@ public class MetricsServiceContextTest {
 
             when(configurationResource.exists()).thenReturn(false);
             metricsServiceContext.contextInitialized(sce);
-            verify(healthCheckService, times(1)).reportIssue(any(String.class), any(String.class), any(HealthCheckReport.class));
+            verify(healthCheckServiceProxy, times(1)).reportIssue(any(String.class), any(String.class), any(Severity.class));
         }
     }
 }
