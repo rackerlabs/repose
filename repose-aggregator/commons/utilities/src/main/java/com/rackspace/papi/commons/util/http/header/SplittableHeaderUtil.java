@@ -16,15 +16,14 @@ public class SplittableHeaderUtil {
             "proxy-authenticate", "te", "trailer", "transfer-encoding", "upgrade",
             "warning", "accept-encoding"};
 
+    private Set<String> splittableHeaders;
+
     public static final Comparator<String> CASE_INSENSITIVE_COMPARE = new Comparator<String>() {
         @Override
         public int compare(String s1, String s2) {
             return s1.toLowerCase().compareTo(s2.toLowerCase());
         }
     };
-
-
-    private Set<String> splittableHeaders;
 
     public SplittableHeaderUtil() {
         setDefaultSplitable();
