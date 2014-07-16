@@ -4,6 +4,9 @@ import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationR
 import com.rackspace.papi.service.config.impl.ConfigRootResourceResolver
 import spock.lang.Specification
 
+/**
+ * TODO: make this test more valuable or make it go away
+ */
 class ConfigRootResourceResolverTest extends Specification {
 
     String fakeFullPath = "file:/something"
@@ -15,7 +18,7 @@ class ConfigRootResourceResolverTest extends Specification {
 
     def "when resolving a resource, the resource should be passed on as is if a :/ is detected"() {
         when:
-        fileDirectoryResourceResolver = new ConfigRootResourceResolver(root)
+        fileDirectoryResourceResolver = new ConfigRootResourceResolver()
         bufferedURLConfigurationResource = fileDirectoryResourceResolver.resolve(fakeFullPath)
 
         then:
@@ -24,7 +27,7 @@ class ConfigRootResourceResolverTest extends Specification {
 
     def "when resolving a resource, the resource location should have file:/ prepended"() {
         when:
-        fileDirectoryResourceResolver = new ConfigRootResourceResolver(root)
+        fileDirectoryResourceResolver = new ConfigRootResourceResolver()
         bufferedURLConfigurationResource = fileDirectoryResourceResolver.resolve(partialPath)
 
         then:
