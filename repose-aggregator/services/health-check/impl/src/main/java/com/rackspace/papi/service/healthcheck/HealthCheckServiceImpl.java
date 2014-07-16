@@ -3,27 +3,29 @@ package com.rackspace.papi.service.healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HealthCheckServiceImpl implements HealthCheckService {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
-    private Map<UUID, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();
+    private Map<HealthCheckServiceProxy, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();
 
     @Override
     public HealthCheckServiceProxy register() {
+        HealthCheckServiceProxy proxy = new HealthCheckServiceProxyImpl();
         Map<String, HealthCheckReport> reportMap = new HashMap<>();
-        UUID rand = UUID.randomUUID();
-        reports.put(rand, reportMap);
-        return new HealthCheckServiceProxyImpl(rand);
+        reports.put(proxy, reportMap);
+        return proxy;
     }
 
     @Override
     public boolean isHealthy() {
-        for (Map.Entry<UUID, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
+        for (Map.Entry<HealthCheckServiceProxy, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
-
                 if (entry.getValue().getLevel().equals(Severity.BROKEN)) {
                     return false;
                 }
@@ -33,76 +35,70 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return true;
     }
 
-    public void deregister(UUID uid) {
-        reports.remove(uid);
+    public void deregister(HealthCheckServiceProxy proxy) {
+        reports.remove(proxy);
     }
 
-    private HealthCheckReport getDiagnosis(UUID uid, String issueName) {
-        return reports.get(uid).get(issueName);
+    private HealthCheckReport getDiagnosis(HealthCheckServiceProxy proxy, String issueName) {
+        return reports.get(proxy).get(issueName);
     }
 
-    private void reportIssue(UUID uid, String issueName, HealthCheckReport report) {
-        LOG.info("HealthCheckService.reportIssue: " + issueName + " reported by " + uid);
+    private void reportIssue(HealthCheckServiceProxy proxy, String issueName, HealthCheckReport report) {
+        LOG.info("HealthCheckService.reportIssue: " + issueName + " reported by " + System.identityHashCode(proxy));
 
-        reports.get(uid).put(issueName, report);
+        reports.get(proxy).put(issueName, report);
     }
 
-    private Set<String> getReportIds(UUID uid) {
-        return reports.get(uid).keySet();
+    private Set<String> getReportIds(HealthCheckServiceProxy proxy) {
+        return reports.get(proxy).keySet();
     }
 
-    private void resolveIssue(UUID uid, String issueName) {
-        Iterator<String> itr = reports.get(uid).keySet().iterator();
+    private void resolveIssue(HealthCheckServiceProxy proxy, String issueName) {
+        Iterator<String> itr = reports.get(proxy).keySet().iterator();
 
         while (itr.hasNext()) {
             String cur = itr.next();
             if (issueName.equals(cur)) {
-                LOG.info("HealthCheckService.resolveIssue: " + issueName + " resolved by " + uid);
+                LOG.info("HealthCheckService.resolveIssue: " + issueName + " resolved by " + System.identityHashCode(proxy));
 
                 itr.remove();
             }
         }
     }
 
-    private Map<String, HealthCheckReport> getReports(UUID uid) {
-        return reports.get(uid);
+    private Map<String, HealthCheckReport> getReports(HealthCheckServiceProxy proxy) {
+        return reports.get(proxy);
     }
 
     private class HealthCheckServiceProxyImpl implements HealthCheckServiceProxy {
-        private UUID uid;
-
-        private HealthCheckServiceProxyImpl(UUID uid) {
-            this.uid = uid;
-        }
-
         @Override
         public HealthCheckReport getDiagnosis(String issueName) {
-            return HealthCheckServiceImpl.this.getDiagnosis(uid, issueName);
+            return HealthCheckServiceImpl.this.getDiagnosis(this, issueName);
         }
 
         @Override
         public void reportIssue(String issueName, String message, Severity severity) {
-            HealthCheckServiceImpl.this.reportIssue(uid, issueName, new HealthCheckReport(message, severity));
+            HealthCheckServiceImpl.this.reportIssue(this, issueName, new HealthCheckReport(message, severity));
         }
 
         @Override
         public Set<String> getReportIds() {
-            return HealthCheckServiceImpl.this.getReportIds(uid);
+            return HealthCheckServiceImpl.this.getReportIds(this);
         }
 
         @Override
         public void resolveIssue(String issueName) {
-            HealthCheckServiceImpl.this.resolveIssue(uid, issueName);
+            HealthCheckServiceImpl.this.resolveIssue(this, issueName);
         }
 
         @Override
         public Map<String, HealthCheckReport> getReports() {
-            return HealthCheckServiceImpl.this.getReports(uid);
+            return HealthCheckServiceImpl.this.getReports(this);
         }
 
         @Override
         public void deregister() {
-            HealthCheckServiceImpl.this.deregister(uid);
+            HealthCheckServiceImpl.this.deregister(this);
         }
     }
 }

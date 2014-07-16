@@ -106,16 +106,4 @@ class HealthCheckServiceImplTest {
     void shouldNotThrowErrorIfNoIssuesExist() {
         healthCheckServiceProxy.resolveIssue("notAnIssue")
     }
-
-    @Test
-    void shouldGenerateUniqueUids() {
-        def list = []
-        for (int i = 0; i < 1000; i++) {
-            list.push(healthCheckService.register().uid)
-        }
-
-        def set = list as Set
-
-        assert set.size() == 1000
-    }
 }
