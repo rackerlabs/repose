@@ -19,7 +19,7 @@ import static com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolProvi
 
 public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConnectionPoolConfig, HttpClientResponseImpl> {
 
-    private static PoolType DEFAULT_POOL;
+    private static PoolType DEFAULT_POOL = new PoolType();
     private Map<String, HttpClient> poolMap;
     private String defaultClientId;
     private ClientDecommissionManager decommissionManager;
@@ -29,9 +29,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService<HttpConn
 
     public HttpConnectionPoolServiceImpl() {
         LOG.debug("Creating New HTTP Connection Pool Service");
-
-        poolMap = new HashMap<String, HttpClient>();
-        DEFAULT_POOL = new PoolType();
+        poolMap = new HashMap<>();
         httpClientUserManager = new HttpClientUserManager();
         decommissionManager = new ClientDecommissionManager(httpClientUserManager);
         decommissionManager.startThread();
