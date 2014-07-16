@@ -23,7 +23,6 @@ public class DatastoreServiceImpl implements DatastoreService {
     private final DatastoreManager localDatastoreManager;
     private final Map<String, DatastoreManager> distributedManagers;
 
-    @Inject
     public DatastoreServiceImpl() {
         localDatastoreManager = new EHCacheDatastoreManager();
         distributedManagers = new HashMap<String, DatastoreManager>();

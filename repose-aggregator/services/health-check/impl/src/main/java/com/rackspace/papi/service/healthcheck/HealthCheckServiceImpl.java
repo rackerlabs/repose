@@ -14,7 +14,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
     private Map<String, Map<String, HealthCheckReport>> reports;
 
-    @Inject
     public HealthCheckServiceImpl() {
         reports = new ConcurrentHashMap<>();
     }
