@@ -78,7 +78,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                 }
                 if (modifiedConfig.getAtomFeeds() != null) {
                     activateOpenstackAtomFeedListener(modifiedConfig);
-                } else if (manager != null) { //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
+                } else if (manager != null) {
+                    //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
                     manager.stopReading();
                 }
             } else if (modifiedConfig.getHttpBasicAuth() != null) {
@@ -96,7 +97,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         //Launch listener for atom-feeds if config present
         private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig) {
 
-            if (manager != null) { //If we have an existing manager we will shutdown the already running thread
+            if (manager != null) {
+                //If we have an existing manager we will shutdown the already running thread
                 manager.stopReading();
             }
             List<AuthFeedReader> listeners = new ArrayList<AuthFeedReader>();

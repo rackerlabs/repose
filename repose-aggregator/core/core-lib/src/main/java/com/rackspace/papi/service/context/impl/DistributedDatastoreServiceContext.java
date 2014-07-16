@@ -93,7 +93,8 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
                 distDatastoreServiceLauncher.initialize(configurationManager, instanceInfo, datastoreService, servicePorts, routingService, configDirectory);
                 distDatastoreServiceLauncher.startDistributedDatastoreServlet();
                 initialized = true;
-            } else if (!listed && initialized) { // case when someone has turned off an existing datastore
+            } else if (!listed && initialized) {
+                // case when someone has turned off an existing datastore
                 distDatastoreServiceLauncher.stopDistributedDatastoreServlet();
             }
             systemModel = configurationObject;

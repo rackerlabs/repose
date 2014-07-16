@@ -2,7 +2,6 @@ package com.rackspace.papi.service.serviceclient.akka;
 
 
 import akka.actor.*;
-import akka.routing.ConsistentHashingRouter;
 import akka.routing.RoundRobinRouter;
 import akka.util.Timeout;
 import com.google.common.cache.Cache;
@@ -19,7 +18,6 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import javax.ws.rs.core.MediaType;
-import java.io.File;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +28,7 @@ import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
-    final private ServiceClient serviceClient;
+    private final ServiceClient serviceClient;
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
     private int numberOfActors;

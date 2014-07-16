@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class EHCacheDatastore implements Datastore {
 
     private final Ehcache ehCacheInstance;
-    private final static String NAME = "local/default";
+    private static final  String NAME = "local/default";
 
     public EHCacheDatastore(Ehcache ehCacheInstance) {
         this.ehCacheInstance = ehCacheInstance;
@@ -33,8 +33,7 @@ public class EHCacheDatastore implements Datastore {
         Element element = ehCacheInstance.get(key);
         if(element != null) {
             return element.getValue();
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -68,8 +67,7 @@ public class EHCacheDatastore implements Datastore {
         if(currentElement == null) {
             returnValue = SerializationUtils.clone(potentialNewValue);
             currentElement = element;
-        }
-        else {
+        } else {
             returnValue = (Serializable)((Patchable)currentElement.getValue()).applyPatch(patch);
         }
 

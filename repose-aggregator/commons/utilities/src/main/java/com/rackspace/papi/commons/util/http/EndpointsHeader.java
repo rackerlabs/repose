@@ -5,7 +5,8 @@ package com.rackspace.papi.commons.util.http;
  * */
 
 public enum EndpointsHeader implements HeaderConstant {
-    X_CATALOG("x-catalog");//header key
+    //header key
+    X_CATALOG("x-catalog");
 
     private final String headerKey;
 

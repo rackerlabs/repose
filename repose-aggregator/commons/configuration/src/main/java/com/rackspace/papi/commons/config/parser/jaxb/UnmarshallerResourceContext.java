@@ -40,10 +40,8 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
       } catch (IOException ioe) {
          throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + " - Reason: " + ioe.getMessage(), ioe);
       } catch (SAXException se ) {
-
           throw new ResourceContextException( "Validation error on resource " + cfgResource.name() + " - " + se.getMessage(), se );
-      }
-        catch (Exception ex) {
+      } catch (Exception ex) {
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + " - Reason: " + ex.getMessage(), ex);
       }
    }
