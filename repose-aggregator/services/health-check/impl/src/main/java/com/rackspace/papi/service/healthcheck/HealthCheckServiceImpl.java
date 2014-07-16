@@ -1,9 +1,13 @@
 package com.rackspace.papi.service.healthcheck;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HealthCheckServiceImpl implements HealthCheckService {
+    private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
     private Map<UUID, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();
 
@@ -38,6 +42,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     private void reportIssue(UUID uid, String issueName, HealthCheckReport report) {
+        LOG.info("HealthCheckService.reportIssue: " + issueName + " reported by " + uid);
+
         reports.get(uid).put(issueName, report);
     }
 
@@ -46,15 +52,13 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     }
 
     private void resolveIssue(UUID uid, String issueName) {
-        resolveIssue(issueName, reports.get(uid));
-    }
-
-    private void resolveIssue(String issueName, Map<String, HealthCheckReport> reportMap) {
-        Iterator<String> itr = reportMap.keySet().iterator();
+        Iterator<String> itr = reports.get(uid).keySet().iterator();
 
         while (itr.hasNext()) {
             String cur = itr.next();
             if (issueName.equals(cur)) {
+                LOG.info("HealthCheckService.resolveIssue: " + issueName + " resolved by " + uid);
+
                 itr.remove();
             }
         }
