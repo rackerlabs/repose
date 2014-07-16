@@ -21,6 +21,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
+/**
+ * This class arrived out of the need to detach the ConfigurationInformation from the Configuration Service
+ * Spring detected a cyclic dependency.
+ *
+ * TODO: fix this poor thing
+ * This is probably not the right way to do this stuff, a better way needs to be done when the ConfigurationService is
+ * redone properly.
+ *
+ */
 @Named
 public class FilterListProvider {
     

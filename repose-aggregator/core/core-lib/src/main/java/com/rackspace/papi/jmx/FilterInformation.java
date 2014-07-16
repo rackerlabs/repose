@@ -3,6 +3,10 @@ package com.rackspace.papi.jmx;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This was extracted from the ConfigurationInformation class, as it was a public static class in there.
+ * It should work fine as a standalone file, but it might not, if JMX things are unhappy.
+ */
 public class FilterInformation {
     private final String id;
     private final String name;
