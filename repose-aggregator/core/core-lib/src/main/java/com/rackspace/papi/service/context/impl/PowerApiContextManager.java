@@ -31,7 +31,6 @@ public class PowerApiContextManager implements ServletContextListener {
 
       PapiBanner.print(LOG);
       // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-      ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
       ca.getContext(HttpConnectionPoolServiceContext.class).contextInitialized(sce);
       ca.getContext(AkkaServiceClientContext.class).contextInitialized(sce);
