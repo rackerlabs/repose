@@ -12,6 +12,7 @@ import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,7 @@ public class MetricsServiceContext implements ServiceContext<MetricsService> {
 
     private HealthCheckServiceProxy healthCheckServiceProxy;
 
+    @Autowired
     public MetricsServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                  @Qualifier("configurationManager") ConfigurationService configurationService,
                                  @Qualifier("metricsService") MetricsService metricsService,
