@@ -4,8 +4,6 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationResourceResolver;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +29,6 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
 
     private final List<FilterInformation> filterChain;
-    private final HealthCheckService healthCheckService;
     private final ConfigurationResourceResolver resourceResolver;
 
     private ServicePorts ports;
@@ -39,12 +36,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
 
     @Inject
     public ConfigurationInformation(@Qualifier("servicePorts") ServicePorts ports,
-                                     HealthCheckService healthCheckService,
                                      ConfigurationResourceResolver resourceResolver) {
         filterChain = new ArrayList<>();
         this.resourceResolver = resourceResolver;
         this.ports = ports;
-        this.healthCheckService = healthCheckService;
     }
 
     @Override

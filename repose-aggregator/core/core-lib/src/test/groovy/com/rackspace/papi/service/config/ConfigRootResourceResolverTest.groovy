@@ -1,5 +1,7 @@
-package com.rackspace.papi.commons.config.resource.impl
+package com.rackspace.papi.service.config
 
+import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource
+import com.rackspace.papi.service.config.impl.ConfigRootResourceResolver
 import spock.lang.Specification
 
 class ConfigRootResourceResolverTest extends Specification {

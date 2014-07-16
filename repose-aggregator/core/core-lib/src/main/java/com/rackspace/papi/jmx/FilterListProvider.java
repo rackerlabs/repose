@@ -53,8 +53,8 @@ public class FilterListProvider {
         systemModelListener = new SystemModelListener();
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
 
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
         healthCheckUid = healthCheckService.register(FilterListProvider.class);
+        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
     }
 
     @PreDestroy

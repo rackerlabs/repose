@@ -3,7 +3,10 @@ package com.rackspace.papi.jmx
 import com.rackspace.papi.commons.config.manager.UpdateListener
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
+import com.rackspace.papi.jmx.ConfigurationInformation
+import com.rackspace.papi.jmx.FilterListProvider
 import com.rackspace.papi.model.*
+import com.rackspace.papi.service.config.ConfigurationResourceResolver
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
@@ -18,15 +21,15 @@ import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
-class ConfigurationInformationTest extends Specification {
+class FilterListProviderTest extends Specification {
     @Shared
-    ConfigurationInformation configurationInformation
-
-    @Shared
-    ConfigurationService configurationService
+    FilterListProvider filterListProvider
 
     @Shared
     HealthCheckService healthCheckService
+
+    @Shared
+    ConfigurationService configurationService
 
     @Shared
     ServicePorts ports = new ServicePorts()
@@ -35,16 +38,20 @@ class ConfigurationInformationTest extends Specification {
     ByteArrayOutputStream log = new ByteArrayOutputStream()
 
     def setupSpec() {
-        def logger = Logger.getLogger(ConfigurationInformation.class)
+        def logger = Logger.getLogger(FilterListProvider.class)
 
         logger.addAppender(new WriterAppender(new SimpleLayout(), log))
 
-        configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
+        configurationService = mock(ConfigurationService.class)
+        def configurationInformation = mock(ConfigurationInformation.class)
 
         when(healthCheckService.register(any(Class.class))).thenReturn("test_uid")
 
-        configurationInformation = new ConfigurationInformation(configurationService, ports, healthCheckService)
+        filterListProvider = new FilterListProvider(ports,
+                configurationService,
+                configurationInformation,
+                healthCheckService)
     }
 
     def "if localhost can find self in system model on update, should resolve outstanding issues with health check service"() {
@@ -58,7 +65,7 @@ class ConfigurationInformationTest extends Specification {
         ports.clear()
         ports.add(new Port("http", 8080))
 
-        configurationInformation.contextInitialized(null)
+        filterListProvider.afterPropertiesSet()
 
         listenerObject = listenerCaptor.getValue()
 
@@ -67,7 +74,7 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckService).solveIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckService).solveIssue(any(String.class), eq(filterListProvider.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
@@ -80,7 +87,7 @@ class ConfigurationInformationTest extends Specification {
         SystemModel systemModel = getValidSystemModel()
         ports.clear()
 
-        configurationInformation.contextInitialized(null)
+        filterListProvider.afterPropertiesSet()
 
         listenerObject = listenerCaptor.getValue()
 
@@ -90,7 +97,7 @@ class ConfigurationInformationTest extends Specification {
         then:
         !listenerObject.isInitialized()
         new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
-        verify(healthCheckService).reportIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
+        verify(healthCheckService).reportIssue(any(String.class), eq(filterListProvider.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
                 any(HealthCheckReport.class))
     }
 
