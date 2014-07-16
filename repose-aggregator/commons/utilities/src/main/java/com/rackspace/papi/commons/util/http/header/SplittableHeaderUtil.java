@@ -11,7 +11,7 @@ import java.util.TreeSet;
 public class SplittableHeaderUtil {
 
     // Headers available for splitting (According to RFC2616
-    public static final String[] DEFAULT_SPLIT = {"accept", "accept-charset", "accept-language", "allow",
+    private static final String[] DEFAULT_SPLIT = {"accept", "accept-charset", "accept-language", "allow",
             "cache-control", "connection", "content-encoding", "content-language", "expect", "pragma",
             "proxy-authenticate", "te", "trailer", "transfer-encoding", "upgrade",
             "warning", "accept-encoding"};
@@ -27,9 +27,7 @@ public class SplittableHeaderUtil {
     private Set<String> splittableHeaders;
 
     public SplittableHeaderUtil() {
-
         setDefaultSplitable();
-
     }
 
     public SplittableHeaderUtil(HeaderConstant... constant) {
@@ -38,7 +36,6 @@ public class SplittableHeaderUtil {
         for (HeaderConstant ct : constant) {
             splittableHeaders.add(ct.toString());
         }
-
     }
 
     public SplittableHeaderUtil(HeaderConstant[]... constant) {
@@ -49,18 +46,15 @@ public class SplittableHeaderUtil {
                 splittableHeaders.add(ct.toString());
             }
         }
-
     }
 
     private void setDefaultSplitable() {
         // Using a set which us so as to pass a comparator
-        splittableHeaders = new TreeSet<String>(CASE_INSENSITIVE_COMPARE);
+        splittableHeaders = new TreeSet<>(CASE_INSENSITIVE_COMPARE);
         splittableHeaders.addAll(Arrays.asList(DEFAULT_SPLIT));
     }
 
-
     public boolean isSplitable(String st) {
-
         return splittableHeaders.contains(st.toLowerCase());
     }
 }
