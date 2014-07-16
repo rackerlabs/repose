@@ -31,9 +31,6 @@
     <!-- Service Contexts -->
     <!-- Services -->
 
-    <bean name="distributedDatastoreServiceContext"
-          class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
-
     <!-- This stuff used to be in "repose-with-services-context" config file -->
     <bean name="httpConnectionPoolService" scope="singleton"
           class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
