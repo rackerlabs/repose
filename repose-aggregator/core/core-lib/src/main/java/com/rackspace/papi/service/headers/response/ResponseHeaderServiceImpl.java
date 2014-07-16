@@ -11,6 +11,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 
 @Named
-public class ResponseHeaderServiceImpl implements ResponseHeaderService, ServletContextAware {
+public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
     private final ConfigurationService configurationManager;
@@ -30,22 +31,17 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService, Servlet
     private ViaHeaderBuilder viaHeaderBuilder;
     private LocationHeaderBuilder locationHeaderBuilder;
     private String reposeVersion = "";
-    private ServletContext ctx;
 
     @Inject
-    public ResponseHeaderServiceImpl(ConfigurationService configurationManager) {
+    public ResponseHeaderServiceImpl(ConfigurationService configurationManager,
+                                     @Qualifier("reposeVersion") String reposeVersion) {
+        this.reposeVersion = reposeVersion;
         this.configurationManager = configurationManager;
         this.configurationListener = new ContainerConfigurationListener();
     }
 
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.ctx = servletContext;
-    }
-
     @PostConstruct
     public void afterPropertiesSet() {
-        reposeVersion = ServletContextHelper.getInstance(ctx).getPowerApiContext().getReposeVersion(); //need some other way to get the version!!!
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
     }
 
