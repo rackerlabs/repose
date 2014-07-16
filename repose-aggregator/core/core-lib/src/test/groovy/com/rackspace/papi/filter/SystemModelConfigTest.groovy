@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter
 
 import groovy.xml.StreamingMarkupBuilder
+import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -17,7 +18,6 @@ class SystemModelConfigTest extends Specification {
     static Schema schema
     def Validator validator
     def StreamingMarkupBuilder xmlBuilder
-    def Exception caught
 
     //@BeforeClass      // JUnit 4
     def setupSpec() {   // Spock (Groovy)
@@ -32,7 +32,6 @@ class SystemModelConfigTest extends Specification {
         validator = schema.newValidator()
         xmlBuilder = new StreamingMarkupBuilder()
         xmlBuilder.encoding = 'UTF-8'
-        caught = null
     }
 
     //@Test                                                             // JUnit 4
@@ -42,14 +41,11 @@ class SystemModelConfigTest extends Specification {
         final StreamSource sampleSource = new StreamSource(SystemModelConfigTest.class.getResourceAsStream("/META-INF/schema/examples/system-model.cfg.xml"))
 
         when:
-        try {
-            validator.validate(sampleSource)
-        } catch (Exception e) {
-            caught = e
-        }
+        validator.validate(sampleSource)
 
         then:
-        caught == null
+        notThrown(SAXException)
+        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
     }
 
     private static void appendHeader(StringBuffer xmlBuffer) {
@@ -73,8 +69,7 @@ class SystemModelConfigTest extends Specification {
 
     //@Test                                                                                         // JUnit 4
     //public void shouldValidateWhenOnlyOneDestinationWithDefaultTest() throws Exception {          // JUnit 3
-    @Unroll("Validate System-Model with only one Endpoint Destination that has default=#default1.")
-    // Spock (Groovy)
+    @Unroll("Validate System-Model with only one Endpoint Destination that has default=#default1.") // Spock (Groovy)
     def "Validate System-Model with only one Endpoint Destination."() {                             // Spock (Groovy)
         given:
         def xml = xmlBuilder.bind {
@@ -97,6 +92,7 @@ class SystemModelConfigTest extends Specification {
                 }
             }
         }
+
         StringBuffer xmlBuffer = new StringBuffer();
         appendHeader(xmlBuffer);
         xmlBuffer.append("            <endpoint id=\"openrepose1\" protocol=\"http\" hostname=\"192.168.1.1\" root-path=\"/\" port=\"8080\"");
@@ -108,17 +104,13 @@ class SystemModelConfigTest extends Specification {
         xmlBuffer.append("/>\n");
         appendFooter(xmlBuffer);
 
-
         when:
-        try {
-            //validator.validate(new StreamSource(xml.toString()))
-            validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
-        } catch (Exception e) {
-            caught = e
-        }
+        validator.validate(new StreamSource(xml.toString()))
+        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
-        caught == null
+        notThrown(SAXException)
+        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
 
         where:
         default1 | pass
@@ -199,50 +191,29 @@ class SystemModelConfigTest extends Specification {
         StringBuffer xmlBuffer = appendXml(default1, default2, default3);
 
         when:
-        try {
-            //validator.validate(new StreamSource(xml.toString()))
-            validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
-        } catch (Exception e) {
-            caught = e
-        }
+        validator.validate(new StreamSource(xml.toString()))
+        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
-        //if (pass) {
-        //    caught == null
-        //} else {
-            caught.getClass() == SAXParseException.class
-            //caught.getLocalizedMessage().contains(errorMessage)
-            caught.getLocalizedMessage().contains('There should only be one default destination')
-        //}
+        def caught = thrown(SAXParseException)
+        caught.getLocalizedMessage().contains('There should only be one default destination')
 
         where:
-        default1 | default2 | default3 //| pass  | errorMessage
-        null     | null     | null     //| false | 'There should only be one default destination'
-        //null     | null     | 'true'   //| true  | null
-        null     | null     | 'false'  //| false | 'There should only be one default destination'
-        //null     | 'true'   | null     //| true  | null
-        null     | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        //null     | 'true'   | 'false'  //| true  | null
-        null     | 'false'  | null     //| false | 'There should only be one default destination'
-        //null     | 'false'  | 'true'   //| true  | null
-        null     | 'false'  | 'false'  //| false | 'There should only be one default destination'
-        //'true'   | null     | null     //| true  | null
-        'true'   | null     | 'true'   //| false | 'There should only be one default destination'
-        //'true'   | null     | 'false'  //| true  | null
-        'true'   | 'true'   | null     //| false | 'There should only be one default destination'
-        'true'   | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        'true'   | 'true'   | 'false'  //| false | 'There should only be one default destination'
-        //'true'   | 'false'  | null     //| true  | null
-        'true'   | 'false'  | 'true'   //| false | 'There should only be one default destination'
-        //'true'   | 'false'  | 'false'  //| true  | null
-        'false'  | null     | null     //| false | 'There should only be one default destination'
-        //'false'  | null     | 'true'   //| true  | null
-        'false'  | null     | 'false'  //| false | 'There should only be one default destination'
-        //'false'  | 'true'   | null     //| true  | null
-        'false'  | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        //'false'  | 'true'   | 'false'  //| true  | null
-        'false'  | 'false'  | null     //| false | 'There should only be one default destination'
-        //'false'  | 'false'  | 'true'   //| true  | null
+        default1 | default2 | default3
+        null     | null     | null
+        null     | null     | 'false'
+        null     | 'true'   | 'true'
+        null     | 'false'  | null
+        null     | 'false'  | 'false'
+        'true'   | null     | 'true'
+        'true'   | 'true'   | null
+        'true'   | 'true'   | 'true'
+        'true'   | 'true'   | 'false'
+        'true'   | 'false'  | 'true'
+        'false'  | null     | null
+        'false'  | null     | 'false'
+        'false'  | 'true'   | 'true'
+        'false'  | 'false'  | null
     }
 
     //@Test                                                                                                                     // JUnit 4
@@ -254,50 +225,27 @@ class SystemModelConfigTest extends Specification {
         StringBuffer xmlBuffer = appendXml(default1, default2, default3);
 
         when:
-        try {
-            //validator.validate(new StreamSource(xml.toString()))
-            validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
-        } catch (Exception e) {
-            caught = e
-        }
+        validator.validate(new StreamSource(xml.toString()))
+        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
-        //if (pass) {
-            caught == null
-        //} else {
-        //    caught.getClass() == SAXParseException.class
-        //    caught.getLocalizedMessage().contains(errorMessage)
-        //}
+        notThrown(SAXException)
+        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
 
         where:
-        default1 | default2 | default3 //| pass  | errorMessage
-        //null     | null     | null     //| false | 'There should only be one default destination'
-        null     | null     | 'true'   //| true  | null
-        //null     | null     | 'false'  //| false | 'There should only be one default destination'
-        null     | 'true'   | null     //| true  | null
-        //null     | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        null     | 'true'   | 'false'  //| true  | null
-        //null     | 'false'  | null     //| false | 'There should only be one default destination'
-        null     | 'false'  | 'true'   //| true  | null
-        //null     | 'false'  | 'false'  //| false | 'There should only be one default destination'
-        'true'   | null     | null     //| true  | null
-        //'true'   | null     | 'true'   //| false | 'There should only be one default destination'
-        'true'   | null     | 'false'  //| true  | null
-        //'true'   | 'true'   | null     //| false | 'There should only be one default destination'
-        //'true'   | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        //'true'   | 'true'   | 'false'  //| false | 'There should only be one default destination'
-        'true'   | 'false'  | null     //| true  | null
-        //'true'   | 'false'  | 'true'   //| false | 'There should only be one default destination'
-        'true'   | 'false'  | 'false'  //| true  | null
-        //'false'  | null     | null     //| false | 'There should only be one default destination'
-        'false'  | null     | 'true'   //| true  | null
-        //'false'  | null     | 'false'  //| false | 'There should only be one default destination'
-        'false'  | 'true'   | null     //| true  | null
-        //'false'  | 'true'   | 'true'   //| false | 'There should only be one default destination'
-        'false'  | 'true'   | 'false'  //| true  | null
-        //'false'  | 'false'  | null     //| false | 'There should only be one default destination'
-        'false'  | 'false'  | 'true'   //| true  | null
-        //'false'  | 'false'  | 'true'   //| false | 'There should only be one default destination'
+        default1 | default2 | default3
+        null     | null     | 'true'
+        null     | 'true'   | null
+        null     | 'true'   | 'false'
+        null     | 'false'  | 'true'
+        'true'   | null     | null
+        'true'   | null     | 'false'
+        'true'   | 'false'  | null
+        'true'   | 'false'  | 'false'
+        'false'  | null     | 'true'
+        'false'  | 'true'   | null
+        'false'  | 'true'   | 'false'
+        'false'  | 'false'  | 'true'
     }
 
     ////@After                  // JUnit 4
