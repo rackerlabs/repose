@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import org.springframework.web.context.ServletContextAware;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.ServletContext;
 import java.io.FileNotFoundException;
@@ -43,8 +42,10 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
     @Inject
     public ConfigurationServiceImpl(EventService eventService,
                                     ConfigurationInformation configurationInformation,
-                                    ConfigurationResourceResolver resourceResolver) {
+                                    ConfigurationResourceResolver resourceResolver,
+                                    ConfigurationUpdateManagerImpl updateManager) {
         this.eventService = eventService;
+        this.updateManager = updateManager;
         this.resourceResolver = resourceResolver;
         this.configurationInformation = configurationInformation;
         parserLookaside = new HashMap<>();
@@ -55,18 +56,10 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
         this.servletContext = servletContext;
     }
 
-    @PostConstruct
-    public void afterPropertiesSet() {
-        final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
-        papiUpdateManager.initialize(servletContext);
-
-        setUpdateManager(papiUpdateManager);
-    }
 
     @PreDestroy
     public void destroy() {
         parserLookaside.clear();
-        updateManager.destroy();
     }
 
     @Override
@@ -77,11 +70,6 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
     @Override
     public ConfigurationResourceResolver getResourceResolver() {
         return this.resourceResolver;
-    }
-    
-    @Override
-    public void setUpdateManager(ConfigurationUpdateManager updateManager) {
-        this.updateManager = updateManager;
     }
     
    @Override
