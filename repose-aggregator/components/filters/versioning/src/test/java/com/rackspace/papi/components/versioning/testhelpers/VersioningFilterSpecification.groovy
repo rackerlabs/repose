@@ -4,31 +4,21 @@ import com.mockrunner.mock.web.MockFilterConfig
 import com.mockrunner.mock.web.MockServletContext
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager
 import com.rackspace.papi.commons.config.resource.ConfigurationResource
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver
+import com.rackspace.papi.service.config.ConfigurationResourceResolver
 import com.rackspace.papi.components.versioning.VersioningFilter
-import com.rackspace.papi.components.versioning.config.MediaType
 import com.rackspace.papi.components.versioning.config.MediaTypeList
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
-import com.rackspace.papi.filter.SystemModelInterrogator
 import com.rackspace.papi.model.DestinationEndpoint
-import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
 import com.rackspace.papi.service.context.ServletContextHelper
-import com.rackspace.papi.service.context.spring.SpringContextAdapter
 import com.rackspace.papi.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
-import org.apache.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
-import org.powermock.api.mockito.PowerMockito
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Specification
 
-import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 

@@ -15,6 +15,9 @@ import javax.servlet.ServletContext;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * TODO: make a bean out of this
+ */
 public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateManager {
 
    private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;

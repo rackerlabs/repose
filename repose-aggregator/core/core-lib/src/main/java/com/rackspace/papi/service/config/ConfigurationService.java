@@ -3,14 +3,10 @@ package com.rackspace.papi.service.config;
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
-import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.jmx.ConfigurationInformation;
+
 import java.net.URL;
 
 public interface ConfigurationService {
-    ConfigurationInformation getConfigurationInformation();
-    void setConfigurationInformation(ConfigurationInformation configurationInformation); 
     void setResourceResolver(ConfigurationResourceResolver resourceResolver);
     ConfigurationResourceResolver getResourceResolver();
     void setUpdateManager(ConfigurationUpdateManager updateManager);

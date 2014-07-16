@@ -1,159 +1,48 @@
 package com.rackspace.papi.jmx;
 
-import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextAware;
+import com.rackspace.papi.service.config.ConfigurationResourceResolver;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
-import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import javax.inject.Named;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
-import javax.servlet.ServletContextEvent;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
 
-@Named("reposeConfigurationInformation")
+@Named
 @ManagedResource(objectName = "com.rackspace.papi.jmx:type=ConfigurationInformation", description = "Repose configuration information MBean.")
-public class ConfigurationInformation implements ConfigurationInformationMBean, ServletContextAware {
+public class ConfigurationInformation implements ConfigurationInformationMBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationInformation.class);
     private static final String FILTER_EXCEPTION_MESSAGE = "Error updating Mbean for Filter";
-    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
 
-    private final ConfigurationService configurationService;
     private final List<FilterInformation> filterChain;
     private final HealthCheckService healthCheckService;
+    private final ConfigurationResourceResolver resourceResolver;
 
-    private HealthCheckServiceHelper healthCheckServiceHelper;
     private ServicePorts ports;
-    private SystemModelListener systemModelListener;
-    private String healthCheckUid;
 
-    public static class FilterInformation {
-        private final String id;
-        private final String name;
-        private final String regex;
-        private final String configuration;
-        private boolean isConfiguarationLoaded;
-        private Map successConfigurationLoadinginformation;
-        private Map failedConfigurationLoadingInformation;
-
-        public FilterInformation(String id, String name, String regex, String configuration, Boolean isConfiguarationLoaded) {
-            this.id = id;
-            this.name = name;
-            this.regex = regex;
-            this.configuration = configuration;
-            this.isConfiguarationLoaded = isConfiguarationLoaded;
-            successConfigurationLoadinginformation = new HashMap<String, String[]>();
-            failedConfigurationLoadingInformation = new HashMap<String, String[]>();
-
-
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getRegex() {
-            return regex;
-        }
-
-        public String getConfiguration() {
-            return configuration;
-        }
-
-        public Boolean getIsConfiguarationLoaded() {
-            return isConfiguarationLoaded;
-        }
-
-        public void setConfiguarationLoaded(boolean isConfiguarationLoaded) {
-            this.isConfiguarationLoaded = isConfiguarationLoaded;
-        }
-
-        public Map<String, String[]> getSuccessConfigurationLoadinginformation() {
-            return successConfigurationLoadinginformation;
-        }
-
-        public void setSuccessConfigurationLoadinginformation(Map successConfigurationLoadinginformation) {
-            this.successConfigurationLoadinginformation = successConfigurationLoadinginformation;
-        }
-
-        public Map<String, String[]> getFailedConfigurationLoadingInformation() {
-            return failedConfigurationLoadingInformation;
-        }
-
-        public void setFailedConfigurationLoadingInformation(Map failedConfigurationLoadingInformation) {
-            this.failedConfigurationLoadingInformation = failedConfigurationLoadingInformation;
-        }
-    }
-
-    private class SystemModelListener implements UpdateListener<SystemModel> {
-
-        private boolean initialized = false;
-
-        @Override
-        public void configurationUpdated(SystemModel systemModel) {
-            LOG.info("System model updated");
-            initialized = false;
-
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
-
-            if (cluster.isPresent()) {
-                synchronized (filterChain) {
-                    filterChain.clear();
-
-                    if (cluster.get().getFilters() != null && cluster.get().getFilters().getFilter() != null) {
-                        for (Filter filter : cluster.get().getFilters().getFilter()) {
-                            filterChain.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
-                                    filter.getConfiguration(), false));
-                        }
-                    }
-                }
-
-                initialized = true;
-
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
-            } else {
-                LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-            }
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return initialized;
-        }
-    }
 
     @Inject
-    public ConfigurationInformation( ConfigurationService configurationService,
-                                    @Qualifier("servicePorts") ServicePorts ports,
-                                     HealthCheckService healthCheckService) {
-        filterChain = new ArrayList<FilterInformation>();
-        this.configurationService = configurationService;
+    public ConfigurationInformation(@Qualifier("servicePorts") ServicePorts ports,
+                                     HealthCheckService healthCheckService,
+                                     ConfigurationResourceResolver resourceResolver) {
+        filterChain = new ArrayList<>();
+        this.resourceResolver = resourceResolver;
         this.ports = ports;
         this.healthCheckService = healthCheckService;
     }
@@ -171,20 +60,8 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         return list;
     }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        healthCheckUid = healthCheckService.register(ConfigurationInformation.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
-
-        systemModelListener = new SystemModelListener();
-
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
-        systemModelListener = null;
+    @PostConstruct
+    public void afterPropertiesSet() {
     }
 
     public void setFilterLoadingInformation(String filterName, boolean filterInitialized, ConfigurationResource configurationResource) {
@@ -202,18 +79,18 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                             if (configurationResource != null) {
 
 
-                                filter.successConfigurationLoadinginformation.put(configurationResource.name(), new String[]{xgcal.toString(), byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
-                                if (filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())) {
-                                    filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
-                                } else if (configurationService.getResourceResolver().resolve(filter.getConfiguration()).name().equalsIgnoreCase(configurationResource.name())) {
-                                    filter.failedConfigurationLoadingInformation.clear();
+                                filter.getSuccessConfigurationLoadinginformation().put(configurationResource.name(), new String[]{xgcal.toString(), byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
+                                if (filter.getFailedConfigurationLoadingInformation().containsKey(configurationResource.name())) {
+                                    filter.getFailedConfigurationLoadingInformation().remove(configurationResource.name());
+                                } else if (resourceResolver.resolve(filter.getConfiguration()).name().equalsIgnoreCase(configurationResource.name())) {
+                                    filter.getFailedConfigurationLoadingInformation().clear();
                                 }
 
 
                             }
 
                         } catch (IOException e) {
-                            filter.failedConfigurationLoadingInformation.put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
+                            filter.getFailedConfigurationLoadingInformation().put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
                             LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
 
                         }
@@ -237,15 +114,15 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                             xgcal.getTimezone();
 
                             if (configurationResource != null) {
-                                if (filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())) {
-                                    filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
+                                if (filter.getFailedConfigurationLoadingInformation().containsKey(configurationResource.name())) {
+                                    filter.getFailedConfigurationLoadingInformation().remove(configurationResource.name());
                                 }
-                                filter.failedConfigurationLoadingInformation.put(configurationResource.name(), new String[]{xgcal.toString(), byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream())), errorInformation});
+                                filter.getFailedConfigurationLoadingInformation().put(configurationResource.name(), new String[]{xgcal.toString(), byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream())), errorInformation});
 
                             }
 
                         } catch (IOException e) {
-                            filter.failedConfigurationLoadingInformation.put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
+                            filter.getFailedConfigurationLoadingInformation().put(configurationResource.name(), new String[]{xgcal.toString(), "", e.getMessage()});
                             LOG.debug(FILTER_EXCEPTION_MESSAGE, e);
 
                         }
@@ -264,4 +141,9 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         }
         return builder.toString();
     }
+
+    public List<FilterInformation> getFilterList() {
+        return filterChain;
+    }
+
 }
