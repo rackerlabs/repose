@@ -11,40 +11,47 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 
-@Named("responseHeaderService")
-public class ResponseHeaderServiceImpl implements ResponseHeaderService {
+@Named
+public class ResponseHeaderServiceImpl implements ResponseHeaderService, ServletContextAware {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
-    private final ConfigurationService configurationService;
+    private final ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
     private ViaHeaderBuilder viaHeaderBuilder;
     private LocationHeaderBuilder locationHeaderBuilder;
     private String reposeVersion = "";
+    private ServletContext ctx;
 
     @Inject
-    public ResponseHeaderServiceImpl(ConfigurationService configurationService) {
-        this.configurationService = configurationService;
+    public ResponseHeaderServiceImpl(ConfigurationService configurationManager) {
+        this.configurationManager = configurationManager;
         this.configurationListener = new ContainerConfigurationListener();
     }
 
-    @PreDestroy
-    public void destroy() {
-        configurationService.unsubscribeFrom("container.cfg.xml", configurationListener);
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.ctx = servletContext;
     }
 
     @PostConstruct
     public void afterPropertiesSet() {
-        reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext()
-                                            .getReposeVersion(); //need some other way to get the version!!!
-        configurationService.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+        reposeVersion = ServletContextHelper.getInstance(ctx).getPowerApiContext().getReposeVersion(); //need some other way to get the version!!!
+        configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+    }
+
+    @PreDestroy
+    public void destroy() {
+        configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
     }
 
     @Override
@@ -64,8 +71,10 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     }
 
     @Override
-    public void fixLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse response,
-                                  RouteDestination destination, String destinationLocationUri,
+    public void fixLocationHeader(HttpServletRequest originalRequest,
+                                  MutableHttpServletResponse response,
+                                  RouteDestination destination,
+                                  String destinationLocationUri,
                                   String proxiedRootContext) {
         String destinationUri = cleanPath(destinationLocationUri);
 
@@ -75,9 +84,12 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
         }
 
         try {
-            locationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri,
-                                                    destination.getContextRemoved(),
-                                                    proxiedRootContext);
+            locationHeaderBuilder.setLocationHeader(
+                    originalRequest,
+                    response,
+                    destinationUri,
+                    destination.getContextRemoved(),
+                    proxiedRootContext);
         } catch (MalformedURLException ex) {
             LOG.warn("Invalid URL in location header processing", ex);
         }
