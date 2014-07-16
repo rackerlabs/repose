@@ -1,30 +1,11 @@
 package com.rackspace.papi.components.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterChain
-import com.mockrunner.mock.web.MockFilterConfig
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
-import com.mockrunner.mock.web.MockServletContext
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager
-import com.rackspace.papi.commons.config.resource.ConfigurationResource
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig
-import com.rackspace.papi.service.context.ServletContextHelper
-import com.rackspace.papi.spring.SpringConfiguration
-import groovy.xml.StreamingMarkupBuilder
-import org.apache.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
-import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Shared
-import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
-
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
 
 class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
 

@@ -6,14 +6,10 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
-import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceResolver;
-import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.service.config.ConfigurationResourceResolver;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
@@ -46,8 +42,10 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
 
     @Inject
     public ConfigurationServiceImpl(EventService eventService,
-                                    ConfigurationInformation configurationInformation) {
+                                    ConfigurationInformation configurationInformation,
+                                    ConfigurationResourceResolver resourceResolver) {
         this.eventService = eventService;
+        this.resourceResolver = resourceResolver;
         this.configurationInformation = configurationInformation;
         parserLookaside = new HashMap<>();
     }
@@ -59,18 +57,6 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
 
     @PostConstruct
     public void afterPropertiesSet() {
-        final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
-        final String configurationRoot = System.getProperty(configProp, servletContext.getInitParameter(configProp));
-        LOG.debug("Loading configuration files from directory: " + configurationRoot);
-
-        if (StringUtilities.isBlank(configurationRoot)) {
-            throw new PowerApiContextException(
-                    "Power API requires a configuration directory to be specified as an init-param named, \""
-                            + InitParameter.POWER_API_CONFIG_DIR.getParameterName() + "\"");
-        }
-
-        setResourceResolver(new FileDirectoryResourceResolver(configurationRoot));
-
         final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
         papiUpdateManager.initialize(servletContext);
 
@@ -81,17 +67,6 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
     public void destroy() {
         parserLookaside.clear();
         updateManager.destroy();
-    }
-
-
-    @Override
-    public ConfigurationInformation getConfigurationInformation() {
-        return configurationInformation;
-    }
-
-    @Override
-    public void setConfigurationInformation(ConfigurationInformation configurationInformation) {
-        this.configurationInformation = configurationInformation;
     }
 
     @Override
@@ -148,16 +123,17 @@ public class ConfigurationServiceImpl implements ConfigurationService, ServletCo
             try {
                                           
                 listener.configurationUpdated(customParser.read(resource));
-           
+
+                //If this is a filter we are configuring, tell the ConfigurationInformation about success or failure
                 if(filterName!=null && !filterName.isEmpty() && listener.isInitialized()){
-                     getConfigurationInformation().setFilterLoadingInformation(filterName,listener.isInitialized(), resource);
+                     configurationInformation.setFilterLoadingInformation(filterName,listener.isInitialized(), resource);
                 }else{
-                       getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
+                       configurationInformation.setFilterLoadingFailedInformation(filterName, resource,"Failed loading File");
                 }
 
                 } catch (Exception ex) {
                     if(filterName!=null && !filterName.isEmpty()){
-                     getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource, ex.getMessage()); 
+                     configurationInformation.setFilterLoadingFailedInformation(filterName, resource, ex.getMessage());
                     }
                    // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
