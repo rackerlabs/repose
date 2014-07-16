@@ -20,73 +20,73 @@ import java.util.Map;
  */
 public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateManager {
 
-   private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
-   private final EventService eventManager;
-   private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
-   private ConfigurationResourceWatcher resourceWatcher;
-   private DestroyableThreadWrapper resrouceWatcherThread;
-   private ConfigurationInformation configurationInformation;
+    private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
+    private final EventService eventManager;
+    private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
+    private ConfigurationResourceWatcher resourceWatcher;
+    private DestroyableThreadWrapper resrouceWatcherThread;
+    private ConfigurationInformation configurationInformation;
 
-   public PowerApiConfigurationUpdateManager(EventService eventManager) {
-      this.eventManager = eventManager;
+    public PowerApiConfigurationUpdateManager(EventService eventManager) {
+        this.eventManager = eventManager;
 
-      listenerMap = new HashMap<String, Map<Integer, ParserListenerPair>>();
-      powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
-   }
+        listenerMap = new HashMap<String, Map<Integer, ParserListenerPair>>();
+        powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
+    }
 
-   public void initialize(ServletContext ctx) {
-      final ThreadingService threadingService = ServletContextHelper.getInstance(ctx).getPowerApiContext().threadingService();
-      
-      configurationInformation =(ConfigurationInformation)ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation();
-      // Initialize the resource watcher
-      resourceWatcher = new ConfigurationResourceWatcher(eventManager);
+    public void initialize(ServletContext ctx) {
+        final ThreadingService threadingService = ServletContextHelper.getInstance(ctx).getPowerApiContext().threadingService();
 
-       //TODO: Make this interval configurable
-      final Poller pollerLogic = new Poller(resourceWatcher, 15000);
-      
-      resrouceWatcherThread = new DestroyableThreadWrapper(
-              threadingService.newThread(pollerLogic, "Configuration Watcher Thread"), pollerLogic);
-      resrouceWatcherThread.start();
-      
-      // Listen for configuration events
-      eventManager.listen(powerApiUpdateManagerEventListener, ConfigurationEvent.class);
-   }
+        configurationInformation = (ConfigurationInformation) ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation();
+        // Initialize the resource watcher
+        resourceWatcher = new ConfigurationResourceWatcher(eventManager);
 
-   public PowerApiUpdateManagerEventListener getPowerApiUpdateManagerEventListener() {
-      return powerApiUpdateManagerEventListener;
-   }
+        //TODO: Make this interval configurable
+        final Poller pollerLogic = new Poller(resourceWatcher, 15000);
 
-   @Override
-   public synchronized void destroy() {
-      resrouceWatcherThread.destroy();
-      listenerMap.clear();
-   }
+        resrouceWatcherThread = new DestroyableThreadWrapper(
+                threadingService.newThread(pollerLogic, "Configuration Watcher Thread"), pollerLogic);
+        resrouceWatcherThread.start();
 
-   @Override
-   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName) {
-      Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+        // Listen for configuration events
+        eventManager.listen(powerApiUpdateManagerEventListener, ConfigurationEvent.class);
+    }
 
-      if (resourceListeners == null) {
-         resourceListeners = new HashMap<Integer, ParserListenerPair>();
+    public PowerApiUpdateManagerEventListener getPowerApiUpdateManagerEventListener() {
+        return powerApiUpdateManagerEventListener;
+    }
 
-         listenerMap.put(resource.name(), resourceListeners);
-         resourceWatcher.watch(resource);
-      }
+    @Override
+    public synchronized void destroy() {
+        resrouceWatcherThread.destroy();
+        listenerMap.clear();
+    }
 
-      resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser,this.configurationInformation,filterName));
-   }
+    @Override
+    public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName) {
+        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
-   @Override
-   public synchronized <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
-      Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+        if (resourceListeners == null) {
+            resourceListeners = new HashMap<Integer, ParserListenerPair>();
 
-      if (resourceListeners != null) {
-         resourceListeners.remove(listener.hashCode());
+            listenerMap.put(resource.name(), resourceListeners);
+            resourceWatcher.watch(resource);
+        }
 
-         if (resourceListeners.isEmpty()) {
-            resourceWatcher.stopWatching(resource.name());
-            listenerMap.remove(resource.name());
-         }
-      }
-   }
+        resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser, this.configurationInformation, filterName));
+    }
+
+    @Override
+    public synchronized <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
+        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+
+        if (resourceListeners != null) {
+            resourceListeners.remove(listener.hashCode());
+
+            if (resourceListeners.isEmpty()) {
+                resourceWatcher.stopWatching(resource.name());
+                listenerMap.remove(resource.name());
+            }
+        }
+    }
 }
