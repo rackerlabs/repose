@@ -10,13 +10,13 @@ import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.inject.Inject;
@@ -46,8 +46,12 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
 
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
-                                    HealthCheckService healthCheckService) {
+                                    HealthCheckService healthCheckService,
+                                    @Qualifier("servicePorts") ServicePorts ports,
+                                    @Qualifier("reposeVersion") String reposeVersion) {
         this.configurationService = configurationService;
+        this.reposeVersion = reposeVersion;
+        this.ports = ports;
         this.healthCheckService = healthCheckService;
     }
 
@@ -58,9 +62,6 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
 
     @PostConstruct
     public void afterPropertiesSet() {
-        ports = ServletContextHelper.getInstance(servletContext).getServerPorts();
-        reposeVersion = ServletContextHelper.getInstance(servletContext).getPowerApiContext().getReposeVersion();
-
         String healthCheckUid = healthCheckService.register(RequestHeaderServiceImpl.class);
         healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
 

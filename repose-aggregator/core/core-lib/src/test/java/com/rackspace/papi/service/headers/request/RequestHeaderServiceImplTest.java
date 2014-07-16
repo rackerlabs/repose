@@ -2,6 +2,7 @@ package com.rackspace.papi.service.headers.request;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -24,7 +25,11 @@ public class RequestHeaderServiceImplTest {
         public void setup() {
             request = mock(MutableHttpServletRequest.class);
             viaBuilder = mock(ViaHeaderBuilder.class);
-            instance = new RequestHeaderServiceImpl(mock(ConfigurationServiceImpl.class), mock(HealthCheckService.class));
+            instance = new RequestHeaderServiceImpl(
+                    mock(ConfigurationServiceImpl.class),
+                    mock(HealthCheckService.class),
+                    mock(ServicePorts.class),
+                    "");
         }
         
         @Test
