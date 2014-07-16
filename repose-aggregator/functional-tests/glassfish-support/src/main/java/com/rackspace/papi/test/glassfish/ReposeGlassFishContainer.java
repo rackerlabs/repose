@@ -49,7 +49,6 @@ public class ReposeGlassFishContainer extends ReposeContainer {
             glassfish.stop();
         } catch (GlassFishException e) {
             LOG.trace("Unable to stop glassfish container", e);
-            System.err.println("Unable to stop glassfish server");
         }
     }
 }
