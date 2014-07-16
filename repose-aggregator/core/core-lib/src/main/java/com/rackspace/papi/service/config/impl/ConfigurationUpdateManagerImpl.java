@@ -7,37 +7,41 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.jmx.ConfigurationInformation;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
 
-import javax.servlet.ServletContext;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * TODO: make a bean out of this
- */
-public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateManager {
+@Named
+public class ConfigurationUpdateManagerImpl implements ConfigurationUpdateManager {
 
     private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
     private final EventService eventManager;
     private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
+    private final ThreadingService threadingService;
     private ConfigurationResourceWatcher resourceWatcher;
     private DestroyableThreadWrapper resrouceWatcherThread;
     private ConfigurationInformation configurationInformation;
 
-    public PowerApiConfigurationUpdateManager(EventService eventManager) {
+    @Inject
+    public ConfigurationUpdateManagerImpl(EventService eventManager,
+                                          ThreadingService threadingService,
+                                          ConfigurationInformation configurationInformation) {
+        this.threadingService = threadingService;
+        this.configurationInformation = configurationInformation;
         this.eventManager = eventManager;
 
         listenerMap = new HashMap<String, Map<Integer, ParserListenerPair>>();
         powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
     }
 
-    public void initialize(ServletContext ctx) {
-        final ThreadingService threadingService = ServletContextHelper.getInstance(ctx).getPowerApiContext().threadingService();
-
-        configurationInformation = (ConfigurationInformation) ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation();
+    @PostConstruct
+    public void afterPropertiesSet() {
         // Initialize the resource watcher
         resourceWatcher = new ConfigurationResourceWatcher(eventManager);
 
@@ -56,7 +60,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
         return powerApiUpdateManagerEventListener;
     }
 
-    @Override
+    @PreDestroy
     public synchronized void destroy() {
         resrouceWatcherThread.destroy();
         listenerMap.clear();

@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.Destroyable;
 
-public interface ConfigurationUpdateManager extends Destroyable {
+public interface ConfigurationUpdateManager {
 
      <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName);
 
