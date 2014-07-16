@@ -13,7 +13,7 @@ public interface HealthCheckServiceProxy {
     /**
      * Retrieves message associated with the latest issue
      *
-     * @param issueName  The id of issue. If null, behavior undefined.
+     * @param issueName The id of issue. If null, behavior undefined.
      * @return HealthCheckReport containing details of issue reported
      */
     HealthCheckReport getDiagnosis(String issueName);
@@ -21,12 +21,14 @@ public interface HealthCheckServiceProxy {
     /**
      * Reports an issue to the health service
      *
-     * @param issueName    The id of issue. If null, behavior undefined.
-     * @param message A detailed message to include in the HealthCheckReport
-     * @param severity The severity of the issues. If broken, Repose will return response code 503 until the issue
-     *                 is resolved.
+     * @param issueName The id of issue. If null, behavior undefined.
+     * @param message   A detailed message to include in the HealthCheckReport
+     * @param severity  The severity of the issues. If broken, Repose will return response code 503 until the issue
+     *                  is resolved.
+     * @return a boolean where true indicates that the issue was already reported, and false indicates that the issue is
+     * new.
      */
-    void reportIssue(String issueName, String message, Severity severity);
+    boolean reportIssue(String issueName, String message, Severity severity);
 
     /**
      * Retrieves the ids of all reported problems for a given UID
@@ -39,8 +41,10 @@ public interface HealthCheckServiceProxy {
      * Tells the Health Check Service that the issue has been resolved.
      *
      * @param issueName The id of issue. If null, behavior undefined.
+     * @return a boolean where true indicates that the issue was removed, and false indicates that the issue did not
+     * exist.
      */
-    void resolveIssue(String issueName);
+    boolean resolveIssue(String issueName);
 
     /**
      * Retrieves map of health reports associated with the given UID
@@ -50,7 +54,8 @@ public interface HealthCheckServiceProxy {
     Map<String, HealthCheckReport> getReports();
 
     /**
-     * Deregister with the Health Check Service.
+     * Deregister with the Health Check Service. After deregistering, this object should be disposed of as behavior
+     * will be undefined.
      */
     void deregister();
 }
