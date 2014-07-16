@@ -2,18 +2,18 @@ package com.rackspace.papi.commons.config.resource.impl
 
 import spock.lang.Specification
 
-class FileDirectoryResourceResolverTest extends Specification {
+class ConfigRootResourceResolverTest extends Specification {
 
     String fakeFullPath = "file:/something"
     String partialPath = "something"
     String root = "root"
     String filePrepended = "file:/"
-    FileDirectoryResourceResolver fileDirectoryResourceResolver
+    ConfigRootResourceResolver fileDirectoryResourceResolver
     BufferedURLConfigurationResource bufferedURLConfigurationResource
 
     def "when resolving a resource, the resource should be passed on as is if a :/ is detected"() {
         when:
-        fileDirectoryResourceResolver = new FileDirectoryResourceResolver(root)
+        fileDirectoryResourceResolver = new ConfigRootResourceResolver(root)
         bufferedURLConfigurationResource = fileDirectoryResourceResolver.resolve(fakeFullPath)
 
         then:
@@ -22,7 +22,7 @@ class FileDirectoryResourceResolverTest extends Specification {
 
     def "when resolving a resource, the resource location should have file:/ prepended"() {
         when:
-        fileDirectoryResourceResolver = new FileDirectoryResourceResolver(root)
+        fileDirectoryResourceResolver = new ConfigRootResourceResolver(root)
         bufferedURLConfigurationResource = fileDirectoryResourceResolver.resolve(partialPath)
 
         then:
