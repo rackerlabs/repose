@@ -19,7 +19,7 @@ public class StringWrapperTest {
     
    @BeforeClass
     public static void setUpClass() {
-         instance =new StringWrapper("test");
+         instance = new StringWrapper("test");
     }
     
     /**
@@ -102,5 +102,24 @@ public class StringWrapperTest {
         CharSequence result = instance.subSequence(i, i1);
         assertEquals("es", result.toString());
        
+    }
+
+    /**
+     * Test of equals method
+     */
+    @Test
+    public void testEquals() {
+        StringWrapper instance2 = new StringWrapper("test");
+        assert(instance.equals(instance2));
+        //assertEquals(instance,instance2);
+    }
+
+    /**
+     * Test of equals expecting false
+     */
+    @Test
+    public void testEquals2() {
+        StringWrapper instance2 = new StringWrapper("test2");
+        assert(!instance.equals(instance2));
     }
 }
