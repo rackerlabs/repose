@@ -1,7 +1,5 @@
 package com.rackspace.papi.filter
 
-import groovy.xml.StreamingMarkupBuilder
-import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -17,7 +15,8 @@ import javax.xml.validation.Validator
 class SystemModelConfigTest extends Specification {
     static Schema schema
     def Validator validator
-    def StreamingMarkupBuilder xmlBuilder
+    //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+    //def StreamingMarkupBuilder xmlBuilder
 
     //@BeforeClass      // JUnit 4
     def setupSpec() {   // Spock (Groovy)
@@ -30,8 +29,9 @@ class SystemModelConfigTest extends Specification {
     //public void setUp() throws Exception {    // JUnit 3
     def setup() {                               // Spock (Groovy)
         validator = schema.newValidator()
-        xmlBuilder = new StreamingMarkupBuilder()
-        xmlBuilder.encoding = 'UTF-8'
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //xmlBuilder = new StreamingMarkupBuilder()
+        //xmlBuilder.encoding = 'UTF-8'
     }
 
     //@Test                                                             // JUnit 4
@@ -44,8 +44,7 @@ class SystemModelConfigTest extends Specification {
         validator.validate(sampleSource)
 
         then:
-        notThrown(SAXException)
-        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
+        notThrown(SAXParseException)
     }
 
     private static void appendHeader(StringBuffer xmlBuffer) {
@@ -72,27 +71,27 @@ class SystemModelConfigTest extends Specification {
     @Unroll("Validate System-Model with only one Endpoint Destination that has default=#default1.") // Spock (Groovy)
     def "Validate System-Model with only one Endpoint Destination."() {                             // Spock (Groovy)
         given:
-        def xml = xmlBuilder.bind {
-            mkp.xmlDeclaration()
-            "system-model"(xmlns: 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
-                "repose-cluster"(id: 'repose') {
-                    nodes() {
-                        node(id: 'node1', hostname: 'localhost', 'http-port': '8000')
-                    }
-                    services() {
-                        service(name: 'dist-datastore')
-                    }
-                    destinations() {
-                        if (default1 == null) {
-                            endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080')
-                        } else {
-                            endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080', default: default1)
-                        }
-                    }
-                }
-            }
-        }
-
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //def xml = xmlBuilder.bind {
+        //    mkp.xmlDeclaration()
+        //    "system-model"(xmlns: 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
+        //        "repose-cluster"(id: 'repose') {
+        //            nodes() {
+        //                node(id: 'node1', hostname: 'localhost', 'http-port': '8000')
+        //            }
+        //            services() {
+        //                service(name: 'dist-datastore')
+        //            }
+        //            destinations() {
+        //                if (default1 == null) {
+        //                    endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080')
+        //                } else {
+        //                    endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080', default: default1)
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
         StringBuffer xmlBuffer = new StringBuffer();
         appendHeader(xmlBuffer);
         xmlBuffer.append("            <endpoint id=\"openrepose1\" protocol=\"http\" hostname=\"192.168.1.1\" root-path=\"/\" port=\"8080\"");
@@ -105,12 +104,12 @@ class SystemModelConfigTest extends Specification {
         appendFooter(xmlBuffer);
 
         when:
-        validator.validate(new StreamSource(xml.toString()))
-        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //validator.validate(new StreamSource(xml.toString()))
+        validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
-        notThrown(SAXException)
-        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
+        notThrown(SAXParseException)
 
         where:
         default1 | pass
@@ -119,38 +118,49 @@ class SystemModelConfigTest extends Specification {
         'false'  | true
     }
 
-    private Object createXml(default1, default2, default3) {
-        return xmlBuilder.bind {
-            mkp.xmlDeclaration()
-            "system-model"(xmlns: 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
-                "repose-cluster"(id: 'repose') {
-                    nodes() {
-                        node(id: 'node1', hostname: 'localhost', 'http-port': '8000')
-                    }
-                    services() {
-                        service(name: 'dist-datastore')
-                    }
-                    destinations() {
-                        if (default1 == null) {
-                            endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080')
-                        } else {
-                            endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080', default: default1)
-                        }
-                        if (default2 == null) {
-                            endpoint(id: 'openrepose2', protocol: 'http', hostname: '192.168.1.2', 'root-path': '/', port: '8080')
-                        } else {
-                            endpoint(id: 'openrepose2', protocol: 'http', hostname: '192.168.1.2', 'root-path': '/', port: '8080', default: default2)
-                        }
-                        if (default3 == null) {
-                            endpoint(id: 'openrepose3', protocol: 'http', hostname: '192.168.1.3', 'root-path': '/', port: '8080')
-                        } else {
-                            endpoint(id: 'openrepose3', protocol: 'http', hostname: '192.168.1.3', 'root-path': '/', port: '8080', default: default3)
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+    //private Object createXml(default1, default2, default3) {
+    //    return xmlBuilder.bind {
+    //        mkp.xmlDeclaration()
+    //        "system-model"(xmlns: 'http://docs.rackspacecloud.com/repose/system-model/v2.0') {
+    //            "repose-cluster"(id: 'repose') {
+    //                nodes() {
+    //                    node(id: 'node1', hostname: 'localhost', 'http-port': '8000')
+    //                }
+    //                services() {
+    //                    service(name: 'dist-datastore')
+    //                }
+    //                destinations {
+    //                    //if (default1 == null) {
+    //                    //   endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080')
+    //                    //} else {
+    //                    //   endpoint(id: 'openrepose1', protocol: 'http', hostname: '192.168.1.1', 'root-path': '/', port: '8080', default: default1)
+    //                    //}
+    //                    //if (default2 == null) {
+    //                    //   endpoint(id: 'openrepose2', protocol: 'http', hostname: '192.168.1.2', 'root-path': '/', port: '8080')
+    //                    //} else {
+    //                    //   endpoint(id: 'openrepose2', protocol: 'http', hostname: '192.168.1.2', 'root-path': '/', port: '8080', default: default2)
+    //                    //}
+    //                    //if (default3 == null) {
+    //                    //   endpoint(id: 'openrepose3', protocol: 'http', hostname: '192.168.1.3', 'root-path': '/', port: '8080')
+    //                    //} else {
+    //                    //   endpoint(id: 'openrepose3', protocol: 'http', hostname: '192.168.1.3', 'root-path': '/', port: '8080', default: default3)
+    //                    //}
+    //                    //block.call(mkp)
+    //                    { binding ->
+    //                        def attrs = []
+    //                        def defaults = [default1, default2, default3]
+    //                        3.times {
+    //                            attrs[it] = [id: "openrepose$it", protocol: "http", hostname: "192.168.1.$it", 'root-path': "/", port: "8080", default: defaults[it]]
+    //                            attrs[it].removeAll { it.value == null }
+    //                            endpoint(attrs[it])
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     private static StringBuffer appendXml(default1, default2, default3) {
         StringBuffer xmlBuffer = new StringBuffer();
@@ -187,12 +197,14 @@ class SystemModelConfigTest extends Specification {
     @Unroll("InValidate System-Model with Endpoint Destinations default1=#default1, default2=#default2, and default3=#default3.")   // Spock (Groovy)
     def "InValidate System-Model with three Endpoint Destinations."() {                                                             // Spock (Groovy)
         given:
-        def xml = createXml(default1, default2, default3)
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //def xml = createXml(default1, default2, default3)
         StringBuffer xmlBuffer = appendXml(default1, default2, default3);
 
         when:
-        validator.validate(new StreamSource(xml.toString()))
-        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //validator.validate(new StreamSource(xml.toString()))
+        validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
         def caught = thrown(SAXParseException)
@@ -221,16 +233,17 @@ class SystemModelConfigTest extends Specification {
     @Unroll("Validate System-Model with Endpoint Destinations default1=#default1, default2=#default2, and default3=#default3.") // Spock (Groovy)
     def "Validate System-Model with three Endpoint Destinations."() {                                                           // Spock (Groovy)
         given:
-        def xml = createXml(default1, default2, default3)
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //def xml = createXml(default1, default2, default3)
         StringBuffer xmlBuffer = appendXml(default1, default2, default3);
 
         when:
-        validator.validate(new StreamSource(xml.toString()))
-        //validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
+        //// NOTE: The XML builder would not pretty-print in time to make the end of the Sprint so the old StringBuffer way was used.
+        //validator.validate(new StreamSource(xml.toString()))
+        validator.validate(new StreamSource(new StringReader(xmlBuffer.toString())));
 
         then:
-        notThrown(SAXException)
-        //notThrown(IOException) // Error:(48, 9) Groovyc: Only one exception condition is allowed per 'then' block
+        notThrown(SAXParseException)
 
         where:
         default1 | default2 | default3
