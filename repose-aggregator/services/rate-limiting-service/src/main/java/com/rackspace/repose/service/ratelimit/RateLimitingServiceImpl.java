@@ -64,6 +64,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
         final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
+        final List< Pair<String, ConfiguredRatelimit> > matchingGlobalConfiguredLimits = new ArrayList<>(); // TODO: this
         TimeUnit largestUnit = null;
 
         // Go through all of the configured limits for this group
@@ -89,8 +90,14 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 }
             }
         }
+        for (ConfiguredGlobalRateLimit globalLimit : configuredGlobalLimitGroup.getLimit()) {
+            // TODO: Same as in the above loop, except...
+        }
         if (matchingConfiguredLimits.size() > 0) {
             rateLimiter.handleRateLimit(user, matchingConfiguredLimits, largestUnit, datastoreWarnLimit);
+        }
+        if (matchingGlobalConfiguredLimits.size() > 0) {
+            // TODO: handle global rate limits in a method call like above, but with the user set to "YOLO" and the global limits collection
         }
     }
 
