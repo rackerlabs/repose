@@ -43,38 +43,27 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return reports.get(proxy).get(issueName);
     }
 
-    private boolean reportIssue(HealthCheckServiceProxy proxy, String issueName, HealthCheckReport report) {
+    private void reportIssue(HealthCheckServiceProxy proxy, String issueName, HealthCheckReport report) {
         LOG.info("HealthCheckService.reportIssue: " + issueName + " reported by " + System.identityHashCode(proxy));
 
-        boolean alreadyReported = false;
-        if (reports.remove(proxy) != null) {
-            alreadyReported = true;
-        }
-
         reports.get(proxy).put(issueName, report);
-        
-        return alreadyReported;
     }
 
     private Set<String> getReportIds(HealthCheckServiceProxy proxy) {
         return reports.get(proxy).keySet();
     }
 
-    private boolean resolveIssue(HealthCheckServiceProxy proxy, String issueName) {
+    private void resolveIssue(HealthCheckServiceProxy proxy, String issueName) {
         Iterator<String> itr = reports.get(proxy).keySet().iterator();
 
         while (itr.hasNext()) {
             String cur = itr.next();
-            if (issueName.equals(cur)) {
+            if (cur.equals(issueName)) {
                 LOG.info("HealthCheckService.resolveIssue: " + issueName + " resolved by " + System.identityHashCode(proxy));
 
                 itr.remove();
-
-                return true;
             }
         }
-
-        return false;
     }
 
     private Map<String, HealthCheckReport> getReports(HealthCheckServiceProxy proxy) {
@@ -88,8 +77,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public boolean reportIssue(String issueName, String message, Severity severity) {
-            return HealthCheckServiceImpl.this.reportIssue(this, issueName, new HealthCheckReport(message, severity));
+        public void reportIssue(String issueName, String message, Severity severity) {
+            HealthCheckServiceImpl.this.reportIssue(this, issueName, new HealthCheckReport(message, severity));
         }
 
         @Override
@@ -98,8 +87,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         }
 
         @Override
-        public boolean resolveIssue(String issueName) {
-            return HealthCheckServiceImpl.this.resolveIssue(this, issueName);
+        public void resolveIssue(String issueName) {
+            HealthCheckServiceImpl.this.resolveIssue(this, issueName);
         }
 
         @Override
