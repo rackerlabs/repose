@@ -56,8 +56,10 @@
             </xs:documentation>
         </xs:annotation>
 
+        <!-- TODO: Change this to xs:all to avoid enforcing ordering? -->
         <xs:sequence>
             <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="global-limit-group" type="rl:GlobalLimitGroup" minOccurs="0" maxOccurs="1" />
             <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         
@@ -176,6 +178,20 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="GlobalLimitGroup">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Defines a list of rate limits to apply globally (i.e., to every request without exception).
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="limit" type="rl:ConfiguredRatelimit" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="ConfiguredLimitGroup">
