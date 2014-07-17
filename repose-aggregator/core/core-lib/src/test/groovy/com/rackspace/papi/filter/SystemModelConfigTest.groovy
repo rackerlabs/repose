@@ -36,11 +36,8 @@ class SystemModelConfigTest extends Specification {
         given:
         final StreamSource sampleSource = new StreamSource(SystemModelConfigTest.class.getResourceAsStream("/META-INF/schema/examples/system-model.cfg.xml"))
 
-        when:
+        expect:
         validator.validate(sampleSource)
-
-        then:
-        notThrown(SAXParseException)
     }
 
     @Unroll("Validate System-Model with only one Endpoint Destination that has default attribute set to #endpointOneDefault")
@@ -48,11 +45,8 @@ class SystemModelConfigTest extends Specification {
         given:
         String xml = createXml(endpointOneDefault)
 
-        when:
+        expect:
         validator.validate(new StreamSource(new StringReader(xml)))
-
-        then:
-        notThrown(SAXParseException)
 
         where:
         endpointOneDefault << [null, true, false]
@@ -93,11 +87,8 @@ class SystemModelConfigTest extends Specification {
         given:
         def xml = createXml(endpointOneDefault, endpointTwoDefault, endpointThreeDefault)
 
-        when:
+        expect:
         validator.validate(new StreamSource(new StringReader(xml)))
-
-        then:
-        notThrown(SAXParseException)
 
         where:
         endpointOneDefault | endpointTwoDefault | endpointThreeDefault
