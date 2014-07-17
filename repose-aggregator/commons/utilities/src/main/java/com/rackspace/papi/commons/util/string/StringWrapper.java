@@ -49,7 +49,12 @@ public class StringWrapper implements JCharSequence {
 
     @Override
     public boolean equals(Object o) {
-        return string.equals(((StringWrapper)o).asCharSequence());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StringWrapper that = (StringWrapper) o;
+
+        return string.equals(that.asCharSequence());
     }
 
     @Override
