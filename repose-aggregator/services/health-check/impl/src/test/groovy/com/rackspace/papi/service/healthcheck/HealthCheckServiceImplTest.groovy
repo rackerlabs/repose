@@ -3,6 +3,14 @@ package com.rackspace.papi.service.healthcheck
 import org.junit.Before
 import org.junit.Test
 
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.hasItem
+import static org.hamcrest.CoreMatchers.not
+import static org.junit.Assert.assertNull
+import static org.junit.Assert.assertThat
+import static org.junit.Assert.assertTrue
+import static org.junit.Assert.assertFalse
+
 class HealthCheckServiceImplTest {
 
     HealthCheckService healthCheckService;
@@ -29,7 +37,7 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
         healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
 
-        assert !healthCheckService.isHealthy()
+        assertFalse(healthCheckService.isHealthy())
     }
 
     @Test
@@ -38,7 +46,7 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id1", h4Message, h4Severity);
         healthCheckServiceProxy.reportIssue("id1", h5Message, h5Severity);
 
-        assert healthCheckService.isHealthy()
+        assertTrue(healthCheckService.isHealthy())
     }
 
     @Test
@@ -47,8 +55,8 @@ class HealthCheckServiceImplTest {
 
         healthCheckServiceProxy.reportIssue("id", h1Message, h1Severity)
 
-        assert expectedReport.level == healthCheckServiceProxy.getDiagnosis("id").level
-        assert expectedReport.message.equals(healthCheckServiceProxy.getDiagnosis("id").message)
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").level, equalTo(expectedReport.level))
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").message, equalTo(expectedReport.message))
     }
 
     @Test
@@ -56,12 +64,12 @@ class HealthCheckServiceImplTest {
         HealthCheckReport expectedReport = new HealthCheckReport(h1Message, h1Severity)
         healthCheckServiceProxy.reportIssue("id", h1Message, h1Severity)
 
-        assert expectedReport.level == healthCheckServiceProxy.getDiagnosis("id").level
-        assert expectedReport.message.equals(healthCheckServiceProxy.getDiagnosis("id").message)
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").level, equalTo(expectedReport.level))
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").message, equalTo(expectedReport.message))
 
         healthCheckServiceProxy.resolveIssue("id")
 
-        assert healthCheckServiceProxy.getDiagnosis("id") == null
+        assertNull(healthCheckServiceProxy.getDiagnosis("id"))
     }
 
     @Test
@@ -72,12 +80,12 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy.reportIssue("id4", h4Message, h4Severity);
         healthCheckServiceProxy.reportIssue("id5", h5Message, h5Severity);
 
-        assert healthCheckServiceProxy.getReportIds().contains("id1")
-        assert healthCheckServiceProxy.getReportIds().contains("id2")
-        assert healthCheckServiceProxy.getReportIds().contains("id3")
-        assert healthCheckServiceProxy.getReportIds().contains("id4")
-        assert healthCheckServiceProxy.getReportIds().contains("id5")
-        assert !healthCheckServiceProxy.getReportIds().contains("notAnId")
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id1"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id2"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id3"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id4"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id5"))
+        assertThat(healthCheckServiceProxy.getReportIds(), not(hasItem("notAnId")))
     }
 
     @Test
@@ -91,15 +99,15 @@ class HealthCheckServiceImplTest {
         healthCheckServiceProxy2.reportIssue("id4", h4Message, h4Severity);
         healthCheckServiceProxy2.reportIssue("id5", h5Message, h5Severity);
 
-        assert healthCheckServiceProxy.getReports().containsKey("id1")
-        assert healthCheckServiceProxy.getReports().containsKey("id2")
-        assert !healthCheckServiceProxy.getReports().containsKey("id4")
-        assert !healthCheckServiceProxy.getReports().containsKey("id5")
+        assertThat(healthCheckServiceProxy.getReports().keySet(), hasItem("id1"))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), hasItem("id2"))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), not(hasItem("id4")))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), not(hasItem("id5")))
     }
 
     @Test
     void shouldProvideHealthyResponseWhenNoIssuesReported() {
-        assert healthCheckService.isHealthy()
+        assertTrue(healthCheckService.isHealthy())
     }
 
     @Test
