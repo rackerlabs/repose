@@ -91,7 +91,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
         }
         for (ConfiguredGlobalRateLimit globalLimit : configuredGlobalLimitGroup.getLimit()) {
-            // TODO: Same as in the above loop, except...
+            // TODO: Same as in the above loop
         }
         if (matchingConfiguredLimits.size() > 0) {
             rateLimiter.handleRateLimit(user, matchingConfiguredLimits, largestUnit, datastoreWarnLimit);
