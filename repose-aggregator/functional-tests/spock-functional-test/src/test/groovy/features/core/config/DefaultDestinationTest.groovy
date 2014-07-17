@@ -4,10 +4,12 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import org.junit.Ignore
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -16,6 +18,7 @@ class DefaultDestinationTest extends Specification {
 
     int reposePort
     int targetPort
+
     String url
     TestProperties properties
     ReposeConfigurationProvider reposeConfigProvider
@@ -23,7 +26,6 @@ class DefaultDestinationTest extends Specification {
     ReposeLogSearch reposeLogSearch
     Map params = [:]
     Deproxy deproxy
-    String errorMessage = "There should only be one default destination."
     boolean expectCleanShutdown
 
     def setup() {
@@ -57,7 +59,7 @@ class DefaultDestinationTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1":default1, "default2":default2, "default3":default3
+                "default1":default1, "default2":default2, "default2":default3
 
         ]
         reposeConfigProvider.applyConfigs("features/core/config/default-dest-good", params)
@@ -89,20 +91,20 @@ class DefaultDestinationTest extends Specification {
 
     }
 
+    @Unroll("when defaults: #default1, #default2, #default3")
     def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/config/common", params)
-//        reposeConfigProvider.applyConfigs("features/core/config/default-dest-bad", params)
 
         params += [
                 "default1":default1, "default2":default2, "default3":default3
 
         ]
         reposeConfigProvider.applyConfigs("features/core/config/default-dest-bad", params)
-        expectCleanShutdown = false
+        // = false
 
         // start repose
         repose = new ReposeValveLauncher(
@@ -118,8 +120,8 @@ class DefaultDestinationTest extends Specification {
 
 
         when: "starting Repose with more or less than one default destination endpoint"
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
+        repose.start([waitOnJmxAfterStarting: false])
+
         then: "error should be logged"
         waitForCondition(repose.clock, "30s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
@@ -135,15 +137,15 @@ class DefaultDestinationTest extends Specification {
 
 
         where:
-        default1 | default2 | default3
-//        null     | null     | null
-//        null     | null     | 'default=false'
-//        null     | 'default=true'   | 'default=true'
-//        null     | 'default=false'  | null
-//        null     | 'default=false'  | 'default=false'
-//        'default=true'   | null     | 'true'
-//        'default=true'   | 'default=true'   | null
-        'default=true'   | 'default=true'   | 'default=true'
+        default1 | default2 | default3  | errorMessage
+        null     | null     | null      | "not a valid value for 'boolean'"
+        null     | null     | 'false'   | "not a valid value for 'boolean'"
+        null     | 'true'   | 'true'    | "not a valid value for 'boolean'"
+        null     | 'false'  | null      | "not a valid value for 'boolean'"
+        'false'  | 'false'  | 'false'   | "There should only be one default destination."
+        'true'   | null     | 'true'    | "not a valid value for 'boolean'"
+        'true'   | 'true'   | null      | "not a valid value for 'boolean'"
+        'true'   | 'true'     | 'true'  | "There should only be one default destination."
 //        'true'   | 'true'   | 'false'
 //        'true'   | 'false'  | 'true'
 //        'false'  | null     | null
@@ -155,7 +157,7 @@ class DefaultDestinationTest extends Specification {
 
     def cleanup() {
         if (repose) {
-            repose.stop(throwExceptionOnKill: expectCleanShutdown)
+            repose.stop([throwExceptionOnKill: false])
         }
         if (deproxy) {
             deproxy.shutdown()
