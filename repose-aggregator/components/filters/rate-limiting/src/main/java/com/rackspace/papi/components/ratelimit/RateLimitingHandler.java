@@ -147,12 +147,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
         director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
 
+      } else if (e.getUser().equalsIgnoreCase("YOLO")) { // TODO: Something like this for setting the response code
+          director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
       } else {
 
         director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
 
       }
-      director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+      director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123()); // TODO: This will provide the retry-after header (without modification, I think?)
 
 
 

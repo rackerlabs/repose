@@ -42,6 +42,10 @@ public class RateLimitingConfigHelper {
         boolean defaultSet = false;
         final List<ConfiguredLimitGroup> newLimitGroups = new ArrayList<ConfiguredLimitGroup>();
 
+        for (ConfiguredGlobalLimitGroup globalLimitGroup: configurationObject.getGlobalLimitGroup()) {
+            // TODO: Do stuff here to add to the newLimitGroups list (like below)
+        }
+
         for (ConfiguredLimitGroup limitGroup : configurationObject.getLimitGroup()) {
             // Makes sure that only the first limit group set to default is the only default group
             if (limitGroup.isDefault()) {

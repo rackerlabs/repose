@@ -67,6 +67,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         TimeUnit largestUnit = null;
 
         // Go through all of the configured limits for this group
+        // TODO: This collection should /always/ include the global limit group
         for (ConfiguredRatelimit rateLimit : configuredLimitGroup.getLimit()) {
             Matcher uriMatcher;
             if (rateLimit instanceof ConfiguredRateLimitWrapper) {
@@ -78,6 +79,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
 
             // Did we find a limit that matches the incoming uri and http method?
+            // TODO: This conditional should always match if a rate limit is a global rate limit
             if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParamNames(), parameterMap)) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
                         rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));

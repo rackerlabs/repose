@@ -88,7 +88,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             rateLimitCache = new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore()));
 
-            service = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
+            service = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject); // TODO: this is the call that reads the configuration object and processes it
 
             describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
 
