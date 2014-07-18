@@ -17,9 +17,9 @@
         </services>
 
         <destinations>
-            <endpoint id="mock-service-1" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="true"/>
-            <endpoint id="mock-service-2" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="false"/>
-            <endpoint id="mock-service-3" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/" default="false"/>
+            <endpoint id="mock-service-1" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/ ${default1}" />
+            <endpoint id="mock-service-2" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/ ${default2}" />
+            <endpoint id="mock-service-3" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/ ${default3}" />
         </destinations>
 
     </repose-cluster>
