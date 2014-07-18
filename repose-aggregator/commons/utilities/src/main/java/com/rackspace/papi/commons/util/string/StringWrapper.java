@@ -54,7 +54,7 @@ public class StringWrapper implements JCharSequence {
 
         StringWrapper that = (StringWrapper) o;
 
-        return string.equals(that.asCharSequence());
+        return string.equals(that.string);
     }
 
     @Override
