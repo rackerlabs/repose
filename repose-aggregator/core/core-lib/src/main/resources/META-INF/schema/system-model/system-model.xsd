@@ -273,7 +273,7 @@
             xerces:message="Must have at least one destination defined."
             saxon:message="Must have at least one destination defined.">
         </xs:assert>
-        <xs:assert vc:minVersion="1.1" test="count(mod:*[xs:boolean(@default) = true()]) le 1"
+        <xs:assert vc:minVersion="1.1" test="((count(mod:endpoint)+count(mod:target)) eq 1) or (count(mod:*[xs:boolean(@default) = true()]) eq 1)"
             xerces:message="There should only be one default destination"
             saxon:message="There should only be one default destination">
         </xs:assert>
