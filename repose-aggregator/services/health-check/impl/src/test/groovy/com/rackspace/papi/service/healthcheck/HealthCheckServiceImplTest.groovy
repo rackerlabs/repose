@@ -3,194 +3,115 @@ package com.rackspace.papi.service.healthcheck
 import org.junit.Before
 import org.junit.Test
 
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.hasItem
+import static org.hamcrest.CoreMatchers.not
+import static org.junit.Assert.assertNull
+import static org.junit.Assert.assertThat
+import static org.junit.Assert.assertTrue
+import static org.junit.Assert.assertFalse
+
 class HealthCheckServiceImplTest {
 
     HealthCheckService healthCheckService;
-    HealthCheckReport h1, h2, h3, h4, h5;
+    String h1Message = "Health report 1"
+    String h2Message = "Health report 2"
+    String h3Message = "Health report 3"
+    String h4Message = "Health report 4"
+    String h5Message = "Health report 5"
+    Severity h1Severity = Severity.WARNING
+    Severity h2Severity = Severity.BROKEN
+    Severity h3Severity = Severity.BROKEN
+    Severity h4Severity = Severity.WARNING
+    Severity h5Severity = Severity.WARNING
+    HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Before
     void setUp() {
-
         healthCheckService = new HealthCheckServiceImpl();
-        h1 = new HealthCheckReport("Health report 1", Severity.WARNING)
-        h2 = new HealthCheckReport("Health report 2", Severity.BROKEN)
-        h3 = new HealthCheckReport("Health report 3", Severity.BROKEN)
-        h4 = new HealthCheckReport("Health report 4", Severity.WARNING)
-        h5 = new HealthCheckReport("Health report 5", Severity.WARNING)
-
+        healthCheckServiceProxy = healthCheckService.register();
     }
 
     @Test
     void shouldReportUnHealthyWithBrokenReport() {
+        healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
+        healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
 
-        String uid = healthCheckService.register(this.class);
-
-        healthCheckService.reportIssue(uid, "id1", h1);
-        healthCheckService.reportIssue(uid, "id2", h2);
-
-
-        assert !healthCheckService.isHealthy()
+        assertFalse(healthCheckService.isHealthy())
     }
 
     @Test
     void shouldReportHealthyWithOnlyReportedWarnings() {
+        healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
+        healthCheckServiceProxy.reportIssue("id1", h4Message, h4Severity);
+        healthCheckServiceProxy.reportIssue("id1", h5Message, h5Severity);
 
-        String uid = healthCheckService.register(this.class)
-        healthCheckService.reportIssue(uid, "id1", h1);
-        healthCheckService.reportIssue(uid, "id1", h4);
-        healthCheckService.reportIssue(uid, "id1", h5);
-
-        assert healthCheckService.isHealthy()
+        assertTrue(healthCheckService.isHealthy())
     }
 
     @Test
-    void shouldReturnReportByUidAndRid() {
+    void shouldReturnReportByRid() {
+        HealthCheckReport expectedReport = new HealthCheckReport(h1Message, h1Severity)
 
-        String uid = healthCheckService.register(this.class)
-        healthCheckService.reportIssue(uid, "id", h1)
+        healthCheckServiceProxy.reportIssue("id", h1Message, h1Severity)
 
-        assert h1.level == healthCheckService.getDiagnosis(uid, "id").level
-        assert h1.message.equals(healthCheckService.getDiagnosis(uid,"id").message)
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").level, equalTo(expectedReport.level))
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").message, equalTo(expectedReport.message))
     }
 
     @Test
     void shouldRemoveIssue() {
+        HealthCheckReport expectedReport = new HealthCheckReport(h1Message, h1Severity)
+        healthCheckServiceProxy.reportIssue("id", h1Message, h1Severity)
 
-        String uid = healthCheckService.register(this.class)
-        healthCheckService.reportIssue(uid, "id", h1)
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").level, equalTo(expectedReport.level))
+        assertThat(healthCheckServiceProxy.getDiagnosis("id").message, equalTo(expectedReport.message))
 
-        assert h1.level == healthCheckService.getDiagnosis(uid, "id").level
-        assert h1.message.equals(healthCheckService.getDiagnosis(uid, "id").message)
+        healthCheckServiceProxy.resolveIssue("id")
 
-        healthCheckService.solveIssue(uid, "id")
-
-        assert healthCheckService.getDiagnosis(uid, "id") == null
+        assertNull(healthCheckServiceProxy.getDiagnosis("id"))
     }
 
     @Test
     void shouldProvideIdsToRetrieveReportedIssues() {
+        healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
+        healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
+        healthCheckServiceProxy.reportIssue("id3", h3Message, h3Severity);
+        healthCheckServiceProxy.reportIssue("id4", h4Message, h4Severity);
+        healthCheckServiceProxy.reportIssue("id5", h5Message, h5Severity);
 
-        String uid = healthCheckService.register(this.class);
-        healthCheckService.reportIssue(uid, "id1", h1);
-        healthCheckService.reportIssue(uid, "id2", h2);
-        healthCheckService.reportIssue(uid, "id3", h3);
-        healthCheckService.reportIssue(uid, "id4", h4);
-        healthCheckService.reportIssue(uid, "id5", h5);
-
-        assert healthCheckService.getReportIds(uid).contains("id1")
-        assert healthCheckService.getReportIds(uid).contains("id2")
-        assert healthCheckService.getReportIds(uid).contains("id3")
-        assert healthCheckService.getReportIds(uid).contains("id4")
-        assert healthCheckService.getReportIds(uid).contains("id5")
-        assert !healthCheckService.getReportIds(uid).contains("notAnId")
-
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id1"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id2"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id3"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id4"))
+        assertThat(healthCheckServiceProxy.getReportIds(), hasItem("id5"))
+        assertThat(healthCheckServiceProxy.getReportIds(), not(hasItem("notAnId")))
     }
 
     @Test
-    void shouldReturnReportsAssociatedWithUid(){
+    void shouldReturnReportsAssociatedWithUid() {
+        healthCheckServiceProxy.reportIssue("id1", h1Message, h1Severity);
+        healthCheckServiceProxy.reportIssue("id2", h2Message, h2Severity);
+        healthCheckServiceProxy.reportIssue("id3", h3Message, h3Severity);
 
-        String uid = healthCheckService.register(this.class);
-        healthCheckService.reportIssue(uid, "id1", h1);
-        healthCheckService.reportIssue(uid, "id2", h2);
-        healthCheckService.reportIssue(uid, "id3", h3);
+        HealthCheckServiceProxy healthCheckServiceProxy2 = healthCheckService.register()
 
-        String uid2 = healthCheckService.register(String.class)
+        healthCheckServiceProxy2.reportIssue("id4", h4Message, h4Severity);
+        healthCheckServiceProxy2.reportIssue("id5", h5Message, h5Severity);
 
-        healthCheckService.reportIssue(uid2, "id4", h4);
-        healthCheckService.reportIssue(uid2, "id5", h5);
-
-        assert healthCheckService.getReports(uid).containsKey("id1")
-        assert healthCheckService.getReports(uid).containsKey("id2")
-        assert !healthCheckService.getReports(uid).containsKey("id4")
-        assert !healthCheckService.getReports(uid).containsKey("id5")
-
+        assertThat(healthCheckServiceProxy.getReports().keySet(), hasItem("id1"))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), hasItem("id2"))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), not(hasItem("id4")))
+        assertThat(healthCheckServiceProxy.getReports().keySet(), not(hasItem("id5")))
     }
 
     @Test
     void shouldProvideHealthyResponseWhenNoIssuesReported() {
-
-        assert healthCheckService.isHealthy()
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    void shouldThrowNotRegisteredExceptionWhenRetrievingReportsListForUnregisteredUID(){
-
-        healthCheckService.getReportIds("doesNotExist")
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    void shouldThrowNotRegisteredExceptionWhenRetrievingValidRidWithInvalidUID(){
-
-        String uid = healthCheckService.register(this.class)
-        healthCheckService.reportIssue(uid, "id", h1)
-
-        healthCheckService.getDiagnosis(uid+"blah", "id")
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    void shouldThrowNotRegisteredExceptionWhenReportingHealthIssueToInvalidUID(){
-
-        String uid = healthCheckService.register(this.class)
-
-        healthCheckService.reportIssue(uid+"blah", "id", h1)
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    void shouldThrowNotRegisteredExceptionWhenRetrievingReportsOfUnregisteredUID(){
-
-        String uid = healthCheckService.register(this.class)
-
-        healthCheckService.getReports(uid+"blah")
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    void shouldThrowNotRegisteredExceptionWhenSolvingIssuesOfUnregisteredUID(){
-
-        String uid = healthCheckService.register(this.class)
-
-        healthCheckService.solveIssue(uid+"blah", "notThere")
+        assertTrue(healthCheckService.isHealthy())
     }
 
     @Test
-    void shouldNotThrowErrorIfNoIssuesExist(){
-
-        String uid = healthCheckService.register(this.class)
-        healthCheckService.solveIssue(uid, "notAnIssue")
+    void shouldNotThrowErrorIfNoIssuesExist() {
+        healthCheckServiceProxy.resolveIssue("notAnIssue")
     }
-
-    @Test
-    void shouldGenerateUniqueUids(){
-
-        String x = "HealthChecker"
-        def list = []
-        for(int i=0; i<1000; i++){
-
-            list.push(healthCheckService.register(x.class))
-        }
-
-        def set = list as Set
-
-        assert set.size() == 1000
-    }
-
-    @Test(expected = InputNullException)
-    void shouldNotAllowNullOrBlankForReportIds(){
-
-        String uid = healthCheckService.register(this.class)
-
-        healthCheckService.reportIssue(uid, null, h1);
-    }
-
-    @Test(expected = InputNullException)
-    void shouldReturnIdNullWhenGivenNullUid(){
-
-        healthCheckService.reportIssue(null, "rid", h1);
-    }
-
-    @Test(expected = IllegalArgumentException)
-    void shouldReturnIllegalArgumentExceptionForRegisteringNullClass(){
-
-        healthCheckService.register(null)
-    }
-
 }

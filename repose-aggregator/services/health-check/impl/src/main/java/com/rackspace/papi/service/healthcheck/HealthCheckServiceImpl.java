@@ -1,23 +1,31 @@
 package com.rackspace.papi.service.healthcheck;
 
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HealthCheckServiceImpl implements HealthCheckService {
+    private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
-    Map<String, Map<String, HealthCheckReport>> reports;
+    private Map<HealthCheckServiceProxy, Map<String, HealthCheckReport>> reports = new ConcurrentHashMap<>();
 
-    public HealthCheckServiceImpl() {
-
-        reports = new ConcurrentHashMap<String, Map<String, HealthCheckReport>>();
+    @Override
+    public HealthCheckServiceProxy register() {
+        HealthCheckServiceProxy proxy = new HealthCheckServiceProxyImpl();
+        Map<String, HealthCheckReport> reportMap = new HashMap<>();
+        reports.put(proxy, reportMap);
+        return proxy;
     }
 
     @Override
     public boolean isHealthy() {
-
-        for (Map.Entry<String, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
+        for (Map.Entry<HealthCheckServiceProxy, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
-
                 if (entry.getValue().getLevel().equals(Severity.BROKEN)) {
                     return false;
                 }
@@ -27,79 +35,70 @@ public class HealthCheckServiceImpl implements HealthCheckService {
         return true;
     }
 
-    @Override
-    public HealthCheckReport getDiagnosis(String UID, String id) throws NotRegisteredException, InputNullException {
-        checkUid(UID);
-        return reports.get(UID).get(id);
+    public void deregister(HealthCheckServiceProxy proxy) {
+        reports.remove(proxy);
     }
 
-    @Override
-    public void reportIssue(String UID, String RID, HealthCheckReport report) throws NotRegisteredException, InputNullException {
-
-        checkUid(UID);
-        checkIdNull(RID);
-        reports.get(UID).put(RID, report);
+    private HealthCheckReport getDiagnosis(HealthCheckServiceProxy proxy, String issueName) {
+        return reports.get(proxy).get(issueName);
     }
 
-    @Override
-    public Set<String> getReportIds(String UID) throws NotRegisteredException, InputNullException {
+    private void reportIssue(HealthCheckServiceProxy proxy, String issueName, HealthCheckReport report) {
+        LOG.info("HealthCheckService.reportIssue: " + issueName + " reported by " + System.identityHashCode(proxy));
 
-        checkUid(UID);
-        return reports.get(UID).keySet();
+        reports.get(proxy).put(issueName, report);
     }
 
-    @Override
-    public void solveIssue(String UID, String id) throws NotRegisteredException, InputNullException {
-
-        checkUid(UID);
-        checkIdNull(id);
-        solveIssue(id, reports.get(UID));
+    private Set<String> getReportIds(HealthCheckServiceProxy proxy) {
+        return reports.get(proxy).keySet();
     }
 
-    private void solveIssue(String id, Map<String, HealthCheckReport> reportMap) {
-
-        Iterator<String> itr = reportMap.keySet().iterator();
+    private void resolveIssue(HealthCheckServiceProxy proxy, String issueName) {
+        Iterator<String> itr = reports.get(proxy).keySet().iterator();
 
         while (itr.hasNext()) {
             String cur = itr.next();
-            if (id.equals(cur)) {
+            if (cur.equals(issueName)) {
+                LOG.info("HealthCheckService.resolveIssue: " + issueName + " resolved by " + System.identityHashCode(proxy));
+
                 itr.remove();
             }
         }
     }
 
-    @Override
-    public String register(Class T) {
-        if (T == null) {
-            throw new IllegalArgumentException("Registering Class");
+    private Map<String, HealthCheckReport> getReports(HealthCheckServiceProxy proxy) {
+        return reports.get(proxy);
+    }
+
+    private class HealthCheckServiceProxyImpl implements HealthCheckServiceProxy {
+        @Override
+        public HealthCheckReport getDiagnosis(String issueName) {
+            return HealthCheckServiceImpl.this.getDiagnosis(this, issueName);
         }
-        Map<String, HealthCheckReport> reportMap = new HashMap<String, HealthCheckReport>();
-        Long rand = UUID.randomUUID().getMostSignificantBits();
-        String UID = T.getName() + ":" + rand.toString();
-        reports.put(UID, reportMap);
-        return UID;
-    }
 
-    @Override
-    public Map<String, HealthCheckReport> getReports(String UID) throws NotRegisteredException, InputNullException {
-
-        checkUid(UID);
-        return reports.get(UID);
-
-    }
-
-    private void checkUid(String uid) throws NotRegisteredException, InputNullException {
-
-        checkIdNull(uid);
-        if (!reports.containsKey(uid)) {
-            throw new NotRegisteredException(uid);
+        @Override
+        public void reportIssue(String issueName, String message, Severity severity) {
+            HealthCheckServiceImpl.this.reportIssue(this, issueName, new HealthCheckReport(message, severity));
         }
-    }
 
-    private void checkIdNull(String id) throws InputNullException {
+        @Override
+        public Set<String> getReportIds() {
+            return HealthCheckServiceImpl.this.getReportIds(this);
+        }
 
-        if (id == null) {
-            throw new InputNullException();
+        @Override
+        public void resolveIssue(String issueName) {
+            HealthCheckServiceImpl.this.resolveIssue(this, issueName);
+        }
+
+        @Override
+        public Map<String, HealthCheckReport> getReports() {
+            return HealthCheckServiceImpl.this.getReports(this);
+        }
+
+        @Override
+        public void deregister() {
+            HealthCheckServiceImpl.this.deregister(this);
         }
     }
 }

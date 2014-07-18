@@ -1,4 +1,5 @@
 package com.rackspace.papi.service.context.impl
+
 import com.google.common.base.Optional
 import com.rackspace.papi.commons.config.manager.UpdateListener
 import com.rackspace.papi.commons.util.proxy.RequestProxyService
@@ -7,8 +8,9 @@ import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
+import com.rackspace.papi.service.healthcheck.Severity
 import org.apache.log4j.Logger
 import org.apache.log4j.SimpleLayout
 import org.apache.log4j.WriterAppender
@@ -34,6 +36,9 @@ class RequestProxyServiceContextTest extends Specification {
     def HealthCheckService healthCheckService
 
     @Shared
+    def HealthCheckServiceProxy healthCheckServiceProxy
+
+    @Shared
     def ByteArrayOutputStream log = new ByteArrayOutputStream()
 
     def setup() {
@@ -46,8 +51,9 @@ class RequestProxyServiceContextTest extends Specification {
         systemModelInterrogator = mock(SystemModelInterrogator.class)
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
+        healthCheckServiceProxy = mock(HealthCheckServiceProxy)
 
-        when(healthCheckService.register(any(Class.class))).thenReturn("test_uid")
+        when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         requestProxyServiceContext = new RequestProxyServiceContext(requestProxyService, serviceRegistry,
                 configurationService, systemModelInterrogator, healthCheckService)
@@ -74,7 +80,7 @@ class RequestProxyServiceContextTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckService).solveIssue(any(String.class), eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckServiceProxy).resolveIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
@@ -97,7 +103,7 @@ class RequestProxyServiceContextTest extends Specification {
         then:
         !listenerObject.isInitialized()
         new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
-        verify(healthCheckService).reportIssue(any(String.class), eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
-                any(HealthCheckReport.class))
+        verify(healthCheckServiceProxy).reportIssue(eq(RequestProxyServiceContext.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String.class),
+                any(Severity))
     }
 }

@@ -48,8 +48,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
     private ClusterView clusterView;
     private ReposeInstanceInfo reposeInstanceInfo;
     private ServiceRegistry registry;
-    private HealthCheckService healthCheckService;
-    private String healthCheckUID;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Autowired
     public DistributedDatastoreServiceClusterContext(@Qualifier("configurationManager") ConfigurationService configurationManager,
@@ -61,8 +60,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
         this.service = service;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.registry = registry;
-        this.healthCheckService = healthCheckService;
-        healthCheckUID = healthCheckService.register(DistributedDatastoreServiceClusterContext.class);
+        this.healthCheckServiceProxy = healthCheckService.register();
     }
 
     @Override
@@ -99,7 +97,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
                 }
             }
             // After successful config update the error report will be removed
-            solveIssue(datastoreConfigHealthReport);
+            healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
         }
 
         @Override
@@ -126,7 +124,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
                 }
             }
             // After successful config update the error report will be removed
-            solveIssue(systemModelConfigHealthReport);
+            healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
         }
 
         @Override
@@ -171,8 +169,8 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
     public void contextInitialized(ServletContextEvent sce) {
 
         //Setting Initial Broken state.
-        reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
-        reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
         hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
         String ddPort = sce.getServletContext().getInitParameter("datastoreServicePort");
         List<Integer> servicePorts = new ArrayList<Integer>();
@@ -188,8 +186,8 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
         try {
             if (!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()) {
-                solveIssue(datastoreConfigHealthReport);
-                solveIssue(systemModelConfigHealthReport);
+                healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
+                healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
             }
         } catch (IOException e) {
             LOG.error("Unable to search for {}", DEFAULT_CONFIG, e);
@@ -205,31 +203,4 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
             configurationManager.unsubscribeFrom(DEFAULT_CONFIG, distributedDatastoreConfigurationListener);
         }
     }
-
-    private void reportIssue(String rid, String message, Severity severity) {
-
-        LOG.debug("Reporting issue to Health Checker Service: " + rid);
-        try {
-            healthCheckService.reportIssue(healthCheckUID, rid, new HealthCheckReport(message, severity));
-        } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        }
-
-    }
-
-    private void solveIssue(String rid) {
-
-        try {
-            LOG.debug("Resolving issue: " + rid);
-            healthCheckService.solveIssue(healthCheckUID, rid);
-        } catch (InputNullException e) {
-            LOG.error("Unable to solve issue {} from {}", rid, healthCheckUID, e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue {} from {}", rid, healthCheckUID, e);
-        }
-
-    }
-
 }

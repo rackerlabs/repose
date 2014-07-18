@@ -7,6 +7,8 @@ import com.rackspace.papi.model.*
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
+import com.rackspace.papi.service.healthcheck.Severity
 import org.apache.log4j.Logger
 import org.apache.log4j.SimpleLayout
 import org.apache.log4j.WriterAppender
@@ -29,6 +31,9 @@ class ConfigurationInformationTest extends Specification {
     HealthCheckService healthCheckService
 
     @Shared
+    HealthCheckServiceProxy healthCheckServiceProxy
+
+    @Shared
     ServicePorts ports = new ServicePorts()
 
     @Shared
@@ -41,8 +46,9 @@ class ConfigurationInformationTest extends Specification {
 
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
+        healthCheckServiceProxy = mock(HealthCheckServiceProxy)
 
-        when(healthCheckService.register(any(Class.class))).thenReturn("test_uid")
+        when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         configurationInformation = new ConfigurationInformation(configurationService, ports, healthCheckService)
     }
@@ -67,7 +73,7 @@ class ConfigurationInformationTest extends Specification {
 
         then:
         listenerObject.isInitialized()
-        verify(healthCheckService).solveIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
+        verify(healthCheckServiceProxy).resolveIssue(eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT))
     }
 
     def "if localhost cannot find self in system model on update, should log error and report to health check service"() {
@@ -90,8 +96,8 @@ class ConfigurationInformationTest extends Specification {
         then:
         !listenerObject.isInitialized()
         new String(log.toByteArray()).contains("Unable to identify the local host in the system model")
-        verify(healthCheckService).reportIssue(any(String.class), eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT),
-                any(HealthCheckReport.class))
+        verify(healthCheckServiceProxy).reportIssue(eq(ConfigurationInformation.SYSTEM_MODEL_CONFIG_HEALTH_REPORT), any(String),
+                any(Severity))
     }
 
     /**

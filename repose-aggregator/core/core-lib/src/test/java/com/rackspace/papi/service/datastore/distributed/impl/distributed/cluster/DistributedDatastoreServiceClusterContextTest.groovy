@@ -6,8 +6,9 @@ import com.rackspace.papi.domain.ReposeInstanceInfo
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.context.impl.MetricsServiceContext
-import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
+import com.rackspace.papi.service.healthcheck.Severity
 import org.junit.Before
 import org.junit.Test
 
@@ -15,12 +16,14 @@ import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 
 import static org.mockito.Matchers.any
+import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
 class DistributedDatastoreServiceClusterContextTest {
 
     DistributedDatastoreServiceClusterContext distributedDatastoreServiceClusterContext;
     HealthCheckService healthCheckService;
+    HealthCheckServiceProxy healthCheckServiceProxy
     ConfigurationService configurationService;
     DistributedDatastoreServiceClusterViewService datastoreServiceClusterViewService;
     ReposeInstanceInfo reposeInstanceInfo;
@@ -32,7 +35,8 @@ class DistributedDatastoreServiceClusterContextTest {
     void setUp() {
 
         healthCheckService = mock(HealthCheckService.class);
-        when(healthCheckService.register(any(DistributedDatastoreServiceClusterContext.class))).thenReturn("UID")
+        healthCheckServiceProxy = mock(HealthCheckServiceProxy)
+        when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
         configurationService = mock(ConfigurationService.class)
         datastoreServiceClusterViewService = mock(DistributedDatastoreServiceClusterViewService.class)
         reposeInstanceInfo = mock(ReposeInstanceInfo.class)
@@ -46,7 +50,7 @@ class DistributedDatastoreServiceClusterContextTest {
     @Test
     void shouldHaveRegisteredToHealthCheckService(){
 
-        verify(healthCheckService, times(1)).register(any(DistributedDatastoreServiceClusterContext.class))
+        verify(healthCheckService, times(1)).register()
     }
 
     @Test
@@ -65,7 +69,7 @@ class DistributedDatastoreServiceClusterContextTest {
         distributedDatastoreServiceClusterContext.contextInitialized(sce)
 
 
-        verify(healthCheckService, times(2)).reportIssue(any(String), any(String), any(HealthCheckReport.class))
+        verify(healthCheckServiceProxy, times(2)).reportIssue(any(String), any(String), any(Severity))
     }
 
 }

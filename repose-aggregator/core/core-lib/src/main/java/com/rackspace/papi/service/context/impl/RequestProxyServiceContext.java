@@ -11,7 +11,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +37,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
     private final SystemModelListener systemModelListener;
     private final HealthCheckService healthCheckService;
 
-    private HealthCheckServiceHelper healthCheckServiceHelper;
-    private String healthCheckUid;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Autowired
     public RequestProxyServiceContext(
@@ -103,10 +102,10 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
                 proxyService.setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }
@@ -119,8 +118,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        healthCheckUid = healthCheckService.register(RequestProxyServiceContext.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+        healthCheckServiceProxy= healthCheckService.register();
 
         configurationManager.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
