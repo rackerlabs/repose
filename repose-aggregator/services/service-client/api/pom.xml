@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.rackspace.papi.service</groupId>
         <artifactId>service-client-support</artifactId>
-        <version>5.0.2</version>
+        <version>5.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
