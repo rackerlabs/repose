@@ -12,18 +12,17 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.ServletContextAware;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 
 @Named
@@ -42,7 +41,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
     private ServicePorts ports;
     private ServletContext servletContext;
     private ViaHeaderBuilder viaHeaderBuilder;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
@@ -62,8 +61,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
 
     @PostConstruct
     public void afterPropertiesSet() {
-        String healthCheckUid = healthCheckService.register(RequestHeaderServiceImpl.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+        healthCheckServiceProxy = healthCheckService.register();
 
         configurationService.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
@@ -139,10 +137,10 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
                 updateConfig(viaBuilder);
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

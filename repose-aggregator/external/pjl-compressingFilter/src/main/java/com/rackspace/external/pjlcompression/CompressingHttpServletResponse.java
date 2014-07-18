@@ -247,7 +247,8 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
 
     @Override
     public void flushBuffer() {
-        flushWriter(); // make sure nothing is buffered in the writer, if applicable
+        // make sure nothing is buffered in the writer, if applicable
+        flushWriter();
         if (compressingSOS != null) {
             compressingSOS.flush();
         }
@@ -255,7 +256,8 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
 
     @Override
     public void reset() {
-        flushWriter(); // make sure nothing is buffered in the writer, if applicable
+        // make sure nothing is buffered in the writer, if applicable
+        flushWriter();
         if (compressingSOS != null) {
             compressingSOS.reset();
         }
@@ -269,7 +271,8 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
 
     @Override
     public void resetBuffer() {
-        flushWriter(); // make sure nothing is buffered in the writer, if applicable
+        // make sure nothing is buffered in the writer, if applicable
+        flushWriter();
         if (compressingSOS != null) {
             compressingSOS.reset();
         }

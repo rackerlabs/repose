@@ -2,10 +2,8 @@ package com.rackspace.papi.service.reporting.metrics.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.healthcheck.HealthCheckReport;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.InputNullException;
-import com.rackspace.papi.service.healthcheck.NotRegisteredException;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
@@ -13,22 +11,16 @@ import com.rackspace.papi.service.reporting.metrics.TimerByCategory;
 import com.rackspace.papi.service.reporting.metrics.config.GraphiteServer;
 import com.rackspace.papi.service.reporting.metrics.config.MetricsConfiguration;
 import com.rackspace.papi.spring.ReposeJmxNamingStrategy;
-import com.yammer.metrics.core.Clock;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.MetricPredicate;
-import com.yammer.metrics.core.MetricsRegistry;
-import com.yammer.metrics.core.Timer;
+import com.yammer.metrics.core.*;
 import com.yammer.metrics.reporting.GraphiteReporter;
 import com.yammer.metrics.reporting.JmxReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -77,7 +69,7 @@ public class MetricsServiceImpl implements MetricsService {
     private List<GraphiteReporter> listGraphite = new ArrayList<GraphiteReporter>();
     private ReposeJmxNamingStrategy reposeStrat;
     private boolean enabled;
-    private String healthCheckUID;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
     public MetricsServiceImpl(ReposeJmxNamingStrategy reposeStratP, ConfigurationService configurationService,
@@ -90,11 +82,11 @@ public class MetricsServiceImpl implements MetricsService {
         this.configurationService = configurationService;
         metricsCfgListener = new MetricsCfgListener();
         this.healthCheckService = healthCheckService;
-        healthCheckUID = healthCheckService.register(MetricsServiceImpl.class);
     }
 
     @PostConstruct
     public void afterPropertiesSet() {
+        healthCheckServiceProxy = healthCheckService.register();
         reportIssue();
         URL xsdURL = getClass().getResource("/META-INF/schema/metrics/metrics.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, metricsCfgListener, MetricsConfiguration.class);
@@ -114,6 +106,7 @@ public class MetricsServiceImpl implements MetricsService {
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         metrics.shutdown();
         jmx.shutdown();
         shutdownGraphite();
@@ -121,29 +114,13 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     private void reportIssue() {
-
         LOG.debug("Reporting issue to Health Checker Service: " + metricsServiceConfigReport);
-        try {
-            healthCheckService.reportIssue(healthCheckUID, metricsServiceConfigReport,
-                                           new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
-        } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        }
-
+        healthCheckServiceProxy.reportIssue(metricsServiceConfigReport, "Metrics Service Configuration Error", Severity.BROKEN);
     }
 
     private void solveIssue() {
-
-        try {
             LOG.debug("Resolving issue: " + metricsServiceConfigReport);
-            healthCheckService.solveIssue(healthCheckUID, metricsServiceConfigReport);
-        } catch (InputNullException e) {
-            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue {} from {}", metricsServiceConfigReport, healthCheckUID, e);
-        }
+            healthCheckServiceProxy.resolveIssue(metricsServiceConfigReport);
     }
 
     private class MetricsCfgListener implements UpdateListener<MetricsConfiguration> {

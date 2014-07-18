@@ -52,7 +52,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private HealthCheckService healthCheckService;
     private String configDirectory;
     private boolean initialized = false;
-
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
 
     @Inject
@@ -79,12 +79,14 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
     @PostConstruct
     public void afterPropertiesSet() {
+        healthCheckServiceProxy = healthCheckService.register();
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
     }
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         configurationManager.unsubscribeFrom("dist-datastore.cfg.xml", distributedDatastoreConfigurationListener);
         stopDistributedDatastoreServlet();
         configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
@@ -128,7 +130,6 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
         this.configurationManager = configurationService;
         this.instanceInfo = instanceInfo;
-        healthServiceUID = healthCheckService.register(DistributedDatastoreLauncherServiceImpl.class);
         issueId = "disdatastore-config-issue";
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
@@ -151,8 +152,8 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
             try {
                 datastorePort = determinePort();
                 initialized = true;
-                if (!healthCheckService.getReportIds(healthServiceUID).isEmpty()) {
-                    healthCheckService.solveIssue(healthServiceUID, issueId);
+                if (!healthCheckServiceProxy.getReportIds().isEmpty()) {
+                    healthCheckServiceProxy.resolveIssue(issueId);
                 }
             } catch (Exception ex) {
                 LOG.trace("Exception caught on an updated configuration", ex);
@@ -190,15 +191,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         }
 
         private void reportError(String message) {
-            try {
-                healthCheckService.reportIssue(healthServiceUID, issueId,
-                        new HealthCheckReport("Dist-Datastore Configuration Issue:" + message, Severity.BROKEN));
-            } catch (NotRegisteredException nre) {
-                LOG.error("Health Check Service not registered: " + nre.getMessage(), nre);
-            } catch (InputNullException e) {
-                LOG.error("Error reporting to Health Check Service: " + e.getMessage(), e);
-            }
-
+            healthCheckServiceProxy.reportIssue(issueId,"Dist-Datastore Configuration Issue:" + message, Severity.BROKEN);
         }
     }
 

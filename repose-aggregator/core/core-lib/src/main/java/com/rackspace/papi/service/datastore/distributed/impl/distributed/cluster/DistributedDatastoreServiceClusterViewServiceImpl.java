@@ -11,18 +11,16 @@ import com.rackspace.papi.service.datastore.distributed.config.DistributedDatast
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.ServletConfigAware;
 import org.springframework.web.context.ServletContextAware;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -53,8 +51,9 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private DatastoreAccessControl accessControl;
     private ReposeInstanceInfo reposeInstanceInfo;
     private ConfigurationService configurationManager;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
+    private HealthCheckService healthCheckService;
 
     @Inject
     public DistributedDatastoreServiceClusterViewServiceImpl(ConfigurationService configurationManager,
@@ -62,9 +61,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
                                                              HealthCheckService healthCheckService) {
         this.configurationManager = configurationManager;
         this.reposeInstanceInfo = reposeInstanceInfo;
-        this.healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService,
-                LOG,
-                healthCheckService.register(DistributedDatastoreServiceClusterViewServiceImpl.class));
+        this.healthCheckService = healthCheckService;
     }
 
     @Override
@@ -75,9 +72,10 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
     @PostConstruct
     public void afterPropertiesSet() {
+        this.healthCheckServiceProxy = healthCheckService.register();
         //Setting Initial Broken state.
-        healthCheckServiceHelper.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
-        healthCheckServiceHelper.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
         hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
         String ddPort = servletContext.getInitParameter("datastoreServicePort");
         List<Integer> servicePorts = new ArrayList<Integer>();
@@ -91,8 +89,8 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
         try {
             if (!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()) {
-                healthCheckServiceHelper.resolveIssue(datastoreConfigHealthReport);
-                healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+                healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
+                healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
             }
         } catch (IOException e) {
             LOG.error("Unable to search for {}", DEFAULT_CONFIG, e);
@@ -102,6 +100,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         if (configurationManager != null) {
             configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelUpdateListener);
             configurationManager.unsubscribeFrom(DEFAULT_CONFIG, distributedDatastoreConfigurationListener);
@@ -178,7 +177,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
                 }
             }
             // After successful config update the error report will be removed
-            healthCheckServiceHelper.resolveIssue(datastoreConfigHealthReport);
+            healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
         }
 
         @Override
@@ -203,7 +202,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
                 }
             }
             // After successful config update the error report will be removed
-            healthCheckServiceHelper.resolveIssue(systemModelConfigHealthReport);
+            healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
         }
 
         @Override

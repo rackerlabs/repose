@@ -20,19 +20,14 @@ import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -65,12 +60,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
-    private HealthCheckService healthCheckService;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
-    private String healthCheckUID;
 
     public PowerFilter() {
         firstInitialization = true;
@@ -108,13 +101,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     localHost = ln.get();
                     serviceDomain = lc.get();
                     defaultDst = dd.get();
-                    healthCheckServiceHelper.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
+                    healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
                 } else {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
                     LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                    healthCheckServiceHelper.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
+                    healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
 
@@ -156,10 +149,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                         serviceDomain = lc.get();
                         defaultDst = dd.get();
 
-                        healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                        healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     } else {
                         LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                        healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                        healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
 
@@ -215,11 +208,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 
         reportingService = papiContext.reportingService();
-        healthCheckService = papiContext.healthCheckService();
         responseHeaderService = papiContext.responseHeaderService();
 
-        healthCheckUID = healthCheckService.register(PowerFilter.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUID);
+        healthCheckServiceProxy = papiContext.healthCheckService().register();
 
         if (papiContext.metricsService() != null) {
             mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);

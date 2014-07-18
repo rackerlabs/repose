@@ -15,7 +15,7 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientResponse;
@@ -30,11 +30,11 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -59,7 +59,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private HttpClientService httpClientService;
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
     private ContainerConfigListener configListener;
     private SystemModelListener systemModelListener;
 
@@ -78,8 +78,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         this.systemModelListener = new SystemModelListener();
 
 
-        healthCheckUid = healthCheckService.register(RequestProxyServiceImpl.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+        healthCheckServiceProxy = healthCheckService.register();
 
         configurationService.subscribeTo("container.cfg.xml", configListener, ContainerConfiguration.class);
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
@@ -87,6 +86,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         if (configurationService != null) {
             configurationService.unsubscribeFrom("container.cfg.xml", configListener);
             configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
@@ -123,10 +123,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
                 isInitialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

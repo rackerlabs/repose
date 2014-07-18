@@ -67,8 +67,7 @@ public class Patch extends AbstractRemoteCommand {
              } catch (ClassNotFoundException cnfe) {
                  throw new DatastoreOperationException("Unable to marshall a java object from stored element contents. Reason: " + cnfe.getMessage(), cnfe);
              }
-        }
-        else {
+        } else {
             throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
         }
     }

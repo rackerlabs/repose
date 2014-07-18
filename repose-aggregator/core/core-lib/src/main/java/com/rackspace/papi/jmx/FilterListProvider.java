@@ -9,7 +9,7 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceHelper;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +40,9 @@ public class FilterListProvider {
     private final ServicePorts servicePorts;
     private final HealthCheckService healthCheckService;
 
-    private String healthCheckUid;
-
     private SystemModelListener systemModelListener;
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
-    private HealthCheckServiceHelper healthCheckServiceHelper;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
     public FilterListProvider(@Qualifier("servicePorts") ServicePorts servicePorts,
@@ -62,12 +60,12 @@ public class FilterListProvider {
         systemModelListener = new SystemModelListener();
         configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
 
-        healthCheckUid = healthCheckService.register(FilterListProvider.class);
-        healthCheckServiceHelper = new HealthCheckServiceHelper(healthCheckService, LOG, healthCheckUid);
+        healthCheckServiceProxy = healthCheckService.register();
     }
 
     @PreDestroy
     public void destroy() {
+        healthCheckServiceProxy.deregister();
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
     }
 
@@ -104,10 +102,10 @@ public class FilterListProvider {
 
                 initialized = true;
 
-                healthCheckServiceHelper.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
+                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
             } else {
                 LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
-                healthCheckServiceHelper.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
+                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                         "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
             }
         }

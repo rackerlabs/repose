@@ -40,7 +40,7 @@ public class MetricsServiceImplTest {
 
     public static class Register {
 
-        protected MetricsService metricsService;
+        protected MetricsServiceImpl metricsService;
         protected ReposeJmxNamingStrategy reposeStrat;
         protected ConfigurationService configurationService;
         protected HealthCheckService healthCheckService;
@@ -264,8 +264,8 @@ public class MetricsServiceImplTest {
 
         @Test
         public void verifyRegisteredToHealthCheckService() {
-
-            verify(healthCheckService, times(1)).register(MetricsServiceImpl.class);
+            metricsService.afterPropertiesSet();
+            verify(healthCheckService, times(1)).register();
         }
     }
 }

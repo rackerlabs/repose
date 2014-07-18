@@ -32,7 +32,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
     private final ConfigurationService configurationService;
     private final ConfigurationListener configurationListener;
     private final HealthCheckService healthCheckService;
-    private String healthCheckUID;
+    private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
     public HttpConnectionPoolServiceContext(ServiceRegistry registry,
@@ -45,8 +45,6 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
         this.connectionPoolService = connectionPoolService;
         this.healthCheckService = healthCheckService;
         configurationListener = new ConfigurationListener();
-        healthCheckUID = healthCheckService.register(HttpConnectionPoolServiceContext.class);
-
     }
 
     private void register() {
@@ -67,6 +65,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        healthCheckServiceProxy = healthCheckService.register();
         LOG.debug("Initializing context for HTTPConnectionPool");
         reportIssue();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");
@@ -87,6 +86,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        healthCheckServiceProxy.deregister();
         LOG.debug("Destroying context for HTTPConnectionPool");
         connectionPoolService.shutdown();
         configurationService.unsubscribeFrom(DEFAULT_CONFIG_NAME, configurationListener);
@@ -110,30 +110,13 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
     }
 
     private void reportIssue() {
-
         LOG.debug("Reporting issue to Health Checker Service: " + httpConnectionPoolServiceReport);
-        try {
-            healthCheckService.reportIssue(healthCheckUID, httpConnectionPoolServiceReport,
-                    new HealthCheckReport("Metrics Service Configuration Error", Severity.BROKEN));
-        } catch (InputNullException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to report Issues to Health Check Service", e);
-        }
-
+        healthCheckServiceProxy.reportIssue(httpConnectionPoolServiceReport, "Metrics Service Configuration Error", Severity.BROKEN);
     }
 
     private void solveIssue() {
-
-        try {
-            LOG.debug("Resolving issue: " + httpConnectionPoolServiceReport);
-            healthCheckService.solveIssue(healthCheckUID, httpConnectionPoolServiceReport);
-        } catch (InputNullException e) {
-            LOG.error("Unable to solve issue {} from {}", httpConnectionPoolServiceReport, healthCheckUID, e);
-        } catch (NotRegisteredException e) {
-            LOG.error("Unable to solve issue {} from {}", httpConnectionPoolServiceReport, healthCheckUID, e);
-        }
-
+        LOG.debug("Resolving issue: " + httpConnectionPoolServiceReport);
+        healthCheckServiceProxy.resolveIssue(httpConnectionPoolServiceReport);
     }
 
 }

@@ -213,12 +213,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         if (dest instanceof DestinationEndpoint ) {
 
             sb.append( ((DestinationEndpoint)dest).getRootPath() );
-        }
-        else if (dest instanceof DestinationCluster ) {
+        } else if (dest instanceof DestinationCluster ) {
 
             sb.append( ((DestinationCluster)dest).getRootPath() );
-        }
-        else {
+        } else {
             throw new IllegalArgumentException( "Unknown destination type: " + dest.getClass().getName() );
         }
 
