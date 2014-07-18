@@ -4,6 +4,8 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeLogSearch
 import framework.ReposeValveLauncher
 import framework.TestProperties
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.PortFinder
 
@@ -12,7 +14,7 @@ import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-
+@Category(Slow)
 class DefaultDestinationTest extends Specification {
 
     int reposePort
