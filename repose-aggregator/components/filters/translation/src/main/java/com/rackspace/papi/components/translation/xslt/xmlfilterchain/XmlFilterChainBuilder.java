@@ -74,7 +74,6 @@ public class XmlFilterChainBuilder {
     } catch (TransformerConfigurationException ex) {
       LOG.error("Error", ex);
     }
-    addUriResolvers();
   }
 
 
