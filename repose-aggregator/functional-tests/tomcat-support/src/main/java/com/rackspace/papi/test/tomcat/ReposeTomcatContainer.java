@@ -49,7 +49,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
             tomcat.getServer().await();
         } catch (LifecycleException e) {
             LOG.trace("Unable To Start Tomcat Server", e);
-            System.err.println("Unable To Start Tomcat Server");
         }
     }
 
@@ -61,7 +60,6 @@ public class ReposeTomcatContainer extends ReposeContainer {
             tomcat.getServer().stop();
         } catch (LifecycleException e) {
             LOG.trace("Error stopping Repose Tomcat", e);
-            System.err.println("Error stopping Repose Tomcat");
         }
     }
 }

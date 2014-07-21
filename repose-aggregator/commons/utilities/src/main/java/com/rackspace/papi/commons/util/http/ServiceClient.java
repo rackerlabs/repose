@@ -73,7 +73,7 @@ public class ServiceClient {
             clientResponse = httpClientService.getClient(connectionPoolId);
             final HttpClient client = clientResponse.getHttpClient();
 
-            if(!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) & !StringUtilities.isEmpty(password) )  {
+            if(!StringUtilities.isEmpty(targetHostUri) && !StringUtilities.isEmpty(username) && !StringUtilities.isEmpty(password) )  {
 
                 client.getParams().setParameter(AuthPNames.PROXY_AUTH_PREF, AuthPolicy.BASIC);
 

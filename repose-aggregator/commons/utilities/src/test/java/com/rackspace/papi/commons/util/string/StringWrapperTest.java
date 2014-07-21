@@ -7,7 +7,9 @@ package com.rackspace.papi.commons.util.string;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 /**
  *
@@ -19,7 +21,7 @@ public class StringWrapperTest {
     
    @BeforeClass
     public static void setUpClass() {
-         instance =new StringWrapper("test");
+         instance = new StringWrapper("test");
     }
     
     /**
@@ -32,7 +34,7 @@ public class StringWrapperTest {
        
         int expResult = 2;
         int result = instance.indexOf(seq);
-        assertEquals(expResult, result);
+        assertThat(expResult, equalTo(result));
         
     }
 
@@ -47,7 +49,7 @@ public class StringWrapperTest {
         
         int expResult = 3;
         int result = instance.indexOf(seq, fromIndex);
-        assertEquals(expResult, result);
+        assertThat(expResult, equalTo(result));
         
     }
 
@@ -59,7 +61,7 @@ public class StringWrapperTest {
  
        
         CharSequence result = instance.asCharSequence();
-        assertEquals("test", result.toString());
+        assertThat("test", equalTo(result.toString()));
       
     }
 
@@ -73,7 +75,7 @@ public class StringWrapperTest {
        
         char expResult = 't';
         char result = instance.charAt(i);
-        assertEquals(expResult, result);
+        assertThat(expResult, equalTo(result));
         
     }
 
@@ -85,7 +87,7 @@ public class StringWrapperTest {
      
         int expResult = 4;
         int result = instance.length();
-        assertEquals(expResult, result);
+        assertThat(expResult, equalTo(result));
         
     }
 
@@ -100,7 +102,25 @@ public class StringWrapperTest {
        
      
         CharSequence result = instance.subSequence(i, i1);
-        assertEquals("es", result.toString());
+        assertThat("es", equalTo(result.toString()));
        
+    }
+
+    /**
+     * Test of equals method
+     */
+    @Test
+    public void testEquals() {
+        StringWrapper instance2 = new StringWrapper("test");
+        assertThat(instance,equalTo(instance2));
+    }
+
+    /**
+     * Test of equals expecting false
+     */
+    @Test
+    public void testEquals2() {
+        StringWrapper instance2 = new StringWrapper("test2");
+        assertThat(instance,not(equalTo(instance2)));
     }
 }

@@ -40,7 +40,6 @@ public class ReposeGlassFishContainer extends ReposeContainer {
             deployer.deploy(war, "--name=repose", "--contextroot=/", "--force=true");
         } catch (GlassFishException e) {
             LOG.trace("Unable to start glassfish container", e);
-            System.err.println("Unable to start glassfish container");
         }
     }
 
@@ -50,7 +49,6 @@ public class ReposeGlassFishContainer extends ReposeContainer {
             glassfish.stop();
         } catch (GlassFishException e) {
             LOG.trace("Unable to stop glassfish container", e);
-            System.err.println("Unable to stop glassfish server");
         }
     }
 }

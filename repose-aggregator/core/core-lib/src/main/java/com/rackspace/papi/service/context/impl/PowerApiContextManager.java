@@ -115,10 +115,6 @@ public class PowerApiContextManager implements ServletContextListener {
 
    }
 
-   private boolean isManagementServerEnabled() {
-      return System.getProperty(InitParameter.MANAGEMENT_PORT.getParameterName()) != null;
-   }
-
    @Override
    public void contextInitialized(ServletContextEvent sce) {
       final ServletContext servletContext = sce.getServletContext();

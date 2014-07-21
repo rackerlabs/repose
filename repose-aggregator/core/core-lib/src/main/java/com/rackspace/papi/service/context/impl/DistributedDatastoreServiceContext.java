@@ -88,7 +88,7 @@ public class DistributedDatastoreServiceContext implements ServiceContext<Distri
             ReposeCluster cluster = findCluster(configurationObject);
 
             boolean listed = serviceListed(cluster);
-            if (listed && initialized == false) {
+            if (!(listed && initialized)) {
                 //launch dist-datastore servlet!!! Pass down the datastore service
                 distDatastoreServiceLauncher.initialize(configurationManager, instanceInfo, datastoreService, servicePorts, routingService, configDirectory);
                 distDatastoreServiceLauncher.startDistributedDatastoreServlet();

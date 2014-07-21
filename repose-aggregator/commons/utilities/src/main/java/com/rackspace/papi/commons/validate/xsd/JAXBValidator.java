@@ -16,8 +16,7 @@ public class JAXBValidator extends ValidationEventCollector {
     @Override
     public boolean handleEvent(ValidationEvent event) {
         if (event.getSeverity() == event.ERROR ||
-            event.getSeverity() == event.FATAL_ERROR)
-        {
+            event.getSeverity() == event.FATAL_ERROR) {
             ValidationEventLocator locator = event.getLocator();
             // change RuntimeException to something more appropriate
             throw new RuntimeException("XML Validation Exception:  " +
