@@ -57,7 +57,7 @@ class HttpConnectionPoolServiceContextTest {
         ConfigurationResource configurationResource = mock(ConfigurationResource.class);
         when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
         when(resourceResolver.resolve(HttpConnectionPoolServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
-        //when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
 
         httpConnectionPoolServiceContext.contextInitialized(sce);
         verify(healthCheckServiceProxy, times(1)).reportIssue(any(String), any(String), any(Severity.class));
@@ -78,7 +78,7 @@ class HttpConnectionPoolServiceContextTest {
         ConfigurationResource configurationResource = mock(ConfigurationResource.class);
         when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
         when(resourceResolver.resolve(HttpConnectionPoolServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
-        //when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
 
         httpConnectionPoolServiceContext.contextInitialized(sce);
         verify(healthCheckServiceProxy, times(1)).reportIssue(any(String), any(String), any(Severity));
@@ -93,7 +93,7 @@ class HttpConnectionPoolServiceContextTest {
         ConfigurationResource configurationResource = mock(ConfigurationResource.class);
         when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
         when(resourceResolver.resolve(HttpConnectionPoolServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
-        //when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(MetricsServiceContext.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
 
         httpConnectionPoolServiceContext.configurationListener.configurationUpdated(mock(HttpConnectionPoolConfig))
 
