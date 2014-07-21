@@ -7,6 +7,8 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.OverwriteType;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
@@ -19,14 +21,12 @@ import org.junit.runner.RunWith;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-import javax.servlet.ServletInputStream;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,9 @@ import static org.mockito.Mockito.when;
 public class ResponseMessageServiceImplTest {
 
    public static class WhenHandlingResponse {
-      private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl();
+
+       ConfigurationService configurationService = mock(ConfigurationServiceImpl.class);
+      private final ResponseMessageServiceImpl rmsImpl = new ResponseMessageServiceImpl(configurationService);
       private final ResponseMessagingConfiguration configurationObject = new ResponseMessagingConfiguration();
       private Enumeration<String> headerValueEnumeration = null;
       private final Vector<String> acceptValues = new Vector<String>(1);

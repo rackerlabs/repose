@@ -9,54 +9,31 @@ import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Component("eventManager")
+@Named
 public class PowerProxyEventManager implements EventService {
-
     private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventManager.class);
+
     private final Map<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>> listenerMap;
     private final Queue<Event> eventQueue;
     private final Lock eventQueueLock;
     private final Condition queueNotEmpty;
 
     public PowerProxyEventManager() {
-        listenerMap = new TreeMap<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>>();
-        eventQueue = new LinkedList<Event>();
+        listenerMap = new TreeMap<>();
+        eventQueue = new LinkedList<>();
 
         eventQueueLock = new ReentrantLock();
         queueNotEmpty = eventQueueLock.newCondition();
     }
 
-    @Override
-    public synchronized EventDispatcher nextDispatcher() throws InterruptedException {
-        final Event e = nextEvent();
-
-        return new EventDispatcherImpl(e, Collections.unmodifiableSet(getOrCreateListenerSet(e.type().getClass())));
-    }
-
-    private Event nextEvent() throws InterruptedException {
-        eventQueueLock.lock();
-
-        try {
-            while (eventQueue.size() == 0) {
-                queueNotEmpty.await();
-            }
-
-            return eventQueue.poll();
-        } catch (InterruptedException ie) {
-            LOG.trace("Power Proxy Event Manager Interrupted", ie);
-            Thread.currentThread().interrupt();
-            throw ie;
-        } finally {
-            eventQueueLock.unlock();
-        }
-    }
 
     @Override
     public void newEvent(Enum e, Object payload) {
@@ -71,6 +48,13 @@ public class PowerProxyEventManager implements EventService {
         } finally {
             eventQueueLock.unlock();
         }
+    }
+
+    @Override
+    public synchronized EventDispatcher nextDispatcher() throws InterruptedException {
+        final Event e = nextEvent();
+
+        return new EventDispatcherImpl(e, Collections.unmodifiableSet(getOrCreateListenerSet(e.type().getClass())));
     }
 
     @Override
@@ -89,25 +73,6 @@ public class PowerProxyEventManager implements EventService {
                 regsiterListener(el, (Class<T>) event.getClass(), Arrays.asList(events));
                 break;
             }
-        }
-    }
-
-    private <T extends Enum> void regsiterListener(EventListener<T, ?> el, Class<T> enumClass, Collection<T> events) {
-        boolean found = false;
-
-        final Set<EventListenerDescriptor> descriptorSet = getOrCreateListenerSet(enumClass);
-
-        for (EventListenerDescriptor<T> descriptor : descriptorSet) {
-            if (descriptor.getListener() == el) {
-                descriptor.listenFor(events);
-                found = true;
-
-                break;
-            }
-        }
-
-        if (!found) {
-            descriptorSet.add(new EventListenerDescriptor<T>(el, events));
         }
     }
 
@@ -151,6 +116,43 @@ public class PowerProxyEventManager implements EventService {
                     break;
                 }
             }
+        }
+    }
+
+    private Event nextEvent() throws InterruptedException {
+        eventQueueLock.lock();
+
+        try {
+            while (eventQueue.size() == 0) {
+                queueNotEmpty.await();
+            }
+
+            return eventQueue.poll();
+        } catch (InterruptedException ie) {
+            LOG.trace("Power Proxy Event Manager Interrupted", ie);
+            Thread.currentThread().interrupt();
+            throw ie;
+        } finally {
+            eventQueueLock.unlock();
+        }
+    }
+
+    private <T extends Enum> void regsiterListener(EventListener<T, ?> el, Class<T> enumClass, Collection<T> events) {
+        boolean found = false;
+
+        final Set<EventListenerDescriptor> descriptorSet = getOrCreateListenerSet(enumClass);
+
+        for (EventListenerDescriptor<T> descriptor : descriptorSet) {
+            if (descriptor.getListener() == el) {
+                descriptor.listenFor(events);
+                found = true;
+
+                break;
+            }
+        }
+
+        if (!found) {
+            descriptorSet.add(new EventListenerDescriptor<T>(el, events));
         }
     }
 

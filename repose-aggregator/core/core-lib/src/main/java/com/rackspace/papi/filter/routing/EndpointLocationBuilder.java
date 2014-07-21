@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
-@Component("endpointLocationBuilder")
+@Named("endpointLocationBuilder")
 @Scope("prototype")
 public class EndpointLocationBuilder implements LocationBuilder {
 

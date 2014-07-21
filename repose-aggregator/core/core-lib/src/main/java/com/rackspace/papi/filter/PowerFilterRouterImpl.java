@@ -20,10 +20,10 @@ import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -48,7 +48,7 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  * <p>
  * This class also instruments the response codes coming from the endpoint.
  */
-@Component("powerFilterRouter")
+@Named("powerFilterRouter")
 @Scope("prototype")
 public class PowerFilterRouterImpl implements PowerFilterRouter {
 
@@ -68,13 +68,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private MetricsService metricsService;
 
-    @Autowired
+    @Inject
     public PowerFilterRouterImpl(
-          @Qualifier("metricsService") MetricsService metricsService,
-          @Qualifier("reportingService") ReportingService reportingService,
-          @Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
-          @Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
-          @Qualifier("destinationLocationBuilder") DestinationLocationBuilder locationBuilder) {
+           MetricsService metricsService,
+           ReportingService reportingService,
+           RequestHeaderService requestHeaderService,
+           ResponseHeaderService responseHeaderService,
+           DestinationLocationBuilder locationBuilder) {
         LOG.info("Creating Repose Router");
         this.destinations = new HashMap<String, Destination>();
         this.reportingService = reportingService;

@@ -9,10 +9,10 @@ import java.util.List;
 
 public class ConfigurationInformationCompositeDataBuilder extends CompositeDataBuilder {
 
-    private final ConfigurationInformation.FilterInformation filter;
+    private final FilterInformation filter;
   
 
-    public ConfigurationInformationCompositeDataBuilder(ConfigurationInformation.FilterInformation filter) {
+    public ConfigurationInformationCompositeDataBuilder(FilterInformation filter) {
         this.filter = filter;
     }
 

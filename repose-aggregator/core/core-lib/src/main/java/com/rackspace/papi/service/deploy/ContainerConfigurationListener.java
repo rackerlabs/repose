@@ -10,36 +10,36 @@ import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
 import com.rackspace.papi.service.event.common.EventService;
 import java.io.File;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.stereotype.Component;
 
-@Component("containerConfigurationListener")
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-   private ArtifactDirectoryWatcher dirWatcher;
+    private final EventService eventService;
+    private ArtifactDirectoryWatcher dirWatcher;
    private File deploymentDirectory = null;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
    private boolean isInitialized = false;
   
 
-   public ContainerConfigurationListener() {
+   @Inject
+   public ContainerConfigurationListener(EventService eventService) {
+       this.eventService = eventService;
    }
 
-   public ContainerConfigurationListener(EventService eventManagerReference) {
-      dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
-      dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
-      unpacker = null;
-   }
+    @PostConstruct
+    public void afterPropertiesSet() {
+        dirWatcher = new ArtifactDirectoryWatcher(eventService);
+        dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
+        unpacker = null;
 
-   @Required
-   @Resource(name = "eventManager")
-   public synchronized void setEventService(EventService eventManagerReference) {
-      dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
-      dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
-      unpacker = null;
-   }
+    }
 
    @Override
    public synchronized void configurationUpdated(ContainerConfiguration configurationObject) {

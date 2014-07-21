@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <!-- Import Repose Services -->
+
+    <context:component-scan base-package="com.rackspace,org.openrepose"/>
+
+    <context:annotation-config/>
+    <!-- <context:mbean-export/> -->
+
+    <!-- I don't think this needs to be lazily instantiated any more, now that we tie the servlet context
+     to the application context. The original code just initialized it anyway when the servlet context -->
+    <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter">
+        <property name="namingStrategy" ref="reposeJmxNamingStrategy"/>
+    </bean>
+
+    <bean id="jmxAttributeSource"
+          class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+
+    <bean name="reposeVersion" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="${reposeVersion}"/>
+    </bean>
+
+    <!-- Service Contexts -->
+    <!-- Services -->
+
+    <!-- This stuff used to be in "repose-with-services-context" config file -->
+    <bean name="httpConnectionPoolService" scope="singleton"
+          class="com.rackspace.papi.service.httpclient.impl.HttpConnectionPoolServiceImpl"/>
+
+    <bean name="requestProxyService" class="com.rackspace.papi.service.proxy.httpcomponent.RequestProxyServiceImpl">
+        <property name="httpClientService" ref="httpConnectionPoolService"/>
+    </bean>
+
+    <bean name="httpConnectionPoolServiceContext"
+          class="com.rackspace.papi.service.context.impl.HttpConnectionPoolServiceContext">
+
+        <constructor-arg index="0" ref="serviceRegistry"/>
+        <constructor-arg index="1" ref="configurationManager"/>
+        <constructor-arg index="2" ref="httpConnectionPoolService"/>
+        <constructor-arg index="3" ref="healthCheckService"/>
+    </bean>
+
+    <bean name="akkaServiceClientService"
+          class="com.rackspace.papi.service.serviceclient.akka.AkkaServiceClientImpl">
+        <constructor-arg index="0" ref="httpConnectionPoolService"/>
+    </bean>
+
+    <bean name="akkaServiceClientContext"
+          class="com.rackspace.papi.service.context.impl.AkkaServiceClientContext">
+
+        <constructor-arg index="0" ref="serviceRegistry"/>
+        <constructor-arg index="1" ref="akkaServiceClientService"/>
+    </bean>
+</beans>

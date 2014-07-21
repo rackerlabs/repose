@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.rms.ResponseMessageService;
@@ -50,7 +50,7 @@ public class PowerFilterTest {
             ServletContext mockedServletContext = mock(ServletContext.class);
             FakeFilterRegistration mockedFilterRegistration = new FakeFilterRegistration();
             PowerProxyEventManager mockEventManager = mock(PowerProxyEventManager.class);
-            PowerApiConfigurationManager mockConfigManager = mock(PowerApiConfigurationManager.class);
+            ConfigurationServiceImpl mockConfigManager = mock(ConfigurationServiceImpl.class);
 
             when(mockedServiceContext.getService()).thenReturn(mockedResponseMessageService);
             when(mockedEventServiceContext.getService()).thenReturn(mockEventManager);

@@ -4,18 +4,18 @@ import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.management.openmbean.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component("reposeReport")
+@Named("reposeReport")
 @ManagedResource(objectName = "com.rackspace.papi.service.reporting:type=ReposeReport", description="Repose report MBean.")
 public class ReposeReport implements ReposeReportMBean {
 
@@ -24,8 +24,8 @@ public class ReposeReport implements ReposeReportMBean {
     private static final int STATUS_CODE_500 = 500;
     private final ReportingService reportingService;
 
-    @Autowired
-    public ReposeReport(@Qualifier("reportingService") ReportingService reportingService) {
+    @Inject
+    public ReposeReport( ReportingService reportingService) {
         this.reportingService = reportingService;
     }
 

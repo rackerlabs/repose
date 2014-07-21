@@ -10,10 +10,11 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
+import javax.inject.Inject;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -24,7 +25,7 @@ import java.util.List;
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
  */
-@Component("modelInterrogator")
+@Named("modelInterrogator")
 public class SystemModelInterrogator {
     private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
 
@@ -32,7 +33,7 @@ public class SystemModelInterrogator {
     private final NetworkNameResolver nameResolver;
     private final List<Port> ports;
 
-    @Autowired
+    @Inject
     public SystemModelInterrogator(@Qualifier("servicePorts") ServicePorts ports) {
         this.nameResolver = StaticNetworkNameResolver.getInstance();
         this.networkInterfaceProvider = StaticNetworkInterfaceProvider.getInstance();

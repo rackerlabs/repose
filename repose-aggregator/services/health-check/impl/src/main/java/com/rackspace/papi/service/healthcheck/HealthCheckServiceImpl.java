@@ -3,12 +3,14 @@ package com.rackspace.papi.service.healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Named;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Named
 public class HealthCheckServiceImpl implements HealthCheckService {
     private static final Logger LOG = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
 
@@ -26,6 +28,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     public boolean isHealthy() {
         for (Map.Entry<HealthCheckServiceProxy, Map<String, HealthCheckReport>> stringMapEntry : reports.entrySet()) {
             for (Map.Entry<String, HealthCheckReport> entry : stringMapEntry.getValue().entrySet()) {
+
                 if (entry.getValue().getLevel().equals(Severity.BROKEN)) {
                     return false;
                 }

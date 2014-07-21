@@ -7,15 +7,15 @@ import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import java.security.NoSuchAlgorithmException;
 
-@Component("reposeLocalDatastore")
+@Named("reposeLocalDatastore")
 @ManagedResource(objectName = "com.rackspace.papi.service.datastore.impl.ehcache:type=ReposeLocalCache",
                  description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
@@ -25,8 +25,8 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
     private final DatastoreService datastoreService;
 
-    @Autowired
-    public ReposeLocalCache(@Qualifier("datastoreService") DatastoreService datastoreService) {
+    @Inject
+    public ReposeLocalCache( DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
     }
 

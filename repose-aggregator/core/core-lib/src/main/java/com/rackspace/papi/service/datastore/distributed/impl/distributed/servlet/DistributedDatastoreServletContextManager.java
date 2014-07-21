@@ -1,16 +1,14 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -19,7 +17,7 @@ import javax.servlet.ServletContextListener;
 /*
  * Builds servlet context for the distributed datastore servlet
  */
-@Component("distributedDatastoreServletContextManager")
+@Named("distributedDatastoreServletContextManager")
 public class DistributedDatastoreServletContextManager implements ServletContextListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServletContextManager.class);
 
@@ -36,20 +34,15 @@ public class DistributedDatastoreServletContextManager implements ServletContext
               applicationContext);
       servletContext.setAttribute("datastoreService", datastoreService);
       configureReposeInfo(applicationContext);
-      initializeService(sce);
    }
    
    public void configureReposeInfo(ApplicationContext context) {
-      if (instanceInfo == null) {
-
-         String clusterId = System.getProperty("repose-cluster-id");
-         String nodeId = System.getProperty("repose-node-id");
-         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
-      }
+       //TODO: dont' configure instance info here, get it from the parent spring context
       if (context == null) {
          return;
       }
 
+      //JIMMY NOOOOOOOOOOOo
       ReposeInstanceInfo reposeInstanceInfo = context.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
       reposeInstanceInfo.setClusterId(instanceInfo.getClusterId());
       reposeInstanceInfo.setNodeId(instanceInfo.getNodeId());
@@ -62,14 +55,6 @@ public class DistributedDatastoreServletContextManager implements ServletContext
    public void setDatastoreSystemProperties(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
       this.datastoreService = datastore;
       this.instanceInfo = instanceInfo;
-   }
-
-   private void initializeService(ServletContextEvent sce) {
-
-      ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
-      ContextAdapter ca = helper.getPowerApiContext();
-
-      ca.getContext(DistributedDatastoreServiceClusterContext.class).contextInitialized(sce);
    }
 
     @Override
