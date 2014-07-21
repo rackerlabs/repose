@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.impl.distributed.ThreadSafeClusterView;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
@@ -8,6 +9,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
+import com.rackspace.papi.service.datastore.distributed.config.Port;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -47,7 +49,6 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     private ClusterView clusterView;
     private SystemModel curSystemModel;
     private ServletContext servletContext;
-    private DatastoreAccessControl hostACL;
     private DatastoreAccessControl accessControl;
     private ReposeInstanceInfo reposeInstanceInfo;
     private ConfigurationService configurationManager;
@@ -72,30 +73,12 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
     @PostConstruct
     public void afterPropertiesSet() {
-        this.healthCheckServiceProxy = healthCheckService.register();
-        //Setting Initial Broken state.
-        healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
-        healthCheckServiceProxy.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
-        hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
-        String ddPort = servletContext.getInitParameter("datastoreServicePort");
-        List<Integer> servicePorts = new ArrayList<Integer>();
-        servicePorts.add(Integer.parseInt(ddPort));
-        clusterView = new ThreadSafeClusterView(servicePorts);
-        initialize(clusterView, hostACL);
+        //Doing the monitoring for config should always happen
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelUpdateListener, SystemModel.class);
         URL dXsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
         configurationManager.subscribeTo(DEFAULT_CONFIG, dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
 
-        try {
-            if (!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()) {
-                healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
-                healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
-            }
-        } catch (IOException e) {
-            LOG.error("Unable to search for {}", DEFAULT_CONFIG, e);
-        }
-        servletContext.setAttribute("ddClusterViewService", this);
     }
 
     @PreDestroy
@@ -107,10 +90,39 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
         }
     }
 
-    @Override
-    public void initialize(ClusterView clusterView, DatastoreAccessControl accessControl) {
-        this.clusterView = clusterView;
-        this.accessControl = accessControl;
+
+    /**
+     * Called when the cluster view service is turned on, not when the spring bean is created.
+     * TODO: call this when the cluster is turned on for the first time?
+     */
+    public void initialize(int ddPort) {
+        LOG.info("ONE TIME initialization of Distributed Datastore Cluster View");
+
+        this.healthCheckServiceProxy = healthCheckService.register();
+        //Setting Initial Broken state.
+        healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
+        accessControl = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
+
+        List<Integer> servicePorts = new ArrayList<Integer>();
+        servicePorts.add(ddPort);
+        clusterView = new ThreadSafeClusterView(servicePorts);
+
+        //First time run should also update the cluster?
+        updateCluster();
+
+        //After something has been done, try to resolve issues...
+        try {
+            if (!distributedDatastoreConfigurationListener.isInitialized() && !configurationManager.getResourceResolver().resolve(DEFAULT_CONFIG).exists()) {
+                healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
+                healthCheckServiceProxy.resolveIssue(systemModelConfigHealthReport);
+            }
+        } catch (IOException e) {
+            LOG.error("Unable to search for {}", DEFAULT_CONFIG, e);
+        }
+        //Adding it to the servlet context?
+        servletContext.setAttribute("ddClusterViewService", this);
+
     }
 
 
@@ -155,9 +167,9 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
                 clusterMembers = AccessListDeterminator.getClusterMembers(curSystemModel, reposeInstanceInfo.getClusterId());
             }
 
-            hostACL = AccessListDeterminator.getAccessList(curDistributedDatastoreConfiguration, clusterMembers);
+            accessControl = AccessListDeterminator.getAccessList(curDistributedDatastoreConfiguration, clusterMembers);
 
-            updateAccessList(hostACL);
+            updateAccessList(accessControl);
         }
     }
 
@@ -169,16 +181,47 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
             synchronized (configLock) {
                 curDistributedDatastoreConfiguration = configurationObject;
                 if (curDistributedDatastoreConfiguration != null) {
+                    if(!isInitialized) {
+                        //I think this will trigger only the first time run
+                        //Since nothing sets initialized to false...
+                        initialize(determinePort());
+                    }
                     isInitialized = true;
 
                     if (systemModelUpdateListener.isInitialized()) {
                         updateCluster();
+
                     }
                 }
             }
             // After successful config update the error report will be removed
             healthCheckServiceProxy.resolveIssue(datastoreConfigHealthReport);
         }
+
+        private int determinePort() {
+            int port = getDefaultPort();
+            for (Port curPort : curDistributedDatastoreConfiguration.getPortConfig().getPort()) {
+                if (curPort.getCluster().equalsIgnoreCase(reposeInstanceInfo.getClusterId())
+                        && StringUtilities.nullSafeEqualsIgnoreCase(curPort.getNode(), reposeInstanceInfo.getNodeId())) {
+                    port = curPort.getPort();
+                    break;
+                }
+            }
+            return port;
+        }
+
+        private int getDefaultPort() {
+            int port = -1;
+
+            for (Port curPort : curDistributedDatastoreConfiguration.getPortConfig().getPort()) {
+                if (curPort.getCluster().equalsIgnoreCase(reposeInstanceInfo.getClusterId()) && StringUtilities.nullSafeEqualsIgnoreCase(curPort.getNode(), "-1")) {
+                    port = curPort.getPort();
+                }
+            }
+
+            return port;
+        }
+
 
         @Override
         public boolean isInitialized() {
@@ -194,7 +237,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
             synchronized (configLock) {
                 curSystemModel = configurationObject;
                 if (curSystemModel != null) {
-                    isInitialized = true;
+                    this.isInitialized = true; //Whoo, that was probably a thread bug!
 
                     if (distributedDatastoreConfigurationListener.isInitialized()) {
                         updateCluster();
@@ -207,7 +250,7 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
         @Override
         public boolean isInitialized() {
-            return isInitialized;
+            return this.isInitialized;
         }
     }
 }

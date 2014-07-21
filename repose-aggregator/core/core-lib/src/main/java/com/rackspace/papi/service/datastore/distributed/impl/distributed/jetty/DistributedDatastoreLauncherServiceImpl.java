@@ -206,6 +206,8 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
                 //launch dist-datastore servlet!!! Pass down the datastore service
                 initialize(configurationManager, instanceInfo, servicePorts, routingService, configDirectory);
                 startDistributedDatastoreServlet();
+                //TODO: this should tell the ServletContextManager ?
+                //TODO: or maybe there shouldn't be a DistributedDatastoreServletContextManager
                 initialized = true;
             } else if (!listed && initialized) { // case when someone has turned off an existing datastore
                 stopDistributedDatastoreServlet();
