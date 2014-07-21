@@ -61,7 +61,9 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
                                                    ConfigurationService configurationManager,
                                                    @Qualifier("servicePorts") ServicePorts servicePorts,
                                                    RoutingService routingService,
-                                                   DatastoreService datastoreService) {
+                                                   DatastoreService datastoreService,
+                                                   ReposeInstanceInfo instanceInfo) {
+        this.instanceInfo = instanceInfo;
         this.manager = manager;
         this.healthCheckService = healthCheckService;
         this.configurationManager = configurationManager;
