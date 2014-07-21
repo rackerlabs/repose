@@ -73,6 +73,8 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
 
     @PostConstruct
     public void afterPropertiesSet() {
+        this.healthCheckServiceProxy = healthCheckService.register();
+
         //Doing the monitoring for config should always happen
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelUpdateListener, SystemModel.class);
@@ -98,7 +100,6 @@ public class DistributedDatastoreServiceClusterViewServiceImpl implements Distri
     public void initialize(int ddPort) {
         LOG.info("ONE TIME initialization of Distributed Datastore Cluster View");
 
-        this.healthCheckServiceProxy = healthCheckService.register();
         //Setting Initial Broken state.
         healthCheckServiceProxy.reportIssue(datastoreConfigHealthReport, "Dist Datastore Configuration Error", Severity.BROKEN);
         healthCheckServiceProxy.reportIssue(systemModelConfigHealthReport, "System Model Configuration Error", Severity.BROKEN);
