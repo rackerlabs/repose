@@ -91,17 +91,6 @@ public class XmlFilterChainBuilder {
   }
   //
 
-  private void addUriResolvers() {
-    URIResolver resolver = factory.getURIResolver();
-    if (!(resolver instanceof SourceUriResolver)) {
-      SourceUriResolverChain chain = new SourceUriResolverChain(resolver);
-      chain.addResolver(new InputStreamUriParameterResolver());
-      chain.addResolver(new ClassPathUriResolver());
-      chain.addResolver(new HttpxUriInputParameterResolver());
-      factory.setURIResolver(chain);
-    }
-  }
-
   public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
     try {
       List<XmlFilterReference> filters = new ArrayList<XmlFilterReference>();
