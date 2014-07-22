@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.classloader.ear.EarArchiveEntryHelper;
+import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.service.config.ConfigurationService;

@@ -1,9 +1,9 @@
 package com.rackspace.papi.service.classloader
 
 import com.oracle.javaee6.FilterType
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext
-import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor
+import com.rackspace.papi.service.classloader.ear.EarClassLoader
+import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext
+import com.rackspace.papi.service.classloader.ear.EarDescriptor
 import org.junit.Before
 import org.junit.Test
 
