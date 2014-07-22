@@ -70,12 +70,26 @@ public class ConfigRootResourceResolver implements ConfigurationResourceResolver
         }
     }
 
+    /**
+     * This is pretty gross, but it will take a resource name, and either give us a URL, or turn it into one using
+     * the configuration root...
+     * I tried not to change it too much, just made it so it could tolerate configuration files.
+     * @param resourceName the resource string
+     * @return a URL or null...
+     */
     private URL isResolvable(String resourceName) {
-
         try {
             return new URL(resourceName);
         } catch (MalformedURLException murle) {
-            LOG.trace("Unable to build URL for resource, it is a configuration file", murle);
+            LOG.trace("Unable to build URL for resource {}, it is a configuration file, not a URL", resourceName);
+            //So if it's a config file, lets make a proper URL out of it
+            try {
+                String resourceURL = StringUtilities.join("file://", configRoot, File.separator, resourceName);
+                LOG.trace("Created URL for configurationRoot: {}", resourceURL);
+                return new URL(resourceURL);
+            } catch (MalformedURLException e) {
+                LOG.error("Could not create URL for configuration resource", e);
+            }
         }
         return null;
     }

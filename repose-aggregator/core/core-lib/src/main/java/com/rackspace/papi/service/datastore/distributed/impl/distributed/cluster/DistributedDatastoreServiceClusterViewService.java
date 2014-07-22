@@ -12,5 +12,4 @@ public interface DistributedDatastoreServiceClusterViewService {
    void updateAccessList(DatastoreAccessControl accessControl);
    ClusterView getClusterView();
    DatastoreAccessControl getAccessControl();
-   void initialize(ClusterView clusterView, DatastoreAccessControl datastoreAccessControl);
 }

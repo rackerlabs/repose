@@ -45,6 +45,7 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
         this.connectionPoolService = connectionPoolService;
         this.healthCheckService = healthCheckService;
         configurationListener = new ConfigurationListener();
+        healthCheckServiceProxy = healthCheckService.register();
     }
 
     private void register() {
@@ -65,7 +66,6 @@ public class HttpConnectionPoolServiceContext implements ServiceContext<HttpClie
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        healthCheckServiceProxy = healthCheckService.register();
         LOG.debug("Initializing context for HTTPConnectionPool");
         reportIssue();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-connection-pool.xsd");

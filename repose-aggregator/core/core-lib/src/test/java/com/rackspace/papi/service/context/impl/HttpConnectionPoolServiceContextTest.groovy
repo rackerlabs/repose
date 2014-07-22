@@ -47,9 +47,7 @@ class HttpConnectionPoolServiceContextTest {
 
     @Test
     void verifyRegistrationToHealthCheckService() {
-
         verify(healthCheckService, times(1)).register()
-
     }
 
     @Test
@@ -71,7 +69,6 @@ class HttpConnectionPoolServiceContextTest {
         httpConnectionPoolServiceContext.contextDestroyed(sce)
         verify(httpClientService, times(1)).shutdown()
         verify(configurationService, times(1)).unsubscribeFrom(any(String),any(UpdateListener.class))
-
     }
 
     @Test
