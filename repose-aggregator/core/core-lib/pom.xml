@@ -22,9 +22,23 @@
     <packaging>jar</packaging>
 
     <dependencies>
+
+
         <dependency>
             <groupId>org.openrepose.repose.core</groupId>
             <artifactId>core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xerces-xsd11</artifactId>
+            <version>2.12.0-rax</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.external</groupId>
+            <artifactId>jee6-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>
 
