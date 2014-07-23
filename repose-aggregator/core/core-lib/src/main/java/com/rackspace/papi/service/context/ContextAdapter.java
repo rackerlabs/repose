@@ -21,6 +21,10 @@ import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.threading.ThreadingService;
 
 
+/**
+ * Don't use this, it forces dependencies on *EVERYTHING*
+ */
+@Deprecated
 public interface ContextAdapter {
 
     ClassLoaderManagerService classLoader();
