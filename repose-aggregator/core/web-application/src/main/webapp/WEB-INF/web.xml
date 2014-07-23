@@ -36,13 +36,20 @@
     </servlet-mapping>
 
     <!-- Filters -->
+    <!-- using the advice from:
+    http://docs.spring.io/spring/docs/3.0.x/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html
+    Specifically: web.xml will usually contain a DelegatingFilterProxy definition, with the specified filter-name
+    corresponding to a bean name in Spring's root application context. All calls to the filter proxy will then be
+    delegated to that bean in the Spring context, which is required to implement the standard Servlet 2.3 Filter
+    interface.
+    -->
     <filter id="power-api-filter">
-        <filter-name>power-api-filter</filter-name>
-        <filter-class>com.rackspace.papi.filter.ValvePowerFilter</filter-class>
+        <filter-name>powerFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
     
-    <filter-mapping id="power-api-filter-mapping">
-        <filter-name>power-api-filter</filter-name>
+    <filter-mapping id="powerFilter-mapping">
+        <filter-name>powerFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 </web-app>

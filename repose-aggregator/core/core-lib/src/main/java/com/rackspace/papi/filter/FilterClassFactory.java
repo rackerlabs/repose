@@ -2,8 +2,6 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.rackspace.papi.servlet.PowerApiContextException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import javax.servlet.Filter;
 
@@ -37,16 +35,17 @@ public class FilterClassFactory {
         }
     }
 
-    public Filter newInstance(ApplicationContext parentContext) throws ClassNotFoundException {
+    public Filter newInstance() throws ClassNotFoundException {
         Class clazz = classLoader.loadClass(filterClass.getFilterClass().getValue());       
         validate(clazz);
 
         try {
             // just loadClass in here and no need to keep Class as member
             Filter filter = (Filter) clazz.newInstance();
-            if (filter instanceof ApplicationContextAware) {
-               ((ApplicationContextAware)filter).setApplicationContext(parentContext);
-            }
+            //I really think we don't need to do this.... I hope spring annotations will handle this automatically
+//            if (filter instanceof ApplicationContextAware) {
+//               ((ApplicationContextAware)filter).setApplicationContext(parentContext);
+//            }
             return filter;
         } catch (InstantiationException e) {
             throw new FilterClassException("failed to create new instance of " + filterClass, e);

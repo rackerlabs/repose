@@ -4,6 +4,7 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.context.spring.SpringContextAdapter;
 import org.springframework.context.ApplicationContext;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.servlet.ServletContext;
 import java.io.Serializable;
@@ -42,7 +43,7 @@ public final class ServletContextHelper implements Serializable {
     }
 
     public ContextAdapter getPowerApiContext() {
-        return new SpringContextAdapter(context);
+        throw new NotImplementedException();
     }
 
     public void setPowerApiContext(ServletContext ctx, ApplicationContext applicationContext) {

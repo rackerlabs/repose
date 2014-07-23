@@ -1,5 +1,11 @@
 package com.rackspace.papi.service.context;
 
+/**
+ * None of this should exist, as our beans should be named as to what they're called
+ * Unless it's a special case, and those should just be documented. Maintaining multiple
+ * sources of truth is a big problem
+ */
+@Deprecated
 public enum ServiceContextName {
 
     CONTAINER_SERVICE_CONTEXT("containerServiceContext"),

@@ -1,55 +1,9 @@
 package com.rackspace.papi.service.context;
 
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
-import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import org.openrepose.core.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
-import org.openrepose.core.service.event.EventService;
-import com.rackspace.papi.service.headers.request.RequestHeaderService;
-import com.rackspace.papi.service.headers.response.ResponseHeaderService;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.httpclient.HttpClientService;
-import com.rackspace.papi.service.logging.LoggingService;
-import com.rackspace.papi.service.reporting.ReportingService;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.rms.ResponseMessageService;
-import com.rackspace.papi.service.routing.RoutingService;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
-import com.rackspace.papi.service.threading.ThreadingService;
-
-
 /**
- * Don't use this, it forces dependencies on *EVERYTHING*
+ *Cleaning this guy out to have NOTHING in it
  */
 @Deprecated
 public interface ContextAdapter {
-
-    ClassLoaderManagerService classLoader();
-    EventService eventService();
-    ThreadingService threadingService();
-    DatastoreService datastoreService();
-    ConfigurationService configurationService();
-    ContainerConfigurationService containerConfigurationService();
-    ResponseMessageService responseMessageService();
-    LoggingService loggingService();
-    MetricsService metricsService();
-    RoutingService routingService();
-    RequestProxyService requestProxyService();
-    ReportingService reportingService();
-    String getReposeVersion();
-    HttpClientService httpConnectionPoolService();
-    AkkaServiceClient akkaServiceClientService();
-    RequestHeaderService requestHeaderService();
-    ResponseHeaderService responseHeaderService();
-    DistributedDatastoreLauncherService distributedDatastoreService();
-    DistributedDatastoreServiceClusterViewService distributedDatastoreServiceClusterViewService();
-    HealthCheckService healthCheckService();
-    <T> T filterChainBuilder();
-    <T> T  reposeConfigurationInformation();
-    
-   <T extends ServiceContext<?>> T getContext(Class<T> clazz);
 
 }
