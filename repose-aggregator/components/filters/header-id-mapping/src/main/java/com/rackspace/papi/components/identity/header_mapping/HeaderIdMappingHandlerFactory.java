@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.identity.header_mapping;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;

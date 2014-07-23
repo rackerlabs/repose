@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.context.impl
 import com.google.common.base.Optional
-import com.rackspace.papi.commons.config.manager.UpdateListener
-import com.rackspace.papi.commons.util.proxy.RequestProxyService
+import com.rackspace.papi.service.config.manager.UpdateListener
 import com.rackspace.papi.filter.SystemModelInterrogator
 import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel

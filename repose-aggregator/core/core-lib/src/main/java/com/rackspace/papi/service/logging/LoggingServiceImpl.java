@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.logging;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
+import com.rackspace.papi.service.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.parser.properties.PropertiesFileConfigurationParser;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.LoggingConfiguration;

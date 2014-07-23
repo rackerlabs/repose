@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.clientauth;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;

@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
 import com.rackspace.papi.service.event.common.EventService;
 import org.slf4j.Logger;

@@ -2,7 +2,7 @@ package org.openrepose.components.rackspace.authz;
 
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.httpclient.HttpClientService;

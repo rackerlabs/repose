@@ -1,7 +1,7 @@
 package org.openrepose.components.apivalidator.filter;
 
-import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.parser.generic.GenericResourceConfigurationParser;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.service.config.ConfigurationService;

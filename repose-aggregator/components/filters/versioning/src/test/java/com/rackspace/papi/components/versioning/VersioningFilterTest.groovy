@@ -3,33 +3,12 @@ package com.rackspace.papi.components.versioning
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
-import com.rackspace.papi.commons.config.manager.UpdateListener
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.versioning.config.MediaType
 import com.rackspace.papi.components.versioning.config.MediaTypeList
-import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.components.versioning.testhelpers.VersioningFilterSpecification
-import com.rackspace.papi.domain.ServicePorts
-import com.rackspace.papi.filter.FilterConfigHelper
-import com.rackspace.papi.filter.logic.FilterAction
-import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.model.DestinationEndpoint
-import com.rackspace.papi.model.SystemModel
-import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.context.ServletContextHelper
-import org.springframework.context.ApplicationContext
-import spock.lang.Specification
 
-import javax.servlet.FilterChain
-import javax.servlet.FilterConfig
-import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
-import static org.mockito.Matchers.anyString
-import static org.mockito.Mockito.doReturn
-import static org.mockito.Mockito.mock
-import static org.powermock.api.mockito.PowerMockito.when
 
 /**
  * Assumptions:

@@ -1,6 +1,6 @@
 package com.rackspace.papi.jmx;
 
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationResourceResolver;

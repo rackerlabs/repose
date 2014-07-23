@@ -2,8 +2,8 @@ package com.rackspace.papi.components.versioning.testhelpers
 
 import com.mockrunner.mock.web.MockFilterConfig
 import com.mockrunner.mock.web.MockServletContext
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager
-import com.rackspace.papi.commons.config.resource.ConfigurationResource
+import com.rackspace.papi.service.config.manager.ConfigurationUpdateManager
+import com.rackspace.papi.service.config.resource.ConfigurationResource
 import com.rackspace.papi.service.config.ConfigurationResourceResolver
 import com.rackspace.papi.components.versioning.VersioningFilter
 import com.rackspace.papi.components.versioning.config.MediaTypeList

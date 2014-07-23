@@ -1,9 +1,9 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.manager.ConfigurationUpdateManager;
+import com.rackspace.papi.service.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.jmx.ConfigurationInformation;

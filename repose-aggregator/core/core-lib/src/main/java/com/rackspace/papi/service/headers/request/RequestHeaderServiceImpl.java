@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.headers.request;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.container.config.ContainerConfiguration;

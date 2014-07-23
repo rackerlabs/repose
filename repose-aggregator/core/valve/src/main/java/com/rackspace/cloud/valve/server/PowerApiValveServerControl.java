@@ -1,10 +1,10 @@
 package com.rackspace.cloud.valve.server;
 
 import com.rackspace.cloud.valve.jetty.ValveControllerServerBuilder;
-import com.rackspace.papi.commons.config.ConfigurationResourceException;
-import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
-import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
-import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource;
+import com.rackspace.papi.service.config.ConfigurationResourceException;
+import com.rackspace.papi.service.config.parser.ConfigurationParserFactory;
+import com.rackspace.papi.service.config.parser.jaxb.JaxbConfigurationParser;
+import com.rackspace.papi.service.config.resource.impl.BufferedURLConfigurationResource;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;

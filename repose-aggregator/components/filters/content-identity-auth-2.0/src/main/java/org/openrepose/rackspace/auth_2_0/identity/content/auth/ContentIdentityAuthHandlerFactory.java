@@ -1,6 +1,6 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;

@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.cnorm
 
 import com.mockrunner.mock.web.*
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager
-import com.rackspace.papi.commons.config.resource.ConfigurationResource
+import com.rackspace.papi.service.config.manager.ConfigurationUpdateManager
+import com.rackspace.papi.service.config.resource.ConfigurationResource
 import com.rackspace.papi.service.config.ConfigurationResourceResolver
 import com.rackspace.papi.commons.util.http.CommonHttpHeader
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig

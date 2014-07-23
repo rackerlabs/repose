@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.config.ConfigurationResourceResolver;
-import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
-import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource;
+import com.rackspace.papi.service.config.resource.ResourceResolutionException;
+import com.rackspace.papi.service.config.resource.impl.BufferedURLConfigurationResource;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;

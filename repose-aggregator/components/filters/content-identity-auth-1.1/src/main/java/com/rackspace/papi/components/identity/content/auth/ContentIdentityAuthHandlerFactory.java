@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.identity.content.auth;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;

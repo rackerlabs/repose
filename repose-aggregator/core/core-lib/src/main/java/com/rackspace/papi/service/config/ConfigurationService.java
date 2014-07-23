@@ -1,8 +1,7 @@
 package com.rackspace.papi.service.config;
 
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
+import com.rackspace.papi.service.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
 
 import java.net.URL;
 

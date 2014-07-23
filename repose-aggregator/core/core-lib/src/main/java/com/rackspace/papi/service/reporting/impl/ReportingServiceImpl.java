@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.reporting.impl;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.config.ConfigurationService;

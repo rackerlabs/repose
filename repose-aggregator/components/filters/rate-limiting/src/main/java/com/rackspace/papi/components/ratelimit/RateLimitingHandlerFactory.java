@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;

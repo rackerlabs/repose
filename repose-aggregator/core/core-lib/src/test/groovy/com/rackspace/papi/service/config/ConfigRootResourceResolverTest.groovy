@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.config
 
-import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource
+import com.rackspace.papi.service.config.resource.impl.BufferedURLConfigurationResource
 import com.rackspace.papi.service.config.impl.ConfigRootResourceResolver
 import spock.lang.Specification
 

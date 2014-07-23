@@ -1,8 +1,8 @@
 package org.openrepose.components.apivalidator.filter;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.parser.generic.GenericResourceConfigurationParser;
+import com.rackspace.papi.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
