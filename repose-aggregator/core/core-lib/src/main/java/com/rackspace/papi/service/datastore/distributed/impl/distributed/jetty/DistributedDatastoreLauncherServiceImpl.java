@@ -2,6 +2,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.ReposeCluster;
@@ -12,6 +13,7 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.Port;
+import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import com.rackspace.papi.service.healthcheck.*;
 import com.rackspace.papi.service.routing.RoutingService;
@@ -53,6 +55,8 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private String configDirectory;
     private boolean initialized = false;
     private HealthCheckServiceProxy healthCheckServiceProxy;
+    private RequestProxyService requestProxyService;
+    private DistributedDatastoreServiceClusterViewService clusterViewService;
 
 
     @Inject
@@ -62,7 +66,9 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
                                                    @Qualifier("servicePorts") ServicePorts servicePorts,
                                                    RoutingService routingService,
                                                    DatastoreService datastoreService,
-                                                   ReposeInstanceInfo instanceInfo) {
+                                                   ReposeInstanceInfo instanceInfo,
+                                                   RequestProxyService requestProxyService,
+                                                   DistributedDatastoreServiceClusterViewService clusterViewService) {
         this.instanceInfo = instanceInfo;
         this.manager = manager;
         this.healthCheckService = healthCheckService;
@@ -71,6 +77,8 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         this.routingService = routingService;
         this.datastoreService = datastoreService;
         this.systemModelConfigurationListener = new SystemModelConfigurationListener();
+        this.requestProxyService = requestProxyService;
+        this.clusterViewService = clusterViewService;
     }
 
     @Override
@@ -96,7 +104,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
     @Override
     public void startDistributedDatastoreServlet() {
-        server = builder.newServer(datastoreService, instanceInfo);
+        server = builder.newServer(datastoreService, instanceInfo, clusterViewService.getAccessControl(), clusterViewService.getClusterView());
         try {
             LOG.info("Launching Datastore servlet on port: " + datastorePort);
             server.start();
@@ -136,7 +144,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
         configurationManager.subscribeTo("", "dist-datastore.cfg.xml", xsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
-        builder = new DistributedDatastoreJettyServerBuilder(datastorePort, instanceInfo, configDirectory, manager);
+        builder = new DistributedDatastoreJettyServerBuilder(datastorePort, instanceInfo, configDirectory, manager, requestProxyService);
 
 
     }
