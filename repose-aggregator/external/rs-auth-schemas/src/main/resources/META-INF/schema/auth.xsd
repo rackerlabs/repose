@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:auth="http://docs.rackspacecloud.com/auth/api/v1.1"
+        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        targetNamespace="http://docs.rackspacecloud.com/auth/api/v1.1">
+
+    <annotation>
+        <xsd:appinfo
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <xsdxt:title>Token and Service Catalog</xsdxt:title>
+            <xsdxt:link rel="index" href="api.xsd"/>
+        </xsd:appinfo>
+        <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                This schema file defines the token and the service catalog
+                entities.
+            </p>
+        </xsd:documentation>
+    </annotation>
+
+    <!-- Root Elements -->
+    <element name="auth" type="auth:AuthData">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A combination of the token and the service catalog. This
+                    is returned when a user authenticates.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/auth.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/auth.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+    <element name="serviceCatalog" type="auth:ServiceCatalog">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    The service catalog contains a list of all regional and
+                    global endpoints available to a user. The endpoints are
+                    sorted by service type.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/serviceCatalog.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/serviceCatalog.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+
+    <!-- Complex Types -->
+    <complexType name="AuthData">
+        <sequence>
+            <element name="token" type="auth:Token">
+                <annotation>
+                    <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            An Auth Token.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+            <element ref="auth:serviceCatalog">
+                <annotation>
+                    <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            The service catalog.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+
+    <complexType name="Token">
+        <attribute name="id" type="xsd:ID" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The Token Id, to be used in Authentication headers.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="expires" type="xsd:dateTime" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The token will be invalid after the expires time.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+    <complexType name="ServiceCatalog">
+        <sequence>
+            <element name="service" type="auth:Service" minOccurs="1" maxOccurs="1000">
+                <annotation>
+                    <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            A list of services.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+        </sequence>
+    </complexType>
+    <complexType name="Service">
+        <sequence>
+            <element name="endpoint" type="auth:Endpoint" minOccurs="1" maxOccurs="1000">
+                <annotation>
+                    <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            A list of endpoints.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <attribute name="name" type="xsd:ID" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The service name.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+    <complexType name="Endpoint">
+        <attribute name="region" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The airport code of the region where the endpoint
+                        lives.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute default="false" name="v1Default" type="xsd:boolean" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        If true, then the endpoint will be selected
+                        automatically in V1.0 of the Auth API.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="publicURL" type="xsd:anyURI" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The publically accessible service URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="internalURL" type="xsd:anyURI" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A service URL, accessible only within the
+                        Rackspace Cloud.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="adminURL" type="xsd:anyURI" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A service URL used for administration. This may expose
+                        additional functionality not found in the public and
+                        internal URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+</schema>
