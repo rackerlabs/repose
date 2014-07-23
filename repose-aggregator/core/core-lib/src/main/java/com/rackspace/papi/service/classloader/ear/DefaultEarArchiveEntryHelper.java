@@ -4,7 +4,7 @@ import com.oracle.javaee6.ApplicationType;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ObjectFactory;
 import com.oracle.javaee6.WebFragmentType;
-import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
+import org.openrepose.core.service.config.parser.ConfigurationParser;
 import com.rackspace.papi.service.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.service.config.resource.impl.ByteArrayConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;

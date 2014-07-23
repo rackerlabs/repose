@@ -1,5 +1,7 @@
 package com.rackspace.papi.service.config.parser.common;
 
+import org.openrepose.core.service.config.parser.ConfigurationParser;
+
 public abstract class AbstractConfigurationObjectParser<T> implements ConfigurationParser<T> {
 
     private final Class<T> configurationClass;

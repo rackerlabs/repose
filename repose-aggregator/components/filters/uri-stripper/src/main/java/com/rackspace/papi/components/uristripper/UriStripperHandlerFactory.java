@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.uristripper;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 

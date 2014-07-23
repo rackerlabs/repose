@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
@@ -13,7 +13,7 @@ import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;

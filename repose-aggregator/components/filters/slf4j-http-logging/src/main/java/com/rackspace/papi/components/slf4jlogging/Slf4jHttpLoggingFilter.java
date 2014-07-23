@@ -3,7 +3,7 @@ package com.rackspace.papi.components.slf4jlogging;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

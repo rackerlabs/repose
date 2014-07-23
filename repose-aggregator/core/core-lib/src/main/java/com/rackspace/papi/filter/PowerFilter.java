@@ -2,7 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.google.common.base.Optional;
 import com.rackspace.papi.ResponseCode;
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.cnorm;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.cnorm.normalizer.HeaderNormalizer;
 import com.rackspace.papi.components.cnorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;

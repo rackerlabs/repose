@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.context.impl
 
-import com.rackspace.papi.service.config.manager.UpdateListener
-import com.rackspace.papi.service.config.resource.ConfigurationResource
-import com.rackspace.papi.service.config.ConfigurationResourceResolver
+import org.openrepose.core.service.config.manager.UpdateListener
+import org.openrepose.core.service.config.resource.ConfigurationResource
+import org.openrepose.core.service.config.ConfigurationResourceResolver
 import com.rackspace.papi.service.ServiceRegistry
-import com.rackspace.papi.service.config.ConfigurationService
+import org.openrepose.core.service.config.ConfigurationService
 import com.rackspace.papi.service.context.ServiceContext
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy

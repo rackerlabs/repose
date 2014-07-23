@@ -4,7 +4,7 @@ import com.rackspace.papi.service.classloader.ear.EarArchiveEntryHelper;
 import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;

@@ -1,9 +1,9 @@
 package com.rackspace.papi.jmx;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.service.config.ConfigurationResourceResolver;
+import org.openrepose.core.service.config.ConfigurationResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.config.manager;
+package org.openrepose.core.service.config.manager;
 
 public interface UpdateListener<T> {
 

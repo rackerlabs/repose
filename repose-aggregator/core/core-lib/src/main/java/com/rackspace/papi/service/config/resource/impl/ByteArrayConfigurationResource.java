@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.config.resource.impl;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.ArrayUtilities;
 
 import java.io.ByteArrayInputStream;

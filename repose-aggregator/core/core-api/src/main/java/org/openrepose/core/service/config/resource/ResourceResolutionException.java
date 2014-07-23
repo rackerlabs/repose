@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.config.resource;
+package org.openrepose.core.service.config.resource;
 
 public class ResourceResolutionException extends RuntimeException {
 

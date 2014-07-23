@@ -1,6 +1,6 @@
 package org.openrepose.components.flush;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.HashMap;

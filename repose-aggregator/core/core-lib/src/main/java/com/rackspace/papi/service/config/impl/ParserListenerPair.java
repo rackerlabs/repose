@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
-import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
+import org.openrepose.core.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.parser.ConfigurationParser;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 
 

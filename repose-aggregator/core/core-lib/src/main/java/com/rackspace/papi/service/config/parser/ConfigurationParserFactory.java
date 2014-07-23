@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.parser;
 
 import com.rackspace.papi.service.config.ConfigurationResourceException;
-import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
+import org.openrepose.core.service.config.parser.ConfigurationParser;
 import com.rackspace.papi.service.config.parser.inputstream.InputStreamConfigurationParser;
 import com.rackspace.papi.service.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.service.config.parser.properties.PropertiesFileConfigurationParser;

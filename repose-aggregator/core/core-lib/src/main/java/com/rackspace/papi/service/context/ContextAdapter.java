@@ -2,7 +2,7 @@ package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;

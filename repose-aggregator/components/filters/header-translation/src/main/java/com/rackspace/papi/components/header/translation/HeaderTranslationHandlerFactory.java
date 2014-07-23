@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.header.translation;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;

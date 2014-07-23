@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.parser.properties;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
-import com.rackspace.papi.service.config.resource.ResourceResolutionException;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ResourceResolutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

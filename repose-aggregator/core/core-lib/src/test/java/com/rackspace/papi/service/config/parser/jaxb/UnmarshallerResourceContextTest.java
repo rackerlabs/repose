@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.config.parser.jaxb;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import org.junit.Test;

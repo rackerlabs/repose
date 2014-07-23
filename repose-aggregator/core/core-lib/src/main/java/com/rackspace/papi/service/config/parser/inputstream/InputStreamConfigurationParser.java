@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.config.parser.inputstream;
 
 import com.rackspace.papi.service.config.parser.common.AbstractConfigurationObjectParser;
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
-import com.rackspace.papi.service.config.resource.ResourceResolutionException;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ResourceResolutionException;
 
 import java.io.IOException;
 import java.io.InputStream;

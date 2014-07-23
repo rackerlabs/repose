@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.parser.generic;
 
 import com.rackspace.papi.service.config.parser.common.AbstractConfigurationObjectParser;
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 
 public class GenericResourceConfigurationParser extends AbstractConfigurationObjectParser<ConfigurationResource> {
 

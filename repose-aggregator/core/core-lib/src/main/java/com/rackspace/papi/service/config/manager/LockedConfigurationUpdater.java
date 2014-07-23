@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.config.manager;
 
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
+import org.openrepose.core.service.config.manager.UpdateListener;
 
 /**
  * User: joshualockwood

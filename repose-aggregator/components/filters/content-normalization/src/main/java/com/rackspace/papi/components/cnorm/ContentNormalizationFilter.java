@@ -3,7 +3,7 @@ package com.rackspace.papi.components.cnorm;
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import java.net.URL;

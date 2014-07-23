@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.parser.jaxb;
 
-import com.rackspace.papi.service.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.parser.ConfigurationParser;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

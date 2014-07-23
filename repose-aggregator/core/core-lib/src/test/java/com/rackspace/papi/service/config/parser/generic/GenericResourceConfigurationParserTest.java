@@ -4,7 +4,7 @@
  */
 package com.rackspace.papi.service.config.parser.generic;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.assertNotNull;

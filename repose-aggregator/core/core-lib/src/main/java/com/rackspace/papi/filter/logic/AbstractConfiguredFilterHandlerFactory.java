@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.logic;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 
 import java.util.Map;

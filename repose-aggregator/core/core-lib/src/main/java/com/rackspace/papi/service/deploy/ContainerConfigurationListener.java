@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.classloader.ear.DefaultEarArchiveEntryHelper;
 import com.rackspace.papi.service.classloader.ear.EarArchiveEntryHelper;

@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.config.parser.jaxb;
 
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 /**
  * Uses {@link com.rackspace.papi.service.config.parser.jaxb.UnmarshallerValidator UnmarshallerValidator} to validate
- * and then unmarshall the given {@link com.rackspace.papi.service.config.resource.ConfigurationResource ConfigurationResource}.
+ * and then unmarshall the given {@link org.openrepose.core.service.config.resource.ConfigurationResource ConfigurationResource}.
  */
 public class UnmarshallerResourceContext implements ResourceContext<UnmarshallerValidator, Object> {
 

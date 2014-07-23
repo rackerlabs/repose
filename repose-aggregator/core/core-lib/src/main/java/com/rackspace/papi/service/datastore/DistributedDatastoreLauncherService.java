@@ -6,7 +6,7 @@ package com.rackspace.papi.service.datastore;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.routing.RoutingService;
 
 

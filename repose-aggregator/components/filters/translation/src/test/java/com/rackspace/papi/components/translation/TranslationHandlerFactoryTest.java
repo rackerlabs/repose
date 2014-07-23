@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.components.translation.config.*;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.service.config.parser.generic.GenericResourceConfigurationParser;
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 
 import java.util.HashSet;
 import java.util.Set;

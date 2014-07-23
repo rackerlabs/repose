@@ -1,6 +1,6 @@
 package org.openrepose.components.routing.servlet;
 
-import com.rackspace.papi.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;

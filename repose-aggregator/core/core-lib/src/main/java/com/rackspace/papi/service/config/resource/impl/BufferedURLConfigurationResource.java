@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.config.resource.impl;
 
 import com.rackspace.papi.service.config.ConfigurationResourceException;
-import com.rackspace.papi.service.config.resource.ConfigurationResource;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
