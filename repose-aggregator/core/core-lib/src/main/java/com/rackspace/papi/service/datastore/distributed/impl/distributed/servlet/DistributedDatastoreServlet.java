@@ -3,17 +3,16 @@ package com.rackspace.papi.service.datastore.distributed.impl.distributed.servle
 import com.rackspace.papi.commons.util.encoding.EncodingProvider;
 import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.Patch;
 import com.rackspace.papi.components.datastore.distributed.ClusterConfiguration;
+import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import com.rackspace.papi.components.datastore.impl.distributed.MalformedCacheRequestException;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +34,15 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private Datastore localDatastore;
     private EncodingProvider encodingProvider;
     private DatastoreService datastoreService;
-    private DistributedDatastoreServiceClusterViewService clusterView;
+    private ClusterView clusterView;
+    private RequestProxyService requestProxyService;
     private static final String DISTRIBUTED_HASH_RING = "distributed/hash-ring";
 
-    public DistributedDatastoreServlet(DatastoreService datastore) {
-        hostAcl = new DatastoreAccessControl(null, false);
+    public DistributedDatastoreServlet(DatastoreService datastore, DatastoreAccessControl hostAcl, ClusterView clusterView, RequestProxyService requestProxyService) {
+        this.hostAcl = hostAcl;
         this.datastoreService = datastore;
+        this.clusterView = clusterView;
+        this.requestProxyService = requestProxyService;
         localDatastore = datastore.getDefaultDatastore();
         encodingProvider = UUIDEncodingProvider.getInstance();
     }
@@ -50,13 +52,10 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
         super.init(config);
 
-        ContextAdapter contextAdapter = ServletContextHelper.getInstance(config.getServletContext()).getPowerApiContext();
-        clusterView = contextAdapter.distributedDatastoreServiceClusterViewService();
-        ClusterConfiguration configuration = new ClusterConfiguration(contextAdapter.requestProxyService(), encodingProvider,
-                clusterView.getClusterView());
+        ClusterConfiguration configuration = new ClusterConfiguration(requestProxyService, encodingProvider,
+                clusterView);
 
         datastoreService.createDatastore(DISTRIBUTED_HASH_RING, configuration);
-        hostAcl = clusterView.getAccessControl();
     }
 
     @Override
