@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
@@ -32,8 +33,8 @@ public class DistributedDatastoreLauncherServiceImplTest {
       @Test
       public void shouldCreateNewServer() throws IllegalAccessException, InstantiationException {
 
-         DistributedDatastoreJettyServerBuilder builder = new DistributedDatastoreJettyServerBuilder(8888, instanceInfo, "/etc/repose", DistributedDatastoreServletContextManager.class.newInstance());
-         final Server server = builder.newServer(datastoreService, instanceInfo);
+         DistributedDatastoreJettyServerBuilder builder = new DistributedDatastoreJettyServerBuilder(8888, instanceInfo, "/etc/repose", DistributedDatastoreServletContextManager.class.newInstance(), mock(RequestProxyService.class));
+         final Server server = builder.newServer(datastoreService, instanceInfo, null, null);
 
          assertTrue(server instanceof Server);
          server.getStopAtShutdown();
