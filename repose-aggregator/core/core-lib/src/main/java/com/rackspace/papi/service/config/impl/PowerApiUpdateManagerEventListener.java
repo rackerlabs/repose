@@ -2,8 +2,8 @@ package com.rackspace.papi.service.config.impl;
 
 import org.openrepose.core.service.config.manager.UpdateListener;
 import org.openrepose.core.service.config.resource.ConfigurationResource;
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventListener;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventListener;
 import org.slf4j.Logger;
 
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.event.common;
+package org.openrepose.core.service.event;
 
 
 public interface EventService {

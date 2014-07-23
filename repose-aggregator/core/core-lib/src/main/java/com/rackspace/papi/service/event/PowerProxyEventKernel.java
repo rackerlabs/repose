@@ -2,8 +2,8 @@ package com.rackspace.papi.service.event;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
-import com.rackspace.papi.service.event.common.EventDispatcher;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventDispatcher;
+import org.openrepose.core.service.event.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import org.springframework.beans.factory.annotation.Qualifier;
 import javax.inject.Named;
 
 @Named("powerProxyEventKernel")

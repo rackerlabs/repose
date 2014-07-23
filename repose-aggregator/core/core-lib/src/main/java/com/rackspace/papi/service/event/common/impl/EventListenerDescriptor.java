@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.event.common.impl;
 
-import com.rackspace.papi.service.event.common.EventListener;
+import org.openrepose.core.service.event.EventListener;
 
 import java.util.*;
 

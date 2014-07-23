@@ -9,7 +9,7 @@ import org.openrepose.core.service.config.resource.ConfigurationResource;
 import org.openrepose.core.service.config.ConfigurationResourceResolver;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import org.openrepose.core.service.config.ConfigurationService;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;

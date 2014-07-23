@@ -1,15 +1,15 @@
 package com.rackspace.papi.service.event;
 
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventDispatcher;
-import com.rackspace.papi.service.event.common.EventListener;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventDispatcher;
+import org.openrepose.core.service.event.EventListener;
+import org.openrepose.core.service.event.EventService;
 import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
+
 import javax.inject.Named;
 
 import java.util.*;

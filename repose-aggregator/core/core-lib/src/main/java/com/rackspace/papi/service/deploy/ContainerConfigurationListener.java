@@ -8,7 +8,7 @@ import com.rackspace.papi.service.classloader.ear.EarUnpacker;
 import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import java.io.File;
 import javax.annotation.PostConstruct;
 

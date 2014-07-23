@@ -2,7 +2,7 @@ package com.rackspace.papi.service.config.impl;
 
 import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,7 +7,7 @@ import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.jmx.ConfigurationInformation;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
 
 import javax.annotation.PostConstruct;

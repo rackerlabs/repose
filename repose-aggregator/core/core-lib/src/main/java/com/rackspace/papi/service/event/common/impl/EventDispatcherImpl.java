@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.event.common.impl;
 
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventDispatcher;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventDispatcher;
 
 import java.util.Set;
 

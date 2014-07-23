@@ -3,8 +3,9 @@ package com.rackspace.papi.service.classloader;
 import com.rackspace.papi.service.classloader.ear.EarClassLoader;
 import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.*;
+import org.openrepose.core.service.event.EventListener;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -30,7 +31,7 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
     @PostConstruct
     public void afterPropertiesSet() {
         eventService.listen(
-                new com.rackspace.papi.service.event.common.EventListener<ApplicationDeploymentEvent, List<EarClassLoaderContext>>() {
+                new org.openrepose.core.service.event.EventListener<ApplicationDeploymentEvent, List<EarClassLoaderContext>>() {
 
                     @Override
                     public void onEvent(Event<ApplicationDeploymentEvent, List<EarClassLoaderContext>> e) {
@@ -46,7 +47,7 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
                 }, ApplicationDeploymentEvent.APPLICATION_LOADED);
 
         eventService.listen(
-                new com.rackspace.papi.service.event.common.EventListener<ApplicationDeploymentEvent, String>() {
+                new EventListener<ApplicationDeploymentEvent, String>() {
 
                     @Override
                     public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
