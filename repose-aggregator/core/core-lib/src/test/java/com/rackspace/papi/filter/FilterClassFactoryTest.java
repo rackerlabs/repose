@@ -6,7 +6,6 @@ import com.rackspace.papi.servlet.PowerApiContextException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 
 import javax.servlet.Filter;
 import java.net.MalformedURLException;
@@ -129,7 +128,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            Filter newFilter = filterClassFactory.newInstance(mock(ApplicationContext.class));
+            Filter newFilter = filterClassFactory.newInstance();
 
             assertNotNull(newFilter);
         }
@@ -146,7 +145,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            filterClassFactory.newInstance(mock(ApplicationContext.class));
+            filterClassFactory.newInstance();
         }
 
         @Test(expected= FilterClassException.class)
@@ -161,7 +160,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            filterClassFactory.newInstance(mock(ApplicationContext.class));
+            filterClassFactory.newInstance();
         }        
     }
 }
