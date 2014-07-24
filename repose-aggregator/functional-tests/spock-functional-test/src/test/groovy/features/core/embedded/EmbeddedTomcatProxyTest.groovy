@@ -4,6 +4,7 @@ import com.rackspace.papi.test.mocks.util.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
+import framework.ReposeLogSearch
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -56,6 +57,10 @@ class EmbeddedTomcatProxyTest extends Specification {
     }
 
     def cleanupSpec() {
+        def TestProperties properties = new TestProperties()
+        ReposeLogSearch search = new ReposeLogSearch(properties.logFile);
+        search.printLog()
+
         if (deproxy)
             deproxy.shutdown()
 
