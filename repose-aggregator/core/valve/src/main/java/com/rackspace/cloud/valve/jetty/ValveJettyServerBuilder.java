@@ -4,7 +4,7 @@ import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.filter.ValvePowerFilter;
+import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
@@ -57,7 +57,7 @@ public class ValveJettyServerBuilder {
         server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
 
         final ServletContextHandler rootContext = buildRootContext(server);
-        final FilterHolder powerFilterHolder = new FilterHolder(ValvePowerFilter.class);
+        final FilterHolder powerFilterHolder = new FilterHolder(PowerFilter.class);
         final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
         rootContext.addFilter(powerFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));

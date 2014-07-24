@@ -1,6 +1,9 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.service.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServlet;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
@@ -21,15 +24,21 @@ public class DistributedDatastoreJettyServerBuilder {
     private DatastoreService datastoreService;
     private String configDirectory;
     private DistributedDatastoreServletContextManager manager;
+    private RequestProxyService requestProxyService;
 
-    public DistributedDatastoreJettyServerBuilder(int port, ReposeInstanceInfo reposeInstanceInfo, String configDirectory, DistributedDatastoreServletContextManager manager) {
+    public DistributedDatastoreJettyServerBuilder(int port,
+                                                  ReposeInstanceInfo reposeInstanceInfo,
+                                                  String configDirectory,
+                                                  DistributedDatastoreServletContextManager manager,
+                                                  RequestProxyService requestProxyService) {
         this.port = port;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.configDirectory = configDirectory;
         this.manager = manager;
+        this.requestProxyService = requestProxyService;
     }
 
-    public Server newServer(DatastoreService datastore, ReposeInstanceInfo instanceInfo) {
+    public Server newServer(DatastoreService datastore, ReposeInstanceInfo instanceInfo, DatastoreAccessControl hostAcl, ClusterView clusterView) {
 
         this.datastoreService = datastore;
         this.reposeInstanceInfo = instanceInfo;
@@ -44,7 +53,7 @@ public class DistributedDatastoreJettyServerBuilder {
         server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
 
         final ServletContextHandler rootContext = buildRootContext(server);
-        final ServletHolder distributedDatastoreServletHolder = new ServletHolder(new DistributedDatastoreServlet(datastore));
+        final ServletHolder distributedDatastoreServletHolder = new ServletHolder(new DistributedDatastoreServlet(datastore, hostAcl, clusterView, requestProxyService));
         rootContext.addServlet(distributedDatastoreServletHolder, "/*");
         server.setHandler(rootContext);
 

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.identity.uri;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;

@@ -2,7 +2,7 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;

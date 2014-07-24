@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.components.translation.config.*;
@@ -10,7 +10,7 @@ import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterCh
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;

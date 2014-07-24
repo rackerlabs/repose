@@ -7,7 +7,7 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.OverwriteType;

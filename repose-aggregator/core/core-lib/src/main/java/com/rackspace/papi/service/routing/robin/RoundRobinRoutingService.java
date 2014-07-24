@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.routing.robin;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;

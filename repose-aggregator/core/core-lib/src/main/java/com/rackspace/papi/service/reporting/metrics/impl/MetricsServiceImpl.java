@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.reporting.metrics.impl;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;

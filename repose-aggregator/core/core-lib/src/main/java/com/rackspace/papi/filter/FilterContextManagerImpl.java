@@ -2,7 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.model.Filter;
 import java.util.*;
 import javax.servlet.FilterConfig;
@@ -10,17 +10,14 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
     private final FilterConfig filterConfig;
-    private final ApplicationContext applicationContext;
 
-    public FilterContextManagerImpl(FilterConfig filterConfig, ApplicationContext applicationContext) {
+    public FilterContextManagerImpl(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
-        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -101,7 +98,7 @@ public class FilterContextManagerImpl implements FilterContextManager {
        
         try {
             currentThread.setContextClassLoader(nextClassLoader);
-            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
+            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance();
 
             newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType(), filter.getConfiguration()));
             

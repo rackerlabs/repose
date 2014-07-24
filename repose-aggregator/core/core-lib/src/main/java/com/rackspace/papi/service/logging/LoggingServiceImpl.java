@@ -1,11 +1,11 @@
 package com.rackspace.papi.service.logging;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
+import org.openrepose.core.service.config.manager.UpdateListener;
+import com.rackspace.papi.service.config.parser.properties.PropertiesFileConfigurationParser;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.LoggingConfiguration;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

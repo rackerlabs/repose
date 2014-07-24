@@ -18,6 +18,7 @@ import java.util.List;
  * @author fran
  *
  * Takes info from config file to initialize a filter context.
+ * TODO: I think this needs to be a spring bean?
  */
 public class FilterContextInitializer {
 
@@ -25,10 +26,10 @@ public class FilterContextInitializer {
    private final FilterContextManager filterContextManager;
    private final ReposeInstanceInfo instanceInfo;
 
-   public FilterContextInitializer(FilterConfig filterConfig, ApplicationContext applicationContext) {
-      filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
-      instanceInfo = (ReposeInstanceInfo) applicationContext.getBean("reposeInstanceInfo");
-      
+   public FilterContextInitializer(FilterConfig filterConfig, ReposeInstanceInfo instanceInfo) {
+      filterContextManager = new FilterContextManagerImpl(filterConfig);
+       this.instanceInfo = instanceInfo;
+
    }
 
    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {

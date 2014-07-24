@@ -1,9 +1,9 @@
 package com.rackspace.papi.service.reporting.impl;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.model.*;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.ReposeInfo;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;

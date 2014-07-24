@@ -1,13 +1,13 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.service.config.manager.ConfigurationUpdateManager;
+import org.openrepose.core.service.config.manager.UpdateListener;
+import org.openrepose.core.service.config.parser.ConfigurationParser;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.jmx.ConfigurationInformation;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
 
 import javax.annotation.PostConstruct;

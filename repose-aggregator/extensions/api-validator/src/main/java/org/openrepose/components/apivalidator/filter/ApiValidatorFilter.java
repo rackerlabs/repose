@@ -2,7 +2,7 @@ package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspace.papi.servlet.InitParameter;

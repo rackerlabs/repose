@@ -2,9 +2,15 @@ package com.rackspace.papi.filter;
 
 import com.google.common.base.Optional;
 import com.rackspace.papi.ResponseCode;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.rms.ResponseMessageService;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
@@ -17,16 +23,21 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.PowerFilterEvent;
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventListener;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventListener;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import org.openrepose.core.service.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.GenericFilterBean;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,36 +53,86 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * This class current instruments the response codes coming from Repose.
  */
-public class PowerFilter extends ApplicationContextAwareFilter {
+@Named
+public class PowerFilter extends DelegatingFilterProxy {
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
 
     private final Object internalLock = new Object();
-    private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
-    private final UpdateListener<SystemModel> systemModelConfigurationListener;
+    private final EventService eventService;
+    private final ConfigurationService configurationService;
+    private final MetricsService metricsService;
+    private final ClassLoaderManagerService classLoaderManagerService;
+    private final ReposeInstanceInfo reposeInstanceInfo;
+    private final ContainerConfigurationService containerConfigurationService;
+    private final ResponseMessageService responseMessageService;
+    private EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
+    private UpdateListener<SystemModel> systemModelConfigurationListener;
 
     private boolean firstInitialization;
-    private ServicePorts ports;
+    private ServicePorts servicePorts;
     private PowerFilterChainBuilder powerFilterChainBuilder;
-    private ContextAdapter papiContext;
     private SystemModel currentSystemModel;
     private ReposeCluster serviceDomain;
     private Node localHost;
-    private FilterConfig filterConfig;
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private MeterByCategory mbcResponseCodes;
     private ResponseHeaderService responseHeaderService;
     private Destination defaultDst;
+    private HealthCheckService healthCheckService;
 
-    public PowerFilter() {
+    @Inject
+    public PowerFilter(ServicePorts servicePorts,
+                      ReportingService reportingService,
+                      HealthCheckService healthCheckService,
+                      PowerFilterChainBuilder powerFilterChainBuilder,
+                      EventService eventService,
+                      ConfigurationService configurationService,
+                      ContainerConfigurationService containerConfigurationService,
+                      ResponseHeaderService responseHeaderService,
+                      ResponseMessageService responseMessageService,
+                      MetricsService metricsService,
+                      ClassLoaderManagerService classLoaderManagerService,
+                      ReposeInstanceInfo reposeInstanceInfo
+    ) {
         firstInitialization = true;
 
-        // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
-        powerFilterChainBuilder = null;
+        this.configurationService = configurationService;
+        this.responseHeaderService = responseHeaderService;
+        this.metricsService = metricsService;
+        this.classLoaderManagerService = classLoaderManagerService;
+        this.reposeInstanceInfo = reposeInstanceInfo;
+        this.containerConfigurationService = containerConfigurationService;
+        this.responseMessageService = responseMessageService;
+
+        this.eventService = eventService;
+        this.servicePorts = servicePorts;
+        this.reportingService = reportingService;
+        this.healthCheckService = healthCheckService;
+        this.powerFilterChainBuilder = powerFilterChainBuilder;
+
+        //TODO: this used to initialize the powerfilter chainbuilder with null....
+    }
+
+    @Override
+    protected void initFilterBean() throws ServletException {
+        //TODO: this could be called a couple times? that could be a problem.
+        // See: http://docs.spring.io/spring/docs/3.0.x/javadoc-api/org/springframework/web/filter/GenericFilterBean.html#initFilterBean%28%29
         systemModelConfigurationListener = new SystemModelConfigListener();
         applicationDeploymentListener = new ApplicationDeploymentEventListener();
+
+
+        eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        configurationService.subscribeTo("", "system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
+
+        getFilterConfig().getServletContext().setAttribute("powerFilter", this);
+
+        healthCheckServiceProxy = healthCheckService.register();
+
+        mbcResponseCodes = metricsService.newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
@@ -91,7 +152,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
 
             if (currentSystemModel != null) {
-                SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+                SystemModelInterrogator interrogator = new SystemModelInterrogator(servicePorts);
 
                 Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
                 Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
@@ -112,8 +173,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 }
 
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                        filterConfig,
-                        ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                        getFilterConfig(),
+                        reposeInstanceInfo).
+                        buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -136,9 +198,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 if (firstInitialization) {
                     firstInitialization = false;
 
-                    papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
+                    eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                 } else {
-                    SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+                    SystemModelInterrogator interrogator = new SystemModelInterrogator(servicePorts);
 
                     Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
                     Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
@@ -157,8 +219,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     }
 
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                            filterConfig,
-                            ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                            getFilterConfig(),
+                            reposeInstanceInfo).buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
@@ -179,8 +241,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 if (defaultDst != null) {
                     dftDst = defaultDst.getId();
                 }
-                powerFilterChainBuilder = papiContext.filterChainBuilder();
-                powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
+                powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, dftDst);
             } catch (PowerFilterChainException ex) {
                 LOG.error("Unable to initialize filter chain builder", ex);
             }
@@ -188,42 +249,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         LOG.info("Repose ready");
     }
 
-    protected SystemModel getCurrentSystemModel() {
-        return currentSystemModel;
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        super.init(filterConfig);
-        this.filterConfig = filterConfig;
-        ServletContextHelper servletContextHelper = ServletContextHelper.getInstance(filterConfig.getServletContext());
-
-        ports = servletContextHelper.getServerPorts();
-        papiContext = servletContextHelper.getPowerApiContext();
-
-        papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        papiContext.configurationService().subscribeTo("", "system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
-
-        filterConfig.getServletContext().setAttribute("powerFilter", this);
-
-        reportingService = papiContext.reportingService();
-        responseHeaderService = papiContext.responseHeaderService();
-
-        healthCheckServiceProxy = papiContext.healthCheckService().register();
-
-        if (papiContext.metricsService() != null) {
-            mbcResponseCodes = papiContext.metricsService().newMeterByCategory(ResponseCode.class, "Repose", "Response Code", TimeUnit.SECONDS);
-        }
-    }
-
     @Override
     public void destroy() {
-        synchronized (internalLock) {
-            if (powerFilterChainBuilder != null) {
-                powerFilterChainBuilder.destroy();
-            }
-        }
+        //Should just deregister my listeners
+        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
+        //The event service doesn't offer a deregister :(
     }
 
     private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
@@ -232,7 +262,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             synchronized (internalLock) {
                 if (powerFilterChainBuilder == null) {
                     mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
-                } else if (!papiContext.healthCheckService().isHealthy()) {
+                } else if (!healthCheckService.isHealthy()) {
                     mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Currently unable to serve requests");
                 } else {
                     requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
@@ -251,7 +281,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-        long streamLimit = papiContext.containerConfigurationService().getContentBodyReadLimit();
+        long streamLimit = containerConfigurationService.getContentBodyReadLimit();
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
@@ -268,7 +298,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!mutableHttpResponse.isCommitted()) {
-                papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+                responseMessageService.handle(mutableHttpRequest, mutableHttpResponse);
                 responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
             }
 

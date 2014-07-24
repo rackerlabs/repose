@@ -1,11 +1,10 @@
 package com.rackspace.papi.service.context.impl
 import com.google.common.base.Optional
-import com.rackspace.papi.commons.config.manager.UpdateListener
-import com.rackspace.papi.commons.util.proxy.RequestProxyService
+import org.openrepose.core.service.config.manager.UpdateListener
 import com.rackspace.papi.filter.SystemModelInterrogator
 import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
-import com.rackspace.papi.service.config.ConfigurationService
+import org.openrepose.core.service.config.ConfigurationService
 import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.proxy.httpcomponent.RequestProxyServiceImpl

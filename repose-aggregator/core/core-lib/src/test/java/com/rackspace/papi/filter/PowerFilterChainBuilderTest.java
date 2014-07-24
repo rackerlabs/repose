@@ -2,9 +2,9 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
+import com.rackspace.papi.service.classloader.ear.EarClassLoader;
+import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.classloader.ear.EarDescriptor;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
@@ -37,7 +37,7 @@ public class PowerFilterChainBuilderTest {
          ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
          
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
 
          assertNotNull(powerFilterChainBuilder);
       }
@@ -95,7 +95,7 @@ public class PowerFilterChainBuilderTest {
          ApplicationContext context = mock(ApplicationContext.class);
           ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
@@ -143,7 +143,7 @@ public class PowerFilterChainBuilderTest {
          ApplicationContext context = mock(ApplicationContext.class);
           ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();

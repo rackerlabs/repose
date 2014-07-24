@@ -21,8 +21,6 @@
 
     <modules>
         <module>utilities</module>
-        <module>configuration</module>
-        <module>classloader</module>
         <module>jetty</module>
     </modules>
 

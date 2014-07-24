@@ -2,9 +2,9 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
+import com.rackspace.papi.service.classloader.ear.EarClassLoader;
+import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.classloader.ear.EarDescriptor;
 import com.rackspace.papi.model.Filter;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
             FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
@@ -85,7 +85,7 @@ public class FilterContextManagerTest {
             loadedApplications.add(mockedEarClassLoaderContextWithNullClassName);
             loadedApplications.add(mockedEarClassLoaderContextWithClassName);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
             FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
@@ -97,7 +97,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
             contextManager.loadFilterContext(filter, loadedApplications);
         }
     }

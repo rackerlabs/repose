@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.event.listener;
 
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventListener;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventListener;
 
 public abstract class SingleFireEventListener <T extends Enum, P> implements EventListener<T, P> {
 

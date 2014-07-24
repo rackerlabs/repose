@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.event.impl;
 
-import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventService;
 
 public class SimpleEvent <T extends Enum, P> implements Event<T, P> {
 

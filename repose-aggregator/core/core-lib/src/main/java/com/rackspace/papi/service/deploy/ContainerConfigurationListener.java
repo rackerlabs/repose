@@ -1,18 +1,16 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarUnpacker;
+import com.rackspace.papi.service.classloader.ear.DefaultEarArchiveEntryHelper;
+import com.rackspace.papi.service.classloader.ear.EarArchiveEntryHelper;
+import com.rackspace.papi.service.classloader.ear.EarUnpacker;
 import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
-import com.rackspace.papi.service.event.common.EventService;
+import org.openrepose.core.service.event.EventService;
 import java.io.File;
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.inject.Inject;
 import javax.inject.Named;

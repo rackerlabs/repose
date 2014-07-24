@@ -24,6 +24,7 @@
    <packaging>pom</packaging>
 
    <modules>
+      <module>core-api</module>
       <module>core-lib</module>
       <module>web-application</module>
       <module>valve</module>

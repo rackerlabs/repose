@@ -21,8 +21,10 @@ import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
-import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.context.ServletContextAware;
+
 import javax.inject.Named;
 
 import javax.servlet.RequestDispatcher;
@@ -48,16 +50,16 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  * <p>
  * This class also instruments the response codes coming from the endpoint.
  */
-@Named("powerFilterRouter")
+@Named
 @Scope("prototype")
-public class PowerFilterRouterImpl implements PowerFilterRouter {
+public class PowerFilterRouterImpl implements PowerFilterRouter, ServletContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
     private final Map<String, Destination> destinations;
     private final ReportingService reportingService;
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
-    private ServletContext context;
+    private ServletContext servletContext;
     private ReposeCluster domain;
     private String defaultDst;
     private final DestinationLocationBuilder locationBuilder;
@@ -88,14 +90,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     }
 
     @Override
-    public void initialize(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException {
+    public void initialize(ReposeCluster domain, Node localhost, String defaultDst) throws PowerFilterChainException {
         if (localhost == null || domain == null) {
             throw new PowerFilterChainException("Domain and localhost cannot be null");
         }
 
         LOG.info("Initializing Repose Router");
         this.domain = domain;
-        this.context = context;
         this.defaultDst = defaultDst;
         this.destinations.clear();
         this.locationBuilder.init(localhost);
@@ -152,7 +153,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             // According to the Java 6 javadocs the routeDestination passed into getContext:
             // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
             // and is matched against the context roots of other web applications hosted on this container."
-            final ServletContext targetContext = context.getContext(location.getUri().toString());
+            final ServletContext targetContext = servletContext.getContext(location.getUri().toString());
 
             if (targetContext != null) {
                 // Capture this for Location header processing
@@ -272,5 +273,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         if ( responseCode == HTTP_CLIENT_TIMEOUT) {
             mbc.mark( endpoint );
         }
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 }
