@@ -63,10 +63,10 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final EventService eventService;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
-    private final ClassLoaderManagerService classLoaderManagerService;
     private final ReposeInstanceInfo reposeInstanceInfo;
     private final ContainerConfigurationService containerConfigurationService;
     private final ResponseMessageService responseMessageService;
+    private final FilterContextInitializer filterContextInitializer;
     private EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private UpdateListener<SystemModel> systemModelConfigurationListener;
 
@@ -94,7 +94,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                       ResponseHeaderService responseHeaderService,
                       ResponseMessageService responseMessageService,
                       MetricsService metricsService,
-                      ClassLoaderManagerService classLoaderManagerService,
+                      FilterContextInitializer filterContextInitializer,
                       ReposeInstanceInfo reposeInstanceInfo
     ) {
         firstInitialization = true;
@@ -102,7 +102,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.configurationService = configurationService;
         this.responseHeaderService = responseHeaderService;
         this.metricsService = metricsService;
-        this.classLoaderManagerService = classLoaderManagerService;
+        this.filterContextInitializer = filterContextInitializer;
         this.reposeInstanceInfo = reposeInstanceInfo;
         this.containerConfigurationService = containerConfigurationService;
         this.responseMessageService = responseMessageService;
@@ -172,10 +172,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
 
-                final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                        getFilterConfig(),
-                        reposeInstanceInfo).
-                        buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
+                final List<FilterContext> newFilterChain = filterContextInitializer.buildFilterContexts(getFilterConfig(), serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -218,9 +215,8 @@ public class PowerFilter extends DelegatingFilterProxy {
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
 
-                    final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                            getFilterConfig(),
-                            reposeInstanceInfo).buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
+                    final List<FilterContext> newFilterChain = filterContextInitializer.buildFilterContexts(getFilterConfig(), serviceDomain, localHost);
+
                     updateFilterChainBuilder(newFilterChain);
                 }
             }

@@ -2,14 +2,16 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.FilterConfig;
 import java.util.LinkedList;
@@ -19,20 +21,27 @@ import java.util.List;
  * Takes info from config file to initialize a filter context.
  * TODO: I think this needs to be a spring bean?
  */
-public class FilterContextInitializer {
+@Named
+public class FilterContextInitializer implements ApplicationContextAware{
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
-    private final FilterContextManager filterContextManager;
     private final ReposeInstanceInfo instanceInfo;
+    private final ClassLoaderManagerService classLoaderManagerService;
+    private ApplicationContext applicationContext;
 
-    public FilterContextInitializer(FilterConfig filterConfig, ReposeInstanceInfo instanceInfo) {
-        filterContextManager = new FilterContextManagerImpl(filterConfig);
+    @Inject
+    public FilterContextInitializer(
+            ReposeInstanceInfo instanceInfo,
+            ClassLoaderManagerService classLoaderManagerService) {
+
+        this.classLoaderManagerService = classLoaderManagerService;
         this.instanceInfo = instanceInfo;
-
     }
 
-    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {
+    public List<FilterContext> buildFilterContexts(FilterConfig filterConfig, ReposeCluster domain, Node localHost) {
+        FilterContextManager filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
         Thread.currentThread().setName(instanceInfo.toString());
+
         final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
 
         if (localHost == null || domain == null) {
@@ -49,8 +58,16 @@ public class FilterContextInitializer {
                     continue;
                 }
 
-                if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
-                    final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+                if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
+                    FilterContext context = null;
+
+                    try {
+                        context = filterContextManager.loadFilterContext(
+                                papiFilter,
+                                classLoaderManagerService.getLoadedApplications());
+                    } catch (Exception e) {
+                        LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
+                    }
 
                     if (context != null) {
                         filterContexts.add(context);
@@ -69,17 +86,8 @@ public class FilterContextInitializer {
         return filterContexts;
     }
 
-    public FilterContext getFilterContext(ClassLoaderManagerService classLoaderContextManager, Filter papiFilter) {
-        FilterContext context = null;
-
-        try {
-            context = filterContextManager.loadFilterContext(
-                    papiFilter,
-                    classLoaderContextManager.getLoadedApplications());
-        } catch (Exception e) {
-            LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
-        }
-
-        return context;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }
