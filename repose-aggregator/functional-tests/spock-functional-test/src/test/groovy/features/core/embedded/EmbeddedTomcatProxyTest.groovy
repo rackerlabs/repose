@@ -45,6 +45,7 @@ class EmbeddedTomcatProxyTest extends Specification {
                 'repose.node.id': 'node1',
                 'appPath':  mocksPath
         ]
+        config.cleanConfigDirectory()
         config.applyConfigs("common", params)
         config.applyConfigs("features/filters/ipidentity", params)
 
