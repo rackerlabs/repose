@@ -6,7 +6,6 @@
 /etc/repose/rate-limiting.cfg.xml
 /etc/repose/root-context-router.cfg.xml
 /etc/repose/versioning.cfg.xml
-/etc/repose/content-identity-auth-1-1.cfg.xml
 /etc/repose/destination-router.cfg.xml
 /etc/repose/header-id-mapping.cfg.xml
 /etc/repose/header-identity.cfg.xml

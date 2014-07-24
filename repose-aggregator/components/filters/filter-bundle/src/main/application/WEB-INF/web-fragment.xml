@@ -33,11 +33,6 @@
     </filter>
 
     <filter>
-        <filter-name>content-identity-auth-1.1</filter-name>
-        <filter-class>com.rackspace.papi.components.identity.content.auth.ContentIdentityAuthFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>content-identity-auth-2.0</filter-name>
         <filter-class>org.openrepose.rackspace.auth_2_0.identity.content.auth.ContentIdentityAuthFilter</filter-class>
     </filter>
