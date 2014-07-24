@@ -17,8 +17,9 @@ class EmbeddedTomcatProxyTest extends Specification {
     static String tomcatEndpoint
 
     def setupSpec() {
-
         def TestProperties properties = new TestProperties()
+        ReposeLogSearch search = new ReposeLogSearch(properties.logFile);
+        search.deleteLog()
         int originServicePort = properties.targetPort
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
