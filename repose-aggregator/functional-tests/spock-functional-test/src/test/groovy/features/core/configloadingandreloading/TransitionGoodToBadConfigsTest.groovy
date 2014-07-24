@@ -89,6 +89,7 @@ class TransitionGoodToBadConfigsTest extends Specification {
 
         where:
         componentLabel            | expectedResponseCode
+        "connectionPooling"       | 200
         "system-model"            | 200
         "container"               | 200
         "response-messaging"      | 200
@@ -103,7 +104,6 @@ class TransitionGoodToBadConfigsTest extends Specification {
         "ip-identity"             | 200
         "validator"               | 200
         "metrics"                 | 200
-        "connectionPooling"       | 200
     }
 
     def cleanup() {
