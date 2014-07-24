@@ -22,9 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
-/**
- * @author fran
- */
 @RunWith(Enclosed.class)
 public class PowerFilterChainBuilderTest {
 
