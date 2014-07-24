@@ -36,8 +36,9 @@ public class PowerFilterChainBuilderTest {
          ApplicationContext context = mock(ApplicationContext.class);
          ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
-         
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
+         ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
+
+          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mock(ReposeInstanceInfo.class), mockedEarClassLoaderContextManager);
 
          assertNotNull(powerFilterChainBuilder);
       }
@@ -68,7 +69,7 @@ public class PowerFilterChainBuilderTest {
 
       @Test
       public void shouldBuild() throws ClassNotFoundException {
-         ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
+          ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
 
          EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
          EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
@@ -95,7 +96,7 @@ public class PowerFilterChainBuilderTest {
          ApplicationContext context = mock(ApplicationContext.class);
           ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mock(ReposeInstanceInfo.class), mockedEarClassLoaderContextManager);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
@@ -106,7 +107,7 @@ public class PowerFilterChainBuilderTest {
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(
-                 mockedEarClassLoaderContextManager,
+                 mockedFilterConfig,
                  serviceDomain,
                  localHost);
 
@@ -143,7 +144,7 @@ public class PowerFilterChainBuilderTest {
          ApplicationContext context = mock(ApplicationContext.class);
           ReposeInstanceInfo info = mock(ReposeInstanceInfo.class);
          when(context.getBean("reposeInstanceInfo")).thenReturn(info);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, mock(ReposeInstanceInfo.class));
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mock(ReposeInstanceInfo.class), mockedEarClassLoaderContextManager);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
@@ -153,7 +154,7 @@ public class PowerFilterChainBuilderTest {
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder
-                 .buildFilterContexts(mockedEarClassLoaderContextManager, serviceDomain, localHost);
+                 .buildFilterContexts(mockedFilterConfig, serviceDomain, localHost);
 
          assertEquals(0, powerFilterChain.size());
       }
