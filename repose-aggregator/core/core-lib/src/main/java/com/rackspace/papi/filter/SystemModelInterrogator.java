@@ -6,15 +6,13 @@ import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import org.springframework.beans.factory.annotation.Qualifier;
-import javax.inject.Named;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -24,20 +22,22 @@ import java.util.List;
 /**
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
+ * TODO: This super needs to be threadsafe!
  */
-@Named("modelInterrogator")
+@Named
 public class SystemModelInterrogator {
     private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
 
     private final NetworkInterfaceProvider networkInterfaceProvider;
     private final NetworkNameResolver nameResolver;
-    private final List<Port> ports;
+    private final ReposeInstanceInfo reposeInstanceInfo;
 
     @Inject
-    public SystemModelInterrogator(@Qualifier("servicePorts") ServicePorts ports) {
+    public SystemModelInterrogator(ReposeInstanceInfo reposeInstanceInfo) {
+        //TODO: the service ports are empty, and so that's what makes it blow up
         this.nameResolver = StaticNetworkNameResolver.getInstance();
         this.networkInterfaceProvider = StaticNetworkInterfaceProvider.getInstance();
-        this.ports = ports;
+        this.reposeInstanceInfo = reposeInstanceInfo;
     }
 
     /**
@@ -45,7 +45,7 @@ public class SystemModelInterrogator {
      */
     public Optional<ReposeCluster> getLocalCluster(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            if (getLocalNodeForPorts(cluster, ports).isPresent()) {
+            if (getLocalNodeForPorts(cluster, reposeInstanceInfo.getPorts()).isPresent()) {
                 return Optional.of(cluster);
             }
         }
@@ -58,7 +58,7 @@ public class SystemModelInterrogator {
      */
     public Optional<Node> getLocalNode(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            Optional<Node> node = getLocalNodeForPorts(cluster, ports);
+            Optional<Node> node = getLocalNodeForPorts(cluster, reposeInstanceInfo.getPorts());
 
             if (node.isPresent()) {
                 return node;

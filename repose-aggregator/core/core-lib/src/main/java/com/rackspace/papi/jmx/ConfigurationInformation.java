@@ -1,12 +1,10 @@
 package com.rackspace.papi.jmx;
 
-import org.openrepose.core.service.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
-import com.rackspace.papi.domain.ServicePorts;
 import org.openrepose.core.service.config.ConfigurationResourceResolver;
+import org.openrepose.core.service.config.resource.ConfigurationResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
@@ -31,15 +29,11 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
     private final List<FilterInformation> filterChain;
     private final ConfigurationResourceResolver resourceResolver;
 
-    private ServicePorts ports;
-
 
     @Inject
-    public ConfigurationInformation(@Qualifier("servicePorts") ServicePorts ports,
-                                     ConfigurationResourceResolver resourceResolver) {
+    public ConfigurationInformation(ConfigurationResourceResolver resourceResolver) {
         filterChain = new ArrayList<>();
         this.resourceResolver = resourceResolver;
-        this.ports = ports;
     }
 
     @Override

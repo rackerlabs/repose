@@ -5,15 +5,14 @@
 package com.rackspace.papi.service.datastore;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.domain.ServicePorts;
 import org.openrepose.core.service.config.ConfigurationService;
-import com.rackspace.papi.service.routing.RoutingService;
 
 
 public interface DistributedDatastoreLauncherService {
-   
-   void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo,
-           ServicePorts servicePorts,RoutingService routingService, String configDirectory);
-   void startDistributedDatastoreServlet();
-   void stopDistributedDatastoreServlet();
+
+    void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo, String configDirectory);
+
+    void startDistributedDatastoreServlet();
+
+    void stopDistributedDatastoreServlet();
 }

@@ -2,14 +2,13 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
+import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.model.*;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.classloader.ear.EarClassLoader;
 import com.rackspace.papi.service.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.classloader.ear.EarDescriptor;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.*;
-import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -20,7 +19,9 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class PowerFilterChainBuilderTest {
@@ -58,10 +59,14 @@ public class PowerFilterChainBuilderTest {
        * when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
        */
 
-      private ServicePorts getHttpPortList(int port) {
-         ServicePorts ports = new ServicePorts();
+      private ReposeInstanceInfo mockReposeInstanceInfo(int port) {
+          ReposeInstanceInfo mockRII = mock(ReposeInstanceInfo.class);
+         ArrayList<Port> ports = new ArrayList<>();
          ports.add(new Port("http", port));
-         return ports;
+
+          when(mockRII.getPorts()).thenReturn(ports);
+
+         return mockRII;
       }
 
       @Test
@@ -99,7 +104,7 @@ public class PowerFilterChainBuilderTest {
          List<ReposeCluster> hosts = createTestHosts();
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
          
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(getHttpPortList(8080));
+         SystemModelInterrogator interrogator = new SystemModelInterrogator(mockReposeInstanceInfo(8080));
          Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
@@ -146,7 +151,7 @@ public class PowerFilterChainBuilderTest {
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(getHttpPortList(8080));
+         SystemModelInterrogator interrogator = new SystemModelInterrogator(mockReposeInstanceInfo(8080));
          Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 

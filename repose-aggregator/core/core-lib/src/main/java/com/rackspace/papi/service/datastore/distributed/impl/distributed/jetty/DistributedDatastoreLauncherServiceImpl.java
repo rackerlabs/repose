@@ -1,44 +1,39 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.Service;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.Port;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
-import com.rackspace.papi.service.healthcheck.*;
-import com.rackspace.papi.service.routing.RoutingService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
+import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.context.ServletContextAware;
-
 import javax.inject.Named;
 import javax.servlet.ServletContext;
-
 import java.net.URL;
 
 @Named
 public class DistributedDatastoreLauncherServiceImpl implements DistributedDatastoreLauncherService, ServletContextAware {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherServiceImpl.class);
-    private RoutingService routingService;
-    private ServicePorts servicePorts;
     private SystemModelConfigurationListener systemModelConfigurationListener;
     private DistributedDatastoreJettyServerBuilder builder;
     private ConfigurationService configurationManager;
@@ -49,7 +44,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     private final Object configLock = new Object();
     private DatastoreService datastoreService;
     private Server server;
-    private String issueId, healthServiceUID;
+    private String issueId;
     private DistributedDatastoreServletContextManager manager;
     private HealthCheckService healthCheckService;
     private String configDirectory;
@@ -63,8 +58,6 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     public DistributedDatastoreLauncherServiceImpl(DistributedDatastoreServletContextManager manager,
                                                    HealthCheckService healthCheckService,
                                                    ConfigurationService configurationManager,
-                                                   @Qualifier("servicePorts") ServicePorts servicePorts,
-                                                   RoutingService routingService,
                                                    DatastoreService datastoreService,
                                                    ReposeInstanceInfo instanceInfo,
                                                    RequestProxyService requestProxyService,
@@ -73,8 +66,6 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         this.manager = manager;
         this.healthCheckService = healthCheckService;
         this.configurationManager = configurationManager;
-        this.servicePorts = servicePorts;
-        this.routingService = routingService;
         this.datastoreService = datastoreService;
         this.systemModelConfigurationListener = new SystemModelConfigurationListener();
         this.requestProxyService = requestProxyService;
@@ -135,8 +126,9 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
     }
 
     @Override
-    public void initialize(ConfigurationService configurationService, ReposeInstanceInfo instanceInfo,
-                           ServicePorts servicePorts, RoutingService routingService, String configDirectory) {
+    public void initialize(ConfigurationService configurationService,
+                           ReposeInstanceInfo instanceInfo,
+                           String configDirectory) {
 
         this.configurationManager = configurationService;
         this.instanceInfo = instanceInfo;
@@ -209,12 +201,13 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
+            //TODO: Cluster came up null and caused this guy to blow up.
             ReposeCluster cluster = findCluster(configurationObject);
 
             boolean listed = serviceListed(cluster);
             if (listed && initialized == false) {
                 //launch dist-datastore servlet!!! Pass down the datastore service
-                initialize(configurationManager, instanceInfo, servicePorts, routingService, configDirectory);
+                initialize(configurationManager, instanceInfo, configDirectory);
                 startDistributedDatastoreServlet();
                 //TODO: this should tell the ServletContextManager ?
                 //TODO: or maybe there shouldn't be a DistributedDatastoreServletContextManager
@@ -240,7 +233,7 @@ public class DistributedDatastoreLauncherServiceImpl implements DistributedDatas
         }
 
         private boolean serviceListed(ReposeCluster cluster) {
-            if (cluster.getServices() != null) {
+            if (cluster != null && cluster.getServices() != null) {
                 for (Service service : cluster.getServices().getService()) {
                     if (service.getName().equalsIgnoreCase("dist-datastore")) {
                         //launch dist-datastore servlet!!! Pass down the datastore service

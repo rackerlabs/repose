@@ -1,28 +1,18 @@
 package com.rackspace.papi.service.context.container
 
 import com.rackspace.papi.container.config.DeploymentConfiguration
-import com.rackspace.papi.domain.ServicePorts
 import org.junit.Test
+import org.openrepose.core.service.config.ConfigurationService
 
 import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.CoreMatchers.nullValue
 import static org.junit.Assert.assertThat
-/**
- * Created by eric7500 on 7/10/14.
- */
+import static org.mockito.Mockito.mock
+
 public class ContainerConfigurationServiceImplTest {
-
-
-    @Test
-    public void testConstructorWithDummyValues() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
-        assertThat(testImpl.ports,equalTo(new ServicePorts()));
-        assertThat(testImpl.configurationManager,nullValue());
-    }
 
     @Test
     public void testVia() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
+        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(mock(ConfigurationService));
         testImpl.setVia("testVia");
         assertThat(testImpl.getVia(),equalTo("testVia"));
     }
@@ -30,27 +20,22 @@ public class ContainerConfigurationServiceImplTest {
 
     @Test
     public void testContentBodyReadLimitNull() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
+        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(mock(ConfigurationService));
         testImpl.setContentBodyReadLimit(null);
         assertThat(testImpl.getContentBodyReadLimit(),equalTo(0L))
     }
 
     @Test
     public void testContentBodyReadLimitNotNull() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
+        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(mock(ConfigurationService));
         testImpl.setContentBodyReadLimit(5L);
         assertThat(testImpl.getContentBodyReadLimit(),equalTo(5L))
     }
 
-    @Test
-    public void testGetServicePorts() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
-        assertThat(testImpl.getServicePorts(),equalTo(new ServicePorts()));
-    }
 
     @Test
     public void testDeprecatedConfigs() {
-        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(new ServicePorts(),null);
+        ContainerConfigurationService testImpl = new ContainerConfigurationServiceImpl(mock(ConfigurationService));
         DeploymentConfiguration dc = new DeploymentConfiguration();
         dc.setReadTimeout(25000);
         dc.setConnectionTimeout(25000);

@@ -4,21 +4,17 @@
  */
 package com.rackspace.papi.service.routing.robin;
 
-import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.service.config.ConfigurationService;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
@@ -32,9 +28,8 @@ public class RoundRobinRoutingServiceTest {
       @Before
       public void setUp() {
 
-         final ServicePorts servicePorts = null;
          final ConfigurationService configurationManager = null;
-         robinRoutingService = new RoundRobinRoutingService(servicePorts, configurationManager);
+         robinRoutingService = new RoundRobinRoutingService(mock(ReposeInstanceInfo.class), configurationManager);
 
          systemModel = new SystemModel();
 

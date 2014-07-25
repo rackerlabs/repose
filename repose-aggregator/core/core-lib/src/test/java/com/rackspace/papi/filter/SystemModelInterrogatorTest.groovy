@@ -1,8 +1,8 @@
 package com.rackspace.papi.filter
+
 import com.google.common.base.Optional
-import com.rackspace.papi.commons.util.net.NetworkNameResolver
 import com.rackspace.papi.domain.Port
-import com.rackspace.papi.domain.ServicePorts
+import com.rackspace.papi.domain.ReposeInstanceInfo
 import com.rackspace.papi.model.*
 import org.junit.Before
 import org.junit.Test
@@ -10,17 +10,23 @@ import org.junit.Test
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.instanceOf
 import static org.junit.Assert.*
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 public class SystemModelInterrogatorTest {
     private SystemModelInterrogator interrogator
 
     @Before
     public void setup() throws Exception {
-        ServicePorts servicePorts = new ServicePorts()
+        List<Port> servicePorts = new ArrayList<Port>()
         servicePorts << new Port("http", 8080)
         servicePorts << new Port("https", 8181)
 
-        interrogator = new SystemModelInterrogator(servicePorts)
+        def reposeInstanceInfo = mock(ReposeInstanceInfo)
+
+        when(reposeInstanceInfo.getPorts()).thenReturn(servicePorts)
+
+        interrogator = new SystemModelInterrogator(reposeInstanceInfo)
     }
 
     @Test
@@ -112,7 +118,7 @@ public class SystemModelInterrogatorTest {
 
     @Test
     public void "when no service ports are specified, cluster and destinations both do not exist"(){
-        interrogator = new SystemModelInterrogator(new ServicePorts())
+        interrogator = new SystemModelInterrogator(mock(ReposeInstanceInfo))
         SystemModel sysModel = getValidSystemModel()
 
         Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
@@ -155,10 +161,14 @@ public class SystemModelInterrogatorTest {
 
     @Test
     public void "when service ports do not contain BOTH HTTP and HTTPS ports, cluster and destination are absent"(){
-        ServicePorts servicePorts = new ServicePorts()
+        //TODO: this test probably doesn't work, because I'm not passing in ports :(
+        //NOTE it behaved the same when ports were passed in, this is weird
+        def servicePorts = []
         servicePorts << new Port("http", 8080)
+        ReposeInstanceInfo rii = new ReposeInstanceInfo()
+        rii.setPorts(servicePorts)
 
-        interrogator = new SystemModelInterrogator(servicePorts)
+        interrogator = new SystemModelInterrogator(rii)
 
         SystemModel sysModel = getValidSystemModel()
 
@@ -170,6 +180,7 @@ public class SystemModelInterrogatorTest {
 
         assertFalse(destination.isPresent())
     }
+
 
     /**
      * @return a valid system model

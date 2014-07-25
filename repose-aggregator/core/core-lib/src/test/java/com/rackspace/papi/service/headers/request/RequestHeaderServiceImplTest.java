@@ -2,7 +2,7 @@ package com.rackspace.papi.service.headers.request;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
@@ -11,7 +11,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class RequestHeaderServiceImplTest {
@@ -28,7 +30,7 @@ public class RequestHeaderServiceImplTest {
             instance = new RequestHeaderServiceImpl(
                     mock(ConfigurationServiceImpl.class),
                     mock(HealthCheckService.class),
-                    mock(ServicePorts.class),
+                    mock(SystemModelInterrogator.class),
                     "");
         }
         

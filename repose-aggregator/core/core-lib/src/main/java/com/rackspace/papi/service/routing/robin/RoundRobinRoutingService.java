@@ -1,41 +1,45 @@
 package com.rackspace.papi.service.routing.robin;
 
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 @Named
 public class RoundRobinRoutingService implements RoutingService, ServletContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(RoundRobinRoutingService.class);
+    private final ReposeInstanceInfo reposeInstanceInfo;
     private Clusters domains;
     private SystemModel config;
     private final ConfigurationService configurationManager;
     private final PowerApiConfigListener configurationListener;
-    private final ServicePorts servicePorts;
     private ServletContext servletContext;
 
 
     @Inject
-    public RoundRobinRoutingService(final ServicePorts servicePorts, final ConfigurationService configurationManager) {
+    public RoundRobinRoutingService(
+            ReposeInstanceInfo reposeInstanceInfo,
+            ConfigurationService configurationManager) {
         this.configurationManager = configurationManager;
         this.configurationListener = new PowerApiConfigListener();
-        this.servicePorts = servicePorts;
+        this.reposeInstanceInfo = reposeInstanceInfo;
     }
 
     @Override
@@ -73,11 +77,16 @@ public class RoundRobinRoutingService implements RoutingService, ServletContextA
         return rtn;
     }
 
+    //TODO: WHAT IS THIS MADNESS!?!?
+    //WHAT ARE THESE PORTS FOR??!?
     private class PowerApiConfigListener implements UpdateListener<SystemModel> {
         private boolean isInitialized = false;
 
-        private ServicePorts determinePorts(final Node reposeNode) {
-            final ServicePorts ports = new ServicePorts();
+        //So this collects poerts from all nodes, and just throws them in a list without associating what node they're with?
+        // WHAT MADNESS IS THIS
+        private List<Port> determinePorts(final Node reposeNode) {
+            //This will replace all the ports, and I don't know how this is not a problem.
+            final ArrayList<Port> ports = new ArrayList<>();
 
             if (reposeNode != null) {
                 if (reposeNode.getHttpPort() != 0) {
@@ -118,10 +127,11 @@ public class RoundRobinRoutingService implements RoutingService, ServletContextA
                 final String nodeIdParam = InitParameter.REPOSE_NODE_ID.getParameterName();
                 final String clusterId = System.getProperty(clusterIdParam, servletContext.getInitParameter(clusterIdParam));
                 final String nodeId = System.getProperty(nodeIdParam, servletContext.getInitParameter(nodeIdParam));
+
                 LOG.info("Determining ports for repose under cluster: " + clusterId);
-                final ServicePorts ports = determinePorts(determineReposeNode(clusterId, nodeId));
-                servicePorts.clear();
-                servicePorts.addAll(ports);
+                //TODO: This is super jank, because it clobbers ports and then adds them all, but it's what it always did
+                reposeInstanceInfo.getPorts().clear();
+                reposeInstanceInfo.getPorts().addAll(determinePorts(determineReposeNode(clusterId, nodeId)));
             }
             isInitialized = true;
         }

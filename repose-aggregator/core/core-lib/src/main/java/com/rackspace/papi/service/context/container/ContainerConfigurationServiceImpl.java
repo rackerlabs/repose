@@ -1,24 +1,22 @@
 package com.rackspace.papi.service.context.container;
 
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
-import com.rackspace.papi.domain.ServicePorts;
 import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.net.URL;
 
 
 @Named
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
-    private final ServicePorts ports = new ServicePorts();
     private String viaValue;
     private Long contentBodyReadLimit;
     private ConfigurationService configurationManager;
@@ -28,8 +26,7 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     private static final Logger LOG = LoggerFactory.getLogger(ContainerConfigurationServiceImpl.class);
 
     @Inject
-    public ContainerConfigurationServiceImpl(ServicePorts ports, ConfigurationService configurationManager) {
-        this.ports.addAll(ports);
+    public ContainerConfigurationServiceImpl(ConfigurationService configurationManager) {
         this.configurationManager = configurationManager;
     }
 
@@ -71,12 +68,6 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     public void setContentBodyReadLimit(Long value) {
         this.contentBodyReadLimit = value;
     }
-
-   @Override
-   public ServicePorts getServicePorts() {
-      return ports;
-   }
-
 
     /**
      * Listens for updates to the container.cfg.xml file which holds the

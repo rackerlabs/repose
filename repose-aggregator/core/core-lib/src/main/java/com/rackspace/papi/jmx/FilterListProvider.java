@@ -1,19 +1,17 @@
 package com.rackspace.papi.jmx;
 
 import com.google.common.base.Optional;
-import org.openrepose.core.service.config.manager.UpdateListener;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -37,21 +35,21 @@ public class FilterListProvider {
 
     private final ConfigurationService configurationService;
     private final ConfigurationInformation configurationInformation;
-    private final ServicePorts servicePorts;
     private final HealthCheckService healthCheckService;
+    private final SystemModelInterrogator systemModelInterrogator;
 
     private SystemModelListener systemModelListener;
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
-    public FilterListProvider(@Qualifier("servicePorts") ServicePorts servicePorts,
-                                ConfigurationService configurationService,
+    public FilterListProvider(SystemModelInterrogator systemModelInterrogator,
+                              ConfigurationService configurationService,
                               ConfigurationInformation configurationInformation,
                               HealthCheckService healthCheckService) {
         this.configurationService = configurationService;
         this.configurationInformation = configurationInformation;
-        this.servicePorts =servicePorts;
+        this.systemModelInterrogator = systemModelInterrogator;
         this.healthCheckService = healthCheckService;
     }
 
@@ -85,8 +83,7 @@ public class FilterListProvider {
 
             List<FilterInformation> filterList = configurationInformation.getFilterList();
 
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(servicePorts);
-            Optional<ReposeCluster> cluster = interrogator.getLocalCluster(systemModel);
+            Optional<ReposeCluster> cluster = systemModelInterrogator.getLocalCluster(systemModel);
 
             if (cluster.isPresent()) {
                 synchronized (filterList) {
