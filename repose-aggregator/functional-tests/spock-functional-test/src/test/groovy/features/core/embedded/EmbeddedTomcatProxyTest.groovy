@@ -59,7 +59,6 @@ class EmbeddedTomcatProxyTest extends Specification {
     }
 
     def cleanupSpec() {
-        def TestProperties properties = new TestProperties()
         if (deproxy)
             deproxy.shutdown()
 
