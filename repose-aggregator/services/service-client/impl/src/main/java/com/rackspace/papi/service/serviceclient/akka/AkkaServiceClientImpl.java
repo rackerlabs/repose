@@ -12,11 +12,12 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
-import javax.inject.Inject;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import static akka.pattern.Patterns.ask;
 import static akka.routing.ConsistentHashingRouter.ConsistentHashable;
 
+@Named
 public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     private final ServiceClient serviceClient;
@@ -57,7 +59,6 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
             }
         }).withRouter(new RoundRobinRouter(numberOfActors)), "authRequestRouter");
     }
-
 
     @Override
     public ServiceClientResponse get(String key, String uri, Map<String, String> headers) {
