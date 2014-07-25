@@ -1,8 +1,7 @@
 package com.rackspace.papi.service.rms;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.io.FileReader;
-import com.rackspace.papi.commons.util.io.FileReaderImpl;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,10 +28,8 @@ public class HrefFileReader {
 
       String stringMessage = "";
       if (f != null) {
-         final FileReader fin = new FileReaderImpl(f);
-
          try {
-            stringMessage = fin.read();
+            stringMessage = FileUtils.readFileToString(f, Charset.defaultCharset());
          } catch (IOException ioe) {
             LOG.error(StringUtilities.join("Failed to read file: ", f.getAbsolutePath(), " - Reason: ", ioe.getMessage()), ioe);
          }

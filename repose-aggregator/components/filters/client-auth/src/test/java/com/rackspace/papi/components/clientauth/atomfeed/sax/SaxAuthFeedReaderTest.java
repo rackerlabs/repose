@@ -2,7 +2,6 @@ package com.rackspace.papi.components.clientauth.atomfeed.sax;
 
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.components.clientauth.atomfeed.CacheKeys;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.junit.After;
@@ -11,6 +10,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -34,11 +34,11 @@ public class SaxAuthFeedReaderTest {
         client = mock(ServiceClient.class);
         akkaClient = mock(AkkaServiceClient.class);
 
-        FilePathReaderImpl fileReader1 = new FilePathReaderImpl(File.separator + "META-INF" + File.separator + "feed.xml");
-        FilePathReaderImpl fileReader2 = new FilePathReaderImpl(File.separator + "META-INF" + File.separator + "empty-feed.xml");
-        resp1 = new ServiceClientResponse(200, fileReader1.getResourceAsStream());
+        InputStream fileReader1 = getClass().getResourceAsStream(File.separator + "META-INF" + File.separator + "feed.xml");
+        InputStream fileReader2 = getClass().getResourceAsStream(File.separator + "META-INF" + File.separator + "empty-feed.xml");
+        resp1 = new ServiceClientResponse(200, fileReader1);
 
-        resp2 = new ServiceClientResponse(200, fileReader2.getResourceAsStream());
+        resp2 = new ServiceClientResponse(200, fileReader2);
         when(client.getPoolSize()).thenReturn(100);
 
     }

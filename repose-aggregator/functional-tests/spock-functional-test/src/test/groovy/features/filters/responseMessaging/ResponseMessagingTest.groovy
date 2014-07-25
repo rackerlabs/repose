@@ -60,7 +60,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         "application/json" | 345                       | null                      | "345"                | JSON_RESPONSE_345
         ""                 | 345                       | null                      | "345"                | JSON_RESPONSE_345
         "application/json" | 414                       | ORIGINAL_BODY             | "414"                | ORIGINAL_BODY
-        "*/*"              | 503                       | null                      | "503"                | "An error has occurred. Please contact support... the printer may be on fire."
+        "*/*"              | 503                       | null                      | "503"                | "An error has occurred. Please contact support... the printer may be on fire." + System.lineSeparator() + "This line is just to test if new lines are preserved."
     }
 
     @Unroll("ResponseMessaging populates responseBody with request headers for #acceptType")

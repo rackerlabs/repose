@@ -3,12 +3,12 @@ package com.rackspace.papi.components.versioning.util;
 
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
-import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
@@ -18,15 +18,16 @@ import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 
 /**
- *
- * @author jhopper
- */
+*
+* @author jhopper
+*/
 @RunWith(Enclosed.class)
 public class ContentTransformerTest {
 
@@ -46,44 +47,44 @@ public class ContentTransformerTest {
     public static class WhenTransformingVersions {
 
         private ContentTransformer contentTransformer;
-        private FileReader versionJsonFileReader, versionXmlFileReader, choicesJsonFileReader, choicesXmlFileReader;
+        private String versionJsonFileReader, versionXmlFileReader, choicesJsonFileReader, choicesXmlFileReader;
         private ObjectMapper mapper;
 
         @Before
-        public void standUp() {
+        public void standUp() throws Exception {
             mapper = new ObjectMapper();
             contentTransformer = new ContentTransformer();
-            versionJsonFileReader = new FilePathReaderImpl("/META-INF/schema/examples/json/version.json");
-            versionXmlFileReader = new FilePathReaderImpl("/META-INF/schema/examples/xml/version.xml");
-            choicesJsonFileReader = new FilePathReaderImpl("/META-INF/schema/examples/json/choices.json");
-            choicesXmlFileReader = new FilePathReaderImpl("/META-INF/schema/examples/xml/choices.xml");
+            versionJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/version.json").toURI()));
+            versionXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/version.xml").toURI()));
+            choicesJsonFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/json/choices.json").toURI()));
+            choicesXmlFileReader = FileUtils.readFileToString(new File(getClass().getResource("/META-INF/schema/examples/xml/choices.xml").toURI()));
         }
 
         @Test
         public void shouldTransformVersionToJson() throws Exception {
-            
+
             String expected;
-            expected = versionJsonFileReader.read();
+            expected = versionJsonFileReader;
             assertNotNull("no expected string value found!", expected);
 
             final JAXBElement jaxbElement
-                    = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
+                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
             String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
-            
+
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-            
+
             assertEquals("Objects should be equivalent", expectedMap, actualMap);
         }
 
         @Test
         public void shouldTransformVersionToXml() throws Exception {
             String expected;
-            expected = versionXmlFileReader.read();
+            expected = versionXmlFileReader;
             assertNotNull("no expected string value found!", expected);
 
             final JAXBElement jaxbElement
-                    = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
+                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
             String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML, -1));
             Diff diff = new Diff(expected, actual);
             assertTrue("XML Should be equivalent", diff.similar());
@@ -92,17 +93,17 @@ public class ContentTransformerTest {
         @Test
         public void shouldTransformVersionsToJson() throws Exception {
             String expected;
-            expected = versionJsonFileReader.read();
+            expected = versionJsonFileReader;
             assertNotNull("no expected string value found!", expected);
 
             final JAXBElement jaxbElement
-                    = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-            
+                    = xmlTransformer.transform(IOUtils.toInputStream(versionXmlFileReader));
+
             String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
-            
+
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-            
+
             assertEquals("Objects should be equivalent", expectedMap, actualMap);
             //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
@@ -110,18 +111,18 @@ public class ContentTransformerTest {
         @Test
         public void shouldTransformChoicesToJson() throws Exception {
             String expected;
-            expected = choicesJsonFileReader.read();
+            expected = choicesJsonFileReader;
             assertNotNull("no expected string value found!", expected);
 
             final JAXBElement jaxbElement
-                    = xmlTransformer.transform(((FilePathReaderImpl)choicesXmlFileReader).getResourceAsStream());
-            
+                    = xmlTransformer.transform(IOUtils.toInputStream(choicesXmlFileReader));
+
             String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
-            
+
             assertEquals("Objects should be equivalent", expectedMap, actualMap);
-            
+
             //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
     }
