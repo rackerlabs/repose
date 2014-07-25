@@ -12,29 +12,7 @@
 
     <modules>
         <module>filter-bundle</module>
-        <module>slf4j-http-logging</module>
-        <module>client-auth</module>
-        <module>header-identity</module>
-        <module>header-id-mapping</module>
-        <module>uri-identity</module>
-        <module>content-identity-auth-1.1</module>
-        <module>content-identity-auth-2.0</module>
-        <module>content-normalization</module>
-        <module>service-authentication</module>
         <module>rate-limiting</module>
-        <module>versioning</module>
-        <module>translation</module>
-        <module>default-router</module>
-        <module>destination-router</module>
-        <module>flush-output</module>
-        <module>echo</module>
-        <module>client-authorization</module>
-        <module>client-ip-identity</module>
-        <module>header-normalization</module>
-        <module>uri-normalization</module>
-        <module>compression</module>
-        <module>header-translation</module>
-        <module>uri-stripper</module>
     </modules>
 
     <dependencyManagement>

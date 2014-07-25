@@ -61,8 +61,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-lib</artifactId>
+            <groupId>org.openrepose.repose.core</groupId>
+            <artifactId>core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

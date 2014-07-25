@@ -41,9 +41,7 @@
         <module>services</module>
         <module>core</module>
         <module>components</module>
-        <module>extensions</module>
         <module>installation</module>
-        <module>experimental</module>
         <module>functional-tests</module>
     </modules>
 
