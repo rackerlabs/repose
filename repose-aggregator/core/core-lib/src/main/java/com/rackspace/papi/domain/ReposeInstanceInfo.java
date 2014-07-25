@@ -46,6 +46,7 @@ public class ReposeInstanceInfo implements ServletContextAware {
         }
 
         // If ports is null, oh well. Nothing creates them if they're null
+        //TODO: RACE CONDITION, SOMETHING ISN"T SETTING THE PORTS!
         ports = (List<Port>) servletContext.getAttribute(PORT_LIST_ATTRIBUTE);
     }
 
