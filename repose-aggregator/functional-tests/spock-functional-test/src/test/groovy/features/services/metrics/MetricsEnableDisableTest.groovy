@@ -2,6 +2,7 @@ package features.services.metrics
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 
 class MetricsEnableDisableTest extends ReposeValveTest {
 
@@ -42,9 +43,10 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         repose.start()
 
         when:
-        deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
+        MessageChain mc = deproxy.makeRequest(url:reposeEndpoint + "/endpoint/1")
 
         then:
+        mc.receivedResponse.code == "200"
         repose.jmx.getMBeanAttribute(DESTINATION_ROUTER_TARGET, "Count") == 1
         repose.jmx.getMBeanAttribute(REPOSE_2XX, "Count") == 1
         repose.jmx.getMBeanAttribute(ALL_ENDPOINTS_2XX, "Count") == 1
@@ -74,7 +76,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/metricsenabled", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/notspecified", params)
         repose.start()
 
         when:
