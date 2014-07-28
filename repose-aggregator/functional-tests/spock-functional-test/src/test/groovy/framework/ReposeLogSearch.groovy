@@ -33,6 +33,13 @@ class ReposeLogSearch {
 
     }
 
+    public List<String> printLog() {
+        File logFile=new File(logFileLocation);
+        logFile.eachLine {
+            println it
+        }
+    }
+
     public def cleanLog(){
         new FileOutputStream(logFileLocation).getChannel().truncate(0).close();
     }

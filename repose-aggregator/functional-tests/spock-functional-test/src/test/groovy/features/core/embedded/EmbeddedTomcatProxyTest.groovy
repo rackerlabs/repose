@@ -4,6 +4,7 @@ import com.rackspace.papi.test.mocks.util.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
+import framework.ReposeLogSearch
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -16,8 +17,9 @@ class EmbeddedTomcatProxyTest extends Specification {
     static String tomcatEndpoint
 
     def setupSpec() {
-
         def TestProperties properties = new TestProperties()
+        ReposeLogSearch log = new ReposeLogSearch(properties.logFile);
+        log.deleteLog()
         int originServicePort = properties.targetPort
         deproxy = new Deproxy()
         deproxy.addEndpoint(originServicePort)
@@ -43,6 +45,7 @@ class EmbeddedTomcatProxyTest extends Specification {
                 'repose.node.id': 'node1',
                 'appPath':  mocksPath
         ]
+        config.cleanConfigDirectory()
         config.applyConfigs("common", params)
         config.applyConfigs("features/filters/ipidentity", params)
 

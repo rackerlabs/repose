@@ -74,7 +74,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/metrics/common", params)
-        repose.configurationProvider.applyConfigs("features/services/metrics/metricsenabled", params)
+        repose.configurationProvider.applyConfigs("features/services/metrics/notspecified", params)
         repose.start()
 
         when:
