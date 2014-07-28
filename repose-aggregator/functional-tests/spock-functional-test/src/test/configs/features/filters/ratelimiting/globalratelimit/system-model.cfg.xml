@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="dd-node-1" hostname="localhost" http-port="${reposePort1}"/>
+      <node id="dd-node-2" hostname="localhost" http-port="${reposePort2}"/>
+    </nodes>
+
+    <filters>
+      <filter name="rate-limiting" />
+    </filters>
+
+      <services>
+          <service name="dist-datastore" />
+      </services>
+
+      <destinations>
+        <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
+    </destinations>
+
+  </repose-cluster>
+</system-model>
