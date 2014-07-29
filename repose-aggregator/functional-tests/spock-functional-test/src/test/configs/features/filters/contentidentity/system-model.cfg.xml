@@ -7,7 +7,7 @@
         </nodes>
 
         <filters>
-            <filter name="content-identity-auth-1.1"/>
+            <filter name="content-identity-auth-2.0"/>
         </filters>
 
         <destinations>

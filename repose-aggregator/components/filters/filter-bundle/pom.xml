@@ -64,11 +64,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-identity-auth-1.1</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-identity-auth-2.0</artifactId>
         </dependency>
 

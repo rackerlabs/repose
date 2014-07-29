@@ -27,12 +27,6 @@
 
         <dependency>
             <groupId>com.rackspace.papi.external</groupId>
-            <artifactId>rs-auth-schemas</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.external</groupId>
             <artifactId>os-auth-schemas</artifactId>
             <version>${project.version}</version>
         </dependency>

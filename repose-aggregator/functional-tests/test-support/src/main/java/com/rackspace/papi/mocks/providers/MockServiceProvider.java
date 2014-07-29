@@ -5,7 +5,7 @@ import com.rackspace.repose.service.limits.schema.AbsoluteLimitList;
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
-import com.rackspacecloud.docs.auth.api.v1.UnauthorizedFault;
+import org.openstack.docs.identity.api.v2.UnauthorizedFault;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -165,7 +165,7 @@ public class MockServiceProvider {
       }
 
       if (status == Response.Status.UNAUTHORIZED.getStatusCode()) {
-         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+         final org.openstack.docs.identity.api.v2.ObjectFactory of = new org.openstack.docs.identity.api.v2.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
          fault.setCode(Response.Status.UNAUTHORIZED.getStatusCode());
@@ -239,7 +239,7 @@ public class MockServiceProvider {
       }
 
       if (status == Response.Status.UNAUTHORIZED.getStatusCode()) {
-         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+         final org.openstack.docs.identity.api.v2.ObjectFactory of = new org.openstack.docs.identity.api.v2.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
          fault.setCode(Response.Status.UNAUTHORIZED.getStatusCode());
@@ -248,7 +248,7 @@ public class MockServiceProvider {
       }
 
       if (status == Response.Status.NOT_FOUND.getStatusCode()) {
-         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+         final org.openstack.docs.identity.api.v2.ObjectFactory of = new org.openstack.docs.identity.api.v2.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
          fault.setCode(Response.Status.NOT_FOUND.getStatusCode());
