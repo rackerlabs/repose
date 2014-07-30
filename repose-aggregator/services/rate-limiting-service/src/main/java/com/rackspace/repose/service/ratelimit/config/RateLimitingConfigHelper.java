@@ -101,9 +101,11 @@ public class RateLimitingConfigHelper {
     private GlobalLimitGroup processGlobalLimits(GlobalLimitGroup oldGlobalLimitGroup) {
         GlobalLimitGroup newGlobalLimitGroup = new GlobalLimitGroup();
 
-        for (ConfiguredRatelimit configuredRatelimit : oldGlobalLimitGroup.getLimit()) {
-            ConfiguredRatelimit newLimit = new ConfiguredRateLimitWrapper(configuredRatelimit);
-            newGlobalLimitGroup.getLimit().add(newLimit);
+        if (oldGlobalLimitGroup != null) {
+            for (ConfiguredRatelimit configuredRatelimit : oldGlobalLimitGroup.getLimit()) {
+                ConfiguredRatelimit newLimit = new ConfiguredRateLimitWrapper(configuredRatelimit);
+                newGlobalLimitGroup.getLimit().add(newLimit);
+            }
         }
 
         return newGlobalLimitGroup;
