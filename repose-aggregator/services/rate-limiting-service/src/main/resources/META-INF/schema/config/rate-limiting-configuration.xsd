@@ -60,7 +60,7 @@
         <xs:sequence>
             <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="0" maxOccurs="1"/>
             <xs:element name="global-limit-group" type="rl:GlobalLimitGroup" minOccurs="0" maxOccurs="1" />
-            <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         
         <xs:attribute name="overLimit-429-responseCode" type="xs:boolean" use="optional" default="false">
@@ -137,6 +137,8 @@
             test="count(rl:limit-group[xs:boolean(@default)=true()]) &lt;=1"
             xerces:message="Only one default limit group may be defined"
             saxon:message="Only one default limit group may be defined"/>
+
+        <!-- TODO: assert at least one limit-group or global-limit-group is present -->
         
     </xs:complexType>
 
