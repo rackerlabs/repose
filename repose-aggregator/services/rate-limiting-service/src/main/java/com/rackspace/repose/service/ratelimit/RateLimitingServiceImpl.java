@@ -119,6 +119,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         if (matchingGlobalConfiguredLimits.size() > 0) {
+            // TODO: Extract the global user so that we have a single source of truth
             rateLimiter.handleRateLimit("GlobalLimitUser", matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: 'GlobalLimitUser is not guaranteed to be unique
         }
     }
