@@ -3,8 +3,12 @@
 
   <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
 
-  <global-limit-group default="false">
-    <limit unit="MINUTE" value="5"/>
-  </global-limit-group>
+    <global-limit-group>
+        <limit id="globallimit" uri="all" uri-regex=".*" value="5" unit="MINUTE"/>
+    </global-limit-group>
+
+    <limit-group id="customer-limits " groups="customer" default="true">
+        <limit id="test" uri="*" uri-regex=".*" http-methods="ALL" unit="MINUTE" value="5"/>
+    </limit-group>
 
 </rate-limiting>

@@ -36,7 +36,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/onenodes", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/oneNode", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/globalratelimit", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -48,13 +49,9 @@ class GlobalRateLimitingTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def cleanup() {
-        waitForLimitReset()
-    }
-
     def "When Repose config with Global Rate Limit, user limit should hit first" () {
         given: "the rate-limit has not been reached"
-        waitForLimitReset()
+        //waitForLimitReset()
 
         (1..5).each{
             i ->
@@ -77,12 +74,10 @@ class GlobalRateLimitingTest extends ReposeValveTest {
 
     def "When Run with different users, hit the same resource, global limit share between users" () {
         given:"the rate-limit has not been reached"
-        waitForLimitReset()
-        def user1 = getNewUniqueUser()
-        def user2 = getNewUniqueUser()
+        //waitForLimitReset()
         def group = "customer"
-        def headers1 = ['X-PP-User': user1, 'X-PP-Groups': group]
-        def headers2 = ['X-PP-User': user2, 'X-PP-Groups': group]
+        def headers1 = ['X-PP-User': "user1", 'X-PP-Groups': group]
+        def headers2 = ['X-PP-User': "user2", 'X-PP-Groups': group]
 
         (1..2).each {
             i ->
@@ -111,49 +106,13 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                 headers: headers1, defaultHandler: handler)
 
         then: "the request is rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code.equals("503")
 
-    }
+        when: "user2 hit the same resource, rate limitted"
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
+                headers: headers2, defaultHandler: handler)
 
-    private void useAllRemainingRequests() {
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
-
-        while(!messageChain.receivedResponse.code.equals("413")) {
-            messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                    headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
-        }
-    }
-
-    private void waitForLimitReset(Map group = null) {
-        while (parseRemainingFromXML(getDefaultLimits(group), 0) != parseAbsoluteFromXML(getDefaultLimits(group), 0)) {
-            sleep(1000)
-        }
-    }
-
-    private String getDefaultLimits(Map group = null) {
-        def groupHeader = (group != null) ? group : groupHeaderDefault
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",
-                headers: userHeaderDefault + groupHeader + acceptHeaderDefault);
-
-        return messageChain.receivedResponse.body
-    }
-
-    private int parseRemainingFromXML(String s, int limit) {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
-
-        document.getDocumentElement().normalize()
-
-        return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("remaining").getNodeValue())
-    }
-
-    private int parseAbsoluteFromXML(String s, int limit) {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        Document document = documentBuilder.parse(new InputSource(new StringReader(s)))
-
-        document.getDocumentElement().normalize()
-
-        return Integer.parseInt(document.getElementsByTagName("limit").item(limit).getAttributes().getNamedItem("value").getNodeValue())
+        then: "the request is rate-limited, and passes to the origin service"
+        messageChain.receivedResponse.code.equals("503")
     }
 }
