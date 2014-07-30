@@ -53,7 +53,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         // TODO: return global rate limit information on every query?
 
         final Map<String, CachedRateLimit> cachedLimits = cache.getUserRateLimits(user);
-        final Map<String, CachedRateLimit> cachedGlobalLimits = cache.getGlobalRateLimits();
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
         final RateLimitListBuilder limitsBuilder = new RateLimitListBuilder(cachedLimits, configuredLimitGroup);
 
