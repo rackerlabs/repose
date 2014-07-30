@@ -143,20 +143,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
       // We use a 413 "Request Entity Too Large" to communicate that the user
       // in question has hit their rate limit for this requested URI
-      if (overLimit429ResponseCode) {
-
+      if (e.getUser().equals("GlobalLimitUser")) {
+        director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
+      } else if (overLimit429ResponseCode) {
         director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
-
-      } else if (e.getUser().equalsIgnoreCase("YOLO")) { // TODO: Something like this for setting the response code
-          director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
       } else {
-
         director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
-
       }
       director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123()); // TODO: This will provide the retry-after header (without modification, I think?)
-
-
 
     } catch (CacheException e) {
       LOG.error("Failure when tracking limits.", e);
