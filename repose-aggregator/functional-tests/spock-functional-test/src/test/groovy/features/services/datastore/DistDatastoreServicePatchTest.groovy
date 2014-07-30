@@ -151,14 +151,14 @@ class DistDatastoreServicePatchTest extends ReposeValveTest {
 
         when:
         MessageChain mc = deproxy.makeRequest([method: 'PATCH', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers: DD_HEADERS, requestBody: BODY])
+                                               headers: DD_HEADERS, requestBody: BODY])
 
         then:
         mc.receivedResponse.code == '400'
 
         when: "I attempt to get the value from cache"
         mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + key,
-                headers:DD_HEADERS])
+                                  headers:DD_HEADERS])
 
         then:
         mc.receivedResponse.code == '404'
