@@ -29,14 +29,14 @@
     <xs:complexType name="HttpConnectionPoolConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Connection Pool Management settings.</html:p>  
-                <html:p>    
-                    Please refer to 
+                <html:p>Connection Pool Management settings.</html:p>
+                <html:p>
+                    Please refer to
                     <html:a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html">Apache HttpComponents Connection Management</html:a>
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-        
+
         <xs:sequence>
             <xs:element type="cp:poolType" name="pool" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
@@ -56,7 +56,7 @@
 
     <xs:complexType name="poolType">
 
-        <xs:attribute name="http.conn-manager.max-total" type="cp:PositiveInt" use="optional" default="200">
+        <xs:attribute name="http.conn-manager.max-total" type="cp:PositiveInt" use="optional" default="400">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -67,7 +67,7 @@
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="http.conn-manager.max-per-route" type="cp:PositiveInt" use="optional"
-                      default="20">
+                      default="200">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
