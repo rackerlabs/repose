@@ -21,8 +21,11 @@ import java.util.regex.Pattern;
 
 
 public class RateLimitingServiceImpl implements RateLimitingService {
-
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingServiceImpl.class);
+
+    public static final String GLOBAL_LIMIT_USER = "GlobalLimitUser";
+    public static final String GLOBAL_LIMIT_GROUP = "GlobalLimitGroup";
+
     private final RateLimitCache cache;
     private final GlobalLimitGroup globalLimitGroup;
     private final RateLimitingConfigHelper helper;
@@ -105,8 +108,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             Matcher uriMatcher = ((ConfiguredRateLimitWrapper)globalLimit).getRegexPattern().matcher(uri);
 
             if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
-                matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey("GlobalLimitGroup",
-                        globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: 'GlobalLimitGroup' is not guaranteed to be unique since XSD validation does enforce uniqueness as it does for other rate limit groups
+                matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(GLOBAL_LIMIT_GROUP,
+                        globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
 
                 if (globalLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = globalLimit.getUnit();
@@ -115,8 +118,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         if (matchingGlobalConfiguredLimits.size() > 0) {
-            // TODO: Extract the global user so that we have a single source of truth
-            rateLimiter.handleRateLimit("GlobalLimitUser", matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: 'GlobalLimitUser is not guaranteed to be unique
+            rateLimiter.handleRateLimit(GLOBAL_LIMIT_USER, matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: GLOBAL_LIMIT_USER is not guaranteed to be unique
         }
     }
 
