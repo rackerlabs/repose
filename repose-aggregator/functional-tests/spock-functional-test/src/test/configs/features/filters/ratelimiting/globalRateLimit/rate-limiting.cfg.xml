@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0"
+               use-capture-groups="true">
+
+    <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
+
+    <global-limit-group>
+        <limit id="GlobalLimitGroup1" uri="all" uri-regex="/test1.*" http-methods="ALL" value="3" unit="MINUTE"/>
+        <limit id="GlobalLimitGroup2" uri="all" uri-regex="/test2.*" http-methods="ALL" value="3" unit="MINUTE"/>
+        <limit id="GlobalLimitGroup3" uri="all" uri-regex="/test3.*" http-methods="GET" value="3" unit="MINUTE"/>
+    </global-limit-group>
+
+
+
+
+
+
+    <limit-group id="test1" groups="dbaas" default="false">
+        <limit id="test1" uri="all" uri-regex="/*" http-methods="ALL" unit="MINUTE" value="3"/>
+    </limit-group>
+
+
+</rate-limiting>
