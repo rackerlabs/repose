@@ -9,5 +9,4 @@ import java.util.List;
  */
 public interface ReposeServicePortsAware {
     public void updatedServicePorts(List<Port> ports);
-    public void destroy();
 }

@@ -32,6 +32,7 @@ public class SystemModelPorts {
     private final ReposeServicePortsAware rspa;
     private final String clusterId;
     private final String nodeId;
+    private SystemModelConfigListener configListener;
 
     public SystemModelPorts(final ConfigurationService configurationService,
                             final ReposeServicePortsAware reposeServicePortsAware,
@@ -43,7 +44,7 @@ public class SystemModelPorts {
         this.nodeId = nodeId;
 
         //start listening to the thing on the configuration service
-        final SystemModelConfigListener configListener = new SystemModelConfigListener();
+        configListener = new SystemModelConfigListener();
         final URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationService.subscribeTo("system-model.cfg.xml", xsdURL, configListener, SystemModel.class);
     }
@@ -108,5 +109,11 @@ public class SystemModelPorts {
         }
     }
 
+    /**
+     * Something should call this when their bean dies
+     */
+    public void destroy() {
+        configurationService.unsubscribeFrom("system-model.cfg.xml", configListener);
+    }
 
 }
