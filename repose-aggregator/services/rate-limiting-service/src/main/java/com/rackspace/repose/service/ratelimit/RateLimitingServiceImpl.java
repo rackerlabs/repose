@@ -50,6 +50,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             throw new IllegalArgumentException("User required when querying rate limits.");
         }
 
+        // TODO: return global rate limit information on every query?
+
         final Map<String, CachedRateLimit> cachedLimits = cache.getUserRateLimits(user);
         final Map<String, CachedRateLimit> cachedGlobalLimits = cache.getGlobalRateLimits();
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
