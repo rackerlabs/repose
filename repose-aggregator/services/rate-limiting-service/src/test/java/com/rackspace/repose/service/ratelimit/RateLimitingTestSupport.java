@@ -2,10 +2,7 @@ package com.rackspace.repose.service.ratelimit;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.repose.service.ratelimit.config.RequestEndpoint;
+import com.rackspace.repose.service.ratelimit.config.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +27,22 @@ public class RateLimitingTestSupport {
 
       newCfg.getLimitGroup().add(newConfiguredLimitGroup(DEFAULT_USER_ROLE, DEFAULT_URI, DEFAULT_URI_REGEX, DEFAULT_LIMIT_GROUP_ID));
       newCfg.getLimitGroup().add(newMultiMethodConfiguredLimitGroup(DEFAULT_USER_ROLE, MULTI_METHOD_URI, MULTI_METHOD_URI_REGEX, MULTI_METHOD_LIMIT_GROUP_ID));
+
+       // Global rate limiting default
+       ConfiguredRatelimit globalRateLimit = new ConfiguredRatelimit();
+       globalRateLimit.setId("catch-all");
+       globalRateLimit.setUnit(TimeUnit.MINUTE);
+       globalRateLimit.setUri(".*");
+       globalRateLimit.setUriRegex(".*");
+       globalRateLimit.setValue(1);
+       globalRateLimit.getHttpMethods().add(HttpMethod.ALL);
+       ConfiguredRateLimitWrapper globalRateLimitWrapped = new ConfiguredRateLimitWrapper(globalRateLimit);
+
+       GlobalLimitGroup globalLimitGroup = new GlobalLimitGroup();
+       globalLimitGroup.getLimit().add(globalRateLimitWrapped);
+
+       newCfg.setGlobalLimitGroup(globalLimitGroup);
+       //
 
       return newCfg;
    }

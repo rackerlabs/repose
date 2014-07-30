@@ -7,24 +7,17 @@ import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration
+import com.rackspace.repose.service.ratelimit.config.*
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException
 import org.apache.commons.lang3.tuple.Pair
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 
 import static org.junit.Assert.*
+import static org.mockito.Matchers.eq
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyInt
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
-import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.*
 
 public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
     private Map<String, CachedRateLimit> cacheMap
@@ -82,6 +75,18 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
 
         config.getLimitGroup().add(queryParamLimitGroup)
         config.getLimitGroup().add(configuredLimitGroup)
+
+        ConfiguredRatelimit globalLimit = new ConfiguredRatelimit()
+        globalLimit.setId("catch-all")
+        globalLimit.setUnit(TimeUnit.MINUTE)
+        globalLimit.setUri(".*")
+        globalLimit.setUriRegex(".*")
+        globalLimit.setValue(1)
+        globalLimit.getHttpMethods().add(HttpMethod.ALL)
+        ConfiguredRateLimitWrapper globalLimitWrapper = new ConfiguredRateLimitWrapper(globalLimit)
+        GlobalLimitGroup globalLimitGroup = new GlobalLimitGroup()
+        globalLimitGroup.getLimit().add(globalLimitWrapper)
+        config.setGlobalLimitGroup(globalLimitGroup)
 
         when(cache.getUserRateLimits("usertest1")).thenReturn(cacheMap)
 
@@ -195,6 +200,18 @@ public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
 
         rateLimitingService.trackLimits("testUser", ["query-param-user"].asList(), "/query/test", ["index" : ["0"] as String[]], "GET", 1000)
 
-        verify(limiter).handleRateLimit(any(String.class), any(List.class), any(TimeUnit.class), anyInt())
+        verify(limiter, times(2)).handleRateLimit(any(String.class), any(List.class), any(TimeUnit.class), anyInt())
+    }
+
+    @Test
+    public void shouldTrackGlobalLimits() {
+        RateLimiter limiter = mock(RateLimiter.class)
+
+        RateLimitingServiceImpl rateLimitingService = new RateLimitingServiceImpl(null, config)
+        rateLimitingService.rateLimiter = limiter
+
+        rateLimitingService.trackLimits("testUser", new ArrayList<String>(), "/global/test", new HashMap<String, String[]>(), "GET", 1000)
+
+        verify(limiter).handleRateLimit(eq("GlobalLimitUser"), any(List.class), eq(TimeUnit.MINUTE), eq(1000))
     }
 }
