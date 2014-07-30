@@ -4,7 +4,7 @@
   <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
 
     <global-limit-group>
-        <limit id="globallimit" uri="all" uri-regex=".*" value="5" unit="MINUTE"/>
+        <limit id="globallimit" uri="all" uri-regex=".*" http-methods="ALL" value="5" unit="MINUTE"/>
     </global-limit-group>
 
     <limit-group id="customer-limits " groups="customer" default="true">
