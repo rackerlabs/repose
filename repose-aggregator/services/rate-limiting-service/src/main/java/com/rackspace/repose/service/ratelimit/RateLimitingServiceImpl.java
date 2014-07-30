@@ -68,7 +68,6 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
         final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList<>();
-        final List< Pair<String, ConfiguredRatelimit> > matchingGlobalConfiguredLimits = new ArrayList<>();
         TimeUnit largestUnit = TimeUnit.SECOND;
 
         // Go through all of the configured limits for this group
@@ -100,11 +99,11 @@ public class RateLimitingServiceImpl implements RateLimitingService {
 
         // Global Limits should be checked after user rate limits to avoid miscounts and DOS
 
+        final List< Pair<String, ConfiguredRatelimit> > matchingGlobalConfiguredLimits = new ArrayList<>();
         largestUnit = TimeUnit.SECOND;
         for (ConfiguredRatelimit globalLimit : globalLimitGroup.getLimit()) {
             Matcher uriMatcher = ((ConfiguredRateLimitWrapper)globalLimit).getRegexPattern().matcher(uri);
 
-            // Did we find a limit that matches the incoming uri and http method?
             if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
                 matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey("GlobalLimitGroup",
                         globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: 'GlobalLimitGroup' is not guaranteed to be unique since XSD validation does enforce uniqueness as it does for other rate limit groups

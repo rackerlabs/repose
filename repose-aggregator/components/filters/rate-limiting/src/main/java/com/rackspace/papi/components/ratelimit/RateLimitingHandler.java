@@ -150,7 +150,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       } else {
         director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
       }
-      director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123()); // TODO: This will provide the retry-after header (without modification, I think?)
+      director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
 
     } catch (CacheException e) {
       LOG.error("Failure when tracking limits.", e);

@@ -10,14 +10,8 @@
         <limit id="GlobalLimitGroup3" uri="all" uri-regex="/test3.*" http-methods="GET" value="3" unit="MINUTE"/>
     </global-limit-group>
 
-
-
-
-
-
     <limit-group id="test1" groups="dbaas" default="false">
         <limit id="test1" uri="all" uri-regex="/*" http-methods="ALL" unit="MINUTE" value="3"/>
     </limit-group>
-
 
 </rate-limiting>
