@@ -29,7 +29,7 @@ public class RoundRobinRoutingServiceTest {
       public void setUp() {
 
          final ConfigurationService configurationManager = null;
-         robinRoutingService = new RoundRobinRoutingService(mock(ReposeInstanceInfo.class), configurationManager);
+         robinRoutingService = new RoundRobinRoutingService(configurationManager);
 
          systemModel = new SystemModel();
 

@@ -11,8 +11,6 @@ import com.rackspace.papi.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -22,22 +20,25 @@ import java.util.List;
 /**
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
- * TODO: This super needs to be threadsafe!
  */
-@Named
 public class SystemModelInterrogator {
     private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
 
     private final NetworkInterfaceProvider networkInterfaceProvider;
     private final NetworkNameResolver nameResolver;
-    private final ReposeInstanceInfo reposeInstanceInfo;
+    private final String localClusterId;
+    private final String localNodeId;
 
-    @Inject
-    public SystemModelInterrogator(ReposeInstanceInfo reposeInstanceInfo) {
-        //TODO: the service ports are empty, and so that's what makes it blow up
+    public SystemModelInterrogator(ReposeInstanceInfo rii) {
+        this(rii.getClusterId(), rii.getNodeId());
+    }
+
+    public SystemModelInterrogator(String localClusterId, String localNodeId) {
+        this.localClusterId = localClusterId;
+        this.localNodeId = localNodeId;
+
         this.nameResolver = StaticNetworkNameResolver.getInstance();
         this.networkInterfaceProvider = StaticNetworkInterfaceProvider.getInstance();
-        this.reposeInstanceInfo = reposeInstanceInfo;
     }
 
     /**
@@ -45,7 +46,7 @@ public class SystemModelInterrogator {
      */
     public Optional<ReposeCluster> getLocalCluster(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            if (getLocalNodeForPorts(cluster, reposeInstanceInfo.getPorts()).isPresent()) {
+            if (getLocalNodeForPorts(cluster, getPortsForNode(determineLocalNode(systemModel))).isPresent()) {
                 return Optional.of(cluster);
             }
         }
@@ -58,7 +59,7 @@ public class SystemModelInterrogator {
      */
     public Optional<Node> getLocalNode(SystemModel systemModel) {
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            Optional<Node> node = getLocalNodeForPorts(cluster, reposeInstanceInfo.getPorts());
+            Optional<Node> node = getLocalNodeForPorts(cluster, getPortsForNode(determineLocalNode(systemModel)));
 
             if (node.isPresent()) {
                 return node;
@@ -82,7 +83,9 @@ public class SystemModelInterrogator {
     }
 
     private boolean hasLocalInterface(Node node) {
-        if (node == null) { throw new IllegalArgumentException("Node cannot be null"); }
+        if (node == null) {
+            throw new IllegalArgumentException("Node cannot be null");
+        }
 
         boolean result = false;
 
@@ -99,7 +102,9 @@ public class SystemModelInterrogator {
     }
 
     private List<Port> getPortsList(Node node) {
-        if (node == null) { throw new IllegalArgumentException("Node cannot be null"); }
+        if (node == null) {
+            throw new IllegalArgumentException("Node cannot be null");
+        }
 
         List<Port> portList = new ArrayList<Port>();
 
@@ -116,7 +121,9 @@ public class SystemModelInterrogator {
     }
 
     private Optional<Node> getLocalNodeForPorts(Cluster cluster, List<Port> ports) {
-        if (cluster == null) { throw new IllegalArgumentException("Cluster cannot be null"); }
+        if (cluster == null) {
+            throw new IllegalArgumentException("Cluster cannot be null");
+        }
 
         if (ports.isEmpty()) {
             return Optional.absent();
@@ -134,7 +141,9 @@ public class SystemModelInterrogator {
     }
 
     private Optional<Destination> getDefaultDestination(ReposeCluster cluster) {
-        if (cluster == null) { throw new IllegalArgumentException("Cluster cannot be null"); }
+        if (cluster == null) {
+            throw new IllegalArgumentException("Cluster cannot be null");
+        }
 
         List<Destination> destinations = new ArrayList<Destination>();
 
@@ -149,4 +158,44 @@ public class SystemModelInterrogator {
 
         return Optional.absent();
     }
+
+    /**
+     * Get the ports from the system model and return them as a list
+     *
+     * @param reposeNode
+     * @return
+     */
+    public List<Port> getPortsForNode(final Node reposeNode) {
+        final ArrayList<Port> ports = new ArrayList<>();
+
+        if (reposeNode != null) {
+            if (reposeNode.getHttpPort() != 0) {
+                ports.add(new Port("http", reposeNode.getHttpPort()));
+            } else {
+                LOG.error("Http service port not specified for Repose Node {}", reposeNode.getId());
+            }
+
+            if (reposeNode.getHttpsPort() != 0) {
+                ports.add(new Port("https", reposeNode.getHttpsPort()));
+            } else {
+                LOG.info("Https service port not specified for Repose Node {}", reposeNode.getId());
+            }
+        }
+        return ports;
+    }
+
+    public Node determineLocalNode(final SystemModel config) {
+        for (ReposeCluster cluster : config.getReposeCluster()) {
+            if (cluster.getId().equals(localClusterId)) {
+                for (Node node : cluster.getNodes().getNode()) {
+                    if (node.getId().equals(localNodeId)) {
+                        return node;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
 }

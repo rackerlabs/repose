@@ -12,6 +12,7 @@ import com.rackspace.papi.service.classloader.ear.EarDescriptor;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.service.config.ConfigurationService;
 import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+//TODO: what does this test actually test so we can redo it?!?!?
 @RunWith(Enclosed.class)
 public class PowerFilterChainBuilderTest {
 
@@ -61,11 +63,7 @@ public class PowerFilterChainBuilderTest {
 
       private ReposeInstanceInfo mockReposeInstanceInfo(int port) {
           ReposeInstanceInfo mockRII = mock(ReposeInstanceInfo.class);
-         ArrayList<Port> ports = new ArrayList<>();
-         ports.add(new Port("http", port));
-
-          when(mockRII.getPorts()).thenReturn(ports);
-
+          //Ports aren't set in instance info any longer, they're set via configuration object.
          return mockRII;
       }
 
@@ -104,7 +102,7 @@ public class PowerFilterChainBuilderTest {
          List<ReposeCluster> hosts = createTestHosts();
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
          
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(mockReposeInstanceInfo(8080));
+         SystemModelInterrogator interrogator = new SystemModelInterrogator("localCluster", "localNode");
          Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 
@@ -151,7 +149,7 @@ public class PowerFilterChainBuilderTest {
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
          when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(mockReposeInstanceInfo(8080));
+         SystemModelInterrogator interrogator = new SystemModelInterrogator("localCluster", "localNode");
          Node localHost = interrogator.getLocalNode(mockedPowerProxy).get();
          ReposeCluster serviceDomain = interrogator.getLocalCluster(mockedPowerProxy).get();
 

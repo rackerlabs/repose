@@ -7,6 +7,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.ContextLoaderListener;
 
+/**
+ * TODO: this jetty is started and doing nothing and connected to nothing
+ * All it does is fire up our spring, and start an unimplemented Servlet
+ */
 public class ValveControllerServerBuilder {
 
     private String configurationPathAndFile = "";
@@ -30,6 +34,12 @@ public class ValveControllerServerBuilder {
         return server;
     }
 
+    /**
+     * We get spring here.
+     * This is where spring is started for valve
+     * @param serverReference
+     * @return
+     */
     private ServletContextHandler buildRootContext(Server serverReference) {
         final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
         servletContext.getInitParams()

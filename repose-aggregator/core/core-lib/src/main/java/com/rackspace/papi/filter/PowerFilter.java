@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
@@ -90,11 +91,11 @@ public class PowerFilter extends DelegatingFilterProxy {
                       ResponseMessageService responseMessageService,
                       MetricsService metricsService,
                       FilterContextInitializer filterContextInitializer,
-                      SystemModelInterrogator systemModelInterrogator
+                      ReposeInstanceInfo rii
     ) {
         firstInitialization = true;
 
-        this.systemModelInterrogator = systemModelInterrogator;
+        this.systemModelInterrogator = new SystemModelInterrogator(rii);
         this.configurationService = configurationService;
         this.responseHeaderService = responseHeaderService;
         this.metricsService = metricsService;
@@ -166,7 +167,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                     // Note: This should never occur! If it does, the currentSystemModel is being set to something
                     // invalid, and that should be prevented in the SystemModelConfigListener below. Resolution of
                     // this issue will only occur when the config is fixed and the application is redeployed.
-                    LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                    LOG.error("AppDeploymentEvent - Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                     healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Unable to identify the " +
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
@@ -207,7 +208,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                         healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
                     } else {
-                        LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+                        LOG.error("SystemModelUpdated - Unable to identify the local host in the system model - please check your system-model.cfg.xml");
                         healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }

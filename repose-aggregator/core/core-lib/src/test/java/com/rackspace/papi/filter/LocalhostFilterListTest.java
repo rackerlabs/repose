@@ -6,6 +6,7 @@ import com.rackspace.papi.model.*;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.core.service.config.ConfigurationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +16,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * @author fran
+ * TODO: this is going to fail SO HARD
  */
 @RunWith(Enclosed.class)
 public class LocalhostFilterListTest {
 
    public static class WhenUsingLocalhostFilterList {
 
+       //TODO: this is provided from the system model now, via a class...
       private ReposeInstanceInfo mockInstanceInfo(int port) {
          ArrayList<Port> ports = new ArrayList<>();
          ports.add(new Port("http", port));
          ReposeInstanceInfo rii = mock(ReposeInstanceInfo.class);
-          when(rii.getPorts()).thenReturn(ports);
 
           return rii;
       }
@@ -35,7 +36,7 @@ public class LocalhostFilterListTest {
       public void shouldInstantiate() {
          SystemModel powerProxy = new SystemModel();
          // TODO Model: HTTPS
-         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockInstanceInfo(8080));
+         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator("localCluster", "localNode");
 
          assertNotNull(localhostFilterList);
       }
@@ -47,7 +48,7 @@ public class LocalhostFilterListTest {
          when(mockedPowerProxy.getReposeCluster()).thenReturn(domains);
 
          // TODO Model: HTTPS
-         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockInstanceInfo(8080));
+         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator("localCluster", "localNode");
          ReposeCluster localServiceDomain = localhostFilterList.getLocalCluster(mockedPowerProxy).get();
          
          assertNotNull(localServiceDomain);

@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
 import com.google.common.base.Optional;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -65,10 +66,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @Inject
     public RequestProxyServiceImpl(ConfigurationService configurationService,
-                                   SystemModelInterrogator systemModelInterrogator,
+                                   ReposeInstanceInfo rii,
                                    HealthCheckService healthCheckService) {
         this.configurationService = configurationService;
-        this.systemModelInterrogator = systemModelInterrogator;
+        this.systemModelInterrogator = new SystemModelInterrogator(rii);
         this.healthCheckService = healthCheckService;
     }
 
