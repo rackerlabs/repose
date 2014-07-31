@@ -5,6 +5,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
+import static org.junit.Assert.*
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
@@ -57,6 +58,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
 
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/globalratelimit", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
@@ -98,8 +100,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
                         headers: headers1, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                messageChain.receivedResponse.code.equals("200")
-                messageChain.handlings.size() == 1
+                assertTrue(messageChain.receivedResponse.code.equals("200"))
+                assertTrue(messageChain.handlings.size() == 1)
         }
 
         (1..3).each {
@@ -109,8 +111,8 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
                         headers: headers2, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                messageChain.receivedResponse.code.equals("200")
-                messageChain.handlings.size() == 1
+                assertTrue(messageChain.receivedResponse.code.equals("200"))
+                assertTrue(messageChain.handlings.size() == 1)
         }
 
         when: "user1 hit the same resource, rate limitted"
@@ -118,7 +120,14 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
                 headers: headers1, defaultHandler: handler)
 
         then: "the request is rate-limited, and passes to the origin service"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code.equals("503")
+
+        when: "user1 hit the same resource, rate limitted"
+        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/test", method: "GET",
+                headers: headers2, defaultHandler: handler)
+
+        then: "the request is rate-limited, and passes to the origin service"
+        messageChain.receivedResponse.code.equals("503")
     }
 
     private void useAllRemainingRequests() {

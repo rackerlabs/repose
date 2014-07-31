@@ -1,16 +1,11 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
-import groovy.json.JsonSlurper
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
+import static org.junit.Assert.*
 import org.w3c.dom.Document
-import org.xml.sax.InputSource
-
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * Created by jennyvo on 7/30/14.
@@ -60,8 +55,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                         headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                messageChain.receivedResponse.code.equals("200")
-                messageChain.handlings.size() == 1
+                assertTrue(messageChain.receivedResponse.code.equals("200"))
+                assertTrue(messageChain.handlings.size() == 1)
         }
 
         when: "the user hit the rate-limit"
@@ -74,7 +69,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
 
     def "When Run with different users, hit the same resource, global limit share between users" () {
         given:"the rate-limit has not been reached"
-        //waitForLimitReset()
+        //waitForLimitReset
+        sleep(60000)
         def group = "customer"
         def headers1 = ['X-PP-User': "user1", 'X-PP-Groups': group]
         def headers2 = ['X-PP-User': "user2", 'X-PP-Groups': group]
@@ -86,8 +82,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                         headers: headers1, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                messageChain.receivedResponse.code.equals("200")
-                messageChain.handlings.size() == 1
+                assertTrue(messageChain.receivedResponse.code.equals("200"))
+                assertTrue(messageChain.handlings.size() == 1)
         }
 
         (1..3).each {
@@ -97,8 +93,8 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                         headers: headers2, defaultHandler: handler)
 
                 then: "the request is not rate-limited, and passes to the origin service"
-                messageChain.receivedResponse.code.equals("200")
-                messageChain.handlings.size() == 1
+                assertTrue(messageChain.receivedResponse.code.equals("200"))
+                assertTrue(messageChain.handlings.size() == 1)
         }
 
         when: "user2 hit the same resource, rate limitted"
