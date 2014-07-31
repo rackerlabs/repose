@@ -134,7 +134,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
 
-        while (!messageChain.receivedResponse.code.equals("413")) {
+        while (messageChain.receivedResponse.code.equals("200")) {
             messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                     headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
         }
