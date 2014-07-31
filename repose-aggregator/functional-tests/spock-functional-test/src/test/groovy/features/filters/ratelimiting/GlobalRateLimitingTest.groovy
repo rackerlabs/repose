@@ -46,7 +46,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         if (deproxy)
             deproxy.shutdown()
     }
-    //@Ignore
+
     def "When Repose config with Global Rate Limit, user limit should hit first" () {
         given: "the rate-limit has not been reached"
         //waitForLimitReset()
@@ -67,9 +67,9 @@ class GlobalRateLimitingTest extends ReposeValveTest {
                 headers: userHeaderDefault + ['X-PP-Groups': 'all-limits-small'], defaultHandler: handler)
 
         then: "the request is rate-limited, and respond with correct respcode"
-        messageChain.receivedResponse.code.equals("413")
+        messageChain.receivedResponse.code.equals("503")
     }
-    //@Ignore
+
     def "When Run with different users, hit the same resource, global limit share between users" () {
         given:"the rate-limit has not been reached"
         //waitForLimitReset
@@ -114,7 +114,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         then: "the request is rate-limited, and respond with correct respcode"
         messageChain.receivedResponse.code.equals("503")
     }
-    @Ignore
+
     @Unroll("send req with #url, #user, #group, #method, expect #responseCode")
     def "All requests should be limited by the global limit, regardless of #user or #group."() {
         given:
