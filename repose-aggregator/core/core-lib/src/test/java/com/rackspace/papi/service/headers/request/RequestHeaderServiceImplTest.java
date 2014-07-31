@@ -2,6 +2,7 @@ package com.rackspace.papi.service.headers.request;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.service.config.impl.ConfigurationServiceImpl;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
@@ -30,7 +31,7 @@ public class RequestHeaderServiceImplTest {
             instance = new RequestHeaderServiceImpl(
                     mock(ConfigurationServiceImpl.class),
                     mock(HealthCheckService.class),
-                    mock(SystemModelInterrogator.class),
+                    mock(ReposeInstanceInfo.class),
                     "");
         }
         

@@ -14,15 +14,14 @@ import java.util.List;
  * This class is to replace some of the functionality that was in the PowerApiContextManager
  * Specifically around collecting the ClusterID, NodeID, and Port list, so that other beans can access it.
  * Should be used everywhere the "servicePorts" bean was used and the "instanceInfo" bean
+ *  TODO: this should probably not be a named bean.
+ *  I think it is used to contain the clusterID and the nodeID of this instance, and that's all....
  */
 @Named
 public class ReposeInstanceInfo implements ServletContextAware {
 
-    public static final String PORT_LIST_ATTRIBUTE = "org.openrepose.server.PortList";
-
     private String clusterId;
     private String nodeId;
-    private List<Port> ports;
 
     private ServletContext servletContext;
 
@@ -36,6 +35,7 @@ public class ReposeInstanceInfo implements ServletContextAware {
         //Get the thingies out of the servlet context and hook them up in here.
         clusterId = servletContext.getInitParameter(InitParameter.REPOSE_CLUSTER_ID.getParameterName());
         //If they were not set in the servlet context, get them from system properties
+        //The other problem is that this might not work!
         if (clusterId == null) {
             clusterId = System.getProperty("repose-cluster-id");
         }
@@ -44,10 +44,6 @@ public class ReposeInstanceInfo implements ServletContextAware {
         if (nodeId == null) {
             nodeId = System.getProperty("repose-node-id");
         }
-
-        // If ports is null, oh well. Nothing creates them if they're null
-        //TODO: RACE CONDITION, SOMETHING ISN"T SETTING THE PORTS!
-        ports = (List<Port>) servletContext.getAttribute(PORT_LIST_ATTRIBUTE);
     }
 
     //TODO: it really bothers me that we set these in other places!
@@ -60,34 +56,23 @@ public class ReposeInstanceInfo implements ServletContextAware {
         this.nodeId = nodeId;
     }
 
-    public void setPorts(List<Port> ports) {
-        this.ports = ports;
-    }
-
     public String getClusterId() {
+        //TODO: this is probably the worst thing to do, but I'm working on it...
+        clusterId = servletContext.getInitParameter(InitParameter.REPOSE_CLUSTER_ID.getParameterName());
+        //If they were not set in the servlet context, get them from system properties
+        //The other problem is that this might not work!
+        if (clusterId == null) {
+            clusterId = System.getProperty("repose-cluster-id");
+        }
         return clusterId;
     }
 
     public String getNodeId() {
+        nodeId = servletContext.getInitParameter(InitParameter.REPOSE_NODE_ID.getParameterName());
+        if (nodeId == null) {
+            nodeId = System.getProperty("repose-node-id");
+        }
         return nodeId;
     }
 
-    public List<Port> getPorts() {
-        return ports;
-    }
-
-    /**
-     * Just a convenience method to replace the one in ServicePorts
-     *
-     * @return A list of the port numbers only
-     */
-    public List<Integer> getPortNumbers() {
-        List<Integer> portNumbers = new ArrayList<Integer>();
-
-        for (Port port : ports) {
-            portNumbers.add(port.getPort());
-        }
-
-        return portNumbers;
-    }
 }

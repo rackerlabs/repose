@@ -35,6 +35,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Starts more jetties to listen on the configured ports
+ */
 @Named
 public class ControllerServiceImpl implements ControllerService, ServletContextAware {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
@@ -128,7 +131,10 @@ public class ControllerServiceImpl implements ControllerService, ServletContextA
         for (Entry<String, ExtractorResult<Node>> entry : entrySet) {
             Node curNode = entry.getValue().getKey();
 
+            //TODO: I think this is the first place ports are gotted
             List<Port> ports = getNodePorts(curNode);
+            //This is also the first place clusterID and node ID are gotted :|
+            //TODO: how to know which is local?
 
             Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), isInsecure, entry.getValue().getResult(), curNode.getId()).newServer();
             try {
@@ -303,6 +309,10 @@ public class ControllerServiceImpl implements ControllerService, ServletContextA
 
                 setIsInsecure(isInsecure);
 
+                //TODO: this is where the port information is collected the first time
+                //GET LOCAL REPOSE INSTANCES
+                //TODO: this is doing the same thing that the ReposeServicePorts is doing, just doing it in different places
+                //TODO: one day this crap needs to be meaningfully unified...
                 Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
                 updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
 

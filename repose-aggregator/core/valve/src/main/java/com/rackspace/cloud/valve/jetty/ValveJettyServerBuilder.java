@@ -93,9 +93,6 @@ public class ValveJettyServerBuilder {
         servletContext.getInitParams().put(InitParameter.REPOSE_CLUSTER_ID.getParameterName(), clusterId);
         servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), nodeId);
 
-        //This is okay, since valve depends on core!
-        servletContext.setAttribute(ReposeInstanceInfo.PORT_LIST_ATTRIBUTE, ports);
-
         servletContext.addEventListener(new ContextLoaderListener());
 
         return servletContext;

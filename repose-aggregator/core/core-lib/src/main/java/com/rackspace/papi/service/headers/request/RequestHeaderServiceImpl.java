@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.container.config.ContainerConfiguration;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.SystemModel;
@@ -42,11 +43,11 @@ public class RequestHeaderServiceImpl implements RequestHeaderService {
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
                                     HealthCheckService healthCheckService,
-                                    SystemModelInterrogator systemModelInterrogator,
+                                    ReposeInstanceInfo reposeInstanceInfo,
                                     @Qualifier("reposeVersion") String reposeVersion) {
         this.configurationService = configurationService;
         this.reposeVersion = reposeVersion;
-        this.systemModelInterrogator = systemModelInterrogator;
+        this.systemModelInterrogator = new SystemModelInterrogator(reposeInstanceInfo);
         this.healthCheckService = healthCheckService;
     }
 

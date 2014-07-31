@@ -1,6 +1,7 @@
 package com.rackspace.papi.jmx;
 
 import com.google.common.base.Optional;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.ReposeCluster;
@@ -43,13 +44,13 @@ public class FilterListProvider {
     private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
-    public FilterListProvider(SystemModelInterrogator systemModelInterrogator,
-                              ConfigurationService configurationService,
+    public FilterListProvider(ConfigurationService configurationService,
                               ConfigurationInformation configurationInformation,
+                              ReposeInstanceInfo reposeInstanceInfo,
                               HealthCheckService healthCheckService) {
         this.configurationService = configurationService;
         this.configurationInformation = configurationInformation;
-        this.systemModelInterrogator = systemModelInterrogator;
+        this.systemModelInterrogator = new SystemModelInterrogator(reposeInstanceInfo);
         this.healthCheckService = healthCheckService;
     }
 
