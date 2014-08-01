@@ -9,31 +9,41 @@ import org.scalatest.{FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ServoTest extends FunSpec with Matchers {
 
+  def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String) => Unit) = {
+    val stdout = new ByteArrayOutputStream()
+    val stderr = new ByteArrayOutputStream()
+    //Servo doesn't yet do anything with stdin, so we can ignore that here
+    val stdin = System.in
+
+    Servo.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr))
+
+    val error = new String(stderr.toByteArray)
+    val output = new String(stdout.toByteArray)
+
+    callback(output, error)
+  }
+
   describe("Servo, the Repose Valve Launcher") {
     it("prints out a usage message when given unknown parameters") {
-      val stdout = new ByteArrayOutputStream()
-      val stderr = new ByteArrayOutputStream()
-      val stdin = System.in //I think this is okay for testing
-
-      Servo.execute(Array("--help"), stdin, new PrintStream(stdout), new PrintStream(stderr))
-
-      val error = new String(stderr.toByteArray)
-
-      error should include("Usage: servo [options]")
+      afterExecution(Array("--help"), (output, error) => {
+        error should include("Usage: java -jar servo.jar [options]")
+      })
     }
     it("outputs to stdout the settings it's going to use to start valves") {
-      val stdout = new ByteArrayOutputStream()
-      val stderr = new ByteArrayOutputStream()
-      val stdin = System.in //I think this is okay for testing
-
-      Servo.execute(Array.empty[String], stdin, new PrintStream(stdout), new PrintStream(stderr))
-
-      val output = new String(stdout.toByteArray)
-
-      output should include("Using /etc/repose as configuration root")
-      output should include("Launching with SSL validation")
+      afterExecution(callback = (output, error) => {
+        output should include("Using /etc/repose as configuration root")
+        output should include("Launching with SSL validation")
+      })
     }
-    it("executes the command to start a Jetty with the Repose War on the specified port"){
+    describe("Failing to find nodes in the config file") {
+      it("outputs a failure message if it cannot find any local nodes to start") {
+        pending
+      }
+      it("outputs a failure message if it cannot find the config file") {
+        pending
+      }
+    }
+    it("executes the command to start a Jetty with the Repose War on the specified port") {
       pending
     }
     it("executes several commands if there are several local instances configured") {
