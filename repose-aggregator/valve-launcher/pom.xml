@@ -57,6 +57,11 @@
             </resource>
             <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
 
         <plugins>
             <plugin>
