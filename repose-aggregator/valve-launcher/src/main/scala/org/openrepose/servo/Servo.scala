@@ -53,7 +53,7 @@ object Servo {
         |╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝   ╚═════╝
       """.stripMargin.replace("$version", reposeVersion)
 
-    val parser = new scopt.OptionParser[ServoConfig]("servo") {
+    val parser = new scopt.OptionParser[ServoConfig]("java -jar servo.jar") {
       head(fancyString)
       opt[File]('c', "config-file") action { (x, c) =>
         c.copy(configDirectory = x)
