@@ -1,3 +1,6 @@
+# A weird pom that's generated
+dependency-reduced-pom.xml
+
 ## java specific
 !.gitignore
 *.iml
