@@ -1,5 +1,7 @@
 package org.openrepose.servo
 
+import java.io.{PrintStream, ByteArrayOutputStream}
+
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
@@ -8,6 +10,18 @@ import org.scalatest.{FunSpec, Matchers}
 class ServoTest extends FunSpec with Matchers {
 
   describe("Servo, the Repose Valve Launcher") {
+    it("prints out a usage message when given unknown parameters") {
+      val stdout = new ByteArrayOutputStream()
+      val stderr = new ByteArrayOutputStream()
+      val stdin = System.in //I think this is okay for testing
+
+      Servo.execute(Array("--help"), stdin, new PrintStream(stdout), new PrintStream(stderr))
+
+      val error = new String(stderr.toByteArray)
+
+      error should include("Usage: servo [options]")
+
+    }
     it("executes the command to start a Jetty with the Repose War on the specified port"){
       pending
     }
