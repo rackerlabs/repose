@@ -1,6 +1,8 @@
 package features.filters.ratelimiting
 
 import framework.ReposeValveTest
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
@@ -70,6 +72,7 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("503")
     }
 
+    @Category(Slow.class)
     def "When Run with different users, hit the same resource, global limit share between users" () {
         given:"the rate-limit has not been reached"
         //waitForLimitReset

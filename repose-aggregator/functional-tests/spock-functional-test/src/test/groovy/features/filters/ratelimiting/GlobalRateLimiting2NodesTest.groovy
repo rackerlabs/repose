@@ -6,11 +6,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 import org.rackspace.deproxy.Response
 import static org.junit.Assert.*
-import org.w3c.dom.Document
-import org.xml.sax.InputSource
-
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
+import framework.category.Slow
+import org.junit.experimental.categories.Category
 
 /**
  * Created by jennyvo on 7/30/14.
@@ -83,6 +80,7 @@ class GlobalRateLimiting2NodesTest extends ReposeValveTest {
         messageChain.handlings.size() == 0
     }
 
+    @Category(Slow.class)
     def "When Run with different users, hit the same resource, global limit share between users" () {
         given:"the rate-limit has not been reached"
         //waitForLimitReset
