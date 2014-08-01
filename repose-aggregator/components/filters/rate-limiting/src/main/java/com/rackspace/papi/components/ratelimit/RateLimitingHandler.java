@@ -108,6 +108,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     } else {
       // If include absolute limits let request pass thru but prepare the combined
       // (absolute and active) limits when processing the response
+      // TODO: A way to query global rate limits
       if (includeAbsoluteLimits) {
         director.setFilterAction(FilterAction.PROCESS_RESPONSE);
         director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
