@@ -46,7 +46,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>repose-valve-launcher</finalName>
+        <finalName>servo</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
