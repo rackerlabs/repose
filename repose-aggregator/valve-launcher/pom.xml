@@ -22,6 +22,7 @@
     <packaging>jar</packaging>
 
     <properties>
+        <exec.mainClass>org.openrepose.valveLauncher.Main</exec.mainClass>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
@@ -34,9 +35,17 @@
 
     <build>
         <finalName>repose-valve-launcher</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>main.properties</include>
+                </includes>
+            </resource>
+            <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
+        </resources>
 
-        <sourceDirectory>src/main/scala</sourceDirectory>
-        <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
@@ -71,7 +80,8 @@
                             </filters>
                             <transformers>
                                 <!-- specify our main class so it'll work with java -jar valve-launcher.jar -->
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openrepose.valveLauncher.Main</mainClass>
                                 </transformer>
                             </transformers>
@@ -79,7 +89,21 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>${exec.mainClass}</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
