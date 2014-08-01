@@ -15,6 +15,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.repose.service.ratelimit.RateLimitingServiceImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 import org.slf4j.Logger;
@@ -143,7 +144,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
       // We use a 413 "Request Entity Too Large" to communicate that the user
       // in question has hit their rate limit for this requested URI
-      if (e.getUser().equals("GlobalLimitUser")) {
+      if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
         director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
       } else if (overLimit429ResponseCode) {
         director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
