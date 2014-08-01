@@ -23,6 +23,11 @@ import java.util.List;
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
  * TODO: This super needs to be threadsafe!
+ *
+ * TODO: this should be the sole source of information when it comes to the SystemModel.
+ * Except nope, because events are triggered :(
+ * Nothing else should subscribe to the system model, just this guy, and it will update it's internal state
+ * before allowing access. NEEDS to be done in a threadsafe manner.
  */
 @Named
 public class SystemModelInterrogator {

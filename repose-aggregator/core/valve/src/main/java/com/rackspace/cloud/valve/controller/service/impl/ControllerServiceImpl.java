@@ -128,6 +128,8 @@ public class ControllerServiceImpl implements ControllerService, ServletContextA
         for (Entry<String, ExtractorResult<Node>> entry : entrySet) {
             Node curNode = entry.getValue().getKey();
 
+            //TODO: I think this is the first place ports are gotted
+            //But they're done for each one.... wtf is an ExtractorResult
             List<Port> ports = getNodePorts(curNode);
 
             Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), isInsecure, entry.getValue().getResult(), curNode.getId()).newServer();
@@ -303,6 +305,10 @@ public class ControllerServiceImpl implements ControllerService, ServletContextA
 
                 setIsInsecure(isInsecure);
 
+                //TODO: this is where the port information is collected the first time
+                //GET LOCAL REPOSE INSTANCES
+                // This is triggered off the system model. Might have to make this into something generic so that all things can read
+                // the ports using a class
                 Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
                 updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
 
