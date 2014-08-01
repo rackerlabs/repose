@@ -27,7 +27,7 @@ object Servo {
   def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream):Int = {
 
     //In this specific method, we're going to redirect the console output
-    //This is so that Option parser uses our stuff, and we can caputre console output!
+    //This is so that Option parser uses our stuff, and we can capture console output!
     Console.setOut(out)
     Console.setIn(in)
     Console.setErr(err)
@@ -74,6 +74,13 @@ object Servo {
 
     parser.parse(args, ServoConfig()) map { config =>
       //Got a valid config
+      //output the info so we know about it
+      out.println(s"Using ${config.configDirectory} as configuration root")
+      if(config.insecure){
+        out.println("WARNING: disabling all SSL validation")
+      } else {
+        out.println("Launching with SSL validation")
+      }
       out.println("ZOMG WOULDVE STARTED VALVE")
       serveValves(config)
       0
@@ -82,7 +89,6 @@ object Servo {
       //Return the exit code
       1
     }
-
   }
 
   def serveValves(config: ServoConfig) = {

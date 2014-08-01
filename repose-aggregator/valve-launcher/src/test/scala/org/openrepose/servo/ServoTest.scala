@@ -20,7 +20,18 @@ class ServoTest extends FunSpec with Matchers {
       val error = new String(stderr.toByteArray)
 
       error should include("Usage: servo [options]")
+    }
+    it("outputs to stdout the settings it's going to use to start valves") {
+      val stdout = new ByteArrayOutputStream()
+      val stderr = new ByteArrayOutputStream()
+      val stdin = System.in //I think this is okay for testing
 
+      Servo.execute(Array.empty[String], stdin, new PrintStream(stdout), new PrintStream(stderr))
+
+      val output = new String(stdout.toByteArray)
+
+      output should include("Using /etc/repose as configuration root")
+      output should include("Launching with SSL validation")
     }
     it("executes the command to start a Jetty with the Repose War on the specified port"){
       pending
