@@ -28,6 +28,21 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
