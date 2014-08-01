@@ -14,7 +14,7 @@
     <groupId>org.openrepose.valve</groupId>
     <artifactId>valve-launcher</artifactId>
 
-    <name>Repose Valve Launcher</name>
+    <name>Servo - Repose Valve Launcher</name>
     <description>
         A launcher to fire up a jetty and deploy our war file! All like magic where nobody will notice!
     </description>
@@ -22,7 +22,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <exec.mainClass>org.openrepose.valveLauncher.Main</exec.mainClass>
+        <exec.mainClass>org.openrepose.servo.Main</exec.mainClass>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
@@ -31,8 +31,20 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>com.github.scopt</groupId>
+            <!-- scopt built for scala 2.10 -->
+            <artifactId>scopt_2.10</artifactId>
+            <version>3.2.0</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.10</artifactId>
+            <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <build>
         <finalName>repose-valve-launcher</finalName>
         <resources>
@@ -82,7 +94,7 @@
                                 <!-- specify our main class so it'll work with java -jar valve-launcher.jar -->
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.openrepose.valveLauncher.Main</mainClass>
+                                    <mainClass>org.openrepose.servo.Main</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
