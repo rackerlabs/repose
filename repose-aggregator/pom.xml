@@ -48,6 +48,7 @@
         <module>installation</module>
         <module>experimental</module>
         <module>functional-tests</module>
+        <module>valve-launcher</module>
     </modules>
 
     <dependencyManagement>
