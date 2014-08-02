@@ -1,6 +1,7 @@
 package org.openrepose.servo
 
-import java.io.{PrintStream, ByteArrayOutputStream}
+import java.io.{ByteArrayOutputStream, File, PrintStream}
+import java.nio.file.Files
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -37,7 +38,22 @@ class ServoTest extends FunSpec with Matchers {
     }
     describe("Failing to find nodes in the config file") {
       it("outputs a failure message if it cannot find any local nodes to start") {
+        //TODO: Haven't solved the when to stop watching thing.... Need to set up outputs or something
+        //TODO: this runs forever, because the watching thread never exits.
+        //While true loops are the problem
+        //Need to figure out how to tell it to shut down
         pending
+        //Set up a test directory
+        val tempDir = Files.createTempDirectory("servo")
+        //Put some configs in it, or not
+        val systemModel = new File(tempDir.toFile, "system-model.cfg.xml")
+        Files.write(systemModel.toPath, "".getBytes)
+
+        //call afterExecute passing in the config args
+        afterExecution(Array("--config-file", tempDir.toString), (output, error) => {
+          error should include("Unable to find any local nodes to start!")
+          error should include("Ensure your system-model.cfg.xml has at least one locally identifiable node!")
+        })
       }
       it("outputs a failure message if it cannot find the config file") {
         pending
