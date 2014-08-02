@@ -1,7 +1,10 @@
 package org.openrepose.servo
 
 import java.io.{File, InputStream, PrintStream}
+import java.nio.file._
 import java.util.Properties
+
+import scala.xml.{Node, XML}
 
 object Servo {
 
@@ -24,7 +27,7 @@ object Servo {
    * @param err typically standard err
    * @return the exit code
    */
-  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream):Int = {
+  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream): Int = {
 
     //In this specific method, we're going to redirect the console output
     //This is so that Option parser uses our stuff, and we can capture console output!
@@ -76,7 +79,7 @@ object Servo {
       //Got a valid config
       //output the info so we know about it
       out.println(s"Using ${config.configDirectory} as configuration root")
-      if(config.insecure){
+      if (config.insecure) {
         out.println("WARNING: disabling all SSL validation")
       } else {
         out.println("Launching with SSL validation")
@@ -92,6 +95,8 @@ object Servo {
   }
 
   def serveValves(config: ServoConfig) = {
+
+
     //Create a listener on the Config root system-model.cfg.xml
     //On the first start up, and any time the system-model changes:
     // *Get the list of nodes
@@ -99,7 +104,38 @@ object Servo {
     // *Fork a jetty running the war file for each one.
     // *If they are already running, do nothing, if there are orphaned nodes, kill em
     //Don't exit
-    println("NOPE")
+    val watchService = FileSystems.getDefault.newWatchService()
+    val configDir = config.configDirectory.toPath
+    val watchKey = configDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+
+    //While not terminating loop
+    //TODO: do this better, so things actually shut down nicely I think
+    //Maybe use akka to do things
+    while (true) {
+      import scala.collection.JavaConverters._
+
+      val wk = watchService.take()
+      val events = wk.pollEvents().asScala
+      events.foreach(event => {
+        val changed = event.context().asInstanceOf[Path]
+        if (changed.endsWith("system-model.cfg.xml")) {
+          //THE SYSTEM MODEL CHANGED!
+
+          //On the first start up, and any time the system-model changes:
+          // *Get the list of nodes
+          // *Identify the localhost nodes
+          // *Fork a jetty running the war file for each one.
+          // *If they are already running, do nothing, if there are orphaned nodes, kill em
+
+        }
+      })
+
+      //have to reset the watch key to get more events
+      val valid = wk.reset()
+      if (!valid) {
+        //Key has been unregistered, can probably exit the loop?
+      }
+    }
   }
 
 
