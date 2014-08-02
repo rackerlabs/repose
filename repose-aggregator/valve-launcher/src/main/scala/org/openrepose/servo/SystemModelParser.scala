@@ -1,5 +1,7 @@
 package org.openrepose.servo
 
+import java.net.{UnknownHostException, InetAddress, NetworkInterface}
+
 import scala.xml.{XML, Node}
 
 case class ReposeNode(clusterId: String, nodeId: String, host: String, httpPort: Option[Int], httpsPort: Option[Int])
@@ -18,7 +20,45 @@ class SystemModelParser(content:String) {
    * This may also be used to avoid trying to reload any valves, because Servo had problems parsing the XML
    * And so it will report those errors instead of killing/restarting any Valves
    */
-  val localNodes:Either[List[ReposeNode], List[String]] = ???
+  val localNodes:Either[List[ReposeNode], List[String]] = {
+    import scala.collection.JavaConverters._
+
+    //Look up all the hostnames we got back, and filter out a list of local ones
+    val allNodes = getNodesFromSystemModel(content)
+
+    val localInterfaces = NetworkInterface.getNetworkInterfaces.asScala.toList
+
+    val localNodes = allNodes.filter(node => {
+      try {
+        val nodeAddress = InetAddress.getByName(node.host)
+        //Determine if this node is local
+        localInterfaces.foldLeft(false)((acc, iface) => {
+          //Fold all the local interfaces into a true/false
+          val ifaceAddresses = iface.getInetAddresses.asScala.toList
+          //Can probably short circuit (although there's probably not many...
+          val ifacesForAddress = ifaceAddresses.filter(_.equals(nodeAddress))
+
+          if (ifacesForAddress.nonEmpty) {
+            true
+          } else {
+            acc
+          }
+        })
+      } catch {
+        case e: UnknownHostException => {
+          //If I can't resolve the host, it's not local!
+          false
+        }
+      }
+
+    })
+
+    if(localNodes.isEmpty) {
+      Right(List("Unable to find any local nodes, check your system model!"))
+    } else {
+      Left(localNodes)
+    }
+  }
 
 
   def getNodesFromSystemModel(systemModelContent: String): List[ReposeNode] = {
