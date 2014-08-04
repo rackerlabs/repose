@@ -11,7 +11,7 @@ case class ReposeNode(clusterId: String, nodeId: String, host: String, httpPort:
  * Create a new one of these when you want to parse the content of the SystemModel XML file
  * @param content
  */
-class SystemModelParser(content:String) {
+class SystemModelParser(content: String) {
 
   /**
    * If you ask for the list of local nodes, you either get the local node list
@@ -20,7 +20,7 @@ class SystemModelParser(content:String) {
    * This may also be used to avoid trying to reload any valves, because Servo had problems parsing the XML
    * And so it will report those errors instead of killing/restarting any Valves
    */
-  val localNodes:Either[List[ReposeNode], List[String]] = {
+  val localNodes: Either[List[ReposeNode], List[String]] = {
     import scala.collection.JavaConverters._
 
     //Look up all the hostnames we got back, and filter out a list of local ones
@@ -53,23 +53,35 @@ class SystemModelParser(content:String) {
 
     })
 
-    if(localNodes.isEmpty) {
+    if (localNodes.isEmpty) {
       Right(List("Unable to find any local nodes, check your system model!"))
     } else {
-      Left(localNodes)
+      //Check for conflicting Node IDs
+      val conflictingNodeList = localNodes.groupBy(f => f.nodeId).filter(pair => {
+        pair._2.size > 1
+      })
+
+      val missingAllPortsList = localNodes.filter(node => node.httpPort.isEmpty && node.httpsPort.isEmpty )
+      if (conflictingNodeList.nonEmpty) {
+        Right(List("Conflicting local node IDs found!"))
+      } else if(missingAllPortsList.nonEmpty) {
+        Right(List("No port configured on a local node!"))
+      } else {
+        Left(localNodes)
+      }
     }
   }
 
 
   def getNodesFromSystemModel(systemModelContent: String): List[ReposeNode] = {
 
-    def resolveSingleAttribute(node:Node, attr:String):String = {
+    def resolveSingleAttribute(node: Node, attr: String): String = {
       node.attribute(attr).get.head.text
     }
 
-    def resolveIntValueAttr(node:Node, attr:String):Option[Int] = {
-      node.attribute(attr).flatMap( sn => {
-        if(sn.nonEmpty){
+    def resolveIntValueAttr(node: Node, attr: String): Option[Int] = {
+      node.attribute(attr).flatMap(sn => {
+        if (sn.nonEmpty) {
           sn.head.map(s => Some(s.text.toInt)).head
         } else {
           None
@@ -90,8 +102,8 @@ class SystemModelParser(content:String) {
         val nodeId = resolveSingleAttribute(x, "id")
         val hostname = resolveSingleAttribute(x, "hostname")
         //httpPort and httpsPort might not be there
-        val httpPort:Option[Int] = resolveIntValueAttr(x, "http-port")
-        val httpsPort:Option[Int] = resolveIntValueAttr(x, "https-port")
+        val httpPort: Option[Int] = resolveIntValueAttr(x, "http-port")
+        val httpsPort: Option[Int] = resolveIntValueAttr(x, "https-port")
 
         ReposeNode(clusterId, nodeId, hostname, httpPort, httpsPort)
       }
