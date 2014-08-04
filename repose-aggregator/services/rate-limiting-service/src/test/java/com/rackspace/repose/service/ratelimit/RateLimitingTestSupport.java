@@ -27,24 +27,17 @@ public class RateLimitingTestSupport {
 
       newCfg.getLimitGroup().add(newConfiguredLimitGroup(DEFAULT_USER_ROLE, DEFAULT_URI, DEFAULT_URI_REGEX, DEFAULT_LIMIT_GROUP_ID));
       newCfg.getLimitGroup().add(newMultiMethodConfiguredLimitGroup(DEFAULT_USER_ROLE, MULTI_METHOD_URI, MULTI_METHOD_URI_REGEX, MULTI_METHOD_LIMIT_GROUP_ID));
-
-       // Global rate limiting default
-       ConfiguredRatelimit globalRateLimit = new ConfiguredRatelimit();
-       globalRateLimit.setId("catch-all");
-       globalRateLimit.setUnit(TimeUnit.MINUTE);
-       globalRateLimit.setUri(".*");
-       globalRateLimit.setUriRegex(".*");
-       globalRateLimit.setValue(1);
-       globalRateLimit.getHttpMethods().add(HttpMethod.ALL);
-       ConfiguredRateLimitWrapper globalRateLimitWrapped = new ConfiguredRateLimitWrapper(globalRateLimit);
-
-       GlobalLimitGroup globalLimitGroup = new GlobalLimitGroup();
-       globalLimitGroup.getLimit().add(globalRateLimitWrapped);
-
-       newCfg.setGlobalLimitGroup(globalLimitGroup);
-       //
+      newCfg.setGlobalLimitGroup(newGlobalLimitGroup());
 
       return newCfg;
+   }
+
+   public static GlobalLimitGroup newGlobalLimitGroup() {
+       final GlobalLimitGroup globalLimitGroup = new GlobalLimitGroup();
+       globalLimitGroup.getLimit().add(new ConfiguredRateLimitWrapper(newConfiguredRateLimit("catch-all",
+               TimeUnit.MINUTE, new ArrayList<HttpMethod>(){{ add(HttpMethod.ALL);}}, "*", ".*", 1)));
+
+       return globalLimitGroup;
    }
 
    public static ConfiguredLimitGroup newConfiguredLimitGroup(String userRole, String rateLimitUri, String uriRegex, String limitGroupId) {
@@ -82,7 +75,7 @@ public class RateLimitingTestSupport {
    public static ConfiguredRatelimit newConfiguredRateLimit(String id, TimeUnit unit, List<HttpMethod> methods, String rateLimitUri, String uriRegex, int value) {
       final ConfiguredRatelimit rateLimit = new ConfiguredRatelimit();
 
-       rateLimit.setId(id);
+      rateLimit.setId(id);
       rateLimit.setUnit(unit);
       rateLimit.setUri(rateLimitUri);
       rateLimit.setUriRegex(uriRegex);
