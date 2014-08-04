@@ -54,18 +54,59 @@ class SystemModelParser(content: String) {
     })
 
     if (localNodes.isEmpty) {
-      Right(List("Unable to find any local nodes, check your system model!"))
+      Right(List("No local node(s) found!"))
     } else {
       //Check for conflicting Node IDs
       val conflictingNodeList = localNodes.groupBy(f => f.nodeId).filter(pair => {
         pair._2.size > 1
       })
+      //Nodes that are missing both ports (shouldn't happen, but we need to catch it)
+      val missingAllPortsList = localNodes.filter(node => node.httpPort.isEmpty && node.httpsPort.isEmpty)
 
-      val missingAllPortsList = localNodes.filter(node => node.httpPort.isEmpty && node.httpsPort.isEmpty )
+      def hasDuplicatedPorts(nodeList:List[ReposeNode]): Boolean = {
+        def findDuplicatedPorts(acc:Boolean, usedPorts: Set[Int], list:List[ReposeNode]):Boolean = {
+          if(list.isEmpty) {
+            acc
+          } else {
+            val node = list.head
+            node match {
+              case ReposeNode(_,_,_,Some(httpPort),Some(httpsPort)) => {
+                if(usedPorts.contains(httpPort) || usedPorts.contains(httpsPort) || httpPort == httpsPort) {
+                  true //Duplicated port found
+                } else {
+                  findDuplicatedPorts(acc, usedPorts + httpPort + httpsPort, list.tail)
+                }
+              }
+              case ReposeNode(_,_,_,Some(httpPort),None) => {
+                if(usedPorts.contains(httpPort)) {
+                  true
+                } else {
+                  findDuplicatedPorts(acc, usedPorts + httpPort, list.tail)
+                }
+              }
+              case ReposeNode(_,_,_,None, Some(httpsPort)) => {
+                if(usedPorts.contains(httpsPort)) {
+                  true
+                } else {
+                  findDuplicatedPorts(acc, usedPorts + httpsPort, list.tail)
+                }
+              }
+            }
+          }
+        }
+
+        findDuplicatedPorts(acc = false, Set.empty[Int], nodeList)
+      }
+
+      //Get a set of all the ports we care about, crap this idea doesn't work :|
+      //How do I find duplicate ports amongst http and https?!?!
+
       if (conflictingNodeList.nonEmpty) {
         Right(List("Conflicting local node IDs found!"))
       } else if(missingAllPortsList.nonEmpty) {
         Right(List("No port configured on a local node!"))
+      } else if(hasDuplicatedPorts(localNodes)) {
+        Right(List("Conflicting local node ports found!"))
       } else {
         Left(localNodes)
       }
