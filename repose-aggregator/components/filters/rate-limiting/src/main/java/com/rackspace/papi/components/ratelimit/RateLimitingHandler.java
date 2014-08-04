@@ -15,6 +15,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
+import com.rackspace.repose.service.ratelimit.RateLimitingServiceImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
 import org.slf4j.Logger;
@@ -107,6 +108,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     } else {
       // If include absolute limits let request pass thru but prepare the combined
       // (absolute and active) limits when processing the response
+      // TODO: A way to query global rate limits
       if (includeAbsoluteLimits) {
         director.setFilterAction(FilterAction.PROCESS_RESPONSE);
         director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
@@ -143,18 +145,14 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
       // We use a 413 "Request Entity Too Large" to communicate that the user
       // in question has hit their rate limit for this requested URI
-      if (overLimit429ResponseCode) {
-
+      if (e.getUser().equals(RateLimitingServiceImpl.GLOBAL_LIMIT_USER)) {
+        director.setResponseStatus(HttpStatusCode.SERVICE_UNAVAIL);
+      } else if (overLimit429ResponseCode) {
         director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
-
       } else {
-
         director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
-
       }
       director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
-
-
 
     } catch (CacheException e) {
       LOG.error("Failure when tracking limits.", e);

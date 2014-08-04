@@ -7,11 +7,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class RateLimitingConfigHelper {
-
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingConfigHelper.class);
+
+    private final GlobalLimitGroup globalLimitGroup;
     private final List<ConfiguredLimitGroup> configuredLimitGroups;
 
     public RateLimitingConfigHelper(RateLimitingConfiguration rateLimitingConfiguration) {
+        this.globalLimitGroup = processGlobalLimits(rateLimitingConfiguration.getGlobalLimitGroup());
         this.configuredLimitGroups = processConfiguration(rateLimitingConfiguration);
     }
 
@@ -36,6 +38,10 @@ public class RateLimitingConfigHelper {
         }
 
         return defaultLimitGroup;
+    }
+
+    public GlobalLimitGroup getGlobalLimitGroup() {
+        return globalLimitGroup;
     }
 
     private List<ConfiguredLimitGroup> processConfiguration(RateLimitingConfiguration configurationObject) {
@@ -67,8 +73,9 @@ public class RateLimitingConfigHelper {
             newLimitGroups.add(newLimitGroup);
         }
 
-        if (!defaultSet) {
-            LOG.warn("None of the specified rate limit groups have the default parameter set. Running without a default is dangerous! Please update your config.");
+        if (!defaultSet && configurationObject.getGlobalLimitGroup() == null) {
+            LOG.warn("None of the specified rate limit groups have the default parameter set, and a global limit group has not been defined." +
+                    " Running without a default or global rate limiting group is dangerous! Please update your config.");
         }
 
         return newLimitGroups;
@@ -89,5 +96,18 @@ public class RateLimitingConfigHelper {
         newGroup.getLimit().addAll(newLimits);
 
         return newGroup;
+    }
+
+    private GlobalLimitGroup processGlobalLimits(GlobalLimitGroup oldGlobalLimitGroup) {
+        GlobalLimitGroup newGlobalLimitGroup = new GlobalLimitGroup();
+
+        if (oldGlobalLimitGroup != null) {
+            for (ConfiguredRatelimit configuredRatelimit : oldGlobalLimitGroup.getLimit()) {
+                ConfiguredRatelimit newLimit = new ConfiguredRateLimitWrapper(configuredRatelimit);
+                newGlobalLimitGroup.getLimit().add(newLimit);
+            }
+        }
+
+        return newGlobalLimitGroup;
     }
 }

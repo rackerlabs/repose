@@ -8,7 +8,11 @@
         returning live rate limiting information.
     -->
     <request-endpoint include-absolute-limits="true" uri-regex="\/limits\/(\d*)\/"/>
-    
+
+    <global-limit-group>
+        <limit id="global-per-minute" uri="everything" uri-regex="*" value="10" unit="MINUTE"/>
+    </global-limit-group>
+
     <!--
         Defining a limit group.
 
@@ -53,5 +57,5 @@
     </limit-group>
     
     <limit-group id="super-user-limits" groups="IP_Super"/>
-    
+
 </rate-limiting>

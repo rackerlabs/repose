@@ -21,9 +21,13 @@ import java.util.regex.Pattern;
 
 
 public class RateLimitingServiceImpl implements RateLimitingService {
-
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingServiceImpl.class);
+
+    public static final String GLOBAL_LIMIT_USER = "GlobalLimitUser";
+    public static final String GLOBAL_LIMIT_GROUP = "GlobalLimitGroup";
+
     private final RateLimitCache cache;
+    private final GlobalLimitGroup globalLimitGroup;
     private final RateLimitingConfigHelper helper;
     private final boolean useCaptureGroups;
 
@@ -38,6 +42,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         this.cache = cache;
         this.rateLimiter = new RateLimiter(cache);
         this.helper = new RateLimitingConfigHelper(rateLimitingConfiguration);
+        this.globalLimitGroup = helper.getGlobalLimitGroup();
         useCaptureGroups = rateLimitingConfiguration.isUseCaptureGroups();
     }
 
@@ -63,8 +68,8 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
         final ConfiguredLimitGroup configuredLimitGroup = helper.getConfiguredGroupByRole(groups);
-        final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
-        TimeUnit largestUnit = null;
+        final List< Pair<String, ConfiguredRatelimit> > matchingConfiguredLimits = new ArrayList<>();
+        TimeUnit largestUnit = TimeUnit.SECOND;
 
         // Go through all of the configured limits for this group
         for (ConfiguredRatelimit rateLimit : configuredLimitGroup.getLimit()) {
@@ -82,13 +87,36 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
                         rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
 
-                if (largestUnit == null || rateLimit.getUnit().compareTo(largestUnit) > 0) {
+                if (rateLimit.getUnit().compareTo(largestUnit) > 0) {
                     largestUnit = rateLimit.getUnit();
                 }
             }
         }
+
+
         if (matchingConfiguredLimits.size() > 0) {
             rateLimiter.handleRateLimit(user, matchingConfiguredLimits, largestUnit, datastoreWarnLimit);
+        }
+
+        // Global Limits should be checked after user rate limits to avoid miscounts and DOS
+
+        final List< Pair<String, ConfiguredRatelimit> > matchingGlobalConfiguredLimits = new ArrayList<>();
+        largestUnit = TimeUnit.SECOND;
+        for (ConfiguredRatelimit globalLimit : globalLimitGroup.getLimit()) {
+            Matcher uriMatcher = ((ConfiguredRateLimitWrapper)globalLimit).getRegexPattern().matcher(uri);
+
+            if (uriMatcher.matches() && httpMethodMatches(globalLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(globalLimit.getQueryParamNames(), parameterMap)) {
+                matchingGlobalConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(GLOBAL_LIMIT_GROUP,
+                        globalLimit.getId(), uriMatcher, useCaptureGroups), globalLimit)); // NOTE: GLOBAL_LIMIT_GROUP is not guaranteed to be unique since XSD validation does not enforce uniqueness as it does for other rate limit groups
+
+                if (globalLimit.getUnit().compareTo(largestUnit) > 0) {
+                    largestUnit = globalLimit.getUnit();
+                }
+            }
+        }
+
+        if (matchingGlobalConfiguredLimits.size() > 0) {
+            rateLimiter.handleRateLimit(GLOBAL_LIMIT_USER, matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: GLOBAL_LIMIT_USER is not guaranteed to be unique
         }
     }
 
