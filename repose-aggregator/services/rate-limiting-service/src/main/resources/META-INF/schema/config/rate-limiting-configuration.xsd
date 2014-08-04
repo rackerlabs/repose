@@ -56,7 +56,6 @@
             </xs:documentation>
         </xs:annotation>
 
-        <!-- TODO: Change this to xs:all to avoid enforcing ordering? -->
         <xs:sequence>
             <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="0" maxOccurs="1"/>
             <xs:element name="global-limit-group" type="rl:GlobalLimitGroup" minOccurs="0" maxOccurs="1" />
