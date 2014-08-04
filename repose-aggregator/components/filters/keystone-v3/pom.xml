@@ -10,12 +10,11 @@
         <version>7.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
     <artifactId>keystone-v3</artifactId>
 
     <name>Repose Components - Keystone V3</name>
     <description>
-        This filter authenticates user requests using the Openstack Identity v3 contract.
+        This filter authenticates user requests against a Keystone implementation of the Openstack Identity v3 contract.
     </description>
 
     <packaging>jar</packaging>
@@ -25,12 +24,13 @@
     </properties>
 
     <dependencies>
+        <!-- Let's use Scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
 
-        <!-- Note: We may want to extract this dependency, or at least manage it. -->
+        <!-- TODO: We may want to extract this dependency, or at least manage it -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
@@ -38,6 +38,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TODO: This artifact should be dependent on the version of Scala -->
+        <dependency>
+            <groupId>io.spray</groupId>
+            <artifactId>spray-json_2.10</artifactId>
+            <version>1.2.6</version>
+        </dependency>
+
+        <!-- These three are required because of our coupling between filters and core -->
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
             <artifactId>core-lib</artifactId>
@@ -56,11 +64,13 @@
 
     <build>
         <plugins>
+            <!-- The plugin that gets Scala running -->
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
             </plugin>
 
+            <!-- The plugin that cleans up our XSD to conform to XML 1.0 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
@@ -75,6 +85,7 @@
                 </configuration>
             </plugin>
 
+            <!-- The plugin that compiles and binds our clean XSD to a Java object -->
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
