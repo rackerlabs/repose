@@ -13,11 +13,9 @@ class SystemModelParserTest extends FunSpec with Matchers {
     Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
   }
 
-  val validModel = resourceContent("/system-model-test/valid-system-model.cfg.xml")
-
   describe("A simpler parser for the system model") {
     it("returns a list of the local nodes when the XML is correct") {
-      val smp = new SystemModelParser(validModel)
+      val smp = new SystemModelParser(resourceContent("/system-model-test/valid-system-model.cfg.xml"))
       val result = smp.localNodes
 
       result match {
@@ -30,11 +28,29 @@ class SystemModelParserTest extends FunSpec with Matchers {
       }
     }
     describe("provides detailed failure messages for nodes in a cluster"){
+      def shouldFailWith(content:String, f:List[String] => Unit) = {
+        val smp = new SystemModelParser(content)
+        val result = smp.localNodes
+
+        result match {
+          case Right(x) => {
+            f(x)
+          }
+          case Left(x) => {
+            fail("Processing should have failed!")
+          }
+        }
+      }
+
       it("requires that the node IDs be unique") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/conflicting-nodes.xml"), list => {
+          list should contain("Conflicting local node IDs found!")
+        })
       }
       it("requires an http port or an https port") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/no-port-at-all.xml"), list => {
+          list should contain("No port configured on a local node!")
+        })
       }
       it("requires that at least one node is local") {
         pending
