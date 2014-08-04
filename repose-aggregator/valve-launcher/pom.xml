@@ -31,6 +31,8 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
+
+        <!-- note for dkowis: adding akka-actor to the mix only results in a target .jar file of 11MB -->
         <dependency>
             <groupId>com.github.scopt</groupId>
             <!-- scopt built for scala 2.10 -->
