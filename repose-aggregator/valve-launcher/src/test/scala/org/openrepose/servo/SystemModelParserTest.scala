@@ -53,10 +53,14 @@ class SystemModelParserTest extends FunSpec with Matchers {
         })
       }
       it("requires that at least one node is local") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/no-local-node.xml"), list => {
+          list should contain("No local node(s) found!")
+        })
       }
       it("requires that local nodes don't conflict ports") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/duplicated-port.xml"), list => {
+          list should contain("Conflicting local node ports found!")
+        })
       }
     }
     describe("provides detailed failure messages for clusters and inter node conflicts") {
