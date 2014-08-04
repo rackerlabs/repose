@@ -22,12 +22,14 @@ import java.util.List;
 /**
  * A helper class used to inspect a system model. Methods are provided to determine the relation between the localhost
  * and the system model.
- * TODO: This super needs to be threadsafe!
  *
- * TODO: this should be the sole source of information when it comes to the SystemModel.
+ * This should be the sole source of information when it comes to the SystemModel.
  * Except nope, because events are triggered :(
  * Nothing else should subscribe to the system model, just this guy, and it will update it's internal state
  * before allowing access. NEEDS to be done in a threadsafe manner.
+ *
+ * TODO: this should probably not be a named bean. It could be, but it doesn't make sense. It is just helper methods
+ * around the nasty JAXB classes that make it hard to get the data we want out of the XML in the form we want it.
  */
 @Named
 public class SystemModelInterrogator {

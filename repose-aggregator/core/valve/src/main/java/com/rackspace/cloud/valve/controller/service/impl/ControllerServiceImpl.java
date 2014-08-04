@@ -129,6 +129,8 @@ public class ControllerServiceImpl implements ControllerService, ServletContextA
             Node curNode = entry.getValue().getKey();
 
             //TODO: I think this is the first place ports are gotted
+            //TODO: this will be less meaningful once we only run a single container.
+            //TODO: we probably won't use this at all, because we will not start multiple jettys.
             //But they're done for each one.... wtf is an ExtractorResult
             List<Port> ports = getNodePorts(curNode);
 

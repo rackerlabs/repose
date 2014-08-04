@@ -27,6 +27,10 @@ import java.util.List;
  * This is probably not the right way to do this stuff, a better way needs to be done when the ConfigurationService is
  * redone properly.
  *
+ * TODO: this probably doesn't actually need a SystemModelInterrogator, it just wants a list of what's local
+ * There's probably a much simpler way to determine what filters this node needs to run... Probably based off
+ * ClusterID which should be unique with the new way of doing things.
+ *
  */
 @Named
 public class FilterListProvider {

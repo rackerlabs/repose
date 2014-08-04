@@ -78,6 +78,7 @@ public class RoundRobinRoutingService implements RoutingService, ServletContextA
     }
 
     //TODO: WHAT IS THIS MADNESS!?!?
+    //TODO: I have no clue why it gets ports here. I really don't. This doesn't make any sense.
     //WHAT ARE THESE PORTS FOR??!?
     private class PowerApiConfigListener implements UpdateListener<SystemModel> {
         private boolean isInitialized = false;
