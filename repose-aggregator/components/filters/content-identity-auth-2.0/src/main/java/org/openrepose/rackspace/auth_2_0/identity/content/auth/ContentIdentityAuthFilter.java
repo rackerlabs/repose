@@ -5,14 +5,22 @@ import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
+@Named
 public class ContentIdentityAuthFilter implements Filter {
 
     private ContentIdentityAuthHandlerFactory handlerFactory;
-    private ConfigurationService configurationManager;
+    private final ConfigurationService configurationService;
+
+    @Inject
+    public ContentIdentityAuthFilter(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -21,14 +29,13 @@ public class ContentIdentityAuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("content-identity-auth-2-0.cfg.xml", handlerFactory);
+        configurationService.unsubscribeFrom("content-identity-auth-2-0.cfg.xml", handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/content-identity-auth-2.0-configuration.xsd");
-        configurationManager.subscribeTo(filterConfig.getFilterName(),"content-identity-auth-2-0.cfg.xml",xsdURL, handlerFactory, ContentIdentityAuthConfig.class);
+        configurationService.subscribeTo(filterConfig.getFilterName(), "content-identity-auth-2-0.cfg.xml", xsdURL, handlerFactory, ContentIdentityAuthConfig.class);
     }
 }
