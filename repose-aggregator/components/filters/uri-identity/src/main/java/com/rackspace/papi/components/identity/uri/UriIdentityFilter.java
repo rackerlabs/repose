@@ -22,7 +22,7 @@ public class UriIdentityFilter implements Filter {
     private static final String DEFAULT_CONFIG = "uri-identity.cfg.xml";
     private String config;
     private UriIdentityHandlerFactory handlerFactory;
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
     @Inject
     public UriIdentityFilter(ConfigurationService configurationService) {
