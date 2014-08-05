@@ -14,6 +14,10 @@ case class ReposeNode(clusterId: String, nodeId: String, host: String, httpPort:
 class SystemModelParser(content: String) {
   import scala.collection.JavaConverters._
 
+  val xmlized = XML.loadString(content)
+
+  val allClusterIds:List[String] = (xmlized \\ "repose-cluster").toList.map(_.attribute("id").get.head.text)
+
   val allNodes = getNodesFromSystemModel(content)
   val localInterfaces = NetworkInterface.getNetworkInterfaces.asScala.toList
 
@@ -53,8 +57,12 @@ class SystemModelParser(content: String) {
     if (allLocalNodes.isEmpty) {
       Right("No local node(s) found!")
     } else {
+
+      //If we convert this to a set, and then compare it to the list size, we'll know if we have duplicates
+      val conflictingClusters:Boolean = allClusterIds.toSet.size != allClusterIds.size
+
       //Check for conflicting Node IDs
-      val conflictingNodeList = allLocalNodes.groupBy(f => f.nodeId).filter(pair => {
+      val conflictingNodeList = allLocalNodes.groupBy(f => f.clusterId + f.nodeId).filter(pair => {
         pair._2.size > 1
       })
       //Nodes that are missing both ports (shouldn't happen, but we need to catch it)
@@ -98,7 +106,9 @@ class SystemModelParser(content: String) {
       //Get a set of all the ports we care about, crap this idea doesn't work :|
       //How do I find duplicate ports amongst http and https?!?!
 
-      if (conflictingNodeList.nonEmpty) {
+      if(conflictingClusters) {
+        Right("Conflicting cluster IDs found!")
+      } else if (conflictingNodeList.nonEmpty) {
         Right("Conflicting local node IDs found!")
       } else if(missingAllPortsList.nonEmpty) {
         Right("No port configured on a local node!")
@@ -127,12 +137,10 @@ class SystemModelParser(content: String) {
       })
     }
 
-    val xmlized = XML.loadString(systemModelContent)
-
     val clusterList = (xmlized \\ "repose-cluster").toList
 
     clusterList.foldLeft(List[ReposeNode]())((acc, clusterNode) => {
-      val nodesList = (clusterList \\ "node").toList
+      val nodesList = (clusterNode \\ "node").toList
       //The XSD Defines that there's only one Cluster Identifier per cluster, and that it must be there
       val clusterId = clusterNode.attribute("id").get.head.text
 
