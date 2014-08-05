@@ -3,18 +3,17 @@ package org.openrepose.components.routing.servlet;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Named
 public class DestinationRouterFilter implements Filter {
