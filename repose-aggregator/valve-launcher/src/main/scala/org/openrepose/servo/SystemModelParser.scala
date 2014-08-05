@@ -12,6 +12,35 @@ case class ReposeNode(clusterId: String, nodeId: String, host: String, httpPort:
  * @param content
  */
 class SystemModelParser(content: String) {
+  import scala.collection.JavaConverters._
+
+  val allNodes = getNodesFromSystemModel(content)
+  val localInterfaces = NetworkInterface.getNetworkInterfaces.asScala.toList
+
+  val allLocalNodes = allNodes.filter(node => {
+    try {
+      val nodeAddress = InetAddress.getByName(node.host)
+      //Determine if this node is local
+      localInterfaces.foldLeft(false)((acc, iface) => {
+        //Fold all the local interfaces into a true/false
+        val ifaceAddresses = iface.getInetAddresses.asScala.toList
+        //Can probably short circuit (although there's probably not many...
+        val ifacesForAddress = ifaceAddresses.filter(_.equals(nodeAddress))
+
+        if (ifacesForAddress.nonEmpty) {
+          true
+        } else {
+          acc
+        }
+      })
+    } catch {
+      case e: UnknownHostException => {
+        //If I can't resolve the host, it's not local!
+        false
+      }
+    }
+
+  })
 
   /**
    * If you ask for the list of local nodes, you either get the local node list
@@ -21,47 +50,15 @@ class SystemModelParser(content: String) {
    * And so it will report those errors instead of killing/restarting any Valves
    */
   val localNodes: Either[List[ReposeNode], List[String]] = {
-    import scala.collection.JavaConverters._
-
-    //Look up all the hostnames we got back, and filter out a list of local ones
-    val allNodes = getNodesFromSystemModel(content)
-
-    val localInterfaces = NetworkInterface.getNetworkInterfaces.asScala.toList
-
-    val localNodes = allNodes.filter(node => {
-      try {
-        val nodeAddress = InetAddress.getByName(node.host)
-        //Determine if this node is local
-        localInterfaces.foldLeft(false)((acc, iface) => {
-          //Fold all the local interfaces into a true/false
-          val ifaceAddresses = iface.getInetAddresses.asScala.toList
-          //Can probably short circuit (although there's probably not many...
-          val ifacesForAddress = ifaceAddresses.filter(_.equals(nodeAddress))
-
-          if (ifacesForAddress.nonEmpty) {
-            true
-          } else {
-            acc
-          }
-        })
-      } catch {
-        case e: UnknownHostException => {
-          //If I can't resolve the host, it's not local!
-          false
-        }
-      }
-
-    })
-
-    if (localNodes.isEmpty) {
+    if (allLocalNodes.isEmpty) {
       Right(List("No local node(s) found!"))
     } else {
       //Check for conflicting Node IDs
-      val conflictingNodeList = localNodes.groupBy(f => f.nodeId).filter(pair => {
+      val conflictingNodeList = allLocalNodes.groupBy(f => f.nodeId).filter(pair => {
         pair._2.size > 1
       })
       //Nodes that are missing both ports (shouldn't happen, but we need to catch it)
-      val missingAllPortsList = localNodes.filter(node => node.httpPort.isEmpty && node.httpsPort.isEmpty)
+      val missingAllPortsList = allLocalNodes.filter(node => node.httpPort.isEmpty && node.httpsPort.isEmpty)
 
       def hasDuplicatedPorts(nodeList:List[ReposeNode]): Boolean = {
         def findDuplicatedPorts(acc:Boolean, usedPorts: Set[Int], list:List[ReposeNode]):Boolean = {
@@ -105,10 +102,10 @@ class SystemModelParser(content: String) {
         Right(List("Conflicting local node IDs found!"))
       } else if(missingAllPortsList.nonEmpty) {
         Right(List("No port configured on a local node!"))
-      } else if(hasDuplicatedPorts(localNodes)) {
+      } else if(hasDuplicatedPorts(allLocalNodes)) {
         Right(List("Conflicting local node ports found!"))
       } else {
-        Left(localNodes)
+        Left(allLocalNodes)
       }
     }
   }
