@@ -5,6 +5,7 @@ import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
 import scala.io.Source
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class SystemModelParserTest extends FunSpec with Matchers {
@@ -13,15 +14,15 @@ class SystemModelParserTest extends FunSpec with Matchers {
     Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
   }
 
-  def shouldFailWith(content:String, f:String => Unit) = {
+  def shouldFailWith(content:String, f:Throwable => Unit) = {
     val smp = new SystemModelParser(content)
     val result = smp.localNodes
 
     result match {
-      case Right(x) => {
+      case Failure(x) => {
         f(x)
       }
-      case Left(x) => {
+      case Success(x) => {
         fail("Processing should have failed!")
       }
     }
@@ -33,10 +34,10 @@ class SystemModelParserTest extends FunSpec with Matchers {
       val result = smp.localNodes
 
       result match {
-        case Right(x) => {
-          fail("Should not have failed to parse! Errors:\n" + x)
+        case Failure(x) => {
+          fail("Should not have failed to parse! Reason: " + x.getMessage)
         }
-        case Left(x) => {
+        case Success(x) => {
           x.isEmpty should be(false)
         }
       }
@@ -45,34 +46,34 @@ class SystemModelParserTest extends FunSpec with Matchers {
 
       it("requires that the node IDs be unique") {
         shouldFailWith(resourceContent("/system-model-test/conflicting-nodes.xml"), failure => {
-          failure should equal("Conflicting local node IDs found!")
+          failure should equal(SystemModelParseException("Conflicting local node IDs found!"))
         })
       }
       it("requires an http port or an https port") {
         shouldFailWith(resourceContent("/system-model-test/no-port-at-all.xml"), failure => {
-          failure should equal("No port configured on a local node!")
+          failure should equal(SystemModelParseException("No port configured on a local node!"))
         })
       }
       it("requires that at least one node is local") {
         shouldFailWith(resourceContent("/system-model-test/no-local-node.xml"), failure => {
-          failure should equal("No local node(s) found!")
+          failure should equal(SystemModelParseException("No local node(s) found!"))
         })
       }
       it("requires that local nodes don't conflict ports") {
         shouldFailWith(resourceContent("/system-model-test/duplicated-port.xml"), failure => {
-          failure should equal("Conflicting local node ports found!")
+          failure should equal(SystemModelParseException("Conflicting local node ports found!"))
         })
       }
     }
     describe("provides detailed failure messages for clusters and inter node conflicts") {
       it("requires that all local ports be unique across clusters") {
         shouldFailWith(resourceContent("/system-model-test/cluster-conflicting-ports.xml"), failure => {
-          failure should equal("Conflicting local node ports found!")
+          failure should equal(SystemModelParseException("Conflicting local node ports found!"))
         })
       }
       it("requires that cluster IDs be unique") {
         shouldFailWith(resourceContent("/system-model-test/cluster-conflicting-ids.xml"), failure => {
-          failure should equal("Conflicting cluster IDs found!")
+          failure should equal(SystemModelParseException("Conflicting cluster IDs found!"))
         })
       }
     }
