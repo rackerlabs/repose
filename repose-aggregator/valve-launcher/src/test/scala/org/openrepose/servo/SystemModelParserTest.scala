@@ -77,5 +77,10 @@ class SystemModelParserTest extends FunSpec with Matchers {
         })
       }
     }
+    it("returns a failure when it's not valid xml") {
+      shouldFailWith(resourceContent("/system-model-test/not-valid-xml.xml"), failure => {
+        failure.getMessage should equal("Unable to parse the system-model")
+      })
+    }
   }
 }
