@@ -13,6 +13,20 @@ class SystemModelParserTest extends FunSpec with Matchers {
     Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
   }
 
+  def shouldFailWith(content:String, f:String => Unit) = {
+    val smp = new SystemModelParser(content)
+    val result = smp.localNodes
+
+    result match {
+      case Right(x) => {
+        f(x)
+      }
+      case Left(x) => {
+        fail("Processing should have failed!")
+      }
+    }
+  }
+
   describe("A simpler parser for the system model") {
     it("returns a list of the local nodes when the XML is correct") {
       val smp = new SystemModelParser(resourceContent("/system-model-test/valid-system-model.cfg.xml"))
@@ -28,19 +42,6 @@ class SystemModelParserTest extends FunSpec with Matchers {
       }
     }
     describe("provides detailed failure messages for nodes in a cluster"){
-      def shouldFailWith(content:String, f:String => Unit) = {
-        val smp = new SystemModelParser(content)
-        val result = smp.localNodes
-
-        result match {
-          case Right(x) => {
-            f(x)
-          }
-          case Left(x) => {
-            fail("Processing should have failed!")
-          }
-        }
-      }
 
       it("requires that the node IDs be unique") {
         shouldFailWith(resourceContent("/system-model-test/conflicting-nodes.xml"), failure => {
@@ -65,10 +66,14 @@ class SystemModelParserTest extends FunSpec with Matchers {
     }
     describe("provides detailed failure messages for clusters and inter node conflicts") {
       it("requires that all local ports be unique across clusters") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/cluster-conflicting-ports.xml"), failure => {
+          failure should equal("Conflicting local node ports found!")
+        })
       }
       it("requires that cluster IDs be unique") {
-        pending
+        shouldFailWith(resourceContent("/system-model-test/cluster-conflicting-ids.xml"), failure => {
+          failure should equal("Conflicting cluster IDs found!")
+        })
       }
     }
   }
