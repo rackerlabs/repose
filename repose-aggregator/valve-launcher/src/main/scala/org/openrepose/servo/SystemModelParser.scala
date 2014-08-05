@@ -49,9 +49,9 @@ class SystemModelParser(content: String) {
    * This may also be used to avoid trying to reload any valves, because Servo had problems parsing the XML
    * And so it will report those errors instead of killing/restarting any Valves
    */
-  val localNodes: Either[List[ReposeNode], List[String]] = {
+  val localNodes: Either[List[ReposeNode], String] = {
     if (allLocalNodes.isEmpty) {
-      Right(List("No local node(s) found!"))
+      Right("No local node(s) found!")
     } else {
       //Check for conflicting Node IDs
       val conflictingNodeList = allLocalNodes.groupBy(f => f.nodeId).filter(pair => {
@@ -99,11 +99,11 @@ class SystemModelParser(content: String) {
       //How do I find duplicate ports amongst http and https?!?!
 
       if (conflictingNodeList.nonEmpty) {
-        Right(List("Conflicting local node IDs found!"))
+        Right("Conflicting local node IDs found!")
       } else if(missingAllPortsList.nonEmpty) {
-        Right(List("No port configured on a local node!"))
+        Right("No port configured on a local node!")
       } else if(hasDuplicatedPorts(allLocalNodes)) {
-        Right(List("Conflicting local node ports found!"))
+        Right("Conflicting local node ports found!")
       } else {
         Left(allLocalNodes)
       }

@@ -28,7 +28,7 @@ class SystemModelParserTest extends FunSpec with Matchers {
       }
     }
     describe("provides detailed failure messages for nodes in a cluster"){
-      def shouldFailWith(content:String, f:List[String] => Unit) = {
+      def shouldFailWith(content:String, f:String => Unit) = {
         val smp = new SystemModelParser(content)
         val result = smp.localNodes
 
@@ -43,23 +43,23 @@ class SystemModelParserTest extends FunSpec with Matchers {
       }
 
       it("requires that the node IDs be unique") {
-        shouldFailWith(resourceContent("/system-model-test/conflicting-nodes.xml"), list => {
-          list should contain("Conflicting local node IDs found!")
+        shouldFailWith(resourceContent("/system-model-test/conflicting-nodes.xml"), failure => {
+          failure should equal("Conflicting local node IDs found!")
         })
       }
       it("requires an http port or an https port") {
-        shouldFailWith(resourceContent("/system-model-test/no-port-at-all.xml"), list => {
-          list should contain("No port configured on a local node!")
+        shouldFailWith(resourceContent("/system-model-test/no-port-at-all.xml"), failure => {
+          failure should equal("No port configured on a local node!")
         })
       }
       it("requires that at least one node is local") {
-        shouldFailWith(resourceContent("/system-model-test/no-local-node.xml"), list => {
-          list should contain("No local node(s) found!")
+        shouldFailWith(resourceContent("/system-model-test/no-local-node.xml"), failure => {
+          failure should equal("No local node(s) found!")
         })
       }
       it("requires that local nodes don't conflict ports") {
-        shouldFailWith(resourceContent("/system-model-test/duplicated-port.xml"), list => {
-          list should contain("Conflicting local node ports found!")
+        shouldFailWith(resourceContent("/system-model-test/duplicated-port.xml"), failure => {
+          failure should equal("Conflicting local node ports found!")
         })
       }
     }
