@@ -49,10 +49,10 @@
             <request-information xmlns="http://openrepose.org/repose/httpx/v1.0">
                 <!-- This will remove the state and county that we parsed above from the end of the uri and url -->
                 <uri><xsl:value-of
-                        select="substring(httpx:uri, 1, string-length(httpx:uri) - string-length(concat('/', $state, '/', $county)))"/>/
+                        select="substring(httpx:uri, 1, string-length(httpx:uri) - string-length(concat('/', $state, '/', $county)))"/>
                 </uri>
                 <url><xsl:value-of
-                        select="substring(httpx:url, 1, string-length(httpx:url) - string-length(concat('/', $state, '/', $county)))"/>/
+                        select="substring(httpx:url, 1, string-length(httpx:url) - string-length(concat('/', $state, '/', $county)))"/>
                 </url>
             </request-information>
         </xsl:result-document>
