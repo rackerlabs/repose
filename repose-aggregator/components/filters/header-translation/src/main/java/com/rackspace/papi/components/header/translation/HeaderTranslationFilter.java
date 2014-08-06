@@ -18,19 +18,27 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+@Named
 public class HeaderTranslationFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(HeaderTranslationFilter.class);
     private static final String DEFAULT_CONFIG = "header-translation.cfg.xml";
     private String config;
     private HeaderTranslationHandlerFactory headerTranslationHandlerFactory;
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
+
+    @Inject
+    public HeaderTranslationFilter(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         headerTranslationHandlerFactory = new HeaderTranslationHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/header-translation.xsd");
         configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, headerTranslationHandlerFactory, HeaderTranslationType.class);
