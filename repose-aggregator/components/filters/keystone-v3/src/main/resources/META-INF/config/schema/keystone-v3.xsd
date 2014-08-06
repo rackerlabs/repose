@@ -1,4 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           targetNamespace="http://docs.openrepose.org/keystone-v3/v1.0">
+
+    <!-- Types -->
+    <xs:complexType name="KeystoneV3Config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Keystone v3 filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="white-list" type="WhiteList"/>
+            <xs:element name="keystone-service" type="OpenstackKeystoneService" minOccurs="1"/>
+            <!-- TODO -->
+        </xs:all>
+
+        <xs:attribute name="forward-unauthorized-requests" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to false, the Keystone v3 filter will not forward unauthorized requests.
+                        If set to true, the Keystone v3 filter will forward unauthorized requests and set the
+                        X-Authorization and X-Identity-Status headers to the appropriate values.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="WhiteList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of URI patterns all users can access.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="uri-pattern" type="xs:string" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OpenstackKeystoneService">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines an Openstack Keystone endpoint and access credentials.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin username to access the keystone ser.vice</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin password to access the keystone service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="tenant-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The tenant ID with admin permission to the Keystone implementation used to perform admin
+                        tasks.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <!-- Elements -->
+    <xs:element name="keystone-v3" type="KeystoneV3Config"/>
 </xs:schema>
