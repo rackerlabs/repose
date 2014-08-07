@@ -32,7 +32,12 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
-        <!-- note for dkowis: adding akka-actor to the mix only results in a target .jar file of 11MB -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.10</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.github.scopt</groupId>
             <!-- scopt built for scala 2.10 -->
@@ -44,6 +49,13 @@
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
             <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-testkit_2.10</artifactId>
+            <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -69,6 +81,33 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+            <!-- TODO: ensure that the RPM for this installs the jetty-runner.jar somewhere I can hit it -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jetty-runner</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.jetty</groupId>
+                                    <artifactId>jetty-runner</artifactId>
+                                    <version>${jetty.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
