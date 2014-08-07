@@ -16,7 +16,9 @@ object Servo {
    */
   case class ServoConfig(configDirectory: File = new File("/etc/repose"),
                          executionString: String = "java -jar /path/to/jetty.jar /path/to/repose/war",
-                         insecure: Boolean = false)
+                         insecure: Boolean = false,
+                         showVersion: Boolean = false,
+                         showUsage: Boolean = false)
 
 
   /**
@@ -73,20 +75,34 @@ object Servo {
       opt[String]('x', "execute") hidden() action { (x, c) =>
         c.copy(executionString = x)
       } text "What should this command try to execute (TESTING USE ONLY)"
+      opt[Unit]("version") action { (_, c) =>
+        c.copy(showVersion = true)
+      } text "Display version and exit"
+      opt[Unit]("help") hidden() action { (_, c) =>
+        c.copy(showUsage = true)
+      } text "Display usage and exit"
     }
 
     parser.parse(args, ServoConfig()) map { config =>
       //Got a valid config
       //output the info so we know about it
-      out.println(s"Using ${config.configDirectory} as configuration root")
-      if (config.insecure) {
-        out.println("WARNING: disabling all SSL validation")
+      if (config.showVersion) {
+        out.println(s"Servo: $reposeVersion")
+        1
+      } else if (config.showUsage) {
+        parser.showUsage
+        1
       } else {
-        out.println("Launching with SSL validation")
+        out.println(s"Using ${config.configDirectory} as configuration root")
+        if (config.insecure) {
+          out.println("WARNING: disabling all SSL validation")
+        } else {
+          out.println("Launching with SSL validation")
+        }
+        out.println("ZOMG WOULDVE STARTED VALVE")
+        serveValves(config)
+        0
       }
-      out.println("ZOMG WOULDVE STARTED VALVE")
-      serveValves(config)
-      0
     } getOrElse {
       //Nope, not a valid config
       //Return the exit code
