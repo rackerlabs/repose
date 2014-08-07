@@ -10,28 +10,35 @@ import org.scalatest.{FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ServoTest extends FunSpec with Matchers {
 
-  def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String) => Unit) = {
+  def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
     val stderr = new ByteArrayOutputStream()
     //Servo doesn't yet do anything with stdin, so we can ignore that here
     val stdin = System.in
 
-    Servo.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr))
+    val exitStatus = Servo.execute(args, stdin, new PrintStream(stdout), new PrintStream(stderr))
 
     val error = new String(stderr.toByteArray)
     val output = new String(stdout.toByteArray)
 
-    callback(output, error)
+    callback(output, error, exitStatus)
   }
 
   describe("Servo, the Repose Valve Launcher") {
     it("prints out a usage message when given unknown parameters") {
-      afterExecution(Array("--help"), (output, error) => {
-        error should include("Usage: java -jar servo.jar [options]")
+      afterExecution(Array("--help"), (output, error, exitStatus) => {
+        output should include("Usage: java -jar servo.jar [options]")
+        exitStatus should be(1)
+      })
+    }
+    it("prints out a version message when given --version and exits 1") {
+      afterExecution(Array("--version"), (output, error, exitStatus) => {
+        output should include("Servo: ")
+        exitStatus should be(1)
       })
     }
     it("outputs to stdout the settings it's going to use to start valves") {
-      afterExecution(callback = (output, error) => {
+      afterExecution(callback = (output, error, exitStatus) => {
         output should include("Using /etc/repose as configuration root")
         output should include("Launching with SSL validation")
       })
@@ -50,7 +57,7 @@ class ServoTest extends FunSpec with Matchers {
         Files.write(systemModel.toPath, "".getBytes)
 
         //call afterExecute passing in the config args
-        afterExecution(Array("--config-file", tempDir.toString), (output, error) => {
+        afterExecution(Array("--config-file", tempDir.toString), (output, error, exitStatus) => {
           error should include("Unable to find any local nodes to start!")
           error should include("Ensure your system-model.cfg.xml has at least one locally identifiable node!")
         })
