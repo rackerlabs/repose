@@ -8,11 +8,7 @@ import scala.io.Source
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class SystemModelParserTest extends FunSpec with Matchers {
-
-  def resourceContent(resource:String) = {
-    Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
-  }
+class SystemModelParserTest extends FunSpec with Matchers with TestUtils {
 
   def shouldFailWith(content:String, f:Throwable => Unit) = {
     val smp = new SystemModelParser(content)
