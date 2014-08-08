@@ -85,9 +85,9 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
         final String extension = descriptor.getExtension();
         
         if (!StringUtilities.isBlank(extension)) {
-            if (extension.equals("class")) {
+            if ("class".equals(extension)) {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_CLASS, deploymentAction);
-            } else if (extension.equals("jar")) {
+            } else if ("jar".equals(extension)) {
                 entryAction = new EntryAction(ProcessingAction.DESCEND_INTO_JAR_FORMAT_ARCHIVE, deploymentAction);
             } else {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, deploymentAction);
@@ -116,9 +116,9 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
     public void newResource(ArchiveEntryDescriptor name, byte[] resourceBytes) {
         final String fullArchiveName = name.fullName();
 
-        if (fullArchiveName.equals("META-INF/application.xml") || fullArchiveName.equals("APP-INF/application.xml")) {
+        if ("META-INF/application.xml".equals(fullArchiveName) || "APP-INF/application.xml".equals(fullArchiveName)) {
             readApplicationXml(fullArchiveName, resourceBytes);
-        } else if (fullArchiveName.equals("META-INF/web-fragment.xml") || fullArchiveName.equals("WEB-INF/web-fragment.xml")) {
+        } else if ("META-INF/web-fragment.xml".equals(fullArchiveName) || "WEB-INF/web-fragment.xml".equals(fullArchiveName)) {
             readWebFragmentXml(fullArchiveName, resourceBytes);
         }
 
