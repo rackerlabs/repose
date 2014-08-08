@@ -1,6 +1,7 @@
 package org.openrepose.servo.actors
 
-import java.nio.file.Files
+import java.nio.charset.StandardCharsets
+import java.nio.file.{StandardOpenOption, Paths, Files}
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
@@ -22,7 +23,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
   }
 
   def updateSystemModel(configRoot: String, content: String): Unit = {
-
+    Files.write(Paths.get(configRoot + "/system-model.cfg.xml"), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
   }
 
   lazy val systemModel1 = resourceContent("/actorTesting/system-model-1.cfg.xml")
@@ -48,6 +49,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       //I can just send a List[ReposeNode] I don't need any other info
       expectMsg(1000 millis, nodeList1)
     }
+
     it("will not notify if there are no changes") {
       pending
     }
