@@ -130,7 +130,7 @@ public class ConfigurationData {
    }
 
    public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-      return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
+      return "/".equals(StringUriUtilities.formatUri(uniformResourceInfo.getUri()));
    }
 
    public ReposeCluster getLocalDomain() {
