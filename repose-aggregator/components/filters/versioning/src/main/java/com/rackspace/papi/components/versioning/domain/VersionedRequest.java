@@ -34,7 +34,7 @@ public class VersionedRequest {
    }
    
    public boolean isRequestForRoot() {
-      return StringUriUtilities.formatUri(requestInfo.getUri()).equals("/");
+      return "/".equals(StringUriUtilities.formatUri(requestInfo.getUri()));
    }
    
    public boolean requestBelongsToVersionMapping() {
