@@ -55,7 +55,7 @@ public final class RequestUrlTokenizer {
         matcher = hasVersionInfo
                 ? RESOURCE_PATTERN.matcher(requestUrl)
                 : RESOURCE_WITHOUT_VERSION_PATTERN.matcher(requestUrl);
-        if (matcher.find() && !matcher.group(1).equals("/")) {
+        if (matcher.find() && !"/".equals(matcher.group(1))) {
             resource = matcher.group(1);
         }
 
