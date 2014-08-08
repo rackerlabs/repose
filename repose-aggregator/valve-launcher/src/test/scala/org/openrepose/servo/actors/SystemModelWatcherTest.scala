@@ -3,7 +3,7 @@ package org.openrepose.servo.actors
 import java.nio.charset.StandardCharsets
 import java.nio.file.{StandardOpenOption, Paths, Files}
 
-import akka.actor.ActorSystem
+import akka.actor.{PoisonPill, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.junit.runner.RunWith
 import org.openrepose.servo.{ReposeNode, TestUtils}
@@ -48,10 +48,24 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       //expect a message from the actor notifying us of repose local nodes
       //I can just send a List[ReposeNode] I don't need any other info
       expectMsg(1000 millis, nodeList1)
+      smwActor ! PoisonPill
     }
 
     it("will not notify if there are no changes") {
-      pending
+      //Create an actor and give it a destination and who to tell about changes
+      val configRoot = Files.createTempDirectory("servo").toString
+      //Set up the config directory with a valid System Model
+
+      updateSystemModel(configRoot, systemModel1)
+
+      val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
+      //tickle something in the config root directory
+
+      //expect a message from the actor notifying us of repose local nodes
+      //I can just send a List[ReposeNode] I don't need any other info
+      expectNoMsg(1 second)
+
+      smwActor ! PoisonPill
     }
   }
 }
