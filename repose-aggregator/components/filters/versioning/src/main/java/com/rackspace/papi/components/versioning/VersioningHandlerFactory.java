@@ -1,12 +1,11 @@
 package com.rackspace.papi.components.versioning;
 
 import com.google.common.base.Optional;
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
-import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
@@ -17,6 +16,7 @@ import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +32,15 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
     private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
     private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
     private final ContentTransformer transformer;
-    private final ServicePorts ports;
+    private final ReposeInstanceInfo reposeInstanceInfo;
     private final MetricsService metricsService;
 
     private HealthCheckServiceProxy healthCheckServiceProxy;
     private ReposeCluster localDomain;
     private Node localHost;
 
-    public VersioningHandlerFactory(ServicePorts ports, MetricsService metricsService, HealthCheckService healthCheckService) {
-        this.ports = ports;
+    public VersioningHandlerFactory(ReposeInstanceInfo reposeInstanceInfo, MetricsService metricsService, HealthCheckService healthCheckService) {
+        this.reposeInstanceInfo = reposeInstanceInfo;
         this.metricsService = metricsService;
 
         this.healthCheckServiceProxy = healthCheckService.register();
@@ -63,7 +63,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(reposeInstanceInfo);
             Optional<ReposeCluster> cluster = interrogator.getLocalCluster(configurationObject);
             Optional<Node> node = interrogator.getLocalNode(configurationObject);
 
