@@ -1,8 +1,13 @@
 package framework.mocks
 
 import groovy.text.SimpleTemplateEngine
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import scala.util.parsing.combinator.testing.Str
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -15,39 +20,35 @@ import java.util.concurrent.atomic.AtomicInteger
  * Simulates responses from an Identity Service for Keystone V3.
  */
 class MockIdentityKeystoneV3Service {
-    public MockIdentityKeystoneV3Service(int identityPort, int originServicePort) {
 
+    private static final String X_AUTH_TOKEN_HEADER = "X-Auth-Token"
+    private static final String X_SUBJECT_TOKEN_HEADER = "X-Subject-Token"
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+
+    protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
+    protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
+    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
+    protected AtomicInteger _getProjectsCount = new AtomicInteger(0);
+    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
+    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
+
+    public MockIdentityKeystoneV3Service(int identityPort, int originServicePort) {
         resetHandlers()
 
         this.port = identityPort
         this.originServicePort = originServicePort
-
-        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
-
-        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
-        Schema schema = factory.newSchema(
-                new StreamSource(MockIdentityService.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
-
-
-        this.validator = schema.newValidator();
     }
 
     int port
     int originServicePort
 
-    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
-
-    protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
-    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
-    protected AtomicInteger _generateTokenCount = new AtomicInteger(0);
-    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
-    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
 
     void resetCounts() {
 
         _validateTokenCount.set(0)
         _getGroupsCount.set(0)
+        _getProjectsCount.set(0)
         _generateTokenCount.set(0)
         _getEndpointsCount.set(0)
         _getUserGlobalRolesCount.set(0)
@@ -91,23 +92,27 @@ class MockIdentityKeystoneV3Service {
         handler = this.&handleRequest
         validateTokenHandler = this.&validateToken
         getGroupsHandler = this.&getGroups
+        getProjectsHandler = this.&getProjects
         generateTokenHandler = this.&generateToken
-        getEndpointsHandler = this.&getEndpoints
-        getUserGlobalRolesHandler = this.&getUserGlobalRoles
+        getUserRolesOnDomainHandler = this.&getUserRolesOnDomain
+        //getEndpointsHandler = this.&getEndpoints
     }
 
     Closure<Response> validateTokenHandler
     Closure<Response> getGroupsHandler
+    Closure<Response> getProjectsHandler
     Closure<Response> generateTokenHandler
-    Closure<Response> getEndpointsHandler
-    Closure<Response> getUserGlobalRolesHandler
+    //Closure<Response> getEndpointsHandler
+    Closure<Response> getUserRolesOnDomainHandler
 
     def client_token = 'this-is-the-token';
     def client_domain = 'this-is-the-domain';
     def client_username = 'username';
     def client_userid = 12345;
+    def admin_domainid = 'this-is-the-admin-domain'
+    def admin_domainname = 'example.com'
     def admin_token = 'this-is-the-admin-token';
-    def admin_tenant = 'this-is-the-admin-tenant';
+    def admin_project = 'this-is-the-admin-project';
     def admin_username = 'admin_username';
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
@@ -119,14 +124,35 @@ class MockIdentityKeystoneV3Service {
     def handler = { Request request -> return handleRequest(request) }
 
     Response handleRequest(Request request) {
-        def json = false
+        /*
+         * From http://developer.openstack.org/api-ref-identity-v3.html
+         *
+         * POST
+         * /v3/auth/tokens
+         * Authenticates and generates a token.
+         *
+         * GET
+         * /v3/auth/tokens
+         * Validates a specified token.
+         *
+         * GET
+         * /v3/users/{userId}/groups
+         * get user groups
+         *
+         * GET
+         * /v3/users/{userId}/projects
+         * get user projects
+         *
+         * GET
+         * /v3/domain/{domainId}/users/{userId/roles
+         * get user roles on domain
+         *
+         * GET
+         * /v3/project/{projectId}/users/{userId/roles
+         * get user roles on project
+         *
+         */
 
-        for (value in request.headers.findAll('Accept')) {
-            if (value.contains('application/json')) {
-                json = true
-                break
-            }
-        }
         def path = request.path
         def method = request.method
 
@@ -143,39 +169,18 @@ class MockIdentityKeystoneV3Service {
         }
 
         if (isTokenCallPath(nonQueryPath)) {
-            if (isGenerateTokenCallPath(nonQueryPath)) {
-                if (method == "POST") {
-                    _generateTokenCount.incrementAndGet()
-                    return generateTokenHandler(request, json);
-                } else {
-                    return new Response(405)
-                }
+            if (method == "POST") {
+                _generateTokenCount.incrementAndGet()
+                return generateTokenHandler(request);
+            } else if (method == 'GET') {
+                _validateTokenCount.incrementAndGet()
+                def tokenId = request.getHeaders().getFirstValue(X_SUBJECT_TOKEN_HEADER)
+                return validateTokenHandler(tokenId, request)
+            } else {
+                return new Response(405)
             }
 
-            if (isGetEndpointsCallPath(nonQueryPath)) {
-                if (method == "GET") {
-                    _getEndpointsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ getEndpointsCallPathRegex)
-                    def tokenId = match[0][1]
-                    return getEndpointsHandler(tokenId, request, json)
-                } else {
-                    return new Response(405)
-                }
-            }
-
-            if (isValidateTokenCallPath(nonQueryPath)) {
-                // TODO: 'belongsTo' in query string
-                if (method == 'GET') {
-                    _validateTokenCount.incrementAndGet()
-                    def match = (nonQueryPath =~ validateTokenCallPathRegex)
-                    def tokenId = match[0][1]
-                    return validateTokenHandler(tokenId, request, json)
-                } else {
-                    return new Response(405)
-                }
-            }
-
-        } else if (nonQueryPath.startsWith("/users/")) {
+        } else if (nonQueryPath.startsWith("/v3/users/")) {
 
             if (isGetGroupsCallPath(nonQueryPath)) {
                 if (method == "GET") {
@@ -187,6 +192,19 @@ class MockIdentityKeystoneV3Service {
                     return new Response(405)
                 }
             }
+
+            if (isGetUserProjectsCallPath(nonQueryPath)){
+                if (method == "GET") {
+                    _getProjectsCount.incrementAndGet()
+                    def match = (nonQueryPath =~ getGroupsCallPathRegex)
+                    def userId = match[0][1]
+                    return getProjectsHandler(userId, request)
+                } else {
+                    return new Response(405)
+                }
+            }
+
+        } else if (nonQueryPath.startsWith("/v3/domain/")) {
 
             if (isGetUserRolesOnDomainCallPath(nonQueryPath)) {
                 if (method == "GET") {
@@ -200,26 +218,28 @@ class MockIdentityKeystoneV3Service {
                 }
             }
 
-            if (isGetUserProjectsCallPath(nonQueryPath)){
+        } else if (nonQueryPath.startsWith("/v3/project/")) {
+
+            if (isGetUserRolesOnProjectCallPath(nonQueryPath)) {
                 if (method == "GET") {
-                    _getUserProjectsCount.incrementAndGet()
-                    def match = (nonQueryPath =~ getGroupsCallPathRegex)
-                    def userId = match[0][1]
-                    return getProjectsHandler(userId, request)
+                    _getUserGlobalRolesCount.incrementAndGet()
+                    def match = (nonQueryPath =~ getUserRolesOnProjectCallPathRegex)
+                    def projectId = match[0][1]
+                    def userId = match[0][2]
+                    return getUserRolesOnDomain(projectId, userId, request)
                 } else {
                     return new Response(405)
                 }
             }
         }
-
         return new Response(501);
     }
 
     static final String getUserRolesOnDomainCallPathRegex = /^\/domain\/([^\/]+)\/users\/([^\/]+)\/roles/
     static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/groups/
-    static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
-    static final String validateTokenCallPathRegex = /^\/tokens\/([^\/]+)\/?$/
+    //static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
     static final String getProjectsCallPathRegex = /^\\/users\\/([^\\/]+)\\/projects/
+    static final String getUserRolesOnProjectCallPathRegex = /^\/project\/([^\/]+)\/users\/([^\/]+)\/roles/
 
     public static boolean isGetUserRolesOnDomainCallPath(String nonQueryPath) {
         return nonQueryPath ==~ getUserRolesOnDomainCallPathRegex
@@ -229,24 +249,105 @@ class MockIdentityKeystoneV3Service {
         return nonQueryPath ==~ getGroupsCallPathRegex
     }
 
-    public static boolean isGetProjectsCallPath(String nonQueryPath) {
+    public static boolean isGetUserProjectsCallPath(String nonQueryPath) {
         return nonQueryPath ==~ getProjectsCallPathRegex
     }
 
-    public static boolean isValidateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ validateTokenCallPathRegex
-    }
-
-    public static boolean isGetEndpointsCallPath(String nonQueryPath) {
-        return nonQueryPath ==~ getEndpointsCallPathRegex
-    }
-
-    public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/tokens"
+    public static boolean isGetUserRolesOnProjectCallPath(String nonQueryPath) {
+        return nonQueryPath ==~ getUserRolesOnProjectCallPathRegex
     }
 
     public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.startsWith("/tokens")
+        return nonQueryPath.startsWith("/v3/auth/tokens")
+    }
+
+    String getIssued() {
+        return new DateTime()
+    }
+    String getExpires() {
+        if (this.tokenExpiresAt != null && this.tokenExpiresAt instanceof String) {
+            return this.tokenExpiresAt
+        } else if (this.tokenExpiresAt instanceof DateTime) {
+            DateTimeFormatter fmt = DateTimeFormat.forPattern(DATE_FORMAT).withLocale(Locale.US).withZone(DateTimeZone.UTC)
+            return fmt.print(tokenExpiresAt)
+        } else if (this.tokenExpiresAt) {
+            return this.tokenExpiresAt.toString()
+        } else {
+            def now = new DateTime()
+            def nowPlusOneDay = now.plusDays(1)
+            return nowPlusOneDay
+        }
+    }
+    Response validateToken(String tokenId, Request request) {
+        def path = request.getPath()
+        def request_token = tokenId
+
+        def params = [
+                expires     : getExpires(),
+                issued      : getIssued(),
+                userid      : client_userid,
+                username    : client_username,
+                serviceadmin: service_admin_role
+        ]
+        def code
+        def template
+        def headers = [:]
+        headers.put('Content-type', 'application/json')
+
+        if (isTokenValid) {
+            code = 200
+            template = identitySuccessJsonRespTemplate
+            headers.put('X-Subject-Token', request_token)
+
+        } else {
+            template = identityFailureJsonRespTemplate
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(code, null, headers, body)
+    }
+
+    Response generateToken(Request request) {
+        try {
+
+            // TODO: Validate what we need is present in the JSON request
+        } catch (Exception e) {
+
+            println("Admin token XSD validation error: " + e);
+            return new Response(400);
+        }
+
+        def params = [
+                expires     : getExpires(),
+                issued      : getIssued(),
+                userid      : admin_userid,
+                username    : admin_username,
+                domainid    : admin_domainid,
+                domainname  : admin_domainname,
+                serviceadmin: service_admin_role
+        ];
+
+
+        def code;
+        def template;
+        def headers = [:];
+
+        headers.put('Content-type', 'application/json')
+
+        if (isTokenValid) {
+            code = 200;
+            template = identitySuccessJsonRespTemplate
+            headers.put('X-Subject-Token', admin_token)
+
+        } else {
+            code = 404
+            template = identityFailureAuthJsonRespTemplate
+        }
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(code, null, headers, body)
     }
 
     //get user groups
@@ -254,6 +355,7 @@ class MockIdentityKeystoneV3Service {
 
         def params = [
                 expires     : getExpires(),
+                issued      : getIssued(),
                 userid      : client_userid,
                 username    : client_username,
                 domainid    : client_domain,
@@ -279,7 +381,7 @@ class MockIdentityKeystoneV3Service {
         def params = [
                 expires     : getExpires(),
                 userid      : client_userid,
-                username    : client_username,
+                domainid    : client_domain,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
@@ -298,22 +400,25 @@ class MockIdentityKeystoneV3Service {
 
     //Get user roles on domain
     Response getUserRolesOnDomain(String domainId, String userId, Request request) {
+        def params = [
+                userid      : client_userid,
+                domainid    : client_domain,
+                token       : request.getHeaders().getFirstValue("X-Auth-Token"),
+                serviceadmin: service_admin_role
 
+        ]
         def template;
         def headers = [:];
 
         headers.put('Content-type', 'application/json')
         template = this.getUserRolesOnDomainJsonTemplate;
 
-
-        def params = [:];
-
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
     }
 
     // token is in header and not part of response data
-    def identitySuccessRespHeader = ['content-type': 'application/json',
+    def identitySuccessRespHeader = ['Content-Type': 'application/json',
                                     'X-Subject-Token': ${token}]
 
     // successful authenticate response /v3/auth/tokens?nocatalog
@@ -321,13 +426,13 @@ class MockIdentityKeystoneV3Service {
     {
         "token": {
             "expires_at": "\${expires}",
-            "issued_at": "2013-02-27T16:30:59.999999Z",
+            "issued_at": "\${issued}",
             "methods": [
                 "password"
             ],
             "user": {
                 "domain": {
-                    "id": "\${domainId}",
+                    "id": "\${domainid}",
                     "links": {
                         "self": "http://identity:35357/v3/domains/\${domainId}"
                     },
@@ -337,7 +442,7 @@ class MockIdentityKeystoneV3Service {
                 "links": {
                     "self": "http://identity:35357/v3/users/\${userid}"
                 },
-                "name": "Joe"
+                "name": "\${username}"
             }
         }
     }
@@ -380,13 +485,13 @@ class MockIdentityKeystoneV3Service {
             ],
             "project": {
                 "domain": {
-                    "id": "\${domainId}",
+                    "id": "\${domainid}",
                     "links": {
                         "self": "http://identity:35357/v3/domains/\${domainId}"
                     },
-                    "name": "example.com"
+                    "name": "\${domainname}"
                 },
-                "id": "\${projectId}",
+                "id": "\${projectid}",
                 "links": {
                     "self": "http://identity:35357/v3/projects/\${projectId}"
                 },
@@ -394,7 +499,7 @@ class MockIdentityKeystoneV3Service {
             },
             "roles": [
                 {
-                    "id": "76e72a",
+                    "id": "\${serviceadmin}",
                     "links": {
                         "self": "http://identity:35357/v3/roles/76e72a"
                     },
@@ -410,28 +515,57 @@ class MockIdentityKeystoneV3Service {
             ],
             "user": {
                 "domain": {
-                    "id": "\${domainId}",
+                    "id": "\${domainid}",
                     "links": {
                         "self": "http://identity:35357/v3/domains/\${domainId}"
                     },
-                    "name": "example.com"
+                    "name": "\${domainname}"
                 },
                 "id": "\${userid}",
                 "links": {
                     "self": "http://identity:35357/v3/users/\${userid}"
                 },
-                "name": "Joe"
+                "name": "\${username}"
             }
         }
     }
     """
+    //identity failure authenticate response template
+    def identityFailureAuthJsonRespTemplate = """
+    {
+        "error": {
+            "code": 401,
+            "identity": {
+                "methods": [
+                    "password",
+                    "token",
+                    "challenge-response"
+                ]
+            },
+            "message": "Need to authenticate with one or more supported methods",
+            "title": "Not Authorized"
+        }
+    }
+    """
 
+    //identity failure response template
+    //TODO: double checkout is this is correct resp
+    def identityFailureJsonRespTemplate = """
+    {
+       "itemNotFound" : {
+          "message" : "Invalid Token, not found.",
+          "code" : 404
+       }
+    }
+    """
+
+    //user group resp template
     def getUserGroupsJsonTemplate = """
     {
         "groups": [
             {
                 "description": "Developers cleared for work on all general projects"
-                "domain_id": "\${domainId}",
+                "domain_id": "\${domainid}",
                 "id": "ea167b",
                 "links": {
                     "self": "https://identity:35357/v3/groups/ea167b"
@@ -440,7 +574,7 @@ class MockIdentityKeystoneV3Service {
             },
             {
                 "description": "Developers cleared for work on secret projects"
-                "domain_id": "\${domainId}",
+                "domain_id": "\${domainid}",
                 "id": "a62db1",
                 "links": {
                     "self": "https://identity:35357/v3/groups/a62db1"
@@ -449,7 +583,7 @@ class MockIdentityKeystoneV3Service {
             }
         ],
         "links": {
-            "self": "http://identity:35357/v3/users/9fe1d3/groups",
+            "self": "http://identity:35357/v3/users/\${userid}/groups",
             "previous": null,
             "next": null
         }
@@ -475,7 +609,7 @@ class MockIdentityKeystoneV3Service {
             }
         ],
         "links": {
-            "self": "http://identity:35357/v3/domains/--domain_id--/users/--user_id--/roles",
+            "self": "http://identity:35357/v3/domains/\${domainid}/users/\${userid}/roles",
             "previous": null,
             "next": null
         }
@@ -487,7 +621,7 @@ class MockIdentityKeystoneV3Service {
     {
         "projects": [
             {
-                "domain_id": "\${domainId}",
+                "domain_id": "\${domainid}",
                 "enabled": true,
                 "id": "263fd9",
                 "links": {
@@ -496,7 +630,7 @@ class MockIdentityKeystoneV3Service {
                 "name": "Test Group"
             },
             {
-                "domain_id": "\${domainId}",
+                "domain_id": "\${domainid}",
                 "enabled": true,
                 "id": "50ef01",
                 "links": {
@@ -506,7 +640,34 @@ class MockIdentityKeystoneV3Service {
             }
         ],
         "links": {
-            "self": "https://identity:35357/v3/users/9fe1d3/projects",
+            "self": "https://identity:35357/v3/users/\${userid}/projects",
+            "previous": null,
+            "next": null
+        }
+    }
+    """
+
+    //get user roles on project
+    def getUserRolesOnProjectTemplate = """
+    {
+        "roles": [
+            {
+                "id": "123454",
+                "links": {
+                    "self": "http://identity:35357/v3/roles/123454"
+                },
+                "name": "--role-name--",
+            },
+            {
+                "id": "123455",
+                "links": {
+                    "self": "http://identity:35357/v3/roles/123455"
+                },
+                "name": "--role-name--"
+            }
+        ],
+        "links": {
+            "self": "http://identity:35357/v3/projects/\${projectid}/users/\${userid}/roles",
             "previous": null,
             "next": null
         }
