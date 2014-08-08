@@ -67,5 +67,8 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
 
       smwActor ! PoisonPill
     }
+    it("Logs a failure message when unable to parse the system model") {
+      pending
+    }
   }
 }
