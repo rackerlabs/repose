@@ -6,13 +6,14 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.Port;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClusterMemberDeterminator {
 
@@ -60,7 +61,7 @@ public class ClusterMemberDeterminator {
 
       int port = -1;
       for (Port curPort : config.getPortConfig().getPort()) {
-         if (curPort.getCluster().equalsIgnoreCase(clusterId) && curPort.getNode().equals("-1")) {
+         if (curPort.getCluster().equalsIgnoreCase(clusterId) && "-1".equals(curPort.getNode())) {
             port = curPort.getPort();
          }
       }
