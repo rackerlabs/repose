@@ -17,6 +17,6 @@ public final class EarFilenameFilter implements FilenameFilter {
 
     @Override
     public boolean accept(File dir, String name) {
-        return name.length() > EAR_EXTENSION_LENGTH && name.substring(name.length() - EAR_EXTENSION_LENGTH).equalsIgnoreCase(".ear");
+        return name.length() > EAR_EXTENSION_LENGTH && ".ear".equalsIgnoreCase(name.substring(name.length() - EAR_EXTENSION_LENGTH));
     }
 }
