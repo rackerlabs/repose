@@ -1,10 +1,9 @@
 package org.openrepose.servo.actors
 
 import java.io.File
-import java.nio.file.{Paths, StandardWatchEventKinds, Path, FileSystems}
+import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds}
 
-import akka.actor.{Props, ActorRef, Actor}
-import akka.actor.Actor.Receive
+import akka.actor.{Actor, ActorRef, Props}
 import org.openrepose.servo.SystemModelParser
 import org.openrepose.servo.actors.SMWMessages.CheckForChanges
 
