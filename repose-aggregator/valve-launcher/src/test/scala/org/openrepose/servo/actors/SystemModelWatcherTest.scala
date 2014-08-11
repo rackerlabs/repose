@@ -4,9 +4,10 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{StandardOpenOption, Paths, Files}
 
 import akka.actor.{PoisonPill, ActorSystem}
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{EventFilter, ImplicitSender, TestKit}
+import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
-import org.openrepose.servo.{ReposeNode, TestUtils}
+import org.openrepose.servo.{SystemModelParseException, ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 
@@ -16,7 +17,12 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
 
   import scala.concurrent.duration._
 
-  def this() = this(ActorSystem("SystemModelWatcherSpec"))
+  //An actor system with a test event listener so I can snag log messages!
+  def this() = this(ActorSystem("SystemModelWatcherSpec", ConfigFactory.parseString(
+    """
+      |    akka.loggers = [akka.testkit.TestEventListener]
+    """.stripMargin)))
+
 
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
@@ -67,8 +73,16 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
 
       smwActor ! PoisonPill
     }
+
     it("Logs a failure message when unable to parse the system model") {
-      pending
+      val configRoot = Files.createTempDirectory("servo").toString
+      val systemModelFail = resourceContent("/system-model-test/not-valid-xml.xml")
+      val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
+
+      //Expect that I log an error message with a SystemModelParseException in it
+      EventFilter[SystemModelParseException](occurrences = 1) intercept {
+        updateSystemModel(configRoot, systemModelFail)
+      }
     }
   }
 }
