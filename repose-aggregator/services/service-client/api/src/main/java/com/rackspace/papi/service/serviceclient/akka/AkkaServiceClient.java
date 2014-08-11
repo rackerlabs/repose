@@ -11,7 +11,8 @@ import java.util.Map;
 public interface AkkaServiceClient {
 
     ServiceClientResponse get(String token, String uri, Map<String, String> headers);
-    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType mediaType);
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType); // TODO: Deprecate
+    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType);
 
     void shutdown();
 }
