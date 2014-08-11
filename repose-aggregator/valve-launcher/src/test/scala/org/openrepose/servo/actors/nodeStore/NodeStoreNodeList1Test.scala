@@ -4,7 +4,7 @@ import akka.actor._
 import akka.testkit.{TestProbe, ImplicitSender, TestKit}
 import org.junit.runner.RunWith
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
-import org.openrepose.servo.actors.{TestReposeNodeActor, NodeStore}
+import org.openrepose.servo.actors.NodeStore
 import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
