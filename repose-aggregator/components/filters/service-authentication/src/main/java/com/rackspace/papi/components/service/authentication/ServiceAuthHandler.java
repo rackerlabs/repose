@@ -64,7 +64,7 @@ public class ServiceAuthHandler extends AbstractFilterLogicHandler {
             case FORBIDDEN:
                 //If the WWW-Authenticate header is not present or it is not set to delegated then relay a 500
                 LOG.warn("Failed to authentication against the Origin Service");
-                if (StringUtilities.isBlank(wwwAuthenticateHeader) || !wwwAuthenticateHeader.equalsIgnoreCase("delegated")) {
+                if (StringUtilities.isBlank(wwwAuthenticateHeader) || !"delegated".equalsIgnoreCase(wwwAuthenticateHeader)) {
                     myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     //Remove the header
