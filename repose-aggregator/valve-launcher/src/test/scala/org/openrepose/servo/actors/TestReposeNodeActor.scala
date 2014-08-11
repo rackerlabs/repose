@@ -17,8 +17,14 @@ class TestReposeNodeActor(forwardPoint: ActorRef) extends Actor {
     forwardPoint ! "Started"
   }
 
+  override def toString() = {
+    s"TestActor: $clusterId:$nodeId"
+  }
+
   override def postStop(): Unit = {
-    forwardPoint ! s"Stopped clusterId: $clusterId nodeId: $nodeId"
+    val message = s"Stopped clusterId: $clusterId nodeId: $nodeId"
+    println(s"Killing this actor with message ${message}")
+    forwardPoint ! message
   }
 
   override def receive: Receive = {

@@ -1,7 +1,7 @@
 package org.openrepose.servo.actors.nodeStore
 
 import akka.actor._
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{TestProbe, ImplicitSender, TestKit}
 import org.junit.runner.RunWith
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.openrepose.servo.actors.{TestReposeNodeActor, NodeStore}
@@ -11,7 +11,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class NodeStoreTest(_system: ActorSystem) extends TestKit(_system)
-with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with TestUtils with BaseNodeStoreTest {
+with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with TestUtils with BaseNodeStoreTest {
 
   import scala.concurrent.duration._
 
@@ -26,23 +26,25 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfter with Befo
   describe("The Node Store") {
     describe("when no nodes are running") {
       it("will start nodes that are sent to it") {
+        val probe = TestProbe()
         //The actor needs to have given to it a Props of the kind of actor to start
-        val nodeStore = system.actorOf(NodeStore.props(testStartActorProps))
+        val nodeStore = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
 
         nodeStore ! nodeList1
 
-        expectMsg(1 second, "Started")
+        probe.expectMsg(1 second, "Started")
         //Have to expect an initialize message, can't figure out how to handle it through props
-        expectMsg(1 second, Initialize("repose", "repose_node1"))
+        probe.expectMsg(1 second, Initialize("repose", "repose_node1"))
         nodeStore ! PoisonPill
       }
 
       it("will not do anything if an empty list of nodes is sent to it") {
-        val nodeStore = system.actorOf(NodeStore.props(testStartActorProps))
+        val probe = TestProbe()
+        val nodeStore = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
 
         nodeStore ! List.empty[ReposeNode]
 
-        expectNoMsg(1 second)
+        probe.expectNoMsg(1 second)
         nodeStore ! PoisonPill
       }
     }
