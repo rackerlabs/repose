@@ -10,7 +10,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class NodeStoreTest2(_system: ActorSystem) extends TestKit(_system)
+class NodeStoreNodeList1Test(_system: ActorSystem) extends TestKit(_system)
 with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with TestUtils with BaseNodeStoreTest {
 
   import scala.concurrent.duration._
@@ -25,7 +25,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   var nodeStoreVar: ActorRef = _
 
   //Using a standalone test probe works so much better here, because I'm actually creating a new nodestore each time
-  var probe:TestProbe = _
+  var probe: TestProbe = _
 
   before {
     probe = TestProbe()
@@ -40,42 +40,39 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   after {
     nodeStoreVar ! PoisonPill
   }
-  
-  describe("The Node Store") {
-    describe("when NodeList1 is running") {
 
-      it("will do nothing when the same list is sent") {
-        nodeStoreVar ! nodeList1
+  describe("The Node Store with nodeList1 running") {
 
-        probe.expectNoMsg(1 second)
-      }
-      it("will start a new local node when NodeList2 is sent") {
-        nodeStoreVar ! nodeList2
-        probe.expectMsg(1 second, "Started")
-        probe.expectMsg(1 second, Initialize("repose", "repose_node2"))
-      }
+    it("will do nothing when the same list is sent") {
+      nodeStoreVar ! nodeList1
 
-      it("will start node2 and stop repose_node1 when NodeList3 is sent") {
-        nodeStoreVar ! nodeList3
-
-        //Expect all these messages within 1 second, no ordering,
-        // But I'm also getting the shutdown messages?
-        probe.expectMsgAllOf(1 second,
-          "Started",
-          Initialize("repose", "repose_node2"),
-          "Stopped clusterId: repose nodeId: repose_node1")
-      }
-
-      it("will stop all nodes when told to shut down") {
-        nodeStoreVar ! PoisonPill
-        probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
-      }
+      probe.expectNoMsg(1 second)
     }
-    describe("when NodeList2 is running") {
-      it("will stop all nodes when told to shut down") {
-        pending
-      }
+    it("will start a new local node when NodeList2 is sent") {
+      nodeStoreVar ! nodeList2
+      probe.expectMsg(1 second, "Started")
+      probe.expectMsg(1 second, Initialize("repose", "repose_node2"))
+    }
+
+    it("will start node2 and stop repose_node1 when NodeList3 is sent") {
+      nodeStoreVar ! nodeList3
+
+      //Expect all these messages within 1 second, no ordering,
+      // But I'm also getting the shutdown messages?
+      probe.expectMsgAllOf(1 second,
+        "Started",
+        Initialize("repose", "repose_node2"),
+        "Stopped clusterId: repose nodeId: repose_node1")
+    }
+
+    it("will stop all nodes when told to shut down") {
+      nodeStoreVar ! PoisonPill
+      probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
     }
   }
-
+  describe("when NodeList2 is running") {
+    it("will stop all nodes when told to shut down") {
+      pending
+    }
+  }
 }
