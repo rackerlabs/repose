@@ -8,6 +8,9 @@ import scala.xml.{Node, XML}
 
 object Servo {
 
+  //http://www.eclipse.org/jetty/documentation/current/runner.html
+  // Here's how to use the jetty-runner
+
   /**
    * Command line configuration
    * @param configDirectory the root configuration directory (even though it's called --config-file)
@@ -112,6 +115,7 @@ object Servo {
 
   def serveValves(config: ServoConfig) = {
 
+    //Get the system-model.cfg.xml and read it in first. Fire it up, then start listening to changes
 
     //Create a listener on the Config root system-model.cfg.xml
     //On the first start up, and any time the system-model changes:
