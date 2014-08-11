@@ -1,14 +1,42 @@
 package com.rackspace.papi.components.keystone.v3
 
+import java.util
+
 import com.rackspace.papi.commons.config.manager.UpdateListener
+import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
+import com.rackspace.papi.service.datastore.DatastoreService
+import com.rackspace.papi.service.httpclient.HttpClientService
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 
-class KeystoneV3HandlerFactory extends AbstractConfiguredFilterHandlerFactory[KeystoneV3Handler] {
-  override def buildHandler: KeystoneV3Handler = {
+class KeystoneV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService, connectionPoolService: HttpClientService[_, _])
+        extends AbstractConfiguredFilterHandlerFactory[KeystoneV3Handler] {
 
-  }
+    private var keystoneHandler: KeystoneV3Handler = _
 
-  override def getListeners: Map[Class[_], UpdateListener[_]] = {
+    override def buildHandler: KeystoneV3Handler = {
+        if (isInitialized) keystoneHandler
+        else null
+    }
 
-  }
+    override def getListeners: java.util.Map[Class[_], UpdateListener[_]] = {
+        val listenerMap = new util.HashMap[Class[_], UpdateListener[_]]()
+
+        listenerMap.put(classOf[KeystoneV3Config], new KeystoneV3ConfigurationListener())
+
+        listenerMap
+    }
+
+    private class KeystoneV3ConfigurationListener extends UpdateListener[KeystoneV3Config] {
+        private var initialized = false
+
+        def configurationUpdated(config: KeystoneV3Config) {
+            keystoneHandler = new KeystoneV3Handler(config, akkaServiceClient, datastoreService, connectionPoolService)
+            initialized = true
+        }
+
+        def isInitialized = {
+            initialized
+        }
+    }
 }
