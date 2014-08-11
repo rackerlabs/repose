@@ -15,7 +15,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
   import scala.concurrent.duration._
 
-  def this() = this(ActorSystem("NodeStoreSpec"))
+  def this() = this(ActorSystem("NodeStoreList1Spec"))
 
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
@@ -68,11 +68,6 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     it("will stop all nodes when told to shut down") {
       nodeStoreVar ! PoisonPill
       probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
-    }
-  }
-  describe("when NodeList2 is running") {
-    it("will stop all nodes when told to shut down") {
-      pending
     }
   }
 }

@@ -1,10 +1,10 @@
 package org.openrepose.servo.actors.nodeStore
 
 import akka.actor._
-import akka.testkit.{TestProbe, ImplicitSender, TestKit}
+import akka.testkit.{TestKit, TestProbe}
 import org.junit.runner.RunWith
+import org.openrepose.servo.actors.NodeStore
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
-import org.openrepose.servo.actors.{TestReposeNodeActor, NodeStore}
 import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
@@ -15,7 +15,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
   import scala.concurrent.duration._
 
-  def this() = this(ActorSystem("NodeStoreSpec"))
+  def this() = this(ActorSystem("NodeStoreEmptySpec"))
 
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
