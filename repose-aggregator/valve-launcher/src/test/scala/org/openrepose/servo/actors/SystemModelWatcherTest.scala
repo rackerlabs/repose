@@ -83,6 +83,9 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       EventFilter[SystemModelParseException](occurrences = 1) intercept {
         updateSystemModel(configRoot, systemModelFail)
       }
+
+      //No more messages, in other words, don't give me work to do!
+      expectNoMsg(1 second)
     }
   }
 }
