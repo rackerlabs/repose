@@ -15,6 +15,7 @@ import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
+// TODO: NOTE: Once property lookup is updated to the Spring way, the ServletContextAware implementation should be converted.
 @Named
 public class TranslationFilter implements Filter, ServletContextAware {
 
@@ -31,11 +32,13 @@ public class TranslationFilter implements Filter, ServletContextAware {
         this.configurationService = configurationService;
     }
 
+    // TODO: REMOVE as per NOTE above.
     @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
 
+    // TODO: REMOVE as per NOTE above.
     @PostConstruct
     public void afterPropertiesSet() {
         configurationRoot = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
