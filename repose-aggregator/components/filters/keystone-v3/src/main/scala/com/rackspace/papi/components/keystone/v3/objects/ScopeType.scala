@@ -1,3 +1,3 @@
 package com.rackspace.papi.components.keystone.v3.objects
 
-case class ScopeType(domain : DomainScopeType = None, project : ProjectScopeType = None, trust : TrustScopeType = None)
+case class ScopeType(domain: Option[DomainScopeType] = None, project: Option[ProjectScopeType] = None, trust: Option[TrustScopeType] = None)
