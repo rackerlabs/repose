@@ -1,4 +1,4 @@
-package org.openrepose.servo.actors
+package org.openrepose.servo.actors.nodeStore
 
 import akka.actor.{Actor, ActorRef, Props}
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
