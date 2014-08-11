@@ -2,6 +2,7 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/keystone-v3/v1.0"
            targetNamespace="http://docs.openrepose.org/keystone-v3/v1.0">
 
     <!-- Types -->
@@ -13,8 +14,8 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="white-list" type="WhiteList"/>
-            <xs:element name="keystone-service" type="OpenstackKeystoneService" minOccurs="1"/>
+            <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="keystone-service" type="OpenstackKeystoneService" minOccurs="1" maxOccurs="1"/>
             <!-- TODO -->
         </xs:all>
 
@@ -29,6 +30,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <!-- TODO -->
     </xs:complexType>
 
     <xs:complexType name="WhiteList">
@@ -39,7 +42,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="uri-pattern" type="xs:string" minOccurs="1"/>
+            <xs:element name="uri-pattern" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -53,7 +56,7 @@
         <xs:attribute name="username" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Admin username to access the keystone ser.vice</html:p>
+                    <html:p>Admin username to access the keystone service.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -74,18 +77,17 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="tenant-id" type="xs:string" use="optional">
+        <xs:attribute name="domain-id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The tenant ID with admin permission to the Keystone implementation used to perform admin
-                        tasks.
+                        The domain ID of the admin defined by the username and password.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
     <!-- Elements -->
     <xs:element name="keystone-v3" type="KeystoneV3Config"/>
 </xs:schema>
