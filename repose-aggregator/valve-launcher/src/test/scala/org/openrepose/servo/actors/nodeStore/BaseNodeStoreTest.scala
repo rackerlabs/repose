@@ -3,7 +3,7 @@ package org.openrepose.servo.actors.nodeStore
 import akka.actor.ActorRef
 import akka.testkit.TestKit
 import org.openrepose.servo.ReposeNode
-import org.openrepose.servo.actors.TestReposeNodeActor
+import org.openrepose.servo.actors.nodeStore.TestReposeNodeActor
 
 trait BaseNodeStoreTest {
   this:TestKit =>
