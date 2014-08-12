@@ -30,7 +30,7 @@ class MockIdentityKeystoneV3Service {
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
     protected AtomicInteger _getProjectsCount = new AtomicInteger(0);
     protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
-    protected AtomicInteger _getUserGlobalRolesCount = new AtomicInteger(0);
+    protected AtomicInteger _getUserRolesOnDomainCount = new AtomicInteger(0);
 
     public MockIdentityKeystoneV3Service(int identityPort, int originServicePort) {
         resetHandlers()
@@ -51,7 +51,7 @@ class MockIdentityKeystoneV3Service {
         _getProjectsCount.set(0)
         _generateTokenCount.set(0)
         _getEndpointsCount.set(0)
-        _getUserGlobalRolesCount.set(0)
+        _getUserRolesOnDomainCount.set(0)
     }
 
     public int getValidateTokenCount() {
@@ -208,7 +208,7 @@ class MockIdentityKeystoneV3Service {
 
             if (isGetUserRolesOnDomainCallPath(nonQueryPath)) {
                 if (method == "GET") {
-                    _getUserGlobalRolesCount.incrementAndGet()
+                    _getUserRolesOnDomainCount.incrementAndGet()
                     def match = (nonQueryPath =~ getUserRolesOnDomainCallPathRegex)
                     def domainId = match[0][1]
                     def userId = match[0][2]
@@ -455,7 +455,7 @@ class MockIdentityKeystoneV3Service {
                 {
                     "endpoints": [
                         {
-                            "id": "39dc322ce86c4111b4f06c2eeae0841b",isGetUserRolesOnDomainCallPath
+                            "id": "39dc322ce86c4111b4f06c2eeae0841b",
                             "interface": "public",
                             "region": "RegionOne",
                             "url": "http://localhost:5000"
