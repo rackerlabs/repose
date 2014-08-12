@@ -81,8 +81,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     private def fetchAdminToken(): Try[String] = {
-        // TODO: Check cache (datastore, can't use a local variable if we are following the standard filter pattern
-        //       where a handler is created for each response)
+        // TODO: Check cache (datastore)
         //        datastoreService.getDefaultDatastore.get(CACHE_KEY)
 
         val requestJson = createAdminAuthRequest(

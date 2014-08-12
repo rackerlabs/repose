@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.keystone.v3
 
-import com.rackspace.papi.components.keystone.v3.config.{OpenstackKeystoneService, KeystoneV3Config}
+import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
