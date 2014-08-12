@@ -3,8 +3,8 @@ package com.rackspace.papi.components.keystone.v3
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.HttpStatusCode
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
-import com.rackspace.papi.filter.logic.FilterAction
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
+import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
@@ -44,14 +44,10 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
     describe("authenticate") {
         it("should return unauthorized when the x-auth-token header is not present") {
-            val authenticate = PrivateMethod[Unit]('authenticate)
-            val filterDirector = new FilterDirectorImpl()
+            val authenticate = PrivateMethod[FilterDirector]('authenticate)
             val mockRequest = new MockHttpServletRequest()
 
-            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-            filterDirector.setFilterAction(FilterAction.RETURN)
-
-            keystoneV3Handler invokePrivate authenticate(filterDirector, mockRequest)
+            val filterDirector = keystoneV3Handler invokePrivate authenticate(mockRequest)
 
             filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
             filterDirector.getFilterAction should be(FilterAction.RETURN)
