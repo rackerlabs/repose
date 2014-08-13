@@ -102,9 +102,7 @@
                             </mappings>
 
                             <requires>
-                                <require>java &gt;= 1.6.0</require>
-                                <require>servlet &gt;= 3.0</require>
-                                <require>jsp &gt;= 2.2</require>
+                                <require>java &gt;= 1.7.0</require>
                             </requires>
                             <provides>
                                 <provide>repose</provide>

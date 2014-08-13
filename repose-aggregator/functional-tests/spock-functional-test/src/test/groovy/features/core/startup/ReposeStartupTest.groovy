@@ -148,7 +148,7 @@ class ReposeStartupTest extends ReposeValveTest {
     static def deployDeb(){
         return [
                 'sudo apt-get update -y',
-                'sudo apt-get install openjdk-6-jdk -y',
+                'sudo apt-get install openjdk-7-jdk -y',
                 'sudo wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -',
                 'sudo sh -c \'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list\'',
                 'sudo apt-get update -y',
@@ -160,7 +160,7 @@ class ReposeStartupTest extends ReposeValveTest {
     static def deployRpm(){
         return [
                 'sudo yum update -y',
-                'sudo yum install java-1.6.0-openjdk -y',
+                'sudo yum install java-1.7.0-openjdk -y',
                 'sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo',
                 'sudo yum update -y',
                 'sudo yum install -y repose-valve repose-filters repose-filters repose-extension-filters',
