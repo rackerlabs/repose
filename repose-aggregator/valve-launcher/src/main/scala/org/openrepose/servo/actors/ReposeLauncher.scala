@@ -1,5 +1,7 @@
 package org.openrepose.servo.actors
 
+import java.io.File
+
 import akka.actor.{Actor, Props}
 import akka.event.Logging
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
@@ -9,7 +11,10 @@ import scala.concurrent.Future
 import scala.sys.process.{ProcessLogger, Process}
 
 object ReposeLauncher {
-  def props(command: Seq[String]) = Props(classOf[ReposeLauncher], command)
+  def props(command: Seq[String],
+            environment: Map[String, String] = Map.empty[String, String]) = {
+    Props(classOf[ReposeLauncher], command, environment)
+  }
 }
 
 object ReposeLauncherProtocol {
@@ -18,7 +23,7 @@ object ReposeLauncherProtocol {
 
 }
 
-class ReposeLauncher(command: Seq[String]) extends Actor {
+class ReposeLauncher(command: Seq[String], environment: Map[String, String]) extends Actor {
 
   import scala.concurrent.duration._
 
@@ -36,10 +41,10 @@ class ReposeLauncher(command: Seq[String]) extends Actor {
 
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
-      val builder = Process(command) //WIll add CWD and environment variables eventually
+      // Magic :_* is from http://stackoverflow.com/questions/10842851/scala-expand-list-of-tuples-into-variable-length-argument-list-of-tuples
+      val builder = Process(command, None, environment.toList:_*) //Will add CWD and environment variables eventually
 
       //Fire that sucker up
-      println("running command")
       process = builder.run(ProcessLogger(
         stdout => log.info(stdout)
       ))
@@ -50,11 +55,9 @@ class ReposeLauncher(command: Seq[String]) extends Actor {
       //Grab an execution context to run this future in
       implicit val executionContext = context.dispatcher
       Future {
-        println("Starting up future!")
         process.exitValue()
       } onComplete { t =>
-        //Stop myself?
-        println("Future completed!")
+        //Kill myself!
         context.stop(context.self)
       }
     }
