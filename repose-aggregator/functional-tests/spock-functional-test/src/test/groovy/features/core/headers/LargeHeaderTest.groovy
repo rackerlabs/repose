@@ -42,16 +42,19 @@ class LargeHeaderTest extends ReposeValveTest {
             deproxy.shutdown()
         }
     }
-    //test failed with headersive > 7.5 KiB ~ 7935 characters
+    //test failed with total headers size > 8192 Characters
     @Unroll ("#headerName, #headersize")
     def "Repose send req with large header" () {
         given:
         def largeheader = RandomStringUtils.random(headersize, ('A'..'Z').join().toCharArray())
+        def tokengen = RandomStringUtils.random(740, ('A'..'Z').join().toCharArray())
 
         when: "make a request with the given header and value"
         def headers = [
+                'X-Auth-Token'  : tokengen.toString(),
                 'Content-Length': '0'
         ]
+
         headers[headerName.toString()] = largeheader.toString()
 
         MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
@@ -67,14 +70,16 @@ class LargeHeaderTest extends ReposeValveTest {
             [["Warning", "WWW-Authenticate"], [1024, 4096, 6144, 7168]].combinations()
     }
 
-    //test failed with headersive > 7.5 KiB ~ 7935 characters
+    //test failed with total headers size > 8192 Characters
     @Unroll("Response: #headerName, #headersize")
     def "Repose post req with large header get response" () {
         given:
         def largeheader = RandomStringUtils.random(headersize, ('A'..'Z').join().toCharArray())
+        def tokengen = RandomStringUtils.random(740, ('A'..'Z').join().toCharArray())
 
         when: "make a request with the given header and value"
         def headers = [
+                'X-Auth-Token'  : tokengen.toString(),
                 'Content-Length': '0'
         ]
         headers[headerName.toString()] = largeheader.toString()
