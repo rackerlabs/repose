@@ -42,11 +42,12 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
       // Magic :_* is from http://stackoverflow.com/questions/10842851/scala-expand-list-of-tuples-into-variable-length-argument-list-of-tuples
-      val builder = Process(command, None, environment.toList:_*) //Will add CWD and environment variables eventually
+      val builder = Process(command, None, environment.toList: _*) //Will add CWD and environment variables eventually
 
       //Fire that sucker up
       process = builder.run(ProcessLogger(
-        stdout => log.info(stdout)
+        stdout => log.info(stdout),
+        stderr => log.warning(stderr)
       ))
       //Change our state, we're now running!
 
