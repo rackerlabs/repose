@@ -1,6 +1,7 @@
 package features.filters.headerNormalization
 
 import framework.ReposeValveTest
+import org.apache.commons.lang.RandomStringUtils
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
