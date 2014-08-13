@@ -124,4 +124,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             )
         ).toJson.compactPrint
     }
+
+    private def containsEndpoint(endpoints: List, url: String) = true
+
+    private def hasIgnoreEnabledRole(ignoreTenantRoles: List, userRoles: List) = true
 }
