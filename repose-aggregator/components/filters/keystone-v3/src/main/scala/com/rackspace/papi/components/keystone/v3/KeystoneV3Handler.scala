@@ -87,7 +87,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         val requestJson = createAdminAuthRequest(
             keystoneConfig.getKeystoneService.getUsername,
             keystoneConfig.getKeystoneService.getPassword,
-            keystoneConfig.getKeystoneService.getDomainId
+            Option(keystoneConfig.getKeystoneService.getDomainId)
         )
         val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + TOKEN_ENDPOINT, Map[String, String]().asJava, requestJson, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
         HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
@@ -101,20 +101,26 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         }
     }
 
-    private def createAdminAuthRequest(user: String, password: String, domainId: String) = {
+    // TODO: Make this method private
+    def createAdminAuthRequest(user: String, password: String, domainId: Option[String] = None) = {
         var domainType: Option[DomainType] = None
-        if (domainId != null) domainType = Some(DomainType(id = Some(domainId)))
 
-        AuthRequest(
-            AuthIdentityRequest(
-                List("password"),
-                Some(PasswordCredentials(
-                    UserNamePasswordRequest(
-                        domain = domainType,
-                        name = Some(keystoneConfig.getKeystoneService.getUsername),
-                        password = keystoneConfig.getKeystoneService.getPassword
-                    )
-                ))
+        if (domainId.isDefined) domainType = {
+            Some(DomainType(id = domainId))
+        }
+
+        Auth(
+            AuthRequest(
+                AuthIdentityRequest(
+                    methods = List("password"),
+                    password = Some(PasswordCredentials(
+                        UserNamePasswordRequest(
+                            domain = domainType,
+                            name = Some(user),
+                            password = password
+                        )
+                    ))
+                )
             )
         ).toJson.compactPrint
     }
