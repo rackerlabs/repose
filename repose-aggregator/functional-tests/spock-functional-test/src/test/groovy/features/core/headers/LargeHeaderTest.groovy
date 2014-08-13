@@ -97,4 +97,38 @@ class LargeHeaderTest extends ReposeValveTest {
                 [["Warning", "WWW-Authenticate"], [1024, 4096, 6144, 7168]].combinations()
     }
 
+    def "Repose send req with total headers size > 8192 test should not handle" () {
+        given:
+        def largeheader = RandomStringUtils.random(8100, ('A'..'Z').join().toCharArray())
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+
+        headers["WWW-Authenticate"] = largeheader.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: url, headers: headers)
+
+        then: "the request should"
+        mc.handlings.size() == 0
+        mc.receivedResponse.code == "413"
+    }
+
+    def "Repose send req with total headers size > 8192 should resp 500" () {
+        given:
+        def largeheader = RandomStringUtils.random(8100, ('A'..'Z').join().toCharArray())
+
+        when: "make a request with the given header and value"
+        def headers = [
+                'Content-Length': '0'
+        ]
+
+        headers["WWW-Authenticate"] = largeheader.toString()
+
+        MessageChain mc = deproxy.makeRequest(url: url, defaultHandler: { new Response(200, null, headers) })
+
+        then: "the request should not handle resp"
+        mc.receivedResponse.code == "500"
+    }
 }
