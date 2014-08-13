@@ -2,7 +2,7 @@ package org.openrepose.servo.actors
 
 import java.io.File
 
-import akka.actor.{Actor, Props}
+import akka.actor.{PoisonPill, Actor, Props}
 import akka.event.Logging
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.openrepose.servo.actors.ReposeLauncherProtocol.ProcessCheck
@@ -58,7 +58,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
         process.exitValue()
       } onComplete { t =>
         //Kill myself!
-        context.stop(context.self)
+        context.self ! PoisonPill
       }
     }
   }
