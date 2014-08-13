@@ -66,7 +66,14 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       }
     }
     it("will log standard error out to warn") {
-      pending
+      val probe = TestProbe()
+      val props = ReposeLauncher.props(Seq("bash", "-c", "echo >&2 'standardError'"))
+
+      val actor = system.actorOf(props)
+
+      EventFilter.warning("standardError", occurrences = 1) intercept {
+        actor ! Initialize("testCluster", "testNode")
+      }
     }
     it("terminates the command and closes the streams when dying") {
       pending
