@@ -12,7 +12,7 @@
     <groupId>com.rackspace.repose.installation.deb.valve</groupId>
     <artifactId>repose-valve</artifactId>
 
-    <name>Repose - Installation Repose Valve DEB</name>
+    <name>Repose - Installation Valve DEB</name>
 
     <description>
         Module for the valve DEB.

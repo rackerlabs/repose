@@ -12,7 +12,7 @@
     <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
     <artifactId>repose-filters</artifactId>
 
-    <name>Repose - Installation Filters RPM</name>
+    <name>Repose - Installation Filter Bundle RPM</name>
 
     <description>
         Module for the Filter Bundle RPM.

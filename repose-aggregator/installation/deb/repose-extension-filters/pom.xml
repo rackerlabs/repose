@@ -59,6 +59,7 @@
                                             </mapper>
                                         </data>
 
+                                        <!--The git.properties file -->
                                         <data>
                                             <src>${basedir}/target/git.properties</src>
                                             <type>file</type>

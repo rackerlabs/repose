@@ -12,7 +12,7 @@
     <groupId>com.rackspace.repose.installation.deb.filters</groupId>
     <artifactId>repose-filter-bundle</artifactId>
 
-    <name>Repose - Installation Repose Filter Bundle DEB</name>
+    <name>Repose - Installation Filter Bundle DEB</name>
 
     <description>
         Module for the filter bundle DEB.
@@ -59,6 +59,7 @@
                                             </mapper>
                                         </data>
 
+                                        <!--The git.properties file -->
                                         <data>
                                             <src>${basedir}/target/git.properties</src>
                                             <type>file</type>
