@@ -64,9 +64,7 @@
 
                             <mappings>
                                 <mapping>
-                                    <!-- This is the location of tomcat as installed by jpackage -->
-                                    <directory>/var/lib/tomcat7/webapps</directory>
-
+                                    <directory>/usr/share/repose/</directory>
                                     <sources>
                                         <source>
                                             <location>
