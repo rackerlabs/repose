@@ -41,7 +41,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
 
       probe.expectMsgPF(3 seconds) {
         case Terminated(theActor) => {
-          theActor should equal(actor)
+          theActor should equal(actor) //make sure we got a death from our actor
         }
       }
     }
@@ -55,16 +55,15 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
         actor ! Initialize("testCluster", "testNode")
       }
     }
-    it("automatically sets the environment variable CONFIG_ROOT") {
+    it("sets passed in environment variables") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(List("bash", "-c", "echo $CONFIG_ROOT"))
-      pending
-    }
-    it("automatically sets the environment variables NODE_ID and CLUSTER_ID") {
-      pending
-    }
-    it("sets any other environment variables that are passed to it") {
-      pending
+      val props = ReposeLauncher.props(List("bash", "-c", "echo $CONFIG_ROOT"), Map("CONFIG_ROOT" -> "/etc/repose"))
+
+      val actor = system.actorOf(props)
+
+      EventFilter.info(message = "/etc/repose", occurrences = 1) intercept {
+        actor ! Initialize("testCluster", "testNode")
+      }
     }
     it("will log standard error out to warn") {
       pending
