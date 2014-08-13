@@ -80,7 +80,7 @@
 
                                 <!--This adds the license file on installation.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
+                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
