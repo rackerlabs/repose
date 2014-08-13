@@ -20,7 +20,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>cli-utils</module>
+        <!--module>cli-utils</module-->
         <module>repose-filter-bundle</module>
         <module>repose-extension-filters</module>
         <module>repose-valve</module>
