@@ -52,8 +52,8 @@
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>750</filemode>
                                     <configuration>noreplace</configuration>
+                                    <filemode>750</filemode>
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
