@@ -54,7 +54,6 @@
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                     <configuration>noreplace</configuration>
-
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->

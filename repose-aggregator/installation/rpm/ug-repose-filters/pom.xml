@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>rpm</artifactId>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
@@ -37,7 +39,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-
                         <configuration>
                             <name>ug-repose-filters</name>
 
@@ -47,7 +48,6 @@
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <location>
@@ -62,7 +62,6 @@
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
-
                                     <sources>
                                         <source>
                                             <location>${basedir}/target/git.properties</location>
@@ -77,7 +76,6 @@
                                     <configuration>noreplace</configuration>
                                     <filemode>755</filemode>
                                     <directoryIncluded>false</directoryIncluded>
-
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
@@ -120,5 +118,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

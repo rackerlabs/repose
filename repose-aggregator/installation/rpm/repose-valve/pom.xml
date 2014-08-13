@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
+
     <groupId>com.rackspace.repose.installation.rpm.valve</groupId>
     <artifactId>repose-valve</artifactId>
+
     <name>Repose - Valve Installation RPM</name>
+
     <description>
         Module for the valve RPM.
     </description>
+
     <packaging>pom</packaging>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -23,8 +30,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM.-->
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-valve</name>
                             <mappings>
                                 <mapping>
@@ -41,6 +47,7 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
@@ -54,35 +61,39 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/init.d/repose-valve</location>
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>760</filemode>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/var/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>760</filemode>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/usr/share/repose/filters/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>750</filemode>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/etc/sysconfig</directory>
                                     <directoryIncluded>false</directoryIncluded>
@@ -93,6 +104,7 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/etc/logrotate.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
@@ -103,13 +115,13 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../bash/clean-repose-deploy
-                                            </location>
+                                            <location>${basedir}/../../bash/clean-repose-deploy</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -166,8 +178,7 @@
                                     fi
 
                                     getent group repose &gt;/dev/null || groupadd -r repose
-                                    getent passwd repose &gt;/dev/null || \
-                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+                                    getent passwd repose &gt;/dev/null ||  useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
                                     exit 0
                                 </script>
                             </preinstallScriptlet>

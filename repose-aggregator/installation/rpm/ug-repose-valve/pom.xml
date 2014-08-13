@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>rpm</artifactId>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
@@ -37,17 +39,14 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-
                         <configuration>
                             <name>ug-repose-valve</name>
-
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
@@ -60,7 +59,6 @@
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
-
                                     <sources>
                                         <source>
                                             <location>${basedir}/target/git.properties</location>
@@ -74,7 +72,6 @@
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
@@ -99,7 +96,6 @@
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/init.d/repose-valve</location>
@@ -112,11 +108,9 @@
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
-                                            <location>src/rpm/.log_dir_placeholder
-                                            </location>
+                                            <location>src/rpm/.log_dir_placeholder</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -126,11 +120,9 @@
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>760</filemode>
-
                                     <sources>
                                         <source>
-                                            <location>src/rpm/.var_repose_dir_placeholder
-                                            </location>
+                                            <location>src/rpm/.var_repose_dir_placeholder</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -139,7 +131,6 @@
                                     <directory>/etc/logrotate.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
-
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/logrotate.d/repose</location>
@@ -183,5 +174,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

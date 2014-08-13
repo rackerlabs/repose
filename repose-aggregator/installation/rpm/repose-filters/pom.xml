@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
+
     <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
     <artifactId>repose-filters</artifactId>
+
     <name>Repose - Installation Filters RPM</name>
+
     <description>
         Module for the Filter Bundle RPM.
     </description>
+
     <packaging>pom</packaging>
+
     <profiles>
         <profile>
             <id>build-system-packages</id>
@@ -23,8 +30,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM.-->
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-filters</name>
                             <mappings>
                                 <mapping>
@@ -40,6 +46,7 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
@@ -71,6 +78,7 @@
                                 </mapping>
 
                             </mappings>
+
                             <requires>
                                 <require>repose</require>
                             </requires>
