@@ -37,6 +37,36 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-repose-valve-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.core</groupId>
+                                            <artifactId>valve</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
+                                            <destFileName>valve-${project.version}.jar</destFileName-->
+                                            <destFileName>repose-valve.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
@@ -49,7 +79,11 @@
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
+                                            <location>
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/valve-${project.version}.jar-->
+                                                ${project.build.directory}/repose-valve.jar
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>

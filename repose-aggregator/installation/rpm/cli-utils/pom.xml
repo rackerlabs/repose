@@ -27,6 +27,36 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-cli-utils-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.components</groupId>
+                                            <artifactId>cli-utils</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
+                                            <destFileName>cli-utils-${project.version}.jar</destFileName-->
+                                            <destFileName>repose-cli.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
 
@@ -44,7 +74,9 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../components/cli-utils/target/repose-cli.jar
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/cli-utils-${project.version}.jar-->
+                                                ${project.build.directory}/repose-cli.jar
                                             </location>
                                         </source>
                                     </sources>

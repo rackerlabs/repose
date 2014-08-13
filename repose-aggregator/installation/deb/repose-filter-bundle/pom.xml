@@ -37,6 +37,33 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-filter-bundle-ear</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.components</groupId>
+                                            <artifactId>filter-bundle</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>ear</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.vafer</groupId>
                         <artifactId>jdeb</artifactId>
 
@@ -50,7 +77,7 @@
                                         <!-- The jar file -->
                                         <data>
                                             <src>
-                                                ${basedir}/../../../components/filters/filter-bundle/target/filter-bundle-${project.version}.ear
+                                                ${project.build.directory}/filter-bundle-${project.version}.ear
                                             </src>
                                             <type>file</type>
                                             <mapper>
