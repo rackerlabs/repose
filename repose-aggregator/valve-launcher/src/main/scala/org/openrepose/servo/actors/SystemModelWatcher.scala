@@ -6,7 +6,7 @@ import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds}
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
 import org.openrepose.servo.SystemModelParser
-import org.openrepose.servo.actors.SMWMessages.CheckForChanges
+import org.openrepose.servo.actors.SystemModelWatcherProtocol.CheckForChanges
 
 import scala.io.Source
 import scala.util.{Failure, Success}
@@ -15,7 +15,7 @@ object SystemModelWatcher {
   def props(directory: String, notifyActor: ActorRef) = Props(classOf[SystemModelWatcher], directory, notifyActor)
 }
 
-object SMWMessages {
+object SystemModelWatcherProtocol {
 
   case object CheckForChanges
 
