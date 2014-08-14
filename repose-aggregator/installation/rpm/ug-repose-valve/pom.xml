@@ -187,18 +187,18 @@
 
                             </mappings>
 
+                            <requires>
+                                <require>java &gt;= 1.7.0</require>
+                                <require>logrotate</require>
+                                <require>daemonize</require>
+                            </requires>
+
                             <preinstallScriptlet>
                                 <script>
                                     getent group intermediary || groupadd -r intermediary
                                     getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
                                 </script>
                             </preinstallScriptlet>
-
-                            <requires>
-                                <require>java</require>
-                                <require>logrotate</require>
-                                <require>daemonize</require>
-                            </requires>
                             <group>Applications/Internet</group>
                         </configuration>
                     </plugin>

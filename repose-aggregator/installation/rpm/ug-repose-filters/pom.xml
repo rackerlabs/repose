@@ -12,10 +12,10 @@
     <groupId>com.rackspace.repose.installation.rpm.ug.filters</groupId>
     <artifactId>ug-repose-filters</artifactId>
 
-    <name>Repose - Installation Utility Grid Filters RPM</name>
+    <name>Repose - Installation Utility Grid Filter Bundle RPM</name>
 
     <description>
-        Module for the Utility Grid Filters RPM.
+        Module for the Utility Grid Filter Bundle RPM.
     </description>
 
     <packaging>pom</packaging>
@@ -127,13 +127,6 @@
                                 </mapping>
 
                             </mappings>
-
-                            <preinstallScriptlet>
-                                <script>
-                                    getent group intermediary || groupadd -r intermediary
-                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
-                                </script>
-                            </preinstallScriptlet>
 
                             <requires>
                                 <require>valve</require>

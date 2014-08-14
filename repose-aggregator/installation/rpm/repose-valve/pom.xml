@@ -15,7 +15,7 @@
     <name>Repose - Installation Valve RPM</name>
 
     <description>
-        Module for the valve RPM.
+        Module for the Valve RPM.
     </description>
 
     <packaging>pom</packaging>
