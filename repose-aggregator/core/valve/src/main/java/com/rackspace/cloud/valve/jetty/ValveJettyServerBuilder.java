@@ -3,9 +3,8 @@ package com.rackspace.cloud.valve.jetty;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -24,7 +23,7 @@ import java.util.List;
 
 public class ValveJettyServerBuilder {
 
-    private final ServicePorts ports = new ServicePorts();
+    private final List<Port> ports;
     private String configurationPathAndFile = "";
     private final SslConfiguration sslConfiguration;
     private final boolean insecure;
@@ -33,7 +32,7 @@ public class ValveJettyServerBuilder {
 
     public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, boolean insecure,
             String clusterId, String nodeId) {
-        this.ports.addAll(ports);
+        this.ports = ports;
         this.configurationPathAndFile = configurationPathAndFile;
         this.sslConfiguration = sslConfiguration;
         this.insecure = insecure;

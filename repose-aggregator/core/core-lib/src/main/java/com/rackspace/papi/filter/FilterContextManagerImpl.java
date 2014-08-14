@@ -10,14 +10,17 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
     private final FilterConfig filterConfig;
+    private final ApplicationContext applicationContext;
 
-    public FilterContextManagerImpl(FilterConfig filterConfig) {
+    public FilterContextManagerImpl(FilterConfig filterConfig, ApplicationContext applicationContext) {
         this.filterConfig = filterConfig;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class FilterContextManagerImpl implements FilterContextManager {
        
         try {
             currentThread.setContextClassLoader(nextClassLoader);
-            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance();
+            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
 
             newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType(), filter.getConfiguration()));
             

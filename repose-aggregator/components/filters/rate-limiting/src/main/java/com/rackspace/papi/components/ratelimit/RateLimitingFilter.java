@@ -2,27 +2,40 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 
+@Named
 public class RateLimitingFilter implements Filter {
 
     private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
     private String config;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingFilter.class);
     private RateLimitingHandlerFactory handlerFactory;
-    private ConfigurationService configurationManager;
-  
+    private final ConfigurationService configurationService;
+    private final DatastoreService datastoreService;
+
+    @Inject
+    public RateLimitingFilter(
+            DatastoreService datastoreService,
+            ConfigurationService configurationService) {
+        this.datastoreService = datastoreService;
+        this.configurationService = configurationService;
+    }
+
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom(config, handlerFactory);
+        configurationService.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
@@ -32,16 +45,13 @@ public class RateLimitingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ContextAdapter ctx = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
 
         filterConfig.getFilterName();
-        handlerFactory = new RateLimitingHandlerFactory(ctx.datastoreService());
-        configurationManager = ctx.configurationService();
+        handlerFactory = new RateLimitingHandlerFactory(datastoreService);
+
         URL xsdURL = getClass().getResource("/META-INF/schema/config/rate-limiting-configuration.xsd");
-        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, RateLimitingConfiguration.class);
-              
-       
+        configurationService.subscribeTo(filterConfig.getFilterName(), config, xsdURL, handlerFactory, RateLimitingConfiguration.class);
     }
 }

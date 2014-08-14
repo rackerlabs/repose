@@ -1,8 +1,6 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.service.context.spring.SpringContextAdapter;
 import org.springframework.context.ApplicationContext;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -48,10 +46,6 @@ public final class ServletContextHelper implements Serializable {
 
     public void setPowerApiContext(ServletContext ctx, ApplicationContext applicationContext) {
         ctx.setAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME, applicationContext);
-    }
-
-    public ServicePorts getServerPorts() {
-        return context.getBean("servicePorts", ServicePorts.class);
     }
 
     public ReposeInstanceInfo getReposeInstanceInfo() {

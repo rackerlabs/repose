@@ -2,43 +2,40 @@ package com.rackspace.papi.filter;
 
 import com.google.common.base.Optional;
 import com.rackspace.papi.ResponseCode;
-import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.rms.ResponseMessageService;
-import org.openrepose.core.service.config.ConfigurationService;
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.PowerFilterEvent;
-import org.openrepose.core.service.event.Event;
-import org.openrepose.core.service.event.EventListener;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MeterByCategory;
+import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import com.rackspace.papi.service.rms.ResponseMessageService;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
+import org.openrepose.core.service.event.Event;
+import org.openrepose.core.service.event.EventListener;
 import org.openrepose.core.service.event.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.DelegatingFilterProxy;
-import org.springframework.web.filter.GenericFilterBean;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -63,15 +60,14 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final EventService eventService;
     private final ConfigurationService configurationService;
     private final MetricsService metricsService;
-    private final ClassLoaderManagerService classLoaderManagerService;
-    private final ReposeInstanceInfo reposeInstanceInfo;
     private final ContainerConfigurationService containerConfigurationService;
     private final ResponseMessageService responseMessageService;
+    private final FilterContextInitializer filterContextInitializer;
+    private final SystemModelInterrogator systemModelInterrogator;
     private EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private UpdateListener<SystemModel> systemModelConfigurationListener;
 
     private boolean firstInitialization;
-    private ServicePorts servicePorts;
     private PowerFilterChainBuilder powerFilterChainBuilder;
     private SystemModel currentSystemModel;
     private ReposeCluster serviceDomain;
@@ -84,8 +80,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private HealthCheckService healthCheckService;
 
     @Inject
-    public PowerFilter(ServicePorts servicePorts,
-                      ReportingService reportingService,
+    public PowerFilter(ReportingService reportingService,
                       HealthCheckService healthCheckService,
                       PowerFilterChainBuilder powerFilterChainBuilder,
                       EventService eventService,
@@ -94,21 +89,20 @@ public class PowerFilter extends DelegatingFilterProxy {
                       ResponseHeaderService responseHeaderService,
                       ResponseMessageService responseMessageService,
                       MetricsService metricsService,
-                      ClassLoaderManagerService classLoaderManagerService,
-                      ReposeInstanceInfo reposeInstanceInfo
+                      FilterContextInitializer filterContextInitializer,
+                      SystemModelInterrogator systemModelInterrogator
     ) {
         firstInitialization = true;
 
+        this.systemModelInterrogator = systemModelInterrogator;
         this.configurationService = configurationService;
         this.responseHeaderService = responseHeaderService;
         this.metricsService = metricsService;
-        this.classLoaderManagerService = classLoaderManagerService;
-        this.reposeInstanceInfo = reposeInstanceInfo;
+        this.filterContextInitializer = filterContextInitializer;
         this.containerConfigurationService = containerConfigurationService;
         this.responseMessageService = responseMessageService;
 
         this.eventService = eventService;
-        this.servicePorts = servicePorts;
         this.reportingService = reportingService;
         this.healthCheckService = healthCheckService;
         this.powerFilterChainBuilder = powerFilterChainBuilder;
@@ -128,7 +122,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
         configurationService.subscribeTo("", "system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
 
-        getFilterConfig().getServletContext().setAttribute("powerFilter", this);
+        //getFilterConfig().getServletContext().setAttribute("powerFilter", this);
+        //I don't think we want to use the filter config's servlet context. I don't know why we would do this...
+        //I'm also not really sure why we're putting the powerFilter itself into the servlet context, it seems super weird
+        getServletContext().setAttribute("powerFilter", this);
+
 
         healthCheckServiceProxy = healthCheckService.register();
 
@@ -152,11 +150,12 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
 
             if (currentSystemModel != null) {
-                SystemModelInterrogator interrogator = new SystemModelInterrogator(servicePorts);
+                //NOPE NOPE NOPE
+                //SystemModelInterrogator interrogator = new SystemModelInterrogator(reposeInstanceInfo.getPorts());
 
-                Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
-                Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
-                Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
+                Optional<Node> ln = systemModelInterrogator.getLocalNode(currentSystemModel);
+                Optional<ReposeCluster> lc = systemModelInterrogator.getLocalCluster(currentSystemModel);
+                Optional<Destination> dd = systemModelInterrogator.getDefaultDestination(currentSystemModel);
 
                 if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
                     localHost = ln.get();
@@ -172,10 +171,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                             "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
 
-                final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                        getFilterConfig(),
-                        reposeInstanceInfo).
-                        buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
+                final List<FilterContext> newFilterChain = filterContextInitializer.buildFilterContexts(getFilterConfig(), serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -200,11 +196,9 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                     eventService.newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                 } else {
-                    SystemModelInterrogator interrogator = new SystemModelInterrogator(servicePorts);
-
-                    Optional<Node> ln = interrogator.getLocalNode(currentSystemModel);
-                    Optional<ReposeCluster> lc = interrogator.getLocalCluster(currentSystemModel);
-                    Optional<Destination> dd = interrogator.getDefaultDestination(currentSystemModel);
+                    Optional<Node> ln = systemModelInterrogator.getLocalNode(currentSystemModel);
+                    Optional<ReposeCluster> lc = systemModelInterrogator.getLocalCluster(currentSystemModel);
+                    Optional<Destination> dd = systemModelInterrogator.getDefaultDestination(currentSystemModel);
 
                     if (ln.isPresent() && lc.isPresent() && dd.isPresent()) {
                         localHost = ln.get();
@@ -218,9 +212,8 @@ public class PowerFilter extends DelegatingFilterProxy {
                                 "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
                     }
 
-                    final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                            getFilterConfig(),
-                            reposeInstanceInfo).buildFilterContexts(classLoaderManagerService, serviceDomain, localHost);
+                    final List<FilterContext> newFilterChain = filterContextInitializer.buildFilterContexts(getFilterConfig(), serviceDomain, localHost);
+
                     updateFilterChainBuilder(newFilterChain);
                 }
             }

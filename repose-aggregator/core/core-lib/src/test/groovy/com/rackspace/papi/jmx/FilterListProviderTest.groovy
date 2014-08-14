@@ -1,9 +1,9 @@
 package com.rackspace.papi.jmx
-import org.openrepose.core.service.config.manager.UpdateListener
+
 import com.rackspace.papi.domain.Port
-import com.rackspace.papi.domain.ServicePorts
+import com.rackspace.papi.domain.ReposeInstanceInfo
+import com.rackspace.papi.filter.SystemModelInterrogator
 import com.rackspace.papi.model.*
-import org.openrepose.core.service.config.ConfigurationService
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
 import com.rackspace.papi.service.healthcheck.Severity
@@ -11,9 +11,12 @@ import org.apache.log4j.Logger
 import org.apache.log4j.SimpleLayout
 import org.apache.log4j.WriterAppender
 import org.mockito.ArgumentCaptor
+import org.openrepose.core.service.config.ConfigurationService
+import org.openrepose.core.service.config.manager.UpdateListener
 import spock.lang.Shared
 import spock.lang.Specification
 
+import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
 
@@ -28,7 +31,10 @@ class FilterListProviderTest extends Specification {
     ConfigurationService configurationService
 
     @Shared
-    ServicePorts ports = new ServicePorts()
+    SystemModelInterrogator systemModelInterrogator
+
+    @Shared
+    ReposeInstanceInfo reposeInstanceInfo
 
     @Shared
     ByteArrayOutputStream log = new ByteArrayOutputStream()
@@ -47,7 +53,12 @@ class FilterListProviderTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckProxy)
 
-        filterListProvider = new FilterListProvider(ports,
+        reposeInstanceInfo = new ReposeInstanceInfo()
+        reposeInstanceInfo.setPorts(new ArrayList<Port>())
+
+        systemModelInterrogator=new SystemModelInterrogator(reposeInstanceInfo)
+
+        filterListProvider = new FilterListProvider(systemModelInterrogator,
                 configurationService,
                 configurationInformation,
                 healthCheckService)
@@ -61,8 +72,8 @@ class FilterListProviderTest extends Specification {
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
-        ports.clear()
-        ports.add(new Port("http", 8080))
+        reposeInstanceInfo.getPorts().clear()
+        reposeInstanceInfo.getPorts().add(new Port("http", 8080))
 
         filterListProvider.afterPropertiesSet()
 
@@ -84,7 +95,7 @@ class FilterListProviderTest extends Specification {
         doNothing().when(configurationService).subscribeTo(eq("system-model.cfg.xml"), listenerCaptor.capture(), eq(SystemModel.class))
 
         SystemModel systemModel = getValidSystemModel()
-        ports.clear()
+        reposeInstanceInfo.ports.clear()
 
         filterListProvider.afterPropertiesSet()
 

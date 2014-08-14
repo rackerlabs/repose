@@ -1,9 +1,12 @@
 package org.openrepose.components.flush;
 
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import java.io.IOException;
-import javax.servlet.*;
 
+import javax.inject.Named;
+import javax.servlet.*;
+import java.io.IOException;
+
+@Named
 public class FlushOutputFilter implements Filter {
 
     private FlushOutputHandlerFactory handlerFactory;

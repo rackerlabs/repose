@@ -1,32 +1,29 @@
 package com.rackspace.papi.service.headers.request;
 
 import com.google.common.base.Optional;
-import org.openrepose.core.service.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import com.rackspace.papi.service.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy;
 import com.rackspace.papi.service.healthcheck.Severity;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.config.manager.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.context.ServletContextAware;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.ServletContext;
 
 @Named
-public class RequestHeaderServiceImpl implements RequestHeaderService, ServletContextAware {
+public class RequestHeaderServiceImpl implements RequestHeaderService {
     public static final Logger LOG = LoggerFactory.getLogger(RequestHeaderServiceImpl.class);
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
 
@@ -34,29 +31,23 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
     private final ContainerConfigurationListener configurationListener = new ContainerConfigurationListener();
     private final ConfigurationService configurationService;
     private final HealthCheckService healthCheckService;
+    private final SystemModelInterrogator systemModelInterrogator;
+    private final String reposeVersion;
 
-    private String reposeVersion = "";
-    private String viaReceivedBy = "";
+    private String viaReceivedBy;
     private String hostname = "Repose";
-    private ServicePorts ports;
-    private ServletContext servletContext;
     private ViaHeaderBuilder viaHeaderBuilder;
     private HealthCheckServiceProxy healthCheckServiceProxy;
 
     @Inject
     public RequestHeaderServiceImpl(ConfigurationService configurationService,
                                     HealthCheckService healthCheckService,
-                                    @Qualifier("servicePorts") ServicePorts ports,
+                                    SystemModelInterrogator systemModelInterrogator,
                                     @Qualifier("reposeVersion") String reposeVersion) {
         this.configurationService = configurationService;
         this.reposeVersion = reposeVersion;
-        this.ports = ports;
+        this.systemModelInterrogator = systemModelInterrogator;
         this.healthCheckService = healthCheckService;
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
     }
 
     @PostConstruct
@@ -127,8 +118,7 @@ public class RequestHeaderServiceImpl implements RequestHeaderService, ServletCo
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
-            final SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Optional<Node> ln = interrogator.getLocalNode(systemModel);
+            Optional<Node> ln = systemModelInterrogator.getLocalNode(systemModel);
 
             if (ln.isPresent()) {
                 hostname = ln.get().getHostname();
