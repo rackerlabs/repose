@@ -13,6 +13,7 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HEAD;
 import java.util.List;
 
 /**
@@ -59,8 +60,12 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
             LOG.error("Unable to validate token for tenant.  Invalid token.");
 
+<<<<<<<HEAD
             /*
             we are here because the authToken is null
+=======
+            /*we are here because the authToken is null
+>>>>>>> 0b82e7890155cbbf2b9d4dd3e0e7b54f01dde191
             this means it was never set because the tenant id did not match the URI
             we need to check the roles list here!
 
