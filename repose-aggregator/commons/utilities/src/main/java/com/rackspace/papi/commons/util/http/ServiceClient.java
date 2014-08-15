@@ -116,7 +116,7 @@ public class ServiceClient {
         }
     }
 
-    private ServiceClientResponse<Object> execute(HttpRequestBase base,String... queryParameters) {
+    private ServiceClientResponse execute(HttpRequestBase base,String... queryParameters) {
         try {
 
             HttpClient client=getClientWithBasicAuth();
@@ -134,7 +134,7 @@ public class ServiceClient {
                 EntityUtils.consume(entity);
             }
 
-            return new ServiceClientResponse<>(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
+            return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
         } catch (ServiceClientException  ex){
             LOG.error("Failed to obtain an HTTP default client connection", ex);
         } catch (IOException ex) {
@@ -144,14 +144,14 @@ public class ServiceClient {
 
         }
 
-        return new ServiceClientResponse<>(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+        return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
     }
 
-    public ServiceClientResponse<Object> post(String uri, String body, MediaType contentMediaType) {
+    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
         return post(uri, body, contentMediaType, MediaType.APPLICATION_XML_TYPE);
     }
 
-    public ServiceClientResponse<Object> post(String uri, String body, MediaType contentMediaType, MediaType acceptMediaType) {
+    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType, MediaType acceptMediaType) {
         HttpPost post = new HttpPost(uri);
 
         Map<String, String> headers= new HashMap<>();
@@ -168,7 +168,7 @@ public class ServiceClient {
         return execute(post);
     }
 
-    public ServiceClientResponse<Object> get(String uri, Map<String, String> headers, String... queryParameters){
+    public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
 
         URI uriBuilt = null;
         HttpGet httpget = new HttpGet(uri);
@@ -190,7 +190,7 @@ public class ServiceClient {
 
             } catch (URISyntaxException e) {
                 LOG.error("Error building request URI", e);
-                return new ServiceClientResponse<>(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
+                return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
 
             }
 
