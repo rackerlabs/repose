@@ -43,15 +43,15 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     describe("handleRequest")(pending)
 
     describe("isUriWhitelisted") {
+        val isUriWhitelisted = PrivateMethod[Boolean]('isUriWhitelisted)
+
         it("should return true if uri is in the whitelist") {
             val whiteList = List("/test1", "/test2")
-            val isUriWhitelisted = PrivateMethod[Boolean]('isUriWhitelisted)
             keystoneV3Handler invokePrivate isUriWhitelisted("/test1", whiteList) should be(true)
         }
 
         it("should return false if uri isn't in the whitelist") {
             val whiteList = List("/test1", "/test2")
-            val isUriWhitelisted = PrivateMethod[Boolean]('isUriWhitelisted)
             keystoneV3Handler invokePrivate isUriWhitelisted("/test3", whiteList) should be(false)
         }
     }
@@ -75,8 +75,9 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     describe("fetchAdminToken") {
+        val fetchAdminToken = PrivateMethod[Try[String]]('fetchAdminToken)
+
         it("should return a Failure when unable to retrieve admin token") {
-            val fetchAdminToken = PrivateMethod[Try[String]]('fetchAdminToken)
             val mockServiceClientResponse = mock[ServiceClientResponse[Object]]
 
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
@@ -92,7 +93,6 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         }
 
         it("should return an admin token as a string when the admin API call succeeds") {
-            val fetchAdminToken = PrivateMethod[Try[String]]('fetchAdminToken)
             val mockServiceClientResponse = mock[ServiceClientResponse[Object]]
             val mockHeader = mock[Header]
 
@@ -113,9 +113,9 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     describe("createAdminAuthRequest") {
-        it("should build a JSON auth token request without a domain ID") {
-            val createAdminAuthRequest = PrivateMethod[String]('createAdminAuthRequest)
+        val createAdminAuthRequest = PrivateMethod[String]('createAdminAuthRequest)
 
+        it("should build a JSON auth token request without a domain ID") {
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
             keystoneConfig.getKeystoneService.setUsername("user")
             keystoneConfig.getKeystoneService.setPassword("password")
@@ -124,8 +124,6 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         }
 
         it("should build a JSON auth token request with a string domain ID") {
-            val createAdminAuthRequest = PrivateMethod[String]('createAdminAuthRequest)
-
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
             keystoneConfig.getKeystoneService.setUsername("user")
             keystoneConfig.getKeystoneService.setPassword("password")
