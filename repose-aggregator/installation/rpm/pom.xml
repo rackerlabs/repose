@@ -25,8 +25,8 @@
         <module>repose-filters</module>
         <module>repose-extension-filters</module>
         <module>repose-valve</module>
-        <module>ug-repose-filters</module>
-        <module>ug-repose-valve</module>
+        <!--module>ug-repose-filters</module-->
+        <!--module>ug-repose-valve</module-->
     </modules>
 
     <build>
