@@ -33,15 +33,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
+
+
+
 
 /**
  * @author zinic
@@ -202,7 +202,168 @@ public class OpenStackAuthenticationHandlerTest {
 
     }
 
-    public static class WhenCachingUserInfo extends TestParent {
+    public static class TestXTenantId extends TestParent {
+
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws DatatypeConfigurationException {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            Calendar expires = getCalendarWithOffset(10000000);
+
+            //
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+
+            //building a fake authResponse
+            authResponse = new AuthenticateResponse();
+
+            //building a user to be associated with the response
+            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
+            //set the roles of the user to defaults
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("104772");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+        }
+
+
+        @Test
+        public void tenantIdFromTokenMatchesURI() {
+
+            //this test should pass already from old code.
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            //check if the requestHeaderManager is going to add the x-tenant-id
+            assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+
+            //if it does make sure that id is equal to the tenant id in the uri
+            assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
+
+            // TODO: use hamcrest matchers
+        }
+    }
+
+    public static class TestXTenantId2 extends TestParent {
+
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws DatatypeConfigurationException {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            Calendar expires = getCalendarWithOffset(10000000);
+
+            //
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+
+            //building a fake authResponse
+            authResponse = new AuthenticateResponse();
+
+            //building a user to be associated with the response
+            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("123456");
+            userForAuthenticateResponse.setName("user2");
+            //set the roles of the user to defaults
+
+
+            Role role1 = new Role();
+            role1.setName("123456");
+            role1.setId("5");
+            role1.setDescription("Derp description");
+
+            Role role2 = new Role();
+            role2.setName("104772");
+            role2.setId("6");
+            role2.setDescription("Derp description");
+
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role1);
+            roleList.getRole().add(role2);
+
+
+            userForAuthenticateResponse.setRoles(roleList);
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("123456");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+
+        }
+
+
+        @Test
+        public void tenantIdFromTokenMatchesAnIdFromRoles() {
+
+            //This test should currently fail
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+
+            //check if the requestHeaderManager is going to add the x-tenant-id
+            assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+            //if it does make sure that id is equal to the tenant id in the uri, even if the one in the original
+            //token wasn't the same (it should have found it in the roles list)
+            assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
+
+            // TODO: use hamcrest matchers
+        }
+    }
+
+        public static class WhenCachingUserInfo extends TestParent {
 
         private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
