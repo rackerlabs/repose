@@ -60,12 +60,12 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
 
     @Override
-    public ServiceClientResponse<Object> get(String key, String uri, Map<String, String> headers) {
+    public ServiceClientResponse get(String key, String uri, Map<String, String> headers) {
 
-        ServiceClientResponse<Object> reusableServiceserviceClientResponse = null;
+        ServiceClientResponse reusableServiceserviceClientResponse = null;
         AuthGetRequest authGetRequest = new AuthGetRequest(key, uri, headers);
         try {
-            Future< ServiceClientResponse<Object> > future = getFuture(authGetRequest);
+            Future<ServiceClientResponse> future = getFuture(authGetRequest);
             reusableServiceserviceClientResponse = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (GET) or the cache", e);
@@ -74,16 +74,16 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     }
 
     @Override
-    public ServiceClientResponse<Object> post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
+    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
         return post(requestKey, uri, headers, payload, contentMediaType, MediaType.APPLICATION_XML_TYPE);
     }
 
     @Override
-    public ServiceClientResponse<Object> post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType) {
-        ServiceClientResponse<Object> scr = null;
+    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType) {
+        ServiceClientResponse scr = null;
         AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType, acceptMediaType);
         try {
-            Future< ServiceClientResponse<Object> > future = getFuture(apr);
+            Future<ServiceClientResponse> future = getFuture(apr);
             scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache", e);
