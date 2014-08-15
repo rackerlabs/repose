@@ -1,3 +1,3 @@
 package com.rackspace.papi.components.keystone.v3.objects
 
-case class Auth(auth: AuthRequest)
+case class AuthRequestRoot(auth: AuthRequest)
