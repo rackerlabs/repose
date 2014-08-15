@@ -303,7 +303,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             //building a user to be associated with the response
             UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
-            userForAuthenticateResponse.setId("123456");
+            userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
             //set the roles of the user to defaults
 
@@ -351,8 +351,6 @@ public class OpenStackAuthenticationHandlerTest {
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             FilterDirector director = handler.handleRequest(request, response);
-
-
             //check if the requestHeaderManager is going to add the x-tenant-id
             assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
             //if it does make sure that id is equal to the tenant id in the uri, even if the one in the original
