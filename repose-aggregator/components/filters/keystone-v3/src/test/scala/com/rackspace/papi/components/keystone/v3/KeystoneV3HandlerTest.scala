@@ -13,7 +13,7 @@ import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.{HttpClientResponse, HttpClientService}
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
-import org.apache.http.Header
+import org.apache.http.message.BasicHeader
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyMap, anyString}
 import org.mockito.Mockito.when
@@ -94,16 +94,13 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
         it("should return an admin token as a string when the admin API call succeeds") {
             val mockServiceClientResponse = mock[ServiceClientResponse[Object]]
-            val mockHeader = mock[Header]
 
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
             keystoneConfig.getKeystoneService.setUsername("user")
             keystoneConfig.getKeystoneService.setPassword("password")
 
-            when(mockHeader.getName).thenReturn("X-Subject-Token", Nil: _*)
-            when(mockHeader.getValue).thenReturn("test-admin-token", Nil: _*)
             when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
-            when(mockServiceClientResponse.getHeaders).thenReturn(Array(mockHeader), Nil: _*)
+            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
