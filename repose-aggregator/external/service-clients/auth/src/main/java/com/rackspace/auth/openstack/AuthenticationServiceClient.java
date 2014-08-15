@@ -36,7 +36,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
     private static final String TOKENS = "/tokens/";
     public static final String ENDPOINTS = "/endpoints";
     private final String targetHostUri;
-    private final ServiceClient serviceClient;
     private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
     private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
     private static final String TOKEN_PREFIX = "TOKEN:";
@@ -52,11 +51,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
                                        ResponseUnmarshaller openStackCoreResponseUnmarshaller,
                                        ResponseUnmarshaller openStackGroupsResponseUnmarshaller,
                                        JaxbEntityToXml jaxbToString,
-                                       ServiceClient serviceClient,
                                        AkkaServiceClient akkaServiceClient) {
         this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
         this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
-        this.serviceClient = serviceClient;
         this.targetHostUri = targetHostUri;
         this.akkaServiceClient = akkaServiceClient;
 
@@ -84,7 +81,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         OpenStackToken token = null;
 
-        ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
+        ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
@@ -120,16 +117,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return token;
     }
 
-    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant, boolean force) {
-        final Map<String, String> headers = new HashMap<String, String>();
+    private ServiceClientResponse validateUser(String userToken, String tenant, boolean force) {
+        final Map<String, String> headers = new HashMap<>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
         return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
     }
 
-    private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {
+    private OpenStackToken getOpenStackToken(ServiceClientResponse serviceResponse) {
         final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-        OpenStackToken token = null;
+        OpenStackToken token;
 
         token = new OpenStackToken(authenticateResponse);
         return token;
@@ -137,16 +134,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
-        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> headers = new HashMap<>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
 
 
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
-        ServiceClientResponse<EndpointList> endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken +
+        ServiceClientResponse endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken +
                 ENDPOINTS, headers);
-        List<Endpoint> endpointList = new ArrayList<Endpoint>();
+        List<Endpoint> endpointList;
 
         switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
             case OK:
@@ -179,8 +176,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     // Method to take in the format and token, then use that info to get the endpoints catalog from auth, and return it encoded.
     @Override
     public String getBase64EndpointsStringForHeaders(String userToken, String format) {
-        final Map<String, String> headers = new HashMap<String, String>();
-        String adminToken = "";
+        final Map<String, String> headers = new HashMap<>();
 
         //defaulting to json format
         if (format.equalsIgnoreCase("xml")) {
@@ -196,7 +192,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         ServiceClientResponse serviceClientResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-        String rawEndpointsData = "";
+        String rawEndpointsData;
 
         switch (HttpStatusCode.fromInt(serviceClientResponse.getStatusCode())) {
             case OK:
@@ -236,8 +232,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return new String(encodedString);
     }
 
-    private List<Endpoint> getEndpointList(ServiceClientResponse<EndpointList> endpointListResponse) {
-        List<Endpoint> endpointList = new ArrayList<Endpoint>();
+    private List<Endpoint> getEndpointList(ServiceClientResponse endpointListResponse) {
+        List<Endpoint> endpointList = new ArrayList<>();
 
         final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
 
@@ -250,14 +246,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     @Override
     public AuthGroups getGroups(String userId) {
-        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> headers = new HashMap<>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
 
-        ServiceClientResponse<Groups> serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
-        AuthGroups authGroups = null;
+        ServiceClientResponse serviceResponse = akkaServiceClient.get(GROUPS_PREFIX + userId, targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+        AuthGroups authGroups;
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
@@ -289,8 +285,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return authGroups;
     }
 
-    private AuthGroups getAuthGroups(ServiceClientResponse<Groups> serviceResponse) {
-        final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
+    private AuthGroups getAuthGroups(ServiceClientResponse serviceResponse) {
+        final List<AuthGroup> authGroupList = new ArrayList<>();
         final Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
 
         if (groups != null) {

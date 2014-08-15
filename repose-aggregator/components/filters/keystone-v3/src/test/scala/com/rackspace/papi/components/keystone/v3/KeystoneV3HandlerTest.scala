@@ -5,10 +5,8 @@ import javax.ws.rs.core.MediaType
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
-import com.rackspace.papi.components.keystone.v3.utilities.KeystoneAuthException
-import com.rackspace.papi.commons.util.http.HttpStatusCode
-import com.rackspace.papi.components.keystone.v3.config.{OpenstackKeystoneService, KeystoneV3Config}
 import com.rackspace.papi.components.keystone.v3.objects.EndpointType
+import com.rackspace.papi.components.keystone.v3.utilities.KeystoneAuthException
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.{HttpClientResponse, HttpClientService}
@@ -78,7 +76,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         val fetchAdminToken = PrivateMethod[Try[String]]('fetchAdminToken)
 
         it("should return a Failure when unable to retrieve admin token") {
-            val mockServiceClientResponse = mock[ServiceClientResponse[Object]]
+            val mockServiceClientResponse = mock[ServiceClientResponse]
 
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
             keystoneConfig.getKeystoneService.setUsername("user")
@@ -93,7 +91,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         }
 
         it("should return an admin token as a string when the admin API call succeeds") {
-            val mockServiceClientResponse = mock[ServiceClientResponse[Object]]
+            val mockServiceClientResponse = mock[ServiceClientResponse]
 
             keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
             keystoneConfig.getKeystoneService.setUsername("user")

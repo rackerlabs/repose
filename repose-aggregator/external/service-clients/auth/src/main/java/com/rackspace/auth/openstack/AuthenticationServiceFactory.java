@@ -36,7 +36,6 @@ public class AuthenticationServiceFactory {
               new ResponseUnmarshaller(coreJaxbContext),
               new ResponseUnmarshaller(groupJaxbContext),
               new JaxbEntityToXml(coreJaxbContext),
-              new ServiceClient(connectionPoolId, httpClientService),
               akkaServiceClient);
    }
 }

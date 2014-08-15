@@ -37,7 +37,7 @@ class AuthenticationServiceClientGroovyTest {
         AkkaServiceClient akkaAuthenticationClient= mock(AkkaServiceClient.class)
 
         def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id",
-                null, null, new JaxbEntityToXml(coreJaxbContext), serviceClient, akkaAuthenticationClient)
+                null, null, new JaxbEntityToXml(coreJaxbContext), akkaAuthenticationClient)
         def InputStream inputStream = new ByteArrayInputStream("test".getBytes())
         def String s
 
