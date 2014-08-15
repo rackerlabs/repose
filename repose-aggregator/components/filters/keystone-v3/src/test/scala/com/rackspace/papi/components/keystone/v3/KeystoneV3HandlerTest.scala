@@ -6,6 +6,9 @@ import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneAuthException
+import com.rackspace.papi.commons.util.http.HttpStatusCode
+import com.rackspace.papi.components.keystone.v3.config.{OpenstackKeystoneService, KeystoneV3Config}
+import com.rackspace.papi.components.keystone.v3.objects.EndpointType
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.{HttpClientResponse, HttpClientService}
@@ -129,6 +132,18 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             keystoneConfig.getKeystoneService.setDomainId("domainId")
 
             keystoneV3Handler invokePrivate createAdminAuthRequest() should equal("{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"domain\":{\"id\":\"domainId\"},\"name\":\"user\",\"password\":\"password\"}}}}}")
+        }
+    }
+
+    describe("containsEndpoint") {
+        val containsEndpoint = PrivateMethod[Boolean]('containsEndpoint)
+
+        it("should return true when there is an endpoint that matches the url") {
+          keystoneV3Handler invokePrivate containsEndpoint(List(EndpointType(null, null, null, null, "http://www.woot.com"), EndpointType(null, null, null, null, "http://www.notreallyawebsite.com")), "http://www.notreallyawebsite.com") should be(true)
+        }
+
+        it("should return false when there isn't an endpoint that matches the url") {
+          keystoneV3Handler invokePrivate containsEndpoint(List(EndpointType(null, null, null, null, "http://www.woot.com"), EndpointType(null, null, null, null, "http://www.banana.com")), "http://www.notreallyawebsite.com") should be(false)
         }
     }
 }
