@@ -19,11 +19,7 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author fran
@@ -164,7 +160,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64);
 
-
+        //new headers should be added here it looks like
         return filterDirector;
     }
 
