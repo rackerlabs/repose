@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -26,6 +27,33 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-extensions-filter-bundle-ear</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.components.extensions</groupId>
+                                            <artifactId>extensions-filter-bundle</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>ear</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
 
@@ -44,7 +72,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear
+                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
                                             </location>
                                         </source>
                                     </sources>
@@ -68,7 +96,7 @@
 
                                 <!--This adds the license file.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
+                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
@@ -84,7 +112,6 @@
                             </mappings>
 
                             <requires>
-                                <require>repose</require>
                                 <require>repose-filters</require>
                             </requires>
                             <group>Applications/Internet</group>

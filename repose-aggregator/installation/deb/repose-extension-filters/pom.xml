@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <artifactId>deb</artifactId>
         <groupId>com.rackspace.repose.installation.deb</groupId>
+        <artifactId>deb</artifactId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.rackspace.repose.installation.deb.filters.extensions</groupId>
     <artifactId>repose-extensions-filter-bundle</artifactId>
@@ -35,6 +37,33 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-extensions-filter-bundle-ear</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.components.extensions</groupId>
+                                            <artifactId>extensions-filter-bundle</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>ear</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.vafer</groupId>
                         <artifactId>jdeb</artifactId>
 
@@ -48,7 +77,7 @@
                                         <!-- The jar file -->
                                         <data>
                                             <src>
-                                                ${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear
+                                                ${project.build.directory}/extensions-filter-bundle-${project.version}.ear
                                             </src>
                                             <type>file</type>
                                             <mapper>
@@ -57,6 +86,7 @@
                                             </mapper>
                                         </data>
 
+                                        <!--The git.properties file -->
                                         <data>
                                             <src>${basedir}/target/git.properties</src>
                                             <type>file</type>
@@ -72,7 +102,6 @@
                                             <src>${basedir}/../../configs/extensions</src>
                                             <type>directory</type>
                                             <includes>*.cfg.xml</includes>
-
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/etc/repose</prefix>
@@ -86,7 +115,7 @@
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/repose/${artifactId}</prefix>
+                                                <prefix>/usr/share/doc/repose/${project.artifactId}</prefix>
                                                 <filemode>644</filemode>
                                             </mapper>
                                         </data>

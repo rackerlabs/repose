@@ -26,6 +26,34 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-web-application-war</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.rackspace.papi.core</groupId>
+                                            <artifactId>web-application</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>war</type>
+                                            <destFileName>ROOT.war</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
 
@@ -36,13 +64,11 @@
 
                             <mappings>
                                 <mapping>
-                                    <!-- This is the location of tomcat as installed by jpackage -->
-                                    <directory>/var/lib/tomcat7/webapps</directory>
-
+                                    <directory>/usr/share/repose/</directory>
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../core/web-application/target/ROOT.war
+                                                ${project.build.directory}/ROOT.war
                                             </location>
                                         </source>
                                     </sources>
@@ -54,7 +80,6 @@
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                     <configuration>noreplace</configuration>
-
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
@@ -86,7 +111,7 @@
 
                                 <!--This adds the license file.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${artifactId}/</directory>
+                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
@@ -102,9 +127,7 @@
                             </mappings>
 
                             <requires>
-                                <require>java &gt;= 1.6.0</require>
-                                <require>servlet &gt;= 3.0</require>
-                                <require>jsp &gt;= 2.2</require>
+                                <require>java &gt;= 1.7.0</require>
                             </requires>
                             <provides>
                                 <provide>repose</provide>

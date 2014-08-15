@@ -1,0 +1,4 @@
+#!/bin/sh
+
+getent group repose &> /dev/null || groupadd -r repose
+getent passwd repose &> /dev/null || useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
