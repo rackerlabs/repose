@@ -56,6 +56,36 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     private AuthToken validateTenant(AuthToken authToken, String tenantID) {
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
             LOG.error("Unable to validate token for tenant.  Invalid token.");
+
+            /*we are here because the authToken is null
+            this means it was never set because the tenant id did not match the URI
+            we need to check the roles list here!
+
+            tenantID (from URI) and authToken.getTenantId() do not match
+            so, we have to see if the tenantID from the URI
+            matches any of the roles from the authToken that came back
+            in the response.
+
+            tenantID == tenantID from the URI
+            authToken.getTenantId == tenantId from token
+
+            loop through roles list: authToken.getRoles().split(".")*/
+
+
+            for (String role : authToken.getRoles().split(",")) {
+                if(tenantID.equalsIgnoreCase(role)) {
+                    /*then we can put the 104772 in the header...which will happen if we just return authToken?
+                    BUT! The auth token has the wrong tenant ID, we need a new one
+
+                    director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add("nonsense");
+                    director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add("nonsense2");
+
+
+                    TODO: figure out how to put the correct tenantID into an existing auth token
+                    return authToken;*/
+                }
+            }
+
             return null;
         } else {
             return authToken;
