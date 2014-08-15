@@ -10,6 +10,7 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/13/14.
+ * This the boundary test checking the limit size for request headers
  */
 class LargeHeaderTest extends ReposeValveTest {
 
@@ -70,9 +71,9 @@ class LargeHeaderTest extends ReposeValveTest {
             [["Warning", "WWW-Authenticate"], [1024, 4096, 6144, 7168]].combinations()
     }
 
-    //test failed with total headers size > 8192 Characters
+
     @Unroll("Response: #headerName, #headersize")
-    def "Repose post req with large header get response" () {
+    def "Repose post req with large header get response" () {//test failed with total headers size > 8192 Characters
         given:
         def largeheader = RandomStringUtils.random(headersize, ('A'..'Z').join().toCharArray())
         def tokengen = RandomStringUtils.random(740, ('A'..'Z').join().toCharArray())
@@ -97,7 +98,8 @@ class LargeHeaderTest extends ReposeValveTest {
                 [["Warning", "WWW-Authenticate"], [1024, 4096, 6144, 7168]].combinations()
     }
 
-    def "Repose send req with total headers size > 8192 test should not handle" () {
+    //with total headers size > 8192 Characters repose should not handle and resp 413
+    def "Repose send req with total headers size > 8192 should not handle" () {
         given:
         def largeheader = RandomStringUtils.random(8100, ('A'..'Z').join().toCharArray())
 
@@ -115,6 +117,7 @@ class LargeHeaderTest extends ReposeValveTest {
         mc.receivedResponse.code == "413"
     }
 
+    //with total headers size > 8192, orgin service resp 500
     def "Repose send req with total headers size > 8192 should resp 500" () {
         given:
         def largeheader = RandomStringUtils.random(8100, ('A'..'Z').join().toCharArray())
