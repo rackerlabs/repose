@@ -10,9 +10,11 @@ import java.util.Map;
  */
 public interface AkkaServiceClient {
 
-    ServiceClientResponse get(String token, String uri, Map<String, String> headers);
-    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType); // TODO: Deprecate
-    ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType);
+    // Note: ServiceClientResponse generics are typed to Object to improve interoperability with Scala even though
+    //       these types are not necessary in this context
+    ServiceClientResponse<Object> get(String token, String uri, Map<String, String> headers);
+    ServiceClientResponse<Object> post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType); // TODO: Deprecate
+    ServiceClientResponse<Object> post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType);
 
     void shutdown();
 }
