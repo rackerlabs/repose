@@ -126,7 +126,11 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         ).toJson.compactPrint
     }
 
+    private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, request: HttpServletRequest) = {}
+
     private def containsEndpoint(endpoints: List[EndpointType], url: String): Boolean = true
 
-    private def hasIgnoreEnabledRole(ignoreTenantRoles: List[String], userRoles: List[Role]): Boolean = true
+    private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
+
+    private def matchesProject(projectFromUri: String, roles: List[Role]): Boolean = true
 }
