@@ -24,5 +24,5 @@ object IdentityJsonProtocol extends DefaultJsonProtocol {
     implicit val authIdentityRequestFormat = jsonFormat3(AuthIdentityRequest)
     implicit val authRequestFormat = jsonFormat2(AuthRequest)
     implicit val authResponseFormat = jsonFormat1(AuthResponse)
-    implicit val authFormat = jsonFormat1(Auth)
+    implicit val authFormat = jsonFormat1(AuthRequestRoot)
 }
