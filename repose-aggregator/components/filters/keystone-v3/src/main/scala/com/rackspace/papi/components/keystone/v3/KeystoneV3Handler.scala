@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
+import com.rackspace.papi.components.keystone.v3.utilities.KeystoneAuthException
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
@@ -58,7 +59,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
             filterDirector.setFilterAction(FilterAction.RETURN)
         } else {
-            val tokenObject = validateSubjectToken(subjectToken)
+//            val tokenObject = validateSubjectToken(subjectToken) match {
+//                case Success(v) => v
+//                case Failure(_) => None
+//            }
             // TODO
         }
 
@@ -72,23 +76,18 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         // TODO: Check/get admin token
         val adminToken = fetchAdminToken() match {
             case Success(v) => v
-            case Failure(e) => ""// TODO: Should a Runtime exception be thrown instead?
+            case Failure(e) => "" // TODO: Should a Runtime exception be thrown instead?
         }
 
         val headerMap = Map(X_AUTH_TOKEN -> adminToken, X_SUBJECT_TOKEN -> subjectToken)
         val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + TOKEN_ENDPOINT, headerMap.asJava)
-
     }
 
     private def fetchAdminToken(): Try[String] = {
         // TODO: Check cache (datastore)
         //        datastoreService.getDefaultDatastore.get(CACHE_KEY)
 
-        val requestJson = createAdminAuthRequest(
-            keystoneConfig.getKeystoneService.getUsername,
-            keystoneConfig.getKeystoneService.getPassword,
-            Option(keystoneConfig.getKeystoneService.getDomainId)
-        )
+        val requestJson = createAdminAuthRequest
         val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + TOKEN_ENDPOINT, Map[String, String]().asJava, requestJson, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
         HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
             case HttpStatusCode.OK =>
@@ -97,12 +96,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 Success(generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(X_SUBJECT_TOKEN)).head.getValue)
             case _ =>
                 LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.getStatusCode)
-                Failure(new Exception()) // TODO: Return a Failure(some_exception)
+                Failure(new KeystoneAuthException("Failed to fetch admin token"))
         }
     }
 
-    // TODO: Make this method private
-    def createAdminAuthRequest(user: String, password: String, domainId: Option[String] = None) = {
+    private def createAdminAuthRequest = {
+        val username = keystoneConfig.getKeystoneService.getUsername
+        val password = keystoneConfig.getKeystoneService.getPassword
+        val domainId = Option(keystoneConfig.getKeystoneService.getDomainId)
         var domainType: Option[DomainType] = None
 
         if (domainId.isDefined) domainType = {
@@ -116,7 +117,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                     password = Some(PasswordCredentials(
                         UserNamePasswordRequest(
                             domain = domainType,
-                            name = Some(user),
+                            name = Some(username),
                             password = password
                         )
                     ))
