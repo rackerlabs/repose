@@ -8,9 +8,9 @@ import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
-import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, EndpointType}
+import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, EndpointType, Role}
 import com.rackspace.papi.components.keystone.v3.utilities.InvalidAdminCredentialsException
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
+import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.message.BasicHeader
@@ -227,6 +227,24 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             keystoneV3Handler invokePrivate fetchAdminToken()
 
             verify(mockDatastore).put(contains("ADMIN_TOKEN"), any[Serializable], anyInt, any[TimeUnit])
+        }
+    }
+
+    describe("writeProjectHeader"){
+        val writeProjectHeader = PrivateMethod[Unit]('writeProjectHeader)
+        val filterDirector = mock[FilterDirector]
+        val headerManager = mock[HeaderManager]
+        when(filterDirector.requestHeaderManager()).thenReturn(headerManager)
+        val roles = List(Role(null, null, Option("12345"), null, null), Role(null, null, Option("67890"), null, null))
+
+        it("should only provide the url project when the flag says to not write all") {
+            keystoneV3Handler invokePrivate writeProjectHeader("abcde", roles, false, filterDirector)
+            verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-PROJECT-ID"), org.mockito.Matchers.eq("abcde"))
+        }
+
+        it("should provide all the projects when the flag says to write all") {
+            keystoneV3Handler invokePrivate writeProjectHeader("abcde", roles, true, filterDirector)
+            verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-PROJECT-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq("abcde"))
         }
     }
 
