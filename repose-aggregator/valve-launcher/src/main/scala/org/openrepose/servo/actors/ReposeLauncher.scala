@@ -1,14 +1,12 @@
 package org.openrepose.servo.actors
 
-import java.io.File
-
-import akka.actor.{PoisonPill, Actor, Props}
+import akka.actor.{Actor, PoisonPill, Props}
 import akka.event.Logging
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
-import org.openrepose.servo.actors.ReposeLauncherProtocol.ProcessCheck
+import org.openrepose.servo.actors.ReposeLauncherProtocol.{ProcessCheck, ProcessExited}
 
 import scala.concurrent.Future
-import scala.sys.process.{ProcessLogger, Process}
+import scala.sys.process.{Process, ProcessLogger}
 
 object ReposeLauncher {
   def props(command: Seq[String],
@@ -20,6 +18,8 @@ object ReposeLauncher {
 object ReposeLauncherProtocol {
 
   case object ProcessCheck
+
+  case class ProcessExited(value: Int)
 
 }
 
@@ -40,14 +40,22 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
   }
 
   override def receive: Receive = {
+    case ProcessExited(value) => {
+      if (value != 0) {
+        log.error(s"Command terminated abnormally. Value: $value")
+      }
+    }
     case Initialize(cid, nid) => {
       clusterId = cid
       nodeId = nid
 
+      //modify our environment to include ClusterID and NodeID always
+      val newEnv = environment + ("CLUSTER_ID" -> cid) + ("NODE_ID" -> nid)
+
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
       // Magic :_* is from http://stackoverflow.com/questions/10842851/scala-expand-list-of-tuples-into-variable-length-argument-list-of-tuples
-      val builder = Process(command, None, environment.toList: _*) //Will add CWD and environment variables eventually
+      val builder = Process(command, None, newEnv.toList: _*) //Will add CWD and environment variables eventually
 
       //Fire that sucker up
       process = Some(builder.run(ProcessLogger(
@@ -61,10 +69,16 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //Grab an execution context to run this future in
       implicit val executionContext = context.dispatcher
       Future {
-        process.map(_.exitValue())
+        //I can assume this exists, because I just made it
+        process.get.exitValue()
       } onComplete { t =>
+        val self = context.self
+        t.map(value => {
+          //Send myself a message about the exit value
+          self ! ProcessExited(value)
+        })
         //Kill myself!
-        context.self ! PoisonPill
+        self ! PoisonPill
       }
     }
   }
