@@ -49,16 +49,25 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       clusterId = reposeNode.clusterId
       nodeId = reposeNode.nodeId
 
+      //Build the additonal params
+      val args = if(reposeNode.httpPort.isDefined) {
+        Seq("--port", reposeNode.httpPort.get.toString)
+      } else {
+        Seq.empty[String]
+      }
+
       val cid = reposeNode.clusterId
       val nid = reposeNode.nodeId
 
       //modify our environment to include ClusterID and NodeID always
       val newEnv = environment + ("CLUSTER_ID" -> cid) + ("NODE_ID" -> nid)
 
+      val newCommand = command ++ args
+
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
       // Magic :_* is from http://stackoverflow.com/questions/10842851/scala-expand-list-of-tuples-into-variable-length-argument-list-of-tuples
-      val builder = Process(command, None, newEnv.toList: _*) //Will add CWD and environment variables eventually
+      val builder = Process(newCommand, None, newEnv.toList: _*) //Will add CWD and environment variables eventually
 
       //Fire that sucker up
       process = Some(builder.run(ProcessLogger(
