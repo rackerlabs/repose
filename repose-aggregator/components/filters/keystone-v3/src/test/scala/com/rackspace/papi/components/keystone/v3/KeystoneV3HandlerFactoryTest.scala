@@ -16,10 +16,9 @@ class KeystoneV3HandlerFactoryTest extends FunSpec with BeforeAndAfter with Matc
 
     val mockAkkaServiceClient = mock[AkkaServiceClient]
     val mockDatastoreService = mock[DatastoreService]
-    val mockConnectionPoolService = mock[HttpClientService[_, _]]
 
     before {
-        handlerFactory = new KeystoneV3HandlerFactory(mockAkkaServiceClient, mockDatastoreService, mockConnectionPoolService)
+        handlerFactory = new KeystoneV3HandlerFactory(mockAkkaServiceClient, mockDatastoreService)
     }
 
     describe("buildHandler") {
