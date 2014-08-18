@@ -76,7 +76,7 @@
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -105,7 +105,7 @@
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
@@ -129,7 +129,7 @@
                                     <directory>/var/log/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>770</filemode>
                                     <sources>
                                         <source>
                                             <location>src/rpm/.log_dir_placeholder</location>
@@ -141,7 +141,7 @@
                                     <directory>/var/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>760</filemode>
+                                    <filemode>770</filemode>
                                     <sources>
                                         <source>
                                             <location>src/rpm/.var_repose_dir_placeholder</location>
@@ -177,7 +177,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../../../LICENSE.txt</location>
