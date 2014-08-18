@@ -75,20 +75,6 @@
                                     </sources>
                                 </mapping>
 
-                                <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
-                                    <configuration>noreplace</configuration>
-                                    <sources>
-                                        <source>
-                                            <!-- Grabs all the config files in configs/core -->
-                                            <location>${basedir}/../../configs/core</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
                                 <!-- The /var/log/repose directory -->
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
@@ -105,11 +91,34 @@
                                     <filemode>770</filemode>
                                 </mapping>
 
+                                <!-- The logrotate script -->
                                 <mapping>
-                                    <directory>/usr/share/repose/filters/</directory>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                src/rpm/etc/logrotate.d/repose
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- The sample configuration files for the filters -->
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
+                                    <configuration>noreplace</configuration>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../configs/core
+                                            </location>
+                                        </source>
+                                    </sources>
                                 </mapping>
 
                                 <!-- This adds the license file on installation.-->
