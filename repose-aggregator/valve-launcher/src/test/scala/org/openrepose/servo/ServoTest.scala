@@ -51,20 +51,22 @@ class ServoTest extends FunSpec with Matchers with TestUtils {
     describe("For a good single node configuration") {
       it("executes the command to start a Jetty with the Repose War on the specified port") {
         //Create the 1-node system model
-        val configRoot = Files.createTempDirectory("servo").toString
+        val configRoot = tempDir("servo").toString
         val systemModel = resourceContent("/servoTesting/system-model-1.cfg.xml")
         writeSystemModel(configRoot, systemModel)
 
         //Create a bash script that outputs test data and just runs
         val fakeRepose = resourceContent("/servoTesting/fakeRepose.sh")
-        val tmpBash = File.createTempFile("fakeRepose", ".sh").toPath
-        val tmpOutput = File.createTempFile("fakeRepose", ".out")
-        Files.write(tmpBash, fakeRepose.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
+        val tmpBash = tempFile("fakeRepose", ".sh")
+        tmpBash.setExecutable(true)
+
+        val tmpOutput = tempFile("fakeRepose", ".out")
+        Files.write(tmpBash.toPath, fakeRepose.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
 
         //Create a config object to merge in
         val config = ConfigFactory.parseString(
           s"""
-            |executionCommand = [${tmpBash.toFile.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
+            |executionCommand = [${tmpBash.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
           """.stripMargin).withFallback(defaultConfig)
 
         info(s"Execution is: ${config.getStringList("executionCommand")}")
