@@ -10,8 +10,9 @@ import scala.sys.process.{Process, ProcessLogger}
 
 object ReposeLauncher {
   def props(command: Seq[String],
-            environment: Map[String, String] = Map.empty[String, String]) = {
-    Props(classOf[ReposeLauncher], command, environment)
+            environment: Map[String, String] = Map.empty[String, String],
+            warFilePath: String) = {
+    Props(classOf[ReposeLauncher], command, environment, warFilePath)
   }
 }
 
@@ -23,7 +24,7 @@ object ReposeLauncherProtocol {
 
 }
 
-class ReposeLauncher(command: Seq[String], environment: Map[String, String]) extends Actor {
+class ReposeLauncher(command: Seq[String], environment: Map[String, String], warFilePath:String) extends Actor {
 
   import scala.concurrent.duration._
 
@@ -50,7 +51,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       nodeId = reposeNode.nodeId
 
       //Build the additonal params
-      val args = if(reposeNode.httpPort.isDefined) {
+      val args = if (reposeNode.httpPort.isDefined) {
         Seq("--port", reposeNode.httpPort.get.toString)
       } else {
         Seq.empty[String]
@@ -62,7 +63,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //modify our environment to include ClusterID and NodeID always
       val newEnv = environment + ("CLUSTER_ID" -> cid) + ("NODE_ID" -> nid)
 
-      val newCommand = command ++ args
+      val newCommand = command ++ args ++ Seq(warFilePath)
 
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
