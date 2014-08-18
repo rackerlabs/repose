@@ -345,7 +345,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void tenantIdFromTokenMatchesAnIdFromRoles() {
 
-            //This test should currently fail
+
 
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
