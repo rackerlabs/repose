@@ -24,7 +24,7 @@ DAEMON_HOME=/usr/share/lib/repose
 PID_FILE=/var/run/repose-valve.pid
 REPOSE_JAR=${DAEMON_HOME}/repose-valve.jar
 START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --background"
-CLEAN=/usr/bin/clean-repose-deploy
+CLEAN=/usr/local/bin/clean-repose-deploy
 
 ###########################
 # Start daemon
