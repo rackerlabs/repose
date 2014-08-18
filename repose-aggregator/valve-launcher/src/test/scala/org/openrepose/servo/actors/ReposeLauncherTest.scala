@@ -1,12 +1,16 @@
 package org.openrepose.servo.actors
 
-import akka.actor.{Terminated, ActorSystem}
+import java.io.File
+
+import akka.actor.{PoisonPill, Terminated, ActorSystem}
 import akka.testkit.{EventFilter, TestProbe, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpecLike, Matchers, BeforeAndAfterAll}
+
+import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class ReposeLauncherTest(_system: ActorSystem) extends TestKit(_system)
@@ -25,7 +29,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
   }
 
   describe("The Repose Launcher") {
-    it("will execute the command and remain running until the command exits"){
+    it("will execute the command and remain running until the command exits") {
 
       //Create a test probe to watch for DEATH
       val probe = TestProbe()
@@ -65,6 +69,9 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
         actor ! Initialize("testCluster", "testNode")
       }
     }
+    it("sets CLUSTER_ID and NODE_ID as environment variables") {
+      pending
+    }
     it("will log standard error out to warn") {
       val probe = TestProbe()
       val props = ReposeLauncher.props(Seq("bash", "-c", "echo >&2 'standardError'"))
@@ -76,8 +83,49 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       }
     }
     it("terminates the command and closes the streams when dying") {
-      pending
+      val probe = TestProbe()
+      //Std out constant noise!
+
+      //Create a temp file
+      val f = File.createTempFile("testing", "txt");
+
+      val fileName = f.getAbsolutePath
+      val props = ReposeLauncher.props(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"))
+
+      val actor = system.actorOf(props)
+
+      //Turn it on, it should start doing stuff
+      actor ! Initialize("testCluster", "testNode")
+
+      Thread.sleep(500)
+
+      //TERMINATE IT
+      actor ! PoisonPill
+
+      //Within a second or so, the file should stop receiving "tests"
+      def fileLines():Int =  Source.fromFile(f).getLines().count(_ => true)
+
+      var lineCount = 0
+      var sames = 0
+      val duration = 2.seconds
+      val maxTime = System.currentTimeMillis() + duration.toMillis
+      while(sames < 4 && maxTime > System.currentTimeMillis()) {
+        val newLineCount = fileLines()
+        //println(s"old: $lineCount, new: $newLineCount")
+        if(newLineCount == lineCount) {
+          //yay -- it was the same
+          sames = sames + 1
+        } else {
+          lineCount = newLineCount
+          sames = 0
+          //Boo
+        }
+        Thread.sleep(200)
+      }
+
+      sames should be >= 4
     }
+
     it("logs an error and terminates if the command executes abnormally") {
       pending
     }

@@ -32,7 +32,12 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
   var clusterId: String = _
   var nodeId: String = _
 
-  var process: scala.sys.process.Process = _
+  var process: Option[scala.sys.process.Process] = None
+
+
+  override def postStop() = {
+    process.map(_.destroy())
+  }
 
   override def receive: Receive = {
     case Initialize(cid, nid) => {
@@ -45,10 +50,10 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       val builder = Process(command, None, environment.toList: _*) //Will add CWD and environment variables eventually
 
       //Fire that sucker up
-      process = builder.run(ProcessLogger(
+      process = Some(builder.run(ProcessLogger(
         stdout => log.info(stdout),
         stderr => log.warning(stderr)
-      ))
+      )))
       //Change our state, we're now running!
 
       //schedule some other thread to watch the process until it exits
@@ -56,7 +61,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //Grab an execution context to run this future in
       implicit val executionContext = context.dispatcher
       Future {
-        process.exitValue()
+        process.map(_.exitValue())
       } onComplete { t =>
         //Kill myself!
         context.self ! PoisonPill
