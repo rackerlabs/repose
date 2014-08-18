@@ -1,3 +1,3 @@
 package com.rackspace.papi.components.keystone.v3.objects
 
-case class AuthRequestRoot(auth: AuthRequest)
+case class AuthRequestRoot(auth: AuthRequest) extends Serializable
