@@ -63,6 +63,7 @@
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-valve</name>
                             <mappings>
+                                <!-- The jar file -->
                                 <mapping>
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>repose</username>
@@ -147,6 +148,7 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The clean up script -->
                                 <mapping>
                                     <directory>/usr/local/bin</directory>
                                     <filemode>755</filemode>
@@ -157,7 +159,7 @@
                                     </sources>
                                 </mapping>
 
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>

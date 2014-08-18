@@ -120,7 +120,9 @@
 
                                         <!-- The logrotate script -->
                                         <data>
-                                            <src>src/deb/etc/logrotate.d/repose</src>
+                                            <src>
+                                                src/deb/etc/logrotate.d/repose
+                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -131,10 +133,11 @@
 
                                         <!-- The sample configuration files for the filters -->
                                         <data>
-                                            <src>${basedir}/../../configs/core</src>
+                                            <src>
+                                                ${basedir}/../../configs/core
+                                            </src>
                                             <type>directory</type>
                                             <includes>*.cfg.xml</includes>
-
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/etc/repose</prefix>
@@ -142,9 +145,11 @@
                                             </mapper>
                                         </data>
 
-                                        <!--This adds the license file on installation.-->
+                                        <!-- This adds the license file on installation.-->
                                         <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
