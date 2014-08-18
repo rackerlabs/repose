@@ -1,20 +1,21 @@
 package com.rackspace.papi.components.keystone.v3
 
 import java.io.ByteArrayInputStream
+import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.MediaType
 
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
 import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, EndpointType}
 import com.rackspace.papi.components.keystone.v3.utilities.InvalidAdminCredentialsException
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
-import com.rackspace.papi.service.httpclient.{HttpClientResponse, HttpClientService}
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.message.BasicHeader
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyMap, anyString, contains}
+import org.mockito.Matchers.{any, anyInt, anyMap, anyString, contains}
 import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
@@ -61,8 +62,9 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     describe("authenticate") {
+        val authenticate = PrivateMethod[FilterDirector]('authenticate)
+
         it("should return unauthorized when the x-auth-token header is not present") {
-            val authenticate = PrivateMethod[FilterDirector]('authenticate)
             val mockRequest = new MockHttpServletRequest()
 
             val filterDirector = keystoneV3Handler invokePrivate authenticate(mockRequest)
@@ -85,6 +87,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             when(mockPostServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
             when(mockPostServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockPostServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockPostServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
@@ -93,6 +96,8 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             keystoneV3Handler invokePrivate validateSubjectToken("test-subject-token") shouldBe a[Failure[_]]
         }
+
+        // TODO: Write tests for cache hit/miss/eviction
 
         it("should return a token object when x-subject-token validation succeeds") {
             val mockPostServiceClientResponse = mock[ServiceClientResponse]
@@ -104,6 +109,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             when(mockPostServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
             when(mockPostServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockPostServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockPostServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
@@ -183,6 +189,13 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             keystoneV3Handler.invokePrivate(fetchAdminToken()).failed.get shouldBe a[InvalidAdminCredentialsException]
         }
 
+        it("should return a Success for a cached admin token") {
+            when(mockDatastore.get(anyString)).thenReturn("test-cached-token", Nil: _*)
+
+            keystoneV3Handler invokePrivate fetchAdminToken() shouldBe a[Success[_]]
+            keystoneV3Handler.invokePrivate(fetchAdminToken()).get should startWith("test-cached-token")
+        }
+
         it("should return an admin token as a string when the admin API call succeeds") {
             val mockServiceClientResponse = mock[ServiceClientResponse]
 
@@ -192,11 +205,30 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
             when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
 
             keystoneV3Handler invokePrivate fetchAdminToken() shouldBe a[Success[_]]
             keystoneV3Handler.invokePrivate(fetchAdminToken()).get should startWith("test-admin-token")
+        }
+
+        it("should cache an admin token when the admin API call succeeds") {
+            val mockServiceClientResponse = mock[ServiceClientResponse]
+
+            keystoneConfig.setKeystoneService(new OpenstackKeystoneService())
+            keystoneConfig.getKeystoneService.setUsername("user")
+            keystoneConfig.getKeystoneService.setPassword("password")
+
+            when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
+            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
+            when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
+                    thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+            keystoneV3Handler invokePrivate fetchAdminToken()
+
+            Mockito.verify(mockDatastore).put(contains("ADMIN_TOKEN"), any[Serializable], anyInt, any[TimeUnit])
         }
     }
 
