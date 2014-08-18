@@ -58,10 +58,10 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
-                                 to this RPM.-->
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-war</name>
 
+                            <!-- The war file -->
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/repose/</directory>
@@ -88,6 +88,7 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The /var/log/repose directory -->
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
                                     <username>repose</username>
@@ -95,6 +96,7 @@
                                     <filemode>770</filemode>
                                 </mapping>
 
+                                <!-- The /var/repose directory -->
                                 <mapping>
                                     <directory>/var/repose/</directory>
                                     <username>repose</username>
@@ -109,7 +111,7 @@
                                     <filemode>770</filemode>
                                 </mapping>
 
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>
@@ -119,7 +121,9 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -129,6 +133,7 @@
                             <requires>
                                 <require>java &gt;= 1.7.0</require>
                             </requires>
+
                             <provides>
                                 <provide>repose</provide>
                             </provides>

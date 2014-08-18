@@ -93,7 +93,9 @@
 
                                         <!-- The start script -->
                                         <data>
-                                            <src>${basedir}/../../bash/dd-remove</src>
+                                            <src>
+                                                ${basedir}/../../bash/dd-remove
+                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -104,9 +106,10 @@
 
                                         <!-- The clean up script -->
                                         <data>
-                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
+                                            <src>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </src>
                                             <type>file</type>
-
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/usr/bin</prefix>
@@ -116,7 +119,9 @@
 
                                         <!--This adds the license file on installation.-->
                                         <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>

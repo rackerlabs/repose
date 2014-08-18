@@ -74,6 +74,7 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The sample configuration files for the filters -->
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
@@ -83,13 +84,14 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../../configs/filters</location>
+                                            <location>
+                                                ${basedir}/../../configs/filters
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
                                     <username>repose</username>
@@ -99,7 +101,9 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -109,7 +113,9 @@
                             <requires>
                                 <require>repose</require>
                             </requires>
+
                             <group>Applications/Internet</group>
+
                         </configuration>
                     </plugin>
                 </plugins>

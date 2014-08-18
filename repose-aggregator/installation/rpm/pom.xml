@@ -30,6 +30,7 @@
     </modules>
 
     <build>
+        <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
         <pluginManagement>
             <plugins>
                 <plugin>
