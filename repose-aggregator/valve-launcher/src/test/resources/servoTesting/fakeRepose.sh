@@ -24,5 +24,5 @@ echo >&2 "Some standard error also!"
 echo "RUNNING OUTPUT...." >> ${OUTFILE}
 while true; do
     echo "Running...." >> ${OUTFILE}
-    sleep 0.25
+    sleep 0.1
 done
