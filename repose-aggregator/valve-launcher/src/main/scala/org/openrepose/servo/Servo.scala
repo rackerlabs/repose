@@ -4,6 +4,8 @@ import java.io.{File, InputStream, PrintStream}
 import java.nio.file._
 import java.util.Properties
 
+import com.typesafe.config.ConfigFactory
+
 import scala.xml.{Node, XML}
 
 object Servo {
@@ -40,11 +42,10 @@ object Servo {
     Console.setIn(in)
     Console.setErr(err)
 
-    //Load up the main.properties
-    val props = new Properties()
-    props.load(this.getClass.getResourceAsStream("/main.properties"))
+    //Use a Typesafe application.conf to do the loading instead
+    val config = ConfigFactory.load()
 
-    val reposeVersion = props.getProperty("version", "UNKNONWN")
+    val reposeVersion = config.getString("version")
 
     /**
      * Yeah this looks ugly in IntelliJ, but it comes out glorious on the console. (looks great in vim)
