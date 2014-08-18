@@ -103,7 +103,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                src/rpm/etc/logrotate.d/repose
+                                                ${basedir}/../../configs/etc/logrotate.d/repose
                                             </location>
                                         </source>
                                     </sources>
