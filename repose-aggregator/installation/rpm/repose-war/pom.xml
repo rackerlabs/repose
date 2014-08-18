@@ -65,6 +65,7 @@
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/lib/repose/</directory>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -109,7 +110,7 @@
                                     <directory>/etc/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>644</filemode>
                                     <configuration>noreplace</configuration>
                                     <sources>
                                         <source>
@@ -127,7 +128,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>
