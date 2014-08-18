@@ -1,12 +1,14 @@
 package org.openrepose.servo
 
 import java.io.{File, InputStream, PrintStream}
-import java.nio.file._
-import java.util.Properties
 
-import com.typesafe.config.{Config, ConfigFactory}
+import akka.actor.ActorSystem
+import com.typesafe.config.Config
+import org.openrepose.servo.actors.{SystemModelWatcher, NodeStore, ReposeLauncher}
 
-import scala.xml.{Node, XML}
+import scala.collection.JavaConversions
+import scala.io.Source
+import scala.util.{Failure, Success}
 
 object Servo {
 
@@ -23,6 +25,10 @@ object Servo {
                          showVersion: Boolean = false,
                          showUsage: Boolean = false)
 
+  /**
+   * Create an actor system!
+   */
+  val system = ActorSystem("Servo")
 
   /**
    * Basically just runs what would be in Main, but gives me the ability to test it
@@ -32,7 +38,7 @@ object Servo {
    * @param err typically standard err
    * @return the exit code
    */
-  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config:Config): Int = {
+  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config: Config): Int = {
 
     //In this specific method, we're going to redirect the console output
     //This is so that Option parser uses our stuff, and we can capture console output!
@@ -96,8 +102,7 @@ object Servo {
         } else {
           out.println("Launching with SSL validation")
         }
-        out.println("ZOMG WOULDVE STARTED VALVE")
-        serveValves(config,servoConfig)
+        serveValves(config, servoConfig)
         0
       }
     } getOrElse {
@@ -109,22 +114,55 @@ object Servo {
 
   def shutdown() = {
     //TODO: shutdown the actorsystem, that should just let it die
+    system.shutdown()
+    system.awaitTermination() //Wait until it's completely terminated, don't yank it out from underneath!
   }
 
-  def serveValves(config:Config, servoConfig: ServoConfig) = {
+  def serveValves(config: Config, servoConfig: ServoConfig) = {
+    Console.out.println("TODO REMOVE ME: STARTING THE VALVES!")
+    try {
+      // Create my actors and wire them up
+      import JavaConversions._
+      Console.out.println("About to grab string list of executionCommand")
+      val executionStringSequence = config.getStringList("executionCommand")
+      Console.out.println(s"What is my string: |${executionStringSequence mkString ","}|")
 
-    println(config.getString("executionString"))
+      //TODO: Build up the environment!
+      //TODO: JVM_OPTS WARNING! REPOSE_JVM_OPTS!
 
-    //Get the system-model.cfg.xml and read it in first. Fire it up, then start listening to changes
+      //Configure the props of the actor we want to turn on
+      val launcherProps = ReposeLauncher.props(executionStringSequence, warFilePath = config.getString("reposeWarLocation"))
+      //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
+      //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
+      // Potentially other options and such... The execution string isn't very static...
+      // TODO: perhaps this should go through the init param?
 
-    // Start the actor system, start a couple actors, send data to them.
+      //start up the node store
+      val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
 
-    //Create a listener on the Config root system-model.cfg.xml
-    //On the first start up, and any time the system-model changes:
-    // *Get the list of nodes
-    // *Identify the localhost nodes
-    // *Fork a jetty running the war file for each one.
-    // *If they are already running, do nothing, if there are orphaned nodes, kill em
-    //Don't exit
+      //Start up a System Model Watcher on that directory
+      val systemModelWatcherActorRef = system.actorOf(SystemModelWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
+
+      //Get the system-model.cfg.xml and read it in first. Send a message to the NodeStore
+      val systemModelContent = Source.fromFile(new File(servoConfig.configDirectory, "system-model.cfg.xml")).getLines().mkString
+      val smw = new SystemModelParser(systemModelContent)
+      smw.localNodes match {
+        case Success(x) => {
+          //Got some nodes, send them to the actor!
+          nodeStoreActorRef ! x
+        }
+        case Failure(x) => {
+          //Crap! Failure, log it and kill the actor system
+          //TODO: how do I log things?
+          throw x
+        }
+      }
+    } catch {
+      case e: Exception => {
+        //Kill the actor system, and rethrow the exception
+        system.shutdown()
+        throw e
+      }
+    }
   }
 }
