@@ -85,7 +85,7 @@ class SystemModelWatcher(directory: String, notifyActor: ActorRef) extends Actor
     implicit val executionContext = context.system.dispatcher
     //Using the actor systems dispatcher to get this done
     context.system.scheduler.scheduleOnce(500 milliseconds) {
-      context.self ! CheckForChanges
+      self ! CheckForChanges
     }
 
   }
