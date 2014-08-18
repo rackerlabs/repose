@@ -61,7 +61,7 @@
                             <name>repose-filters</name>
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
+                                    <directory>/usr/share/lib/repose/filters</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>

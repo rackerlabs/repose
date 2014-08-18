@@ -64,7 +64,7 @@
                             <!-- The war file -->
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/</directory>
+                                    <directory>/usr/share/lib/repose/</directory>
                                     <sources>
                                         <source>
                                             <location>
