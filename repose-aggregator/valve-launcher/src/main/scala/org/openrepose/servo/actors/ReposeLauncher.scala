@@ -45,9 +45,12 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
         log.error(s"Command terminated abnormally. Value: $value")
       }
     }
-    case Initialize(cid, nid) => {
-      clusterId = cid
-      nodeId = nid
+    case Initialize(reposeNode) => {
+      clusterId = reposeNode.clusterId
+      nodeId = reposeNode.nodeId
+
+      val cid = reposeNode.clusterId
+      val nid = reposeNode.nodeId
 
       //modify our environment to include ClusterID and NodeID always
       val newEnv = environment + ("CLUSTER_ID" -> cid) + ("NODE_ID" -> nid)

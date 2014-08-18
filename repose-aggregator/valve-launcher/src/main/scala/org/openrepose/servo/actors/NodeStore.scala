@@ -18,7 +18,7 @@ object NodeStore {
 
 object NodeStoreMessages {
 
-  case class Initialize(clusterId: String, nodeId: String)
+  case class Initialize(nodeInfo:ReposeNode)
 
 }
 
@@ -54,7 +54,7 @@ class NodeStore(startActor: Props) extends Actor {
         val uuid = UUID.randomUUID.toString
         val nk = nodeKey(n)
         val actor = context.actorOf(startActor, s"${n.clusterId}_${n.nodeId}_runner_${uuid}")
-        actor ! Initialize(n.clusterId, n.nodeId)
+        actor ! Initialize(n)
 
         //Persist our jank
         childActors(nk) = actor
