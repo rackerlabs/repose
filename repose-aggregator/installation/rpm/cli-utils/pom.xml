@@ -70,7 +70,7 @@
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>root</username>
                                     <groupname>root</groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
 
                                     <sources>
                                         <source>
@@ -88,7 +88,7 @@
                                     <directory>/etc/repose/</directory>
                                     <username>tomcat</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -102,7 +102,7 @@
                                 <!-- The clean up script -->
                                 <mapping>
                                     <directory>/usr/bin</directory>
-                                    <filemode>770</filemode>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -120,7 +120,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>

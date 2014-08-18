@@ -64,7 +64,7 @@
                                     <directory>/usr/share/lib/repose/filters</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -81,7 +81,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -98,7 +98,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>

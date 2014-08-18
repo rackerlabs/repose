@@ -86,7 +86,7 @@
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>750</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -101,7 +101,7 @@
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>750</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -145,7 +145,7 @@
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>
