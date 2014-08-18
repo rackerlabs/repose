@@ -43,7 +43,6 @@
                                             <artifactId>web-application</artifactId>
                                             <version>${project.version}</version>
                                             <type>war</type>
-                                            <destFileName>ROOT.war</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -69,7 +68,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/ROOT.war
+                                                ${project.build.directory}/web-application-${project.version}.war
                                             </location>
                                         </source>
                                     </sources>
