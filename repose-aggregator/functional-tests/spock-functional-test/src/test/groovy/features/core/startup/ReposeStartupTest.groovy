@@ -175,7 +175,7 @@ class ReposeStartupTest extends ReposeValveTest {
         return [
                 'sudo killall java',
                 'sudo apt-get -y purge repose-valve',
-                'sudo rm -rf /usr/share/repose',
+                'sudo rm -rf /usr/share/lib/repose',
                 'sudo rm -rf /etc/repose/*'
         ]
     }
@@ -184,7 +184,7 @@ class ReposeStartupTest extends ReposeValveTest {
         return [
                 'sudo killall java',
                 'sudo yum -y remove repose-valve',
-                'sudo rm -rf /usr/share/repose',
+                'sudo rm -rf /usr/share/lib/repose',
                 'sudo rm -rf /etc/repose/*',
                 'sudo /etc/init.d/iptables start',
                 'sudo /etc/init.d/iptables save'

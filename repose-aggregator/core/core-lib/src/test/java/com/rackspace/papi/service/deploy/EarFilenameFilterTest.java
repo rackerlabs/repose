@@ -21,7 +21,7 @@ public class EarFilenameFilterTest {
    
    public static class WhenLocatingEarFile{
       
-      protected File dir = new File("/usr/share/repose/filters");
+      protected File dir = new File("/usr/share/lib/repose/filters");
       protected EarFilenameFilter earFilenameFilter;
       
       @Before
