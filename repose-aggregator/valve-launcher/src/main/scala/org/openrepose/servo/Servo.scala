@@ -4,7 +4,7 @@ import java.io.{File, InputStream, PrintStream}
 import java.nio.file._
 import java.util.Properties
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.xml.{Node, XML}
 
@@ -16,11 +16,9 @@ object Servo {
   /**
    * Command line configuration
    * @param configDirectory the root configuration directory (even though it's called --config-file)
-   * @param executionString A secret command allowing me to not execute repose, but something else instead
    * @param insecure whether or not to be super insecure
    */
   case class ServoConfig(configDirectory: File = new File("/etc/repose"),
-                         executionString: String = "java -jar /path/to/jetty.jar /path/to/repose/war",
                          insecure: Boolean = false,
                          showVersion: Boolean = false,
                          showUsage: Boolean = false)
@@ -34,7 +32,7 @@ object Servo {
    * @param err typically standard err
    * @return the exit code
    */
-  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream): Int = {
+  def execute(args: Array[String], in: InputStream, out: PrintStream, err: PrintStream, config:Config): Int = {
 
     //In this specific method, we're going to redirect the console output
     //This is so that Option parser uses our stuff, and we can capture console output!
@@ -43,8 +41,6 @@ object Servo {
     Console.setErr(err)
 
     //Use a Typesafe application.conf to do the loading instead
-    val config = ConfigFactory.load()
-
     val reposeVersion = config.getString("version")
 
     /**
@@ -76,9 +72,6 @@ object Servo {
       opt[Unit]('k', "insecure") action { (_, c) =>
         c.copy(insecure = true)
       } text "Ignore all SSL certificates validity and operate VERY insecurely Default: off (validate certs)"
-      opt[String]('x', "execute") hidden() action { (x, c) =>
-        c.copy(executionString = x)
-      } text "What should this command try to execute (TESTING USE ONLY)"
       opt[Unit]("version") action { (_, c) =>
         c.copy(showVersion = true)
       } text "Display version and exit"
@@ -87,24 +80,24 @@ object Servo {
       } text "Display usage and exit"
     }
 
-    parser.parse(args, ServoConfig()) map { config =>
+    parser.parse(args, ServoConfig()) map { servoConfig =>
       //Got a valid config
       //output the info so we know about it
-      if (config.showVersion) {
+      if (servoConfig.showVersion) {
         out.println(s"Servo: $reposeVersion")
         1
-      } else if (config.showUsage) {
+      } else if (servoConfig.showUsage) {
         parser.showUsage
         1
       } else {
-        out.println(s"Using ${config.configDirectory} as configuration root")
-        if (config.insecure) {
+        out.println(s"Using ${servoConfig.configDirectory} as configuration root")
+        if (servoConfig.insecure) {
           out.println("WARNING: disabling all SSL validation")
         } else {
           out.println("Launching with SSL validation")
         }
         out.println("ZOMG WOULDVE STARTED VALVE")
-        serveValves(config)
+        serveValves(config,servoConfig)
         0
       }
     } getOrElse {
@@ -114,9 +107,17 @@ object Servo {
     }
   }
 
-  def serveValves(config: ServoConfig) = {
+  def shutdown() = {
+    //TODO: shutdown the actorsystem, that should just let it die
+  }
+
+  def serveValves(config:Config, servoConfig: ServoConfig) = {
+
+    println(config.getString("executionString"))
 
     //Get the system-model.cfg.xml and read it in first. Fire it up, then start listening to changes
+
+    // Start the actor system, start a couple actors, send data to them.
 
     //Create a listener on the Config root system-model.cfg.xml
     //On the first start up, and any time the system-model changes:
@@ -125,39 +126,5 @@ object Servo {
     // *Fork a jetty running the war file for each one.
     // *If they are already running, do nothing, if there are orphaned nodes, kill em
     //Don't exit
-    val watchService = FileSystems.getDefault.newWatchService()
-    val configDir = config.configDirectory.toPath
-    val watchKey = configDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
-
-    //While not terminating loop
-    //TODO: do this better, so things actually shut down nicely I think
-    //Maybe use akka to do things
-    while (true) {
-      import scala.collection.JavaConverters._
-
-      val wk = watchService.take()
-      val events = wk.pollEvents().asScala
-      events.foreach(event => {
-        val changed = event.context().asInstanceOf[Path]
-        if (changed.endsWith("system-model.cfg.xml")) {
-          //THE SYSTEM MODEL CHANGED!
-
-          //On the first start up, and any time the system-model changes:
-          // *Get the list of nodes
-          // *Identify the localhost nodes
-          // *Fork a jetty running the war file for each one.
-          // *If they are already running, do nothing, if there are orphaned nodes, kill em
-
-        }
-      })
-
-      //have to reset the watch key to get more events
-      val valid = wk.reset()
-      if (!valid) {
-        //Key has been unregistered, can probably exit the loop?
-      }
-    }
   }
-
-
 }
