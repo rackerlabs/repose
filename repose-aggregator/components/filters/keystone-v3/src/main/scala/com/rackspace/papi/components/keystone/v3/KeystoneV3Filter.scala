@@ -26,7 +26,7 @@ class KeystoneV3Filter extends Filter {
         val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
         configurationManager = powerApiContext.configurationService
         // TODO: These services are passed in to support asynchronous requests, caching, and connection pooling (in the future!)
-        handlerFactory = new KeystoneV3HandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService, powerApiContext.httpConnectionPoolService)
+        handlerFactory = new KeystoneV3HandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
         val xsdURL: URL = getClass.getResource("/META-INF/config/schema/keystone-v3.xsd")
         // TODO: Clean up the asInstanceOf below, if possible?
         configurationManager.subscribeTo(filterConfig.getFilterName, config, xsdURL, handlerFactory.asInstanceOf[UpdateListener[KeystoneV3Config]], classOf[KeystoneV3Config])
