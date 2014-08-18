@@ -175,11 +175,6 @@
 
                             <group>Applications/Internet</group>
 
-                            <postinstallScriptlet>
-                                <script>
-                                    /sbin/chkconfig --add repose-valve
-                                </script>
-                            </postinstallScriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
