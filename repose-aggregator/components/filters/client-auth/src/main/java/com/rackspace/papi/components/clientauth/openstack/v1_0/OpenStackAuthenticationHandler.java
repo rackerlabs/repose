@@ -4,12 +4,10 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.OpenStackToken;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +55,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private AuthToken validateTenant(AuthToken authToken, String tenantID) {
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
-            LOG.error("Unable to validate token for tenant.  Invalid token.");
+
 
             /*
             we are here because the authToken is null
@@ -77,13 +75,17 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
             for (String role : authToken.getRoles().split(",")) {
                 if(tenantID.equalsIgnoreCase(role)) {
-                    final AuthenticateResponse authenticateResponse = new AuthenticateResponse();// = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+
+                    tenantIDMatchesRole = true;
+                    roleID = role;
+
+                    //final AuthenticateResponse authenticateResponse = new AuthenticateResponse();// = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                     //authenticateResponse.getToken().setTenant(); ....... USE THIS?
                     //clone the authenticate response from validate token somehow
 
-                    OpenStackToken token = new OpenStackToken(authenticateResponse);
-
-
+                    //don't make a new response or token, actually go in and
+                    //manually add the header. Problem is we don't have access to the
+                    //filter director without changing signatures
 
                     /*
                     then we can put the 104772 in the header...which will happen if we just return authToken?
@@ -93,12 +95,14 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                     director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add("nonsense2");
 
                     TODO: figure out how to put the correct tenantID into an existing auth token
-                    */
 
-                    return token;
+                    so I set a flag that tells the authentication handler to add the header... ¯\_(ツ)_/¯
+
+                    */
+                    return authToken;
                 }
             }
-
+            LOG.error("Unable to validate token for tenant.  Invalid token.");
             return null;
         } else {
             return authToken;
