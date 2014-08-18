@@ -6,4 +6,5 @@ Architecture: all
 Maintainer: Repose Dev <repose-dev@openrepose.org>
 Description: Debian Package for the Repose Filter Bundle
 Homepage: http://openrepose.org
-Depends: java7-runtime-headless, repose-valve
+Depends: repose-war
+Recommends: repose-extension-filters
