@@ -28,10 +28,6 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
     TestKit.shutdownActorSystem(system)
   }
 
-  def updateSystemModel(configRoot: String, content: String): Unit = {
-    Files.write(Paths.get(configRoot + "/system-model.cfg.xml"), content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
-  }
-
   lazy val systemModel1 = resourceContent("/actorTesting/system-model-1.cfg.xml")
   lazy val systemModel2 = resourceContent("/actorTesting/system-model-2.cfg.xml")
 
@@ -50,7 +46,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
       //tickle something in the config root directory
 
-      updateSystemModel(configRoot, systemModel1)
+      writeSystemModel(configRoot, systemModel1)
       //expect a message from the actor notifying us of repose local nodes
       //I can just send a List[ReposeNode] I don't need any other info
       expectMsg(1000 millis, nodeList1)
@@ -62,7 +58,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       val configRoot = Files.createTempDirectory("servo").toString
       //Set up the config directory with a valid System Model
 
-      updateSystemModel(configRoot, systemModel1)
+      writeSystemModel(configRoot, systemModel1)
 
       val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
       //tickle something in the config root directory
@@ -81,7 +77,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
 
       //Expect that I log an error message with a SystemModelParseException in it
       EventFilter[SystemModelParseException](occurrences = 1) intercept {
-        updateSystemModel(configRoot, systemModelFail)
+        writeSystemModel(configRoot, systemModelFail)
       }
 
       //No more messages, in other words, don't give me work to do!
