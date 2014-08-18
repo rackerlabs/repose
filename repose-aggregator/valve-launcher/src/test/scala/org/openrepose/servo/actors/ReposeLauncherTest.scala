@@ -71,6 +71,15 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
         actor ! Initialize(testNode)
       }
     }
+    it("Generates the necessary jetty configuration when given an HTTPS port (not http)") {
+      //TODO: how does this even work?
+      // I have to generate a jetty configuration file and pass it to the launcher for this part
+      // But that also means I have to find a SSL cert and SSL key, no clue how existing repose got those...
+      pending
+    }
+    it("Generates the necessary jetty configuration when both HTTP and HTTPS ports are specified") {
+      pending
+    }
     it("sets passed in environment variables") {
       val probe = TestProbe()
       val props = ReposeLauncher.props(List("bash", "-c", "echo $CONFIG_ROOT"), Map("CONFIG_ROOT" -> "/etc/repose"))
