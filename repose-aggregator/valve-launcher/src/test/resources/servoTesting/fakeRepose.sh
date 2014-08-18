@@ -18,7 +18,10 @@ echo "ENVIRONMENT:" >> ${OUTFILE}
 env >> ${OUTFILE}
 
 # start outputting stuff during the running time period
-echo "RUNNING OUTPUT...."
+echo "Some standard out for you!"
+echo >&2 "Some standard error also!"
+
+echo "RUNNING OUTPUT...." >> ${OUTFILE}
 while true; do
     echo "Running...." >> ${OUTFILE}
     sleep 0.25
