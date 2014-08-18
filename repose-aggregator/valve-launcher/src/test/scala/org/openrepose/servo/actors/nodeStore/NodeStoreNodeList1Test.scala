@@ -34,7 +34,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     nodeStoreVar ! nodeList1 //Send it nodeList1 to run stuff...
     probe.expectMsgAllOf(1 second,
       "Started",
-      Initialize("repose", "repose_node1"))
+      Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)))
   }
 
   after {
@@ -51,7 +51,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     it("will start a new local node when NodeList2 is sent") {
       nodeStoreVar ! nodeList2
       probe.expectMsg(1 second, "Started")
-      probe.expectMsg(1 second, Initialize("repose", "repose_node2"))
+      probe.expectMsg(1 second, Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
     }
 
     it("will start node2 and stop repose_node1 when NodeList3 is sent") {
@@ -61,7 +61,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
       // But I'm also getting the shutdown messages?
       probe.expectMsgAllOf(1 second,
         "Started",
-        Initialize("repose", "repose_node2"),
+        Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)),
         "Stopped clusterId: repose nodeId: repose_node1")
     }
 
