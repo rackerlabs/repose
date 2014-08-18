@@ -78,6 +78,9 @@ class SystemModelWatcher(directory: String, notifyActor: ActorRef) extends Actor
       }
     }
 
+    //TODO: where's my valid check, if they delete the directory out from under me, bad things might happen I think
+    // And I'll need to restart this actor ....
+
     //Schedule another wakeup in like 500ms
     //see: http://doc.akka.io/docs/akka/2.2.4/scala/scheduler.html
     import scala.concurrent.duration._
