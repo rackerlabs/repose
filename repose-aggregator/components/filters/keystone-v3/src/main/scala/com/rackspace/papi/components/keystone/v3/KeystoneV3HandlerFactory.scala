@@ -9,7 +9,7 @@ import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 
-class KeystoneV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService, connectionPoolService: HttpClientService[_, _])
+class KeystoneV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
         extends AbstractConfiguredFilterHandlerFactory[KeystoneV3Handler] {
 
     private var keystoneHandler: KeystoneV3Handler = _
@@ -31,7 +31,7 @@ class KeystoneV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreSe
         private var initialized = false
 
         def configurationUpdated(config: KeystoneV3Config) {
-            keystoneHandler = new KeystoneV3Handler(config, akkaServiceClient, datastoreService, connectionPoolService)
+            keystoneHandler = new KeystoneV3Handler(config, akkaServiceClient, datastoreService)
             initialized = true
         }
 

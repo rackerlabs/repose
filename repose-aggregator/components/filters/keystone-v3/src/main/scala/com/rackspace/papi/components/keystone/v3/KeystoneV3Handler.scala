@@ -3,17 +3,16 @@ package com.rackspace.papi.components.keystone.v3
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{ServiceClientResponse, HttpStatusCode}
+import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
-import com.rackspace.papi.components.keystone.v3.utilities.{InvalidSubjectTokenException, InvalidAdminCredentialsException, KeystoneServiceException}
+import com.rackspace.papi.components.keystone.v3.utilities.{InvalidAdminCredentialsException, InvalidSubjectTokenException, KeystoneServiceException}
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
-import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.Header
 import org.slf4j.LoggerFactory
@@ -21,9 +20,9 @@ import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success}
 
-class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService, connectionPoolService: HttpClientService[_, _])
+class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
         extends AbstractFilterLogicHandler {
 
     private final val LOG = LoggerFactory.getLogger(classOf[KeystoneV3Handler])
