@@ -205,11 +205,13 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
     }
-
+    
     public static class TestXTenantId extends TestParent {
 
         private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
+        Calendar expires;
+        UserForAuthenticateResponse userForAuthenticateResponse;
 
         @Override
         protected boolean delegable() {
@@ -224,18 +226,24 @@ public class OpenStackAuthenticationHandlerTest {
         @Before
         public void standUp() throws DatatypeConfigurationException {
             dataTypeFactory = DatatypeFactory.newInstance();
-            Calendar expires = getCalendarWithOffset(10000000);
+            expires = getCalendarWithOffset(10000000);
 
-            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+
             when(request.getHeader(anyString())).thenReturn("tokenId");
 
             //building a fake authResponse
             authResponse = new AuthenticateResponse();
 
             //building a user to be associated with the response
-            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse = new UserForAuthenticateResponse();
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
+
+        }
+
+        @Test
+        public void tenantIdFromTokenMatchesURI() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
             //set the roles of the user to defaults
             userForAuthenticateResponse.setRoles(defaultRoleList());
 
@@ -251,10 +259,7 @@ public class OpenStackAuthenticationHandlerTest {
             //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-        }
 
-        @Test
-        public void tenantIdFromTokenMatchesURI() {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
@@ -269,39 +274,13 @@ public class OpenStackAuthenticationHandlerTest {
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-        }
-    }
-
-    public static class TestXTenantId2 extends TestParent {
-
-        private DatatypeFactory dataTypeFactory;
-        AuthenticateResponse authResponse;
-
-        @Override
-        protected boolean delegable() {
-            return false;
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
         }
 
-        @Override
-        protected boolean requestGroups() {
-            return false;
-        }
-
-        @Before
-        public void standUp() throws DatatypeConfigurationException {
-            dataTypeFactory = DatatypeFactory.newInstance();
-            Calendar expires = getCalendarWithOffset(10000000);
-
+        @Test
+        public void tenantIdFromTokenMatchesAnIdFromRoles() {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
-            when(request.getHeader(anyString())).thenReturn("tokenId");
-
-            //building a fake authResponse
-            authResponse = new AuthenticateResponse();
-
-            //building a user to be associated with the response
-            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
-            userForAuthenticateResponse.setId("104772");
-            userForAuthenticateResponse.setName("user2");
             //set the roles of the user to defaults
 
             Role role1 = new Role();
@@ -331,10 +310,7 @@ public class OpenStackAuthenticationHandlerTest {
             //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-        }
 
-        @Test
-        public void tenantIdFromTokenMatchesAnIdFromRoles() {
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
@@ -348,10 +324,118 @@ public class OpenStackAuthenticationHandlerTest {
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
         }
+
+        @Test
+        public void tenantIDDoesNotMatch() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            //set the roles of the user to defaults
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("badID");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            //this ID doesn't match so we should see FilterAction.RETURN
+            assertThat(director.getFilterAction(),equalTo(FilterAction.RETURN));
+        }
+
+        @Test
+        public void mossoIDTestInToken() {
+            when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
+            //set the roles of the user to defaults
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void mossoIDTestInRoles() {
+            when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
+            //set the roles of the user to defaults
+            Role role1 = new Role();
+            role1.setName("123456");
+            role1.setId("5");
+            role1.setDescription("Derp description");
+
+            Role role2 = new Role();
+            role2.setName("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role2.setId("6");
+            role2.setDescription("Derp description");
+
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role1);
+            roleList.getRole().add(role2);
+            userForAuthenticateResponse.setRoles(roleList);
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantID");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+
     }
 
-        public static class WhenCachingUserInfo extends TestParent {
+    public static class WhenCachingUserInfo extends TestParent {
 
         private DatatypeFactory dataTypeFactory;
         AuthenticateResponse authResponse;
