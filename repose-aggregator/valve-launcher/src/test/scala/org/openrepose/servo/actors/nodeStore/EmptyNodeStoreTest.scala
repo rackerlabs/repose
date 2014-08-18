@@ -34,7 +34,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
       probe.expectMsg(1 second, "Started")
       //Have to expect an initialize message, can't figure out how to handle it through props
-      probe.expectMsg(1 second, Initialize("repose", "repose_node1"))
+      probe.expectMsg(1 second, Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)))
       nodeStore ! PoisonPill
     }
 

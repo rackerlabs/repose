@@ -27,9 +27,9 @@ class TestReposeNodeActor(forwardPoint: ActorRef) extends Actor {
   }
 
   override def receive: Receive = {
-    case x@Initialize(cid, nid) => {
-      clusterId = cid
-      nodeId = nid
+    case x@Initialize(reposeNode) => {
+      clusterId = reposeNode.clusterId
+      nodeId = reposeNode.nodeId
       forwardPoint forward x
     }
     case x => forwardPoint forward x
