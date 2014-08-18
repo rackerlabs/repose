@@ -62,6 +62,15 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
         actor ! Initialize(testNode)
       }
     }
+    it("sets the command line parameter --port when given an HTTP port (not https)") {
+      val probe  = TestProbe()
+      val props = ReposeLauncher.props(Seq("bash", "-c", "echo $@", "--"))
+
+      val actor = system.actorOf(props)
+      EventFilter.info("--port 8080", occurrences = 1) intercept {
+        actor ! Initialize(testNode)
+      }
+    }
     it("sets passed in environment variables") {
       val probe = TestProbe()
       val props = ReposeLauncher.props(List("bash", "-c", "echo $CONFIG_ROOT"), Map("CONFIG_ROOT" -> "/etc/repose"))
@@ -108,6 +117,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       //Turn it on, it should start doing stuff
       actor ! Initialize(testNode)
 
+      //Give it a bit of time to do a couple things
       Thread.sleep(500)
 
       //TERMINATE IT
@@ -148,5 +158,6 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
         actor ! Initialize(testNode)
       }
     }
+
   }
 }
