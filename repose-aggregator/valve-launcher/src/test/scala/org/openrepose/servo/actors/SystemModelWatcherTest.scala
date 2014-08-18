@@ -40,7 +40,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
   describe("System Model Watcher Actor watches the configured directory for changes") {
     it("will notify when something has changed with a changed message") {
       //Create an actor and give it a destination and who to tell about changes
-      val configRoot = Files.createTempDirectory("servo").toString
+      val configRoot = tempDir("servo").toString
       //Set up the config directory with a valid System Model
 
       val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
@@ -55,7 +55,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
 
     it("will not notify if there are no changes") {
       //Create an actor and give it a destination and who to tell about changes
-      val configRoot = Files.createTempDirectory("servo").toString
+      val configRoot = tempDir("servo").toString
       //Set up the config directory with a valid System Model
 
       writeSystemModel(configRoot, systemModel1)
@@ -71,7 +71,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
     }
 
     it("Logs a failure message when unable to parse the system model") {
-      val configRoot = Files.createTempDirectory("servo").toString
+      val configRoot = tempDir("servo").toString
       val systemModelFail = resourceContent("/system-model-test/not-valid-xml.xml")
       val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
 

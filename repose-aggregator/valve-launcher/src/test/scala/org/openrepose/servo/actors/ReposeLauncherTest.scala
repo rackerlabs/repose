@@ -127,7 +127,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       //Std out constant noise!
 
       //Create a temp file
-      val f = File.createTempFile("testing", "txt")
+      val f = tempFile("testing", ".txt")
 
       val fileName = f.getAbsolutePath
       val props = ReposeLauncher.props(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"), warFilePath = fakeWarPath)
