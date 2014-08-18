@@ -132,7 +132,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                src/rpm/etc/init.d/repose-valve
+                                                ${basedir}/../../configs/etc/init.d/repose-valve
                                             </location>
                                         </source>
                                     </sources>
@@ -161,7 +161,9 @@
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/sysconfig/repose</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/sysconfig/repose
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>

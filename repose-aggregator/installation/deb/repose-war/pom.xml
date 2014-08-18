@@ -89,7 +89,8 @@
 
                                         <!-- The /var/log/repose directory -->
                                         <data>
-                                            <src>src/deb/.log_dir_placeholder</src>
+                                            <src>${basedir}/../../configs/placeholder</src>
+                                            <dst>.var_log_repose_dir_placeholder</dst>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -99,7 +100,8 @@
 
                                         <!-- The /var/repose directory -->
                                         <data>
-                                            <src>src/deb/.var_repose_dir_placeholder</src>
+                                            <src>${basedir}/../../configs/placeholder</src>
+                                            <dst>.var_repose_dir_placeholder</dst>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
