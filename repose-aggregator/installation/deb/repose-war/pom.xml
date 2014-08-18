@@ -158,12 +158,6 @@
                                         </data>
 
                                     </dataSet>
-                                    <preinstallScriptlet>
-                                        <script>
-                                            usermod -a -G repose tomcat
-                                            exit 0
-                                        </script>
-                                    </preinstallScriptlet>
                                 </configuration>
                             </execution>
                         </executions>
