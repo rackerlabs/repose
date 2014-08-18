@@ -11,6 +11,7 @@ import org.scalatest.{FunSpec, Matchers}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class ServoTest extends FunSpec with Matchers with TestUtils {
@@ -63,10 +64,10 @@ class ServoTest extends FunSpec with Matchers with TestUtils {
         //Create a config object to merge in
         val config = ConfigFactory.parseString(
           s"""
-            |executionCommand = ${tmpBash.toFile.getAbsolutePath} ${tmpOutput.getAbsolutePath}
+            |executionCommand = [${tmpBash.toFile.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
           """.stripMargin).withFallback(defaultConfig)
 
-        info(s"Execution is: ${config.getString("executionCommand")}")
+        info(s"Execution is: ${config.getStringList("executionCommand")}")
 
         //Have to throw my executable into a thread so I can asynchronously do stuff
         import ExecutionContext.Implicits.global
@@ -76,8 +77,14 @@ class ServoTest extends FunSpec with Matchers with TestUtils {
           Servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, config)
         }.onComplete { t =>
           info("Completion of servo!")
-          t.isSuccess shouldBe true
-          t.get shouldBe 0
+          t match {
+            case Success(x) => {
+              x shouldBe 0
+            }
+            case Failure(x) => {
+              fail("Servo didn't start up correctly", x)
+            }
+          }
         }
 
         val lines = Source.fromFile(tmpOutput).getLines().toList
