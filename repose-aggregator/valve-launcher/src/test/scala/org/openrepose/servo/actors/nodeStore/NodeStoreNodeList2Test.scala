@@ -3,7 +3,7 @@ package org.openrepose.servo.actors.nodeStore
 import akka.actor._
 import akka.testkit.{TestKit, TestProbe}
 import org.junit.runner.RunWith
-import org.openrepose.servo.TestUtils
+import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.openrepose.servo.actors.NodeStore
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.scalatest.junit.JUnitRunner
@@ -36,8 +36,8 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     probe.expectMsgAllOf(1 seconds,
       "Started",
       "Started", //I get one started per node!
-      Initialize("repose", "repose_node1"),
-      Initialize("repose", "repose_node2"))
+      Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)),
+      Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
   }
 
   after {

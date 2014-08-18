@@ -6,6 +6,7 @@ import akka.actor.{PoisonPill, Terminated, ActorSystem}
 import akka.testkit.{EventFilter, TestProbe, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
+import org.openrepose.servo.{TestUtils, ReposeNode}
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpecLike, Matchers, BeforeAndAfterAll}
@@ -14,7 +15,7 @@ import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class ReposeLauncherTest(_system: ActorSystem) extends TestKit(_system)
-with FunSpecLike with Matchers with BeforeAndAfterAll {
+with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
 
   import scala.concurrent.duration._
 
@@ -23,6 +24,8 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       |akka.loggers = [akka.testkit.TestEventListener]
     """.stripMargin)))
 
+
+  val testNode = ReposeNode("testCluster", "testNode", "localhost", Some(8080), None)
 
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
@@ -41,7 +44,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
       probe.watch(actor)
 
-      actor ! Initialize("testCluster", "testNode")
+      actor ! Initialize(testNode)
 
       probe.expectMsgPF(3 seconds) {
         case Terminated(theActor) => {
@@ -56,7 +59,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       EventFilter.info(pattern = ".*lololol.*", occurrences = 1) intercept {
-        actor ! Initialize("testCluster", "testNode")
+        actor ! Initialize(testNode)
       }
     }
     it("sets passed in environment variables") {
@@ -66,7 +69,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       EventFilter.info(message = "/etc/repose", occurrences = 1) intercept {
-        actor ! Initialize("testCluster", "testNode")
+        actor ! Initialize(testNode)
       }
     }
     it("sets CLUSTER_ID and NODE_ID as environment variables") {
@@ -76,7 +79,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       EventFilter.info(message = "testCluster:testNode", occurrences = 1) intercept {
-        actor ! Initialize("testCluster", "testNode")
+        actor ! Initialize(testNode)
       }
 
     }
@@ -87,7 +90,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       EventFilter.warning("standardError", occurrences = 1) intercept {
-        actor ! Initialize("testCluster", "testNode")
+        actor ! Initialize(testNode)
       }
     }
     it("terminates the command and closes the streams when dying") {
@@ -103,7 +106,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       //Turn it on, it should start doing stuff
-      actor ! Initialize("testCluster", "testNode")
+      actor ! Initialize(testNode)
 
       Thread.sleep(500)
 
@@ -142,7 +145,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       val actor = system.actorOf(props)
 
       EventFilter.error("Command terminated abnormally. Value: 1", occurrences = 1) intercept {
-        actor ! Initialize("testCluster", "testNode")
+        actor ! Initialize(testNode)
       }
     }
   }
