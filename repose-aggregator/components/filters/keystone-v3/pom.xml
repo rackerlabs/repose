@@ -53,6 +53,19 @@
             <version>1.2.6</version>
         </dependency>
 
+        <!-- Joda-Time for parsing times -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-convert</artifactId>
+            <version>1.7</version>
+        </dependency>
+
         <!-- These three are required because of our coupling between filters and core -->
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
