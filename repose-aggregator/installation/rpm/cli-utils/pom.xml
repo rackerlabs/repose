@@ -101,7 +101,7 @@
 
                                 <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/usr/bin</directory>
+                                    <directory>/usr/local/bin</directory>
                                     <filemode>755</filemode>
 
                                     <sources>
