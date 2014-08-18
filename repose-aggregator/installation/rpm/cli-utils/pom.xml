@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
-    <artifactId>repose-cli-utils</artifactId>
+    <artifactId>cli-utils</artifactId>
 
-    <name>Repose - Installation Cloud Integration CLI-Utils RPM</name>
+    <name>Repose - Installation Cloud Integration CLI-Utilities RPM</name>
 
     <description>
         Module for the CLI-Utils RPM.

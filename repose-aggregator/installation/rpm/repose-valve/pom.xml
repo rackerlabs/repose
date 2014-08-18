@@ -117,7 +117,9 @@
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../bash/clean-repose-deploy</location>
+                                            <location>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
