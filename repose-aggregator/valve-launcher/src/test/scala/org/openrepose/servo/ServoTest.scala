@@ -89,27 +89,32 @@ class ServoTest extends FunSpec with Matchers with TestUtils {
           }
         }
 
+        Thread.sleep(500)
+
         val lines = Source.fromFile(tmpOutput).getLines().toList
         lines shouldNot be(empty)
         //Check the arguments for what we need
         lines.filter(_.startsWith("ARGS:")).map { l =>
           //This should be the ARGS line
+          note(s"ARGS: $l")
           l should include("--port 8080")
+          l should include(config.getString("reposeWarLocation"))
         }
 
         //Check the environment variables for our cluster ID/node ID
-        lines.filter(_.startsWith("CLUSTER_ID")).map { l =>
-          l should be("CLUSTER_ID=repose")
-        }
+        val clusterId = lines.filter(_.startsWith("CLUSTER_ID"))
+        clusterId.size shouldBe 1
+        clusterId.head shouldBe "CLUSTER_ID=repose"
 
-        lines.filter(_.startsWith("NODE_ID")).map { l =>
-          l should be("NODE_ID=repose_node1")
-        }
+        val nodeId = lines.filter(_.startsWith("NODE_ID"))
+        nodeId.size shouldBe 1
+        nodeId.head shouldBe "NODE_ID=repose_node1"
+
+        //Log the lines for posterity
+        info("LINES:\n" + (lines mkString "\n"))
 
         //tell servo to stop.
         Servo.shutdown()
-
-
       }
       it("outputs to stdout the settings it's going to use to start valves") {
         pending
