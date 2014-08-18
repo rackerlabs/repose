@@ -70,7 +70,15 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       }
     }
     it("sets CLUSTER_ID and NODE_ID as environment variables") {
-      pending
+      val probe = TestProbe()
+      val props = ReposeLauncher.props(Seq("bash", "-c", "echo ${CLUSTER_ID}:${NODE_ID}"))
+
+      val actor = system.actorOf(props)
+
+      EventFilter.info(message = "testCluster:testNode", occurrences = 1) intercept {
+        actor ! Initialize("testCluster", "testNode")
+      }
+
     }
     it("will log standard error out to warn") {
       val probe = TestProbe()
@@ -87,7 +95,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       //Std out constant noise!
 
       //Create a temp file
-      val f = File.createTempFile("testing", "txt");
+      val f = File.createTempFile("testing", "txt")
 
       val fileName = f.getAbsolutePath
       val props = ReposeLauncher.props(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"))
@@ -100,7 +108,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
       Thread.sleep(500)
 
       //TERMINATE IT
-      actor ! PoisonPill
+      actor ! PoisonPill //Kill the actor before the process dies
 
       //Within a second or so, the file should stop receiving "tests"
       def fileLines():Int =  Source.fromFile(f).getLines().count(_ => true)
@@ -127,7 +135,15 @@ with FunSpecLike with Matchers with BeforeAndAfterAll {
     }
 
     it("logs an error and terminates if the command executes abnormally") {
-      pending
+      val probe = TestProbe()
+
+      val props = ReposeLauncher.props(Seq("bash", "-c", "exit 1"))
+
+      val actor = system.actorOf(props)
+
+      EventFilter.error("Command terminated abnormally. Value: 1", occurrences = 1) intercept {
+        actor ! Initialize("testCluster", "testNode")
+      }
     }
   }
 }
