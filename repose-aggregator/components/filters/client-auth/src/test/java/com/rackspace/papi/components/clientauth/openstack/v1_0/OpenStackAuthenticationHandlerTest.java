@@ -40,6 +40,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
 
 
 
@@ -222,10 +226,8 @@ public class OpenStackAuthenticationHandlerTest {
             dataTypeFactory = DatatypeFactory.newInstance();
             Calendar expires = getCalendarWithOffset(10000000);
 
-            //
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
-
 
             //building a fake authResponse
             authResponse = new AuthenticateResponse();
@@ -249,27 +251,24 @@ public class OpenStackAuthenticationHandlerTest {
             //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-
         }
-
 
         @Test
         public void tenantIdFromTokenMatchesURI() {
-
-            //this test should pass already from old code.
-
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             FilterDirector director = handler.handleRequest(request, response);
 
             //check if the requestHeaderManager is going to add the x-tenant-id
-            assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+            //assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
 
             //if it does make sure that id is equal to the tenant id in the uri
-            assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
-
-            // TODO: use hamcrest matchers
+            //assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
         }
     }
 
@@ -293,10 +292,8 @@ public class OpenStackAuthenticationHandlerTest {
             dataTypeFactory = DatatypeFactory.newInstance();
             Calendar expires = getCalendarWithOffset(10000000);
 
-            //
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
-
 
             //building a fake authResponse
             authResponse = new AuthenticateResponse();
@@ -306,7 +303,6 @@ public class OpenStackAuthenticationHandlerTest {
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
             //set the roles of the user to defaults
-
 
             Role role1 = new Role();
             role1.setName("123456");
@@ -321,8 +317,6 @@ public class OpenStackAuthenticationHandlerTest {
             RoleList roleList = new RoleList();
             roleList.getRole().add(role1);
             roleList.getRole().add(role2);
-
-
             userForAuthenticateResponse.setRoles(roleList);
 
             //build a token to go along with the auth response
@@ -337,27 +331,23 @@ public class OpenStackAuthenticationHandlerTest {
             //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-
-
         }
-
 
         @Test
         public void tenantIdFromTokenMatchesAnIdFromRoles() {
-
-
-
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             FilterDirector director = handler.handleRequest(request, response);
             //check if the requestHeaderManager is going to add the x-tenant-id
-            assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+            //assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+
             //if it does make sure that id is equal to the tenant id in the uri, even if the one in the original
             //token wasn't the same (it should have found it in the roles list)
-            assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
-
-            // TODO: use hamcrest matchers
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
         }
     }
 
