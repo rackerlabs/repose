@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -137,9 +138,7 @@
                             <provides>
                                 <provide>repose</provide>
                             </provides>
-                            <conflicts>
-                                <conflict>repose-valve</conflict>
-                            </conflicts>
+
                             <preinstallScriptlet>
                                 <script>
                                     getent group repose &gt;dev/null || groupadd -r repose
@@ -149,7 +148,9 @@
                                     exit 0
                                 </script>
                             </preinstallScriptlet>
+
                             <group>Applications/Internet</group>
+
                         </configuration>
                     </plugin>
                 </plugins>
