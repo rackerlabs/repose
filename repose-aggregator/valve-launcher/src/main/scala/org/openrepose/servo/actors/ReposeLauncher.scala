@@ -80,17 +80,19 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //Unfortunately the only way to do this stuff is to block up a thread.
       //Grab an execution context to run this future in
       implicit val executionContext = context.dispatcher
+      val myRef = context.self
       Future {
         //I can assume this exists, because I just made it
         process.get.exitValue()
       } onComplete { t =>
-        val self = context.self
+        //Note, these could be dead letters. Not sure how to check on that
+        //It's not terribly important that they might send letters to dead actors, just log noise
         t.map(value => {
           //Send myself a message about the exit value
-          self ! ProcessExited(value)
+          myRef ! ProcessExited(value)
         })
         //Kill myself!
-        self ! PoisonPill
+        myRef ! PoisonPill
       }
     }
   }
