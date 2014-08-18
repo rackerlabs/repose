@@ -31,7 +31,7 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-repose-valve-jar</id>
+                                <id>copy-repose-valve-launcher-jar</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -39,13 +39,31 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.core</groupId>
-                                            <artifactId>valve</artifactId>
+                                            <groupId>org.openrepose.valve</groupId>
+                                            <artifactId>valve-launcher</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
-                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
-                                            <destFileName>valve-${project.version}.jar</destFileName-->
-                                            <destFileName>repose-valve.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>copy-jetty-runner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.eclipse.jetty</groupId>
+                                            <artifactId>jetty-runner</artifactId>
+                                            <version>${jetty.version}</version>
+                                            <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -72,78 +90,23 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                <!-- TODO: The actual artifact ID should be used.
-                                                ${project.build.directory}/valve-${project.version}.jar-->
-                                                ${project.build.directory}/repose-valve.jar
+                                                ${project.build.directory}/valve-launcher-${project.version}.jar
                                             </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The jetty file -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <configuration>noreplace</configuration>
-                                    <filemode>750</filemode>
-                                    <sources>
-                                        <source>
-                                            <!-- Grabs all the config files in configs/core -->
-                                            <location>${basedir}/../../configs/core</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/etc/init.d</directory>
-                                    <directoryIncluded>false</directoryIncluded>
-                                    <filemode>755</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/etc/init.d/repose-valve</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/var/log/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>760</filemode>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/var/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>760</filemode>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/repose/filters/</directory>
+                                    <directory>/usr/share/lib/repose</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>750</filemode>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/etc/sysconfig</directory>
-                                    <directoryIncluded>false</directoryIncluded>
-                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/sysconfig/repose</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/etc/logrotate.d</directory>
-                                    <directoryIncluded>false</directoryIncluded>
-                                    <filemode>644</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                            <location>
+                                                ${project.build.directory}/jetty-runner-${jetty.version}.jar
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -159,6 +122,20 @@
                                     </sources>
                                 </mapping>
 
+                                <!-- The start script -->
+                                <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>755</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                src/rpm/etc/init.d/repose-valve
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
                                 <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
@@ -169,22 +146,33 @@
                                     <filemode>770</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/sysconfig</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/sysconfig/repose</location>
                                         </source>
                                     </sources>
                                 </mapping>
 
                             </mappings>
+
                             <requires>
-                                <require>java &gt;= 1.7.0</require>
+                                <require>repose</require>
                                 <require>daemonize</require>
                             </requires>
-                            <provides>
-                                <provide>repose</provide>
-                            </provides>
-                            <conflicts>
-                                <conflict>repose-war</conflict>
-                            </conflicts>
+
+                            <group>Applications/Internet</group>
+
                             <postinstallScriptlet>
                                 <script>
                                     /sbin/chkconfig --add repose-valve
