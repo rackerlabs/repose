@@ -33,6 +33,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <!-- used the same version that akka is using -->
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.10</artifactId>
             <version>${akka.version}</version>
@@ -66,7 +73,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>main.properties</include>
+                    <include>application.conf</include>
                 </includes>
             </resource>
             <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
