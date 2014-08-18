@@ -82,7 +82,7 @@
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/repose/filters</prefix>
+                                                <prefix>/usr/share/lib/repose/filters</prefix>
                                             </mapper>
                                         </data>
 

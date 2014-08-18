@@ -71,7 +71,7 @@
 
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
+                                    <directory>/usr/share/lib/repose/filters</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>755</filemode>
