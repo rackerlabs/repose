@@ -168,7 +168,20 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         responseJson.parseJson.convertTo[AuthResponse]
     }
 
-    private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, request: HttpServletRequest) = {}
+    private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
+        val projectsFromRoles: Set[String] = {
+            if(writeAll) {
+                roles.map({role => role.project_id.get}).toSet
+            }
+            else {
+                Set.empty
+            }
+        }
+
+        def projects: Set[String] = projectsFromRoles + projectFromUri
+
+        filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray:_*)
+    }
 
     private def containsEndpoint(endpoints: List[EndpointType], url: String): Boolean = endpoints.exists { endpoint: EndpointType => endpoint.url == url}
 
