@@ -30,14 +30,18 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     var keystoneConfig: KeystoneV3Config = _
     var mockAkkaServiceClient: AkkaServiceClient = _
     var mockDatastoreService: DatastoreService = _
-    var mockConnectionPoolService: HttpClientService[_, _ <: HttpClientResponse] = _
+    var mockDatastore: Datastore = _
 
     before {
         mockAkkaServiceClient = mock[AkkaServiceClient]
         mockDatastoreService = mock[DatastoreService]
-        mockConnectionPoolService = mock[HttpClientService[_, _ <: HttpClientResponse]]
+        mockDatastore = mock[Datastore]
         keystoneConfig = new KeystoneV3Config()
-        keystoneV3Handler = new KeystoneV3Handler(keystoneConfig, mockAkkaServiceClient, mockDatastoreService, mockConnectionPoolService)
+
+        when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
+        when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
+
+        keystoneV3Handler = new KeystoneV3Handler(keystoneConfig, mockAkkaServiceClient, mockDatastoreService)
     }
 
     describe("handleRequest")(pending)
