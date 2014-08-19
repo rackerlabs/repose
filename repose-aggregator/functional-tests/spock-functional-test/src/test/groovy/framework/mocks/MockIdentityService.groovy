@@ -109,10 +109,11 @@ class MockIdentityService {
 
     def client_token = 'this-is-the-token';
     def client_tenant = 'this-is-the-tenant';
+    def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
     def client_userid = 12345;
     def admin_token = 'this-is-the-admin-token';
-    def admin_tenant = 'this-is-the-admin-tenant';
+    def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
@@ -304,6 +305,7 @@ class MockIdentityService {
                 userid      : client_userid,
                 username    : client_username,
                 tenant      : client_tenant,
+                tenanttwo   : client_tenant_file,
                 token       : request_token,
                 serviceadmin: service_admin_role
         ];
@@ -395,6 +397,7 @@ class MockIdentityService {
                 userid      : admin_userid,
                 username    : admin_username,
                 tenant      : admin_tenant,
+                tenanttwo   : admin_tenant,
                 token       : admin_token,
                 serviceadmin: service_admin_role
         ];
@@ -529,17 +532,39 @@ class MockIdentityService {
    "access" : {
       "serviceCatalog" : [
          {
+            "name": "cloudServersOpenStack",
+            "type": "compute",
+            "endpoints": [
+            {
+                "publicURL": "https://ord.servers.api.rackspacecloud.com/v2/\${tenant}",
+                "region": "ORD",
+                "tenantId": "\${tenant}",
+                "versionId": "2",
+                "versionInfo": "https://ord.servers.api.rackspacecloud.com/v2",
+                "versionList": "https://ord.servers.api.rackspacecloud.com/"
+            },
+            {
+                "publicURL": "https://dfw.servers.api.rackspacecloud.com/v2/\${tenant}",
+                "region": "DFW",
+                "tenantId": "\${tenant}",
+                "versionId": "2",
+                "versionInfo": "https://dfw.servers.api.rackspacecloud.com/v2",
+                "versionList": "https://dfw.servers.api.rackspacecloud.com/"
+            }
+            ]
+         },
+         {
             "name" : "cloudFilesCDN",
             "type" : "rax:object-cdn",
             "endpoints" : [
                {
-                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/\${tenant}",
-                  "tenantId" : "\${tenant}",
+                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/\${tenanttwo}",
+                  "tenantId" : "\${tenanttwo}",
                   "region" : "DFW"
                },
                {
-                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/\${tenant}",
-                  "tenantId" : "\${tenant}",
+                  "publicURL" : "https://cdn.stg.clouddrive.com/v1/\${tenanttwo}",
+                  "tenantId" : "\${tenanttwo}",
                   "region" : "ORD"
                }
             ]
@@ -549,15 +574,15 @@ class MockIdentityService {
             "type" : "object-store",
             "endpoints" : [
                {
-                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}",
-                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/\${tenant}",
-                  "tenantId" : "\${tenant}",
+                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/\${tenanttwo}",
+                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/\${tenanttwo}",
+                  "tenantId" : "\${tenanttwo}",
                   "region" : "ORD"
                },
                {
-                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}",
-                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/\${tenant}",
-                  "tenantId" : "\${tenant}",
+                  "internalURL" : "https://snet-storage.stg.swift.racklabs.com/v1/\${tenanttwo}",
+                  "publicURL" : "https://storage.stg.swift.racklabs.com/v1/\${tenanttwo}",
+                  "tenantId" : "\${tenanttwo}",
                   "region" : "DFW"
                }
             ]
@@ -620,7 +645,7 @@ class MockIdentityService {
                   name="object-store:default"
                   description="A Role that allows a user access to keystone Service methods"
                   serviceId="0000000000000000000000000000000000000002"
-                  tenantId="\${tenant}"/>
+                  tenantId="\${tenanttwo}"/>
             <role id="6"
                   name="\${serviceadmin}"
                   description="A Role that allows a user access to keystone Service methods"
@@ -629,25 +654,40 @@ class MockIdentityService {
         </roles>
     </user>
     <serviceCatalog>
+        <service type="compute"
+                 name="cloudServersOpenStack">
+            <endpoint region="ORD"
+                      tenantId="\${tenant}"
+                      publicURL="https://ord.servers.api.rackspacecloud.com/v2/\${tenant}"
+                      versionId="2"
+                      versionInfo="https://ord.servers.api.rackspacecloud.com/v2"
+                      versionList="https://ord.servers.api.rackspacecloud.com/"/>
+            <endpoint region="DFW"
+                      tenantId="\${tenant}"
+                      publicURL="https://dfw.servers.api.rackspacecloud.com/v2/\${tenant}"
+                      versionId="2"
+                      versionInfo="https://dfw.servers.api.rackspacecloud.com/v2"
+                      versionList="https://dfw.servers.api.rackspacecloud.com/"/>
+        </service>
         <service type="rax:object-cdn"
                  name="cloudFilesCDN">
             <endpoint region="DFW"
-                      tenantId="\${tenant}"
-                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+                      tenantId="\${tenanttwo}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenanttwo}"/>
             <endpoint region="ORD"
-                      tenantId="\${tenant}"
-                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenant}"/>
+                      tenantId="\${tenanttwo}"
+                      publicURL="https://cdn.stg.clouddrive.com/v1/\${tenanttwo}"/>
         </service>
         <service type="object-store"
                  name="cloudFiles">
             <endpoint region="ORD"
-                      tenantId="\${tenant}"
-                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
-                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+                      tenantId="\${tenanttwo}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenanttwo}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenanttwo}"/>
             <endpoint region="DFW"
-                      tenantId="\${tenant}"
-                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenant}"
-                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenant}"/>
+                      tenantId="\${tenanttwo}"
+                      publicURL="https://storage.stg.swift.racklabs.com/v1/\${tenanttwo}"
+                      internalURL="https://snet-storage.stg.swift.racklabs.com/v1/\${tenanttwo}"/>
         </service>
     </serviceCatalog>
 </access>
