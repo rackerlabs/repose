@@ -122,19 +122,20 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             keystoneV3Handler.invokePrivate(validateSubjectToken("test-subject-token")).get shouldBe an[AuthenticateResponse]
         }
 
-        it("should cache a token object when x-subject-token validation succeeds") {
+        it("should cache a token object when x-subject-token validation succeeds with the correct TTL") {
             val mockGetServiceClientResponse = mock[ServiceClientResponse]
+            val currentTime = DateTime.now()
+            val expirationTime = currentTime.plusMillis(100000)
+            val returnJson = "{\"token\":{\"expires_at\":\"" + ISODateTimeFormat.dateTime().print(expirationTime) + "\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
 
-            when(mockDatastore.get(contains("ADMIN_TOKEN"))).thenReturn("test-admin-token", Nil: _*)
+            when(mockDatastore.get(argThat(equalTo("ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
             when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
-            when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
-                "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
-                        .getBytes))
+            when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
             when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
 
             keystoneV3Handler invokePrivate validateSubjectToken("test-subject-token")
 
-            Mockito.verify(mockDatastore).put(contains("test-subject-token"), any[Serializable], anyInt, any[TimeUnit])
+            verify(mockDatastore).put(argThat(equalTo("test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
         }
     }
 
