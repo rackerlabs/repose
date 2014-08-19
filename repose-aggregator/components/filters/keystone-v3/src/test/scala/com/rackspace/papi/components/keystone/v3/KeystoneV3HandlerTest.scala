@@ -14,10 +14,12 @@ import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.message.BasicHeader
+import org.hamcrest.Matchers.{equalTo, lessThanOrEqualTo}
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyInt, anyMap, anyString, contains}
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.Matchers.{any, anyInt, anyMap, anyString, argThat, contains, intThat}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
@@ -135,7 +137,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             keystoneV3Handler invokePrivate validateSubjectToken("test-subject-token")
 
-            verify(mockDatastore).put(argThat(equalTo("test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
+            verify(mockDatastore).put(argThat(equalTo("TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
         }
     }
 
@@ -151,7 +153,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             keystoneV3Handler invokePrivate fetchAdminToken()
 
-            Mockito.verify(mockAkkaServiceClient).post(
+            verify(mockAkkaServiceClient).post(
                 anyString,
                 anyString,
                 anyMap.asInstanceOf[java.util.Map[String, String]],
@@ -172,7 +174,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue)
             keystoneV3Handler invokePrivate fetchAdminToken()
 
-            Mockito.verify(mockAkkaServiceClient).post(
+            verify(mockAkkaServiceClient).post(
                 anyString,
                 anyString,
                 anyMap.asInstanceOf[java.util.Map[String, String]],
@@ -224,7 +226,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
             keystoneV3Handler invokePrivate fetchAdminToken()
 
-            Mockito.verify(mockDatastore).put(contains("ADMIN_TOKEN"), any[Serializable], anyInt, any[TimeUnit])
+            verify(mockDatastore).put(contains("ADMIN_TOKEN"), any[Serializable], anyInt, any[TimeUnit])
         }
     }
 
