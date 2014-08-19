@@ -17,7 +17,7 @@
 
 CONFIG_DIRECTORY=/etc/repose
 NAME=repose-valve
-DAEMON_HOME=/usr/share/lib/repose
+DAEMON_HOME=/usr/share/repose
 LOG_PATH=/var/log/repose
 PID_FILE=/var/run/$NAME.pid
 USER=root

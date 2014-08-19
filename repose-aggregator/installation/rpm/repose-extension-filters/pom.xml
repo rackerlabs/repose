@@ -64,7 +64,7 @@
                             <mappings>
                                 <!-- The jar file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose/filters</directory>
+                                    <directory>/usr/share/repose/filters</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>644</filemode>
@@ -99,8 +99,6 @@
                                 <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>

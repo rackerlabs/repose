@@ -83,9 +83,7 @@
                             <mappings>
                                 <!-- The jar file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <directory>/usr/share/repose</directory>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
@@ -102,9 +100,7 @@
 
                                 <!-- The jetty file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <directory>/usr/share/repose</directory>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
@@ -153,10 +149,10 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../configs/etc/rpm-repose.conf
+                                                ${basedir}/../../configs/etc/repose/rpm-repose-valve.conf
                                             </location>
                                             <destination>
-                                                repose.conf
+                                                repose-valve.conf
                                             </destination>
                                         </source>
                                     </sources>
@@ -165,8 +161,6 @@
                                 <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>
