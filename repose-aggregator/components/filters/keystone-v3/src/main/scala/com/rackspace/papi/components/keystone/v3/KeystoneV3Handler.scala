@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
-import com.rackspace.papi.components.keystone.v3.utilities.{InvalidAdminCredentialsException, InvalidSubjectTokenException, KeystoneServiceException}
+import com.rackspace.papi.components.keystone.v3.utilities._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
@@ -22,7 +22,7 @@ import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success}
 
 class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
         extends AbstractFilterLogicHandler {
@@ -30,9 +30,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     private final val LOG = LoggerFactory.getLogger(classOf[KeystoneV3Handler])
     private final val ADMIN_TOKEN_KEY = "ADMIN_TOKEN"
     private final val TOKEN_KEY_PREFIX = "TOKEN:"
-    private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
-    private final val X_AUTH_TOKEN_HEADER = "X-Auth-Token"
-    private final val X_SUBJECT_TOKEN_HEADER = "X-Subject-Token"
 
     private lazy val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
     private lazy val datastore = datastoreService.getDefaultDatastore
@@ -56,7 +53,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         val filterDirector: FilterDirector = new FilterDirectorImpl()
         filterDirector.setFilterAction(FilterAction.RETURN)
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-        val subjectToken = request.getHeader(X_SUBJECT_TOKEN_HEADER)
+        val subjectToken = request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER)
 
         if (subjectToken == null) {
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
@@ -83,8 +80,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             fetchedAdminToken match {
                 case Success(adminToken) =>
                     // TODO: Extract this logic and the request logic to its own method to allow reuse on force fetchAdminToken
-                    val headerMap = Map(X_AUTH_TOKEN_HEADER -> adminToken, X_SUBJECT_TOKEN_HEADER -> subjectToken, HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-                    val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + TOKEN_ENDPOINT, headerMap.asJava)
+                    val headerMap = Map(
+                        KeystoneV3Headers.X_AUTH_TOKEN_HEADER -> adminToken,
+                        KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER -> subjectToken,
+                        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
+                    )
+                    val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, headerMap.asJava)
 
                     // TODO: pull this up a level to avoid doing dual matches on exceptions
                     HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
@@ -143,13 +144,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         if (cachedAdminToken != null) {
             Success(cachedAdminToken.asInstanceOf[String])
         } else {
-            val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + TOKEN_ENDPOINT, Map[String, String]().asJava, createAdminAuthRequest, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
+            val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, Map[String, String]().asJava, createAdminAuthRequest, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
             HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
                 // Since the operation is a POST, a 201 should be returned if the operation was successful
                 case HttpStatusCode.CREATED =>
-                    val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(X_SUBJECT_TOKEN_HEADER)).head.getValue
+                    val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER)).head.getValue
 
                     val expiration = new DateTime(readToAuthResponseObject(generateAuthTokenResponse).token.expires_at)
+                    // TODO: Safe long to int conversion
                     datastore.put(ADMIN_TOKEN_KEY, adminToken, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
 
                     Success(adminToken)
@@ -161,7 +163,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     private def readToAuthResponseObject(response: ServiceClientResponse) = {
-        response.getData.reset() // TODO: Why is this necessary?
+        response.getData.reset() // TODO: Remove this when we can. It relies on our implementatinon returning an InputStream that supports reset.
         val responseJson = Source.fromInputStream(response.getData).mkString
         responseJson.parseJson.convertTo[AuthResponse]
     }
