@@ -92,6 +92,10 @@
                                             <location>
                                                 ${project.build.directory}/valve-launcher-${project.version}.jar
                                             </location>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destination>
+                                                valve-launcher.jar
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -132,8 +136,28 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../configs/etc/init.d/repose-valve
+                                                ${basedir}/../../configs/etc/init.d/rpm-repose-valve
                                             </location>
+                                            <destination>
+                                                repose-valve
+                                            </destination>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- The config file -->
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../configs/etc/rpm-repose.conf
+                                            </location>
+                                            <destination>
+                                                repose.conf
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -150,19 +174,6 @@
                                         <source>
                                             <location>
                                                 ${basedir}/../../../../LICENSE.txt
-                                            </location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/etc/sysconfig</directory>
-                                    <directoryIncluded>false</directoryIncluded>
-                                    <filemode>644</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>
-                                                ${basedir}/../../configs/etc/sysconfig/repose
                                             </location>
                                         </source>
                                     </sources>
