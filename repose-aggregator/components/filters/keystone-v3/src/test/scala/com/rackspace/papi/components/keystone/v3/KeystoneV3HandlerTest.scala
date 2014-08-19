@@ -6,10 +6,11 @@ import javax.ws.rs.core.MediaType
 
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
-import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
+import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, WhiteList}
 import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, EndpointType, Role}
-import com.rackspace.papi.components.keystone.v3.utilities.InvalidAdminCredentialsException
+import com.rackspace.papi.components.keystone.v3.utilities.{InvalidAdminCredentialsException, KeystoneV3Headers}
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
@@ -51,19 +52,32 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         keystoneV3Handler = new KeystoneV3Handler(keystoneConfig, mockAkkaServiceClient, mockDatastoreService)
     }
 
-    describe("handleRequest")(pending)
+    describe("handleRequest") {
+        val mockServletResponse = mock[ReadableHttpServletResponse]
 
-    describe("isUriWhitelisted") {
-        val isUriWhitelisted = PrivateMethod[Boolean]('isUriWhitelisted)
+        it("should pass filter if uri is in the whitelist") {
+            val whiteList = new WhiteList()
+            whiteList.getUriPattern.add("/test1")
+            whiteList.getUriPattern.add("/test2")
+            keystoneConfig.setWhiteList(whiteList)
 
-        it("should return true if uri is in the whitelist") {
-            val whiteList = List("/test1", "/test2")
-            keystoneV3Handler invokePrivate isUriWhitelisted("/test1", whiteList) should be(true)
+            val mockRequest = new MockHttpServletRequest()
+            mockRequest.setRequestURI("/test1")
+
+            keystoneV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.PASS
         }
 
-        it("should return false if uri isn't in the whitelist") {
-            val whiteList = List("/test1", "/test2")
-            keystoneV3Handler invokePrivate isUriWhitelisted("/test3", whiteList) should be(false)
+        it("should attempt validation if uri isn't in the whitelist") {
+            val whiteList = new WhiteList()
+            whiteList.getUriPattern.add("/test1")
+            whiteList.getUriPattern.add("/test2")
+            keystoneConfig.setWhiteList(whiteList)
+
+            val mockRequest = new MockHttpServletRequest()
+            mockRequest.setRequestURI("/test3")
+
+            keystoneV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.RETURN
+            keystoneV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus should be theSameInstanceAs HttpStatusCode.UNAUTHORIZED
         }
     }
 
@@ -81,7 +95,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
         it("should set headers if request passes through filter") {
             val mockRequest = new MockHttpServletRequest()
-            mockRequest.addHeader("X-Subject-Token", "test-subject-token")
+            mockRequest.addHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-subject-token")
         }
 
         it("should set X-Authorization and X-Identity-Status headers when configured to forward all requests")(pending)
@@ -206,7 +220,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             val mockServiceClientResponse = mock[ServiceClientResponse]
 
             when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
             when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -219,7 +233,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
             val mockServiceClientResponse = mock[ServiceClientResponse]
 
             when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader("X-Subject-Token", "test-admin-token")), Nil: _*)
+            when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
             when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
             when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
                     thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -230,7 +244,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         }
     }
 
-    describe("writeProjectHeader"){
+    describe("writeProjectHeader") {
         val writeProjectHeader = PrivateMethod[Unit]('writeProjectHeader)
         val filterDirector = mock[FilterDirector]
         val headerManager = mock[HeaderManager]

@@ -45,10 +45,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         }
     }
 
-    private def isUriWhitelisted(requestUri: String, whiteList: List[String]) = {
-        whiteList.filter(requestUri.matches).nonEmpty
-    }
-
     private def authenticate(request: HttpServletRequest) = {
         val filterDirector: FilterDirector = new FilterDirectorImpl()
         filterDirector.setFilterAction(FilterAction.RETURN)
@@ -189,5 +185,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
     private def matchesProject(projectFromUri: String, roles: List[Role]): Boolean = true
 
-    val safeLongToInt = (l: Long) => math.min(l, Int.MaxValue).toInt
+    private val isUriWhitelisted = (requestUri: String, whiteList: List[String]) =>
+        whiteList.filter(requestUri.matches).nonEmpty
+
+    private val safeLongToInt = (l: Long) =>
+        math.min(l, Int.MaxValue).toInt
 }
