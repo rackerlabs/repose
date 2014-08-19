@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 #
 ### BEGIN INIT INFO
 # Provides: repose-valve
@@ -16,63 +16,83 @@ set -e
 . /lib/lsb/init-functions
 
 CONFIG_DIRECTORY=/etc/repose
-
-JAVA=/usr/bin/java
-
 NAME=repose-valve
 DAEMON_HOME=/usr/share/lib/repose
-PID_FILE=/var/run/repose-valve.pid
-REPOSE_JAR=${DAEMON_HOME}/repose-valve.jar
+LOG_PATH=/var/log/repose
+PID_FILE=/var/run/$NAME.pid
+USER=root
 START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --background"
+JAVA_OPTS=""
+
+JAVA=/usr/bin/java
+DAEMON_JAR=${DAEMON_HOME}/valve-launcher.jar
 CLEAN=/usr/local/bin/clean-repose-deploy
 
 ###########################
 # Start daemon
 ###########################
-start_repose()
+start()
 {
-  $CLEAN $CONFIG_DIRECTORY
-  start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR -c $CONFIG_DIRECTORY
+
+  $CLEAN $CONFIG_DIRECTORY >> /dev/null 2>&1
+  start-stop-daemon $START_ARGS --exec $JAVA -- $JAVA_OPTS -jar $DAEMON_JAR --config-file $CONFIG_DIRECTORY
   log_progress_msg "started"
 }
 
 ###########################
 # Stop daemon
 ###########################
-stop_repose()
+stop()
 {
   start-stop-daemon -p $PID_FILE --stop --retry 5 --exec $JAVA -- -jar $REPOSE_JAR
   log_progress_msg "stopped"
+
 }
 
 # -----------------------------------------------------------------------------
 # Script entry point...
 # -----------------------------------------------------------------------------
-# Switch to the daemon's home directory to do all of this...
-cd $DAEMON_HOME
+# Source defaults.
+. $CONFIG_DIRECTORY/$NAME.conf
 
-if [ $? -ne 0 ]; then
-  echo "Unable to find $NAME's directory."
+if [ ! -d $DAEMON_HOME ]; then
+  echo "Unable to find $NAME's directory: $DEAMON_HOME."
   exit 1
 fi
+
+if [ ! -d $CONFIG_DIRECTORY ]; then
+  echo "Unable to find $CONFIG_DIRECTORY."
+  exit 1
+fi
+
+if [ ! -d $LOG_PATH ]; then
+  echo "Unable to log to $LOG_PATH."
+  exit 1
+fi
+
+# Switch to the daemon's home directory to do all of this...
+cd $DAEMON_HOME
 
 case "$1" in
   start)
     log_daemon_msg "Starting $NAME"
-    start_repose
+    start
     log_end_msg 0
     ;;
+
   stop)
     log_daemon_msg "Stopping $NAME"
-    stop_repose
+    stop
     log_end_msg 0
     ;;
+
   restart)
     log_daemon_msg "Restarting $NAME"
-    stop_repose
-    start_repose
+    stop
+    start
     log_end_msg 0
     ;;
+
   status)
     status_of_proc -p $PID_FILE $JAVA $NAME && exit 0 || exit $?
     ;;
