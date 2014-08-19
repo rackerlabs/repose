@@ -5,12 +5,15 @@ import java.io.{File, InputStream, PrintStream}
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import org.openrepose.servo.actors.{SystemModelWatcher, NodeStore, ReposeLauncher}
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-object Servo {
+class Servo {
+
+  val LOG = LoggerFactory.getLogger(this.getClass)
 
   //http://www.eclipse.org/jetty/documentation/current/runner.html
   // Here's how to use the jetty-runner
@@ -28,10 +31,11 @@ object Servo {
   /**
    * Create an actor system!
    */
-  val system = ActorSystem("Servo")
+  val system = ActorSystem("ServoSystem")
 
   /**
    * Basically just runs what would be in Main, but gives me the ability to test it
+   * //TODO: this exit code doesn't work very well...
    * @param args the String passed into the program
    * @param in Typically standard in
    * @param out typically standard out
@@ -45,6 +49,13 @@ object Servo {
     Console.setOut(out)
     Console.setIn(in)
     Console.setErr(err)
+
+    LOG.info("STARTING UP")
+
+    //We can flip out right now about the JVM_OPTS
+    if(config.getString("jvmOpts").nonEmpty) {
+      LOG.warn("JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+    }
 
     //Use a Typesafe application.conf to do the loading instead
     val reposeVersion = config.getString("version")
@@ -103,6 +114,7 @@ object Servo {
           out.println("Launching with SSL validation")
         }
         serveValves(config, servoConfig)
+        system.awaitTermination()// Block here forever, awaiting the actor system termination I think
         0
       }
     } getOrElse {
@@ -118,6 +130,7 @@ object Servo {
     system.awaitTermination() //Wait until it's completely terminated, don't yank it out from underneath!
   }
 
+
   def serveValves(config: Config, servoConfig: ServoConfig) = {
     Console.out.println("TODO REMOVE ME: STARTING THE VALVES!")
     try {
@@ -128,10 +141,11 @@ object Servo {
       Console.out.println(s"What is my string: |${executionStringSequence mkString ","}|")
 
       //TODO: Build up the environment!
+      val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
       //TODO: JVM_OPTS WARNING! REPOSE_JVM_OPTS!
 
       //Configure the props of the actor we want to turn on
-      val launcherProps = ReposeLauncher.props(executionStringSequence, warFilePath = config.getString("reposeWarLocation"))
+      val launcherProps = ReposeLauncher.props(executionStringSequence, env, config.getString("reposeWarLocation"))
       //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
       //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
       // Potentially other options and such... The execution string isn't very static...
