@@ -12,6 +12,11 @@ export PATCH_DIR=${SCRIPT_DIR}/../bash
 #cd ${REPOSE_DIR}/repose-aggregator/installation/deb
 # Build the installer packages based on the currently install artifacts.
 mvn clean install -P build-system-packages
+# IF the build failed, THEN exit.
+if [ "$?" -ne "0" ]
+then
+  exit $?
+fi
 # Set up the Vagrant directory and add all the local files so the VM has access to them.
 mkdir -p ${VAGRANT_DIR}
 cd ${VAGRANT_DIR}
