@@ -262,9 +262,15 @@
             <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
+        <!--For hamcrest matcher support-->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
 
         <!--For slf4j logging support-->
-        <!-- todo: should these be mismatched? -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -273,7 +279,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.6</version>
+            <version>1.7.5</version>
         </dependency>
 
         <!--todo: Ugh utlilites really needs these? -->
@@ -290,19 +296,6 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>transaction-api</artifactId>
-        </dependency>
-        <!-- todo: related to the schema class generation stuff below move along with it -->
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>0.6.3</version>
-        </dependency>
-
-        <!--For hamcrest matcher support-->
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.3</version>
         </dependency>
     </dependencies>
 
@@ -366,6 +359,13 @@
                             <phase>process-sources</phase>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics-runtime</artifactId>
+                            <version>0.6.3</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <plugin>
