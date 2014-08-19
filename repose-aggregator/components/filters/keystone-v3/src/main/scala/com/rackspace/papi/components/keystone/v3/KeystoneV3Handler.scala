@@ -48,8 +48,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         }
     }
 
-    private def isUriWhitelisted(requestUri: String, whiteList: List[String]) =
+    private def isUriWhitelisted(requestUri: String, whiteList: List[String]) = {
         whiteList.filter(requestUri.matches).nonEmpty
+    }
 
     private def authenticate(request: HttpServletRequest) = {
         val filterDirector: FilterDirector = new FilterDirectorImpl()
@@ -83,11 +84,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 case Success(adminToken) =>
                     // TODO: Extract this logic and the request logic to its own method to allow reuse on force fetchAdminToken
                     val headerMap = Map(X_AUTH_TOKEN_HEADER -> adminToken, X_SUBJECT_TOKEN_HEADER -> subjectToken, HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-                    val serviceClientResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + TOKEN_ENDPOINT, headerMap.asJava)
+                    val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + TOKEN_ENDPOINT, headerMap.asJava)
 
-                    HttpStatusCode.fromInt(serviceClientResponse.getStatusCode) match {
+                    // TODO: pull this up a level to avoid doing dual matches on exceptions
+                    HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
                         case HttpStatusCode.OK =>
-                            val subjectTokenObject = readToAuthResponseObject(serviceClientResponse).token
+                            val subjectTokenObject = readToAuthResponseObject(validateTokenResponse).token
 
                             val expiration = new DateTime(subjectTokenObject.expires_at)
                             datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
@@ -99,9 +101,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                         case HttpStatusCode.UNAUTHORIZED =>
                             LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                             // TODO: Implement this after caching is implemented
-                            Failure(new NotImplementedError())
+                            Failure(???)
                         case _ =>
-                            LOG.error("Keystone service returned an unexpected response status code. Response Code: " + serviceClientResponse.getStatusCode)
+                            LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
                             Failure(new KeystoneServiceException("Failed to validate subject token"))
                     }
                 case Failure(e) => fetchedAdminToken
@@ -113,11 +115,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         def createAdminAuthRequest = {
             val username = keystoneConfig.getKeystoneService.getUsername
             val password = keystoneConfig.getKeystoneService.getPassword
-            val domainId = Option(keystoneConfig.getKeystoneService.getDomainId)
-            var domainType: Option[DomainType] = None
 
-            if (domainId.isDefined) domainType = {
-                Some(DomainType(id = domainId))
+            val domain = Option(keystoneConfig.getKeystoneService.getDomainId) match {
+                case Some(domainId) => Some(Domain(id = Some(domainId)))
+                case _ => None
             }
 
             AuthRequestRoot(
@@ -126,7 +127,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                         methods = List("password"),
                         password = Some(PasswordCredentials(
                             UserNamePasswordRequest(
-                                domain = domainType,
+                                domain = domain,
                                 name = Some(username),
                                 password = password
                             )
