@@ -100,6 +100,9 @@
                                             <src>
                                                 ${project.build.directory}/valve-launcher-${project.version}.jar
                                             </src>
+                                            <dst>
+                                                valve-launcher.jar
+                                            </dst>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -137,13 +140,32 @@
                                         <!-- The start script -->
                                         <data>
                                             <src>
-                                                src/deb/etc/init.d/repose-valve
+                                                ${basedir}/../../configs/etc/init.d/deb-repose-valve
                                             </src>
+                                            <dst>
+                                                repose-valve
+                                            </dst>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
                                                 <prefix>/etc/init.d</prefix>
                                                 <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
+                                        <!-- The config file -->
+                                        <data>
+                                            <src>
+                                                ${basedir}/../../configs/etc/deb-repose.conf
+                                            </src>
+                                            <dst>
+                                                repose.conf
+                                            </dst>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/etc/repose/</prefix>
+                                                <filemode>644</filemode>
                                             </mapper>
                                         </data>
 
