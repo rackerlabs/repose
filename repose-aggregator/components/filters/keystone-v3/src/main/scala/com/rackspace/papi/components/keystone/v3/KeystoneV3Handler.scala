@@ -143,7 +143,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             case Some(cachedAdminToken) =>
                 Success(cachedAdminToken.asInstanceOf[String])
             case None =>
-                val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
+                val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest(), MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
                 HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
                     // Since the operation is a POST, a 201 should be returned if the operation was successful
                     case HttpStatusCode.CREATED =>
