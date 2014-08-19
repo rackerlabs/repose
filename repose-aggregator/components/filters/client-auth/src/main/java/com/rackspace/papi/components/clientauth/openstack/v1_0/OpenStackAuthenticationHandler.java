@@ -55,53 +55,19 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private AuthToken validateTenant(AuthToken authToken, String tenantID) {
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
+            // tenant ID from token did not match URI.
 
-
-            /*
-            we are here because the authToken is null
-            this means it was never set because the tenant id did not match the URI
-            we need to check the roles list here!
-
-            tenantID (from URI) and authToken.getTenantId() do not match
-            so, we have to see if the tenantID from the URI
-            matches any of the roles from the authToken that came back
-            in the response.
-
-            tenantID == tenantID from the URI
-            authToken.getTenantId == tenantId from token
-
-            loop through roles list: authToken.getRoles().split(".")*/
-
-
+            //check if URI matches any IDs from roles.
             for (String role : authToken.getRoles().split(",")) {
                 if(tenantID.equalsIgnoreCase(role)) {
-
+                    //set values that can be used later to assign header values
+                    //(don't have access to do header stuff here)
                     tenantIDMatchesRole = true;
                     roleID = role;
-
-                    //final AuthenticateResponse authenticateResponse = new AuthenticateResponse();// = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                    //authenticateResponse.getToken().setTenant(); ....... USE THIS?
-                    //clone the authenticate response from validate token somehow
-
-                    //don't make a new response or token, actually go in and
-                    //manually add the header. Problem is we don't have access to the
-                    //filter director without changing signatures
-
-                    /*
-                    then we can put the 104772 in the header...which will happen if we just return authToken?
-                    BUT! The auth token has the wrong tenant ID, we need a new one
-
-                    director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add("nonsense");
-                    director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add("nonsense2");
-
-                    TODO: figure out how to put the correct tenantID into an existing auth token
-
-                    so I set a flag that tells the authentication handler to add the header... ¯\_(ツ)_/¯
-
-                    */
                     return authToken;
                 }
             }
+
             LOG.error("Unable to validate token for tenant.  Invalid token.");
             return null;
         } else {
