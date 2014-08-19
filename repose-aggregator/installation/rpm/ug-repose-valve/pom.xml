@@ -31,7 +31,7 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-repose-valve-jar</id>
+                                <id>copy-repose-valve-launcher-jar</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -39,13 +39,31 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.core</groupId>
-                                            <artifactId>valve</artifactId>
+                                            <groupId>org.openrepose.valve</groupId>
+                                            <artifactId>valve-launcher</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
-                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
-                                            <destFileName>valve-${project.version}.jar</destFileName-->
-                                            <destFileName>repose-valve.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>copy-jetty-runner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.eclipse.jetty</groupId>
+                                            <artifactId>jetty-runner</artifactId>
+                                            <version>${jetty.version}</version>
+                                            <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -59,101 +77,87 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-
                         <configuration>
+
                             <name>ug-repose-valve</name>
                             <mappings>
+                                <!-- The jar file -->
                                 <mapping>
                                     <directory>/usr/share/lib/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
-                                                <!-- TODO: The actual artifact ID should be used.
-                                                ${project.build.directory}/valve-${project.version}.jar-->
-                                                ${project.build.directory}/repose-valve.jar
+                                                ${project.build.directory}/valve-launcher-${project.version}.jar
+                                            </location>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destination>
+                                                valve-launcher.jar
+                                            </destination>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- The jetty file -->
+                                <mapping>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>644</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${project.build.directory}/jetty-runner-${jetty.version}.jar
                                             </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <!-- The /var/log/repose directory -->
+                                <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/var/log/repose/</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>770</filemode>
-                                </mapping>
-
-                                <!-- The /var/repose directory -->
-                                <mapping>
-                                    <directory>/var/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>770</filemode>
-                                </mapping>
-
-                                <!-- The logrotate script -->
-                                <mapping>
-                                    <directory>/etc/logrotate.d</directory>
-                                    <directoryIncluded>false</directoryIncluded>
-                                    <filemode>644</filemode>
+                                    <directory>/usr/local/bin</directory>
+                                    <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../configs/etc/logrotate.d/repose
+                                                ${basedir}/../../bash/clean-repose-deploy
                                             </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <!-- The sample configuration files for the filters -->
-                                <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>644</filemode>
-                                    <configuration>noreplace</configuration>
-                                    <sources>
-                                        <source>
-                                            <location>
-                                                ${basedir}/../../configs/core
-                                            </location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/doc/repose-valve</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>${basedir}/target/git.properties</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
+                                <!-- The start script -->
                                 <mapping>
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/init.d/ug-repose-valve
+                                            </location>
+                                            <destination>
+                                                repose-valve
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The config file -->
                                 <mapping>
-                                    <directory>/usr/local/bin</directory>
-                                    <filemode>755</filemode>
+                                    <directory>/etc/repose/</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../bash/clean-repose-deploy</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/ug-repose.conf
+                                            </location>
+                                            <destination>
+                                                repose.conf
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -178,35 +182,9 @@
                             </mappings>
 
                             <requires>
-                                <require>java &gt;= 1.7.0</require>
+                                <require>repose</require>
                                 <require>daemonize</require>
                             </requires>
-
-                            <provides>
-                                <provide>repose</provide>
-                            </provides>
-
-                            <preinstallScriptlet>
-                                <script>
-                                    #!/bin/sh
-                                    CONFIG_DIR=/etc/repose
-                                    SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
-
-                                    if [ -f $SYSTEM_MODEL ]
-                                    then
-                                        #Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
-                                        if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
-                                        then
-                                            echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
-                                            exit 1
-                                        else
-                                            getent group  repose >> /dev/null 2>&amp;1 || groupadd -r repose
-                                            getent passwd repose >> /dev/null 2>&amp;1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
-                                            exit 0
-                                        fi
-                                    fi
-                                </script>
-                            </preinstallScriptlet>
 
                             <group>Applications/Internet</group>
 
