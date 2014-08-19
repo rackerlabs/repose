@@ -70,45 +70,44 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     private def validateSubjectToken(subjectToken: String) = {
-        val cachedSubjectTokenObject = datastore.get(TOKEN_KEY_PREFIX + subjectToken)
+        Option(datastore.get(TOKEN_KEY_PREFIX + subjectToken)) match {
+            case Some(cachedSubjectTokenObject) =>
+                Success(cachedSubjectTokenObject.asInstanceOf[AuthenticateResponse])
+            case None =>
+                val fetchedAdminToken = fetchAdminToken()
 
-        if (cachedSubjectTokenObject != null) {
-            Success(cachedSubjectTokenObject.asInstanceOf[AuthenticateResponse])
-        } else {
-            val fetchedAdminToken = fetchAdminToken()
+                fetchedAdminToken match {
+                    case Success(adminToken) =>
+                        // TODO: Extract this logic and the request logic to its own method to allow reuse on force fetchAdminToken
+                        val headerMap = Map(
+                            KeystoneV3Headers.X_AUTH_TOKEN_HEADER -> adminToken,
+                            KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER -> subjectToken,
+                            HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
+                        )
+                        val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, headerMap.asJava)
 
-            fetchedAdminToken match {
-                case Success(adminToken) =>
-                    // TODO: Extract this logic and the request logic to its own method to allow reuse on force fetchAdminToken
-                    val headerMap = Map(
-                        KeystoneV3Headers.X_AUTH_TOKEN_HEADER -> adminToken,
-                        KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER -> subjectToken,
-                        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
-                    )
-                    val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, headerMap.asJava)
+                        // TODO: pull this up a level to avoid doing dual matches on exceptions
+                        HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
+                            case HttpStatusCode.OK =>
+                                val subjectTokenObject = readToAuthResponseObject(validateTokenResponse).token
 
-                    // TODO: pull this up a level to avoid doing dual matches on exceptions
-                    HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
-                        case HttpStatusCode.OK =>
-                            val subjectTokenObject = readToAuthResponseObject(validateTokenResponse).token
+                                val expiration = new DateTime(subjectTokenObject.expires_at)
+                                datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
 
-                            val expiration = new DateTime(subjectTokenObject.expires_at)
-                            datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
-
-                            Success(subjectTokenObject)
-                        case HttpStatusCode.NOT_FOUND =>
-                            LOG.error("Subject token validation failed. Response Code: 404")
-                            Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
-                        case HttpStatusCode.UNAUTHORIZED =>
-                            LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
-                            // TODO: Implement this after caching is implemented
-                            Failure(???)
-                        case _ =>
-                            LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
-                            Failure(new KeystoneServiceException("Failed to validate subject token"))
-                    }
-                case Failure(e) => fetchedAdminToken
-            }
+                                Success(subjectTokenObject)
+                            case HttpStatusCode.NOT_FOUND =>
+                                LOG.error("Subject token validation failed. Response Code: 404")
+                                Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
+                            case HttpStatusCode.UNAUTHORIZED =>
+                                LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
+                                // TODO: Implement this after caching is implemented
+                                Failure(???)
+                            case _ =>
+                                LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
+                                Failure(new KeystoneServiceException("Failed to validate subject token"))
+                        }
+                    case Failure(e) => fetchedAdminToken
+                }
         }
     }
 
@@ -139,26 +138,25 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         }
 
         // Check the cache for the admin token. If present, return it. Validity of the token is handled in validateSubjectToken and by the TTL.
-        val cachedAdminToken = datastore.get(ADMIN_TOKEN_KEY)
+        Option(datastore.get(ADMIN_TOKEN_KEY)) match {
+            case Some(cachedAdminToken) =>
+                Success(cachedAdminToken.asInstanceOf[String])
+            case None =>
+                val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, Map[String, String]().asJava, createAdminAuthRequest, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
+                HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
+                    // Since the operation is a POST, a 201 should be returned if the operation was successful
+                    case HttpStatusCode.CREATED =>
+                        val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER)).head.getValue
 
-        if (cachedAdminToken != null) {
-            Success(cachedAdminToken.asInstanceOf[String])
-        } else {
-            val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN_ENDPOINT, Map[String, String]().asJava, createAdminAuthRequest, MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
-            HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
-                // Since the operation is a POST, a 201 should be returned if the operation was successful
-                case HttpStatusCode.CREATED =>
-                    val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN_HEADER)).head.getValue
+                        val expiration = new DateTime(readToAuthResponseObject(generateAuthTokenResponse).token.expires_at)
+                        // TODO: Safe long to int conversion
+                        datastore.put(ADMIN_TOKEN_KEY, adminToken, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
 
-                    val expiration = new DateTime(readToAuthResponseObject(generateAuthTokenResponse).token.expires_at)
-                    // TODO: Safe long to int conversion
-                    datastore.put(ADMIN_TOKEN_KEY, adminToken, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
-
-                    Success(adminToken)
-                case _ =>
-                    LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.getStatusCode)
-                    Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
-            }
+                        Success(adminToken)
+                    case _ =>
+                        LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.getStatusCode)
+                        Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
+                }
         }
     }
 
