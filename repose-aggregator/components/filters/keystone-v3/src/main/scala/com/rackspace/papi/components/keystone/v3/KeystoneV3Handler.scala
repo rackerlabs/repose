@@ -84,7 +84,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                             KeystoneV3Headers.X_SUBJECT_TOKEN -> subjectToken,
                             HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
                         )
-                        akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, headerMap.asJava)
+                        val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, headerMap.asJava)
 
                         HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
                             case HttpStatusCode.OK =>
