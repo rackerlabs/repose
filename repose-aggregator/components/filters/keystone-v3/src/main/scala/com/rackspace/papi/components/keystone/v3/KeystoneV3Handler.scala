@@ -91,7 +91,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                                 val subjectTokenObject = readToAuthResponseObject(validateTokenResponse).token
 
                                 val expiration = new DateTime(subjectTokenObject.expires_at)
-                                datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
+                                val ttl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                                LOG.debug("Caching token " + subjectToken + " with TTL set to: " + ttl + "ms")
+                                datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                                 Success(subjectTokenObject)
                             case HttpStatusCode.NOT_FOUND =>
@@ -111,7 +113,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     private def fetchAdminToken() = {
-        def createAdminAuthRequest = {
+        val createAdminAuthRequest = () => {
             val username = keystoneConfig.getKeystoneService.getUsername
             val password = keystoneConfig.getKeystoneService.getPassword
 
@@ -148,8 +150,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                         val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
 
                         val expiration = new DateTime(readToAuthResponseObject(generateAuthTokenResponse).token.expires_at)
-                        // TODO: Safe long to int conversion
-                        datastore.put(ADMIN_TOKEN_KEY, adminToken, (expiration.getMillis - DateTime.now.getMillis).toInt, TimeUnit.MILLISECONDS)
+                        val ttl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                        LOG.debug("Caching admin token with TTL set to: " + ttl + "ms")
+                        datastore.put(ADMIN_TOKEN_KEY, adminToken, ttl, TimeUnit.MILLISECONDS)
 
                         Success(adminToken)
                     case _ =>
@@ -172,4 +175,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
 
     private def matchesProject(projectFromUri: String, roles: List[Role]): Boolean = true
+
+    val safeLongToInt = (l: Long) => math.min(l, Int.MaxValue).toInt
 }
