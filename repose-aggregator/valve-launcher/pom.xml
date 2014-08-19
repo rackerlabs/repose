@@ -45,6 +45,12 @@
             <artifactId>akka-actor_2.10</artifactId>
             <version>${akka.version}</version>
         </dependency>
+        <!-- Hooking akka up to slf4j so that logging works awesomely -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-slf4j_2.10</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.github.scopt</groupId>
