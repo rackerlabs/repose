@@ -10,7 +10,7 @@ object IdentityJsonProtocol extends DefaultJsonProtocol {
     implicit val catalogTypeFormat = jsonFormat1(CatalogType)
     implicit val domainScopeFormat = jsonFormat2(DomainScopeType)
     implicit val domainsForAuthenticateResponse = jsonFormat3(DomainsForAuthenticateResponse)
-    implicit val domainTypeFormat = jsonFormat3(DomainType)
+    implicit val domainTypeFormat = jsonFormat3(Domain)
     implicit val userNamePasswordRequestFormat = jsonFormat4(UserNamePasswordRequest)
     implicit val passwordCredentialsFormat = jsonFormat1(PasswordCredentials)
     implicit val projectForAuthenticateResponseFormat = jsonFormat4(ProjectForAuthenticateResponse)
