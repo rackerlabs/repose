@@ -165,15 +165,19 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64);
 
-        //new headers should be added here it looks like
+        //if we need to add a tenant ID that came from roles
         if(tenantIDMatchesRole) {
             if(filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")) == null) {
+                //if the header doesn't even exist, build it so we don't get NPE
                 filterDirector.requestHeaderManager().headersToAdd().put(HeaderName.wrap("x-tenant-id"),new LinkedHashSet());
             } else {
+                //if it was there, remove the wrong headers
                 Set tenants = filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id"));
                 tenants.removeAll(tenants);
             }
+            //add the tenant ID we found from roles to the header
             filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add(roleID);
+            //cleanup
             tenantIDMatchesRole = false;
             roleID = null;
         }
