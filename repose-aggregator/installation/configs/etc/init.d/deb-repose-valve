@@ -44,7 +44,7 @@ start()
 ###########################
 stop()
 {
-  start-stop-daemon -p $PID_FILE --stop --retry 5 --exec $JAVA -- -jar $REPOSE_JAR
+  start-stop-daemon -p $PID_FILE --stop --retry 5 --exec $JAVA -- -jar $DAEMON_JAR
   log_progress_msg "stopped"
 
 }
