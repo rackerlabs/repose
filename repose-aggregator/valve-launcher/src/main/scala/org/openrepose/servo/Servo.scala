@@ -142,6 +142,9 @@ class Servo {
 
       //TODO: Build up the environment!
       val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
+      env.keys.foreach{ i =>
+        Console.out.print( i )
+        Console.out.println(" = " + env(i) )}
       //TODO: JVM_OPTS WARNING! REPOSE_JVM_OPTS!
 
       //Configure the props of the actor we want to turn on
