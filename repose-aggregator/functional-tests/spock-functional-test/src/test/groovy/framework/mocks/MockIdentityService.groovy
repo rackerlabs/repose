@@ -597,6 +597,12 @@ class MockIdentityService {
                "description" : "A Role that allows a user access to keystone Service methods"
             },
             {
+               "tenantId" : "\${tenanttwo}",
+               "name" : "object-store:default",
+               "id" : "5",
+               "description" : "A Role that allows a user access to keystone Service methods"
+            },
+            {
                "name" : "identity:admin",
                "id" : "1",
                "description" : "Admin Role."
@@ -767,11 +773,27 @@ class MockIdentityService {
     xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
     xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
     <token id="\${token}"
-           expires="\${expires}"/>
-    <user id="rackerUsername">
+           expires="\${expires}">
+        <tenant id="\${tenant}" name="\${tenant}"/>
+        <rax-auth:authenticatedBy>
+            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        </rax-auth:authenticatedBy>
+    </token>
+    <user id="\${userid}" name="\${username}" rax-auth:defaultRegion="DFW">
         <roles>
             <role id="9" name="Racker"
                 description="Defines a user as being a Racker"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
+            <role id="5" name="object-store:default"
+                description="Role to access keystone service"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"
+                tenantId="\${tenanttwo}"/>
+            <role id="6" name="compute:default"
+                description="Role to access keystone service"
+                serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"
+                tenantId="\${tenant}"/>
+            <role id="3" name="identity:user-admin"
+                description="User Admin Role"
                 serviceId="18e7a7032733486cd32f472d7bd58f709ac0d221"/>
             <role name="dl_RackUSA"/>
             <role name="dl_RackGlobal"/>
@@ -793,7 +815,12 @@ class MockIdentityService {
     xmlns:os-ksec2="http://docs.openstack.org/identity/api/ext/OS-KSEC2/v1.0"
     xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
     <token id="\${token}"
-           expires="\${expires}"/>
+           expires="\${expires}">
+        <tenant id="\${tenant}" name="\${tenant}"/>
+        <rax-auth:authenticatedBy>
+            <rax-auth:credential>PASSWORD</rax-auth:credential>
+        </rax-auth:authenticatedBy>
+    </token>
     <user id="rackerUsername">
         <roles>
             <role name="dl_RackUSA"/>
