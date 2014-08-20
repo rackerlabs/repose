@@ -55,10 +55,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
             filterDirector.setFilterAction(FilterAction.RETURN)
         } else {
-//            val tokenObject = validateSubjectToken(subjectToken) match {
-//                case Success(v) => v
-//                case Failure(_) => None
-//            }
+            //            val tokenObject = validateSubjectToken(subjectToken) match {
+            //                case Success(v) => v
+            //                case Failure(_) => None
+            //            }
             // TODO
         }
 
@@ -166,8 +166,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
     private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
         val projectsFromRoles: Set[String] = {
-            if(writeAll) {
-                roles.map({role => role.project_id.get}).toSet
+            if (writeAll) {
+                roles.map({ role => role.project_id.get}).toSet
             }
             else {
                 Set.empty
@@ -176,7 +176,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
         def projects: Set[String] = projectsFromRoles + projectFromUri
 
-        filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray:_*)
+        filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
     }
 
     private def containsEndpoint(endpoints: List[EndpointType], url: String): Boolean = endpoints.exists { endpoint: EndpointType => endpoint.url == url}
