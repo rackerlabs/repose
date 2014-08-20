@@ -27,16 +27,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
@@ -80,18 +70,6 @@
                                             <location>
                                                 ${project.build.directory}/filter-bundle-${project.version}.ear
                                             </location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>${basedir}/target/git.properties</location>
                                         </source>
                                     </sources>
                                 </mapping>
