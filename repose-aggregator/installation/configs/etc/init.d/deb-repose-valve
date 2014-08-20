@@ -26,7 +26,7 @@ JAVA_OPTS=""
 
 JAVA=/usr/bin/java
 DAEMON_JAR=${DAEMON_HOME}/valve-launcher.jar
-CLEAN=/usr/local/bin/clean-repose-deploy
+CLEAN=/usr/bin/clean-repose-deploy
 
 ###########################
 # Start daemon
