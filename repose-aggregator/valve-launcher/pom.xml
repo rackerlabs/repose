@@ -80,7 +80,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>filtered-properties.conf</include>
+                    <include>filteredProps.conf</include>
                 </includes>
             </resource>
             <!-- if you want to avoid filtering of all the other stuff, have to add more things. -->
@@ -88,7 +88,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>filtered-properties.conf</exclude>
+                    <exclude>filteredProps.conf</exclude>
                 </excludes>
             </resource>
         </resources>
