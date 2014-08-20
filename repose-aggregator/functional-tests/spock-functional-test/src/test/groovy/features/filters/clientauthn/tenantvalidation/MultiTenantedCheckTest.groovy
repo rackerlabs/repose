@@ -57,30 +57,25 @@ class MultiTenantedCheckTest extends ReposeValveTest {
             service_admin_role = "not-admin"
         }
 
-        when: "User passes a request through repose with $defaultTenant"
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$defaultTenant",
-                method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
-
-        then: "Everything gets passed as is to the origin service (no matter the user)"
-        mc.receivedResponse.code == serviceRespCode
-        mc.handlings.size() == 1
-        println mc.receivedResponse.headers
-
         when: "User passes a request through repose with $requestTenant"
-        mc = deproxy.makeRequest(
+        MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
                 headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Everything gets passed as is to the origin service (no matter the user)"
         mc.receivedResponse.code == serviceRespCode
-        mc.handlings.size() == 1
-        //mc.receivedResponse.headers.findAll('x-tenant-id').contains(requestTenant)
+        if (serviceRespCode != "200")
+            assert mc.handlings.size() == 0
+        else assert mc.handlings.size() == 1
 
         where:
         defaultTenant   | requestTenant         | authResponseCode  |clientToken        |serviceRespCode
-        "123456"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
+        "123456"        | "123456"              | "200"             |UUID.randomUUID()  | "200"
+        "123456"        | "nast-it"             | "200"             |UUID.randomUUID()  | "200"
+        "123456"        | "no-a-nast-it"        | "200"             |UUID.randomUUID()  | "401"
+        "900000"        | "nast-it"             | "200"             |UUID.randomUUID()  | "200"
+        "900000"        | "900000"              | "200"             |UUID.randomUUID()  | "200"
+        "900000"        | "900000"              | "200"             |''                 | "401"
     }
 }
