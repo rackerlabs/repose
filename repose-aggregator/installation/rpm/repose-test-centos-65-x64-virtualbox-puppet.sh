@@ -35,7 +35,7 @@ sudo wget http://apt.sw.be/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0
 sudo rpm -Uvh rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm\n
 sudo yum install -y daemonize\n
 # Install the Repose packages.\n
-sudo yum --nogpgcheck localinstall -y /vagrant/web-application-*.rpm /vagrant/repose-valve-*.rpm /vagrant/repose-filters-*.rpm       /vagrant/repose-extension-filters-*.rpm\n
+sudo yum --nogpgcheck localinstall -y /vagrant/repose-war-*.rpm /vagrant/repose-valve-*.rpm /vagrant/repose-filters-*.rpm /vagrant/repose-extension-filters-*.rpm\n
 \n
 # Modify the default system-model to add a header-translation filter and change the endpoint to the local GUnicorn instance.\n
 sudo cp -f /etc/repose/system-model.cfg.xml /vagrant/system-model.cfg.xml_ORIG\n
@@ -78,7 +78,7 @@ chmod a+x repose-test.sh
 
 # Run the test and destroy the VM.
 vagrant ssh -c "/vagrant/repose-test.sh"
-vagrant destroy -f
+#vagrant destroy -f
 # Let the user know where the out put is located.
 echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
 echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
