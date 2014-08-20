@@ -92,7 +92,7 @@
                                             </location>
                                             <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
                                             <destination>
-                                                valve-launcher.jar
+                                                servo.jar
                                             </destination>
                                         </source>
                                     </sources>
