@@ -71,6 +71,9 @@
                                             <location>
                                                 ${project.build.directory}/web-application-${project.version}.war
                                             </location>
+                                            <destination>
+                                                repose-${project.version}.war
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
