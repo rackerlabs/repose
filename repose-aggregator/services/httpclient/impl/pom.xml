@@ -32,6 +32,10 @@
             <artifactId>httpclient-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
