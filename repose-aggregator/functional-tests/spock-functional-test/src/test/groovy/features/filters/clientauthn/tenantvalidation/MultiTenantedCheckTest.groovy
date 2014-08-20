@@ -67,15 +67,18 @@ class MultiTenantedCheckTest extends ReposeValveTest {
         mc.receivedResponse.code == serviceRespCode
         if (serviceRespCode != "200")
             assert mc.handlings.size() == 0
-        else assert mc.handlings.size() == 1
+        else {
+            assert mc.handlings.size() == 1
+            assert mc.handlings[0].request.headers.getFirstValue('x-tenant-id') == requestTenant
+        }
 
         where:
         defaultTenant   | requestTenant         | authResponseCode  |clientToken        |serviceRespCode
         "123456"        | "123456"              | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "nast-it"             | "200"             |UUID.randomUUID()  | "200"
-        "123456"        | "no-a-nast-it"        | "200"             |UUID.randomUUID()  | "401"
-        "900000"        | "nast-it"             | "200"             |UUID.randomUUID()  | "200"
-        "900000"        | "900000"              | "200"             |UUID.randomUUID()  | "200"
+        "123456"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
+        "123456"        | "no-a-nast-id"        | "200"             |UUID.randomUUID()  | "401"
+        "900000"        | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
+        "nast-id"       | "nast-id"             | "200"             |UUID.randomUUID()  | "200"
         "900000"        | "900000"              | "200"             |''                 | "401"
     }
 }
