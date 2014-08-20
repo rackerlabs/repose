@@ -4,10 +4,13 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.openstack.OpenStackToken;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +56,20 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         return false;
     }
 
-    private AuthToken validateTenant(AuthToken authToken, String tenantID) {
+    private AuthToken validateTenant(AuthenticateResponse resp, String tenantID) {
+
+        AuthToken authToken = new OpenStackToken(resp);
+
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
             // tenant ID from token did not match URI.
 
-            //check if URI matches any IDs from roles.
-            for (String role : authToken.getRoles().split(",")) {
-                if(tenantID.equalsIgnoreCase(role)) {
-                    //set values that can be used later to assign header values
-                    //(don't have access to do header stuff here)
-
+            if (resp.getUser() != null && resp.getUser().getRoles() != null) {
+                for (Role role : resp.getUser().getRoles().getRole()) {
+                    if(tenantID.equalsIgnoreCase(role.getTenantId())) {
+                        //oh snap
+                        resp.getToken().getTenant().setId(tenantID);
+                        return new OpenStackToken(resp);
+                    }
                 }
             }
 
@@ -80,7 +87,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         if (account != null) {
             authToken = validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult());
         } else {
-            authToken = authenticationService.validateToken(null, token);
+            authToken = new OpenStackToken(authenticationService.validateToken(null, token));
         }
 
         /**
