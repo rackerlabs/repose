@@ -61,11 +61,11 @@
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-war</name>
 
-                            <!-- The war file -->
                             <mappings>
+                                <!-- The war file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose/</directory>
-                                    <filemode>644</filemode>
+                                    <directory>/usr/share/repose/</directory>
+                                    <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -88,7 +88,7 @@
                                     <directory>/var/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>775</filemode>
                                 </mapping>
 
                                 <!-- The logrotate script -->
@@ -108,9 +108,7 @@
                                 <!-- The sample configuration files for the filters -->
                                 <mapping>
                                     <directory>/etc/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>644</filemode>
+                                    <filemode>755</filemode>
                                     <configuration>noreplace</configuration>
                                     <sources>
                                         <source>
@@ -124,8 +122,6 @@
                                 <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>
@@ -154,6 +150,9 @@
                                     CONFIG_DIR=/etc/repose
                                     SYSTEM_MODEL=$CONFIG_DIR/system-model.cfg.xml
 
+                                    # IF this is not a new install,
+                                    # THEN make sure we are compatible with the current configuration;
+                                    # ELSE since it is a new install create the user and group.
                                     if [ -f $SYSTEM_MODEL ]
                                     then
                                         #Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
@@ -161,12 +160,12 @@
                                         then
                                             echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
                                             exit 1
-                                        else
-                                            getent group  repose >> /dev/null 2>&amp;1 || groupadd -r repose
-                                            getent passwd repose >> /dev/null 2>&amp;1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
-                                            exit 0
                                         fi
+                                    else
+                                        getent group  repose >> /dev/null 2>&amp;1 || groupadd -r repose
+                                        getent passwd repose >> /dev/null 2>&amp;1 || useradd -r -g repose -s /sbin/nologin -d /usr/share/repose -c "Repose" repose
                                     fi
+                                    exit 0
                                 </script>
                             </preinstallScriptlet>
 
