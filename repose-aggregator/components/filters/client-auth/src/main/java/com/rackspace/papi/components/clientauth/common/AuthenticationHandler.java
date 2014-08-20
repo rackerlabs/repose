@@ -8,7 +8,6 @@ import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.header.HeaderName;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -56,8 +55,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final EndpointsConfiguration endpointsConfiguration;
     private static final String REASON = " Reason: ";
     private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
-    protected boolean tenantIDMatchesRole;
-    protected String roleID;
 
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
@@ -75,8 +72,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.requestGroups = configurables.isRequestGroups();
         this.usrCache = usrCache;
         this.endpointsConfiguration = configurables.getEndpointsConfiguration();
-        tenantIDMatchesRole = false;
-        roleID = null;
     }
 
     @Override
@@ -165,22 +160,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64);
 
-        //if we need to add a tenant ID that came from roles
-        if(tenantIDMatchesRole) {
-            if(filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")) == null) {
-                //if the header doesn't even exist, build it so we don't get NPE
-                filterDirector.requestHeaderManager().headersToAdd().put(HeaderName.wrap("x-tenant-id"),new LinkedHashSet());
-            } else {
-                //if it was there, remove the wrong headers
-                Set tenants = filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id"));
-                tenants.removeAll(tenants);
-            }
-            //add the tenant ID we found from roles to the header
-            filterDirector.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).add(roleID);
-            //cleanup
-            tenantIDMatchesRole = false;
-            roleID = null;
-        }
+        //somehow add headers here
 
         return filterDirector;
     }

@@ -62,9 +62,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
                 if(tenantID.equalsIgnoreCase(role)) {
                     //set values that can be used later to assign header values
                     //(don't have access to do header stuff here)
-                    tenantIDMatchesRole = true;
-                    roleID = role;
-                    return authToken;
+
                 }
             }
 
