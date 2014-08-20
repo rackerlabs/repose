@@ -113,8 +113,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             val username = keystoneConfig.getKeystoneService.getUsername
             val password = keystoneConfig.getKeystoneService.getPassword
 
-            val domain = Option(keystoneConfig.getKeystoneService.getDomainId) match {
-                case Some(domainId) => Some(Domain(id = Some(domainId)))
+            val projectScope = Option(keystoneConfig.getKeystoneService.getProjectId) match {
+                case Some(projectId) => Some(Scope(project = Some(ProjectScope(id = projectId))))
                 case _ => None
             }
 
@@ -124,7 +124,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                         methods = List("password"),
                         password = Some(PasswordCredentials(
                             UserNamePasswordRequest(
-                                domain = domain,
+                                scope = projectScope,
                                 name = Some(username),
                                 password = password
                             )
