@@ -77,11 +77,11 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="domain-id" type="xs:string" use="optional">
+        <xs:attribute name="project-id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The domain ID of the admin defined by the username and password.
+                        The project ID of the admin defined by the username and password.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
