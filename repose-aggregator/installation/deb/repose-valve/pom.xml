@@ -100,8 +100,9 @@
                                             <src>
                                                 ${project.build.directory}/valve-launcher-${project.version}.jar
                                             </src>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
                                             <dst>
-                                                valve-launcher.jar
+                                                servo.jar
                                             </dst>
                                             <type>file</type>
                                             <mapper>

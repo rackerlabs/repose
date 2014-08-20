@@ -25,7 +25,7 @@ START_ARGS="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LO
 JAVA_OPTS=""
 
 JAVA=/usr/bin/java
-DAEMON_JAR=${DAEMON_HOME}/valve-launcher.jar
+DAEMON_JAR=${DAEMON_HOME}/servo.jar
 CLEAN=/usr/bin/clean-repose-deploy
 
 daemonize=/usr/sbin/daemonize
