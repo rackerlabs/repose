@@ -79,6 +79,9 @@
                                             <src>
                                                 ${project.build.directory}/web-application-${project.version}.war
                                             </src>
+                                            <dst>
+                                                repose-${project.version}.war
+                                            </dst>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
