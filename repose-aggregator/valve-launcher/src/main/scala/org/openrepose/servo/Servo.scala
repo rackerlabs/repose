@@ -131,7 +131,6 @@ class Servo {
 
 
     def serveValves(config: Config, servoConfig: ServoConfig):Int = {
-        Console.out.println("TODO REMOVE ME: STARTING THE VALVES!")
         try {
             // Create my actors and wire them up
             import JavaConversions._
@@ -139,20 +138,13 @@ class Servo {
             val executionStringSequence = config.getStringList("executionCommand")
             Console.out.println(s"What is my string: |${executionStringSequence mkString ","}|")
 
-            //TODO: Build up the environment!
             val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
-            env.keys.foreach { i =>
-                Console.out.print(i)
-                Console.out.println(" = " + env(i))
-            }
-            //TODO: JVM_OPTS WARNING! REPOSE_JVM_OPTS!
 
             //Configure the props of the actor we want to turn on
             val launcherProps = ReposeLauncher.props(executionStringSequence, env, config.getString("reposeWarLocation"))
             //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
             //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
             // Potentially other options and such... The execution string isn't very static...
-            // TODO: perhaps this should go through the init param?
 
             //start up the node store
             val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
@@ -165,6 +157,10 @@ class Servo {
             val smw = new SystemModelParser(systemModelContent)
             smw.localNodes match {
                 case Success(x) => {
+                    Console.out.println(s"Starting ${x.size} local nodes!")
+                    x map { node =>
+                        Console.out.println(s"Starting local node ${node.nodeId} in cluster ${node.clusterId}")
+                    }
                     //Got some nodes, send them to the actor!
                     nodeStoreActorRef ! x
                     //Can assume successful start up at this point

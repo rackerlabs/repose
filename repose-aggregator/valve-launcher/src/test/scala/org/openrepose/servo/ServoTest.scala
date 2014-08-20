@@ -22,6 +22,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     val servoVersion = defaultConfig.getString("version")
 
     //Need an execution context for my futures
+
     import scala.concurrent.ExecutionContext.Implicits.global
 
     def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
@@ -56,7 +57,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             })
         }
 
-        def servoConfig(systemModelResource: String, testFunc: (String, File, Config) => Unit) = {
+        def servoConfig(systemModelResource: String)(testFunc: (String, File, Config) => Unit) = {
             //Create the 1-node system model
             val configRoot = tempDir("servo").toString
             val systemModelContent = resourceContent(systemModelResource)
@@ -76,17 +77,15 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             |executionCommand = [${tmpBash.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
           """.stripMargin).withFallback(defaultConfig)
 
-            info(s"Execution is: ${config.getStringList("executionCommand")}")
-
             testFunc(configRoot, tmpOutput, config)
         }
 
         def singleNodeServoConfig(testFunc: (String, File, Config) => Unit) = {
-            servoConfig("/servoTesting/system-model-1.cfg.xml", testFunc)
+            servoConfig("/servoTesting/system-model-1.cfg.xml")(testFunc)
         }
 
         def failConfig(testFunc: (String, File, Config) => Unit) = {
-            servoConfig("/servoTesting/system-model-fail.cfg.xml", testFunc)
+            servoConfig("/servoTesting/system-model-fail.cfg.xml")(testFunc)
         }
 
         describe("For a good single node configuration") {
@@ -304,7 +303,39 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         }
         describe("for a good multi-local-node configuration") {
             it("starts those multiple nodes") {
-                pending
+                servoConfig("/servoTesting/system-model-2.cfg.xml") { (configRoot, tmpOutput, config) =>
+                    val servo = new Servo()
+
+                    val stdoutContent = new ByteArrayOutputStream()
+                    val stdout = new PrintStream(stdoutContent)
+
+                    val exitValue = Future {
+                        servo.execute(Array("--config-file", configRoot.toString), System.in, stdout, System.err, config)
+                    }.onComplete { t =>
+                        info("Completion of servo!")
+                        t match {
+                            case Success(x) => {
+                                //Servo should have started up correctly
+                                x shouldBe 0
+                            }
+                            case Failure(x) => {
+                                fail("Servo should not have failed!")
+                            }
+                        }
+                    }
+
+                    //After it's been started
+                    Thread.sleep(250)
+                    servo.shutdown()
+
+                    //Looking at stdout to report on the local nodes it started!
+                    stdout.flush()
+
+                    val string = new String(stdoutContent.toByteArray)
+                    string should include("Starting 2 local nodes!")
+                    string should include("Starting local node repose_node1 in cluster repose")
+                    string should include("Starting local node repose_node2 in cluster repose")
+                }
             }
         }
     }
