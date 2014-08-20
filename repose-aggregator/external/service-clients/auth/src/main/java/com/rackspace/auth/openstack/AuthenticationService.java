@@ -1,7 +1,7 @@
 package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthToken;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Endpoint;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface AuthenticationService {
 
-    AuthToken validateToken(String tenant, String userToken);
+    AuthenticateResponse validateToken(String tenant, String userToken);
     
     List<Endpoint> getEndpointsForToken(String userToken);
 
