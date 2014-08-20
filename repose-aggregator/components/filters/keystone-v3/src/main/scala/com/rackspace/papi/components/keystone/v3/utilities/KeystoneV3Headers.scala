@@ -10,8 +10,6 @@ object KeystoneV3Headers {
     final val X_USER_ID = "X-User-ID"
     final val X_ROLES = "X-Roles"
     final val X_TOKEN_EXPIRES = "X-Token-Expires"
-    final val X_PP_USER = "X-PP-User"
-    final val X_PP_GROUPS = "X-PP-Groups"
     final val X_SUBJECT_TOKEN = "X-Subject-Token"
     final val WWW_AUTHENTICATE = "WWW-Authenticate"
 }
