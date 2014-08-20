@@ -35,7 +35,6 @@ class Servo {
 
     /**
      * Basically just runs what would be in Main, but gives me the ability to test it
-     * //TODO: this exit code doesn't work very well...
      * @param args the String passed into the program
      * @param in Typically standard in
      * @param out typically standard out
@@ -113,9 +112,9 @@ class Servo {
                 } else {
                     out.println("Launching with SSL validation")
                 }
-                serveValves(config, servoConfig)
+                val exitCode = serveValves(config, servoConfig)
                 system.awaitTermination() // Block here forever, awaiting the actor system termination I think
-                0
+                exitCode
             }
         } getOrElse {
             //Nope, not a valid config
@@ -131,7 +130,7 @@ class Servo {
     }
 
 
-    def serveValves(config: Config, servoConfig: ServoConfig) = {
+    def serveValves(config: Config, servoConfig: ServoConfig):Int = {
         Console.out.println("TODO REMOVE ME: STARTING THE VALVES!")
         try {
             // Create my actors and wire them up
@@ -168,16 +167,19 @@ class Servo {
                 case Success(x) => {
                     //Got some nodes, send them to the actor!
                     nodeStoreActorRef ! x
+                    //Can assume successful start up at this point
+                    0
                 }
                 case Failure(x) => {
-                    //Crap! Failure, log it and kill the actor system
-                    //TODO: how do I log things?
                     throw x
                 }
             }
         } catch {
             case e: Exception => {
-                //Kill the actor system, and rethrow the exception
+                val msg = s"Unable to parse System Model: ${e.getMessage}"
+                LOG.error(msg)
+                Console.err.println(msg)
+
                 system.shutdown()
                 throw e
             }
