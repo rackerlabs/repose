@@ -35,7 +35,7 @@ sudo apt-get install -y wget curl patch python-pip\n
 \n
 \n
 # Install the Repose packages.\n
-sudo dpkg -i                          /vagrant/web-application-*.deb /vagrant/repose-valve-*.deb /vagrant/repose-filter-bundle-*.deb /vagrant/repose-extensions-filter-bundle-*.deb\n
+sudo dpkg -i                          /vagrant/repose-war-*.deb /vagrant/repose-valve-*.deb /vagrant/repose-filters-*.deb /vagrant/repose-extension-filters-*.deb\n
 sudo apt-get -f install -y\n
 # Modify the default system-model to add a header-translation filter and change the endpoint to the local GUnicorn instance.\n
 sudo cp -f /etc/repose/system-model.cfg.xml /vagrant/system-model.cfg.xml_ORIG\n
@@ -78,7 +78,7 @@ chmod a+x repose-test.sh
 
 # Run the test and destroy the VM.
 vagrant ssh -c "/vagrant/repose-test.sh"
-vagrant destroy -f
+#vagrant destroy -f
 # Let the user know where the out put is located.
 echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
 echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
