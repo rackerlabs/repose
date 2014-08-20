@@ -21,6 +21,9 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
     val servoVersion = defaultConfig.getString("version")
 
+    //Need an execution context for my futures
+    import scala.concurrent.ExecutionContext.Implicits.global
+
     def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
         val stdout = new ByteArrayOutputStream()
         val stderr = new ByteArrayOutputStream()
@@ -53,11 +56,11 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             })
         }
 
-        def singleNodeServoConfig(testFunc: (String, File, Config) => Unit) = {
+        def servoConfig(systemModelResource: String, testFunc: (String, File, Config) => Unit) = {
             //Create the 1-node system model
             val configRoot = tempDir("servo").toString
-            val systemModel = resourceContent("/servoTesting/system-model-1.cfg.xml")
-            writeSystemModel(configRoot, systemModel)
+            val systemModelContent = resourceContent(systemModelResource)
+            writeSystemModel(configRoot, systemModelContent)
 
             //Create a bash script that outputs test data and just runs
             val fakeRepose = resourceContent("/servoTesting/fakeRepose.sh")
@@ -78,11 +81,18 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             testFunc(configRoot, tmpOutput, config)
         }
 
+        def singleNodeServoConfig(testFunc: (String, File, Config) => Unit) = {
+            servoConfig("/servoTesting/system-model-1.cfg.xml", testFunc)
+        }
+
+        def failConfig(testFunc: (String, File, Config) => Unit) = {
+            servoConfig("/servoTesting/system-model-fail.cfg.xml", testFunc)
+        }
+
         describe("For a good single node configuration") {
             it("executes the command to start a Jetty with the Repose War on the specified port") {
                 singleNodeServoConfig { (configRoot, tmpOutput, config) =>
                     //Have to throw my executable into a thread so I can asynchronously do stuff
-                    import scala.concurrent.ExecutionContext.Implicits.global
                     //Just somewhere to do work
                     val servo = new Servo()
                     val exitValue = Future {
@@ -124,9 +134,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             }
             it("outputs to stdout the settings it's going to use to start valves") {
                 singleNodeServoConfig { (configRoot, tmpOutput, config) =>
-                    //Have to throw my executable into a thread so I can asynchronously do stuff
-                    import scala.concurrent.ExecutionContext.Implicits.global
-                    //Just somewhere to do work
                     val stdoutContent = new ByteArrayOutputStream()
                     val stdout = new PrintStream(stdoutContent)
 
@@ -158,10 +165,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             }
             it("passes through REPOSE_JVM_OPTS through as JVM_OPTS") {
                 singleNodeServoConfig { (configRoot, tmpOutput, config) =>
-                    //Have to throw my executable into a thread so I can asynchronously do stuff
-                    import scala.concurrent.ExecutionContext.Implicits.global
-                    //Just somewhere to do work
-
                     val newConfig = ConfigFactory.parseString(
                         """
                           |reposeOpts = "some repose jvm options would be here"
@@ -197,10 +200,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             }
             it("warns when JVM_OPTS are set") {
                 singleNodeServoConfig { (configRoot, tmpOutput, config) =>
-                    //Have to throw my executable into a thread so I can asynchronously do stuff
-                    import scala.concurrent.ExecutionContext.Implicits.global
-                    //Just somewhere to do work
-
                     val newConfig = ConfigFactory.parseString(
                         """
                           |jvmOpts = "some jvm options would be here ALERT!"
@@ -245,10 +244,62 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         }
         describe("Failing to find nodes in the config file") {
             it("outputs a failure message and exits 1 if it cannot find any local nodes to start") {
-                pending
+                failConfig { (configRoot, tmpOutput, config) =>
+                    val stdoutContent = new ByteArrayOutputStream()
+                    val stderr = new PrintStream(stdoutContent)
+
+                    val servo = new Servo()
+                    val exitValue = Future {
+                        servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, stderr, config)
+                    }.onComplete { t =>
+                        info("Completion of servo!")
+                        t match {
+                            case Success(x) => {
+                                fail("Servo should not have started up correctly!")
+                            }
+                            case Failure(x) => {
+                                //I don't know if I care about the actual exception here
+                            }
+                        }
+                    }
+
+                    //After it's been started
+                    Thread.sleep(250)
+                    servo.shutdown()
+
+                    val output = new String(stdoutContent.toByteArray)
+                    output should include("No local node(s) found!")
+                }
             }
             it("outputs a failure message and exits 1 if it cannot find the config file") {
-                pending
+                failConfig { (configRoot, tmpOutput, config) =>
+                    val stdoutContent = new ByteArrayOutputStream()
+                    val stderr = new PrintStream(stdoutContent)
+
+                    val servo = new Servo()
+                    val exitValue = Future {
+                        servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, stderr, config)
+                    }.onComplete { t =>
+                        info("Completion of servo!")
+                        t match {
+                            case Success(x) => {
+                                fail("Servo should not have started up correctly!")
+                            }
+                            case Failure(x) => {
+                                //I don't know if I care about the actual exception here
+                            }
+                        }
+                    }
+
+                    //After it's been started
+                    Thread.sleep(250)
+                    servo.shutdown()
+
+                    val output = new String(stdoutContent.toByteArray)
+                    //TODO: maybe this should be a better error message, but I think it's good enough
+                    output should include("No local node(s) found!")
+                }
+
             }
         }
         describe("for a good multi-local-node configuration") {
