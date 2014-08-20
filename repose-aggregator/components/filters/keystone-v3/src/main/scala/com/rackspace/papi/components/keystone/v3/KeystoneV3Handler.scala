@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.commons.util.http.{HttpStatusCode, PowerApiHeader, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
@@ -12,7 +12,7 @@ import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
+import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.Header
@@ -55,17 +55,55 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
             filterDirector.setFilterAction(FilterAction.RETURN)
         } else {
-            //            val tokenObject = validateSubjectToken(subjectToken) match {
-            //                case Success(v) => v
-            //                case Failure(_) => None
-            //            }
-            // TODO
+            validateSubjectToken(subjectToken) match {
+                case Success(tokenObject: AuthenticateResponse) =>
+                    val headerManager = filterDirector.requestHeaderManager()
+                    headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, "Proxy") // TODO: Add the project ID if verified (not in-scope)
+                    if (tokenObject.user.nonEmpty) {
+                        if (tokenObject.user.get.id.nonEmpty) {
+                            headerManager.putHeader(KeystoneV3Headers.X_USER_ID, tokenObject.user.get.id.get)
+                        }
+                        if (tokenObject.user.get.name.nonEmpty) {
+                            headerManager.putHeader(KeystoneV3Headers.X_USER_NAME, tokenObject.user.get.name.get)
+                        }
+                    }
+                    if (tokenObject.project.nonEmpty) {
+                        if (tokenObject.project.get.id.nonEmpty) {
+                            headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID, tokenProject.id.get)
+                        }
+                        if (tokenObject.project.get.name.nonEmpty) {
+                            headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME, tokenProject.name.get)
+                        }
+                    }
+                    headerManager.putHeader(KeystoneV3Headers.X_ROLES, /* TODO */ "")
+                    // TODO: Set X-Impersonator-Name
+                    // TODO: Set X-Impersonator-Id
+                    // TODO: Set X-Roles
+                    // TODO: Set X-Catalog
+                    // TODO: Set X-Token-Expires
+                    // TODO: Set X-Default-Region
+                    // TODO: Set X-Identity-Status
+
+                    headerManager.appendHeader(PowerApiHeader.USER, tokenObject.user.name, 1.0)
+                    // TODO: Set X-PP-Groups
+                    filterDirector.setFilterAction(FilterAction.PASS)
+                case Failure(e: InvalidSubjectTokenException) =>
+                    // TODO: Set WWW-Authenticate
+                    filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE_HEADER, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
+                case Failure(e: KeystoneServiceException) =>
+                case Failure(e: InvalidAdminCredentialsException) =>
+                case _ =>
+                    LOG.error("Validation of subject token " + subjectToken + " failed for an unknown reason")
+                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+                    filterDirector.setFilterAction(FilterAction.RETURN)
+            }
         }
 
         filterDirector
     }
 
     private def validateSubjectToken(subjectToken: String) = {
+        // TODO: What if this token was invalidated before the TTL is exceeded? Returning bad cached tokens. Configurable caching?
         Option(datastore.get(TOKEN_KEY_PREFIX + subjectToken)) match {
             case Some(cachedSubjectTokenObject) =>
                 Success(cachedSubjectTokenObject.asInstanceOf[AuthenticateResponse])
@@ -97,7 +135,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
                             case HttpStatusCode.UNAUTHORIZED =>
                                 LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
-                                // TODO: Implement this after caching is implemented
+                                // TODO: Fetch a new admin token and retry. If we fail again, abort.
                                 Failure(???)
                             case _ =>
                                 LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
@@ -159,7 +197,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     private def readToAuthResponseObject(response: ServiceClientResponse) = {
-        response.getData.reset() // TODO: Remove this when we can. It relies on our implementatinon returning an InputStream that supports reset.
+        response.getData.reset() // TODO: Remove this when we can. It relies on our implementation returning an InputStream that supports reset.
         val responseJson = Source.fromInputStream(response.getData).mkString
         responseJson.parseJson.convertTo[AuthResponse]
     }
@@ -179,7 +217,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
     }
 
-    private def containsEndpoint(endpoints: List[EndpointType], url: String): Boolean = endpoints.exists { endpoint: EndpointType => endpoint.url == url}
+    private def containsEndpoint(endpoints: List[Endpoint], url: String): Boolean = endpoints.exists { endpoint: Endpoint => endpoint.url == url}
 
     private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
 
