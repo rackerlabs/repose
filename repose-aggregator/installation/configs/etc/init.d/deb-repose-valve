@@ -25,7 +25,7 @@ START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --back
 JAVA_OPTS=""
 
 JAVA=/usr/bin/java
-DAEMON_JAR=${DAEMON_HOME}/valve-launcher.jar
+DAEMON_JAR=${DAEMON_HOME}/servo.jar
 CLEAN=/usr/bin/clean-repose-deploy
 
 ###########################
