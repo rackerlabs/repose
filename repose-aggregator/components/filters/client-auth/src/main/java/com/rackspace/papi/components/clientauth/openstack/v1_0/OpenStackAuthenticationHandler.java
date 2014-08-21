@@ -57,7 +57,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     private AuthToken validateTenant(AuthenticateResponse resp, String tenantID) {
-
         AuthToken authToken = null;
         if(resp != null) {
             authToken = new OpenStackToken(resp);
@@ -90,7 +89,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         if (account != null) {
             authToken = validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult());
         } else {
-            authToken = new OpenStackToken(authenticationService.validateToken(null, token));
+            AuthenticateResponse authResp = authenticationService.validateToken(null, token);
+            if(authResp != null) {
+                authToken = new OpenStackToken(authResp);
+            }
         }
 
         /**
