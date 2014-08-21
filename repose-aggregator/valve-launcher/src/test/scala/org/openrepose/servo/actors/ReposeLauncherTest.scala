@@ -2,11 +2,12 @@ package org.openrepose.servo.actors
 
 import java.io.File
 
-import akka.actor.{PoisonPill, Terminated, ActorSystem}
-import akka.testkit.{EventFilter, TestProbe, TestKit}
+import akka.actor.{Props, PoisonPill, Terminated, ActorSystem}
+import akka.event.Logging.Info
+import akka.testkit.{CustomEventFilter, EventFilter, TestProbe, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
-import org.openrepose.servo.{TestUtils, ReposeNode}
+import org.openrepose.servo.{CommandGenerator, TestUtils, ReposeNode}
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpecLike, Matchers, BeforeAndAfterAll}
@@ -27,10 +28,13 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
 
   val testNode = ReposeNode("testCluster", "testNode", "localhost", Some(8080), None)
 
-  val fakeWarPath = "/path/to/war/file"
-
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
+  }
+
+  def launcherProps(preOpts:Seq[String], env:Map[String,String] = Map.empty[String,String]):Props = {
+    val cg = new CommandGenerator("configRoot", "launcherPath", "warFile")
+    ReposeLauncher.props(preOpts ++ Seq("--") ++ cg.commandLine(testNode), env)
   }
 
   describe("The Repose Launcher") {
@@ -40,12 +44,13 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val probe = TestProbe()
 
       //create an actor with that command
-      val props = ReposeLauncher.props(Seq("bash", "-c", "sleep 1"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "sleep 1"))
 
       //Won't actually start until the initialize is sent
       val actor = system.actorOf(props)
       probe.watch(actor)
 
+      //TODO: if I can get the entire command in there, it won't need to start with an initialize any longer
       actor ! Initialize(testNode)
 
       probe.expectMsgPF(3 seconds) {
@@ -56,7 +61,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     }
     it("will log standard out to info") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(Seq("bash", "-c", "echo 'lololol'"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "echo 'lololol'"))
 
       val actor = system.actorOf(props)
 
@@ -66,19 +71,19 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     }
     it("sets the command line parameter --port when given an HTTP port (not https)") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(Seq("bash", "-c", "echo $@", "--"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "echo $@"))
 
       val actor = system.actorOf(props)
       EventFilter.info(pattern = "--port 8080", occurrences = 1) intercept {
         actor ! Initialize(testNode)
       }
     }
-    it("appends the war file path to any command line args") {
+    it("has the war file path at the end") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(Seq("bash", "-c", "echo $@", "--"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "echo $@"))
 
       val actor = system.actorOf(props)
-      EventFilter.info(pattern = fakeWarPath, occurrences = 1) intercept {
+      EventFilter.info(pattern = "warFile$", occurrences = 1) intercept {
         actor ! Initialize(testNode)
       }
     }
@@ -93,28 +98,34 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     }
     it("sets passed in environment variables") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(List("bash", "-c", "echo $CONFIG_ROOT"), Map("CONFIG_ROOT" -> "/etc/repose"), warFilePath = fakeWarPath)
+      val props = launcherProps(List("bash", "-c", "echo $ENV_VAR"), Map("ENV_VAR" -> "LOLWUT"))
 
       val actor = system.actorOf(props)
 
-      EventFilter.info(message = "/etc/repose", occurrences = 1) intercept {
+      EventFilter.info(message = "LOLWUT", occurrences = 1) intercept {
         actor ! Initialize(testNode)
       }
     }
-    it("sets CLUSTER_ID and NODE_ID as environment variables") {
+    it("sets the system properties: repose-node-id, repose-cluster-id and powerapi-config-directory") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(Seq("bash", "-c", "echo ${CLUSTER_ID}:${NODE_ID}"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "echo $@", "--"))
 
       val actor = system.actorOf(props)
 
-      EventFilter.info(message = "testCluster:testNode", occurrences = 1) intercept {
+      EventFilter.custom({
+        case Info(ref, clazz, msg: String)
+          if msg.contains("-Drepose-node-id=") &&
+            msg.contains("-Drepose-cluster-id") &&
+            msg.contains("-Dpowerapi-config-directory") => true
+      }, 1) intercept {
         actor ! Initialize(testNode)
       }
+
 
     }
     it("will log standard error out to warn") {
       val probe = TestProbe()
-      val props = ReposeLauncher.props(Seq("bash", "-c", "echo >&2 'standardError'"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "echo >&2 'standardError'"))
 
       val actor = system.actorOf(props)
 
@@ -130,7 +141,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val f = tempFile("testing", ".txt")
 
       val fileName = f.getAbsolutePath
-      val props = ReposeLauncher.props(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"))
 
       val actor = system.actorOf(props)
 
@@ -175,13 +186,13 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       //I have to explicitly put my actor system into the implicit params for this
       val probe = TestProbe()(otherSystem)
 
-      val props = ReposeLauncher.props(Seq("bash", "-c", "exit 1"), warFilePath = fakeWarPath)
+      val props = launcherProps(Seq("bash", "-c", "exit 1"))
 
       val actor = otherSystem.actorOf(props)
 
       probe.watch(actor)
 
-      //This is a bit more gross when you can't use the implict actor system
+      //This is a bit more gross when you can't use the implicit actor system
       EventFilter.error("Repose Node Execution terminated abnormally. Value: 1", occurrences = 1).
         intercept(actor ! Initialize(testNode))(otherSystem)
 
