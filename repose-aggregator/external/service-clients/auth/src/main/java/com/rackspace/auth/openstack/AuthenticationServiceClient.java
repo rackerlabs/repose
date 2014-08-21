@@ -90,7 +90,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
-                token = getOpenStackToken(serviceResponse);
                 authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                 break;
 
@@ -105,7 +104,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 serviceResponse = validateUser(userToken, tenant, true);
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
-                    token = getOpenStackToken(serviceResponse);
                     authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                 } else if (serviceResponse.getStatusCode() == HttpStatusCode.NOT_FOUND.intValue()) {
                     LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatusCode());
