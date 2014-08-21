@@ -9,15 +9,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
 
 
-//Need to test supervision
-class MySupervisor extends Actor {
-  def receive = {
-    case p:Props => sender ! context.actorOf(p)
-  }
-}
-
-
-
 @RunWith(classOf[JUnitRunner])
 class NodeFailureTest(_system: ActorSystem) extends TestKit(_system)
 with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with TestUtils with BaseNodeStoreTest with ImplicitSender {
