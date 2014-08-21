@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientRespon
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, WhiteList}
-import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, Endpoint, Role}
+import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}

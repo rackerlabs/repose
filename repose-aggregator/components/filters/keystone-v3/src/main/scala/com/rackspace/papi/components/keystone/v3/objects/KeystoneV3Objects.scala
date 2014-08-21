@@ -11,6 +11,17 @@ case class ProjectForAuthenticateResponse(domain: Option[DomainsForAuthenticateR
                                           enabled: Option[Boolean] = None
                                                  ) extends Serializable
 
+case class Endpoint(id: String,
+                    name: String,
+                    interface: Option[String] = None,
+                    region: Option[String] = None,
+                    url: String,
+                    service_id: Option[String] = None
+                           ) extends Serializable
+
+case class Endpoints(endpoints: Option[List[Endpoint]] = None
+                            ) extends Serializable
+
 case class ServiceForAuthenticationResponse(endpoints: Option[List[Endpoints]] = None,
                                             openstackType: String,
                                             id: Option[String] = None
@@ -80,16 +91,6 @@ case class DomainScope(id: String,
                        name: String
                               ) extends Serializable
 
-case class Endpoint(id: String,
-                    name: String,
-                    interface: Option[String] = None,
-                    region: Option[String] = None,
-                    url: String,
-                    service_id: Option[String] = None
-                           ) extends Serializable
-
-case class Endpoints(endpoints: Option[List[Endpoint]] = None
-                            ) extends Serializable
 
 case class ProjectScope(domain: Option[DomainScope] = None,
                         id: String,
