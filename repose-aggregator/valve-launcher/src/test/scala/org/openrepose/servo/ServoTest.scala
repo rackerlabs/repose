@@ -1,16 +1,13 @@
 package org.openrepose.servo
 
-import java.io.{StringWriter, ByteArrayOutputStream, File, PrintStream}
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, StandardOpenOption}
+import java.io._
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.apache.log4j._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, Future}
 import scala.io.Source
 import scala.util.{Failure, Success}
 
@@ -24,6 +21,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
     //Need an execution context for my futures
 
     import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.duration._
 
     def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
         val stdout = new ByteArrayOutputStream()
@@ -67,9 +65,9 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             val fakeRepose = resourceContent("/servoTesting/fakeRepose.sh")
             val tmpBash = tempFile("fakeRepose", ".sh")
             tmpBash.setExecutable(true)
+            writeFileContent(tmpBash, fakeRepose)
 
             val tmpOutput = tempFile("fakeRepose", ".out")
-            Files.write(tmpBash.toPath, fakeRepose.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
 
             //Create a config object to merge in
             val config = ConfigFactory.parseString(
@@ -88,6 +86,33 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             servoConfig("/servoTesting/system-model-fail.cfg.xml")(testFunc)
         }
 
+        it("uses the log4j.properties from the configRoot") {
+            singleNodeServoConfig { (configRoot, tmpOutput, config) =>
+                //Create a log4j.properties in the config root
+                val logFile = tempFile("log4jlogging", ".log")
+                val log4jFile = new File(configRoot, "log4j.properties")
+                log4jFile.deleteOnExit()
+                val log4jContent = resourceContent("/servoTesting/log4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
+                writeFileContent(log4jFile, log4jContent)
+
+                val servo = new Servo()
+                val exitValue = Future {
+                    servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, config)
+                }
+
+                Thread.sleep(500)
+                servo.shutdown()
+
+                val logLines = Source.fromFile(logFile).getLines().toList
+
+                info("LOG LINES")
+                info(logLines mkString "\n")
+
+                logLines shouldNot be(empty)
+
+                Await.result(exitValue, 1 second) shouldBe 0
+            }
+        }
         describe("For a good single node configuration") {
             it("executes the command to start a Jetty with the Repose War on the specified port") {
                 singleNodeServoConfig { (configRoot, tmpOutput, config) =>
@@ -96,16 +121,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val servo = new Servo()
                     val exitValue = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, config)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                x shouldBe 0
-                            }
-                            case Failure(x) => {
-                                fail("Servo didn't start up correctly", x)
-                            }
-                        }
                     }
 
                     Thread.sleep(500)
@@ -129,6 +144,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val nodeId = lines.filter(_.startsWith("NODE_ID"))
                     nodeId.size shouldBe 1
                     nodeId.head shouldBe "NODE_ID=repose_node1"
+
+                    Await.result(exitValue, 1 second) shouldBe 0
                 }
             }
             it("outputs to stdout the settings it's going to use to start valves") {
@@ -139,16 +156,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val servo = new Servo()
                     val exitValue = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, stdout, System.err, config)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                x shouldBe 0
-                            }
-                            case Failure(x) => {
-                                fail("Servo didn't start up correctly", x)
-                            }
-                        }
                     }
 
                     //After it's been started
@@ -159,7 +166,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val content = new String(stdoutContent.toByteArray)
                     content should include(s"Using ${configRoot.toString} as configuration root")
                     content should include(s"Launching with SSL validation")
-                    servo.shutdown()
+
+                    Await.result(exitValue, 1 second) shouldBe 0
                 }
             }
             it("passes through REPOSE_JVM_OPTS through as JVM_OPTS") {
@@ -172,16 +180,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val servo = new Servo()
                     val exitValue = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, newConfig)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                x shouldBe 0
-                            }
-                            case Failure(x) => {
-                                fail("Servo didn't start up correctly", x)
-                            }
-                        }
                     }
 
                     //After it's been started
@@ -195,6 +193,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val clusterId = lines.filter(_.startsWith("JVM_OPTS"))
                     clusterId.size shouldBe 1
                     clusterId.head shouldBe "JVM_OPTS=some repose jvm options would be here"
+
+                    Await.result(exitValue, 1 second) shouldBe 0
                 }
             }
             it("warns when JVM_OPTS are set") {
@@ -204,29 +204,13 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                           |jvmOpts = "some jvm options would be here ALERT!"
                         """.stripMargin).withFallback(config)
 
-                    //Get logging output and capture the named logger for servo
-                    // There should be a warning log message regarding JVM opts!
-
-
-                    //HOLY CRAP log4j1.2 is hard to find out information for
-                    //This combination of stuff captures the log stuff for me in a very simple format proving that it does work
-                    val sw = new StringWriter()
-                    val writerAppender = new WriterAppender(new SimpleLayout(), sw)
-                    BasicConfigurator.configure(writerAppender)
+                    //Not logging the JVM_OPTS warning, it's just going to system out
+                    val stdErr = new ByteArrayOutputStream()
+                    val stdErrStream = new PrintStream(stdErr)
 
                     val servo = new Servo()
                     val exitValue = Future {
-                        servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, System.err, newConfig)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                x shouldBe 0
-                            }
-                            case Failure(x) => {
-                                fail("Servo didn't start up correctly", x)
-                            }
-                        }
+                        servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, stdErrStream, newConfig)
                     }
 
                     //After it's been started
@@ -234,10 +218,12 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     servo.shutdown()
 
                     //Should have a log message telling me about how I set JVM opts!
-                    val logOutput = sw.getBuffer.toString
+                    val stdErrOutput = new String(stdErr.toByteArray)
 
-                    logOutput shouldNot be("")
-                    logOutput should include("WARN - JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+                    stdErrOutput shouldNot be("")
+                    stdErrOutput should include("WARNING: JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+
+                    Await.result(exitValue, 1 second) shouldBe 0
                 }
             }
         }
@@ -250,16 +236,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val servo = new Servo()
                     val exitValue = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, stderr, config)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                fail("Servo should not have started up correctly!")
-                            }
-                            case Failure(x) => {
-                                //I don't know if I care about the actual exception here
-                            }
-                        }
                     }
 
                     //After it's been started
@@ -268,6 +244,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
                     val output = new String(stdoutContent.toByteArray)
                     output should include("No local node(s) found!")
+                    Await.result(exitValue, 1 second) shouldNot be(0)
                 }
             }
             it("outputs a failure message and exits 1 if it cannot find the config file") {
@@ -276,18 +253,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val stderr = new PrintStream(stdoutContent)
 
                     val servo = new Servo()
-                    val exitValue = Future {
+                    val exitValue:Future[Int] = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, System.out, stderr, config)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                fail("Servo should not have started up correctly!")
-                            }
-                            case Failure(x) => {
-                                //I don't know if I care about the actual exception here
-                            }
-                        }
                     }
 
                     //After it's been started
@@ -297,6 +264,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     val output = new String(stdoutContent.toByteArray)
                     //TODO: maybe this should be a better error message, but I think it's good enough
                     output should include("No local node(s) found!")
+                    //Ensure our exit value is valid
+                    Await.result(exitValue, 1 second) shouldNot be(0)
                 }
 
             }
@@ -311,17 +280,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
                     val exitValue = Future {
                         servo.execute(Array("--config-file", configRoot.toString), System.in, stdout, System.err, config)
-                    }.onComplete { t =>
-                        info("Completion of servo!")
-                        t match {
-                            case Success(x) => {
-                                //Servo should have started up correctly
-                                x shouldBe 0
-                            }
-                            case Failure(x) => {
-                                fail("Servo should not have failed!")
-                            }
-                        }
                     }
 
                     //After it's been started
@@ -335,6 +293,8 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
                     string should include("Starting 2 local nodes!")
                     string should include("Starting local node repose_node1 in cluster repose")
                     string should include("Starting local node repose_node2 in cluster repose")
+
+                    Await.result(exitValue, 1 second) shouldBe 0
                 }
             }
         }
