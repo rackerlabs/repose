@@ -243,10 +243,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void tenantIdFromTokenMatchesURI() {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
-            //set the roles of the user to defaults
             userForAuthenticateResponse.setRoles(defaultRoleList());
-
-            //build a token to go along with the auth response
             Token token = new Token();
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -254,51 +251,36 @@ public class OpenStackAuthenticationHandlerTest {
             tenant.setId("104772");
             tenant.setName("tenantName");
             token.setTenant(tenant);
-
-            //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
 
-            //check if the requestHeaderManager is going to add the x-tenant-id
-            //assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
-
-            //if it does make sure that id is equal to the tenant id in the uri
-            //assert(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")).contains("104772"));
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-            //we should see PASS as the filter action
             assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
         }
 
         @Test
         public void tenantIdFromTokenMatchesAnIdFromRoles() {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
-            //set the roles of the user to defaults
-
             Role role1 = new Role();
             role1.setName("123456");
             role1.setId("123456");
             role1.setTenantId("123456");
             role1.setDescription("Derp description");
-
             Role role2 = new Role();
             role2.setName("104772");
             role2.setId("104772");
             role2.setTenantId("104772");
             role2.setDescription("Derp description");
-
             RoleList roleList = new RoleList();
             roleList.getRole().add(role1);
             roleList.getRole().add(role2);
             userForAuthenticateResponse.setRoles(roleList);
-
             //build a token to go along with the auth response
             Token token = new Token();
             token.setId("tokenId");
@@ -307,27 +289,17 @@ public class OpenStackAuthenticationHandlerTest {
             tenant.setId("123456");
             tenant.setName("tenantName");
             token.setTenant(tenant);
-
-            //associate the token and user with the authresponse
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
-
-
 
             final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             FilterDirector director = handler.handleRequest(request, response);
-            //check if the requestHeaderManager is going to add the x-tenant-id
-            //assert(director.requestHeaderManager().headersToAdd().keySet().contains(HeaderName.wrap("x-tenant-id")));
-            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
 
-            //if it does make sure that id is equal to the tenant id in the uri, even if the one in the original
-            //token wasn't the same (it should have found it in the roles list)
             Set expectedSet = new LinkedHashSet();
             expectedSet.add("104772");
             assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
-            //we should see PASS as the filter action
             assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
         }
 
@@ -729,6 +701,9 @@ public class OpenStackAuthenticationHandlerTest {
 
     public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
+        DatatypeFactory dataTypeFactory;
+        Calendar expires;
+
         @Override
         protected boolean delegable() {
             return false;
@@ -740,19 +715,48 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() {
+        public void standUp() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+            dataTypeFactory = DatatypeFactory.newInstance();
+            expires = getCalendarWithOffset(10000000);
         }
 
-        //TODO: fix this test so it uses an authResponse instead of a token
-        @Ignore
+        public RoleList getTwoRoles() {
+            RoleList roles = new RoleList();
+            Role role1 = new Role();
+            role1.setName("role1");
+            role1.setId("role1");
+            role1.setTenantId("role2");
+            role1.setDescription("role2");
+            roles.getRole().add(role1);
+
+            Role role2 = new Role();
+            role2.setName("role2");
+            role2.setId("role2");
+            role2.setTenantId("role2");
+            role2.setDescription("role2");
+            roles.getRole().add(role2);
+            return roles;
+        }
+
+        @Test
         public void shouldPassValidCredentials() {
-            final AuthToken token = generateCachableTokenInfo("role1,role2", "tokentokentoken", "username", "12345");
-            //when(authService.validateToken(anyString(), anyString())).thenReturn(token);
+            AuthenticateResponse authResp = new AuthenticateResponse();
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setName("username");
+            Token token = new Token();
+            token.setTenant(new TenantForAuthenticateResponse());
+            token.getTenant().setId("12345");
+            token.getTenant().setName("12345");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            authResp.setToken(token);
+            authResp.setUser(user);
+            authResp.getUser().setRoles(getTwoRoles());
+            authResp.getToken().setId("tokentokentoken");
 
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResp);
             final FilterDirector director = handler.handleRequest(request, response);
-
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
