@@ -86,7 +86,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
         AuthenticateResponse authenticateResponse = null;
-        //want to return this object
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
