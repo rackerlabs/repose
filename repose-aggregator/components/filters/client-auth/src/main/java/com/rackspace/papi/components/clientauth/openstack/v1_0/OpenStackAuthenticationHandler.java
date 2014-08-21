@@ -58,7 +58,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
     private AuthToken validateTenant(AuthenticateResponse resp, String tenantID) {
 
-        AuthToken authToken = new OpenStackToken(resp);
+        AuthToken authToken = null;
+        if(resp != null) {
+            authToken = new OpenStackToken(resp);
+        }
 
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
             // tenant ID from token did not match URI.
