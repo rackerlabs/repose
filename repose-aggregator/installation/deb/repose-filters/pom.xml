@@ -74,6 +74,7 @@
                                                 <type>perm</type>
                                                 <prefix>/usr/share/repose/filters</prefix>
                                                 <filemode>644</filemode>
+                                                <dirmode>555</dirmode>
                                             </mapper>
                                         </data>
 
