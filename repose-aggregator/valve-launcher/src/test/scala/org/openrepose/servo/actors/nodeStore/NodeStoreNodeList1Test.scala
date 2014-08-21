@@ -13,61 +13,61 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
 class NodeStoreNodeList1Test(_system: ActorSystem) extends TestKit(_system)
 with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with TestUtils with BaseNodeStoreTest {
 
-    import scala.concurrent.duration._
+  import scala.concurrent.duration._
 
-    def this() = this(ActorSystem("NodeStoreList1Spec"))
+  def this() = this(ActorSystem("NodeStoreList1Spec"))
 
-    override def afterAll() = {
-        TestKit.shutdownActorSystem(system)
+  override def afterAll() = {
+    TestKit.shutdownActorSystem(system)
+  }
+
+  //Variable used in before/after blocks to handle my actor
+  var nodeStoreVar: ActorRef = _
+
+  //Using a standalone test probe works so much better here, because I'm actually creating a new nodestore each time
+  var probe: TestProbe = _
+
+  before {
+    probe = TestProbe()
+
+    nodeStoreVar = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
+    nodeStoreVar ! nodeList1 //Send it nodeList1 to run stuff...
+    probe.expectMsgAllOf(1 second,
+      "Started",
+      Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)))
+  }
+
+  after {
+    nodeStoreVar ! PoisonPill
+  }
+
+  describe("The Node Store with nodeList1 running") {
+
+    it("will do nothing when the same list is sent") {
+      nodeStoreVar ! nodeList1
+
+      probe.expectNoMsg(1 second)
+    }
+    it("will start a new local node when NodeList2 is sent") {
+      nodeStoreVar ! nodeList2
+      probe.expectMsg(1 second, "Started")
+      probe.expectMsg(1 second, Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
     }
 
-    //Variable used in before/after blocks to handle my actor
-    var nodeStoreVar: ActorRef = _
+    it("will start node2 and stop repose_node1 when NodeList3 is sent") {
+      nodeStoreVar ! nodeList3
 
-    //Using a standalone test probe works so much better here, because I'm actually creating a new nodestore each time
-    var probe: TestProbe = _
-
-    before {
-        probe = TestProbe()
-
-        nodeStoreVar = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
-        nodeStoreVar ! nodeList1 //Send it nodeList1 to run stuff...
-        probe.expectMsgAllOf(1 second,
-            "Started",
-            Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)))
+      //Expect all these messages within 1 second, no ordering,
+      // But I'm also getting the shutdown messages?
+      probe.expectMsgAllOf(1 second,
+        "Started",
+        Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)),
+        "Stopped clusterId: repose nodeId: repose_node1")
     }
 
-    after {
-        nodeStoreVar ! PoisonPill
+    it("will stop all nodes when told to shut down") {
+      nodeStoreVar ! PoisonPill
+      probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
     }
-
-    describe("The Node Store with nodeList1 running") {
-
-        it("will do nothing when the same list is sent") {
-            nodeStoreVar ! nodeList1
-
-            probe.expectNoMsg(1 second)
-        }
-        it("will start a new local node when NodeList2 is sent") {
-            nodeStoreVar ! nodeList2
-            probe.expectMsg(1 second, "Started")
-            probe.expectMsg(1 second, Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
-        }
-
-        it("will start node2 and stop repose_node1 when NodeList3 is sent") {
-            nodeStoreVar ! nodeList3
-
-            //Expect all these messages within 1 second, no ordering,
-            // But I'm also getting the shutdown messages?
-            probe.expectMsgAllOf(1 second,
-                "Started",
-                Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)),
-                "Stopped clusterId: repose nodeId: repose_node1")
-        }
-
-        it("will stop all nodes when told to shut down") {
-            nodeStoreVar ! PoisonPill
-            probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
-        }
-    }
+  }
 }

@@ -8,10 +8,10 @@ import com.typesafe.config.ConfigFactory
  */
 object Main extends App {
 
-    val config = ConfigFactory.load()
-    val servo = new Servo()
-    val exitCode = servo.execute(args, System.in, System.out, System.err, config)
-    //Should only get here if it's done (like that method blocks all this forever)
-    servo.shutdown() //Make sure that it terminates...
-    sys.exit(exitCode)
+  val config = ConfigFactory.load()
+  val servo = new Servo()
+  val exitCode = servo.execute(args, System.in, System.out, System.err, config)
+  //Should only get here if it's done (like that method blocks all this forever)
+  servo.shutdown() //Make sure that it terminates...
+  sys.exit(exitCode)
 }
