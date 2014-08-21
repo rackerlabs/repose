@@ -14,7 +14,11 @@ trait TestUtils {
     def writeSystemModel(configRoot: String, content: String): Unit = {
         val tempFile = new File(configRoot, "system-model.cfg.xml")
         tempFile.deleteOnExit() //Mark it to be clobbered later
-        Files.write(tempFile.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
+        writeFileContent(tempFile, content)
+    }
+
+    def writeFileContent(file:File, content:String):Unit = {
+        Files.write(file.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
     }
 
 
