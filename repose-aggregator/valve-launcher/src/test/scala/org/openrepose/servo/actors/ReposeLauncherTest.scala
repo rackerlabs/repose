@@ -168,17 +168,22 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     }
 
     it("logs an error and crashes the actor if the command executes abnormally") {
-      val probe = TestProbe()
+      val otherSystem = ActorSystem("CrashySystem", ConfigFactory.parseString(
+        """
+          |akka.loggers = [akka.testkit.TestEventListener]
+        """.stripMargin))
+      //I have to explicitly put my actor system into the implicit params for this
+      val probe = TestProbe()(otherSystem)
 
       val props = ReposeLauncher.props(Seq("bash", "-c", "exit 1"), warFilePath = fakeWarPath)
 
-      val actor = system.actorOf(props)
+      val actor = otherSystem.actorOf(props)
 
       probe.watch(actor)
 
-      EventFilter.error("Command terminated abnormally. Value: 1", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
-      }
+      //This is a bit more gross when you can't use the implict actor system
+      EventFilter.error("Repose Node Execution terminated abnormally. Value: 1", occurrences = 1).
+        intercept(actor ! Initialize(testNode))(otherSystem)
 
       //Expect death watch to note that it died
       probe.expectMsgPF(3 seconds) {
@@ -186,6 +191,9 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
           theActor should equal(actor) //make sure we got a death from our actor
         }
       }
+
+      //Coincidentally, this ends up nuking the actor system
+      otherSystem.isTerminated shouldBe true
     }
 
   }

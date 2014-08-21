@@ -24,6 +24,9 @@ object ReposeLauncherProtocol {
 
 }
 
+//This should get the default behavior to escalate!
+case class ProcessAbnormalTermination(msg:String, cause:Throwable = null) extends Throwable(msg, cause)
+
 class ReposeLauncher(command: Seq[String], environment: Map[String, String], warFilePath: String) extends Actor {
 
   import scala.concurrent.duration._
@@ -43,9 +46,9 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String], war
   override def receive: Receive = {
     case ProcessExited(value) => {
       if (value != 0) {
-        val msg = s"Command terminated abnormally. Value: $value"
+        val msg = s"Repose Node Execution terminated abnormally. Value: $value"
         log.error(msg)
-        throw new Exception(msg)
+        throw ProcessAbnormalTermination(msg)
       }
     }
     case Initialize(reposeNode) => {
