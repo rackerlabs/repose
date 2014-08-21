@@ -225,7 +225,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() throws DatatypeConfigurationException {
+        public void standUp() throws Exception {
             dataTypeFactory = DatatypeFactory.newInstance();
             expires = getCalendarWithOffset(10000000);
 
