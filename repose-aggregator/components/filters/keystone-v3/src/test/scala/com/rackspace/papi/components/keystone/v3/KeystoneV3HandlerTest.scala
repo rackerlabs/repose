@@ -228,6 +228,20 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneV3Handler.invokePrivate(fetchAdminToken(false)).get should startWith("test-admin-token")
     }
 
+    it("should return a new admin token (non-cached) if force is set to true") {
+      val mockServiceClientResponse = mock[ServiceClientResponse]
+
+      when(mockDatastore.get(anyString)).thenReturn("test-cached-token", Nil: _*)
+      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
+      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
+      when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
+      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
+        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
+
+      keystoneV3Handler invokePrivate fetchAdminToken(true) shouldBe a[Success[_]]
+      keystoneV3Handler.invokePrivate(fetchAdminToken(true)).get should startWith("test-admin-token")
+    }
+
     it("should cache an admin token when the admin API call succeeds") {
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
