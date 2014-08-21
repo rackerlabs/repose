@@ -160,8 +160,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                 groups, endpointsInBase64);
 
-        //somehow add headers here
-
         return filterDirector;
     }
 
