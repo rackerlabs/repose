@@ -7,9 +7,10 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
+import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities._
-import com.rackspace.papi.components.keystone.v3.utilities.exceptions.{InvalidAdminCredentialsException, InvalidSubjectTokenException, KeystoneServiceException}
+import com.rackspace.papi.components.keystone.v3.utilities.exceptions._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}

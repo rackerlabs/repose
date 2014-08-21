@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientRespon
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, WhiteList}
-import com.rackspace.papi.components.keystone.v3.objects.{AuthenticateResponse, Role}
+import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
@@ -266,11 +266,11 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
         val containsEndpoint = PrivateMethod[Boolean]('containsEndpoint)
 
         it("should return true when there is an endpoint that matches the url") {
-            keystoneV3Handler invokePrivate containsEndpoint(List(EndpointType(null, null, null, null, "http://www.woot.com"), EndpointType(null, null, null, null, "http://www.notreallyawebsite.com")), "http://www.notreallyawebsite.com") should be(true)
+            keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.notreallyawebsite.com")), "http://www.notreallyawebsite.com") should be(true)
         }
 
         it("should return false when there isn't an endpoint that matches the url") {
-            keystoneV3Handler invokePrivate containsEndpoint(List(EndpointType(null, null, null, null, "http://www.woot.com"), EndpointType(null, null, null, null, "http://www.banana.com")), "http://www.notreallyawebsite.com") should be(false)
+            keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.banana.com")), "http://www.notreallyawebsite.com") should be(false)
         }
     }
 }
