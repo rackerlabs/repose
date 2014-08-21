@@ -4,15 +4,15 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, PowerApiHeader, ServiceClientResponse}
+import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
-import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities._
+import com.rackspace.papi.components.keystone.v3.utilities.exceptions.{InvalidAdminCredentialsException, InvalidSubjectTokenException, KeystoneServiceException}
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
+import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.Header
@@ -22,7 +22,7 @@ import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler {
@@ -55,41 +55,37 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
       filterDirector.setFilterAction(FilterAction.RETURN)
     } else {
+      import com.rackspace.papi.commons.util.http.PowerApiHeader._
+      import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
+
       validateSubjectToken(subjectToken) match {
         case Success(tokenObject: AuthenticateResponse) =>
           val headerManager = filterDirector.requestHeaderManager()
-          headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, "Proxy") // TODO: Add the project ID if verified (not in-scope)
-          if (tokenObject.user.nonEmpty) {
-            if (tokenObject.user.get.id.nonEmpty) {
-              headerManager.putHeader(KeystoneV3Headers.X_USER_ID, tokenObject.user.get.id.get)
+
+          headerManager.putHeader(X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
+          tokenObject.user.map { u =>
+            u.id.map { id =>
+              headerManager.putHeader(X_USER_ID.toString, id)
+              headerManager.appendHeader(USER.toString, id, 1.0)
             }
-            if (tokenObject.user.get.name.nonEmpty) {
-              headerManager.putHeader(KeystoneV3Headers.X_USER_NAME, tokenObject.user.get.name.get)
-            }
+            u.name.map(headerManager.putHeader(X_USER_NAME.toString, _))
           }
-          if (tokenObject.project.nonEmpty) {
-            if (tokenObject.project.get.id.nonEmpty) {
-              headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID, tokenProject.id.get)
-            }
-            if (tokenObject.project.get.name.nonEmpty) {
-              headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME, tokenProject.name.get)
-            }
+          tokenObject.project.map { p =>
+            p.id.map(headerManager.putHeader(X_PROJECT_ID.toString, _))
+            p.name.map(headerManager.putHeader(X_PROJECT_NAME.toString, _))
           }
-          headerManager.putHeader(KeystoneV3Headers.X_ROLES, /* TODO */ "")
+          headerManager.putHeader(X_ROLES.toString, /* TODO */ "")
           // TODO: Set X-Impersonator-Name
           // TODO: Set X-Impersonator-Id
-          // TODO: Set X-Roles
           // TODO: Set X-Catalog
           // TODO: Set X-Token-Expires
           // TODO: Set X-Default-Region
           // TODO: Set X-Identity-Status
-
-          headerManager.appendHeader(PowerApiHeader.USER, tokenObject.user.name, 1.0)
           // TODO: Set X-PP-Groups
           filterDirector.setFilterAction(FilterAction.PASS)
         case Failure(e: InvalidSubjectTokenException) =>
           // TODO: Set WWW-Authenticate
-          filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE_HEADER, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
+          filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
         case Failure(e: KeystoneServiceException) =>
         case Failure(e: InvalidAdminCredentialsException) =>
         case _ =>
@@ -102,17 +98,16 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector
   }
 
-  private def validateSubjectToken(subjectToken: String) = {
+  private def validateSubjectToken(subjectToken: String, isRetry: Boolean = false): Try[_] = {
     // TODO: What if this token was invalidated before the TTL is exceeded? Returning bad cached tokens. Configurable caching?
     Option(datastore.get(TOKEN_KEY_PREFIX + subjectToken)) match {
       case Some(cachedSubjectTokenObject) =>
         Success(cachedSubjectTokenObject.asInstanceOf[AuthenticateResponse])
       case None =>
-        val fetchedAdminToken = fetchAdminToken()
+        val fetchedAdminToken = fetchAdminToken(isRetry)
 
         fetchedAdminToken match {
           case Success(adminToken) =>
-            // TODO: Extract this logic and the request logic to its own method to allow reuse on force fetchAdminToken
             val headerMap = Map(
               KeystoneV3Headers.X_AUTH_TOKEN -> adminToken,
               KeystoneV3Headers.X_SUBJECT_TOKEN -> subjectToken,
@@ -134,9 +129,13 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 LOG.error("Subject token validation failed. Response Code: 404")
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
               case HttpStatusCode.UNAUTHORIZED =>
-                LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
-                // TODO: Fetch a new admin token and retry. If we fail again, abort.
-                Failure(???)
+                if (!isRetry) {
+                  LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
+                  validateSubjectToken(subjectToken, isRetry = true)
+                } else {
+                  LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: " + subjectToken)
+                  Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
+                }
               case _ =>
                 LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
                 Failure(new KeystoneServiceException("Failed to validate subject token"))
@@ -146,7 +145,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
   }
 
-  private def fetchAdminToken() = {
+  private def fetchAdminToken(forceFetchAdminToken: Boolean = false) = {
     val createAdminAuthRequest = () => {
       val username = keystoneConfig.getKeystoneService.getUsername
       val password = keystoneConfig.getKeystoneService.getPassword
@@ -162,12 +161,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             methods = List("password"),
             password = Some(PasswordCredentials(
               UserNamePasswordRequest(
-                scope = projectScope,
                 name = Some(username),
                 password = password
               )
             ))
-          )
+          ),
+          scope = projectScope
         )
       ).toJson.compactPrint
     }
