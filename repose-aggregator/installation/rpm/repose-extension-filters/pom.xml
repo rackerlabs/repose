@@ -62,13 +62,6 @@
                             <name>repose-extension-filters</name>
 
                             <mappings>
-                                <!-- The filters directory -->
-                                <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <filemode>555</filemode>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                </mapping>
                                 <!-- The jar file -->
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
@@ -83,6 +76,14 @@
                                             </location>
                                         </source>
                                     </sources>
+                                </mapping>
+
+                                <!-- The filters directory -->
+                                <mapping>
+                                    <directory>/usr/share/repose/filters</directory>
+                                    <filemode>555</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
                                 </mapping>
 
                                 <!-- The sample configuration files for the filters -->

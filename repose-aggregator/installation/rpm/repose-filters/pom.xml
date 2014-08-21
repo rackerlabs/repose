@@ -60,13 +60,6 @@
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-filters</name>
                             <mappings>
-                                <!-- the filters directory -->
-                                <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <filemode>555</filemode>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                </mapping>
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
                                     <username>repose</username>
@@ -79,6 +72,14 @@
                                             </location>
                                         </source>
                                     </sources>
+                                </mapping>
+
+                                <!-- the filters directory -->
+                                <mapping>
+                                    <directory>/usr/share/repose/filters</directory>
+                                    <filemode>555</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
                                 </mapping>
 
                                 <!-- The sample configuration files for the filters -->
