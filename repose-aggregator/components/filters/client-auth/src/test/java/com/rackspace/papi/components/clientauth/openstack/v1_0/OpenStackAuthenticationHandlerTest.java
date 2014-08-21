@@ -30,19 +30,17 @@ import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
-
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 
 
@@ -458,7 +456,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() throws DatatypeConfigurationException {
+        public void standUp() throws Exception {
             dataTypeFactory = DatatypeFactory.newInstance();
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
@@ -559,7 +557,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() throws DatatypeConfigurationException {
+        public void standUp() throws Exception {
             dataTypeFactory = DatatypeFactory.newInstance();
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
@@ -653,7 +651,7 @@ public class OpenStackAuthenticationHandlerTest {
     }
 
     @Before
-    public void standUp() throws DatatypeConfigurationException {
+    public void standUp() throws Exception {
         dataTypeFactory = DatatypeFactory.newInstance();
         when(request.getRequestURI()).thenReturn("/start/104772/resource");
         when(request.getHeader(anyString())).thenReturn("tokenId");
