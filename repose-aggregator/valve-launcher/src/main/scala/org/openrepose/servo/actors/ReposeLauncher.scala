@@ -43,7 +43,9 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String], war
   override def receive: Receive = {
     case ProcessExited(value) => {
       if (value != 0) {
-        log.error(s"Command terminated abnormally. Value: $value")
+        val msg = s"Command terminated abnormally. Value: $value"
+        log.error(msg)
+        throw new Exception(msg)
       }
     }
     case Initialize(reposeNode) => {

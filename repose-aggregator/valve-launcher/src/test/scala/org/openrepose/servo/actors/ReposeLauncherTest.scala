@@ -167,15 +167,24 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       sames should be >= 4
     }
 
-    it("logs an error and terminates if the command executes abnormally") {
+    it("logs an error and crashes the actor if the command executes abnormally") {
       val probe = TestProbe()
 
       val props = ReposeLauncher.props(Seq("bash", "-c", "exit 1"), warFilePath = fakeWarPath)
 
       val actor = system.actorOf(props)
 
+      probe.watch(actor)
+
       EventFilter.error("Command terminated abnormally. Value: 1", occurrences = 1) intercept {
         actor ! Initialize(testNode)
+      }
+
+      //Expect death watch to note that it died
+      probe.expectMsgPF(3 seconds) {
+        case Terminated(theActor) => {
+          theActor should equal(actor) //make sure we got a death from our actor
+        }
       }
     }
 
