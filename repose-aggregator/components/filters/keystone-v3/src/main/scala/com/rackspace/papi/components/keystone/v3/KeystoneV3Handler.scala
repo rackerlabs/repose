@@ -174,9 +174,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
     // Check the cache for the admin token. If present, return it. Validity of the token is handled in validateSubjectToken and by the TTL.
     Option(datastore.get(ADMIN_TOKEN_KEY)) match {
-      case Some(cachedAdminToken) =>
+      case Some(cachedAdminToken) if !forceFetchAdminToken =>
         Success(cachedAdminToken.asInstanceOf[String])
-      case None =>
+      case _ =>
         val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest(), MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
         HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
           // Since the operation is a POST, a 201 should be returned if the operation was successful
