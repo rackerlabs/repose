@@ -93,13 +93,6 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
       filterDirector.getFilterAction should be(FilterAction.RETURN)
     }
-
-    it("should set headers if request passes through filter") {
-      val mockRequest = new MockHttpServletRequest()
-      mockRequest.addHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-subject-token")
-    }
-
-    it("should set X-Authorization and X-Identity-Status headers when configured to forward all requests")(pending)
   }
 
   describe("validateSubjectToken") {

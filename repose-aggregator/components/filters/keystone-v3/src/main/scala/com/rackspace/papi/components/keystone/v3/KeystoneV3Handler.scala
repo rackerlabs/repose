@@ -49,51 +49,55 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private def authenticate(request: HttpServletRequest) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     filterDirector.setFilterAction(FilterAction.RETURN)
-    filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-    val subjectToken = request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)
+    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
-    if (subjectToken == null) {
-      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-      filterDirector.setFilterAction(FilterAction.RETURN)
-    } else {
-      import com.rackspace.papi.commons.util.http.PowerApiHeader._
-      import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
+    Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
+      case Some(subjectToken) =>
+        import com.rackspace.papi.commons.util.http.PowerApiHeader._
+        import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
 
-      validateSubjectToken(subjectToken) match {
-        case Success(tokenObject: AuthenticateResponse) =>
-          val headerManager = filterDirector.requestHeaderManager()
+        validateSubjectToken(subjectToken) match {
+          case Success(tokenObject: AuthenticateResponse) =>
+            val headerManager = filterDirector.requestHeaderManager()
 
-          headerManager.putHeader(X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
-          tokenObject.user.map { u =>
-            u.id.map { id =>
-              headerManager.putHeader(X_USER_ID.toString, id)
-              headerManager.appendHeader(USER.toString, id, 1.0)
+            headerManager.putHeader(X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
+            tokenObject.user.map { u =>
+              u.id.map { id =>
+                headerManager.putHeader(X_USER_ID.toString, id)
+                headerManager.appendHeader(USER.toString, id, 1.0)
+              }
+              u.name.map(headerManager.putHeader(X_USER_NAME.toString, _))
             }
-            u.name.map(headerManager.putHeader(X_USER_NAME.toString, _))
-          }
-          tokenObject.project.map { p =>
-            p.id.map(headerManager.putHeader(X_PROJECT_ID.toString, _))
-            p.name.map(headerManager.putHeader(X_PROJECT_NAME.toString, _))
-          }
-          headerManager.putHeader(X_ROLES.toString, /* TODO */ "")
-          // TODO: Set X-Impersonator-Name
-          // TODO: Set X-Impersonator-Id
-          // TODO: Set X-Catalog
-          // TODO: Set X-Token-Expires
-          // TODO: Set X-Default-Region
-          // TODO: Set X-Identity-Status
-          // TODO: Set X-PP-Groups
-          filterDirector.setFilterAction(FilterAction.PASS)
-        case Failure(e: InvalidSubjectTokenException) =>
-          // TODO: Set WWW-Authenticate
-          filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
-        case Failure(e: KeystoneServiceException) =>
-        case Failure(e: InvalidAdminCredentialsException) =>
-        case _ =>
-          LOG.error("Validation of subject token " + subjectToken + " failed for an unknown reason")
-          filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
-          filterDirector.setFilterAction(FilterAction.RETURN)
-      }
+            tokenObject.project.map { p =>
+              p.id.map(headerManager.putHeader(X_PROJECT_ID.toString, _))
+              p.name.map(headerManager.putHeader(X_PROJECT_NAME.toString, _))
+            }
+            tokenObject.roles.map { roleList =>
+              headerManager.putHeader(X_ROLES, roleList.map(_.name) mkString ",")
+            }.getOrElse(LOG.warn("Token '" + subjectToken + "' is not associated with any role"))
+            headerManager.putHeader(X_ROLES.toString, /* TODO */ "")
+            headerManager.putHeader(X_TOKEN_EXPIRES, tokenObject.expires_at)
+            // TODO: Set X-Impersonator-Name, need to check response for impersonator (is this an extension?)
+            // TODO: Set X-Impersonator-Id, same as above
+            // TODO: Set X-Catalog, need to base64 encode
+            // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
+            // TODO: Set X-Identity-Status, only set if in forward-unauthorized-requests mode (confirmed here)
+            // TODO: Set X-PP-Groups, requires an API call to groups
+
+            filterDirector.setFilterAction(FilterAction.PASS)
+          case Failure(e: InvalidSubjectTokenException) =>
+            // TODO: Set X-Identity-Status, only set if in forward-unauthorized-requests mode (indeterminate here)
+            filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
+            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          case Failure(e: KeystoneServiceException) =>
+            LOG.error("Keystone v3 failure: " + e.getMessage)
+          case Failure(e: InvalidAdminCredentialsException) =>
+            LOG.error("Keystone v3 failure: " + e.getMessage)
+          case _ =>
+            LOG.error("Validation of subject token '" + subjectToken + "' failed for an unknown reason")
+        }
+      case _ =>
+        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
 
     filterDirector
@@ -122,7 +126,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
                 val expiration = new DateTime(subjectTokenObject.expires_at)
                 val ttl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
-                LOG.debug("Caching token " + subjectToken + " with TTL set to: " + ttl + "ms")
+                LOG.debug("Caching token '" + subjectToken + "' with TTL set to: " + ttl + "ms")
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
@@ -134,7 +138,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                   LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                   validateSubjectToken(subjectToken, isRetry = true)
                 } else {
-                  LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: " + subjectToken)
+                  LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
                   Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
                 }
               case _ =>
