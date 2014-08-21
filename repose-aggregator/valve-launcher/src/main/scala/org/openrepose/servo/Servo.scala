@@ -58,6 +58,7 @@ class Servo {
 
         //Use a Typesafe application.conf to do the loading instead
         val reposeVersion = config.getString("version")
+        val jettyVersion = config.getString("jettyVersion")
 
         /**
          * Yeah this looks ugly in IntelliJ, but it comes out glorious on the console. (looks great in vim)
@@ -70,9 +71,9 @@ class Servo {
               |  ██╔════╝██╔════╝██╔══██╗██║   ██║██╔═══██╗  I'm in your base,
               |  ███████╗█████╗  ██████╔╝██║   ██║██║   ██║  launching your Valves.
               |  ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██║   ██║  Version $version
-              |  ███████║███████╗██║  ██║ ╚████╔╝ ╚██████╔╝
+              |  ███████║███████╗██║  ██║ ╚████╔╝ ╚██████╔╝  Jetty $jettyVersion
               |  ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝   ╚═════╝
-            """.stripMargin.replace("$version", reposeVersion)
+            """.stripMargin.replace("$version", reposeVersion).replace("$jettyVersion", jettyVersion)
 
         val parser = new scopt.OptionParser[ServoConfig]("java -jar servo.jar") {
             head(fancyString)
@@ -134,9 +135,15 @@ class Servo {
         try {
             // Create my actors and wire them up
             import JavaConversions._
-            Console.out.println("About to grab string list of executionCommand")
             val executionStringSequence = config.getStringList("executionCommand")
-            Console.out.println(s"What is my string: |${executionStringSequence mkString ","}|")
+
+            //For quick testing!
+            Console.out.println("These outputs are for testing, remove them!")
+            Console.out.println(s"My Execution Command: |${executionStringSequence mkString ","}|")
+            Console.out.println(s"My War Location: |${config.getString("reposeWarLocation")}|")
+            Console.out.println(s"My JVM_OPTS: |${config.getString("jvmOpts")}|")
+            Console.out.println(s"My REPOSE_OPTS: |${config.getString("reposeOpts")}|")
+
 
             val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
 
@@ -153,6 +160,7 @@ class Servo {
             val systemModelWatcherActorRef = system.actorOf(SystemModelWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
 
             //Get the system-model.cfg.xml and read it in first. Send a message to the NodeStore
+            //TODO: this throws a somewhat ugly exception, rather than a nice error message, FIX
             val systemModelContent = Source.fromFile(new File(servoConfig.configDirectory, "system-model.cfg.xml")).getLines().mkString
             val smw = new SystemModelParser(systemModelContent)
             smw.localNodes match {
@@ -177,7 +185,7 @@ class Servo {
                 Console.err.println(msg)
 
                 system.shutdown()
-                throw e
+                1
             }
         }
     }
