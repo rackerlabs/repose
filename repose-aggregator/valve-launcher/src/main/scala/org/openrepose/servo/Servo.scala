@@ -4,6 +4,7 @@ import java.io.{File, InputStream, PrintStream}
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
+import org.apache.log4j.{BasicConfigurator, PropertyConfigurator}
 import org.openrepose.servo.actors.{SystemModelWatcher, NodeStore, ReposeLauncher}
 import org.slf4j.LoggerFactory
 
@@ -13,7 +14,11 @@ import scala.util.{Failure, Success}
 
 class Servo {
 
-    val LOG = LoggerFactory.getLogger(this.getClass)
+    /**
+     * This is done lazily so it's available from many methods, but I shouldn't use it until
+     * I've set up the logging system....
+     */
+    lazy val LOG = LoggerFactory.getLogger(this.getClass)
 
     //http://www.eclipse.org/jetty/documentation/current/runner.html
     // Here's how to use the jetty-runner
@@ -30,8 +35,9 @@ class Servo {
 
     /**
      * Create an actor system!
+     * Doing it lazily so that I can not hit it until I need it
      */
-    val system = ActorSystem("ServoSystem")
+    lazy val system = ActorSystem("ServoSystem")
 
     /**
      * Basically just runs what would be in Main, but gives me the ability to test it
@@ -49,11 +55,10 @@ class Servo {
         Console.setIn(in)
         Console.setErr(err)
 
-        LOG.info("STARTING UP")
-
         //We can flip out right now about the JVM_OPTS
         if (config.getString("jvmOpts").nonEmpty) {
-            LOG.warn("JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+            //Sending to the console, rather than logger, because we haven't configured the logger yet
+            Console.err.println("WARNING: JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
         }
 
         //Use a Typesafe application.conf to do the loading instead
@@ -98,6 +103,24 @@ class Servo {
         }
 
         parser.parse(args, ServoConfig()) map { servoConfig =>
+            //Fire up a logger for us to use
+            //This is the whole reason for the lazy vals. I want the logger up before those vals are evaluated
+            val log4jProps = new File(servoConfig.configDirectory, "log4j.properties")
+            if (log4jProps.exists()) {
+                //NOTE: I didn't include all the insanity from valve, as we can get it into the properties file
+                // That's probably much much much smarter anyway, so that we're not doing weird things to peoples logs
+                // It might require a bit of changes to the log4j.properties
+                PropertyConfigurator.configure(new File(servoConfig.configDirectory, "log4j.properties").getAbsolutePath)
+            } else {
+                //IT took me a LONG time to figure out how to configure log4j 1.2 IT IS SUPER OLD
+                // This is how you get a basic logging system that may not be ideal, but it'll get it working
+                // This is tied hard to log4j 1.2 and will probably need updating when we jump to anything else
+                BasicConfigurator.configure()
+                LOG.warn("DID NOT FIND LOG4J CONFIGURATION, FALLING BACK TO BASIC CONFIG")
+                LOG.warn("YOU PROBABLY DON'T WANT THIS. MAKE A log4j.properties!")
+            }
+            LOG.info("Logging system initialized!")
+
             //Got a valid config
             //output the info so we know about it
             if (servoConfig.showVersion) {
@@ -125,13 +148,14 @@ class Servo {
     }
 
     def shutdown() = {
-        //TODO: shutdown the actorsystem, that should just let it die
+        //Have the actor system shutdown
         system.shutdown()
-        system.awaitTermination() //Wait until it's completely terminated, don't yank it out from underneath!
+        //Wait until it's completely terminated, don't yank it out from underneath!
+        system.awaitTermination()
     }
 
 
-    def serveValves(config: Config, servoConfig: ServoConfig):Int = {
+    def serveValves(config: Config, servoConfig: ServoConfig): Int = {
         try {
             // Create my actors and wire them up
             import JavaConversions._
@@ -144,6 +168,8 @@ class Servo {
             Console.out.println(s"My JVM_OPTS: |${config.getString("jvmOpts")}|")
             Console.out.println(s"My REPOSE_OPTS: |${config.getString("reposeOpts")}|")
 
+            //TODO: I don't pay any attention to --insecure! OH NOES
+            //How do I pass that through to the war file?
 
             val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
 
@@ -160,7 +186,6 @@ class Servo {
             val systemModelWatcherActorRef = system.actorOf(SystemModelWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
 
             //Get the system-model.cfg.xml and read it in first. Send a message to the NodeStore
-            //TODO: this throws a somewhat ugly exception, rather than a nice error message, FIX
             val systemModelContent = Source.fromFile(new File(servoConfig.configDirectory, "system-model.cfg.xml")).getLines().mkString
             val smw = new SystemModelParser(systemModelContent)
             smw.localNodes match {
