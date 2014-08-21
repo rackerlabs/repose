@@ -12,7 +12,7 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
       val configurationRoot = "/config/root"
       val warPath = "/path/to/war"
       val launcherPath = "/path/to/launcher"
-      val cg = new CommandGenerator(configurationRoot, warPath, launcherPath)
+      val cg = new CommandGenerator(configurationRoot, launcherPath, warPath)
 
       val node = ReposeNode("clusterId", "nodeId", "hostname", Some(8080), None)
 

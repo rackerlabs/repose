@@ -1,6 +1,6 @@
 package org.openrepose.servo
 
-class CommandGenerator(configRoot: String, warPath: String, launcherPath: String) {
+class CommandGenerator(configRoot: String, launcherPath: String, warPath: String) {
 
   def commandLine(node: ReposeNode): Seq[String] = {
     val systemProps = Seq(
