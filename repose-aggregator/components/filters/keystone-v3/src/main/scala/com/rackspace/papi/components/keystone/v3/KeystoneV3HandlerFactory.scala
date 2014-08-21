@@ -9,6 +9,7 @@ import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 
+// TODO: Don't extend AbstractConfiguredFilterHandlerFactory (or the FilterDirector)
 class KeystoneV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractConfiguredFilterHandlerFactory[KeystoneV3Handler] {
 
