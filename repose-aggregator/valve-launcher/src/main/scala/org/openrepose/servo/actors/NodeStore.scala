@@ -5,6 +5,7 @@ import java.util.UUID
 import akka.actor.{PoisonPill, Props, ActorRef, Actor}
 import org.openrepose.servo.ReposeNode
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
+import org.openrepose.servo.actors.ReposeLauncher.LauncherPropsFunction
 
 //A bit of logic to give me a mutable map
 //List exists as MutableList, don't know why map doesn't
@@ -13,7 +14,7 @@ import scala.collection.mutable.{Map => MutableMap}
 
 
 object NodeStore {
-  def props(actorProps: Props) = Props(classOf[NodeStore], actorProps)
+  def props(propsFunction: LauncherPropsFunction) = Props(classOf[NodeStore], propsFunction)
 }
 
 object NodeStoreMessages {
@@ -22,7 +23,7 @@ object NodeStoreMessages {
 
 }
 
-class NodeStore(startActor: Props) extends Actor {
+class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
 
   //A pair of mutable values so I can change stuff.
   //I can't change the list/map out, but I can change what's in the list/map
@@ -53,7 +54,11 @@ class NodeStore(startActor: Props) extends Actor {
       startList.foreach(n => {
         val uuid = UUID.randomUUID.toString
         val nk = nodeKey(n)
-        val actor = context.actorOf(startActor, s"${n.clusterId}_${n.nodeId}_runner_${uuid}")
+        //Get a props for this actor
+
+        val nodeProps = actorPropsFunction(n)
+
+        val actor = context.actorOf(nodeProps, s"${n.clusterId}_${n.nodeId}_runner_${uuid}")
         actor ! Initialize(n)
 
         //Persist our jank

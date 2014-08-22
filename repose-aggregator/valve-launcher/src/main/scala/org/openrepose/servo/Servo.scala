@@ -2,7 +2,7 @@ package org.openrepose.servo
 
 import java.io.{File, InputStream, PrintStream}
 
-import akka.actor.ActorSystem
+import akka.actor.{Props, ActorSystem}
 import com.typesafe.config.Config
 import org.apache.log4j.{BasicConfigurator, PropertyConfigurator}
 import org.openrepose.servo.actors.{SystemModelWatcher, NodeStore, ReposeLauncher}
@@ -157,14 +157,15 @@ class Servo {
 
   def serveValves(config: Config, servoConfig: ServoConfig): Int = {
     try {
-      // Create my actors and wire them up
-      import JavaConversions._
-      val executionStringSequence = config.getStringList("executionCommand")
+
+      val launcherPath = config.getString("launcherPath")
+      val warLocation = config.getString("reposeWarLocation")
+      val configRoot = servoConfig.configDirectory.getAbsolutePath
 
       //For quick testing!
       Console.out.println("These outputs are for testing, remove them!")
-      Console.out.println(s"My Execution Command: |${executionStringSequence mkString ","}|")
-      Console.out.println(s"My War Location: |${config.getString("reposeWarLocation")}|")
+      Console.out.println(s"My Execution Command: |$launcherPath|")
+      Console.out.println(s"My War Location: |$warLocation|")
       Console.out.println(s"My JVM_OPTS: |${config.getString("jvmOpts")}|")
       Console.out.println(s"My REPOSE_OPTS: |${config.getString("reposeOpts")}|")
 
@@ -174,7 +175,15 @@ class Servo {
       val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
 
       //Configure the props of the actor we want to turn on
-      val launcherProps = ReposeLauncher.props(executionStringSequence, env, config.getString("reposeWarLocation"))
+      val propsFunction: (CommandGenerator, ReposeNode) => Props = {
+        (cg, node) =>
+          ReposeLauncher.props(cg.commandLine(node), env)
+      }
+
+      val commandGenerator = new CommandGenerator(configRoot, launcherPath, warLocation)
+      //Using a partially applied function to transform something into what something else needs, without telling it about it.
+      val launcherProps = propsFunction(commandGenerator, _)
+
       //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
       //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
       // Potentially other options and such... The execution string isn't very static...

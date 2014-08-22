@@ -2,6 +2,7 @@ package org.openrepose.servo.actors
 
 import akka.actor.{Actor, PoisonPill, Props}
 import akka.event.Logging
+import org.openrepose.servo.{CommandGenerator, ReposeNode}
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.openrepose.servo.actors.ReposeLauncherProtocol.{ProcessCheck, ProcessExited}
 
@@ -9,6 +10,10 @@ import scala.concurrent.Future
 import scala.sys.process.{Process, ProcessLogger}
 
 object ReposeLauncher {
+  //I expect something that can take a repose node and return a props
+  // I should be able to do some magic with a partially applied function to incorporate the command generator
+  type LauncherPropsFunction = ReposeNode => Props
+
   def props(command: Seq[String],
             environment: Map[String, String] = Map.empty[String, String]) = {
     Props(classOf[ReposeLauncher], command, environment)
