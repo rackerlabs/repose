@@ -31,7 +31,9 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
       //TODO: make this a function
       val failureProps = FailureTestActor.props(probe.ref)
 
-      val nodeStoreProps = NodeStore.props(failureProps)
+      val nodeStoreProps = NodeStore.props({ node:ReposeNode =>
+        failureProps
+      })
 
       val nodeStore = system.actorOf(nodeStoreProps)
       println(s"Node store is: ${nodeStore}")
