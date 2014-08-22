@@ -3,6 +3,7 @@ package org.openrepose.servo.actors
 import java.util.UUID
 
 import akka.actor.{PoisonPill, Props, ActorRef, Actor}
+import akka.event.Logging
 import org.openrepose.servo.ReposeNode
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.openrepose.servo.actors.ReposeLauncher.LauncherPropsFunction
@@ -24,6 +25,9 @@ object NodeStoreMessages {
 }
 
 class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
+  val log = Logging(context.system, this)
+
+  log.info("NODE STORE TURNED ON")
 
   //A pair of mutable values so I can change stuff.
   //I can't change the list/map out, but I can change what's in the list/map
@@ -36,6 +40,7 @@ class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
 
   override def receive: Receive = {
     case list: List[ReposeNode] => {
+      log.info("RECEIVED NODE LIST")
       //Figure out what nodes we need to stop
       // Stuff that's not in the sent list should be stopped!
       val stopList = runningNodes.filterNot(n => list.contains(n._2)).map(_._2)
@@ -57,8 +62,10 @@ class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
         //Get a props for this actor
 
         val nodeProps = actorPropsFunction(n)
+        log.info(s"node props: ${nodeProps}")
 
         val actor = context.actorOf(nodeProps, s"${n.clusterId}_${n.nodeId}_runner_${uuid}")
+        //TODO: I should not send the initialize any longer
         actor ! Initialize(n)
 
         //Persist our jank
