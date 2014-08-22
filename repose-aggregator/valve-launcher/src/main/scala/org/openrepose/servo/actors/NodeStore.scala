@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{PoisonPill, Props, ActorRef, Actor}
 import akka.event.Logging
-import org.openrepose.servo.ReposeNode
+import org.openrepose.servo.{ContainerConfig, ReposeNode}
 import org.openrepose.servo.actors.NodeStoreMessages.Initialize
 import org.openrepose.servo.actors.ReposeLauncher.LauncherPropsFunction
 
@@ -20,6 +20,9 @@ object NodeStore {
 
 object NodeStoreMessages {
 
+  case class ConfigurationUpdated(nodeList:Option[List[ReposeNode]], containerConfig:Option[ContainerConfig])
+
+  //TODO Blow away this guy
   case class Initialize(nodeInfo: ReposeNode)
 
 }

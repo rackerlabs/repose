@@ -212,7 +212,7 @@ class Servo {
       val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
 
       //Start up a System Model Watcher on that directory
-      val systemModelWatcherActorRef = system.actorOf(SystemModelWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
+      val systemModelWatcherActorRef = system.actorOf(ConfigurationWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
 
       //Get the system-model.cfg.xml and read it in first. Send a message to the NodeStore
       val systemModelContent = Source.fromFile(new File(servoConfig.configDirectory, "system-model.cfg.xml")).getLines().mkString
