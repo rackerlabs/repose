@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v3 xmlns="http://docs.rackspacecloud.com/repose/keystone-v3/v1.0">
+    <keystone-service xmlns="http://docs.openrepose.org/repose/keystone-v3/v1.0"
+                    forward-unauthorized-requests="false"
+                    token-cache-timeout="0"
+                    username="admin_username"
+                    password="admin_password"
+                    uri="http://localhost:${identityPort}"
+                    domainid="">
+    </keystone-service>
+</keystone-v3>
