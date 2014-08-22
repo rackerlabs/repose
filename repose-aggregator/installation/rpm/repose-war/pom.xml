@@ -60,12 +60,36 @@
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer to this RPM.-->
                             <name>repose-war</name>
-
                             <mappings>
-                                <!-- The war file -->
+                                <!-- The /usr/share/repose directory. -->
                                 <mapping>
-                                    <directory>/usr/share/repose/</directory>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
                                     <filemode>755</filemode>
+                                </mapping>
+
+                                <!-- The WAR file. -->
+                                <mapping>
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -78,25 +102,40 @@
                                     </sources>
                                 </mapping>
 
-                                <!-- The /var/log/repose directory -->
+                                <!-- The /var/repose directory. -->
+                                <!-- TODO: This should be moved to a more standard place like /var/cache/repose. -->
                                 <mapping>
-                                    <directory>/var/log/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <directory>
+                                        /var/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>750</filemode>
                                 </mapping>
 
-                                <!-- The /var/repose directory -->
+                                <!-- The /var/log/repose directory. -->
                                 <mapping>
-                                    <directory>/var/repose/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
-                                    <filemode>775</filemode>
+                                    <directory>
+                                        /var/log/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>750</filemode>
                                 </mapping>
 
-                                <!-- The logrotate script -->
+                                <!-- The logrotate script. -->
                                 <mapping>
-                                    <directory>/etc/logrotate.d</directory>
+                                    <directory>
+                                        /etc/logrotate.d
+                                    </directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
                                     <sources>
@@ -108,10 +147,33 @@
                                     </sources>
                                 </mapping>
 
-                                <!-- The sample configuration files for the filters -->
+                                <!-- The /etc/repose directory. -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <filemode>755</filemode>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>750</filemode>
+                                </mapping>
+
+                                <!-- The sample configuration files for the filters. -->
+                                <mapping>
+                                    <directory>
+                                        /etc/repose
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>640</filemode>
                                     <configuration>noreplace</configuration>
                                     <sources>
                                         <source>
@@ -122,9 +184,11 @@
                                     </sources>
                                 </mapping>
 
-                                <!-- This adds the license file on installation.-->
+                                <!-- This adds the license file on installation. -->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
+                                    <directory>
+                                        /usr/share/doc/${project.artifactId}
+                                    </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>
@@ -136,7 +200,6 @@
                                         </source>
                                     </sources>
                                 </mapping>
-
                             </mappings>
 
                             <requires>
@@ -158,7 +221,7 @@
                                     # ELSE since it is a new install create the user and group.
                                     if [ -f $SYSTEM_MODEL ]
                                     then
-                                        #Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
+                                        # Detects if the Dist-Datastore filter is present in the system-model.cfg.xml file. If the filter is an active component then this installation will fail.
                                         if cat $SYSTEM_MODEL | sed '/<!--.*-->/d'| sed '/<!--/,/-->/d' | grep 'filter.*dist-datastore'
                                         then
                                             echo "Unable to upgrade. system-model.cfg.xml file contains the deprecated dist-datastore filter. Please remove and re-run upgrade. For more information on the upgrade:  https://repose.atlassian.net/wiki/display/REPOSE/Release+Notes#ReleaseNotes-Release3.0.0(InProgress:UpdatetoJava1.7,RemoveDDFilter,ModularizeDD,BugFixes)"
