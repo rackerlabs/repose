@@ -36,7 +36,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted);
 
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
@@ -157,8 +157,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
         }
 
+
+
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                groups, endpointsInBase64);
+                groups, endpointsInBase64, tenanted);
 
         return filterDirector;
     }

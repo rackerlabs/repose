@@ -33,7 +33,7 @@ class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {
         authToken.getTokenId() >> "tokenId"
         openStackAuthenticationHeaderManager =
             new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
-                    tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64);
+                    tenantId, authGroupList, wwwAuthHeaderContents, endpointsBase64, true);
 
         when:
         openStackAuthenticationHeaderManager.setFilterDirectorValues()
