@@ -68,9 +68,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             if (resp.getUser() != null && resp.getUser().getRoles() != null) {
                 for (Role role : resp.getUser().getRoles().getRole()) {
                     if(tenantID.equalsIgnoreCase(role.getTenantId())) {
-                        //oh snap
-                        resp.getToken().getTenant().setId(tenantID);
-                        return new OpenStackToken(resp);
+                        //we have the real tenantID
+                        return authToken;
                     }
                 }
             }
@@ -138,10 +137,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             FilterDirector filterDirector,
             String extractedResult,
             List<AuthGroup> groups,
-            String endpointsInBase64) {
+            String endpointsInBase64, boolean tenanted) {
 
         new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult,
-                groups, wwwAuthHeaderContents, endpointsInBase64)
+                groups, wwwAuthHeaderContents, endpointsInBase64, tenanted)
                 .setFilterDirectorValues();
     }
 }
