@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.commons.util.http.{HttpStatusCode, PowerApiHeader, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
@@ -23,7 +23,7 @@ import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Random, Success, Try}
 
 class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler {
@@ -33,6 +33,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
 
   private lazy val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
+  private lazy val tokenCacheTtl = keystoneConfig.getTokenCacheTimeout
+  private lazy val cacheOffset = keystoneConfig.getCacheOffset
   private lazy val datastore = datastoreService.getDefaultDatastore
 
   private var cachedAdminToken: String = null
@@ -55,30 +57,27 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
     Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
-        import com.rackspace.papi.commons.util.http.PowerApiHeader._
-        import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
-
         validateSubjectToken(subjectToken) match {
           case Success(tokenObject: AuthenticateResponse) =>
             val headerManager = filterDirector.requestHeaderManager()
 
-            headerManager.putHeader(X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
+            headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.map { u =>
               u.id.map { id =>
-                headerManager.putHeader(X_USER_ID.toString, id)
-                headerManager.appendHeader(USER.toString, id, 1.0)
+                headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
+                headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
               }
-              u.name.map(headerManager.putHeader(X_USER_NAME.toString, _))
+              u.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
             }
             tokenObject.project.map { p =>
-              p.id.map(headerManager.putHeader(X_PROJECT_ID.toString, _))
-              p.name.map(headerManager.putHeader(X_PROJECT_NAME.toString, _))
+              p.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
+              p.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
             }
             tokenObject.roles.map { roleList =>
-              headerManager.putHeader(X_ROLES, roleList.map(_.name) mkString ",")
+              headerManager.putHeader(KeystoneV3Headers.X_ROLES, roleList.map(_.name) mkString ",")
             }.getOrElse(LOG.warn("Token '" + subjectToken + "' is not associated with any role"))
-            headerManager.putHeader(X_ROLES.toString, /* TODO */ "")
-            headerManager.putHeader(X_TOKEN_EXPIRES, tokenObject.expires_at)
+            headerManager.putHeader(KeystoneV3Headers.X_ROLES.toString, /* TODO */ "")
+            headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             // TODO: Set X-Impersonator-Name, need to check response for impersonator (is this an extension?)
             // TODO: Set X-Impersonator-Id, same as above
             // TODO: Set X-Catalog, need to base64 encode
@@ -89,7 +88,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             filterDirector.setFilterAction(FilterAction.PASS)
           case Failure(e: InvalidSubjectTokenException) =>
             // TODO: Set X-Identity-Status, only set if in forward-unauthorized-requests mode (indeterminate here)
-            filterDirector.responseHeaderManager.putHeader(WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
+            filterDirector.responseHeaderManager.putHeader(KeystoneV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
           case Failure(e: KeystoneServiceException) =>
             LOG.error("Keystone v3 failure: " + e.getMessage)
@@ -127,7 +126,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 val subjectTokenObject = readToAuthResponseObject(validateTokenResponse).token
 
                 val expiration = new DateTime(subjectTokenObject.expires_at)
-                val ttl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
+                val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
+                val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.min(offsetConfiguredTtl, identityTtl)
                 LOG.debug("Caching token '" + subjectToken + "' with TTL set to: " + ttl + "ms")
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
@@ -231,4 +232,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
   private val safeLongToInt = (l: Long) =>
     math.min(l, Int.MaxValue).toInt
+
+  private[v3] val offsetTtl = (exactTtl: Int, offset: Int) =>
+    if (offset == 0 || exactTtl == 0) exactTtl
+    else safeLongToInt(exactTtl.toLong + (Random.nextInt(offset * 2) - offset))
 }
