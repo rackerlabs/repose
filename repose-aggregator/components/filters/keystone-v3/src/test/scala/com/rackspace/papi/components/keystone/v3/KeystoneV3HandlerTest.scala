@@ -101,7 +101,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return a Failure when x-subject-token validation fails") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      when(mockDatastore.get(contains("ADMIN_TOKEN"))).thenReturn("test-admin-token", Nil: _*)
+      keystoneV3Handler.cachedAdminToken = "test-admin-token"
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
@@ -119,7 +119,8 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return a token object when x-subject-token validation succeeds") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      when(mockDatastore.get(contains("ADMIN_TOKEN"))).thenReturn("test-admin-token", Nil: _*)
+      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
         "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
@@ -136,7 +137,8 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       val expirationTime = currentTime.plusMillis(100000)
       val returnJson = "{\"token\":{\"expires_at\":\"" + ISODateTimeFormat.dateTime().print(expirationTime) + "\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
 
-      when(mockDatastore.get(argThat(equalTo("ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
@@ -202,7 +204,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     it("should return a Success for a cached admin token") {
-      when(mockDatastore.get(anyString)).thenReturn("test-cached-token", Nil: _*)
+      keystoneV3Handler.cachedAdminToken = "test-cached-token"
 
       keystoneV3Handler invokePrivate fetchAdminToken(false) shouldBe a[Success[_]]
       keystoneV3Handler.invokePrivate(fetchAdminToken(false)).get should startWith("test-cached-token")
@@ -238,6 +240,8 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should cache an admin token when the admin API call succeeds") {
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
+      keystoneV3Handler.cachedAdminToken = null
+
       when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
@@ -246,8 +250,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
       keystoneV3Handler invokePrivate fetchAdminToken(false)
 
-
-      verify(mockDatastore).put(contains("ADMIN_TOKEN"), any[Serializable], anyInt, any[TimeUnit])
+      keystoneV3Handler.cachedAdminToken should startWith("test-admin-token")
     }
   }
 

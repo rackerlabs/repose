@@ -37,7 +37,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private lazy val cacheOffset = keystoneConfig.getCacheOffset
   private lazy val datastore = datastoreService.getDefaultDatastore
 
-  private var cachedAdminToken: String = null
+  private[v3] var cachedAdminToken: String = null
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList.getUriPattern.asScala.toList)) {
