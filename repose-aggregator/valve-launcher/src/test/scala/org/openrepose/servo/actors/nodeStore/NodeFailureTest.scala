@@ -28,6 +28,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     it("passes the exception up so it gets to the guardian") {
       val probe = TestProbe()
 
+      //TODO: make this a function
       val failureProps = FailureTestActor.props(probe.ref)
 
       val nodeStoreProps = NodeStore.props(failureProps)
