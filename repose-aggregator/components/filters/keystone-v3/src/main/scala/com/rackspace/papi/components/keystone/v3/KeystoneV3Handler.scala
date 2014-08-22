@@ -35,6 +35,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private lazy val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
   private lazy val datastore = datastoreService.getDefaultDatastore
 
+  private var cachedAdminToken: String = null
+
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList.getUriPattern.asScala.toList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
@@ -176,27 +178,24 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       ).toJson.compactPrint
     }
 
-    // Check the cache for the admin token. If present, return it. Validity of the token is handled in validateSubjectToken and by the TTL.
-    Option(datastore.get(ADMIN_TOKEN_KEY)) match {
-      case Some(cachedAdminToken) if !forceFetchAdminToken =>
-        Success(cachedAdminToken.asInstanceOf[String])
-      case _ =>
-        val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest(), MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
-        HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
-          // Since the operation is a POST, a 201 should be returned if the operation was successful
-          case HttpStatusCode.CREATED =>
-            val adminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
+    // Check the cached adminToken. If present, return it. Validity of the token is handled in validateSubjectToken by way of retry.
+    if (cachedAdminToken != null && !forceFetchAdminToken) {
+      Success(cachedAdminToken)
+    } else {
+      val generateAuthTokenResponse = akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest(), MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
+      HttpStatusCode.fromInt(generateAuthTokenResponse.getStatusCode) match {
+        // Since the operation is a POST, a 201 should be returned if the operation was successful
+        case HttpStatusCode.CREATED =>
+          val newAdminToken = generateAuthTokenResponse.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
 
-            val expiration = new DateTime(readToAuthResponseObject(generateAuthTokenResponse).token.expires_at)
-            val ttl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
-            LOG.debug("Caching admin token with TTL set to: " + ttl + "ms")
-            datastore.put(ADMIN_TOKEN_KEY, adminToken, ttl, TimeUnit.MILLISECONDS)
+          LOG.debug("Caching admin token")
+          cachedAdminToken = newAdminToken
 
-            Success(adminToken)
-          case _ =>
-            LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.getStatusCode)
-            Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
-        }
+          Success(newAdminToken)
+        case _ =>
+          LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.getStatusCode)
+          Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
+      }
     }
   }
 
