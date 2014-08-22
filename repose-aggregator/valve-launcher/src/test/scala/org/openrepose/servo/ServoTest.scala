@@ -73,7 +73,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
       //TODO: NONE OF THIS WORKS!
       val config = ConfigFactory.parseString(
         s"""
-            |executionCommand = [${tmpBash.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
+            |baseCommand = [${tmpBash.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
           """.stripMargin).withFallback(defaultConfig)
 
       testFunc(configRoot, tmpOutput, config)

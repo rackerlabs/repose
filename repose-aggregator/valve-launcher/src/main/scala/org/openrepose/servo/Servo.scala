@@ -157,10 +157,12 @@ class Servo {
 
   def serveValves(config: Config, servoConfig: ServoConfig): Int = {
     try {
+      import scala.collection.JavaConverters._
 
       val launcherPath = config.getString("launcherPath")
       val warLocation = config.getString("reposeWarLocation")
       val configRoot = servoConfig.configDirectory.getAbsolutePath
+      val baseCommand = config.getStringList("baseCommand").asScala
 
       //For quick testing!
       Console.out.println("These outputs are for testing, remove them!")
@@ -180,7 +182,7 @@ class Servo {
           ReposeLauncher.props(cg.commandLine(node), env)
       }
 
-      val commandGenerator = new CommandGenerator(configRoot, launcherPath, warLocation)
+      val commandGenerator = new CommandGenerator(baseCommand, configRoot, launcherPath, warLocation)
       //Using a partially applied function to transform something into what something else needs, without telling it about it.
       val launcherProps = propsFunction(commandGenerator, _:ReposeNode)
 
