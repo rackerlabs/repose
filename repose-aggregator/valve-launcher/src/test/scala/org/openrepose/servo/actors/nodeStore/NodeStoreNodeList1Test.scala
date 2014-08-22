@@ -21,6 +21,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     TestKit.shutdownActorSystem(system)
   }
 
+
   //Variable used in before/after blocks to handle my actor
   var nodeStoreVar: ActorRef = _
 
@@ -30,7 +31,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   before {
     probe = TestProbe()
 
-    nodeStoreVar = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
+    nodeStoreVar = system.actorOf(NodeStore.props(propsFunc(probe.ref)))
     nodeStoreVar ! nodeList1 //Send it nodeList1 to run stuff...
     probe.expectMsgAllOf(1 second,
       "Started",

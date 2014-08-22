@@ -30,7 +30,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   before {
     probe = TestProbe()
 
-    nodeStoreVar = system.actorOf(NodeStore.props(testStartActorProps(probe.ref)))
+    nodeStoreVar = system.actorOf(NodeStore.props(propsFunc(probe.ref)))
     nodeStoreVar ! nodeList2 //Send it nodeList1 to run stuff...
 
     probe.expectMsgAllOf(1 seconds,

@@ -28,7 +28,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     it("will start nodes that are sent to it") {
       val probe = TestProbe()
       //The actor needs to have given to it a Props of the kind of actor to start
-      val nodeStore = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
+      val nodeStore = system.actorOf(NodeStore.props(propsFunc(probe.testActor)))
 
       nodeStore ! nodeList1
 
@@ -40,7 +40,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
     it("will not do anything if an empty list of nodes is sent to it") {
       val probe = TestProbe()
-      val nodeStore = system.actorOf(NodeStore.props(testStartActorProps(probe.testActor)))
+      val nodeStore = system.actorOf(NodeStore.props(propsFunc(probe.testActor)))
 
       nodeStore ! List.empty[ReposeNode]
 

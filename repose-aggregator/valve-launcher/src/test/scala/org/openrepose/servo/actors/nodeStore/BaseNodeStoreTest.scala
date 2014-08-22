@@ -1,6 +1,6 @@
 package org.openrepose.servo.actors.nodeStore
 
-import akka.actor.ActorRef
+import akka.actor.{Props, ActorRef}
 import akka.testkit.TestKit
 import org.openrepose.servo.ReposeNode
 
@@ -18,5 +18,10 @@ trait BaseNodeStoreTest {
 
   //Create a props that the other actor can use to "start stuff"
   def testStartActorProps(probe: ActorRef) = TestReposeNodeActor.props(probe)
+
+  //TODO: finish defining a function to hand to the thing to create an actor
+  def propsFunc(probe: ActorRef): ReposeNode => Props = { node: ReposeNode =>
+    testStartActorProps(probe)
+  }
 
 }
