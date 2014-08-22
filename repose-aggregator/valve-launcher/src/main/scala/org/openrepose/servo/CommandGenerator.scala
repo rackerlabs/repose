@@ -14,9 +14,12 @@ class CommandGenerator(configRoot: String, launcherPath: String, warPath: String
         Seq("--port", port.toString)
       }
       case ReposeNode(_, _, _, None, Some(httpsPort)) => {
+        //TODO: deal with creating the HTTPS config
+        //TODO: probably need keystore magic the whole time no matter what...
         ???
       }
       case ReposeNode(_, _, _, Some(httpPort), Some(httpsPort)) => {
+        //TODO: deal with creating a config that does both ports
         ???
       }
     }
