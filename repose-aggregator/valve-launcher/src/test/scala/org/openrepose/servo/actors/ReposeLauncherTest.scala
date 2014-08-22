@@ -33,8 +33,8 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
   }
 
   def launcherProps(preOpts:Seq[String], env:Map[String,String] = Map.empty[String,String]):Props = {
-    val cg = new CommandGenerator("configRoot", "launcherPath", "warFile")
-    ReposeLauncher.props(preOpts ++ Seq("--") ++ cg.commandLine(testNode), env)
+    val cg = new CommandGenerator(preOpts ++ Seq("--"), "configRoot", "launcherPath", "warFile")
+    ReposeLauncher.props(cg.commandLine(testNode), env)
   }
 
   describe("The Repose Launcher") {
