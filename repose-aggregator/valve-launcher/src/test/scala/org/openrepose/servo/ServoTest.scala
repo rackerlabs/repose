@@ -70,6 +70,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
       val tmpOutput = tempFile("fakeRepose", ".out")
 
       //Create a config object to merge in
+      //TODO: NONE OF THIS WORKS!
       val config = ConfigFactory.parseString(
         s"""
             |executionCommand = [${tmpBash.getAbsolutePath}, ${tmpOutput.getAbsolutePath}]
@@ -134,16 +135,11 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
             note(s"ARGS: $l")
             l should include("--port 8080")
             l should include(config.getString("reposeWarLocation"))
+
+            //the clusterID and nodeID are set in system properties
+            l should include("-Drepose-node-id=repose_node1")
+            l should include("-Drepose-cluster-id=repose")
           }
-
-          //Check the environment variables for our cluster ID/node ID
-          val clusterId = lines.filter(_.startsWith("CLUSTER_ID"))
-          clusterId.size shouldBe 1
-          clusterId.head shouldBe "CLUSTER_ID=repose"
-
-          val nodeId = lines.filter(_.startsWith("NODE_ID"))
-          nodeId.size shouldBe 1
-          nodeId.head shouldBe "NODE_ID=repose_node1"
 
           Await.result(exitValue, 1 second) shouldBe 0
         }

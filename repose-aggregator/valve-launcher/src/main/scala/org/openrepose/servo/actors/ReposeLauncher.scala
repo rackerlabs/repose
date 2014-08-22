@@ -42,6 +42,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
 
   var process: Option[scala.sys.process.Process] = None
 
+  log.debug(s"Initializing actor for ${command mkString " "}")
 
   override def postStop() = {
     process.map(_.destroy())
@@ -55,6 +56,8 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
         throw ProcessAbnormalTermination(msg)
       }
     }
+      //TODO: need to move all this to a preStart, or maybe just in the constructor realm
+      // Don't rely on this stuff to start any longer via the initialize action, I have everything I need to just run
     case Initialize(reposeNode) => {
       clusterId = reposeNode.clusterId
       nodeId = reposeNode.nodeId
@@ -64,6 +67,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
       //Start up the thingy!
       //See: http://www.scala-lang.org/api/2.10.3/index.html#scala.sys.process.ProcessCreation
       // Magic :_* is from http://stackoverflow.com/questions/10842851/scala-expand-list-of-tuples-into-variable-length-argument-list-of-tuples
+      println(s"MY ENVIRONMENT IS ${environment}")
       val builder = Process(command, None, environment.toList: _*)
 
       //Fire that sucker up
