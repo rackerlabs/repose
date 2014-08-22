@@ -17,6 +17,12 @@ trait TestUtils {
     writeFileContent(tempFile, content)
   }
 
+  def writeContainerConfig(configRoot:String, content:String):Unit = {
+    val tempFile = new File(configRoot, "container.cfg.xml")
+    tempFile.deleteOnExit()
+    writeFileContent(tempFile, content)
+  }
+
   def writeFileContent(file: File, content: String): Unit = {
     Files.write(file.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
   }

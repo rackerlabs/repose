@@ -1,19 +1,17 @@
 package org.openrepose.servo.actors
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{StandardOpenOption, Paths, Files}
-
 import akka.actor.{PoisonPill, ActorSystem}
-import akka.testkit.{EventFilter, ImplicitSender, TestKit}
+import akka.testkit.{TestProbe, EventFilter, ImplicitSender, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
-import org.openrepose.servo.{SystemModelParseException, ReposeNode, TestUtils}
+import org.openrepose.servo._
+import org.openrepose.servo.actors.NodeStoreMessages.ConfigurationUpdated
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class SystemModelWatcherTest(_system: ActorSystem) extends TestKit(_system)
-with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
+class ConfigurationWatcherTest(_system: ActorSystem) extends TestKit(_system)
+with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
 
   import scala.concurrent.duration._
 
@@ -31,49 +29,74 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
   lazy val systemModel1 = resourceContent("/actorTesting/system-model-1.cfg.xml")
   lazy val systemModel2 = resourceContent("/actorTesting/system-model-2.cfg.xml")
 
+  lazy val containerConfig1 = resourceContent("/actorTesting/container-1.cfg.xml")
+  lazy val containerConfig2 = resourceContent("/actorTesting/container-2.cfg.xml")
+
   lazy val nodeList1 = List(ReposeNode("repose", "repose_node1", "localhost", httpPort = Some(8080), httpsPort = None))
   lazy val nodeList2 = List(
     ReposeNode("repose", "repose_node1", "localhost", httpPort = Some(8080), httpsPort = None),
     ReposeNode("repose", "repose_node2", "localhost", httpPort = Some(8081), httpsPort = None)
   )
 
-  describe("System Model Watcher Actor watches the configured directory for changes") {
-    it("will notify when something has changed with a changed message") {
+  //This now has to watch a couple configuration files and maintain state
+  describe("Configuration Watcher Actor watches the configured directory for changes") {
+    it("will notify when the container configuration has changed with a new configuration message") {
+      val probe = TestProbe()
+      val configRoot = tempDir("servo").toString
+
+      writeSystemModel(configRoot, systemModel1)
+      val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
+      writeContainerConfig(configRoot, containerConfig1)
+
+      probe.expectMsg(1 second, ConfigurationUpdated(None, Some(ContainerConfig("log4j.properties", Some(KeystoreConfig("keystore1", "lePassword", "leKeyPassword"))))))
+      smwActor ! PoisonPill
+    }
+    it("will notify when the system model and the container configuration has changed with a new config message") {
+      pending
+    }
+    it("logs a failure if there either a missing system model or a missing container cfg") {
+      pending
+    }
+    it("will notify when the system model has changed with a new configuration message") {
       //Create an actor and give it a destination and who to tell about changes
+      //TODO: I'm doing something wrong when I need to monitor multiple files :( probably missing events or something.
+      val probe = TestProbe()
       val configRoot = tempDir("servo").toString
       //Set up the config directory with a valid System Model
 
-      val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
-      //tickle something in the config root directory
+      val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
 
       writeSystemModel(configRoot, systemModel1)
       //expect a message from the actor notifying us of repose local nodes
       //I can just send a List[ReposeNode] I don't need any other info
-      expectMsg(1000 millis, nodeList1)
+      probe.expectMsg(1 second, ConfigurationUpdated(Some(nodeList1), None))
+
       smwActor ! PoisonPill
     }
 
     it("will not notify if there are no changes") {
+      val probe = TestProbe()
       //Create an actor and give it a destination and who to tell about changes
       val configRoot = tempDir("servo").toString
       //Set up the config directory with a valid System Model
 
       writeSystemModel(configRoot, systemModel1)
 
-      val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
+      val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
       //tickle something in the config root directory
 
       //expect a message from the actor notifying us of repose local nodes
       //I can just send a List[ReposeNode] I don't need any other info
-      expectNoMsg(1 second)
+      probe.expectNoMsg(1 second)
 
       smwActor ! PoisonPill
     }
 
-    it("Logs a failure message when unable to parse the system model") {
+    it("Logs a failure message when unable to parse any of the configuration files") {
+      val probe = TestProbe()
       val configRoot = tempDir("servo").toString
       val systemModelFail = resourceContent("/system-model-test/not-valid-xml.xml")
-      val smwActor = system.actorOf(SystemModelWatcher.props(configRoot, testActor))
+      val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
 
       //Expect that I log an error message with a SystemModelParseException in it
       EventFilter[SystemModelParseException](occurrences = 1) intercept {
@@ -81,7 +104,7 @@ with ImplicitSender with FunSpecLike with Matchers with BeforeAndAfterAll with T
       }
 
       //No more messages, in other words, don't give me work to do!
-      expectNoMsg(1 second)
+      probe.expectNoMsg(1 second)
     }
   }
 }

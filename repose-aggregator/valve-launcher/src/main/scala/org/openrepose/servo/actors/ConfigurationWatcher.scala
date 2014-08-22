@@ -5,23 +5,24 @@ import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds}
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
-import org.openrepose.servo.SystemModelParser
-import org.openrepose.servo.actors.SystemModelWatcherProtocol.CheckForChanges
+import org.openrepose.servo.actors.NodeStoreMessages.ConfigurationUpdated
+import org.openrepose.servo.{ContainerConfigParser, ContainerConfig, SystemModelParser}
+import org.openrepose.servo.actors.ConfigurationWatcherProtocol.CheckForChanges
 
 import scala.io.Source
 import scala.util.{Failure, Success}
 
-object SystemModelWatcher {
-  def props(directory: String, notifyActor: ActorRef) = Props(classOf[SystemModelWatcher], directory, notifyActor)
+object ConfigurationWatcher {
+  def props(directory: String, notifyActor: ActorRef) = Props(classOf[ConfigurationWatcher], directory, notifyActor)
 }
 
-object SystemModelWatcherProtocol {
+object ConfigurationWatcherProtocol {
 
   case object CheckForChanges
 
 }
 
-class SystemModelWatcher(directory: String, notifyActor: ActorRef) extends Actor {
+class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Actor {
 
   val log = Logging(context.system, this)
 
@@ -33,6 +34,11 @@ class SystemModelWatcher(directory: String, notifyActor: ActorRef) extends Actor
 
   override def preStart() = {
     systemModelPoll()
+  }
+  override def postStop() = {
+    //Get out from watching that jank
+    directoryWatchKey.cancel()
+    watchService.close()
   }
 
 
@@ -51,23 +57,48 @@ class SystemModelWatcher(directory: String, notifyActor: ActorRef) extends Actor
         import scala.collection.JavaConverters._
         val events = watchKey.pollEvents().asScala
         events.foreach(event => {
+          println(s"Got an event to check on: $event")
           event.kind match {
             case StandardWatchEventKinds.OVERFLOW => {
               //it's an overflow, I don't think we care, this just means we've missed events
+              println(s"OVERFLOW EVENT? OH NOES?")
             }
             case StandardWatchEventKinds.ENTRY_MODIFY => {
               val changed = watchDir.resolve(event.context().asInstanceOf[Path])
-              if (changed.endsWith("system-model.cfg.xml")) {
+              println(s"changed file is ${changed}")
+              val nodeList = if (changed.endsWith("system-model.cfg.xml")) {
                 //Do the systemModel parsing thing
                 val smp = new SystemModelParser(Source.fromFile(changed.toFile).getLines() mkString)
                 smp.localNodes match {
-                  case Success(nodeList) => {
-                    notifyActor ! nodeList
+                  case Success(nl) => {
+                    println("ZOMG GOT A NODE LIST")
+                    Some(nl)
                   }
                   case Failure(x) => {
-                    log.error(x, "Unable to parse System Model! Taking no action!")
+                    log.error(x, "Unable to parse System Model! Not Sending an update!")
+                    None
                   }
                 }
+              } else {
+                None
+              }
+              val containerConfig = if (changed.endsWith("container.cfg.xml")) {
+                //Also pay attention to this guy!
+                val ccp = new ContainerConfigParser(Source.fromFile(changed.toFile).getLines() mkString)
+                ccp.config match {
+                  case Success(cc) =>
+                    Some(cc)
+                  case Failure(x) =>
+                    log.error(x, "Unable to parse ContainerConfig! Not sending an update! Fix it!")
+                    None
+                }
+              } else {
+                None
+              }
+
+              //If one or the other is defined, send that jank
+              if (nodeList.isDefined || containerConfig.isDefined) {
+                notifyActor ! ConfigurationUpdated(nodeList, containerConfig)
               }
             }
           }
