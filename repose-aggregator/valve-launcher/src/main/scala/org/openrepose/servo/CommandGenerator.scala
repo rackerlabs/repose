@@ -1,7 +1,6 @@
 package org.openrepose.servo
 
-//TODO: add a base execution command to this (Defaulting to "java") so that I can replace it for testing
-class CommandGenerator(configRoot: String, launcherPath: String, warPath: String) {
+class CommandGenerator(baseCommand:Seq[String], configRoot: String, launcherPath: String, warPath: String) {
 
   def commandLine(node: ReposeNode): Seq[String] = {
     val systemProps = Seq(
@@ -25,6 +24,6 @@ class CommandGenerator(configRoot: String, launcherPath: String, warPath: String
       }
     }
 
-    Seq("java") ++ systemProps ++ Seq("-jar", launcherPath) ++ jettyParams ++ Seq(warPath)
+    baseCommand ++ systemProps ++ Seq("-jar", launcherPath) ++ jettyParams ++ Seq(warPath)
   }
 }

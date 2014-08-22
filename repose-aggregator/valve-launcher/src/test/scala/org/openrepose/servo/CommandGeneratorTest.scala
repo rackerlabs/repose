@@ -8,11 +8,12 @@ import org.scalatest.junit.JUnitRunner
 class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
 
   describe("Command line generator") {
-    it("generates a proper command line from a node, a configurationRoot, a war path, and a launcher path") {
+    it("generates a proper command line from a base command, a node, a configurationRoot, a war path, and a launcher path") {
       val configurationRoot = "/config/root"
       val warPath = "/path/to/war"
       val launcherPath = "/path/to/launcher"
-      val cg = new CommandGenerator(configurationRoot, launcherPath, warPath)
+      val baseCommand = Seq("java")
+      val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath)
 
       val node = ReposeNode("clusterId", "nodeId", "hostname", Some(8080), None)
 
