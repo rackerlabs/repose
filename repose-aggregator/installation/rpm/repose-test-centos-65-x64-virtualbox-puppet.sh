@@ -45,17 +45,29 @@ sudo easy_install pip\n
 sudo pip install gunicorn\n
 sudo pip install httpbin\n
 sudo gunicorn httpbin:app &\n
+\n
+\n
+\n
+\n
 # Clean up any previous execution and start Repose.\n
 sudo rm -f /var/log/repose/*.log\n
 sudo service repose-valve start\n
 echo -en "\\nWaiting for Repose to be ready ..."\n
 READY=0\n
+COUNT=0\n
+TIMEOUT=30\n
 while [ $READY -eq 0 ]; do\n
    sudo grep "Repose ready" /var/log/repose/current.log >> /dev/null 2>&1\n
    if [ "$?" -eq 0 ]\n
    then\n
       READY=1\n
    else\n
+      let "COUNT +=1"\n
+      if [ "$COUNT" -ge "$TIMEOUT" ]\n
+      then\n
+         echo -e "\\n\\n~~~~~ ERROR - REPOSE FAILED TO START - VM Left Running ~~~~~\\n\\n"\n
+         exit 5\n
+      fi\n
       echo -n " ."\n
       sleep 1\n
    fi\n
@@ -78,7 +90,7 @@ chmod a+x repose-test.sh
 
 # Run the test and destroy the VM.
 vagrant ssh -c "/vagrant/repose-test.sh"
-#vagrant destroy -f
+vagrant destroy -f
 # Let the user know where the out put is located.
 echo -e "\n\nAfter reviewing the output at: ${VAGRANT_DIR}/repose-curl.out\n"
 echo -e "Remove the directory at:       ${VAGRANT_DIR}\n\n"
