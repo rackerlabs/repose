@@ -106,9 +106,12 @@ class MockIdentityKeystoneV3Service {
     Closure<Response> getUserRolesOnDomainHandler
 
     def client_token = 'this-is-the-token';
-    def client_domain = 'this-is-the-domain';
+    def client_domainid = 123456;
+    def client_domainname = 'this-is-the-domain';
     def client_username = 'username';
     def client_userid = 12345;
+    def client_projectid = 1234567;
+    def client_projectname = "this-is-the-project"
     def admin_domainid = 'this-is-the-admin-domain'
     def admin_domainname = 'example.com'
     def admin_token = 'this-is-the-admin-token';
@@ -222,7 +225,7 @@ class MockIdentityKeystoneV3Service {
 
             if (isGetUserRolesOnProjectCallPath(nonQueryPath)) {
                 if (method == "GET") {
-                    _getUserGlobalRolesCount.incrementAndGet()
+                    _getUserRolesOnDomainCount.incrementAndGet()
                     def match = (nonQueryPath =~ getUserRolesOnProjectCallPathRegex)
                     def projectId = match[0][1]
                     def userId = match[0][2]
@@ -287,17 +290,21 @@ class MockIdentityKeystoneV3Service {
                 issued      : getIssued(),
                 userid      : client_userid,
                 username    : client_username,
+                projectid   : client_projectid,
+                projectname : client_projectname,
+                domainid    : client_domainid,
+                domainname  : client_domainname,
                 serviceadmin: service_admin_role
         ]
         def code
         def template
         def headers = [:]
         headers.put('Content-type', 'application/json')
+        headers.put('X-Subject-Token', request_token)
 
         if (isTokenValid) {
             code = 200
-            template = identitySuccessJsonRespTemplate
-            headers.put('X-Subject-Token', request_token)
+            template = identitySuccessJsonFullRespTemplate
 
         } else {
             template = identityFailureJsonRespTemplate
@@ -321,10 +328,12 @@ class MockIdentityKeystoneV3Service {
         def params = [
                 expires     : getExpires(),
                 issued      : getIssued(),
-                userid      : admin_userid,
-                username    : admin_username,
-                domainid    : admin_domainid,
-                domainname  : admin_domainname,
+                userid      : client_userid,
+                username    : client_username,
+                projectid   : client_projectid,
+                projectname : client_projectname,
+                domainid    : client_domainid,
+                domainname  : client_domainname,
                 serviceadmin: service_admin_role
         ];
 
@@ -337,7 +346,7 @@ class MockIdentityKeystoneV3Service {
 
         if (isTokenValid) {
             code = 200;
-            template = identitySuccessJsonRespTemplate
+            template = identitySuccessJsonFullRespTemplate
             headers.put('X-Subject-Token', admin_token)
 
         } else {
@@ -358,7 +367,8 @@ class MockIdentityKeystoneV3Service {
                 issued      : getIssued(),
                 userid      : client_userid,
                 username    : client_username,
-                domainid    : client_domain,
+                domainid    : client_domainid,
+                domainname  : client_domainname
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
@@ -381,7 +391,7 @@ class MockIdentityKeystoneV3Service {
         def params = [
                 expires     : getExpires(),
                 userid      : client_userid,
-                domainid    : client_domain,
+                domainid    : client_domainid,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
@@ -402,7 +412,7 @@ class MockIdentityKeystoneV3Service {
     Response getUserRolesOnDomain(String domainId, String userId, Request request) {
         def params = [
                 userid      : client_userid,
-                domainid    : client_domain,
+                domainid    : client_domainid,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
@@ -495,7 +505,7 @@ class MockIdentityKeystoneV3Service {
                 "links": {
                     "self": "http://identity:35357/v3/projects/\${projectId}"
                 },
-                "name": "project-x"
+                "name": "\${projectname}"
             },
             "roles": [
                 {
