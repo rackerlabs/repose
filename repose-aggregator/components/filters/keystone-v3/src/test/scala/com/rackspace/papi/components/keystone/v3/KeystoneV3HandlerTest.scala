@@ -278,4 +278,23 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.banana.com")), "http://www.notreallyawebsite.com") should be(false)
     }
   }
+
+  describe("offsetTtl") {
+    it("should return the configured ttl is offset is 0") {
+      keystoneV3Handler.offsetTtl(1000, 0) shouldBe 1000
+    }
+
+    it("should return 0 if the configured ttl is 0") {
+      keystoneV3Handler.offsetTtl(0, 1000) shouldBe 0
+    }
+
+    it("should return a random int between configured ttl +/- offset") {
+      val firstCall = keystoneV3Handler.offsetTtl(1000, 100)
+      val secondCall = keystoneV3Handler.offsetTtl(1000, 100)
+
+      firstCall shouldBe 1000 +- 1000
+      secondCall shouldBe 1000 +- 1000
+      firstCall should not be secondCall
+    }
+  }
 }
