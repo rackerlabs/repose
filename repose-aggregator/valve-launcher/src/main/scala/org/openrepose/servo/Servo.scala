@@ -182,7 +182,7 @@ class Servo {
 
       val commandGenerator = new CommandGenerator(configRoot, launcherPath, warLocation)
       //Using a partially applied function to transform something into what something else needs, without telling it about it.
-      val launcherProps = propsFunction(commandGenerator, _)
+      val launcherProps = propsFunction(commandGenerator, _:ReposeNode)
 
       //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
       //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
