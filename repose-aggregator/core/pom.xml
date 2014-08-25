@@ -26,7 +26,7 @@
    <modules>
       <module>core-lib</module>
       <module>web-application</module>
-      <module>valve</module>
+      <!--module>valve</module-->
    </modules>
 
     <dependencyManagement>

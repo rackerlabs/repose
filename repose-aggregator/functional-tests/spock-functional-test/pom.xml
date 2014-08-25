@@ -36,7 +36,7 @@
         </filter.experimental.dir>
         <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
-        <repose.valve.jar>repose-valve.jar</repose.valve.jar>
+        <repose.valve.jar>servo.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
@@ -144,8 +144,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>valve</artifactId>
+            <groupId>org.openrepose.valve</groupId>
+            <artifactId>valve-launcher</artifactId>
             <version>${project.version}</version>
         </dependency>
 
