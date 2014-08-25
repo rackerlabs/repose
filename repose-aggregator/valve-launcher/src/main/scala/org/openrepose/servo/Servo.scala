@@ -113,24 +113,6 @@ class Servo {
     }
 
     parser.parse(args, ServoConfig()) map { servoConfig =>
-      //Fire up a logger for us to use
-      //This is the whole reason for the lazy vals. I want the logger up before those vals are evaluated
-      val log4jProps = new File(servoConfig.configDirectory, "log4j.properties")
-      if (log4jProps.exists()) {
-        //NOTE: I didn't include all the insanity from valve, as we can get it into the properties file
-        // That's probably much much much smarter anyway, so that we're not doing weird things to peoples logs
-        // It might require a bit of changes to the log4j.properties
-        PropertyConfigurator.configure(new File(servoConfig.configDirectory, "log4j.properties").getAbsolutePath)
-      } else {
-        //IT took me a LONG time to figure out how to configure log4j 1.2 IT IS SUPER OLD
-        // This is how you get a basic logging system that may not be ideal, but it'll get it working
-        // This is tied hard to log4j 1.2 and will probably need updating when we jump to anything else
-        BasicConfigurator.configure()
-        LOG.warn("DID NOT FIND LOG4J CONFIGURATION, FALLING BACK TO BASIC CONFIG")
-        LOG.warn("YOU PROBABLY DON'T WANT THIS. MAKE A log4j.properties!")
-      }
-      LOG.info("Logging system initialized!")
-
       //Got a valid config
       //output the info so we know about it
       if (servoConfig.showVersion) {
@@ -182,62 +164,96 @@ class Servo {
       val configRoot = servoConfig.configDirectory.getAbsolutePath
       val baseCommand = config.getStringList("baseCommand").asScala
 
-      //For quick testing!
-      Console.out.println("These outputs are for testing, remove them!")
-      Console.out.println(s"My Execution Command: |$launcherPath|")
-      Console.out.println(s"My War Location: |$warLocation|")
-      Console.out.println(s"My JVM_OPTS: |${config.getString("jvmOpts")}|")
-      Console.out.println(s"My REPOSE_OPTS: |${config.getString("reposeOpts")}|")
 
-      //TODO: I don't pay any attention to --insecure! OH NOES
-      //How do I pass that through to the war file?
+      //Fire up a logger for us to use
+      //CRAP, I can't use this logger here, or rather I have to reconfigure it after I find the thing :(
+      //This is the whole reason for the lazy vals. I want the logger up before those vals are evaluated
+      //TODO: have to get the container config firstest
+      //Just load the damn thing
+      //These two files must exist to be able to do anything
+      val containerConfigFile = new File(servoConfig.configDirectory, "container.cfg.xml")
+      val systemModelConfigFile = new File(servoConfig.configDirectory, "system-model.cfg.xml")
 
-      val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
+      val someConfig = new ContainerConfigParser(Source.fromFile(containerConfigFile).getLines() mkString).config
+      val someSystemModel = new SystemModelParser(Source.fromFile(systemModelConfigFile).getLines() mkString).localNodes
 
-      //Configure the props of the actor we want to turn on
-      val propsFunction: (CommandGenerator, ReposeNode) => Props = {
-        (cg, node) =>
-          ReposeLauncher.props(cg.commandLine(node), env)
-      }
+      //Time to do some composing!
+      //Match on both of these to provide a couple nice failure messages
+      (someConfig, someSystemModel) match {
+        case (Failure(x), Failure(y)) =>
+          val msg =
+            s"""
+              |Unable to parse container.cfg.xml: ${x.getMessage}
+              |Unable to parse system-model.cfg.xml: ${y.getMessage}
+            """.stripMargin
+          Console.err.println(msg)
+          //Huh, I can't throw both errors...
+          throw x
+        case (Failure(x), _) =>
+          val msg = s"Unable to parse container.cfg.xml: ${x.getMessage}"
+          Console.err.println(msg)
+          throw x
+        case (_, Failure(x)) =>
+          val msg = s"Unable to parse system-model.cfg.xml: ${x.getMessage}"
+          Console.err.println(msg)
+          throw x
+        case (Success(containerConfig), Success(nodeList)) =>
+          //we have a container config and a systemModel config now
+          val log4jProps = new File(servoConfig.configDirectory, containerConfig.logFileName)
+          if(log4jProps.exists()) {
+            PropertyConfigurator.configure(log4jProps.getAbsolutePath)
+          } else {
+            BasicConfigurator.configure()
+            LOG.warn("DID NOT FIND LOG4J CONFIGURATION, FALLING BACK TO BASIC CONFIG")
+            LOG.warn(s"YOU PROBABLY DON'T WANT THIS. MAKE A ${log4jProps.getAbsolutePath}")
+          }
 
-      val commandGenerator = new CommandGenerator(baseCommand, configRoot, launcherPath, warLocation)
-      //Using a partially applied function to transform something into what something else needs, without telling it about it.
-      val launcherProps = propsFunction(commandGenerator, _:ReposeNode)
+          LOG.info("Servo logging system initialized")
 
-      //need something like: java -jar /path/to/jetty-runner.jar --port 8080 /path/to/repose/war.war
-      //            for ssl: java -jar /path/to/jetty-runner.jar --config /path/to/config/file /path/to/repose/war.war
-      // Potentially other options and such... The execution string isn't very static...
+          //For quick testing!
+          LOG.debug("My Launcher Path: |{}|", launcherPath)
+          LOG.debug("My War Location: |{}|", warLocation)
+          LOG.debug("My JVM_OPTS: |{}|", config.getString("jvmOpts"))
+          LOG.debug("My REPOSE_OPTS: |{}|", config.getString("reposeOpts"))
 
-      //start up the node store
-      val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
+          //TODO: I don't pay any attention to --insecure! Hand it to the command generator!
+          val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
 
-      //Start up a System Model Watcher on that directory
-      val systemModelWatcherActorRef = system.actorOf(ConfigurationWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
+          //Configure the props of the actor we want to turn on
+          val propsFunction: (CommandGenerator, ReposeNode) => Props = {
+            (cg, node) =>
+              ReposeLauncher.props(cg.commandLine(node), env)
+          }
 
-      //Get the system-model.cfg.xml and read it in first. Send a message to the NodeStore
-      val systemModelContent = Source.fromFile(new File(servoConfig.configDirectory, "system-model.cfg.xml")).getLines().mkString
-      val smw = new SystemModelParser(systemModelContent)
-      smw.localNodes match {
-        case Success(x) => {
-          Console.out.println(s"Starting ${x.size} local nodes!")
-          x map { node =>
+          val commandGenerator = new CommandGenerator(baseCommand, configRoot, launcherPath, warLocation)
+
+          //Using a partially applied function to transform something into what something else needs, without telling it about it.
+          val launcherProps = propsFunction(commandGenerator, _: ReposeNode)
+
+          //start up the node store
+          val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
+
+          //Start up a Configuration watcher on that directory
+          system.actorOf(ConfigurationWatcher.props(servoConfig.configDirectory.getAbsolutePath, nodeStoreActorRef))
+
+          Console.out.println(s"Starting ${nodeList.size} local nodes!")
+
+          nodeList map { node =>
             Console.out.println(s"Starting local node ${node.nodeId} in cluster ${node.clusterId}")
           }
           //Got some nodes, send them to the actor!
-          nodeStoreActorRef ! x
+          nodeStoreActorRef ! ConfigurationUpdated(Some(nodeList), Some(containerConfig))
+
           //Can assume successful start up at this point
+          Console.out.flush()
           0
-        }
-        case Failure(x) => {
-          throw x
-        }
       }
     } catch {
       case e: Exception => {
-        val msg = s"Unable to parse System Model: ${e.getMessage}"
+        val msg = s"Unable to start up!  ${e.getMessage}"
         LOG.error(msg)
         Console.err.println(msg)
-
+        Console.err.flush()
         system.shutdown()
         1
       }
