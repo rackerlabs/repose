@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import com.rackspace.papi.components.datastore.Datastore
-import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, WhiteList}
+import com.rackspace.papi.components.keystone.v3.config.{ServiceEndpoint, KeystoneV3Config, OpenstackKeystoneService, WhiteList}
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
@@ -334,11 +334,63 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     val containsEndpoint = PrivateMethod[Boolean]('containsEndpoint)
 
     it("should return true when there is an endpoint that matches the url") {
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.notreallyawebsite.com")), "http://www.notreallyawebsite.com") should be(true)
+      keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.banana.com")), "http://www.notreallyawebsite.com") should be(false)
+      keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.banana.com"))) should be(false)
+    }
+
+    it("Should return true when the url matches and region does") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setRegion("DFW")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, null, null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+    }
+
+    it("Should return false when the url matches and region doesn't") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setRegion("DFW")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, null, null, None, "http://www.notreallyawebsite.com"))) should be(false)
+    }
+
+    it("Should return true when the url matches and name does") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setName("foo")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, "foo", null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+    }
+
+    it("Should return false when the url matches and name doesn't") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setName("foo")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, "bar", null, None, "http://www.notreallyawebsite.com"))) should be(false)
+    }
+
+    it("Should return true when the url matches and interface does") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setInterface("foo")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, "foo", Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+    }
+
+    it("Should return false when the url matches and interface doesn't") {
+      val serviceEndpoint = new ServiceEndpoint
+      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      serviceEndpoint.setInterface("foo")
+      keystoneConfig.setServiceEndpoint(serviceEndpoint)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, "bar", None, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
   }
 

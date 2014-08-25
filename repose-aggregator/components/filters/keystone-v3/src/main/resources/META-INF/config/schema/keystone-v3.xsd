@@ -20,6 +20,7 @@
         <xs:all>
             <xs:element name="white-list" type="WhiteList" minOccurs="0"/>
             <xs:element name="keystone-service" type="OpenstackKeystoneService"/>
+            <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
             <!-- TODO -->
         </xs:all>
 
@@ -116,4 +117,44 @@
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="ServiceEndpoint">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes the service mapping for the Origin Service</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="url" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>URL for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="region" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Region for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Name for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="interface" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Interface for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
 </xs:schema>

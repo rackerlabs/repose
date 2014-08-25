@@ -249,21 +249,24 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles: Set[String] = {
-      if (writeAll) {
-        roles.map({ role => role.project_id.get}).toSet
-      }
-      else {
-        Set.empty
-      }
-    }
-
+    val projectsFromRoles: Set[String] =  if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
   }
 
-  private def containsEndpoint(endpoints: List[Endpoint], url: String): Boolean = endpoints.exists { endpoint: Endpoint => endpoint.url == url}
+  private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
+    var returnValue = true
+    if (endpoint.url != keystoneConfig.getServiceEndpoint.getUrl)
+      returnValue = false
+    if ((keystoneConfig.getServiceEndpoint.getRegion != null) && !endpoint.region.exists(_ == keystoneConfig.getServiceEndpoint.getRegion))
+      returnValue = false
+    if ((keystoneConfig.getServiceEndpoint.getName != null) && (keystoneConfig.getServiceEndpoint.getName != endpoint.name))
+      returnValue = false
+    if ((keystoneConfig.getServiceEndpoint.getInterface != null) && !endpoint.interface.exists(_ == keystoneConfig.getServiceEndpoint.getInterface))
+      returnValue = false
+    returnValue
+  }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
 
