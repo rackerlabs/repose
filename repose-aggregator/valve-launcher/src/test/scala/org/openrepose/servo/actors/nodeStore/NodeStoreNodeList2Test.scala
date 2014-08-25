@@ -5,7 +5,7 @@ import akka.testkit.{TestKit, TestProbe}
 import org.junit.runner.RunWith
 import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.openrepose.servo.actors.NodeStore
-import org.openrepose.servo.actors.NodeStoreMessages.Initialize
+import org.openrepose.servo.actors.NodeStoreMessages.{ConfigurationUpdated, Initialize}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
 
@@ -31,13 +31,11 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
     probe = TestProbe()
 
     nodeStoreVar = system.actorOf(NodeStore.props(propsFunc(probe.ref)))
-    nodeStoreVar ! nodeList2 //Send it nodeList1 to run stuff...
+    nodeStoreVar ! ConfigurationUpdated(Some(nodeList2), Some(containerConfig1))
 
     probe.expectMsgAllOf(1 seconds,
-      "Started",
-      "Started", //I get one started per node!
-      Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)),
-      Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
+      "Started repose:repose_node1",
+      "Started repose:repose_node2")
   }
 
   after {
@@ -47,14 +45,14 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   describe("The Node Store with nodeList2 running") {
 
     it("will do nothing when the same list is sent") {
-      nodeStoreVar ! nodeList2
+      nodeStoreVar ! ConfigurationUpdated(Some(nodeList2), Some(containerConfig1))
 
       probe.expectNoMsg(1 second)
     }
 
     it("will stop all nodes when told to shut down") {
       nodeStoreVar ! PoisonPill
-      probe.expectMsgAllOf(1 second, "Stopped clusterId: repose nodeId: repose_node1", "Stopped clusterId: repose nodeId: repose_node2")
+      probe.expectMsgAllOf(1 second, "Stopped repose:repose_node1", "Stopped repose:repose_node2")
     }
   }
 }
