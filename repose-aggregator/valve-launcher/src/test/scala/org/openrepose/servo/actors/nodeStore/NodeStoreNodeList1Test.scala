@@ -3,7 +3,7 @@ package org.openrepose.servo.actors.nodeStore
 import akka.actor._
 import akka.testkit.{TestProbe, ImplicitSender, TestKit}
 import org.junit.runner.RunWith
-import org.openrepose.servo.actors.NodeStoreMessages.Initialize
+import org.openrepose.servo.actors.NodeStoreMessages.{ConfigurationUpdated, Initialize}
 import org.openrepose.servo.actors.NodeStore
 import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
@@ -28,47 +28,45 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
   //Using a standalone test probe works so much better here, because I'm actually creating a new nodestore each time
   var probe: TestProbe = _
 
+  val initial =  ConfigurationUpdated(Some(nodeList1), Some(containerConfig1))
+
   before {
     probe = TestProbe()
 
     nodeStoreVar = system.actorOf(NodeStore.props(propsFunc(probe.ref)))
-    nodeStoreVar ! nodeList1 //Send it nodeList1 to run stuff...
-    probe.expectMsgAllOf(1 second,
-      "Started",
-      Initialize(ReposeNode("repose", "repose_node1", "localhost", Some(8080), None)))
+    nodeStoreVar ! initial
+    probe.expectMsg(1 second,"Started repose:repose_node1")
   }
 
   after {
     nodeStoreVar ! PoisonPill
   }
 
-  describe("The Node Store with nodeList1 running") {
-
-    it("will do nothing when the same list is sent") {
-      nodeStoreVar ! nodeList1
+  describe("The Node Store with nodeList1 and container config 1 running") {
+    it("will do nothing when the same configuration is sent") {
+      nodeStoreVar ! initial
 
       probe.expectNoMsg(1 second)
     }
-    it("will start a new local node when NodeList2 is sent") {
-      nodeStoreVar ! nodeList2
-      probe.expectMsg(1 second, "Started")
-      probe.expectMsg(1 second, Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)))
+
+    it("will start a new local node when NodeList2 is sent with the same containerConfig") {
+      nodeStoreVar ! ConfigurationUpdated(Some(nodeList2), Some(containerConfig1))
+      probe.expectMsg(1 second, "Started repose:repose_node2")
     }
 
-    it("will start node2 and stop repose_node1 when NodeList3 is sent") {
-      nodeStoreVar ! nodeList3
+    it("will start node2 and stop repose_node1 when NodeList3 is sent with the same containerConfig") {
+      nodeStoreVar ! ConfigurationUpdated(Some(nodeList3), Some(containerConfig1))
 
       //Expect all these messages within 1 second, no ordering,
       // But I'm also getting the shutdown messages?
       probe.expectMsgAllOf(1 second,
-        "Started",
-        Initialize(ReposeNode("repose", "repose_node2", "localhost", Some(8081), None)),
-        "Stopped clusterId: repose nodeId: repose_node1")
+        "Started repose:repose_node2",
+        "Stopped repose:repose_node1")
     }
 
     it("will stop all nodes when told to shut down") {
       nodeStoreVar ! PoisonPill
-      probe.expectMsg(1 second, "Stopped clusterId: repose nodeId: repose_node1")
+      probe.expectMsg(1 second, "Stopped repose:repose_node1")
     }
   }
 }

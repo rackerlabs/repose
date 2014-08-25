@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{PoisonPill, Props, ActorRef, Actor}
 import akka.event.Logging
 import org.openrepose.servo.{ContainerConfig, ReposeNode}
-import org.openrepose.servo.actors.NodeStoreMessages.Initialize
+import org.openrepose.servo.actors.NodeStoreMessages.{ConfigurationUpdated, Initialize}
 import org.openrepose.servo.actors.ReposeLauncher.LauncherPropsFunction
 
 //A bit of logic to give me a mutable map
@@ -37,20 +37,53 @@ class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
   val runningNodes: MutableMap[String, ReposeNode] = MutableMap.empty[String, ReposeNode]
   val childActors: MutableMap[String, ActorRef] = MutableMap.empty[String, ActorRef]
 
+  //A mutable variable holding the state for container configuration
+  var containerConfig:ContainerConfig = _
+
   def nodeKey(node: ReposeNode): String = {
     node.clusterId + node.nodeId
   }
 
   override def receive: Receive = {
-    case list: List[ReposeNode] => {
-      log.info("RECEIVED NODE LIST")
-      //Figure out what nodes we need to stop
-      // Stuff that's not in the sent list should be stopped!
-      val stopList = runningNodes.filterNot(n => list.contains(n._2)).map(_._2)
+    case configUpdated:ConfigurationUpdated => {
+      //An updated config!
+      log.info("New configuration received!")
+      //If we were handed a container configuration, check to see if it's different
+      val newCC = configUpdated.containerConfig.exists(cc => {
+        val oldcc = containerConfig
+        containerConfig = cc
+        cc != oldcc
+      })
 
-      //Figure out what nodes we need to start
-      val startList = list.filterNot(n => runningNodes.contains(nodeKey(n)))
+      //Unbox the node list to either the one we're sent, or the existing running node list
+      val nodeList = configUpdated.nodeList.map { list =>
+        //Got a list of nodes to deal with
+        list
+      } getOrElse {
+        //Using the same existing list, because with a new container config, we might need to restart all the nodes
+        runningNodes.values.toList
+      }
 
+      //The stop list is either all the nodes, if its a new container config, or just the nodes that aren't in
+      // the newly sent list
+      val stopList = if(newCC) {
+        runningNodes.values
+      } else {
+        runningNodes.filterNot(n => nodeList.contains(n._2)).map(_._2)
+      }
+
+      /**
+       * Determine a list of nodes to start, either all the nodes we were just sent (which will either be the
+       * newly sent nodes, or the existing list of nodes), or the differences between the nodes that are running
+       * and the nodes that we were just sent
+       */
+      val startList = if(newCC) {
+        nodeList
+      } else {
+        nodeList.filterNot(n => runningNodes.contains(nodeKey(n)))
+      }.toList
+
+      //Stop all the nodes we were told to stop
       stopList.foreach(n => {
         val nk = nodeKey(n)
         //Kill the children!
@@ -59,6 +92,7 @@ class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
         runningNodes.remove(nk)
       })
 
+      //Start all the nodes we need to start
       startList.foreach(n => {
         val uuid = UUID.randomUUID.toString
         val nk = nodeKey(n)
@@ -68,13 +102,13 @@ class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
         log.info(s"node props: ${nodeProps}")
 
         val actor = context.actorOf(nodeProps, s"${n.clusterId}_${n.nodeId}_runner_${uuid}")
-        //TODO: I should not send the initialize any longer
-        actor ! Initialize(n)
+        //Once the actor is created, it's already running, the props and everything are the necessary commands
 
         //Persist our jank
         childActors(nk) = actor
         runningNodes(nk) = n
       })
+
     }
   }
 }
