@@ -1,0 +1,129 @@
+================================================================================
+6.0.2: /etc/repose was    drwxr-xr-x   root /   root and all of the files it contained were -rw-------   root /   root.
+drwxr-xr-x   root /   root /etc/repose
+-rw-------   root /   root /etc/repose/client-auth-n.cfg.xml
+-rw-------   root /   root /etc/repose/container.cfg.xml
+-rw-------   root /   root /etc/repose/content-identity-auth-1-1.cfg.xml
+-rw-------   root /   root /etc/repose/destination-router.cfg.xml
+-rw-------   root /   root /etc/repose/dist-datastore.cfg.xml
+-rw-------   root /   root /etc/repose/header-identity.cfg.xml
+-rw-------   root /   root /etc/repose/header-id-mapping.cfg.xml
+-rw-------   root /   root /etc/repose/header-normalization.cfg.xml
+-rw-------   root /   root /etc/repose/header-translation.cfg.xml
+-rw-------   root /   root /etc/repose/ip-identity.cfg.xml
+-rw-------   root /   root /etc/repose/log4j.properties
+-rw-------   root /   root /etc/repose/openstack-authorization.cfg.xml
+-rw-------   root /   root /etc/repose/rate-limiting.cfg.xml
+-rw-------   root /   root /etc/repose/response-messaging.cfg.xml
+-rw-------   root /   root /etc/repose/service-authentication.cfg.xml
+-rw-------   root /   root /etc/repose/system-model.cfg.xml
+-rw-------   root /   root /etc/repose/uri-identity.cfg.xml
+-rw-------   root /   root /etc/repose/uri-normalization.cfg.xml
+-rw-------   root /   root /etc/repose/uri-stripper.cfg.xml
+-rw-------   root /   root /etc/repose/validator.cfg.xml
+-rw-------   root /   root /etc/repose/versioning.cfg.xml
+--------------------------------------------------------------------------------
+Now:   /etc/repose is now drwxr-xr-x repose / repose and all of the files it contains  are  -rw-r----- repose / repose.
+drwxr-xr-x repose / repose /etc/repose
+-rw-r----- repose / repose /etc/repose/client-auth-n.cfg.xml
+-rw-r----- repose / repose /etc/repose/container.cfg.xml
+-rw-r----- repose / repose /etc/repose/destination-router.cfg.xml
+-rw-r----- repose / repose /etc/repose/dist-datastore.cfg.xml
+-rw-r----- repose / repose /etc/repose/fail-404.wadl
+-rw-r----- repose / repose /etc/repose/header-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-id-mapping.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-normalization.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-translation.cfg.xml
+-rw-r----- repose / repose /etc/repose/ip-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/log4j.properties
+-rw-r----- repose / repose /etc/repose/openstack-authorization.cfg.xml
+-rw-r----- repose / repose /etc/repose/pass.wadl
+-rw-r----- repose / repose /etc/repose/rate-limiting.cfg.xml
+-rw-r----- repose / repose /etc/repose/repose-valve.conf
+-rw-r----- repose / repose /etc/repose/response-messaging.cfg.xml
+-rw-r----- repose / repose /etc/repose/service-authentication.cfg.xml
+-rw-r----- repose / repose /etc/repose/system-model.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-normalization.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-stripper.cfg.xml
+-rw-r----- repose / repose /etc/repose/validator.cfg.xml
+-rw-r----- repose / repose /etc/repose/versioning.cfg.xml
+================================================================================
+6.0.2: Only a couple of licenses were being installed and the git.properties (i.e. repo status) was being created/installed for a couple projects.
+-rw-r--r--   root /   root /usr/share/doc/repose-extensions-filter-bundle/git.properties
+-rw-r--r--   root /   root /usr/share/doc/repose-filter-bundle/git.properties
+-rw-r--r--   root /   root /usr/share/doc/repose/repose-extensions-filter-bundle/LICENSE.txt
+-rw-r--r--   root /   root /usr/share/doc/repose/repose-filter-bundle/LICENSE.txt
+-rw-r--r--   root /   root /usr/share/doc/repose/repose-valve/LICENSE.txt
+-rw-r--r--   root /   root /usr/share/doc/repose-valve/git.properties
+--------------------------------------------------------------------------------
+Now:   A license is installed for each module as per standard practice and the git.properties is not even created.
+-r--r--r--   root /   root /usr/share/doc/repose-extension-filters/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-filters/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-valve/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-war/LICENSE.txt
+================================================================================
+6.0.2: There was never a WAR project for the Debian side.
+--------------------------------------------------------------------------------
+Now:   The WAR is installed to a common place that the local admin will need to link to.
+       This allows installation without dependence on Tomcat and allows multiple containers on the same machine to use different installed versions.
+drwxr-xr-x repose / repose /usr/share/repose
+-r-xr-xr-x repose / repose /usr/share/repose/repose-7.0.0-SNAPSHOT.war
+================================================================================
+6.0.2: The Valve JAR was installed in the non-standard /usr/share/lib location.
+drwxr-xr-x   root /   root /usr/share/lib/repose
+-rw-r--r--   root /   root /usr/share/lib/repose/repose-valve.jar
+--------------------------------------------------------------------------------
+Now:   The normalized /usr/share location is used for all modules.
+drwxr-xr-x repose / repose /usr/share/repose
+-r-xr-xr-x repose / repose /usr/share/repose/jetty-runner-9.2.0.v20140526.jar
+-r-xr-xr-x repose / repose /usr/share/repose/servo.jar
+================================================================================
+6.0.2: The permissions of the Filter EAR's contained wright authority.
+drwxr-xr-x   root /   root /usr/share/repose/filters
+-rw-r--r--   root /   root /usr/share/repose/filters/extensions-filter-bundle-6.0.2.ear
+-rw-r--r--   root /   root /usr/share/repose/filters/filter-bundle-6.0.2.ear
+--------------------------------------------------------------------------------
+Now:   The permissions were tightened to prevent inadvertent overwriting.
+drwxr-xr-x repose / repose /usr/share/repose/filters
+-r-xr-xr-x repose / repose /usr/share/repose/filters/extensions-filter-bundle-7.0.0-SNAPSHOT.ear
+-r-xr-xr-x repose / repose /usr/share/repose/filters/filter-bundle-7.0.0-SNAPSHOT.ear
+================================================================================
+6.0.2: The permissions on /var/repose and /var/log/repose directory were incorrect and prevented Repose from running as any other user that root.
+drwxr-xr-x   root /   root /var/repose
+drwxr-xr-x   root /   root /var/log/repose
+--------------------------------------------------------------------------------
+Now:   The permissions were set to something a little more appropriate.
+drwxr-x--- repose / repose /var/repose
+drwxr-x--- repose / repose /var/log/repose
+================================================================================
+6.0.2: What is the purpose of this non-standard directory?
+       This should be moved to a more standard place like /var/cache/repose.
+drwxrw---- repose / repose /var/repose
+--------------------------------------------------------------------------------
+Now:   Without it we get:
+java.lang.IllegalStateException: The deployment directory /var/repose does not exist.  Please create the Power API deployment directory.
+================================================================================
+The only difference now between the Debian and RPM installs the Other permissions on /etc/repose.
+--------------------------------------------------------------------------------
+Debian:
+drwxr-xr-x repose / repose /etc/repose
+--------------------------------------------------------------------------------
+RPM:
+drwxr-x--- repose / repose /etc/repose
+================================================================================
+================================================================================
+The CLI Utilities were brought in line with this change too.
+--------------------------------------------------------------------------------
+6.0.2: References to /usr/share/lib along with permissions and root ownership.
+-rwxr-xr-x   root /   root /etc/init.d/dd-remove
+-rwxr-xr-x   root /   root /usr/bin/clean-repose-deploy
+-rw-r--r--   root /   root /usr/share/doc/repose/cli-utils/LICENSE.txt
+-rwxr-xr-x   root /   root /usr/share/lib/repose/repose-cli.jar
+--------------------------------------------------------------------------------
+Now:
+-rwxr-xr-x   root /   root /usr/bin/clean-repose-deploy
+-rwxr-xr-x   root /   root /usr/bin/dd-remove
+-r--r--r--   root /   root /usr/share/doc/repose/cli-utils/LICENSE.txt
+-r-xr-xr-x repose / repose /usr/share/repose/repose-cli.jar
+================================================================================
