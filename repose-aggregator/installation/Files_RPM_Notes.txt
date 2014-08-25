@@ -1,0 +1,141 @@
+================================================================================
+6.0.2: /etc/repose was    drwxrwx--- repose/tomcat and most of the files it contained were -rwxrwx--- repose/repose.
+       A handful were repose/tomcat and others that were -rwxr-x---.
+drwxrwx--- repose / tomcat /etc/repose
+-rwxrwx--- repose / repose /etc/repose/client-auth-n.cfg.xml
+-rwxr-x--- repose / repose /etc/repose/container.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/content-identity-auth-1-1.cfg.xml
+-rwxrwx--- repose / tomcat /etc/repose/dd-remove
+-rwxrwx--- repose / repose /etc/repose/destination-router.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/dist-datastore.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/fail-404.wadl
+-rwxrwx--- repose / repose /etc/repose/header-identity.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/header-id-mapping.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/header-normalization.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/header-translation.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/ip-identity.cfg.xml
+-rwxr-x--- repose / repose /etc/repose/log4j.properties
+-rwxrwx--- repose / repose /etc/repose/openstack-authorization.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/pass.wadl
+-rwxrwx--- repose / repose /etc/repose/rate-limiting.cfg.xml
+-rwxr-x--- repose / repose /etc/repose/response-messaging.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/service-authentication.cfg.xml
+-rwxr-x--- repose / repose /etc/repose/system-model.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/uri-identity.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/uri-normalization.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/uri-stripper.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/validator.cfg.xml
+-rwxrwx--- repose / repose /etc/repose/versioning.cfg.xml
+--------------------------------------------------------------------------------
+Now:   /etc/repose is now drwxr-x--- repose/repose and all  of the files it contains  are  -rw-r----- repose/repose
+drwxr-x--- repose / repose /etc/repose
+-rw-r----- repose / repose /etc/repose/client-auth-n.cfg.xml
+-rw-r----- repose / repose /etc/repose/container.cfg.xml
+-rw-r----- repose / repose /etc/repose/destination-router.cfg.xml
+-rw-r----- repose / repose /etc/repose/dist-datastore.cfg.xml
+-rw-r----- repose / repose /etc/repose/fail-404.wadl
+-rw-r----- repose / repose /etc/repose/header-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-id-mapping.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-normalization.cfg.xml
+-rw-r----- repose / repose /etc/repose/header-translation.cfg.xml
+-rw-r----- repose / repose /etc/repose/ip-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/log4j.properties
+-rw-r----- repose / repose /etc/repose/openstack-authorization.cfg.xml
+-rw-r----- repose / repose /etc/repose/pass.wadl
+-rw-r----- repose / repose /etc/repose/rate-limiting.cfg.xml
+-rw-r----- repose / repose /etc/repose/repose-valve.conf
+-rw-r----- repose / repose /etc/repose/response-messaging.cfg.xml
+-rw-r----- repose / repose /etc/repose/service-authentication.cfg.xml
+-rw-r----- repose / repose /etc/repose/system-model.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-identity.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-normalization.cfg.xml
+-rw-r----- repose / repose /etc/repose/uri-stripper.cfg.xml
+-rw-r----- repose / repose /etc/repose/validator.cfg.xml
+-rw-r----- repose / repose /etc/repose/versioning.cfg.xml
+================================================================================
+6.0.2
+-rw-r--r-- root/root /etc/sysconfig/repose
+--------------------------------------------------------------------------------
+Now
+???
+================================================================================
+6.0.2: The clean-repose-deploy script was installed in both /usr/bin and /usr/local/bin with -rwxrwx--- and -rwxr-xr-x respectively.
+-rwxrwx--- root/root /usr/bin/clean-repose-deploy
+-rwxr-xr-x root/root /usr/local/bin/clean-repose-deploy
+--------------------------------------------------------------------------------
+Now:   It is only installed in the /usr/bin location with -rwxr-xr-x.
+-rwxr-xr-x root/root /usr/bin/clean-repose-deploy
+================================================================================
+6.0.2: Only one license was installed for the entire project.
+-rwxrwx--- repose / repose /usr/share/doc/repose/LICENSE.txt
+--------------------------------------------------------------------------------
+Now:   A license is installed for each module as per standard practice.
+-r--r--r--   root /   root /usr/share/doc/repose-extension-filters/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-filters/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-valve/LICENSE.txt
+-r--r--r--   root /   root /usr/share/doc/repose-war/LICENSE.txt
+================================================================================
+6.0.2: The war used to automatically install in the the Tomcat conatiner.
+drwxrwxr-x   root /   root /var/lib/tomcat7/webapps
+-rw-rw-r--   root /   root /var/lib/tomcat7/webapps/ROOT.war
+--------------------------------------------------------------------------------
+Now:   The local admin will need to link to it.
+       This allows installation without dependence on Tomcat and allows multiple containers on the same machine to use different installed versions.
+drwxr-xr-x repose / repose /usr/share/repose
+-r-xr-xr-x repose / repose /usr/share/repose/repose-7.0.0-SNAPSHOT.war
+================================================================================
+6.0.2: The Valve JAR was installed in the non-standard /usr/share/lib location.
+drwxr-xr-x   root /   root /usr/share/lib/repose
+-rwxr-x--- repose / repose /usr/share/lib/repose/repose-valve.jar
+--------------------------------------------------------------------------------
+Now:   The normalized /usr/share location is used for all modules.
+drwxr-xr-x repose / repose /usr/share/repose
+-r-xr-xr-x repose / repose /usr/share/repose/jetty-runner-9.2.0.v20140526.jar
+-r-xr-xr-x repose / repose /usr/share/repose/servo.jar
+================================================================================
+6.0.2: The permissions of the Filter EAR's contained wright authority.
+drwxrwx--- repose / repose /usr/share/repose/filters
+-rwxrwx--- repose / repose /usr/share/repose/filters/extensions-filter-bundle-6.0.2.ear
+-rwxrwx--- repose / repose /usr/share/repose/filters/filter-bundle-6.0.2.ear
+--------------------------------------------------------------------------------
+Now:   The permissions were tightened to prevent inadvertent overwriting.
+drwxr-xr-x repose / repose /usr/share/repose/filters
+-r-xr-xr-x repose / repose /usr/share/repose/filters/extensions-filter-bundle-7.0.0-SNAPSHOT.ear
+-r-xr-xr-x repose / repose /usr/share/repose/filters/filter-bundle-7.0.0-SNAPSHOT.ear
+================================================================================
+6.0.2: The group had wright permission, but not execute in /var/log/repose.
+drwxrw---- repose / repose /var/log/repose
+--------------------------------------------------------------------------------
+Now:   The permissions were brought up to industry standards.
+drwxr-x--- repose / repose /var/log/repose
+================================================================================
+6.0.2: What is the purpose of this non-standard directory?
+       This should be moved to a more standard place like /var/cache/repose.
+drwxrw---- repose / repose /var/repose
+--------------------------------------------------------------------------------
+Now:   Without it we get:
+java.lang.IllegalStateException: The deployment directory /var/repose does not exist.  Please create the Power API deployment directory.
+================================================================================
+The only difference now between the Debian and RPM installs the Other permissions on /etc/repose.
+--------------------------------------------------------------------------------
+Debian:
+drwxr-xr-x repose / repose /etc/repose
+--------------------------------------------------------------------------------
+RPM:
+drwxr-x--- repose / repose /etc/repose
+================================================================================
+================================================================================
+The CLI Utilities were brought in line with this change too.
+--------------------------------------------------------------------------------
+6.0.2: References to Tomcat and /usr/share/lib along with permissions and root ownership.
+-rwxrwx--- repose / tomcat /etc/repose/dd-remove
+-rwxrwx---   root /   root /usr/bin/clean-repose-deploy
+-rwxrwx--- repose / repose /usr/share/doc/repose/LICENSE.txt
+-rwxr-xr-x   root /   root /usr/share/lib/repose/repose-cli.jar
+--------------------------------------------------------------------------------
+Now:
+-rwxr-xr-x   root /   root /usr/bin/clean-repose-deploy
+-rwxr-xr-x   root /   root /usr/bin/dd-remove
+-r--r--r--   root /   root /usr/share/doc/repose/cli-utils/LICENSE.txt
+-r-xr-xr-x repose / repose /usr/share/repose/repose-cli.jar
+================================================================================
