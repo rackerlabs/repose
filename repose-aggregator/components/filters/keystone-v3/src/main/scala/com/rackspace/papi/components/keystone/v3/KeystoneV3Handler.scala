@@ -256,16 +256,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
-    var returnValue = true
-    if (endpoint.url != keystoneConfig.getServiceEndpoint.getUrl)
-      returnValue = false
-    if ((keystoneConfig.getServiceEndpoint.getRegion != null) && !endpoint.region.exists(_ == keystoneConfig.getServiceEndpoint.getRegion))
-      returnValue = false
-    if ((keystoneConfig.getServiceEndpoint.getName != null) && (keystoneConfig.getServiceEndpoint.getName != endpoint.name))
-      returnValue = false
-    if ((keystoneConfig.getServiceEndpoint.getInterface != null) && !endpoint.interface.exists(_ == keystoneConfig.getServiceEndpoint.getInterface))
-      returnValue = false
-    returnValue
+    (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) &&
+    Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
+    Option(keystoneConfig.getServiceEndpoint.getName).map(_ == endpoint.name).getOrElse(true) &&
+    Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
