@@ -19,11 +19,7 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author fran
@@ -40,7 +36,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted);
 
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
@@ -161,9 +157,10 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
         }
 
-        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                groups, endpointsInBase64);
 
+
+        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                groups, endpointsInBase64, tenanted);
 
         return filterDirector;
     }

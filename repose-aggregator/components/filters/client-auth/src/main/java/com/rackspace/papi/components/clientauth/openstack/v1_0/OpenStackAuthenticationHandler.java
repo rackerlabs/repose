@@ -4,10 +4,13 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.openstack.OpenStackToken;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.*;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +56,24 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         return false;
     }
 
-    private AuthToken validateTenant(AuthToken authToken, String tenantID) {
+    private AuthToken validateTenant(AuthenticateResponse resp, String tenantID) {
+        AuthToken authToken = null;
+        if(resp != null) {
+            authToken = new OpenStackToken(resp);
+        }
+
         if (authToken != null && !roleIsServiceAdmin(authToken) && !authToken.getTenantId().equalsIgnoreCase(tenantID)) {
+            // tenant ID from token did not match URI.
+
+            if (resp.getUser() != null && resp.getUser().getRoles() != null) {
+                for (Role role : resp.getUser().getRoles().getRole()) {
+                    if(tenantID.equalsIgnoreCase(role.getTenantId())) {
+                        //we have the real tenantID
+                        return authToken;
+                    }
+                }
+            }
+
             LOG.error("Unable to validate token for tenant.  Invalid token.");
             return null;
         } else {
@@ -69,7 +88,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         if (account != null) {
             authToken = validateTenant(authenticationService.validateToken(account.getResult(), token), account.getResult());
         } else {
-            authToken = authenticationService.validateToken(null, token);
+            AuthenticateResponse authResp = authenticationService.validateToken(null, token);
+            if(authResp != null) {
+                authToken = new OpenStackToken(authResp);
+            }
         }
 
         /**
@@ -115,10 +137,10 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
             FilterDirector filterDirector,
             String extractedResult,
             List<AuthGroup> groups,
-            String endpointsInBase64) {
+            String endpointsInBase64, boolean tenanted) {
 
         new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult,
-                groups, wwwAuthHeaderContents, endpointsInBase64)
+                groups, wwwAuthHeaderContents, endpointsInBase64, tenanted)
                 .setFilterDirectorValues();
     }
 }

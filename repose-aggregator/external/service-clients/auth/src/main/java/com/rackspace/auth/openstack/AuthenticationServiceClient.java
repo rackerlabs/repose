@@ -80,15 +80,16 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthToken validateToken(String tenant, String userToken) { //this is where we ask auth service if token is valid
+    public AuthenticateResponse validateToken(String tenant, String userToken) { //this is where we ask auth service if token is valid
 
         OpenStackToken token = null;
 
         ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
+        AuthenticateResponse authenticateResponse = null;
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
-                token = getOpenStackToken(serviceResponse);
+                authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                 break;
 
             case NOT_FOUND:
@@ -102,7 +103,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 serviceResponse = validateUser(userToken, tenant, true);
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
-                    token = getOpenStackToken(serviceResponse);
+                    authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                 } else if (serviceResponse.getStatusCode() == HttpStatusCode.NOT_FOUND.intValue()) {
                     LOG.error("Unable to validate token.  Invalid token. " + serviceResponse.getStatusCode());
                 } else {
@@ -117,7 +118,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 throw new AuthServiceException("Unable to validate token. Response from " + targetHostUri + ": " + serviceResponse.getStatusCode());
         }
 
-        return token;
+        return authenticateResponse;
     }
 
     private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant, boolean force) {

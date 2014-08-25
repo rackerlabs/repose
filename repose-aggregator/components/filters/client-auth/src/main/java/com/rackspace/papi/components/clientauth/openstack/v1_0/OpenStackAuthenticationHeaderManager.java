@@ -23,6 +23,7 @@ public class OpenStackAuthenticationHeaderManager {
     private final String authToken;
     private final AuthToken cachableToken;
     private final Boolean isDelagable;
+    private final Boolean isTenanted;
     private final FilterDirector filterDirector;
     private final String tenantId;
     private final Boolean validToken;
@@ -36,7 +37,7 @@ public class OpenStackAuthenticationHeaderManager {
 
     //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
-            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents, String endpointsBase64) {
+            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents, String endpointsBase64, boolean tenanted) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -46,6 +47,7 @@ public class OpenStackAuthenticationHeaderManager {
         this.groups = groups;
         this.wwwAuthHeaderContents = wwwAuthHeaderContents;
         this.endpointsBase64 = endpointsBase64;
+        this.isTenanted = tenanted;
     }
 
     //set header with base64 string here
@@ -116,7 +118,12 @@ public class OpenStackAuthenticationHeaderManager {
     */
     private void setTenant() {
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+        if(!this.isDelagable && !this.isTenanted) {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
+        } else {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), this.tenantId);
+        }
+
     }
 
     /**

@@ -30,18 +30,20 @@ import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
+
+
+
 
 /**
  * @author zinic
@@ -192,12 +194,220 @@ public class OpenStackAuthenticationHandlerTest {
             //Having an empty role list is not valid, they should always have one role
             Role role = new Role();
             role.setName("derpRole");
-            role.setId("9");
+            role.setId("derpRole");
+            role.setTenantId("derpRole");
             role.setDescription("Derp description");
 
             RoleList roleList = new RoleList();
             roleList.getRole().add(role);
             return roleList;
+        }
+
+    }
+    
+    public static class TestXTenantId extends TestParent {
+
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+        Calendar expires;
+        UserForAuthenticateResponse userForAuthenticateResponse;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws Exception {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            expires = getCalendarWithOffset(10000000);
+
+
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+            //building a fake authResponse
+            authResponse = new AuthenticateResponse();
+
+            //building a user to be associated with the response
+            userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
+
+        }
+
+        @Test
+        public void tenantIdFromTokenMatchesURI() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("104772");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void tenantIdFromTokenMatchesAnIdFromRoles() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            Role role1 = new Role();
+            role1.setName("123456");
+            role1.setId("123456");
+            role1.setTenantId("123456");
+            role1.setDescription("Derp description");
+            Role role2 = new Role();
+            role2.setName("104772");
+            role2.setId("104772");
+            role2.setTenantId("104772");
+            role2.setDescription("Derp description");
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role1);
+            roleList.getRole().add(role2);
+            userForAuthenticateResponse.setRoles(roleList);
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("123456");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("104772");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void tenantIDDoesNotMatch() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            //set the roles of the user to defaults
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("badID");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            //this ID doesn't match so we should see FilterAction.RETURN
+            assertThat(director.getFilterAction(),equalTo(FilterAction.RETURN));
+        }
+
+        @Test
+        public void mossoIDTestInToken() {
+            when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
+            //set the roles of the user to defaults
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+
+        @Test
+        public void mossoIDTestInRoles() {
+            when(request.getRequestURI()).thenReturn("/start/MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd/resource");
+            //set the roles of the user to defaults
+            Role role1 = new Role();
+            role1.setName("123456");
+            role1.setId("123456");
+            role1.setTenantId("123456");
+            role1.setDescription("Derp description");
+
+            Role role2 = new Role();
+            role2.setName("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role2.setId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role2.setTenantId("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            role2.setDescription("Derp description");
+
+            RoleList roleList = new RoleList();
+            roleList.getRole().add(role1);
+            roleList.getRole().add(role2);
+            userForAuthenticateResponse.setRoles(roleList);
+
+            //build a token to go along with the auth response
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantID");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+
+            //associate the token and user with the authresponse
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler.handleRequest(request, response);
+
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),notNullValue());
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("MossoCloudFS_aaaa-bbbbbb-ccccc-ddddd");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            //we should see PASS as the filter action
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
         }
 
     }
@@ -218,7 +428,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() throws DatatypeConfigurationException {
+        public void standUp() throws Exception {
             dataTypeFactory = DatatypeFactory.newInstance();
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
@@ -248,7 +458,7 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldCheckCacheForCredentials() throws IOException {
             final AuthToken user = new OpenStackToken(authResponse);
             byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
@@ -260,7 +470,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedUserInfo() {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(user);
 
@@ -274,7 +484,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
             // Wait until token expires
@@ -291,7 +501,7 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldNotUseCachedUserInfoForBadTokenId() {
             authResponse.getToken().setId("differentId");
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(user);
 
@@ -319,7 +529,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() throws DatatypeConfigurationException {
+        public void standUp() throws Exception {
             dataTypeFactory = DatatypeFactory.newInstance();
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
@@ -355,7 +565,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldCheckCacheForGroup() throws IOException {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -366,7 +576,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldUseCachedGroupInfo() {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             final AuthGroup authGroup = new OpenStackGroup(group);
             final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
@@ -385,7 +595,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
             final AuthToken user = new OpenStackToken(authResponse);
-            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -413,7 +623,7 @@ public class OpenStackAuthenticationHandlerTest {
     }
 
     @Before
-    public void standUp() throws DatatypeConfigurationException {
+    public void standUp() throws Exception {
         dataTypeFactory = DatatypeFactory.newInstance();
         when(request.getRequestURI()).thenReturn("/start/104772/resource");
         when(request.getHeader(anyString())).thenReturn("tokenId");
@@ -444,7 +654,7 @@ public class OpenStackAuthenticationHandlerTest {
     @Test
     public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
         final AuthToken user = new OpenStackToken(authResponse);
-        when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+        when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
 
         final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -491,6 +701,9 @@ public class OpenStackAuthenticationHandlerTest {
 
     public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
+        DatatypeFactory dataTypeFactory;
+        Calendar expires;
+
         @Override
         protected boolean delegable() {
             return false;
@@ -502,18 +715,48 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Before
-        public void standUp() {
+        public void standUp() throws Exception {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+            dataTypeFactory = DatatypeFactory.newInstance();
+            expires = getCalendarWithOffset(10000000);
+        }
+
+        public RoleList getTwoRoles() {
+            RoleList roles = new RoleList();
+            Role role1 = new Role();
+            role1.setName("role1");
+            role1.setId("role1");
+            role1.setTenantId("role2");
+            role1.setDescription("role2");
+            roles.getRole().add(role1);
+
+            Role role2 = new Role();
+            role2.setName("role2");
+            role2.setId("role2");
+            role2.setTenantId("role2");
+            role2.setDescription("role2");
+            roles.getRole().add(role2);
+            return roles;
         }
 
         @Test
         public void shouldPassValidCredentials() {
-            final AuthToken token = generateCachableTokenInfo("role1,role2", "tokentokentoken", "username", "12345");
-            when(authService.validateToken(anyString(), anyString())).thenReturn(token);
+            AuthenticateResponse authResp = new AuthenticateResponse();
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setName("username");
+            Token token = new Token();
+            token.setTenant(new TenantForAuthenticateResponse());
+            token.getTenant().setId("12345");
+            token.getTenant().setName("12345");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            authResp.setToken(token);
+            authResp.setUser(user);
+            authResp.getUser().setRoles(getTwoRoles());
+            authResp.getToken().setId("tokentokentoken");
 
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResp);
             final FilterDirector director = handler.handleRequest(request, response);
-
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
