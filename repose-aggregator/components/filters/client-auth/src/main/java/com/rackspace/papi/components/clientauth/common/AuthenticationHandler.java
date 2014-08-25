@@ -36,7 +36,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted);
+    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64, boolean tenanted, boolean sendAllTenantIds);
 
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
@@ -55,6 +55,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final EndpointsConfiguration endpointsConfiguration;
     private static final String REASON = " Reason: ";
     private static final String FAILURE_AUTH_N = "Failure in Auth-N: ";
+    private final boolean sendAllTenantIds;
 
     protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, EndpointsCache endpointsCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
@@ -72,6 +73,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         this.requestGroups = configurables.isRequestGroups();
         this.usrCache = usrCache;
         this.endpointsConfiguration = configurables.getEndpointsConfiguration();
+        this.sendAllTenantIds = configurables.sendingAllTenantIds();
     }
 
     @Override
@@ -160,7 +162,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
 
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
-                groups, endpointsInBase64, tenanted);
+                groups, endpointsInBase64, tenanted, sendAllTenantIds);
 
         return filterDirector;
     }
