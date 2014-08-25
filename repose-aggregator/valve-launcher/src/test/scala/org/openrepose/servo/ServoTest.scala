@@ -55,11 +55,15 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
       })
     }
 
-    def servoConfig(systemModelResource: String)(testFunc: (String, File, Config) => Unit) = {
+    def servoConfig(systemModelResource: String, containerConfigResource:String = "/servoTesting/with-keystore.xml")(testFunc: (String, File, Config) => Unit) = {
       //Create the 1-node system model
       val configRoot = tempDir("servo").toString
       val systemModelContent = resourceContent(systemModelResource)
+      val containerConfigContent = resourceContent(containerConfigResource)
+      val log4jContent = resourceContent("/servoTesting/log4j.properties")
       writeSystemModel(configRoot, systemModelContent)
+      writeContainerConfig(configRoot, containerConfigContent)
+      writeFileContent(new File(configRoot, "log4j.properties"), log4jContent)
 
       //Create a bash script that outputs test data and just runs
       val fakeRepose = resourceContent("/servoTesting/fakeRepose.sh")
@@ -93,7 +97,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
         val logFile = tempFile("log4jlogging", ".log")
         val log4jFile = new File(configRoot, "log4j.properties")
         log4jFile.deleteOnExit()
-        val log4jContent = resourceContent("/servoTesting/log4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
+        val log4jContent = resourceContent("/servoTesting/targetedlog4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
         writeFileContent(log4jFile, log4jContent)
 
         val servo = new Servo()
