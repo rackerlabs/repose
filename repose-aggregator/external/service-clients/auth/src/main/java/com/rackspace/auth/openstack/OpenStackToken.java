@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of AuthToken {@link com.rackspace.auth.AuthToken} to parse the AuthenticationResponse from an Openstack Identity Service
@@ -29,6 +31,7 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String defaultRegion;
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
     private static final QName REGION_QNAME = new QName("http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0", "defaultRegion", "prefix");
+    private final List<String> tenantIds;
 
     public OpenStackToken(AuthenticateResponse response) {
 
@@ -56,6 +59,11 @@ public class OpenStackToken extends AuthToken implements Serializable {
         } else {
             this.impersonatorTenantId = "";
             this.impersonatorUsername = "";
+        }
+
+        tenantIds = new ArrayList();
+        for (Role role : response.getUser().getRoles().getRole()) {
+            tenantIds.add(role.getTenantId());
         }
     }
 
@@ -128,6 +136,9 @@ public class OpenStackToken extends AuthToken implements Serializable {
     public String getImpersonatorUsername() {
         return impersonatorUsername;
     }
+
+    @Override
+    public List<String> getTenantIds() { return tenantIds; }
 
     private UserForAuthenticateResponse getImpersonator(AuthenticateResponse response) {
         if (response.getAny() == null) {
