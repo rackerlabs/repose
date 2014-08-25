@@ -1,6 +1,6 @@
 package org.openrepose.servo.actors
 
-import java.io.File
+import java.io.{FileInputStream, File}
 import java.nio.file.{FileSystems, Path, Paths, StandardWatchEventKinds}
 
 import akka.actor.{Actor, ActorRef, Props}
@@ -21,6 +21,8 @@ object ConfigurationWatcherProtocol {
   case object CheckForChanges
 
 }
+
+case class DirectoryMissingException(message:String, cause:Throwable = null) extends Exception(message,cause)
 
 class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Actor {
 
@@ -65,7 +67,8 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
             }
             case StandardWatchEventKinds.ENTRY_MODIFY => {
               val changed = watchDir.resolve(event.context().asInstanceOf[Path])
-              println(s"changed file is ${changed}")
+              //NOTE: I'm not sure I want to actually use a lock on this, it won't help in JVM testing
+              // And it might cause more problems on the host OS
               val nodeList = if (changed.endsWith("system-model.cfg.xml")) {
                 //Do the systemModel parsing thing
                 val smp = new SystemModelParser(Source.fromFile(changed.toFile).getLines() mkString)
@@ -82,6 +85,7 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
               } else {
                 None
               }
+
               val containerConfig = if (changed.endsWith("container.cfg.xml")) {
                 //Also pay attention to this guy!
                 val ccp = new ContainerConfigParser(Source.fromFile(changed.toFile).getLines() mkString)
@@ -103,14 +107,17 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
             }
           }
         })
+
+        //Here I need to reset the watch key
+        val validKey = watchKey.reset()
+        if(!validKey) {
+          throw DirectoryMissingException("Directory is missing, watch key is not valid any longer!")
+        }
       }
       case None => {
         //meh
       }
     }
-
-    //TODO: where's my valid check, if they delete the directory out from under me, bad things might happen I think
-    // And I'll need to restart this actor ....
 
     //Schedule another wakeup in like 500ms
     //see: http://doc.akka.io/docs/akka/2.2.4/scala/scheduler.html
@@ -121,6 +128,5 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
     context.system.scheduler.scheduleOnce(500 milliseconds) {
       self ! CheckForChanges
     }
-
   }
 }
