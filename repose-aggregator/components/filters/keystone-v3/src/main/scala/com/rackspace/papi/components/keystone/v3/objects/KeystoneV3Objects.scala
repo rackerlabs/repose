@@ -5,7 +5,7 @@ case class DomainsForAuthenticateResponse(id: Option[String] = None,
                                           enabled: Option[Boolean] = None
                                            ) extends Serializable
 
-case class ProjectForAuthenticateResponse(domain: Option[DomainsForAuthenticateResponse] = None,
+case class ProjectForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
                                           id: Option[String] = None,
                                           name: Option[String] = None,
                                           enabled: Option[Boolean] = None
@@ -19,10 +19,10 @@ case class Endpoint(id: String,
                     service_id: Option[String] = None
                      ) extends Serializable
 
-case class Endpoints(endpoints: Option[List[Endpoint]] = None
+case class Endpoints(endpoints: List[Endpoint]
                       ) extends Serializable
 
-case class ServiceForAuthenticationResponse(endpoints: Option[List[Endpoints]] = None,
+case class ServiceForAuthenticationResponse(endpoints: List[Endpoints],
                                             openstackType: String,
                                             id: Option[String] = None
                                              ) extends Serializable
@@ -37,7 +37,7 @@ case class Role(id: Option[String] = None,
                 description: String
                  ) extends Serializable
 
-case class UserForAuthenticateResponse(domain: Option[DomainsForAuthenticateResponse] = None,
+case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
                                        id: Option[String] = None,
                                        name: Option[String] = None,
                                        description: Option[String] = None,
@@ -46,12 +46,12 @@ case class UserForAuthenticateResponse(domain: Option[DomainsForAuthenticateResp
 
 case class AuthenticateResponse(expires_at: String,
                                 issued_at: String,
-                                methods: Option[List[String]] = None,
-                                domain: Option[DomainsForAuthenticateResponse] = None,
-                                project: Option[ProjectForAuthenticateResponse] = None,
-                                catalog: Option[Catalog] = None,
-                                roles: Option[List[Role]] = None,
-                                user: Option[UserForAuthenticateResponse] = None
+                                methods: List[String],
+                                domain: DomainsForAuthenticateResponse,
+                                project: ProjectForAuthenticateResponse,
+                                catalog: Catalog,
+                                roles: List[Role],
+                                user: UserForAuthenticateResponse
                                  ) extends Serializable
 
 case class UserNamePasswordRequest(domain: Option[Domain] = None,
@@ -83,7 +83,7 @@ case class AuthResponse(token: AuthenticateResponse
                          ) extends Serializable
 
 case class Domain(id: Option[String] = None,
-                  name: Option[String] = None,
+                  name: String,
                   enabled: Option[Boolean] = None
                    ) extends Serializable
 
