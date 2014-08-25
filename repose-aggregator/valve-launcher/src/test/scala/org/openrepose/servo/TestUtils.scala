@@ -11,20 +11,21 @@ trait TestUtils {
     Source.fromInputStream(this.getClass.getResourceAsStream(resource)).mkString
   }
 
-  def writeSystemModel(configRoot: String, content: String): Unit = {
+  def writeSystemModel(configRoot: String, content: String):File = {
     val tempFile = new File(configRoot, "system-model.cfg.xml")
     tempFile.deleteOnExit() //Mark it to be clobbered later
     writeFileContent(tempFile, content)
   }
 
-  def writeContainerConfig(configRoot:String, content:String):Unit = {
+  def writeContainerConfig(configRoot:String, content:String):File = {
     val tempFile = new File(configRoot, "container.cfg.xml")
     tempFile.deleteOnExit()
     writeFileContent(tempFile, content)
   }
 
-  def writeFileContent(file: File, content: String): Unit = {
+  def writeFileContent(file: File, content: String):File = {
     Files.write(file.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
+    file
   }
 
 

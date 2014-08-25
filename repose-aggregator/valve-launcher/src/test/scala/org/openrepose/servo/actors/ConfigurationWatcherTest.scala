@@ -1,6 +1,8 @@
 package org.openrepose.servo.actors
 
-import akka.actor.{PoisonPill, ActorSystem}
+import java.io.File
+
+import akka.actor.{Terminated, PoisonPill, ActorSystem}
 import akka.testkit.{TestProbe, EventFilter, ImplicitSender, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
@@ -38,42 +40,41 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     ReposeNode("repose", "repose_node2", "localhost", httpPort = Some(8081), httpsPort = None)
   )
 
+  def cleanConfigDir(configRoot:String):Unit = {
+    val f = new File(configRoot)
+
+    f.listFiles().foreach {f =>
+      f.delete()
+    }
+  }
+
   //This now has to watch a couple configuration files and maintain state
   describe("Configuration Watcher Actor watches the configured directory for changes") {
-    it("will notify when the container configuration has changed with a new configuration message") {
+    it("Notifies on various filesystem changed events") {
       val probe = TestProbe()
       val configRoot = tempDir("servo").toString
 
-      writeSystemModel(configRoot, systemModel1)
+      //Verify a simple system model
       val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
+      writeSystemModel(configRoot, systemModel1)
+      probe.expectMsg(2 second, ConfigurationUpdated(Some(nodeList1), None))
+
+      //add a container configuration, verify new sending
       writeContainerConfig(configRoot, containerConfig1)
+      probe.expectMsg(2 second, ConfigurationUpdated(None, Some(ContainerConfig("log4j.properties", Some(KeystoreConfig("keystore1", "lePassword", "leKeyPassword"))))))
 
-      probe.expectMsg(1 second, ConfigurationUpdated(None, Some(ContainerConfig("log4j.properties", Some(KeystoreConfig("keystore1", "lePassword", "leKeyPassword"))))))
-      smwActor ! PoisonPill
-    }
-    it("will notify when the system model and the container configuration has changed with a new config message") {
-      pending
-    }
-    it("logs a failure if there either a missing system model or a missing container cfg") {
-      pending
-    }
-    it("will notify when the system model has changed with a new configuration message") {
-      //Create an actor and give it a destination and who to tell about changes
-      //TODO: I'm doing something wrong when I need to monitor multiple files :( probably missing events or something.
-      val probe = TestProbe()
-      val configRoot = tempDir("servo").toString
-      //Set up the config directory with a valid System Model
+      //Can't get a dual file configuration message, the watcher loop is too short....
+      //Have to delete the files, because of threaded concurrent access within the JVM
+      cleanConfigDir(configRoot)
 
-      val smwActor = system.actorOf(ConfigurationWatcher.props(configRoot, probe.ref))
+      writeSystemModel(configRoot, systemModel2)
+      probe.expectMsg(2 second, ConfigurationUpdated(Some(nodeList2), None))
 
-      writeSystemModel(configRoot, systemModel1)
-      //expect a message from the actor notifying us of repose local nodes
-      //I can just send a List[ReposeNode] I don't need any other info
-      probe.expectMsg(1 second, ConfigurationUpdated(Some(nodeList1), None))
+      writeContainerConfig(configRoot, containerConfig2)
+      probe.expectMsg(2 second, ConfigurationUpdated(None, Some(ContainerConfig("log4j.properties", None))))
 
       smwActor ! PoisonPill
     }
-
     it("will not notify if there are no changes") {
       val probe = TestProbe()
       //Create an actor and give it a destination and who to tell about changes
