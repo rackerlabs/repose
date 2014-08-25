@@ -23,9 +23,7 @@ trait BaseNodeStoreTest {
   //Create a props that the other actor can use to "start stuff"
   def testStartActorProps(node: ReposeNode, probe: ActorRef) = TestReposeNodeActor.props(node, probe)
 
-  //TODO: finish defining a function to hand to the thing to create an actor
   def propsFunc(probe: ActorRef): LauncherPropsFunction = { node: ReposeNode =>
     testStartActorProps(node, probe)
   }
-
 }
