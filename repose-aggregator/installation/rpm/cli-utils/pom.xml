@@ -67,11 +67,18 @@
                             <mappings>
                                 <!-- The jar file -->
                                 <mapping>
-                                    <directory>/usr/share/repose</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-
+                                    <directory>
+                                        /usr/share/repose
+                                    </directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <!-- TODO: Should probably be root/root -->
+                                    <username>
+                                        repose
+                                    </username>
+                                    <groupname>
+                                        repose
+                                    </groupname>
+                                    <filemode>555</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -85,11 +92,10 @@
 
                                 <!-- The start script -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>repose</groupname>
+                                    <directory>
+                                        /usr/bin
+                                    </directory>
                                     <filemode>755</filemode>
-
                                     <sources>
                                         <source>
                                             <location>
@@ -101,7 +107,9 @@
 
                                 <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/usr/bin</directory>
+                                    <directory>
+                                        /usr/bin
+                                    </directory>
                                     <filemode>755</filemode>
 
                                     <sources>
@@ -115,7 +123,9 @@
 
                                 <!--This adds the license file on installation.-->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
+                                    <directory>
+                                        /usr/share/doc/repose/${project.artifactId}/
+                                    </directory>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>444</filemode>
@@ -135,7 +145,7 @@
                             </obsoletes>
 
                             <requires>
-                                <require>repose</require>
+                                <require>java &gt;= 1.7.0</require>
                             </requires>
                             <group>Applications/Internet</group>
                         </configuration>
