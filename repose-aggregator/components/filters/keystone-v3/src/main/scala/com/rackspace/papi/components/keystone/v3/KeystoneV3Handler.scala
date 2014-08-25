@@ -62,20 +62,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             val headerManager = filterDirector.requestHeaderManager()
 
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
-            tokenObject.user.map { u =>
-              u.id.map { id =>
-                headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
-                headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
-              }
-              u.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
+            tokenObject.user.id.map { id =>
+              headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
+              headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
             }
-            tokenObject.project.map { p =>
-              p.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
-              p.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
-            }
-            tokenObject.roles.map { roleList =>
-              headerManager.putHeader(KeystoneV3Headers.X_ROLES, roleList.map(_.name) mkString ",")
-            }.getOrElse(LOG.warn("Token '" + subjectToken + "' is not associated with any role"))
+            tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
+            tokenObject.project.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
+            tokenObject.project.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
+            headerManager.putHeader(KeystoneV3Headers.X_ROLES, tokenObject.roles.map(_.name) mkString ",")
             headerManager.putHeader(KeystoneV3Headers.X_ROLES.toString, /* TODO */ "")
             headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             // TODO: Set X-Impersonator-Name, need to check response for impersonator (is this an extension?)
