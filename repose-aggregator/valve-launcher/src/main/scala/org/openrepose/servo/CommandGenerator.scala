@@ -1,6 +1,10 @@
 package org.openrepose.servo
 
+import org.slf4j.LoggerFactory
+
 class CommandGenerator(baseCommand:Seq[String], configRoot: String, launcherPath: String, warPath: String) {
+
+  val LOG = LoggerFactory.getLogger(classOf[CommandGenerator])
 
   def commandLine(node: ReposeNode): Seq[String] = {
     val systemProps = Seq(
@@ -24,6 +28,8 @@ class CommandGenerator(baseCommand:Seq[String], configRoot: String, launcherPath
       }
     }
 
-    baseCommand ++ systemProps ++ Seq("-jar", launcherPath) ++ jettyParams ++ Seq(warPath)
+    val command = baseCommand ++ systemProps ++ Seq("-jar", launcherPath) ++ jettyParams ++ Seq(warPath)
+    LOG.debug("Full generated command: {}", command)
+    command
   }
 }
