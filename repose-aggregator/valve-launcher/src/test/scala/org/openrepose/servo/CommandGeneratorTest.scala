@@ -20,6 +20,14 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
       cg.commandLine(node) shouldBe Seq("java", "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", "-Dpowerapi-config-directory=/config/root",
         "-jar", "/path/to/launcher", "--port", "8080", "/path/to/war")
     }
+    it("generates a proper command line when given a container config with a keystore") {
+      //This would include the configuration file generated.
+      pending
+    }
+
+    it("generates a proper command line when told to operate insecurely") {
+      pending
+    }
     it("generates a proper command line for a node with an HTTPS port") {
       pending
     }
