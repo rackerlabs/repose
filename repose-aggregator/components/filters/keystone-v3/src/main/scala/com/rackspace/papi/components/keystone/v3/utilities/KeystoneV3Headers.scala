@@ -12,4 +12,7 @@ object KeystoneV3Headers {
   final val X_TOKEN_EXPIRES = "X-Token-Expires"
   final val X_SUBJECT_TOKEN = "X-Subject-Token"
   final val WWW_AUTHENTICATE = "WWW-Authenticate"
+
+  final val X_AUTH_PROXY = "Proxy"
+  final val X_DELEGATED = "Delegated"
 }

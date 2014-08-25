@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, PowerApiHeader, ServiceClientResponse}
+import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
@@ -35,6 +35,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private lazy val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
   private lazy val tokenCacheTtl = keystoneConfig.getTokenCacheTimeout
   private lazy val cacheOffset = keystoneConfig.getCacheOffset
+  private lazy val forwardUnauthorizedRequests = keystoneConfig.isForwardUnauthorizedRequests
   private lazy val datastore = datastoreService.getDefaultDatastore
 
   private[v3] var cachedAdminToken: String = null
@@ -50,8 +51,49 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
   }
 
+    override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    LOG.debug("Keystone v3 Handling Response. Incoming status code: " + response.getStatus)
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
+    val responseStatus = response.getStatus
+    filterDirector.setResponseStatusCode(responseStatus)
+
+    /// The WWW Authenticate header can be used to communicate to the client
+    // (since we are a proxy) how to correctly authenticate itself
+    val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString))
+
+    HttpStatusCode.fromInt(responseStatus) match {
+      // NOTE: We should only mutate the WWW-Authenticate header on a
+      // 401 (unauthorized) or 403 (forbidden) response from the origin service
+      case HttpStatusCode.FORBIDDEN | HttpStatusCode.UNAUTHORIZED =>
+        // If in the case that the origin service supports delegated authentication
+        // we should then communicate to the client how to authenticate with us
+        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(KeystoneV3Headers.X_DELEGATED)) {
+          filterDirector.responseHeaderManager.putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Keystone uri=" + keystoneServiceUri)
+        } else {
+          // In the case where authentication has failed and we did not receive
+          // a delegated WWW-Authenticate header, this means that our own authentication
+          // with the origin service has failed and must then be communicated as
+          // a 500 (internal server error) to the client
+          LOG.error("Authentication with the origin service has failed.")
+          filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        }
+      case HttpStatusCode.NOT_IMPLEMENTED =>
+        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(KeystoneV3Headers.X_DELEGATED)) {
+          LOG.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
+          filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
+        } else {
+          filterDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED)
+        }
+      case _ => ()
+    }
+
+    LOG.debug("Keystone v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    filterDirector
+  }
+
   private def authenticate(request: HttpServletRequest) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
+    val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
@@ -59,9 +101,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       case Some(subjectToken) =>
         validateSubjectToken(subjectToken) match {
           case Success(tokenObject: AuthenticateResponse) =>
-            val headerManager = filterDirector.requestHeaderManager()
-
-            headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, "Proxy") // TODO: Add the project ID if verified (not in-scope)
+            headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.id.map { id =>
               headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
               headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
@@ -76,14 +116,19 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             // TODO: Set X-Impersonator-Id, same as above
             // TODO: Set X-Catalog, need to base64 encode
             // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
-            // TODO: Set X-Identity-Status, only set if in forward-unauthorized-requests mode (confirmed here)
+            if (forwardUnauthorizedRequests) headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
             // TODO: Set X-PP-Groups, requires an API call to groups
 
             filterDirector.setFilterAction(FilterAction.PASS)
           case Failure(e: InvalidSubjectTokenException) =>
-            // TODO: Set X-Identity-Status, only set if in forward-unauthorized-requests mode (indeterminate here)
-            filterDirector.responseHeaderManager.putHeader(KeystoneV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + keystoneConfig.getKeystoneService.getUri)
-            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+            if (forwardUnauthorizedRequests) {
+              headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+              headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+              filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+            } else {
+              filterDirector.responseHeaderManager.putHeader(KeystoneV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + keystoneServiceUri)
+              filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+            }
           case Failure(e: KeystoneServiceException) =>
             LOG.error("Keystone v3 failure: " + e.getMessage)
           case Failure(e: InvalidAdminCredentialsException) =>

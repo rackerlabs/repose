@@ -4,9 +4,10 @@ import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.MediaType
 
-import com.mockrunner.mock.web.MockHttpServletRequest
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
+import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
+import com.rackspace.papi.commons.util.http.header.HeaderName
+import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, WhiteList}
 import com.rackspace.papi.components.keystone.v3.objects._
@@ -20,7 +21,7 @@ import org.hamcrest.Matchers.{equalTo, lessThanOrEqualTo}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyInt, anyMap, anyString, argThat, contains, intThat}
+import org.mockito.Matchers.{any, anyMap, anyString, argThat, contains, intThat}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -79,6 +80,63 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
       keystoneV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.RETURN
       keystoneV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus should be theSameInstanceAs HttpStatusCode.UNAUTHORIZED
+    }
+  }
+
+  describe("handleResponse") {
+    // TODO: Get this to work, or make it a system level test
+    ignore("should set the appropriate response status") {
+      val mockServletRequest = new MockHttpServletRequest()
+      val mockServletResponse = new MockHttpServletResponse()
+
+      val responseStatus = "response-status-key"
+      val responseWwwAuthenticate = "response-www-authenticate"
+      val resultStatus = "result-status"
+      val resultWwwAuthenticate = "result-www-authenticate"
+
+      List(
+        Map(
+          responseStatus -> HttpStatusCode.OK,
+          resultStatus -> HttpStatusCode.OK
+        ),
+        Map(
+          responseStatus -> HttpStatusCode.FORBIDDEN,
+          responseWwwAuthenticate -> KeystoneV3Headers.X_DELEGATED,
+          resultStatus -> HttpStatusCode.FORBIDDEN,
+          resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
+        ),
+        Map(
+          responseStatus -> HttpStatusCode.UNAUTHORIZED,
+          responseWwwAuthenticate -> KeystoneV3Headers.X_DELEGATED,
+          resultStatus -> HttpStatusCode.FORBIDDEN,
+          resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
+        ),
+        Map(
+          responseStatus -> HttpStatusCode.UNAUTHORIZED,
+          resultStatus -> HttpStatusCode.INTERNAL_SERVER_ERROR
+        ),
+        Map(
+          responseStatus -> HttpStatusCode.NOT_IMPLEMENTED,
+          responseWwwAuthenticate -> KeystoneV3Headers.X_DELEGATED,
+          resultStatus -> HttpStatusCode.INTERNAL_SERVER_ERROR
+        ),
+        Map(
+          responseStatus -> HttpStatusCode.NOT_IMPLEMENTED,
+          resultStatus -> HttpStatusCode.NOT_IMPLEMENTED
+        )
+      ).map { parameterMap =>
+        mockServletResponse.setStatus(parameterMap.get(responseStatus).get.asInstanceOf[HttpStatusCode].intValue)
+        if (parameterMap.get(responseWwwAuthenticate).isDefined) {
+          mockServletResponse.addHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, parameterMap.get(responseWwwAuthenticate).get.asInstanceOf[String])
+        }
+
+        val responseFilterDirector = keystoneV3Handler.handleResponse(mockServletRequest, MutableHttpServletResponse.wrap(mockServletRequest, mockServletResponse))
+
+        responseFilterDirector.getResponseStatus shouldBe parameterMap.get(resultStatus).get
+        if (parameterMap.get(resultWwwAuthenticate).isDefined) {
+          responseFilterDirector.responseHeaderManager().headersToAdd().get(HeaderName.wrap(CommonHttpHeader.WWW_AUTHENTICATE.toString)) should contain(parameterMap.get(resultWwwAuthenticate).get)
+        }
+      }
     }
   }
 
