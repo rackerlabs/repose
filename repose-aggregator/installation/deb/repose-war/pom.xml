@@ -100,7 +100,6 @@
                                                     repose
                                                 </group>
                                                 <filemode>555</filemode>
-                                                <dirmode>755</dirmode>
                                             </mapper>
                                             <src>
                                                 ${project.build.directory}/web-application-${project.version}.war
