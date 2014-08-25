@@ -2,7 +2,8 @@ package org.openrepose.servo.actors
 
 import java.util.UUID
 
-import akka.actor.{PoisonPill, Props, ActorRef, Actor}
+import akka.actor.SupervisorStrategy.Escalate
+import akka.actor._
 import akka.event.Logging
 import org.openrepose.servo.{ContainerConfig, ReposeNode}
 import org.openrepose.servo.actors.NodeStoreMessages.{ConfigurationUpdated, Initialize}
@@ -29,6 +30,12 @@ object NodeStoreMessages {
 
 class NodeStore(actorPropsFunction: LauncherPropsFunction) extends Actor {
   val log = Logging(context.system, this)
+
+  //Define a supervision strategy
+  //If anything goes wrong, we escalate that sucker
+  override val supervisorStrategy = OneForOneStrategy() {
+    case _: Exception => Escalate
+  }
 
   log.info("NODE STORE TURNED ON")
 

@@ -32,7 +32,8 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
     TestKit.shutdownActorSystem(system)
   }
 
-  def launcherProps(preOpts:Seq[String], env:Map[String,String] = Map.empty[String,String]):Props = {
+  def launcherProps(preOpts: Seq[String],
+                    env: Map[String, String] = Map.empty[String, String]): Props = {
     val cg = new CommandGenerator(preOpts ++ Seq("--"), "configRoot", "launcherPath", "warFile")
     ReposeLauncher.props(cg.commandLine(testNode), env)
   }
@@ -46,12 +47,9 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       //create an actor with that command
       val props = launcherProps(Seq("bash", "-c", "sleep 1"))
 
-      //Won't actually start until the initialize is sent
+      //As soon as you create one of these, it's fired up!
       val actor = system.actorOf(props)
       probe.watch(actor)
-
-      //TODO: if I can get the entire command in there, it won't need to start with an initialize any longer
-      actor ! Initialize(testNode)
 
       probe.expectMsgPF(3 seconds) {
         case Terminated(theActor) => {
@@ -63,31 +61,28 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo 'lololol'"))
 
-      val actor = system.actorOf(props)
-
       EventFilter.info(pattern = ".*lololol.*", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
     }
     it("sets the command line parameter --port when given an HTTP port (not https)") {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo $@"))
 
-      val actor = system.actorOf(props)
       EventFilter.info(pattern = "--port 8080", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
     }
     it("has the war file path at the end") {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo $@"))
 
-      val actor = system.actorOf(props)
       EventFilter.info(pattern = "warFile$", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
     }
     it("Generates the necessary jetty configuration when given an HTTPS port (not http)") {
+      //The command generator will have to produce these resources
       //TODO: how does this even work?
       // I have to generate a jetty configuration file and pass it to the launcher for this part
       // But that also means I have to find a SSL cert and SSL key, no clue how existing repose got those...
@@ -100,17 +95,14 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val probe = TestProbe()
       val props = launcherProps(List("bash", "-c", "echo $ENV_VAR"), Map("ENV_VAR" -> "LOLWUT"))
 
-      val actor = system.actorOf(props)
-
       EventFilter.info(message = "LOLWUT", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
     }
     it("sets the system properties: repose-node-id, repose-cluster-id and powerapi-config-directory") {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo $@", "--"))
 
-      val actor = system.actorOf(props)
 
       EventFilter.custom({
         case Info(ref, clazz, msg: String)
@@ -118,7 +110,7 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
             msg.contains("-Drepose-cluster-id") &&
             msg.contains("-Dpowerapi-config-directory") => true
       }, 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
 
 
@@ -127,10 +119,9 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo >&2 'standardError'"))
 
-      val actor = system.actorOf(props)
 
       EventFilter.warning("standardError", occurrences = 1) intercept {
-        actor ! Initialize(testNode)
+        val actor = system.actorOf(props)
       }
     }
     it("terminates the command and closes the streams when dying") {
@@ -144,9 +135,6 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       val props = launcherProps(Seq("bash", "-c", "while true; do echo 'test' >> " + fileName + "; sleep 0.1; done"))
 
       val actor = system.actorOf(props)
-
-      //Turn it on, it should start doing stuff
-      actor ! Initialize(testNode)
 
       //Give it a bit of time to do a couple things
       Thread.sleep(500)
@@ -188,13 +176,9 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
 
       val props = launcherProps(Seq("bash", "-c", "exit 1"))
 
-      val actor = otherSystem.actorOf(props)
-
-      probe.watch(actor)
-
       //This is a bit more gross when you can't use the implicit actor system
-      EventFilter.error("Repose Node Execution terminated abnormally. Value: 1", occurrences = 1).
-        intercept(actor ! Initialize(testNode))(otherSystem)
+      val actor = EventFilter.error("Repose Node Execution terminated abnormally. Value: 1", occurrences = 1).
+        intercept(probe.watch(otherSystem.actorOf(props)))(otherSystem)
 
       //Expect death watch to note that it died
       probe.expectMsgPF(3 seconds) {

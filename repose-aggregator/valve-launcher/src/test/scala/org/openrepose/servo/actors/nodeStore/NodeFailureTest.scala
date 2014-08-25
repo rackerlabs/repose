@@ -2,8 +2,10 @@ package org.openrepose.servo.actors.nodeStore
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
+import org.apache.log4j.BasicConfigurator
 import org.junit.runner.RunWith
 import org.openrepose.servo.actors.NodeStore
+import org.openrepose.servo.actors.NodeStoreMessages.ConfigurationUpdated
 import org.openrepose.servo.{ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSpecLike, Matchers}
@@ -26,13 +28,11 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
   describe("The Node Store when a node fails") {
     it("passes the exception up so it gets to the guardian") {
+      BasicConfigurator.configure()
       val probe = TestProbe()
 
-      //TODO: make this a function
-      val failureProps = FailureTestActor.props(probe.ref)
-
       val nodeStoreProps = NodeStore.props({ node:ReposeNode =>
-        failureProps
+        FailureTestActor.props(node, probe.ref)
       })
 
       val nodeStore = system.actorOf(nodeStoreProps)
@@ -40,7 +40,7 @@ with FunSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll with T
 
       watch(nodeStore)
 
-      nodeStore ! nodeList1
+      nodeStore ! ConfigurationUpdated(Some(nodeList1), Some(containerConfig1))
 
       expectMsgPF() {
         case t@Terminated(actor) => {
