@@ -368,7 +368,7 @@ class MockKeystoneV3Service {
                 userid      : client_userid,
                 username    : client_username,
                 domainid    : client_domainid,
-                domainname  : client_domainname
+                domainname  : client_domainname,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
 
@@ -415,7 +415,6 @@ class MockKeystoneV3Service {
                 domainid    : client_domainid,
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
-
         ]
         def template;
         def headers = [:];

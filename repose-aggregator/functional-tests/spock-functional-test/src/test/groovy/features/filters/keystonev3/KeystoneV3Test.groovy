@@ -15,11 +15,12 @@ class KeystoneV3Test extends ReposeValveTest{
     def static identityEndpoint
     def static MockKeystoneV3Service fakeKeystoneV3Service
 
-    def setupSpect(){
+    def setupSpec() {
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev3/common",params)
+        repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
