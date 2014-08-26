@@ -9,6 +9,8 @@ import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/26/14.
+ * This test verify when user token having multi-tenant client-auth filter will retrieve
+ * all tenants and put in multi x-tenant-id in headers
  */
 class MultiTenantHeaderTest extends ReposeValveTest{
 
@@ -46,7 +48,7 @@ class MultiTenantHeaderTest extends ReposeValveTest{
     }
 
     @Unroll("#defaultTenant, #secondTenant, #requestTenant ")
-    def "When user token have multi-tenant will retrieve all tenant in the header" () {
+    def "When user token have multi-tenant will retrieve all tenants in the header" () {
         given:
         fakeIdentityService.with {
             client_token = clientToken
