@@ -132,7 +132,7 @@ public class LocationHeaderBuilderTest {
             
         }
 		
-		@Test
+        @Test
         public void shouldKeepQueryPart() throws MalformedURLException {
             // original request http://myhost.com/test?param=value
             when(originalRequest.getServerName()).thenReturn("myhost.com");
