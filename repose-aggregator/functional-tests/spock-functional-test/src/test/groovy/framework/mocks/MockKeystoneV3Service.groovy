@@ -7,7 +7,6 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scala.util.parsing.combinator.testing.Str
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -21,9 +20,28 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MockKeystoneV3Service {
 
-    private static final String X_AUTH_TOKEN_HEADER = "X-Auth-Token"
-    private static final String X_SUBJECT_TOKEN_HEADER = "X-Subject-Token"
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    public MockKeystoneV3Service(int identityPort, int originServicePort) {
+
+        resetHandlers()
+
+        this.port = identityPort
+        this.originServicePort = originServicePort
+
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+        Schema schema = factory.newSchema(
+                new StreamSource(MockKeystoneV3Service.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+
+
+        this.validator = schema.newValidator();
+    }
+
+    int port
+    int originServicePort
+
+    final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    boolean isTokenValid = true;
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
@@ -31,18 +49,6 @@ class MockKeystoneV3Service {
     protected AtomicInteger _getProjectsCount = new AtomicInteger(0);
     protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
     protected AtomicInteger _getUserRolesOnDomainCount = new AtomicInteger(0);
-
-    public MockIdentityKeystoneV3Service(int identityPort, int originServicePort) {
-        resetHandlers()
-
-        this.port = identityPort
-        this.originServicePort = originServicePort
-    }
-
-    int port
-    int originServicePort
-
-    boolean isTokenValid = true;
 
     void resetCounts() {
 
@@ -425,10 +431,6 @@ class MockKeystoneV3Service {
         def body = templateEngine.createTemplate(template).make(params);
         return new Response(200, null, headers, body);
     }
-
-    // token is in header and not part of response data
-    def identitySuccessRespHeader = ['Content-Type': 'application/json',
-                                     'X-Subject-Token': ${token}]
 
     // successful authenticate response /v3/auth/tokens?nocatalog
     def identitySuccessJsonRespTemplate = """
