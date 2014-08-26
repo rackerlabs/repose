@@ -85,7 +85,7 @@ class PassClientDefaulRegionInHeaderTest extends ReposeValveTest {
         mc.handlings[0].endpoint == originEndpoint
         def request = mc.handlings[0].request
         request.headers.contains("X-Default-Region")
-        request.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request.headers.getFirstValue("X-Default-Region") == "the-default-regions"
         
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityService.resetCounts()
