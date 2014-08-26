@@ -7,7 +7,7 @@ import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
-class ReposeContainerLauncher extends AbstractReposeLauncher {
+class ReposeContainerLauncher extends ReposeLauncher {
 
     int reposePort
 
@@ -18,6 +18,7 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
     String rootWarLocation
     String[] appWars
     String debugPort
+    def classPaths =[]
 
     def boolean debugEnabled = true
 
@@ -135,4 +136,13 @@ class ReposeContainerLauncher extends AbstractReposeLauncher {
         return TestUtils.getJvmProcesses().contains("ROOT.war")
     }
 
+    @Override
+    void enableDebug() {
+        this.debugEnabled = true
+    }
+
+    @Override
+    void addToClassPath(String path){
+        classPaths.add(path)
+    }
 }
