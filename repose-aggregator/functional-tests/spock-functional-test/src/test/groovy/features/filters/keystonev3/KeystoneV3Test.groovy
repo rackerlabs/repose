@@ -25,7 +25,7 @@ class KeystoneV3Test extends ReposeValveTest{
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'keystone service', null,fakeKeystoneV3Service.handler)
+                'identity service', null,fakeKeystoneV3Service.handler)
     }
 
     def cleanupSpec() {
@@ -41,10 +41,7 @@ class KeystoneV3Test extends ReposeValveTest{
         fakeKeystoneV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            generateTokenHandler = {
-                request ->
-                    new Response(200, null, null, fakeKeystoneV3Service.identitySuccessJsonFullRespTemplate)
-            }
+            client_domainid = reqDomain
         }
 
         when: "User passes a request through repose"
@@ -53,7 +50,8 @@ class KeystoneV3Test extends ReposeValveTest{
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
-                        'X-Auth-Token': fakeKeystoneV3Service.client_token
+                        'X-Auth-Token': fakeKeystoneV3Service.client_token,
+                        'X-Subject-Token': fakeKeystoneV3Service.client_token
                 ]
         )
 
