@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_0.dtd">
+
+<!-- Reference http://git.eclipse.org/c/jetty/org.eclipse.jetty.project.git/plain/jetty-server/src/main/config/etc/jetty-ssl.xml -->
+<!-- ============================================================= -->
+<!-- Configure a TLS (SSL) Context Factory                         -->
+<!-- This configuration must be used in conjunction with jetty.xml -->
+<!-- and either jetty-https.xml or jetty-spdy.xml (but not both)   -->
+<!-- ============================================================= -->
+<Configure id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
+    <Set name="KeyStorePath">/config/root/keystore</Set>
+    <Set name="KeyStorePassword">testKeyStorePassword</Set>
+    <Set name="KeyManagerPassword">testKeyPassword</Set>
+    <!-- our config doesn't set any trust store or anything else -->
+    <!-- our config doesn't exclude any ciphers -->
+</Configure>
