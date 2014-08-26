@@ -25,7 +25,7 @@
 
         <project.set.dir>${project.basedir}/../..</project.set.dir>
 
-        <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
+        <repose.valve.dir>${project.set.dir}/valve-launcher/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
