@@ -7,6 +7,8 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class JettyConfigGeneratorTest extends FunSpec with Matchers{
 
+  //Reference: http://git.eclipse.org/c/jetty/org.eclipse.jetty.project.git/plain/jetty-server/src/main/config/etc/
+
   describe("Jetty configuration generator for a ReposeNode and a container.cfg.xml") {
     it("generates a ssl-config.xml when given a Keystore Config") {
       pending
