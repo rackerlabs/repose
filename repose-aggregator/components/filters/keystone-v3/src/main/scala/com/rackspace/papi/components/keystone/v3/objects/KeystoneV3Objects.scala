@@ -47,10 +47,10 @@ case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
 case class AuthenticateResponse(expires_at: String,
                                 issued_at: String,
                                 methods: List[String],
-                                domain: DomainsForAuthenticateResponse,
-                                project: ProjectForAuthenticateResponse,
-                                catalog: Catalog,
-                                roles: List[Role],
+                                domain: Option[DomainsForAuthenticateResponse],
+                                project: Option[ProjectForAuthenticateResponse],
+                                catalog: Option[Catalog],
+                                roles: Option[List[Role]],
                                 user: UserForAuthenticateResponse
                                  ) extends Serializable
 
