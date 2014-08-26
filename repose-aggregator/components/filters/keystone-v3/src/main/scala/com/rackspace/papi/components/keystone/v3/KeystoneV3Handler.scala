@@ -41,7 +41,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private[v3] var cachedAdminToken: String = null
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList.getUriPattern.asScala.toList)) {
+    if (isUriWhitelisted(request.getRequestURI, Option(keystoneConfig.getWhiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String]))) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       val filterDirector: FilterDirector = new FilterDirectorImpl()
       filterDirector.setFilterAction(FilterAction.PASS)
