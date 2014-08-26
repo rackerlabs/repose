@@ -73,6 +73,7 @@ class Servo {
      */
     val fancyString =
       """
+        |
         |  ███████╗███████╗██████╗ ██╗   ██╗ ██████╗
         |  ██╔════╝██╔════╝██╔══██╗██║   ██║██╔═══██╗  I'm in your base,
         |  ███████╗█████╗  ██████╔╝██║   ██║██║   ██║  launching your Valves.
@@ -129,7 +130,7 @@ class Servo {
         LOG.warn("DID NOT FIND LOG4J CONFIGURATION, FALLING BACK TO BASIC CONFIG")
         LOG.warn("YOU PROBABLY DON'T WANT THIS. MAKE A log4j.properties!")
       }
-      LOG.info("Logging system initialized!")
+      LOG.info(fancyString)
 
       //Got a valid config
       //output the info so we know about it
