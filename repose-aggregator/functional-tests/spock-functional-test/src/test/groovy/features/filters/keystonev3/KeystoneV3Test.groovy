@@ -35,13 +35,17 @@ class KeystoneV3Test extends ReposeValveTest{
             repose.stop()
     }
 
-    def "Test send request with admin token" () {
+    def "Test send request with user token" () {
         given:
         def reqDomain = fakeKeystoneV3Service.client_domainid
+        def reqUserId = fakeKeystoneV3Service.client_userid
+
         fakeKeystoneV3Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_domainid = reqDomain
+            service_admin_role = "not-admin"
+            client_userid = reqUserId
         }
 
         when: "User passes a request through repose"
