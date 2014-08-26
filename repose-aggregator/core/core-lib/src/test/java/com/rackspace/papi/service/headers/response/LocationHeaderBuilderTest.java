@@ -131,6 +131,27 @@ public class LocationHeaderBuilderTest {
             verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
             
         }
+		
+		@Test
+        public void shouldKeepQueryPart() throws MalformedURLException {
+            // original request http://myhost.com/test?param=value
+            when(originalRequest.getServerName()).thenReturn("myhost.com");
+            when(originalRequest.getServerPort()).thenReturn(80);
+            when(originalRequest.getContextPath()).thenReturn("");
+            
+            // destination http://otherhost.com/mocks/test?param=value
+            final String destUri = "http://otherhost.com/mocks/test?param=value";
+            final String requestedContext = "";
+            final String rootPath = "/mocks";
+            
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test?param=value");
+            
+            instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+            
+            final String expected = "http://myhost.com/test?param=value";
+            verify(response).setHeader(eq(CommonHttpHeader.LOCATION.name()), eq(expected));
+            
+        }
         
         
     }
