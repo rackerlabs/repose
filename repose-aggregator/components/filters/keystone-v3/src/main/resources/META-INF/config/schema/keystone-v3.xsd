@@ -3,7 +3,11 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/keystone-v3/v1.0"
-           targetNamespace="http://docs.openrepose.org/keystone-v3/v1.0">
+           targetNamespace="http://docs.openrepose.org/keystone-v3/v1.0"
+           elementFormDefault="qualified">
+
+    <!-- Elements -->
+    <xs:element name="keystone-v3" type="KeystoneV3Config"/>
 
     <!-- Types -->
     <xs:complexType name="KeystoneV3Config">
@@ -14,8 +18,8 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="keystone-service" type="OpenstackKeystoneService" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="white-list" type="WhiteList" minOccurs="0"/>
+            <xs:element name="keystone-service" type="OpenstackKeystoneService"/>
             <!-- TODO -->
         </xs:all>
 
@@ -112,7 +116,4 @@
             <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <!-- Elements -->
-    <xs:element name="keystone-v3" type="KeystoneV3Config"/>
 </xs:schema>
