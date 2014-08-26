@@ -2,7 +2,11 @@ package org.openrepose.servo
 
 import org.slf4j.LoggerFactory
 
-class CommandGenerator(baseCommand:Seq[String], configRoot: String, launcherPath: String, warPath: String) {
+class CommandGenerator(baseCommand: Seq[String],
+                       configRoot: String,
+                       launcherPath: String,
+                       warPath: String,
+                       keystoreConfig: Option[KeystoreConfig] = None) {
 
   val LOG = LoggerFactory.getLogger(classOf[CommandGenerator])
 
