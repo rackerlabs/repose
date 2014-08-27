@@ -22,7 +22,6 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
     it("generates a proper command line from a base command, a node, a configurationRoot, a war path, and a launcher path") {
       val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath)
 
-
       cg.commandLine(node) shouldBe Seq("java", "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir",
         "-jar", "/path/to/launcher", "--port", "8080", "/path/to/war")
     }
