@@ -200,7 +200,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
               |jvmOpts = "some jvm options would be here ALERT!"
             """.stripMargin).withFallback(config)
 
-          //Not logging the JVM_OPTS warning, it's just going to system out
+          //Not logging the JVM_OPTS warning, it's just going to system err
           val stdErr = new ByteArrayOutputStream()
           val stdErrStream = new PrintStream(stdErr)
 
@@ -218,6 +218,67 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
           stdErrOutput shouldNot be("")
           stdErrOutput should include("WARNING: JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+
+          Await.result(exitValue, 1 second) shouldBe 0
+        }
+      }
+      it("warns when XX_CONFIGURATION_OVERRIDE_FILE_XX override is set") {
+        singleNodeServoConfig { (configRoot, tmpOutput, config) =>
+          //Create a log4j.properties in the config root
+          val logFile = tempFile("log4jlogging", ".log")
+          val log4jFile = new File(configRoot, "log4j.properties")
+          log4jFile.deleteOnExit()
+          val log4jContent = resourceContent("/servoTesting/log4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
+          writeFileContent(log4jFile, log4jContent)
+
+          //Config file to pass on the command line
+          val overridePath = "/some/path/to/the/jetty-runner-version.jar"
+          val overrideLocation = "/some/path/to/the/repose-version.war"
+          val overrideFile = tempFile("overrideFile", ".conf")
+          writeFileContent(overrideFile,
+          "launcherPath = "+overridePath+"\n"+
+          "reposeWarLocation = "+overrideLocation)
+
+          //The override warning is sent to system err and logged
+          val stdErr = new ByteArrayOutputStream()
+          val stdErrStream = new PrintStream(stdErr)
+
+          val servo = new Servo()
+          val exitValue = Future {
+            servo.execute(Array("--config-file", configRoot.toString, "--XX_CONFIGURATION_OVERRIDE_FILE_XX", overrideFile.getAbsolutePath),
+              System.in, System.out, stdErrStream, config)
+          }
+
+          //After it's been started
+          Thread.sleep(500)
+          servo.shutdown()
+
+          //Should have an error message about the overridden configuration!
+          val stdErrOutput = new String(stdErr.toByteArray)
+
+          info("STD ERROR")
+          info(stdErrOutput)
+
+          stdErrOutput shouldNot be("")
+          stdErrOutput should include("WARNING: XX_CONFIGURATION_OVERRIDE_FILE_XX set! It is usually bad to override this!!!")
+
+          //Should have a log message about the overridden configuration!
+          val logLines = Source.fromFile(logFile).getLines().toList
+
+          info("LOG LINES")
+          info(logLines mkString "\n")
+
+          logLines shouldNot be(empty)
+          logLines.exists(s=>s.contains("WARNING: XX_CONFIGURATION_OVERRIDE_FILE_XX set! It is usually bad to override this!!!")) shouldBe true
+
+          val lines = Source.fromFile(tmpOutput).getLines().toList
+          lines shouldNot be(empty)
+          //Should have the overridden values in the arguments
+          lines.filter(_.startsWith("ARGS:")).map { l =>
+            info(s"ARGS: $l")
+            l should include("-jar "+overridePath)
+            l should include(overrideLocation)
+          }
 
           Await.result(exitValue, 1 second) shouldBe 0
         }
@@ -263,7 +324,6 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           //Ensure our exit value is valid
           Await.result(exitValue, 1 second) shouldNot be(0)
         }
-
       }
     }
     describe("for a good multi-local-node configuration") {
@@ -295,5 +355,4 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
       }
     }
   }
-
 }
