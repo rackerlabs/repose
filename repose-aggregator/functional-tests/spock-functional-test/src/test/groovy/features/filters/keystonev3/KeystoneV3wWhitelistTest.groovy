@@ -5,12 +5,13 @@ import framework.mocks.MockKeystoneV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 8/25/14.
+ * Created by jennyvo on 8/27/14.
+ * Test keystone v3 filter with whitelist config
  */
-class KeystoneV3Test extends ReposeValveTest{
+class KeystoneV3wWhitelistTest extends ReposeValveTest{
     def static originEndpoint
     def static identityEndpoint
     def static MockKeystoneV3Service fakeKeystoneV3Service
@@ -19,7 +20,8 @@ class KeystoneV3Test extends ReposeValveTest{
         deproxy = new Deproxy()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3",params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3/whitelist",params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -36,6 +38,30 @@ class KeystoneV3Test extends ReposeValveTest{
             repose.stop()
     }
 
+    @Unroll ("#uriPattern expect #responseCode")
+    def "Test request with uri in whitelist pattern req should pass without authenticate" (){
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/$uriPattern",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == responseCode
+        //mc.handlings.size() == 1
+        mc.orphanedHandlings.size() == 0
+
+        where:
+        uriPattern          | responseCode
+        "public-info"       | "200"
+        "test-info"         | "200"
+        ""                  | "401"
+        "servers-info"      | "401"
+    }
+
     def "Test send request with user token" () {
         given:
         def reqDomain = fakeKeystoneV3Service.client_domainid
@@ -50,7 +76,7 @@ class KeystoneV3Test extends ReposeValveTest{
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain/",
+                url: "$reposeEndpoint/servers/",
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',

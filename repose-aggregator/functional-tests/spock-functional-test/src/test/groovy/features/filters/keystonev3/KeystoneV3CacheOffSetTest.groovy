@@ -65,7 +65,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
                 (1..initialCallsPerUser).each {
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
-                            headers: ['X-Auth-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
+                            headers: ['X-Subject-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
                     mc.receivedResponse.code.equals("200")
                     lastTokenValidation = DateTime.now()
                 }
@@ -108,7 +108,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
 
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
-                MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
+                MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': token])
                 mc.receivedResponse.code.equals("200")
             }
             clientThreads.add(thread)

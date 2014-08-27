@@ -85,7 +85,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$reqProject/",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeKeystoneV3Service.client_token])
+                headers: ['content-type': 'application/json', 'X-Subject-Token': fakeKeystoneV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode

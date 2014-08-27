@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v3 xmlns="http://docs.openrepose.org/keystone-v3/v1.0">
+
+    <keystone-service username="admin-username"
+                      password="admin-password"
+                      uri="http://localhost:${idendityPort}"
+                      xmlns="http://docs.openrepose.org/keystone-v3/v1.0"/>
+    <white-list>
+        <uri-pattern>.*public-info.*</uri-pattern>
+        <uri-pattern>.*test-info.*</uri-pattern>
+    </white-list>
+</keystone-v3>

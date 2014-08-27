@@ -37,7 +37,7 @@ class KeystoneV3HeadersTest extends ReposeValveTest{
     def "When token is validated, set of headers should be generated"(){
         when: "I send a GET request to Repose with an X-Auth-Token header"
         fakeKeystoneV3Service.resetCounts()
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeKeystoneV3Service.client_token])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeKeystoneV3Service.client_token])
 
         then: "Repose should validate the token and path the user's default region as the X-Default_Region header to the origin service"
         mc.receivedResponse.code == "200"
