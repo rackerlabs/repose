@@ -27,8 +27,8 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant", params)
-        repose.configurationProvider.applyConfigs("features/filters/clientauthn/removetenant/nontenanteddelegable", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3/forwardunauthorizedrequests", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
