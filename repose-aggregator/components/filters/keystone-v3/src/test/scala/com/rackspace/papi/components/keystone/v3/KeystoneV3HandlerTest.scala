@@ -403,7 +403,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setName("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, "foo", null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, Option("foo"), null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("Should return false when the url matches and name doesn't") {
@@ -411,7 +411,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setName("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, "bar", null, None, "http://www.notreallyawebsite.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
 
     it("Should return true when the url matches and interface does") {
@@ -419,7 +419,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setInterface("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, "foo", Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("Should return false when the url matches and interface doesn't") {
@@ -427,7 +427,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setInterface("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, "bar", None, None, "http://www.notreallyawebsite.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
   }
 
@@ -465,7 +465,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       val filterDirector = mock[FilterDirector]
       val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.notreallyawebsite.com")), null, null))
       val catalog = Catalog(services)
-      val authToken = AuthenticateResponse(null, null, null, null, null, catalog, null, null)
+      val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
       keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
       verifyZeroInteractions(filterDirector)
@@ -477,7 +477,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       val filterDirector = mock[FilterDirector]
       val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.woot.com")), null, null))
       val catalog = Catalog(services)
-      val authToken = AuthenticateResponse(null, null, null, null, null, catalog, null, null)
+      val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
       keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
       verify(filterDirector).setFilterAction(FilterAction.RETURN)

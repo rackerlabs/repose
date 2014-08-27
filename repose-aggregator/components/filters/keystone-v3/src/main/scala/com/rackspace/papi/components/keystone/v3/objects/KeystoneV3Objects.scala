@@ -12,7 +12,7 @@ case class ProjectForAuthenticateResponse(domain: DomainsForAuthenticateResponse
                                            ) extends Serializable
 
 case class Endpoint(id: String,
-                    name: String,
+                    name: Option[String],
                     interface: Option[String] = None,
                     region: Option[String] = None,
                     url: String,
@@ -20,8 +20,9 @@ case class Endpoint(id: String,
                      ) extends Serializable
 
 case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
-                                            openstackType: String,
-                                            id: Option[String] = None
+                                            openstackType: String, // TODO: this probably won't work since the actual name of the key is "type"
+                                            id: Option[String] = None,
+                                            name: Option[String] = None
                                              ) extends Serializable
 
 case class Catalog(service: List[ServiceForAuthenticationResponse]
