@@ -101,3 +101,10 @@ case class Scope(domain: Option[DomainScope] = None,
                  project: Option[ProjectScope] = None,
                  trust: Option[TrustScope] = None
                   ) extends Serializable
+
+case class Group(id: String,
+                 name: String,
+                 description: String,
+                 domain_id: Option[String] = None) extends Serializable
+
+case class Groups(groups: List[Group]) extends Serializable

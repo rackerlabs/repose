@@ -44,6 +44,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="groups-cache-timeout" type="intGTEZero" use="optional" default="600000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Time in milliseconds to cache auth groups.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="cache-offset" type="intGTEZero" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
@@ -51,6 +59,14 @@
                         between -cache-offset and +cache-offset will be applied to the existing
                         token and group timeout values.
                     </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Tells the service whether or not to make a GET groups API call to the Keystone service.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

@@ -312,6 +312,43 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
   }
 
+  describe("fetchGroups") {
+    val fetchGroups = PrivateMethod[Try[List[Group]]]('fetchGroups)
+
+    it("should return a Failure when x-subject-token validation fails") {
+      val mockGetServiceClientResponse = mock[ServiceClientResponse]
+
+      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+
+      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+
+      keystoneV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Failure[_]]
+    }
+
+    it("should return a Success for cached groups") {
+      when(mockDatastore.get(anyString)).thenReturn(List(Group("", "", "")).toBuffer.asInstanceOf[Serializable], Nil: _*)
+
+      keystoneV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
+      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[Group]]
+    }
+
+    it("should return a list of groups when groups call succeeds") {
+      val mockGetServiceClientResponse = mock[ServiceClientResponse]
+
+      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+
+      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
+      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
+        "{\"groups\":[{\"description\":\"Developersclearedforworkonallgeneralprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"Developers\"},{\"description\":\"Developersclearedforworkonsecretprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"SecureDevelopers\"}],\"links\":{\"self\":\"http://identity:35357/v3/users/--user-id--/groups\",\"previous\":null,\"next\":null}}"
+          .getBytes))
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+
+      keystoneV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
+      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[Group]]
+    }
+  }
+
   describe("writeProjectHeader") {
     val writeProjectHeader = PrivateMethod[Unit]('writeProjectHeader)
     val filterDirector = mock[FilterDirector]
