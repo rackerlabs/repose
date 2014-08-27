@@ -22,7 +22,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyMap, anyString, argThat, contains, intThat}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{verify, when, verifyZeroInteractions}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
@@ -410,6 +410,41 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       firstCall shouldBe 1000 +- 1000
       secondCall shouldBe 1000 +- 1000
       firstCall should not be secondCall
+    }
+  }
+
+  describe("authorize") {
+    val authorize = PrivateMethod[FilterDirector]('authorize)
+
+    it("should make no changes when not configured to check endpoints") {
+      val filterDirector = mock[FilterDirector]
+      keystoneV3Handler invokePrivate authorize((filterDirector, null))
+      verifyZeroInteractions(filterDirector)
+    }
+
+    it("should make no changes when configured and the endpoint is present") {
+      keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      val filterDirector = mock[FilterDirector]
+      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.notreallyawebsite.com")), null, null))
+      val catalog = Catalog(services)
+      val authToken = AuthenticateResponse(null, null, null, null, null, catalog, null, null)
+
+      keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
+      verifyZeroInteractions(filterDirector)
+    }
+
+    it("should change the status code and action when configured and the endpoint is not present") {
+      keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+      val filterDirector = mock[FilterDirector]
+      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.woot.com")), null, null))
+      val catalog = Catalog(services)
+      val authToken = AuthenticateResponse(null, null, null, null, null, catalog, null, null)
+
+      keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
+      verify(filterDirector).setFilterAction(FilterAction.RETURN)
+      verify(filterDirector).setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
   }
 }
