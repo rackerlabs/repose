@@ -2,7 +2,7 @@
 <client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0" >
     <openstack-auth delegable="false"
                     tenanted="true"
-                    SendAllTenantIds="true"
+                    send-all-tenant-ids="true"
                     request-groups="false"
                     token-cache-timeout="600000"
                     group-cache-timeout="600000"
