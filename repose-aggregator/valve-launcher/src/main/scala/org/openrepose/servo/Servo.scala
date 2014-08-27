@@ -2,13 +2,12 @@ package org.openrepose.servo
 
 import java.io.{File, InputStream, PrintStream}
 
-import akka.actor.{Props, ActorSystem}
-import com.typesafe.config.Config
+import akka.actor.{ActorSystem, Props}
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.{BasicConfigurator, PropertyConfigurator}
-import org.openrepose.servo.actors.{SystemModelWatcher, NodeStore, ReposeLauncher}
+import org.openrepose.servo.actors.{NodeStore, ReposeLauncher, SystemModelWatcher}
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions
 import scala.io.Source
 import scala.util.{Failure, Success}
 
@@ -26,9 +25,11 @@ class Servo {
   /**
    * Command line configuration
    * @param configDirectory the root configuration directory (even though it's called --config-file)
+   * @param confOverride the application.conf override properties file
    * @param insecure whether or not to be super insecure
    */
   case class ServoConfig(configDirectory: File = new File("/etc/repose"),
+                         confOverride: Option[File] = None,
                          insecure: Boolean = false,
                          showVersion: Boolean = false,
                          showUsage: Boolean = false)
@@ -85,7 +86,7 @@ class Servo {
       opt[File]('c', "config-file") action { (x, c) =>
         c.copy(configDirectory = x)
       } validate { f =>
-        if (f.exists() && f.canRead()) {
+        if (f.exists && f.canRead && f.isDirectory) {
           success
         } else {
           failure(s"Unable to read from directory: ${f.getAbsolutePath}")
@@ -100,6 +101,15 @@ class Servo {
       opt[Unit]("help") hidden() action { (_, c) =>
         c.copy(showUsage = true)
       } text "Display usage and exit"
+      opt[File]("XX_CONFIGURATION_OVERRIDE_FILE_XX") hidden() action { (x, c) =>
+        c.copy(confOverride = Some(x))
+      } validate { f =>
+        if (f.exists && f.canRead && f.isFile) {
+          success
+        } else {
+          failure(s"Unable to read from file: ${f.getAbsolutePath}")
+        }
+      } text s"The overriding application.conf file for Repose. It is usually bad to override this!!!"
     }
 
     parser.parse(args, ServoConfig()) map { servoConfig =>
@@ -136,7 +146,15 @@ class Servo {
         } else {
           out.println("Launching with SSL validation")
         }
-        val exitCode = serveValves(config, servoConfig)
+        val finalConf = servoConfig.confOverride.map{conf =>
+          val warnStr = "WARNING: XX_CONFIGURATION_OVERRIDE_FILE_XX set! It is usually bad to override this!!!"
+          Console.err.println(warnStr)
+          LOG.warn(warnStr)
+          ConfigFactory.parseFile(conf).withFallback(config).resolve()
+        } getOrElse {
+          config
+        }
+        val exitCode = serveValves(finalConf, servoConfig)
         system.awaitTermination() // Block here forever, awaiting the actor system termination I think
         exitCode
       }
