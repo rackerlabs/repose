@@ -17,6 +17,7 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
   val keystoreConfig = KeystoreConfig("keystoreFile", "keystorePass", "keyPass")
 
 
+  //TODO: this will probably not put the port in the thing any longer at all, and use config files the whole time
   describe("Command line generator") {
     it("generates a proper command line from a base command, a node, a configurationRoot, a war path, and a launcher path") {
       val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath)
@@ -27,6 +28,7 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
     }
     it("generates a proper command line when given a container config with a keystore") {
       //This would include the configuration file generated.
+      pending
       val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath, Some(keystoreConfig))
 
       //TODO: also need to verify the file that's written? This means that /config/root has to be real
@@ -38,7 +40,12 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
     }
 
     it("generates a proper command line when told to operate insecurely") {
-      pending
+      val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath, insecure = true)
+
+      cg.commandLine(node) shouldBe Seq("java",
+        "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir","-Dinsecure=true",
+        "-jar", "/path/to/launcher", "--port", "8080", "/path/to/war")
+
     }
     it("generates a proper command line for a node with an HTTPS port") {
       pending
