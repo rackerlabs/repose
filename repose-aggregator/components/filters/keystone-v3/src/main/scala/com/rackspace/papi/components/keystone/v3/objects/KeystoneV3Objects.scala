@@ -12,7 +12,7 @@ case class ProjectForAuthenticateResponse(domain: DomainsForAuthenticateResponse
                                            ) extends Serializable
 
 case class Endpoint(id: String,
-                    name: Option[String],
+                    name: Option[String] = None,
                     interface: Option[String] = None,
                     region: Option[String] = None,
                     url: String,

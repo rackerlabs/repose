@@ -141,12 +141,12 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
   }
 
   describe("authenticate") {
-    val authenticate = PrivateMethod[FilterDirector]('authenticate)
+    val authenticate = PrivateMethod[(FilterDirector, AuthenticateResponse)]('authenticate)
 
-    it("should return unauthorized when the x-auth-token header is not present") {
+    it("should return unauthorized when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      val filterDirector = keystoneV3Handler invokePrivate authenticate(mockRequest)
+      val (filterDirector, _) = keystoneV3Handler invokePrivate authenticate(mockRequest)
 
       filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
       filterDirector.getFilterAction should be(FilterAction.RETURN)
@@ -373,13 +373,13 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return true when there is an endpoint that matches the url") {
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, null, "http://www.woot.com"), Endpoint(null, null, null, null, "http://www.banana.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com"))) should be(false)
     }
 
     it("Should return true when the url matches and region does") {
@@ -387,7 +387,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setRegion("DFW")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, null, null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("Should return false when the url matches and region doesn't") {
@@ -395,7 +395,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setRegion("DFW")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, null, null, None, "http://www.notreallyawebsite.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
 
     it("Should return true when the url matches and name does") {
@@ -403,7 +403,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setName("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, Option("foo"), null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("Should return false when the url matches and name doesn't") {
@@ -411,7 +411,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setName("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, null, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
 
     it("Should return true when the url matches and interface does") {
@@ -419,7 +419,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setInterface("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
     }
 
     it("Should return false when the url matches and interface doesn't") {
@@ -427,7 +427,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
       serviceEndpoint.setInterface("foo")
       keystoneConfig.setServiceEndpoint(serviceEndpoint)
-      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, null, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com"))) should be(false)
+      keystoneV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com"))) should be(false)
     }
   }
 
@@ -463,7 +463,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.notreallyawebsite.com")), null, null))
+      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
       val catalog = Catalog(services)
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
@@ -475,7 +475,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, null, null, null, "http://www.woot.com")), null, null))
+      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
       val catalog = Catalog(services)
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
