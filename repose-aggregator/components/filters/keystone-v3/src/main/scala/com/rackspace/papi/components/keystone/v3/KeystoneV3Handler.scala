@@ -22,9 +22,7 @@ import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import spray.json._
 
-import scala.collection
 import scala.collection.JavaConverters._
-import scala.collection.parallel.mutable
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
@@ -96,16 +94,20 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector
   }
 
+  // TODO: Drop the tuple, return an AuthenticateResponse, and handle the filter director a level up
   private def authenticate(request: HttpServletRequest): (FilterDirector, AuthenticateResponse) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
+    var authenticateResponse: AuthenticateResponse = null
     Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         validateSubjectToken(subjectToken) match {
           case Success(tokenObject: AuthenticateResponse) =>
+            authenticateResponse = tokenObject
+
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.id.map { id =>
               headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
@@ -159,13 +161,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
 
-    (filterDirector, null)
+    (filterDirector, authenticateResponse)
   }
 
+  // TODO: Extract the filter director, take a list of ServiceForAuthenticateResponse, return a boolean
   private def authorize(tuple: (FilterDirector, AuthenticateResponse)): FilterDirector = {
     val filterDirector = tuple._1
     val authResponse = tuple._2
-    if ((keystoneConfig.getServiceEndpoint != null) && !containsEndpoint(authResponse.catalog.service.map(service => service.endpoints).flatten)) {
+    if (Option(keystoneConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.service.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
       filterDirector.setFilterAction(FilterAction.RETURN)
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }

@@ -5,7 +5,7 @@ import spray.json.DefaultJsonProtocol
 
 object IdentityJsonProtocol extends DefaultJsonProtocol {
   implicit val endpointFormat = jsonFormat6(Endpoint)
-  implicit val serviceForAuthenticationResponse = jsonFormat3(ServiceForAuthenticationResponse)
+  implicit val serviceForAuthenticationResponse = jsonFormat4(ServiceForAuthenticationResponse)
   implicit val catalogFormat = jsonFormat1(Catalog)
   implicit val domainScopeFormat = jsonFormat2(DomainScope)
   implicit val domainsForAuthenticateResponse = jsonFormat3(DomainsForAuthenticateResponse)
