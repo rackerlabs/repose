@@ -47,7 +47,18 @@ class JettyConfigGeneratorTest extends FunSpec with Matchers with TestUtils {
         trim(content) shouldBe trim(expectedXml)
       }
       it("generates a Jetty config.xml for HTTPS") {
-        pending
+        val jettyConfig = new JettyConfigGenerator("/config/root", httpsNode, keystoreConfig)
+        val content = XML.loadString(jettyConfig.jettyConfig)
+        val expectedXml = XML.loadString(resourceContent("/jettyConfigs/jetty-https.xml"))
+
+        trim(content) shouldBe trim(expectedXml)
+      }
+      it("generates a jetty config.xml for BOTH") {
+        val jettyConfig = new JettyConfigGenerator("/config/root", bothNode, keystoreConfig)
+        val content = XML.loadString(jettyConfig.jettyConfig)
+        val expectedXml = XML.loadString(resourceContent("/jettyConfigs/jetty-http-https.xml"))
+
+        trim(content) shouldBe trim(expectedXml)
       }
     }
     describe("without a keystore") {
@@ -56,6 +67,9 @@ class JettyConfigGeneratorTest extends FunSpec with Matchers with TestUtils {
         pending
       }
       it("Fails to generate a Jetty config.xml for HTTPS") {
+        pending
+      }
+      it("Fails to generate a jetty config.xml for BOTH") {
         pending
       }
     }
