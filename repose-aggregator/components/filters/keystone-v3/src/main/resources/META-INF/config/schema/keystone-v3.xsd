@@ -18,10 +18,9 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="white-list" type="WhiteList" minOccurs="0"/>
-            <xs:element name="keystone-service" type="OpenstackKeystoneService"/>
+            <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="keystone-service" type="OpenstackKeystoneService" minOccurs="1" maxOccurs="1"/>
             <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
-            <!-- TODO -->
         </xs:all>
 
         <xs:attribute name="forward-unauthorized-requests" type="xs:boolean" use="optional" default="false">
@@ -70,8 +69,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <!-- TODO -->
     </xs:complexType>
 
     <xs:complexType name="WhiteList">
