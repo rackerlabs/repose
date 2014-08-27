@@ -9,7 +9,7 @@
 <!-- ============================================================= -->
 <Configure id="sslContextFactory" class="org.eclipse.jetty.util.ssl.SslContextFactory">
     <Set name="KeyStorePath">/config/root/keystore</Set>
-    <Set name="KeyStorePassword">testKeyStorePassword</Set>
+    <Set name="KeyStorePassword">testKeystorePassword</Set>
     <Set name="KeyManagerPassword">testKeyPassword</Set>
     <!-- our config doesn't set any trust store or anything else -->
     <!-- our config doesn't exclude any ciphers -->
