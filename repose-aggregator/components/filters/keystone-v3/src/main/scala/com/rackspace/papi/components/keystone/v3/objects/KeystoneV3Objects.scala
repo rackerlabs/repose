@@ -19,10 +19,7 @@ case class Endpoint(id: String,
                     service_id: Option[String] = None
                      ) extends Serializable
 
-case class Endpoints(endpoints: List[Endpoint]
-                      ) extends Serializable
-
-case class ServiceForAuthenticationResponse(endpoints: List[Endpoints],
+case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
                                             openstackType: String,
                                             id: Option[String] = None
                                              ) extends Serializable

@@ -47,11 +47,11 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       filterDirector.setFilterAction(FilterAction.PASS)
       filterDirector
     } else {
-      authenticate(request)
+      authorize(authenticate(request))
     }
   }
 
-    override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+  override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     LOG.debug("Keystone v3 Handling Response. Incoming status code: " + response.getStatus)
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val responseStatus = response.getStatus
@@ -91,7 +91,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector
   }
 
-  private def authenticate(request: HttpServletRequest) = {
+  private def authenticate(request: HttpServletRequest): (FilterDirector, AuthenticateResponse) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
@@ -141,6 +141,17 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         }
       case _ =>
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+    }
+
+    (filterDirector, null)
+  }
+
+  private def authorize(tuple: (FilterDirector, AuthenticateResponse)): FilterDirector = {
+    val filterDirector = tuple._1
+    val authResponse = tuple._2
+    if ((keystoneConfig.getServiceEndpoint != null) && !containsEndpoint(authResponse.catalog.service.map(service => service.endpoints).flatten)) {
+      filterDirector.setFilterAction(FilterAction.RETURN)
+      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
 
     filterDirector
