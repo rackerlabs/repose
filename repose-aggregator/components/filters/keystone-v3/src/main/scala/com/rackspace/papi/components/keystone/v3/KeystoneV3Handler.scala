@@ -334,7 +334,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
     (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) &&
       Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
-      Option(keystoneConfig.getServiceEndpoint.getName).map(_ == endpoint.name).getOrElse(true) &&
+      Option(keystoneConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
       Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
   }
 
