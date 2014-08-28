@@ -20,7 +20,7 @@ case class Endpoint(id: String,
                      ) extends Serializable
 
 case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
-                                            openstackType: String, // TODO: this probably won't work since the actual name of the key is "type"
+                                            // openstackType: String, // TODO: this probably won't work since the actual name of the key is "type"
                                             id: Option[String] = None,
                                             name: Option[String] = None
                                              ) extends Serializable
