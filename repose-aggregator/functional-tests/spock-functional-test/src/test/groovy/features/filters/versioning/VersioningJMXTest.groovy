@@ -46,13 +46,7 @@ class VersioningJMXTest extends Specification {
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.configDirectory, properties.configTemplates)
 
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
+        repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
 
         params = properties.getDefaultTemplateParams()

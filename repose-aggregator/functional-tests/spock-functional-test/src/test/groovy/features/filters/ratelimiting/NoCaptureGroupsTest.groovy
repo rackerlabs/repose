@@ -26,13 +26,7 @@ class NoCaptureGroupsTest extends Specification {
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/filters/ratelimiting/nocapturegroups", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
+        repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
