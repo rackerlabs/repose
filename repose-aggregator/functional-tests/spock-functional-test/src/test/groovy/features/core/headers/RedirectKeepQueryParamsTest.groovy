@@ -6,6 +6,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/27/14.
@@ -48,22 +49,23 @@ class RedirectKeepQueryParamsTest extends ReposeValveTest{
         repose.waitForNon500FromUrl(url)
     }
 
+    @Unroll("#newlocation")
     def "When endpoint using resp with 302 redirect a new location the query params should be kept" () {
         when: "make a request with the given header and value"
         def headers = [
                 'Content-Length': '0',
-                'Location' : url+newlocation
+                'Location' : newlocation
         ]
 
         MessageChain mc = deproxy.makeRequest(url: url+queryparam, defaultHandler: {new Response(302, null, headers) })
 
         then:
         mc.handlings.size() == 1
-        mc.handlings[0].response.headers.getFirstValue("Location") == url+newlocation
+        mc.handlings[0].response.headers.getFirstValue("Location") == newlocation
 
         where:
-        newlocation                     | queryparam
-        "/test/test?query=info"         | "/test?query=info"
-        "/details/details?query=all"    | "/details?query=all"
+        newlocation                                     | queryparam
+        "http:/myhost.com/test/test?query=info"         | "/test?query=info"
+        "http:/myhost.com/details/details?query=all"    | "/details?query=all"
     }
 }
