@@ -319,7 +319,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles: Set[String] =  if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
+    val projectsFromRoles: Set[String] = if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
@@ -327,9 +327,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
   private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
     (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) &&
-    Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
-    Option(keystoneConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
-    Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
+      Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
+      Option(keystoneConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
+      Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
