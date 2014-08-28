@@ -27,13 +27,7 @@ class PatchMethodTest extends Specification {
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/filters/ratelimiting/oneNode", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.reposeJar,
-                properties.reposeEndpoint,
-                properties.configDirectory,
-                properties.reposePort
-        )
+        repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
