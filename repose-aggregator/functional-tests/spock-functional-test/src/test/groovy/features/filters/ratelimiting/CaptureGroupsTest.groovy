@@ -32,13 +32,7 @@ class CaptureGroupsTest extends Specification {
         reposeConfigProvider.cleanConfigDirectory()
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/filters/ratelimiting/capturegroups", params)
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                properties.reposeEndpoint,
-                properties.getConfigDirectory(),
-                properties.reposePort
-        )
+        repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
