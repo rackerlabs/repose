@@ -9,7 +9,7 @@ import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import com.rackspace.papi.components.datastore.Datastore
-import com.rackspace.papi.components.keystone.v3.config.{ServiceEndpoint, KeystoneV3Config, OpenstackKeystoneService, WhiteList}
+import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService, ServiceEndpoint, WhiteList}
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
@@ -22,7 +22,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyMap, anyString, argThat, contains, intThat}
-import org.mockito.Mockito.{verify, when, verifyZeroInteractions}
+import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}

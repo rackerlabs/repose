@@ -136,7 +136,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 None
               }
             }
-            // TODO: Set X-Impersonator-Name, need to check response for impersonator (is this an extension?)
+            // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
             // TODO: Set X-Impersonator-Id, same as above
             // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
 
