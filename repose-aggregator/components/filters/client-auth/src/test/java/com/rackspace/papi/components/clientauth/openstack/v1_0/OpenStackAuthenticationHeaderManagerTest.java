@@ -54,7 +54,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
                                                              tenantId, authGroupList, wwwAuthHeaderContents,
-                                                             endpointsBase64, true);
+                                                             endpointsBase64, true, false);
       
         }
 
@@ -134,7 +134,7 @@ public class OpenStackAuthenticationHeaderManagerTest {
             openStackAuthenticationHeaderManager =
                     new OpenStackAuthenticationHeaderManager(authTokenString, authToken, isDelegatable, filterDirector,
                                                              tenantId, authGroupList, wwwAuthHeaderContents,
-                                                             endpointsBase64, true);
+                                                             endpointsBase64, true, false);
              openStackAuthenticationHeaderManager.setFilterDirectorValues();
       
         }

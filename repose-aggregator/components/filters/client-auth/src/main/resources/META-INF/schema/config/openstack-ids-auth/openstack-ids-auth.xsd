@@ -87,6 +87,13 @@
                 </xs:annotation>
             </xs:attribute>
 
+            <xs:attribute name="send-all-tenant-ids" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Option to allow all tenant ids to be included in headers</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
 
             <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
                 <xs:annotation>

@@ -23,10 +23,11 @@ public class Configurables {
     private final EndpointsConfiguration endpointsConfiguration;
     private final List<String> serviceAdminRoles;
     private final List<String> ignoreTenantRoles;
+    private final boolean sendAllTenantIds;
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, boolean requestGroups,
-                         EndpointsConfiguration endpointsConfiguration) {
+                         EndpointsConfiguration endpointsConfiguration, boolean sendAllTenantIds) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -39,11 +40,13 @@ public class Configurables {
         this.serviceAdminRoles = new ArrayList<String>();
         this.ignoreTenantRoles = new ArrayList<String>();
         this.cacheOffset = 0;
+        this.sendAllTenantIds = sendAllTenantIds;
     }
 
     public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor,
                          boolean tenanted, long groupCacheTtl, long tokenCacheTtl, long usrCacheTtl, int cacheOffset, boolean requestGroups,
-                         EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles) {
+                         EndpointsConfiguration endpointsConfiguration, List<String> serviceAdminRoles, List<String> ignoreTenantRoles,
+                         boolean sendAllTenantIds) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -56,6 +59,7 @@ public class Configurables {
         this.endpointsConfiguration = endpointsConfiguration;
         this.serviceAdminRoles = serviceAdminRoles;
         this.ignoreTenantRoles = ignoreTenantRoles;
+        this.sendAllTenantIds = sendAllTenantIds;
     }
 
     public boolean isDelegable() {
@@ -105,4 +109,6 @@ public class Configurables {
     public List<String> getIgnoreTenantRoles() {
         return ignoreTenantRoles;
     }
+
+    public boolean sendingAllTenantIds() { return sendAllTenantIds; }
 }

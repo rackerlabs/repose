@@ -120,7 +120,7 @@ public class OpenStackAuthenticationHandlerTest {
                     requestGroups(),
                     endpointsConfiguration,
                     serviceAdminRoles.getRole(),
-                    new ArrayList<String>());
+                    new ArrayList<String>(), false);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -411,6 +411,93 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
     }
+
+
+
+    public static class TestSendAllTenantIds extends TestParent {
+
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+        Calendar expires;
+        UserForAuthenticateResponse userForAuthenticateResponse;
+        OpenStackAuthenticationHandler handler2;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws Exception {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            expires = getCalendarWithOffset(10000000);
+
+
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+            //building a fake authResponse
+            authResponse = new AuthenticateResponse();
+
+            //building a user to be associated with the response
+            userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
+
+            final ServiceAdminRoles serviceAdminRoles = new ServiceAdminRoles();
+            serviceAdminRoles.getRole().add("12345");
+
+            Configurables configurables = new Configurables(
+                    delegable(),
+                    "http://some.auth.endpoint",
+                    keyedRegexExtractor,
+                    isTenanted(),
+                    AUTH_GROUP_CACHE_TTL,
+                    AUTH_TOKEN_CACHE_TTL,
+                    AUTH_USER_CACHE_TTL,
+                    AUTH_CACHE_OFFSET,
+                    requestGroups(),
+                    endpointsConfiguration,
+                    serviceAdminRoles.getRole(),
+                    new ArrayList<String>(), true);
+            handler2 = new OpenStackAuthenticationHandler(configurables, authService, null, null,null,null, new UriMatcher(whiteListRegexPatterns));
+
+        }
+
+        @Test
+        public void testSendAllTenants() {
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            userForAuthenticateResponse.setRoles(defaultRoleList());
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("104772");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(authResponse);
+
+            FilterDirector director = handler2.handleRequest(request, response);
+
+
+            Set expectedSet = new LinkedHashSet();
+            expectedSet.add("104772");
+            expectedSet.add("derpRole");
+            assertThat(director.requestHeaderManager().headersToAdd().get(HeaderName.wrap("x-tenant-id")),equalTo(expectedSet));
+            assertThat(director.getFilterAction(),equalTo(FilterAction.PASS));
+        }
+    }
+
+
+
+
 
     public static class WhenCachingUserInfo extends TestParent {
 
