@@ -17,6 +17,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
+import org.apache.commons.codec.binary.Base64
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
@@ -341,6 +342,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
 
   private def matchesProject(projectFromUri: String, roles: List[Role]): Boolean = true
+
+  private def base64Encode(s: String) =
+    Base64.encodeBase64String(s.getBytes)
 
   private def inputStreamToString(inputStream: InputStream) = {
     inputStream.reset() // TODO: Remove this when we can. It relies on our implementation returning an InputStream that supports reset.
