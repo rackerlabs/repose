@@ -109,21 +109,21 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
           case Success(tokenObject: AuthenticateResponse) =>
             authenticateResponse = tokenObject
 
+            headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+            tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
+            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG, base64Encode(catalog.toJson.compactPrint)))
+            tokenObject.roles.map { roles =>
+              headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
+            }
             tokenObject.user.id.map { id =>
               headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
               headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
             }
-            tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
             tokenObject.project.map { project =>
               project.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
               project.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
             }
-            tokenObject.roles.map { roles =>
-              headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
-            }
-            headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
-            // TODO: Set X-Catalog, need to base64 encode
             if (forwardUnauthorizedRequests) headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
             if (keystoneConfig.isRequestGroups) {
               tokenObject.user.id map { userId: String =>
@@ -137,6 +137,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 None
               }
             }
+
             // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
             // TODO: Set X-Impersonator-Id, same as above
             // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
