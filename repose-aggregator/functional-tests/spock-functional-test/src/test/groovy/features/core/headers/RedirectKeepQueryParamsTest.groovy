@@ -65,7 +65,7 @@ class RedirectKeepQueryParamsTest extends ReposeValveTest{
 
         where:
         newlocation                                     | queryparam
-        "http:/myhost.com/test/test?query=info"         | "/test?query=info"
-        "http:/myhost.com/details/details?query=all"    | "/details?query=all"
+        "http://myhost.com/test/test?query=info"        | "/test?query=info"
+        "http://myhost.com/details/details?query=all"   | "/details?query=all"
     }
 }
