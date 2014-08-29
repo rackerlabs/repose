@@ -17,10 +17,11 @@ class TestProperties {
         return "http://${targetHostname}:${reposePort}"
     }
 
-    String reposeJar
+    String servoJar
+    String jettyJar
+    String reposeWar
     String glassfishJar
     String tomcatJar
-    String reposeRootWar
     String mocksWar
 
     int reposePort
@@ -55,8 +56,9 @@ class TestProperties {
                 reposeContainer = value
             }
 
-            reposeJar = properties.getProperty("repose.jar")
-            reposeRootWar = properties.getProperty("repose.root.war")
+            servoJar = properties.getProperty("repose.servo.jar")
+            jettyJar = properties.getProperty("repose.jetty.jar")
+            reposeWar = properties.getProperty("repose.root.war")
             reposePort = PortFinder.Singleton.getNextOpenPort()
 
 

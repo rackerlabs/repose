@@ -4,6 +4,9 @@ import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -11,7 +14,9 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 class ReposeValveLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
-    def String reposeJar
+    def String servoJar
+    def String jettyJar
+    def String reposeWar
     def String configDir
 
     def clock = new SystemClock()
@@ -31,7 +36,9 @@ class ReposeValveLauncher extends ReposeLauncher {
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         TestProperties properties) {
         this(configurationProvider,
-                properties.reposeJar,
+                properties.servoJar,
+                properties.jettyJar,
+                properties.reposeWar,
                 properties.reposeEndpoint,
                 properties.configDirectory,
                 properties.reposePort
@@ -39,12 +46,16 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
-                        String reposeJar,
+                        String servoJar,
+                        String jettyJar,
+                        String reposeWar,
                         String reposeEndpoint,
                         String configDir,
                         int reposePort) {
         this.configurationProvider = configurationProvider
-        this.reposeJar = reposeJar
+        this.servoJar = servoJar
+        this.jettyJar = jettyJar
+        this.reposeWar = reposeWar
         this.reposeEndpoint = reposeEndpoint
         this.reposePort = reposePort
         this.configDir = configDir
@@ -71,13 +82,23 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
-        File jarFile = new File(reposeJar)
-        if (!jarFile.exists() || !jarFile.isFile()) {
-            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
+        File servoFile = new File(servoJar)
+        if (!servoFile.exists() || !servoFile.canRead() || !servoFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Servo Jar file.")
+        }
+
+        File jettyFile = new File(jettyJar)
+        if (!jettyFile.exists() || !jettyFile.canRead() || !jettyFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Jetty Jar file.")
+        }
+
+        File reposeFile = new File(reposeWar)
+        if (!reposeFile.exists() || !reposeFile.canRead() || !reposeFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Application War file.")
         }
 
         File configFolder = new File(configDir)
-        if (!configFolder.exists() || !configFolder.isDirectory()) {
+        if (!configFolder.exists() || !configFolder.canRead() || !configFolder.isDirectory()) {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
@@ -116,7 +137,13 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
+        def overrideFile = File.createTempFile("overrideFile", ".conf")
+        overrideFile.deleteOnExit()
+        Files.write(overrideFile.toPath(),
+                "launcherPath = ${jettyJar}\nreposeWarLocation = ${reposeWar}".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE)
+
+        def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX "+overrideFile.absolutePath
         println("Starting repose: ${cmd}")
 
         def th = new Thread({ this.process = cmd.execute() });
