@@ -29,7 +29,7 @@ class ReposeStartupGlassfishTest extends Specification {
         def configTemplates = properties.getRawConfigDirectory()
         def logFile = properties.logFile
 
-        rootWar = properties.getReposeRootWar()
+        rootWar = properties.getReposeWar()
         reposePort = properties.reposePort
 
         configProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)

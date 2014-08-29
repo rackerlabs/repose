@@ -30,7 +30,7 @@ class ServiceAuthInTomcatTest extends Specification {
         tomcatEndpoint = "http://localhost:${reposePort}"
 
         def configDirectory = properties.configDirectory
-        def rootWar = properties.reposeRootWar
+        def rootWar = properties.reposeWar
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, properties.configTemplates)
 
         def params = properties.getDefaultTemplateParams()
