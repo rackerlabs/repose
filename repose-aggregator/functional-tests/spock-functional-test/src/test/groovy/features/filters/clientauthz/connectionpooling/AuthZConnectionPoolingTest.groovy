@@ -62,7 +62,9 @@ class AuthZConnectionPoolingTest extends Specification {
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.reposeJar,
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 urlBase,
                 configDirectory,
                 reposePort

@@ -47,7 +47,9 @@ class StartWithSingleNonLocalhostNodeTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/one-node", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 "http://localhost:${port}",
                 properties.getConfigDirectory(),
                 port
