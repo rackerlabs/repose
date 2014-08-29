@@ -26,7 +26,7 @@ class DestinationClusterTest extends Specification {
 
         def configDirectory = properties.getConfigDirectory()
         def configSamples = properties.getRawConfigDirectory()
-        def rootWar = properties.getReposeRootWar()
+        def rootWar = properties.getReposeWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         ReposeConfigurationProvider config = new ReposeConfigurationProvider(configDirectory, configSamples)
 
