@@ -59,7 +59,9 @@ class MultiClusterMultiNodeTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 "http://localhost:${port11}",
                 properties.getConfigDirectory(),
                 port11

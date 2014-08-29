@@ -58,7 +58,9 @@ class RuntimeSysmodChangesTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/single-node-with-proto", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 "http://localhost:${port1}",
                 properties.getConfigDirectory(),
                 port1
