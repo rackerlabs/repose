@@ -47,7 +47,9 @@ class StartWithZeroNodesTest extends Specification {
         reposeConfigProvider.applyConfigs("features/core/valveSelfConfigure/zero-nodes", params)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 "http://localhost:${port}",
                 properties.getConfigDirectory(),
                 port
