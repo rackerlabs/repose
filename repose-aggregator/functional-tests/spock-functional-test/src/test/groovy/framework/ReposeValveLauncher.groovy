@@ -29,7 +29,9 @@ class ReposeValveLauncher extends ReposeLauncher {
     def debugPort = null
     def classPaths = []
 
-    Process process
+    def Process process
+    def StringBuffer sout
+    def StringBuffer serr
 
     def ReposeConfigurationProvider configurationProvider
 
@@ -110,13 +112,12 @@ class ReposeValveLauncher extends ReposeLauncher {
             })
         }
 
-        def jmxprops = ""
+        def jmxprops
         def debugProps = ""
         def jacocoProps = ""
         def classPath = ""
 
         if (debugEnabled) {
-
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
@@ -146,10 +147,13 @@ class ReposeValveLauncher extends ReposeLauncher {
         def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX "+overrideFile.absolutePath
         println("Starting repose: ${cmd}")
 
-        def th = new Thread({ this.process = cmd.execute() });
+        def th = new Thread({ process = cmd.execute() });
+        sout = new StringBuffer()
+        serr = new StringBuffer()
 
         th.run()
         th.join()
+        process.consumeProcessOutput(sout, serr)
 
         def jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:${jmxPort}/jmxrmi"
 
@@ -163,19 +167,17 @@ class ReposeValveLauncher extends ReposeLauncher {
                 isFilterChainInitialized()
             })
         }
-
-        // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
-        // ready to receive requests without actually sending a request through (skews the metrics if we do)
-        //sleep(10000)
     }
 
-    def connectViaJmxRemote(jmxUrl) {
+    def connectViaJmxRemote(String jmxUrl) {
+        def rtn = true;
         try {
             jmx = new JmxClient(jmxUrl)
-            return true
         } catch (Exception ex) {
-            return false
+            print("Caught the following unexpected exception: "+ex)
+            rtn = false
         }
+        return rtn
     }
 
 
@@ -198,15 +200,17 @@ class ReposeValveLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
-            this.process.destroy()
+            def SIGHUP = 1
+            sendServoSignalIfUp(SIGHUP)
 
             print("Waiting for Repose to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
                 print(".")
                 !isUp()
             })
-
             println()
+            println("STD_OUT:\n${sout}\n")
+            println("STD_ERR:\n${serr}\n")
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
             killIfUp()
@@ -235,41 +239,44 @@ class ReposeValveLauncher extends ReposeLauncher {
         print('.')
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet)jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
         def String beanName = cfgBean.iterator().next().name.toString()
 
-        def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
+        def ArrayList filterChain = (ArrayList)jmx.getMBeanAttribute(beanName, "FilterChain")
 
-
-        if (filterchain == null || filterchain.size() == 0) {
+        if (filterChain == null || filterChain.size() == 0) {
             return beanName.contains("nofilters")
         }
 
         def initialized = true
 
-        filterchain.each { data ->
+        filterChain.each { data ->
             if (data."successfully initialized" == false) {
                 initialized = false
             }
         }
-
         return initialized
-
     }
 
     @Override
     public boolean isUp() {
-        println TestUtils.getJvmProcesses()
-        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
+        def processes = TestUtils.getJvmProcesses()
+        //println processes
+        return processes.contains("servo.jar")
     }
 
-    private void killIfUp() {
+    private static void killIfUp() {
+        def SIGKILL = 9
+        sendServoSignalIfUp(SIGKILL)
+    }
+
+    private static void sendServoSignalIfUp(signal) {
         String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar .*spocktest .*/
+        def regex = /(\d*) servo.jar .*spocktest .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
 
@@ -279,10 +286,11 @@ class ReposeValveLauncher extends ReposeLauncher {
                 if (pid != null && !pid.isEmpty()) {
                     println("Killing running repose-valve process: " + pid)
                     Runtime rt = Runtime.getRuntime();
-                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
                         rt.exec("taskkill " + pid.toInteger());
-                    else
-                        rt.exec("kill -9 " + pid.toInteger());
+                    } else {
+                        rt.exec("kill -${signal} " + pid.toInteger());
+                    }
                 }
             }
         }
