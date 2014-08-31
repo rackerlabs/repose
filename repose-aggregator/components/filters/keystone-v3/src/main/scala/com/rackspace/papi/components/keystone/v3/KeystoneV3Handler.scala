@@ -7,7 +7,7 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
+import com.rackspace.papi.components.keystone.v3.config.{WhiteList, KeystoneV3Config}
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities._
@@ -45,7 +45,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private[v3] var cachedAdminToken: String = null
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
-    if (isUriWhitelisted(request.getRequestURI, Option(keystoneConfig.getWhiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String]))) {
+    if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       val filterDirector: FilterDirector = new FilterDirectorImpl()
       filterDirector.setFilterAction(FilterAction.PASS)
@@ -112,7 +112,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
-            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG, base64Encode(catalog.toJson.compactPrint)))
+            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
             tokenObject.roles.map { roles =>
               headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
             }
@@ -349,8 +349,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private def jsonStringToObject[T: JsonFormat](json: String) =
     json.parseJson.convertTo[T]
 
-  private val isUriWhitelisted = (requestUri: String, whiteList: List[String]) =>
-    whiteList.filter(requestUri.matches).nonEmpty
+  private val isUriWhitelisted = (requestUri: String, whiteList: WhiteList) => {
+    val convertedWhitelist = Option(whiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String])
+    convertedWhitelist.filter(requestUri.matches).nonEmpty
+  }
 
   private val safeLongToInt = (l: Long) =>
     math.min(l, Int.MaxValue).toInt
