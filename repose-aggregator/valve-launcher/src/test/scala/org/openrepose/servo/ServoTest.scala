@@ -137,7 +137,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           lines.filter(_.startsWith("ARGS:")).map { l =>
             //This should be the ARGS line
             note(s"ARGS: $l")
-            l should include("--port 8080")
+            l should include(config.getString("launcherPath"))
             l should include(config.getString("reposeWarLocation"))
 
             //the clusterID and nodeID are set in system properties
