@@ -1,13 +1,18 @@
 package org.openrepose.servo
 
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSpec}
+import org.scalatest.{BeforeAndAfterAll, Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
+class CommandGeneratorTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
 
-  val tempdir = tempDir("commandGenerator").toFile.getAbsolutePath
+  val tempDirFile = tempDir("commandGenerator").toFile
+  val tempdir = tempDirFile.getAbsolutePath
+
+  override def afterAll() = {
+    deleteRecursive(tempDirFile.toPath)
+  }
 
   val configurationRoot = tempdir
   val warPath = "/path/to/war"
