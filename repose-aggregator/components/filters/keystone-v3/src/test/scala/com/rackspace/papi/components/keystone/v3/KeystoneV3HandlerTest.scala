@@ -13,6 +13,7 @@ import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, Opens
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
+import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
@@ -146,7 +147,9 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return unauthorized when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      val (filterDirector, _) = keystoneV3Handler invokePrivate authenticate(mockRequest)
+      val filterDirector = new FilterDirectorImpl()
+
+      keystoneV3Handler invokePrivate authenticate(filterDirector, mockRequest)
 
       filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
       filterDirector.getFilterAction should be(FilterAction.RETURN)
@@ -450,38 +453,34 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
   }
 
-  describe("authorize") {
-    val authorize = PrivateMethod[FilterDirector]('authorize)
+  describe("validating endpoints") {
+    val endpoints = List(
+      Endpoint("1", url = "http://www.notreallyawebsite.com")
+    )
+    val catalog = Catalog(List(ServiceForAuthenticationResponse(endpoints)))
+    val user = UserForAuthenticateResponse(DomainsForAuthenticateResponse())
+    val authResponse = AuthenticateResponse("", "", List.empty[String], None, None, Some(catalog), None, user)
 
-    it("should make no changes when not configured to check endpoints") {
-      val filterDirector = mock[FilterDirector]
-      keystoneV3Handler invokePrivate authorize((filterDirector, null))
-      verifyZeroInteractions(filterDirector)
+    it("returns true when not configured to check endpoints") {
+      keystoneV3Handler.validateEndpoint(Some(authResponse)) shouldBe true
     }
-
-    it("should make no changes when configured and the endpoint is present") {
+    it("returns true when configured to check and the endpoint is present") {
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
-      val catalog = Catalog(services)
-      val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
-      keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
-      verifyZeroInteractions(filterDirector)
+      keystoneV3Handler.validateEndpoint(Some(authResponse)) shouldBe true
     }
-
-    it("should change the status code and action when configured and the endpoint is not present") {
+    it("returns false when configured to check and the endpoint is not present") {
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
-      keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
-      val catalog = Catalog(services)
-      val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.someotherwebsite.com")
 
-      keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
-      verify(filterDirector).setFilterAction(FilterAction.RETURN)
-      verify(filterDirector).setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+      keystoneV3Handler.validateEndpoint(Some(authResponse)) shouldBe false
+    }
+    it("returns false when configured to check, and there is no authentication response") {
+      keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
+      keystoneConfig.getServiceEndpoint.setUrl("http://www.someotherwebsite.com")
+
+      keystoneV3Handler.validateEndpoint(None) shouldBe false
     }
   }
 
