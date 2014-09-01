@@ -402,11 +402,20 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
   }
 
-  private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
-    (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) &&
-      Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
-      Option(keystoneConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
-      Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
+  /**
+   * Using a method on the endpoint itself hiding a pattern match to determine if it matches.
+   * see the matches method on the Endpoint caseClass.
+   * @param endpoints
+   * @return
+   */
+  def containsEndpoint(endpoints: List[Endpoint]): Boolean = {
+    endpoints.exists { endpoint =>
+      endpoint.matches(requiredUrl = keystoneConfig.getServiceEndpoint.getUrl,
+        requiredRegion = Option(keystoneConfig.getServiceEndpoint.getRegion),
+        requiredName = Option(keystoneConfig.getServiceEndpoint.getName),
+        requiredInterface = Option(keystoneConfig.getServiceEndpoint.getInterface)
+      )
+    }
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
