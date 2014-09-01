@@ -1,16 +1,13 @@
 package org.openrepose.servo.actors
 
-import java.io.File
-
-import akka.actor.{Props, PoisonPill, Terminated, ActorSystem}
+import akka.actor.{ActorSystem, PoisonPill, Props, Terminated}
 import akka.event.Logging.Info
-import akka.testkit.{CustomEventFilter, EventFilter, TestProbe, TestKit}
+import akka.testkit.{EventFilter, TestKit, TestProbe}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
-import org.openrepose.servo.{CommandGenerator, TestUtils, ReposeNode}
-import org.openrepose.servo.actors.NodeStoreMessages.Initialize
+import org.openrepose.servo.{CommandGenerator, ReposeNode, TestUtils}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpecLike, Matchers, BeforeAndAfterAll}
+import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 
 import scala.io.Source
 
@@ -27,14 +24,17 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
 
 
   val testNode = ReposeNode("testCluster", "testNode", "localhost", Some(8080), None)
+  val configRootFile = tempDir("reposeLauncherTest").toFile
+  val configRoot = configRootFile.getAbsolutePath
 
   override def afterAll() = {
     TestKit.shutdownActorSystem(system)
+    deleteRecursive(configRootFile.toPath)
   }
 
   def launcherProps(preOpts: Seq[String],
                     env: Map[String, String] = Map.empty[String, String]): Props = {
-    val cg = new CommandGenerator(preOpts ++ Seq("--"), "configRoot", "launcherPath", "warFile")
+    val cg = new CommandGenerator(preOpts ++ Seq("--"), configRoot, "launcherPath", "warFile")
     ReposeLauncher.props(cg.commandLine(testNode), env)
   }
 
@@ -65,11 +65,11 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
         val actor = system.actorOf(props)
       }
     }
-    it("sets the command line parameter --port when given an HTTP port (not https)") {
+    it("always specifies a --config for jetty configs") {
       val probe = TestProbe()
       val props = launcherProps(Seq("bash", "-c", "echo $@"))
 
-      EventFilter.info(pattern = "--port 8080", occurrences = 1) intercept {
+      EventFilter.info(pattern = "--config .*_jetty.xml", occurrences = 1) intercept {
         val actor = system.actorOf(props)
       }
     }
@@ -80,16 +80,6 @@ with FunSpecLike with Matchers with BeforeAndAfterAll with TestUtils {
       EventFilter.info(pattern = "warFile$", occurrences = 1) intercept {
         val actor = system.actorOf(props)
       }
-    }
-    it("Generates the necessary jetty configuration when given an HTTPS port (not http)") {
-      //The command generator will have to produce these resources
-      //TODO: how does this even work?
-      // I have to generate a jetty configuration file and pass it to the launcher for this part
-      // But that also means I have to find a SSL cert and SSL key, no clue how existing repose got those...
-      pending
-    }
-    it("Generates the necessary jetty configuration when both HTTP and HTTPS ports are specified") {
-      pending
     }
     it("sets passed in environment variables") {
       val probe = TestProbe()

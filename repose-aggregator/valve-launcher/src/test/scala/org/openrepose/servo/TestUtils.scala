@@ -1,8 +1,9 @@
 package org.openrepose.servo
 
-import java.io.File
+import java.io.{IOException, File}
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Path, StandardOpenOption, Paths, Files}
+import java.nio.file._
+import java.nio.file.attribute.BasicFileAttributes
 
 import scala.io.Source
 
@@ -26,6 +27,38 @@ trait TestUtils {
   def writeFileContent(file: File, content: String):File = {
     Files.write(file.toPath, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
     file
+  }
+
+  /**
+   * A scalaish adaptation of http://stackoverflow.com/questions/779519/delete-files-recursively-in-java/8685959#8685959
+   * This is Java7 Dependent
+   * As specified in the notes, it's a fail fast, rather than a try hardest.
+   * That's okay, we shouldn't be using this outside of test directories
+   * @param path
+   * @return
+   */
+  def deleteRecursive(path:Path) = {
+    Files.walkFileTree(path, new SimpleFileVisitor[Path](){
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        Option(exc) match {
+          case None =>
+            Files.delete(dir)
+            FileVisitResult.CONTINUE
+          case Some(x) =>
+            throw x
+        }
+      }
+    })
   }
 
 
