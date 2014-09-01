@@ -14,6 +14,8 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
   val launcherPath = "/path/to/launcher"
   val baseCommand = Seq("java")
   val node = ReposeNode("clusterId", "nodeId", "hostname", Some(8080), None)
+  val httpsNode = ReposeNode("clusterId", "nodeId", "hostname", None, Some(8081))
+  val bothNode = ReposeNode("clusterId", "nodeId", "hostname", Some(8080), Some(8081))
   val keystoreConfig = KeystoreConfig("keystoreFile", "keystorePass", "keyPass")
 
 
@@ -23,19 +25,14 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
       val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath)
 
       cg.commandLine(node) shouldBe Seq("java", "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir",
-        "-jar", "/path/to/launcher", "--port", "8080", "/path/to/war")
+        "-jar", "/path/to/launcher", "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "/path/to/war")
     }
     it("generates a proper command line when given a container config with a keystore") {
       //This would include the configuration file generated.
-      pending
       val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath, Some(keystoreConfig))
 
-      //TODO: also need to verify the file that's written? This means that /config/root has to be real
-      //This has information on configuring the xmls for SSL and for a keystore
-      //http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html
-
       cg.commandLine(node) shouldBe Seq("java", "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir",
-        "-jar", "/path/to/launcher", "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "--port", "8080", "/path/to/war")
+        "-jar", "/path/to/launcher","--config", s"$tempdir/clusterId_nodeId_jetty_ssl.xml", "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "/path/to/war")
     }
 
     it("generates a proper command line when told to operate insecurely") {
@@ -43,14 +40,25 @@ class CommandGeneratorTest extends FunSpec with Matchers with TestUtils {
 
       cg.commandLine(node) shouldBe Seq("java",
         "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir","-Dinsecure=true",
-        "-jar", "/path/to/launcher", "--port", "8080", "/path/to/war")
+        "-jar", "/path/to/launcher", "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "/path/to/war")
 
     }
     it("generates a proper command line for a node with an HTTPS port") {
-      pending
+      val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath, Some(keystoreConfig))
+
+      cg.commandLine(httpsNode) shouldBe Seq("java",
+        "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir",
+        "-jar", "/path/to/launcher", "--config", s"$tempdir/clusterId_nodeId_jetty_ssl.xml" , "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "/path/to/war")
+
     }
     it("generates a proper command line for a node with both an http port and an https port") {
-      pending
+      val cg = new CommandGenerator(baseCommand, configurationRoot, launcherPath, warPath, Some(keystoreConfig))
+
+      cg.commandLine(bothNode) shouldBe Seq("java",
+        "-Drepose-cluster-id=clusterId", "-Drepose-node-id=nodeId", s"-Dpowerapi-config-directory=$tempdir",
+        "-jar", "/path/to/launcher", "--config", s"$tempdir/clusterId_nodeId_jetty_ssl.xml" , "--config", s"$tempdir/clusterId_nodeId_jetty.xml", "/path/to/war")
+
+
     }
   }
 }
