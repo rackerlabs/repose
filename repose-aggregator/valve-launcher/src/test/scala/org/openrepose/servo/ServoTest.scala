@@ -1,27 +1,43 @@
 package org.openrepose.servo
 
 import java.io._
+import java.util.concurrent.ConcurrentSkipListSet
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 
 import scala.concurrent.{Await, Future}
 import scala.io.Source
-import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterEach {
+class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfterAll {
 
   val defaultConfig = ConfigFactory.load()
 
   val servoVersion = defaultConfig.getString("version")
 
+  //Keep a set of the things I need to clean up
+  val cleanUpDirs = new ConcurrentSkipListSet[File]()
+
   //Need an execution context for my futures
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._
+
+  override protected def afterAll() = {
+    import scala.collection.JavaConverters._
+    cleanUpDirs.asScala.foreach { f =>
+      deleteRecursive(f.toPath)
+    }
+  }
+
+  def autoCleanTempDir(prefix:String):String = {
+    val dir = tempDir(prefix).toFile
+    cleanUpDirs.add(dir)
+    dir.getAbsolutePath
+  }
 
   def afterExecution(args: Array[String] = Array.empty[String], callback: (String, String, Int) => Unit) = {
     val stdout = new ByteArrayOutputStream()
@@ -57,7 +73,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
     def servoConfig(systemModelResource: String, containerConfigResource:String = "/servoTesting/with-keystore.xml")(testFunc: (String, File, Config) => Unit) = {
       //Create the 1-node system model
-      val configRoot = tempDir("servo").toString
+      val configRoot = autoCleanTempDir("servo").toString
       val systemModelContent = resourceContent(systemModelResource)
       val containerConfigContent = resourceContent(containerConfigResource)
       val log4jContent = resourceContent("/servoTesting/log4j.properties")
