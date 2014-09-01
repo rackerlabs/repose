@@ -52,7 +52,13 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       filterDirector.setFilterAction(FilterAction.PASS)
       filterDirector
     } else {
-      authorize(authenticate(request))
+      val (filterDirector, authenticateResponse) = authenticate(request)
+      if (!validateEndpoint(authenticateResponse)) {
+        //Endpoint does not validate, or was required, but not returned from identity
+        filterDirector.setFilterAction(FilterAction.RETURN)
+        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+      }
+      filterDirector
     }
   }
 
@@ -177,12 +183,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   // TODO: Drop the tuple, return an AuthenticateResponse, and handle the filter director a level up
-  private def authenticate(request: HttpServletRequest): (FilterDirector, AuthenticateResponse) = {
+  private def authenticate(request: HttpServletRequest): (FilterDirector, Option[AuthenticateResponse]) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
+    //blah this is super gross, but it works...
+    //TODO restructure this jank to avoid the var, it can be done!
     var authenticateResponse: AuthenticateResponse = null
     Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
@@ -240,19 +248,28 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
 
-    (filterDirector, authenticateResponse)
+    (filterDirector, Option(authenticateResponse))
   }
 
-  // TODO: Extract the filter director, take a list of ServiceForAuthenticateResponse, return a boolean
-  private def authorize(tuple: (FilterDirector, AuthenticateResponse)): FilterDirector = {
-    val filterDirector = tuple._1
-    val authResponse = tuple._2
-    if (Option(keystoneConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.service.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
-      filterDirector.setFilterAction(FilterAction.RETURN)
-      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+  /**
+   * Takes an auth response and determines if their endpoint is valid
+   * @param authenticateResponse Optional
+   * @return true if they are authorized, false otherwise
+   */
+  def validateEndpoint(authenticateResponse: Option[AuthenticateResponse]): Boolean = {
+    authenticateResponse match {
+      case Some(authResponse) =>
+        (Option(keystoneConfig.getServiceEndpoint), authResponse.catalog) match {
+          //If I have both a required endpoint config and a catalog
+          // then I go verify that the required endpoint is in my list
+          case (Some(endpoint), Some(catalog)) =>
+            val endpoints = catalog.service.flatMap(service => service.endpoints)
+            containsEndpoint(endpoints)
+          case (Some(_), None) => false
+          case (None, _) => true
+        }
+      case None => false
     }
-
-    filterDirector
   }
 
   private def validateSubjectToken(subjectToken: String, isRetry: Boolean = false): Try[AuthenticateResponse] = {
@@ -396,7 +413,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles: Set[String] = if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
+    val projectsFromRoles: Set[String] = if (writeAll) roles.map({
+      role => role.project_id.get
+    }).toSet
+    else Set.empty
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
@@ -409,12 +429,13 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
    * @return
    */
   def containsEndpoint(endpoints: List[Endpoint]): Boolean = {
-    endpoints.exists { endpoint =>
-      endpoint.matches(requiredUrl = keystoneConfig.getServiceEndpoint.getUrl,
-        requiredRegion = Option(keystoneConfig.getServiceEndpoint.getRegion),
-        requiredName = Option(keystoneConfig.getServiceEndpoint.getName),
-        requiredInterface = Option(keystoneConfig.getServiceEndpoint.getInterface)
-      )
+    endpoints.exists {
+      endpoint =>
+        endpoint.matches(requiredUrl = keystoneConfig.getServiceEndpoint.getUrl,
+          requiredRegion = Option(keystoneConfig.getServiceEndpoint.getRegion),
+          requiredName = Option(keystoneConfig.getServiceEndpoint.getName),
+          requiredInterface = Option(keystoneConfig.getServiceEndpoint.getInterface)
+        )
     }
   }
 
