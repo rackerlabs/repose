@@ -45,14 +45,15 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private[v3] var cachedAdminToken: String = null
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
+
     if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
 
-      val filterDirector: FilterDirector = new FilterDirectorImpl()
       filterDirector.setFilterAction(FilterAction.PASS)
       filterDirector
     } else {
-      val (filterDirector, authenticateResponse) = authenticate(request)
+      val authenticateResponse = authenticate(filterDirector, request)
       if (!validateEndpoint(authenticateResponse)) {
         //Endpoint does not validate, or was required, but not returned from identity
         filterDirector.setFilterAction(FilterAction.RETURN)
@@ -182,9 +183,16 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
   }
 
-  // TODO: Drop the tuple, return an AuthenticateResponse, and handle the filter director a level up
-  private def authenticate(request: HttpServletRequest): (FilterDirector, Option[AuthenticateResponse]) = {
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
+  /**
+   * mutates the state of the FilterDirector, returns an optional Authenticate response, if one was received.
+   * TODO: to avoid mutating the filter director, we'd have to return a whole pile of things...
+   * Maybe we could return some container object including what to do.
+   * @param filterDirector
+   * @param request
+   * @return
+   */
+  private def authenticate(filterDirector: FilterDirector, request: HttpServletRequest):Option[AuthenticateResponse] = {
+
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
@@ -248,7 +256,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
 
-    (filterDirector, Option(authenticateResponse))
+    Option(authenticateResponse)
   }
 
   /**

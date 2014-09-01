@@ -13,6 +13,7 @@ import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, Opens
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers
 import com.rackspace.papi.components.keystone.v3.utilities.exceptions.InvalidAdminCredentialsException
+import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
@@ -146,7 +147,9 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return unauthorized when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      val (filterDirector, _) = keystoneV3Handler invokePrivate authenticate(mockRequest)
+      val filterDirector = new FilterDirectorImpl()
+
+      keystoneV3Handler invokePrivate authenticate(filterDirector, mockRequest)
 
       filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
       filterDirector.getFilterAction should be(FilterAction.RETURN)
