@@ -1,6 +1,10 @@
 package org.openrepose.servo
 
+import scala.util.{Success, Try}
 import scala.xml.Node
+
+
+case class MissingKeystoreException(message:String, cause:Throwable = null) extends Exception(message, cause)
 
 class JettyConfigGenerator(configRoot: String, node: ReposeNode, keystoreConfig: Option[KeystoreConfig]) {
 
