@@ -47,6 +47,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     if (isUriWhitelisted(request.getRequestURI, keystoneConfig.getWhiteList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
+
       val filterDirector: FilterDirector = new FilterDirectorImpl()
       filterDirector.setFilterAction(FilterAction.PASS)
       filterDirector
@@ -95,6 +96,86 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector
   }
 
+  /**
+   * Taking an AuthenticateResponse, we can get all the headers we might possibly set, and then remove the Nones
+   * from it. Reads a bit better and is much easier to verify what headers are generated based on the
+   * AuthenticateResponse
+   * @param tokenObject
+   * @return
+   */
+  def headersToSet(tokenObject: AuthenticateResponse): Map[String, String] = {
+    import KeystoneV3Headers._
+
+    // TODO: Add the project ID if verified (not in-scope)
+    val rootHeaders: Map[String, Option[String]] = Map(
+      X_TOKEN_EXPIRES -> Some(tokenObject.expires_at),
+      X_AUTHORIZATION -> Some(X_AUTH_PROXY),
+      X_USER_NAME -> tokenObject.user.name,
+      PowerApiHeader.X_CATALOG.toString -> tokenObject.catalog.map(catalog => base64Encode(catalog.toJson.compactPrint)),
+      X_ROLES -> tokenObject.roles.map(roles => roles.map(_.name) mkString ","),
+      X_USER_ID -> tokenObject.user.id,
+      X_IDENTITY_STATUS -> (if (forwardUnauthorizedRequests) Some(IdentityStatus.Confirmed.name) else None)
+    )
+
+    val projectHeaders: Map[String, Option[String]] = tokenObject.project.map {
+      project =>
+        Map(
+          X_PROJECT_ID -> project.id,
+          X_PROJECT_NAME -> project.name
+        )
+    }.getOrElse(Map.empty[String, Option[String]])
+
+    // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
+    // TODO: Set X-Impersonator-Id, same as above
+    // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
+
+    //Strip out any optionals from our headers, so we just get the headers we have values for
+    (rootHeaders ++ projectHeaders).collect {
+      case (key, Some(value)) => key -> value
+    }
+  }
+
+  /**
+   * Just a convenience method to append a quality to a header. It's nested in the header manager, which is annoying
+   * to use, because it's mutable.
+   * @param value
+   * @param quality
+   * @return
+   */
+  def headerValueWithQuality(value: String, quality: Double) = value + ";q=" + quality.toString
+
+  /**
+   * Build a map of headers from a tokenObject, and a list of Groups. This is somewhat easier to read, and much
+   * easier to test.
+   * @param tokenObject
+   * @param groups
+   * @return
+   */
+  def headersToAppend(tokenObject: AuthenticateResponse, groups: List[Group]): Map[String, List[String]] = {
+
+    val projectOptionalHeaders = tokenObject.project.map {
+      project =>
+        Map(
+          PowerApiHeader.USER.toString -> project.name.map(name => List(headerValueWithQuality(name, 1.0)))
+        )
+    } getOrElse {
+      Map.empty[String, Option[List[String]]]
+    }
+
+    val groupsList: Option[List[String]] = if (groups.nonEmpty) {
+      Some(groups.map { group =>
+        headerValueWithQuality(group.name, 1.0)
+      })
+    } else {
+      None
+    }
+
+    //Collect only the ones with possible values, and return them
+    (projectOptionalHeaders + (PowerApiHeader.GROUPS.toString -> groupsList)).collect {
+      case (key, Some(value)) => key -> value
+    }
+  }
+
   // TODO: Drop the tuple, return an AuthenticateResponse, and handle the filter director a level up
   private def authenticate(request: HttpServletRequest): (FilterDirector, AuthenticateResponse) = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
@@ -109,38 +190,34 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
           case Success(tokenObject: AuthenticateResponse) =>
             authenticateResponse = tokenObject
 
-            headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
-            headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-            tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
-            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
-            tokenObject.roles.map { roles =>
-              headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
-            }
-            tokenObject.user.id.map { id =>
-              headerManager.putHeader(KeystoneV3Headers.X_USER_ID.toString, id)
-              headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
-            }
-            tokenObject.project.map { project =>
-              project.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
-              project.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
-            }
-            if (forwardUnauthorizedRequests) headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
-            if (keystoneConfig.isRequestGroups) {
-              tokenObject.user.id map { userId: String =>
-                fetchGroups(userId) map { groupsList: List[Group] =>
-                  groupsList map { group: Group =>
-                    headerManager.appendHeader(PowerApiHeader.GROUPS.toString, group.name + ";q=1.0")
-                  }
-                }
-              } orElse {
+            //Collect the headers we're going to set
+            val putHeaders = headersToSet(tokenObject)
+
+            //Get the list of groups if configured to, otherwise just an empty group list
+            val groupList = if (keystoneConfig.isRequestGroups) {
+              tokenObject.user.id.map { userId =>
+                fetchGroups(userId).getOrElse(List.empty[Group])
+              } getOrElse {
                 LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
-                None
+                List.empty[Group]
               }
+            } else {
+              List.empty[Group]
             }
 
-            // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
-            // TODO: Set X-Impersonator-Id, same as above
-            // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
+            //Get the list of headers that we have to call "append" on
+            val appendHeaders = headersToAppend(tokenObject, groupList)
+
+            //Put all the headers
+            putHeaders.foreach { case (key, value) =>
+              headerManager.putHeader(key, value)
+            }
+
+            //Append all the headers
+            appendHeaders.foreach { case (key, value) =>
+              //Use the magic list expansion to get to a java String... varargs
+              headerManager.appendHeader(key, value: _*)
+            }
 
             filterDirector.setFilterAction(FilterAction.PASS)
           case Failure(e: InvalidSubjectTokenException) =>
@@ -207,14 +284,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               case HttpStatusCode.NOT_FOUND =>
                 LOG.error("Subject token validation failed. Response Code: 404")
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
-              case HttpStatusCode.UNAUTHORIZED =>
-                if (!isRetry) {
-                  LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
-                  validateSubjectToken(subjectToken, isRetry = true)
-                } else {
-                  LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
-                  Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
-                }
+              case HttpStatusCode.UNAUTHORIZED if !isRetry =>
+                LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
+                validateSubjectToken(subjectToken, isRetry = true)
+              case HttpStatusCode.UNAUTHORIZED if isRetry =>
+                LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
+                Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
               case _ =>
                 LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
                 Failure(new KeystoneServiceException("Failed to validate subject token"))
