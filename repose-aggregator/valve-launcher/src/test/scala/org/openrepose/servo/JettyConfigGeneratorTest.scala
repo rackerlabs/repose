@@ -4,6 +4,7 @@ import org.junit.runner.RunWith
 import org.scalatest.{Matchers, FunSpec}
 import org.scalatest.junit.JUnitRunner
 
+import scala.util.Failure
 import scala.xml.XML
 
 @RunWith(classOf[JUnitRunner])
@@ -63,14 +64,11 @@ class JettyConfigGeneratorTest extends FunSpec with Matchers with TestUtils {
     }
     describe("without a keystore") {
       val keystoreConfig = None
-      it("generates a Jetty config.xml for HTTP") {
-        pending
-      }
-      it("Fails to generate a Jetty config.xml for HTTPS") {
-        pending
-      }
-      it("Fails to generate a jetty config.xml for BOTH") {
-        pending
+      it("returns None for the ssl config") {
+        val jettyConfig = new JettyConfigGenerator("/config/root", httpsNode, keystoreConfig)
+
+        val sslContent = jettyConfig.sslConfig
+        sslContent shouldBe None
       }
     }
   }
