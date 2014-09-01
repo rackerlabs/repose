@@ -39,10 +39,10 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
 
   val builder = Process(command, None, environment.toList: _*)
   //Fire that sucker up
-  val process = Some(builder.run(ProcessLogger(
+  val process = builder.run(ProcessLogger(
     stdout => log.info(stdout),
     stderr => log.warning(stderr)
-  )))
+  ))
   //schedule some other thread to watch the process until it exits
   //Unfortunately the only way to do this stuff is to block up a thread.
   //Grab an execution context to run this future in
@@ -50,7 +50,7 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
   val myRef = context.self
   Future {
     //I can assume this exists, because I just made it
-    process.get.exitValue()
+    process.exitValue()
   } onComplete { t =>
     //Note, these could be dead letters. Not sure how to check on that
     //It's not terribly important that they might send letters to dead actors, just log noise
@@ -63,7 +63,8 @@ class ReposeLauncher(command: Seq[String], environment: Map[String, String]) ext
   }
 
   override def postStop() = {
-    process.map(_.destroy())
+    process.destroy()
+    process.exitValue() //I think this might be needed to have it block
   }
 
   override def receive: Receive = {
