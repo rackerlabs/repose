@@ -427,7 +427,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     else Set.empty
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
-    filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
+    filterDirector.requestHeaderManager().appendHeader(KeystoneV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
   /**
