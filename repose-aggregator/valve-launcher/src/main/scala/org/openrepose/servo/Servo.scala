@@ -5,7 +5,8 @@ import java.io.{File, InputStream, PrintStream}
 import akka.actor.{ActorSystem, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.{BasicConfigurator, PropertyConfigurator}
-import org.openrepose.servo.actors.{NodeStore, ReposeLauncher, SystemModelWatcher}
+import org.openrepose.servo.actors.NodeStoreMessages.ConfigurationUpdated
+import org.openrepose.servo.actors.{ConfigurationWatcher, NodeStore, ReposeLauncher}
 import org.slf4j.LoggerFactory
 
 import scala.io.Source
@@ -18,6 +19,8 @@ class Servo {
    * I've set up the logging system....
    */
   lazy val LOG = LoggerFactory.getLogger(this.getClass)
+
+  val configOverrideWarning = "WARNING: XX_CONFIGURATION_OVERRIDE_FILE_XX set! It is usually bad to override this!!!"
 
   //http://www.eclipse.org/jetty/documentation/current/runner.html
   // Here's how to use the jetty-runner
@@ -129,9 +132,7 @@ class Servo {
           out.println("Launching with SSL validation")
         }
         val finalConf = servoConfig.confOverride.map{conf =>
-          val warnStr = "WARNING: XX_CONFIGURATION_OVERRIDE_FILE_XX set! It is usually bad to override this!!!"
-          Console.err.println(warnStr)
-          LOG.warn(warnStr)
+          Console.err.println(configOverrideWarning)
           ConfigFactory.parseFile(conf).withFallback(config).resolve()
         } getOrElse {
           config
@@ -206,6 +207,11 @@ class Servo {
             BasicConfigurator.configure()
             LOG.warn("DID NOT FIND LOG4J CONFIGURATION, FALLING BACK TO BASIC CONFIG")
             LOG.warn(s"YOU PROBABLY DON'T WANT THIS. MAKE A ${log4jProps.getAbsolutePath}")
+          }
+
+          //Now that we have loaded our logging system, make noise in the log about the config override
+          if(servoConfig.confOverride.isDefined) {
+            LOG.warn(configOverrideWarning)
           }
 
           LOG.info("Servo logging system initialized")

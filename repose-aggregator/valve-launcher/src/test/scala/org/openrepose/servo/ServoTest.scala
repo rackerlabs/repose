@@ -248,7 +248,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           val logFile = tempFile("log4jlogging", ".log")
           val log4jFile = new File(configRoot, "log4j.properties")
           log4jFile.deleteOnExit()
-          val log4jContent = resourceContent("/servoTesting/log4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
+          val log4jContent = resourceContent("/servoTesting/targetedlog4j.properties").replace("${LOG_FILE}", logFile.getAbsolutePath)
           writeFileContent(log4jFile, log4jContent)
 
           //Config file to pass on the command line
