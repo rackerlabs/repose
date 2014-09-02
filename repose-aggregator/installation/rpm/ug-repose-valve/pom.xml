@@ -43,6 +43,8 @@
                                             <artifactId>valve-launcher</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destFileName>servo.jar</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -88,12 +90,10 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/valve-launcher-${project.version}.jar
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/valve-launcher-${project.version}.jar-->
+                                                ${project.build.directory}/servo.jar
                                             </location>
-                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
-                                            <destination>
-                                                servo.jar
-                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
