@@ -94,8 +94,8 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
          loggingService.updateLoggingConfiguration(configurationObject);
 
          LOG.error("ERROR LEVEL LOG STATEMENT");
-         LOG.warn("WARN LEVEL LOG STATEMENT");
-         LOG.info("INFO LEVEL LOG STATEMENT");
+         LOG.warn( "WARN  LEVEL LOG STATEMENT");
+         LOG.info( "INFO  LEVEL LOG STATEMENT");
          LOG.debug("DEBUG LEVEL LOG STATEMENT");
          LOG.trace("TRACE LEVEL LOG STATEMENT");
          isInitialized = true;
