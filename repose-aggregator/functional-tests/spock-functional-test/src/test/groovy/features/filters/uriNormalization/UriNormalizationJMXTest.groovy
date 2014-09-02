@@ -45,13 +45,7 @@ class UriNormalizationJMXTest extends Specification {
 
         reposeConfigProvider = new ReposeConfigurationProvider(properties.getConfigDirectory(), properties.getConfigTemplates())
 
-        repose = new ReposeValveLauncher(
-                reposeConfigProvider,
-                properties.getReposeJar(),
-                properties.reposeEndpoint,
-                properties.getConfigDirectory(),
-                properties.reposePort
-        )
+        repose = new ReposeValveLauncher(reposeConfigProvider, properties)
         repose.enableDebug()
 
         params = properties.getDefaultTemplateParams()

@@ -26,7 +26,9 @@ class CaseSensitiveHeadersTest extends ReposeValveTest {
         reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configTemplates)
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 url,
                 properties.getConfigDirectory(),
                 reposePort
