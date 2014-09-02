@@ -112,7 +112,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
-            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG, base64Encode(catalog.toJson.compactPrint)))
+            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
             tokenObject.roles.map { roles =>
               headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
             }
