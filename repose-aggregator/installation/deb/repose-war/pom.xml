@@ -43,6 +43,8 @@
                                             <artifactId>web-application</artifactId>
                                             <version>${project.version}</version>
                                             <type>war</type>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destFileName>repose-${project.version}.war</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -102,11 +104,10 @@
                                                 <filemode>555</filemode>
                                             </mapper>
                                             <src>
-                                                ${project.build.directory}/web-application-${project.version}.war
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/web-application-${project.version}.war-->
+                                                ${project.build.directory}/repose-${project.version}.war
                                             </src>
-                                            <dst>
-                                                repose-${project.version}.war
-                                            </dst>
                                         </data>
 
                                         <!-- The /var/repose directory. -->
@@ -181,7 +182,9 @@
                                                 <group>
                                                     repose
                                                 </group>
-                                                <filemode>750</filemode>
+                                                <!-- TODO: This does not set the permissions properly. -->
+                                                <dirmode>770</dirmode>
+                                                <filemode>770</filemode>
                                             </mapper>
                                         </data>
 

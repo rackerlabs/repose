@@ -116,13 +116,14 @@ drwxrw---- repose / repose /var/repose
 Now:   Without it we get:
 java.lang.IllegalStateException: The deployment directory /var/repose does not exist.  Please create the Power API deployment directory.
 ================================================================================
-The only difference now between the Debian and RPM installs the Other permissions on /etc/repose.
+The only difference now between the Debian and RPM installs are the permissions on /etc/repose.
+The RPM is correct, but the plugin for creating Debian's will not set the permissions as configured.
 --------------------------------------------------------------------------------
 Debian:
 drwxr-xr-x repose / repose /etc/repose
 --------------------------------------------------------------------------------
 RPM:
-drwxr-x--- repose / repose /etc/repose
+drwxrwx--- repose / repose /etc/repose
 ================================================================================
 ================================================================================
 The CLI Utilities were brought in line with this change too.

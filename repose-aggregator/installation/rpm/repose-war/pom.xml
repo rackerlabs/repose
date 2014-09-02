@@ -43,6 +43,8 @@
                                             <artifactId>web-application</artifactId>
                                             <version>${project.version}</version>
                                             <type>war</type>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destFileName>repose-${project.version}.war</destFileName>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -93,11 +95,10 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/web-application-${project.version}.war
+                                                <!-- TODO: The actual artifact ID should be used.
+                                                ${project.build.directory}/web-application-${project.version}.war-->
+                                                ${project.build.directory}/repose-${project.version}.war
                                             </location>
-                                            <destination>
-                                                repose-${project.version}.war
-                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -158,7 +159,7 @@
                                     <groupname>
                                         repose
                                     </groupname>
-                                    <filemode>750</filemode>
+                                    <filemode>770</filemode>
                                 </mapping>
 
                                 <!-- The sample configuration files for the filters. -->
