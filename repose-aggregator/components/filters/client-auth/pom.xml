@@ -191,6 +191,38 @@
             </plugin>
             <!-- I think this is legit, rules go in scalastyle_config.xml -->
 
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.12.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.example.whizbang</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- how does this even work -->
+
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.12.1</version>
+                <configuration>
+                    <configLocation>whizbang/checkstyle.xml</configLocation>
+                    <headerLocation>whizbang/LICENSE.txt</headerLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <!-- how does this even work -->
+
 </project>
