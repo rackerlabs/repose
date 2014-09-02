@@ -6,6 +6,7 @@ import akka.actor.{ActorSystem, Props}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.{BasicConfigurator, PropertyConfigurator}
 import org.openrepose.servo.actors.NodeStoreMessages.ConfigurationUpdated
+import org.openrepose.servo.actors.ReposeLauncher.LauncherPropsFunction
 import org.openrepose.servo.actors.{ConfigurationWatcher, NodeStore, ReposeLauncher}
 import org.slf4j.LoggerFactory
 
@@ -226,16 +227,14 @@ class Servo {
           //TODO: I don't pay any attention to --insecure! Hand it to the command generator!
           val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
 
-          //Configure the props of the actor we want to turn on
-          val propsFunction: (CommandGenerator, ReposeNode) => Props = {
-            (cg, node) =>
-              ReposeLauncher.props(cg.commandLine(node), env)
-          }
-
           val commandGenerator = new CommandGenerator(baseCommand, configRoot, launcherPath, warLocation)
 
-          //Using a partially applied function to transform something into what something else needs, without telling it about it.
-          val launcherProps = propsFunction(commandGenerator, _: ReposeNode)
+          //Not using a partially applied function, just pulling in things from scope that are thread safe and all that
+          //Configure the props of the actor we want to turn on
+          val launcherProps: LauncherPropsFunction = {
+            (node) =>
+              ReposeLauncher.props(commandGenerator.commandLine(node), env)
+          }
 
           //start up the node store
           val nodeStoreActorRef = system.actorOf(NodeStore.props(launcherProps))
