@@ -1,10 +1,3 @@
-class S {
-
-
-
-
-
-
-
+class s {
 
 }
