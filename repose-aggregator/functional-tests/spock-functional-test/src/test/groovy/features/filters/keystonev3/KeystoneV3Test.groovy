@@ -24,7 +24,7 @@ class KeystoneV3Test extends ReposeValveTest{
         waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null,fakeKeystoneV3Service.handler)
     }

@@ -20,12 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MockKeystoneV3Service {
 
-    public MockKeystoneV3Service(int identityPort, int originServicePort) {
+    public MockKeystoneV3Service(int identityPort) {
 
         resetHandlers()
 
         this.port = identityPort
-        this.originServicePort = originServicePort
 
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
 
@@ -38,7 +37,6 @@ class MockKeystoneV3Service {
     }
 
     int port
-    int originServicePort
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     boolean isTokenValid = true;
