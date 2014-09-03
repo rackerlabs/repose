@@ -349,7 +349,7 @@ class MockKeystoneV3Service {
         headers.put('Content-type', 'application/json')
 
         if (isTokenValid) {
-            code = 200;
+            code = 201
             template = identitySuccessJsonFullRespTemplate
             headers.put('X-Subject-Token', admin_token)
         } else {
