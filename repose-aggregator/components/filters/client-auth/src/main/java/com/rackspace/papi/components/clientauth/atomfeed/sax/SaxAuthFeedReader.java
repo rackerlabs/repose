@@ -44,7 +44,7 @@ public class SaxAuthFeedReader extends DefaultHandler implements AuthFeedReader 
     private CacheKeys resultKeys;
     private SAXParserFactory factory;
     private CacheKeyType curType;
-    /**
+    /*
      * IF the atom feed is authed,
      * THEN we have to provide an admin token with the request.
      */
