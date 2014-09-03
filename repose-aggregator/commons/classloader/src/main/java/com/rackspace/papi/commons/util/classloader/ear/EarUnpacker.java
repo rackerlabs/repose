@@ -36,7 +36,7 @@ public class EarUnpacker {
 
       ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), jarInputStream, entryListener);
 
-      while (archiveStack.size() > 0) {
+      while (!archiveStack.isEmpty()) {
          ArchiveStackElement currentStackElement = archiveStack.pop();
          JarEntry nextJarEntry = currentStackElement.getInputStream().getNextJarEntry();
 

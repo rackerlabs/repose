@@ -44,7 +44,7 @@ public class PowerProxyEventManager implements EventService {
         eventQueueLock.lock();
 
         try {
-            while (eventQueue.size() == 0) {
+            while (eventQueue.isEmpty()) {
                 queueNotEmpty.await();
             }
 

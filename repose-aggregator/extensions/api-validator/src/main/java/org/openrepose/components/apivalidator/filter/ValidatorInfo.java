@@ -31,7 +31,7 @@ public class ValidatorInfo {
         this.wadl = null;
         this.systemId = null;
        
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && roles.size()>0) {
+        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
              this.name =getNameFromRoles(roles);
         } else {
             this.name = name;
@@ -44,7 +44,7 @@ public class ValidatorInfo {
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
-        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && roles.size()>0) {
+        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && !roles.isEmpty()) {
             this.name =getNameFromRoles(roles);
         } else {
             this.name = name;

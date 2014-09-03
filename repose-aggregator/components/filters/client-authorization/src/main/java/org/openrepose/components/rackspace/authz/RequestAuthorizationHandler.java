@@ -65,7 +65,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
             // Reject if no token
             LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
             director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        } else if (ignoreTenantRoles != null && ignoreTenantRoles.getIgnoreTenantRole().size() > 0) {
+        } else if (ignoreTenantRoles != null && !(ignoreTenantRoles.getIgnoreTenantRole().isEmpty())) {
             //if service admin roles from cfg populated then compare to x-roles header
             final List<String> xRolesHeaderValueList = Collections.list(request.getHeaders(OpenStackServiceHeader.ROLES.toString()));
 

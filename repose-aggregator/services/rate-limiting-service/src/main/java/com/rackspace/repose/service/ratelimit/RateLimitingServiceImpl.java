@@ -94,7 +94,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
         }
 
 
-        if (matchingConfiguredLimits.size() > 0) {
+        if (!matchingConfiguredLimits.isEmpty()) {
             rateLimiter.handleRateLimit(user, matchingConfiguredLimits, largestUnit, datastoreWarnLimit);
         }
 
@@ -115,7 +115,7 @@ public class RateLimitingServiceImpl implements RateLimitingService {
             }
         }
 
-        if (matchingGlobalConfiguredLimits.size() > 0) {
+        if (!matchingGlobalConfiguredLimits.isEmpty()) {
             rateLimiter.handleRateLimit(GLOBAL_LIMIT_USER, matchingGlobalConfiguredLimits, largestUnit, datastoreWarnLimit); // NOTE: GLOBAL_LIMIT_USER is not guaranteed to be unique
         }
     }
