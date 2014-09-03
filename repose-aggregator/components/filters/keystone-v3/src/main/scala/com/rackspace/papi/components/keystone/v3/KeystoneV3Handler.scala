@@ -254,18 +254,24 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     if (cachedAdminToken != null && !forceFetchAdminToken) {
       Success(cachedAdminToken)
     } else {
-      val generateAuthTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava, createAdminAuthRequest(), MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE))
-      generateAuthTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
+      val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
+        keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava,
+        createAdminAuthRequest(),
+        MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE))
+
+      //Since we *might* get a null back from the akka service client, we have to map it, and then match
+      // because we care to match on the status code of the response, if anything was set.
+      authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
         // Since the operation is a POST, a 201 should be returned if the operation was successful
         case Some(x) if x == HttpStatusCode.CREATED =>
-          val newAdminToken = generateAuthTokenResponse.get.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
+          val newAdminToken = authTokenResponse.get.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
 
           LOG.debug("Caching admin token")
           cachedAdminToken = newAdminToken
 
           Success(newAdminToken)
         case Some(x) =>
-          LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + generateAuthTokenResponse.get.getStatusCode)
+          LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + authTokenResponse.get.getStatusCode)
           Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
         case None =>
           LOG.error("Unable to get admin token. Request to Keystone service timed out.")
