@@ -31,7 +31,7 @@ public class MediaTypeNormalizer {
     }
 
     private MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
-        MediaType prefMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
+        MediaType prefMediaType = !mediaTypes.isEmpty() ? mediaTypes.get(0) : null;
 
         for (MediaType mediaType : configuredMediaTypes) {
             if (mediaType.isPreferred()) {

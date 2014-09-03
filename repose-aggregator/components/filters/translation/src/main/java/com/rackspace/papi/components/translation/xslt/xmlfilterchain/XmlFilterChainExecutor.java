@@ -79,7 +79,7 @@ public class XmlFilterChainExecutor {
     InputStreamUriParameterResolver resolver = resolverChain.getResolverOfType(InputStreamUriParameterResolver.class);
     resolver.clearStreams();
     
-    if (inputs != null && inputs.size() > 0) {
+    if (inputs != null && !inputs.isEmpty()) {
  
       HttpxUriInputParameterResolver headersResolver = resolverChain.getResolverOfType(HttpxUriInputParameterResolver.class);
       headersResolver.reset();
@@ -117,7 +117,7 @@ public class XmlFilterChainExecutor {
     if (resolver != null) {
       resolver.clearStreams();
 
-      if (outputs != null && outputs.size() > 0) {
+      if (outputs != null && !outputs.isEmpty()) {
 
         for (XsltParameter<? extends OutputStream> output : outputs) {
           

@@ -120,7 +120,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     static <T> T fromMap(Map<HeaderName, List<T>> headers, String headerName) {
         final List<T> headerValues = headers.get(HeaderName.wrap(headerName));
 
-        return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
+        return (headerValues != null && !headerValues.isEmpty()) ? headerValues.get(0) : null;
     }
 
     @Override
