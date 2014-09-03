@@ -78,10 +78,11 @@ public class PowerFilterChain implements FilterChain {
 
             boolean useTrace;
             boolean addTraceHeader = traceRequest(request);
-            if (addTraceHeader || filterTimer != null)
+            if (addTraceHeader || filterTimer != null) {
                 useTrace = true;
-            else
+            } else {
                 useTrace = false;
+            }
 
             tracer = new RequestTracer(useTrace, addTraceHeader);
             currentFilters = getFilterChainForRequest(request.getRequestURI());
