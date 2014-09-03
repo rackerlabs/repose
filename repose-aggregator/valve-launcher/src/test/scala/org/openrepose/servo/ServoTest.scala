@@ -206,18 +206,18 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           val lines = Source.fromFile(tmpOutput).getLines().toList
           lines shouldNot be(empty)
           //Check the environment variables for our cluster ID/node ID
-          val clusterId = lines.filter(_.startsWith("JVM_OPTS"))
+          val clusterId = lines.filter(_.startsWith("JAVA_OPTS"))
           clusterId.size shouldBe 1
-          clusterId.head shouldBe "JVM_OPTS=some repose jvm options would be here"
+          clusterId.head shouldBe "JAVA_OPTS=some repose jvm options would be here"
 
           Await.result(exitValue, 1 second) shouldBe 0
         }
       }
-      it("warns when JVM_OPTS are set") {
+      it("warns when JAVA_OPTS are set") {
         singleNodeServoConfig { (configRoot, tmpOutput, config) =>
           val newConfig = ConfigFactory.parseString(
             """
-              |jvmOpts = "some jvm options would be here ALERT!"
+              |javaOpts = "some jvm options would be here ALERT!"
             """.stripMargin).withFallback(config)
 
           //Not logging the JVM_OPTS warning, it's just going to system err
@@ -237,7 +237,7 @@ class ServoTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
           val stdErrOutput = new String(stdErr.toByteArray)
 
           stdErrOutput shouldNot be("")
-          stdErrOutput should include("WARNING: JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+          stdErrOutput should include("WARNING: JAVA_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
 
           Await.result(exitValue, 1 second) shouldBe 0
         }

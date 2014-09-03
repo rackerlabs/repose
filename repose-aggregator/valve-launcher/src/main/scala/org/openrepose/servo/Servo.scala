@@ -61,9 +61,9 @@ class Servo {
     Console.setErr(err)
 
     //We can flip out right now about the JVM_OPTS
-    if (config.getString("jvmOpts").nonEmpty) {
+    if (config.getString("javaOpts").nonEmpty) {
       //Sending to the console, rather than logger, because we haven't configured the logger yet
-      Console.err.println("WARNING: JVM_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
+      Console.err.println("WARNING: JAVA_OPTS set! Those apply to Servo! Use REPOSE_OPTS instead!")
     }
 
     //Use a Typesafe application.conf to do the loading instead
@@ -221,11 +221,10 @@ class Servo {
           //For quick testing!
           LOG.debug("My Launcher Path: |{}|", launcherPath)
           LOG.debug("My War Location: |{}|", warLocation)
-          LOG.debug("My JVM_OPTS: |{}|", config.getString("jvmOpts"))
+          LOG.debug("My JAVA_OPTS: |{}|", config.getString("javaOpts"))
           LOG.debug("My REPOSE_OPTS: |{}|", config.getString("reposeOpts"))
 
-          //TODO: I don't pay any attention to --insecure! Hand it to the command generator!
-          val env = Map("JVM_OPTS" -> config.getString("reposeOpts"))
+          val env = Map("JAVA_OPTS" -> config.getString("reposeOpts"))
 
           val commandGenerator = new CommandGenerator(baseCommand, configRoot, launcherPath, warLocation)
 
