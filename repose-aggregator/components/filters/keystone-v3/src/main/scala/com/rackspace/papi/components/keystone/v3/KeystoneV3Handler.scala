@@ -7,7 +7,7 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.keystone.v3.config.{WhiteList, KeystoneV3Config}
+import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, WhiteList}
 import com.rackspace.papi.components.keystone.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.keystone.v3.objects._
 import com.rackspace.papi.components.keystone.v3.utilities._
@@ -51,16 +51,16 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
 
       filterDirector.setFilterAction(FilterAction.PASS)
-      filterDirector
     } else {
       val authenticateResponse = authenticate(filterDirector, request)
       if (!validateEndpoint(authenticateResponse)) {
-        //Endpoint does not validate, or was required, but not returned from identity
+        // Endpoint does not validate, or was required, but not returned from identity
         filterDirector.setFilterAction(FilterAction.RETURN)
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
       }
-      filterDirector
     }
+
+    filterDirector
   }
 
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
@@ -69,7 +69,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     val responseStatus = response.getStatus
     filterDirector.setResponseStatusCode(responseStatus)
 
-    /// The WWW Authenticate header can be used to communicate to the client
+    // The WWW Authenticate header can be used to communicate to the client
     // (since we are a proxy) how to correctly authenticate itself
     val wwwAuthenticateHeader = Option(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString))
 
@@ -111,7 +111,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
    * @return
    */
   def headersToSet(tokenObject: AuthenticateResponse): Map[String, String] = {
-    import KeystoneV3Headers._
+    import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
 
     // TODO: Add the project ID if verified (not in-scope)
     val rootHeaders: Map[String, Option[String]] = Map(
@@ -136,7 +136,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     // TODO: Set X-Impersonator-Id, same as above
     // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
 
-    //Strip out any optionals from our headers, so we just get the headers we have values for
+    // Strip out any optionals from our headers, so we just get the headers we have values for
     (rootHeaders ++ projectHeaders).collect {
       case (key, Some(value)) => key -> value
     }
@@ -177,7 +177,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       None
     }
 
-    //Collect only the ones with possible values, and return them
+    // Collect only the ones with possible values, and return them
     (projectOptionalHeaders + (PowerApiHeader.GROUPS.toString -> groupsList)).collect {
       case (key, Some(value)) => key -> value
     }
@@ -191,14 +191,14 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
    * @param request
    * @return
    */
-  private def authenticate(filterDirector: FilterDirector, request: HttpServletRequest):Option[AuthenticateResponse] = {
+  private def authenticate(filterDirector: FilterDirector, request: HttpServletRequest): Option[AuthenticateResponse] = {
 
     val headerManager = filterDirector.requestHeaderManager()
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
-    //blah this is super gross, but it works...
-    //TODO restructure this jank to avoid the var, it can be done!
+    // blah this is super gross, but it works...
+    // TODO restructure this jank to avoid the var, it can be done!
     var authenticateResponse: AuthenticateResponse = null
     Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
@@ -206,10 +206,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
           case Success(tokenObject: AuthenticateResponse) =>
             authenticateResponse = tokenObject
 
-            //Collect the headers we're going to set
+            // Collect the headers we're going to set
             val putHeaders = headersToSet(tokenObject)
 
-            //Get the list of groups if configured to, otherwise just an empty group list
+            // Get the list of groups if configured to, otherwise just an empty group list
             val groupList = if (keystoneConfig.isRequestGroups) {
               tokenObject.user.id.map { userId =>
                 fetchGroups(userId).getOrElse(List.empty[Group])
@@ -221,17 +221,17 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               List.empty[Group]
             }
 
-            //Get the list of headers that we have to call "append" on
+            // Get the list of headers that we have to call "append" on
             val appendHeaders = headersToAppend(tokenObject, groupList)
 
-            //Put all the headers
+            // Put all the headers
             putHeaders.foreach { case (key, value) =>
               headerManager.putHeader(key, value)
             }
 
-            //Append all the headers
+            // Append all the headers
             appendHeaders.foreach { case (key, value) =>
-              //Use the magic list expansion to get to a java String... varargs
+              // Use the magic list expansion to get to a java String... varargs
               headerManager.appendHeader(key, value: _*)
             }
 
@@ -268,7 +268,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     authenticateResponse match {
       case Some(authResponse) =>
         (Option(keystoneConfig.getServiceEndpoint), authResponse.catalog) match {
-          //If I have both a required endpoint config and a catalog
+          // If I have both a required endpoint config and a catalog
           // then I go verify that the required endpoint is in my list
           case (Some(endpoint), Some(catalog)) =>
             val endpoints = catalog.service.flatMap(service => service.endpoints)
