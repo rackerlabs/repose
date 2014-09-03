@@ -11,7 +11,6 @@ object Main extends App {
   val config = ConfigFactory.load()
   val servo = new Servo()
   sys.ShutdownHookThread { //Make sure that it terminates...
-    Console.out.println("Shutdown Hook Initiated...")
     servo.shutdown()
   }
   val exitCode = servo.execute(args, System.in, System.out, System.err, config)
