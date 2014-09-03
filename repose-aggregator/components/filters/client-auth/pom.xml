@@ -215,6 +215,8 @@
                 <configuration>
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <checkstyleRules>
+
+
                         <module name="Checker">
 
                             <!-- Checks for Size Violations.                    -->
@@ -228,8 +230,48 @@
                             <!-- See http://checkstyle.sf.net/config_whitespace.html -->
                             <module name="FileTabCharacter"/>
 
+
+
                             <module name="TreeWalker">
                                 <module name="StaticVariableName"/>
+                                <module name="GenericWhitespace"/>
+                                <module name="NoWhitespaceBefore">
+                                    <property name="tokens" value="DOT"/>
+                                    <property name="allowLineBreaks" value="true"/>
+                                </module>
+
+                                <module name="NoWhitespaceBefore">
+                                    <property name="tokens" value="SEMI"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="PLUS_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="MINUS_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LAND"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LOR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="EQUAL"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="NOT_EQUAL"/>
+                                </module>
+
                                 <module name="TypeName">
                                     <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
                                 </module>
@@ -237,6 +279,12 @@
                         </module>
                     </checkstyleRules>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>codenarc-maven-plugin</artifactId>
+                <version>0.18.1-1-SNAPSHOT</version>
             </plugin>
 
         </plugins>
