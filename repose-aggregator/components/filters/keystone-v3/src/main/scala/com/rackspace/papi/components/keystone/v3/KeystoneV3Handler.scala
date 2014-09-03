@@ -271,12 +271,17 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
         // Since the operation is a POST, a 201 should be returned if the operation was successful
         case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
-          val newAdminToken = authTokenResponse.get.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
+          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
-          LOG.debug("Caching admin token")
-          cachedAdminToken = newAdminToken
-
-          Success(newAdminToken)
+          newAdminToken match {
+            case Some(token) =>
+              LOG.debug("Caching admin token")
+              cachedAdminToken = token
+              Success(token)
+            case None =>
+              LOG.error("Headers not found in a successful response to an admin token request. The Keystone service is not adhering to the Keystone v3 contract.")
+              Failure(new KeystoneServiceException("Keystone service did not return headers with a successful response"))
+          }
         case Some(_) =>
           LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + authTokenResponse.get.getStatusCode)
           Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
