@@ -26,27 +26,27 @@ class MockKeystoneV3Service {
 
         this.port = identityPort
 
-        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
 
-        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true);
+        factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
         Schema schema = factory.newSchema(
-                new StreamSource(MockKeystoneV3Service.class.getResourceAsStream("/schema/openstack/credentials.xsd")));
+                new StreamSource(MockKeystoneV3Service.class.getResourceAsStream("/schema/openstack/credentials.xsd")))
 
 
-        this.validator = schema.newValidator();
+        this.validator = schema.newValidator()
     }
 
     int port
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    boolean isTokenValid = true;
+    boolean isTokenValid = true
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
-    protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
-    protected AtomicInteger _getProjectsCount = new AtomicInteger(0);
-    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0);
-    protected AtomicInteger _getUserRolesOnDomainCount = new AtomicInteger(0);
+    protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
+    protected AtomicInteger _getProjectsCount = new AtomicInteger(0)
+    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0)
+    protected AtomicInteger _getUserRolesOnDomainCount = new AtomicInteger(0)
 
     void resetCounts() {
 
@@ -89,7 +89,7 @@ class MockKeystoneV3Service {
      * plus one day.
      *
      */
-    def tokenExpiresAt = null;
+    def tokenExpiresAt = null
 
     void resetHandlers() {
 
@@ -109,24 +109,24 @@ class MockKeystoneV3Service {
     //Closure<Response> getEndpointsHandler
     Closure<Response> getUserRolesOnDomainHandler
 
-    def client_token = 'this-is-the-token';
-    def client_domainid = 123456;
-    def client_domainname = 'this-is-the-domain';
-    def client_username = 'username';
-    def client_userid = 12345;
-    def client_projectid = 1234567;
+    def client_token = 'this-is-the-token'
+    def client_domainid = 123456
+    def client_domainname = 'this-is-the-domain'
+    def client_username = 'username'
+    def client_userid = 12345
+    def client_projectid = 1234567
     def client_projectname = "this-is-the-project"
     def admin_domainid = 'this-is-the-admin-domain'
     def admin_domainname = 'example.com'
-    def admin_token = 'this-is-the-admin-token';
-    def admin_project = 'this-is-the-admin-project';
-    def admin_username = 'admin_username';
-    def service_admin_role = 'service:admin-role1';
+    def admin_token = 'this-is-the-admin-token'
+    def admin_project = 'this-is-the-admin-project'
+    def admin_username = 'admin_username'
+    def service_admin_role = 'service:admin-role1'
     def endpointUrl = "localhost"
-    def admin_userid = 67890;
-    Validator validator;
+    def admin_userid = 67890
+    Validator validator
 
-    def templateEngine = new SimpleTemplateEngine();
+    def templateEngine = new SimpleTemplateEngine()
 
     def handler = { Request request -> return handleRequest(request) }
 
@@ -163,8 +163,8 @@ class MockKeystoneV3Service {
         def path = request.path
         def method = request.method
 
-        String nonQueryPath;
-        String query;
+        String nonQueryPath
+        String query
 
         if (path.contains("?")) {
             int index = path.indexOf("?")
@@ -178,7 +178,7 @@ class MockKeystoneV3Service {
         if (isTokenCallPath(nonQueryPath)) {
             if (method == "POST") {
                 _generateTokenCount.incrementAndGet()
-                return generateTokenHandler(request);
+                return generateTokenHandler(request)
             } else if (method == 'GET') {
                 _validateTokenCount.incrementAndGet()
                 def tokenId = request.getHeaders().getFirstValue("X-Subject-Token")
@@ -239,7 +239,7 @@ class MockKeystoneV3Service {
                 }
             }
         }
-        return new Response(501);
+        return new Response(501)
     }
 
     static final String getUserRolesOnDomainCallPathRegex = /^\/domain\/([^\/]+)\/users\/([^\/]+)\/roles/
@@ -325,8 +325,8 @@ class MockKeystoneV3Service {
             // TODO: Validate what we need is present in the JSON request
         } catch (Exception e) {
 
-            println("Admin token XSD validation error: " + e);
-            return new Response(400);
+            println("Admin token XSD validation error: " + e)
+            return new Response(400)
         }
 
         def params = [
@@ -339,12 +339,12 @@ class MockKeystoneV3Service {
                 domainid    : client_domainid,
                 domainname  : client_domainname,
                 serviceadmin: service_admin_role
-        ];
+        ]
 
 
-        def code;
-        def template;
-        def headers = [:];
+        def code
+        def template
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
 
@@ -352,7 +352,6 @@ class MockKeystoneV3Service {
             code = 200;
             template = identitySuccessJsonFullRespTemplate
             headers.put('X-Subject-Token', admin_token)
-
         } else {
             code = 404
             template = identityFailureAuthJsonRespTemplate
@@ -378,8 +377,8 @@ class MockKeystoneV3Service {
 
         ]
 
-        def template;
-        def headers = [:];
+        def template
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
         template = getUserGroupsJsonTemplate
@@ -401,8 +400,8 @@ class MockKeystoneV3Service {
 
         ]
 
-        def template;
-        def headers = [:];
+        def template
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
         template = getUserProjectsJsonTemplate
@@ -420,14 +419,14 @@ class MockKeystoneV3Service {
                 token       : request.getHeaders().getFirstValue("X-Auth-Token"),
                 serviceadmin: service_admin_role
         ]
-        def template;
-        def headers = [:];
+        def template
+        def headers = [:]
 
         headers.put('Content-type', 'application/json')
-        template = this.getUserRolesOnDomainJsonTemplate;
+        template = this.getUserRolesOnDomainJsonTemplate
 
-        def body = templateEngine.createTemplate(template).make(params);
-        return new Response(200, null, headers, body);
+        def body = templateEngine.createTemplate(template).make(params)
+        return new Response(200, null, headers, body)
     }
 
     // successful authenticate response /v3/auth/tokens?nocatalog
