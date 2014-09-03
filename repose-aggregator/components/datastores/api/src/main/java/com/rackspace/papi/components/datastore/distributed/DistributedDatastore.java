@@ -28,7 +28,7 @@ public interface DistributedDatastore extends Datastore {
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public void put(String key, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
+    void put(String key, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
@@ -48,7 +48,7 @@ public interface DistributedDatastore extends Datastore {
      * @throws com.rackspace.papi.components.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
-    public Serializable patch(String key, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
+    Serializable patch(String key, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,
                     RemoteBehavior remoteBehavior) throws DatastoreOperationException;
 
     /**
@@ -61,7 +61,7 @@ public interface DistributedDatastore extends Datastore {
      * @throws DatastoreOperationException if an exception occurs when attempting to remove the
      * stored value
      */
-    public boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior);
+    boolean remove(String key, byte[] id, RemoteBehavior remoteBehavior);
 
     /**
      * Gets a value from the Datastore.  If there is no value found for the
@@ -74,6 +74,6 @@ public interface DistributedDatastore extends Datastore {
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      * stored value
      */
-    public Serializable get(String key, byte[] id, RemoteBehavior remoteBehavior);
+    Serializable get(String key, byte[] id, RemoteBehavior remoteBehavior);
 
 }
