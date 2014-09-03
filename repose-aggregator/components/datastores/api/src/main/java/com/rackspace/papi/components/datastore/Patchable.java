@@ -8,5 +8,5 @@ package com.rackspace.papi.components.datastore;
  *
  */
 public interface Patchable<T, P extends Patch<T>> {
-    public T applyPatch(P in);
+    T applyPatch(P in);
 }
