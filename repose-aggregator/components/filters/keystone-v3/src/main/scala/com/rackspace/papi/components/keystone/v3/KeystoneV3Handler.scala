@@ -258,7 +258,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     // Check the cached adminToken. If present, return it. Validity of the token is handled in validateSubjectToken by way of retry.
-    if (cachedAdminToken != null && !forceFetchAdminToken) {
+    if ((cachedAdminToken != null) && !forceFetchAdminToken) {
       Success(cachedAdminToken)
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
