@@ -59,11 +59,9 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
         import scala.collection.JavaConverters._
         val events = watchKey.pollEvents().asScala
         events.foreach(event => {
-          println(s"Got an event to check on: $event")
           event.kind match {
             case StandardWatchEventKinds.OVERFLOW => {
               //it's an overflow, I don't think we care, this just means we've missed events
-              println(s"OVERFLOW EVENT? OH NOES?")
             }
             case StandardWatchEventKinds.ENTRY_MODIFY => {
               val changed = watchDir.resolve(event.context().asInstanceOf[Path])
@@ -74,7 +72,6 @@ class ConfigurationWatcher(directory: String, notifyActor: ActorRef) extends Act
                 val smp = new SystemModelParser(Source.fromFile(changed.toFile).getLines() mkString)
                 smp.localNodes match {
                   case Success(nl) => {
-                    println("ZOMG GOT A NODE LIST")
                     Some(nl)
                   }
                   case Failure(x) => {
