@@ -26,7 +26,7 @@ class KeystoneV3Test extends ReposeValveTest{
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null,fakeKeystoneV3Service.handler)
+                'identity service', null, fakeKeystoneV3Service.handler)
     }
 
     def cleanupSpec() {
