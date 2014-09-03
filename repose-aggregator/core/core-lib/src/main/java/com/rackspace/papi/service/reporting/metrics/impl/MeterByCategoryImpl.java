@@ -46,17 +46,13 @@ public class MeterByCategoryImpl implements MeterByCategory {
     }
 
     private  Meter verifyGet( String key ) {
-
-        if ( !map.containsKey( key ) )
-
+        if ( !map.containsKey( key ) ) {
             synchronized ( this ) {
-
-                if ( !map.containsKey( key ) ) {
-
-                    map.put( key, metricsService.newMeter( klass, key, scope, eventType, unit ) );
+                if (!map.containsKey(key)) {
+                    map.put(key, metricsService.newMeter(klass, key, scope, eventType, unit));
                 }
+            }
         }
-
         return map.get( key );
     }
 

@@ -45,7 +45,9 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
     }
 
     private boolean roleIsServiceAdmin(AuthToken authToken) {
-        if (authToken.getRoles() == null || serviceAdminRoles == null) return false;
+        if (authToken.getRoles() == null || serviceAdminRoles == null) {
+            return false;
+        }
 
         for (String role : authToken.getRoles().split(",")) {
             if (serviceAdminRoles.contains(role)) {
@@ -100,8 +102,9 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
         if (authToken != null) { //authToken could still be null at this point :(
             boolean ignoreTenantRequirement = false;
             for (String role : authToken.getRoles().split(",")) {
-                if (ignoreTenantRoles.contains(role))
+                if (ignoreTenantRoles.contains(role)) {
                     ignoreTenantRequirement = true;
+                }
             }
 
             if (!ignoreTenantRequirement) {

@@ -119,8 +119,9 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
   private MediaType getContentType(HeaderValue contentType) {
       MediaRangeProcessor processor = new MediaRangeProcessor(new ArrayList<HeaderValue>());
       MediaType contentTypeMediaType = new MediaType(MimeType.UNKNOWN);
-      if(contentType != null)
+      if(contentType != null) {
           contentTypeMediaType = processor.process(contentType);
+      }
       return contentTypeMediaType;
   }
 
