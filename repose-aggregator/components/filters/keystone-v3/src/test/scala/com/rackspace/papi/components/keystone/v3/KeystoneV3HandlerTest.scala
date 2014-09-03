@@ -463,8 +463,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
-      val catalog = Catalog(services)
+      val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
       keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
@@ -475,8 +474,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       keystoneConfig.setServiceEndpoint(new ServiceEndpoint)
       keystoneConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val filterDirector = mock[FilterDirector]
-      val services = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
-      val catalog = Catalog(services)
+      val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
       keystoneV3Handler invokePrivate authorize((filterDirector, authToken))

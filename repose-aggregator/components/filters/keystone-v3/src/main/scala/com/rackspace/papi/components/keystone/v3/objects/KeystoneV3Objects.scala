@@ -25,9 +25,6 @@ case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
                                             name: Option[String] = None
                                              ) extends Serializable
 
-case class Catalog(service: List[ServiceForAuthenticationResponse]
-                    ) extends Serializable
-
 case class Role(id: Option[String] = None,
                 name: String,
                 project_id: Option[String] = None,
@@ -47,7 +44,7 @@ case class AuthenticateResponse(expires_at: String,
                                 methods: List[String],
                                 domain: Option[DomainsForAuthenticateResponse],
                                 project: Option[ProjectForAuthenticateResponse],
-                                catalog: Option[Catalog],
+                                catalog: Option[List[ServiceForAuthenticationResponse]],
                                 roles: Option[List[Role]],
                                 user: UserForAuthenticateResponse
                                  ) extends Serializable

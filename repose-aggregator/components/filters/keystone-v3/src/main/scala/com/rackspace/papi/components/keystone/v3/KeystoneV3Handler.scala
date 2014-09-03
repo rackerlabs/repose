@@ -170,7 +170,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private def authorize(tuple: (FilterDirector, AuthenticateResponse)): FilterDirector = {
     val filterDirector = tuple._1
     val authResponse = tuple._2
-    if (Option(keystoneConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.service.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
+    if (Option(keystoneConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
       filterDirector.setFilterAction(FilterAction.RETURN)
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
     }
