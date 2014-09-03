@@ -183,7 +183,7 @@ class MockKeystoneV3Service {
                 return generateTokenHandler(request);
             } else if (method == 'GET') {
                 _validateTokenCount.incrementAndGet()
-                def tokenId = request.getHeaders().getFirstValue(X_SUBJECT_TOKEN_HEADER)
+                def tokenId = request.getHeaders().getFirstValue("X-Subject-Token")
                 return validateTokenHandler(tokenId, request)
             } else {
                 return new Response(405)
@@ -445,7 +445,7 @@ class MockKeystoneV3Service {
                 "domain": {
                     "id": "\${domainid}",
                     "links": {
-                        "self": "http://identity:35357/v3/domains/\${domainId}"
+                        "self": "http://identity:35357/v3/domains/\${domainid}"
                     },
                     "name": "example.com"
                 },
@@ -498,13 +498,13 @@ class MockKeystoneV3Service {
                 "domain": {
                     "id": "\${domainid}",
                     "links": {
-                        "self": "http://identity:35357/v3/domains/\${domainId}"
+                        "self": "http://identity:35357/v3/domains/\${domainid}"
                     },
                     "name": "\${domainname}"
                 },
                 "id": "\${projectid}",
                 "links": {
-                    "self": "http://identity:35357/v3/projects/\${projectId}"
+                    "self": "http://identity:35357/v3/projects/\${projectid}"
                 },
                 "name": "\${projectname}"
             },
@@ -528,7 +528,7 @@ class MockKeystoneV3Service {
                 "domain": {
                     "id": "\${domainid}",
                     "links": {
-                        "self": "http://identity:35357/v3/domains/\${domainId}"
+                        "self": "http://identity:35357/v3/domains/\${domainid}"
                     },
                     "name": "\${domainname}"
                 },
