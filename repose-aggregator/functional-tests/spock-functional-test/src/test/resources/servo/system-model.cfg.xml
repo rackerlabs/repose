@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- used only to test Servo's memory usage -->
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose">
+        <nodes>
+            <node id="repose_node1" hostname="localhost" http-port="8080"/>
+        </nodes>
+        <filters>
+            <filter name="ip-identity"/>
+            <filter name="header-identity"/>
+        </filters>
+        <services>
+            <service name="dist-datastore"/>
+        </services>
+
+        <destinations>
+            <endpoint id="open_repose" protocol="http" hostname="openrepose.org" root-path="/" port="80"
+                      default="true"/>
+        </destinations>
+    </repose-cluster>
+</system-model>
