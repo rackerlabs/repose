@@ -111,7 +111,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
    * @return
    */
   def headersToSet(tokenObject: AuthenticateResponse): Map[String, String] = {
-    import com.rackspace.papi.components.keystone.v3.utilities.KeystoneV3Headers._
+    import KeystoneV3Headers._
 
     // TODO: Add the project ID if verified (not in-scope)
     val rootHeaders: Map[String, Option[String]] = Map(
