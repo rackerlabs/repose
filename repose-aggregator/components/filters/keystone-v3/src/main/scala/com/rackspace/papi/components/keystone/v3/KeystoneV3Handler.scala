@@ -190,11 +190,15 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               KeystoneV3Headers.X_SUBJECT_TOKEN -> subjectToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
             )
-            val validateTokenResponse = akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken, keystoneServiceUri + KeystoneV3Endpoints.TOKEN, headerMap.asJava)
+            val validateTokenResponse = Option(akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken,
+              keystoneServiceUri + KeystoneV3Endpoints.TOKEN,
+              headerMap.asJava))
 
-            HttpStatusCode.fromInt(validateTokenResponse.getStatusCode) match {
-              case HttpStatusCode.OK =>
-                val subjectTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(validateTokenResponse.getData)).token
+            // Since we *might* get a null back from the akka service client, we have to map it, and then match
+            // because we care to match on the status code of the response, if anything was set.
+            validateTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
+              case Some(statusCode) if statusCode == HttpStatusCode.OK =>
+                val subjectTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(validateTokenResponse.get.getData)).token
 
                 val expiration = new DateTime(subjectTokenObject.expires_at)
                 val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
@@ -204,10 +208,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
                 Success(subjectTokenObject)
-              case HttpStatusCode.NOT_FOUND =>
+              case Some(statusCode) if statusCode == HttpStatusCode.NOT_FOUND =>
                 LOG.error("Subject token validation failed. Response Code: 404")
                 Failure(new InvalidSubjectTokenException("Failed to validate subject token"))
-              case HttpStatusCode.UNAUTHORIZED =>
+              case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED =>
                 if (!isRetry) {
                   LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying token validation. Response Code: 401")
                   validateSubjectToken(subjectToken, isRetry = true)
@@ -215,9 +219,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                   LOG.error("Retry after fetching a new admin token failed. Aborting subject token validation for: '" + subjectToken + "'")
                   Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
                 }
-              case _ =>
-                LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.getStatusCode)
+              case Some(_) =>
+                LOG.error("Keystone service returned an unexpected response status code. Response Code: " + validateTokenResponse.get.getStatusCode)
                 Failure(new KeystoneServiceException("Failed to validate subject token"))
+              case None =>
+                LOG.error("Unable to validate subject token. Request to Keystone service timed out.")
+                Failure(new KeystoneServiceException("Keystone service could not be reached to validate subject token"))
             }
           case Failure(e) => Failure(e)
         }
@@ -259,18 +266,18 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         createAdminAuthRequest(),
         MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE))
 
-      //Since we *might* get a null back from the akka service client, we have to map it, and then match
+      // Since we *might* get a null back from the akka service client, we have to map it, and then match
       // because we care to match on the status code of the response, if anything was set.
       authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
         // Since the operation is a POST, a 201 should be returned if the operation was successful
-        case Some(x) if x == HttpStatusCode.CREATED =>
+        case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
           val newAdminToken = authTokenResponse.get.getHeaders.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue
 
           LOG.debug("Caching admin token")
           cachedAdminToken = newAdminToken
 
           Success(newAdminToken)
-        case Some(x) =>
+        case Some(_) =>
           LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + authTokenResponse.get.getStatusCode)
           Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
         case None =>
@@ -297,11 +304,15 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               KeystoneV3Headers.X_AUTH_TOKEN -> adminToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
             )
-            val groupsResponse = akkaServiceClient.get(GROUPS_KEY_PREFIX + userId, keystoneServiceUri + KeystoneV3Endpoints.GROUPS(userId), headerMap.asJava)
+            val groupsResponse = Option(akkaServiceClient.get(GROUPS_KEY_PREFIX + userId,
+              keystoneServiceUri + KeystoneV3Endpoints.GROUPS(userId),
+              headerMap.asJava))
 
-            HttpStatusCode.fromInt(groupsResponse.getStatusCode) match {
-              case HttpStatusCode.OK =>
-                val groups = jsonStringToObject[Groups](inputStreamToString(groupsResponse.getData)).groups
+            // Since we *might* get a null back from the akka service client, we have to map it, and then match
+            // because we care to match on the status code of the response, if anything was set.
+            groupsResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
+              case Some(statusCode) if statusCode == HttpStatusCode.OK =>
+                val groups = jsonStringToObject[Groups](inputStreamToString(groupsResponse.get.getData)).groups
 
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
@@ -315,10 +326,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 datastore.put(GROUPS_KEY_PREFIX + userId, groups.toBuffer.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
 
                 Success(groups)
-              case HttpStatusCode.NOT_FOUND =>
+              case Some(statusCode) if statusCode == HttpStatusCode.NOT_FOUND =>
                 LOG.error("Groups for '" + userId + "' not found. Response Code: 404")
                 Failure(new InvalidUserForGroupsException("Failed to fetch groups"))
-              case HttpStatusCode.UNAUTHORIZED =>
+              case Some(statusCode) if statusCode == HttpStatusCode.UNAUTHORIZED =>
                 if (!isRetry) {
                   LOG.error("Request made with an expired admin token. Fetching a fresh admin token and retrying groups retrieval. Response Code: 401")
                   fetchGroups(userId, isRetry = true)
@@ -326,9 +337,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                   LOG.error("Retry after fetching a new admin token failed. Aborting groups retrieval for: '" + userId + "'")
                   Failure(new KeystoneServiceException("Valid admin token could not be fetched"))
                 }
-              case _ =>
-                LOG.error("Keystone service returned an unexpected response status code. Response Code: " + groupsResponse.getStatusCode)
+              case Some(_) =>
+                LOG.error("Keystone service returned an unexpected response status code. Response Code: " + groupsResponse.get.getStatusCode)
                 Failure(new KeystoneServiceException("Failed to fetch groups"))
+              case None =>
+                LOG.error("Unable to get groups. Request to Keystone service timed out.")
+                Failure(new KeystoneServiceException("Keystone service could not be reached to obtain groups"))
             }
           case Failure(e) => Failure(e)
         }
