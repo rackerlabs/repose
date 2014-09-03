@@ -25,7 +25,6 @@ public class Slf4jHttpLoggingHandler extends AbstractFilterLogicHandler {
 
         for (Slf4jLoggerWrapper wrapper : loggers) {
             //format the string and send it to the logger
-            //logger.info(formattedOutput);
             HttpLogFormatter formatter = wrapper.getFormatter();
             wrapper.getLogger().info(formatter.format(request,response));
         }

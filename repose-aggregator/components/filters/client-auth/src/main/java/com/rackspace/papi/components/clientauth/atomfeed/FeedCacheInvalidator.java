@@ -84,7 +84,9 @@ public class FeedCacheInvalidator implements Runnable {
         }
     }
 
-    //Retrieves list of tokens associated with a user;
+    /**
+     * Retrieves list of tokens associated with a user.
+     */
     private List<String> getTokensForUser(List<String> keys) {
 
         List<String> tokenKeys = new ArrayList<String>();
@@ -97,7 +99,6 @@ public class FeedCacheInvalidator implements Runnable {
                 LOG.debug("Invalidating tokens from user " + key);
             }
         }
-
         return tokenKeys;
     }
 
