@@ -26,7 +26,7 @@ class KeystoneV3wWhitelistTest extends ReposeValveTest{
         waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null,fakeKeystoneV3Service.handler)
     }
@@ -76,7 +76,7 @@ class KeystoneV3wWhitelistTest extends ReposeValveTest{
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/",
+                url: "$reposeEndpoint/servers/$reqDomain",
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
@@ -85,8 +85,8 @@ class KeystoneV3wWhitelistTest extends ReposeValveTest{
         )
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == 200
+        mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        mc.orphanedHandlings.size() == 0
+        //mc.orphanedHandlings.size() == 0
     }
 }

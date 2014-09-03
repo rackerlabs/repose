@@ -372,7 +372,7 @@ class MockKeystoneV3Service {
                 username    : client_username,
                 domainid    : client_domainid,
                 domainname  : client_domainname,
-                token       : request.getHeaders().getFirstValue("X-Auth-Token"),
+                token       : request.getHeaders().getFirstValue("X-Subject-Token"),
                 serviceadmin: service_admin_role
 
         ]
@@ -395,7 +395,7 @@ class MockKeystoneV3Service {
                 expires     : getExpires(),
                 userid      : client_userid,
                 domainid    : client_domainid,
-                token       : request.getHeaders().getFirstValue("X-Auth-Token"),
+                token       : request.getHeaders().getFirstValue("X-Subject-Token"),
                 serviceadmin: service_admin_role
 
         ]
@@ -416,7 +416,7 @@ class MockKeystoneV3Service {
         def params = [
                 userid      : client_userid,
                 domainid    : client_domainid,
-                token       : request.getHeaders().getFirstValue("X-Auth-Token"),
+                token       : request.getHeaders().getFirstValue("X-Subject-Token"),
                 serviceadmin: service_admin_role
         ]
         def template
