@@ -86,8 +86,9 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
     // Content-Encoding header. What a lot of work to get that done:
 
     private static boolean isFilteredHeader(String headerName) {
-        // Filter Content-Encoding since we're handing decompression ourselves;
-        // filter Accept-Encoding so that downstream services don't try to compress too
+        // Filter Content-Encoding since we're handing decompression ourselves
+        // OR
+        // Filter Accept-Encoding so that downstream services don't try to compress too
         return CompressingHttpServletResponse.CONTENT_ENCODING_HEADER.equalsIgnoreCase(headerName) ||
                 CompressingHttpServletResponse.ACCEPT_ENCODING_HEADER.equalsIgnoreCase(headerName);
     }
