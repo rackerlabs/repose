@@ -25,11 +25,11 @@ case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
                                             name: Option[String] = None
                                              ) extends Serializable
 
-case class Role(id: Option[String] = None,
+case class Role(id: String,
                 name: String,
                 project_id: Option[String] = None,
                 domain_id: Option[String] = None,
-                description: String
+                description: Option[String] = None
                  ) extends Serializable
 
 case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,

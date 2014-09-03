@@ -262,7 +262,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       Success(cachedAdminToken)
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-        keystoneServiceUri + KeystoneV3Endpoints.TOKEN, Map[String, String]().asJava,
+        keystoneServiceUri + KeystoneV3Endpoints.TOKEN,
+        Map[String, String]().asJava,
         createAdminAuthRequest(),
         MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE))
 
