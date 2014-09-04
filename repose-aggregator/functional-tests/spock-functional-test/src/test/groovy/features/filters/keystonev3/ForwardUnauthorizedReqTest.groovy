@@ -90,6 +90,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
                           'X-Subject-Token': fakeKeystoneV3Service.client_token])
 
         then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-authorization") == "Proxy"
         mc.handlings[0].request.headers.getFirstValue("X-Identity-Status") == "Indeterminate"
@@ -97,6 +98,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         where:
         reqProject  | authResponseCode | responseCode   |responseBody
         "p500"      | 401              | "200"          |"Unauthorized"
+        "p501"      | 403              | "200"          |"Unauthorized"
         "p502"      | 404              | "200"          |fakeKeystoneV3Service.identityFailureJsonRespTemplate
     }
 }
