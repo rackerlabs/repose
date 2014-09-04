@@ -17,8 +17,12 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
     @Shared def MockKeystoneV3Service fakeKeystoneV3Service
 
     def cleanup() {
-        deproxy.shutdown()
-        repose.stop()
+        if (deproxy)
+            deproxy.shutdown()
+
+        if (repose)
+            repose.stop([throwExceptionOnKill: false])
+
     }
 
     /**
@@ -27,7 +31,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
      * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
      * - all tokens will expire at tokenTimeout+cacheOffset
      */
-    @Unroll("when cache offset is not config or set to 0: #id")
+    @Unroll("when cache-offset is not config or equals 0 and token-cache-timeout #tokenTimeout: #id")
     def "when cache offset is not config or set to 0 no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
@@ -35,12 +39,12 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
         deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev3/common", params)
-        repose.configurationProvider.applyConfigs(additionalConfigs, params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3/cacheoffset/"+additionalConfigs, params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         fakeKeystoneV3Service.resetCounts()
         fakeKeystoneV3Service.with {
             client_token = UUID.randomUUID().toString()
@@ -51,9 +55,9 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
                 'identity service', null, fakeKeystoneV3Service.handler)
 
         List<Thread> clientThreads = new ArrayList<Thread>()
-        def userTokens = (1..uniqueUsers).collect { "cache-offset-random-token-$id-$it" }
+        def userTokens = (1..uniqueUsers).collect { "random-token-$id-$it" }
 
-        when: "A burst of XXX users sends GET requests to REPOSE with an X-Auth-Token"
+        when: "A burst of XXX users sends GET requests to REPOSE with an X-Subject-Token"
         DateTime initialTokenValidation = DateTime.now()
         DateTime initialBurstLastValidationCall
         userTokens.eachWithIndex { token, index ->
@@ -64,7 +68,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
                             url: reposeEndpoint,
                             method: 'GET',
                             headers: ['X-Subject-Token': token, 'TEST_THREAD': threadName])
-                    mc.receivedResponse.code.equals('200')
+                    assert mc.receivedResponse.code.equals('200')
 
                     initialBurstLastValidationCall = DateTime.now()
                 }
@@ -74,7 +78,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
         clientThreads*.join()
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
-        fakeKeystoneV3Service.getValidateTokenCount() == uniqueUsers
+        fakeKeystoneV3Service.validateTokenCount == uniqueUsers
 
 
         when: "Same users send subsequent GET requests up to but not exceeding the cache expiration"
@@ -90,7 +94,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
                             url: reposeEndpoint,
                             method: 'GET',
                             headers: ['X-Subject-Token': token])
-                    mc.receivedResponse.code.equals('200')
+                    assert mc.receivedResponse.code.equals('200')
                 }
             }
             clientThreads.add(thread)
@@ -98,7 +102,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
         clientThreads*.join()
 
         then: "All calls should hit cache"
-        fakeKeystoneV3Service.getValidateTokenCount() == 0
+        fakeKeystoneV3Service.validateTokenCount == 0
 
         when: "Cache has expired for all tokens, and new GETs are issued"
         fakeKeystoneV3Service.resetCounts()
@@ -114,19 +118,19 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
                 MessageChain mc = deproxy.makeRequest(
                         url: reposeEndpoint,
                         method: 'GET',
-                        headers: ['X-Auth-Token': token])
-                mc.receivedResponse.code.equals('200')
+                        headers: ['X-Subject-Token': token])
+                assert mc.receivedResponse.code.equals('200')
             }
             clientThreads.add(thread)
         }
         clientThreads*.join()
 
         then: "All calls should hit identity"
-        fakeKeystoneV3Service.getValidateTokenCount() == uniqueUsers
+        fakeKeystoneV3Service.validateTokenCount == uniqueUsers
 
         where:
-        uniqueUsers | initialCallsPerUser | additionalConfigs                                      | id | tokenTimeout
-        10          | 4                   | "features/filters/keystone3/cacheoffset/notset"      | 100  | 5000
-        10          | 4                   | "features/filters/keystone3/cacheoffset/defaultzero" | 200  | 5000
+        uniqueUsers | initialCallsPerUser | additionalConfigs   | id   | tokenTimeout
+        10          | 4                   | "notset"            | 100  | 5000
+        15          | 4                   | "defaultzero"       | 200  | 5000
     }
 }
