@@ -30,12 +30,9 @@
             <artifactId>scala-library</artifactId>
         </dependency>
 
-        <!-- TODO: We may want to extract this dependency, or at least manage it -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
-            <version>2.2.0</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- Mockrunner for mock HttpServletRequest -->
@@ -57,8 +54,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.2</version>
-            <!-- TODO: Keep this in sync with functional tests joda-time dependency. DManagement? -->
         </dependency>
 
         <dependency>
