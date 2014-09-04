@@ -141,10 +141,15 @@ class ReposeValveLauncher extends ReposeLauncher {
         def overrideFile = File.createTempFile("overrideFile", ".conf")
         overrideFile.deleteOnExit()
 
-        //NOTE: this command is the one that is going to be repose itself
-        //NOTE: I don't know if the classPath stuff is going to work at all....
+        /**
+         * NOTE: this command is the one that is going to be repose itself
+         * NOTE: I don't know if the classPath stuff is going to work at all....
+         * Have to do some magic here in order to get this string to cooperate with the typesafe config file
+         * For example ":" must be quoted, so the JVM opts -XX: need to be quoted in the string
+         */
         def baseCommand = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps"
-
+        //Quote all the items
+        baseCommand = baseCommand.split(" ").collect { item -> "\"${item}\""}
         //Override a few things in the servo config file to do testing with debug and heap dump and JMX
         def overrideContent = """
 launcherPath = ${jettyJar}
