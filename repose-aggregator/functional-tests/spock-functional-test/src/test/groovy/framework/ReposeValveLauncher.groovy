@@ -140,14 +140,29 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         def overrideFile = File.createTempFile("overrideFile", ".conf")
         overrideFile.deleteOnExit()
+
+        //NOTE: this command is the one that is going to be repose itself
+        //NOTE: I don't know if the classPath stuff is going to work at all....
+        def baseCommand = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps"
+
+        //Override a few things in the servo config file to do testing with debug and heap dump and JMX
+        def overrideContent = """
+launcherPath = ${jettyJar}
+reposeWarLocation = ${reposeWar}
+baseCommand = [ ${baseCommand} ]
+"""
+
         Files.write(overrideFile.toPath(),
-                "launcherPath = ${jettyJar}\nreposeWarLocation = ${reposeWar}".getBytes(StandardCharsets.UTF_8),
+                overrideContent.getBytes(StandardCharsets.UTF_8),
                 StandardOpenOption.CREATE)
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX "+overrideFile.absolutePath
-        println("Starting repose: ${cmd}")
+        //NOTE: this command is the one that fires up servo itself
+        def servoCommand = "java -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX "+overrideFile.absolutePath
 
-        def th = new Thread({ process = cmd.execute() });
+        println("Repose launcher command: ${baseCommand}")
+        println("Starting servo: ${servoCommand}")
+
+        def th = new Thread({ process = servoCommand.execute() });
         sout = new StringBuffer()
         serr = new StringBuffer()
 
