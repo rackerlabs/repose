@@ -26,19 +26,17 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
 
         deproxy = new Deproxy()
 
-        def params = properties.defaultTemplateParams
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev3", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev3/forwardunauthorizedrequests", params)
-        repose.start()
-        waitUntilReadyToServiceRequests('401')
-
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeKeystoneV3Service.handler)
 
-
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev3/forwardunauthorizedrequests", params)
+        repose.start()
+        waitUntilReadyToServiceRequests('200')
     }
 
     def cleanupSpec() {
