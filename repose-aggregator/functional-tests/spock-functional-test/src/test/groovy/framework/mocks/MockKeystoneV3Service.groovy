@@ -242,11 +242,11 @@ class MockKeystoneV3Service {
         return new Response(501)
     }
 
-    static final String getUserRolesOnDomainCallPathRegex = /^\/domain\/([^\/]+)\/users\/([^\/]+)\/roles/
-    static final String getGroupsCallPathRegex = /^\/users\/([^\/]+)\/groups/
+    static final String getUserRolesOnDomainCallPathRegex = /^\/v3\/domain\/([^\/]+)\/users\/([^\/]+)\/roles/
+    static final String getGroupsCallPathRegex = /^\/v3\/users\/([^\/]+)\/groups/
     //static final String getEndpointsCallPathRegex = /^\/tokens\/([^\/]+)\/endpoints/
-    static final String getProjectsCallPathRegex = /^\\/users\\/([^\\/]+)\\/projects/
-    static final String getUserRolesOnProjectCallPathRegex = /^\/project\/([^\/]+)\/users\/([^\/]+)\/roles/
+    static final String getProjectsCallPathRegex = /^\/v3\/users\\/([^\\/]+)\\/projects/
+    static final String getUserRolesOnProjectCallPathRegex = /^\/v3\/project\/([^\/]+)\/users\/([^\/]+)\/roles/
 
     public static boolean isGetUserRolesOnDomainCallPath(String nonQueryPath) {
         return nonQueryPath ==~ getUserRolesOnDomainCallPathRegex
