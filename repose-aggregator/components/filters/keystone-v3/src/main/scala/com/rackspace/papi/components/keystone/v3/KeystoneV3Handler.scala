@@ -103,11 +103,13 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     filterDirector.setFilterAction(FilterAction.RETURN)
     filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
+    var authSuccess = false
     var authenticateResponse: AuthenticateResponse = null
     Option(request.getHeader(KeystoneV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         validateSubjectToken(subjectToken) match {
           case Success(tokenObject: AuthenticateResponse) =>
+            authSuccess = true
             authenticateResponse = tokenObject
 
             headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
@@ -125,7 +127,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               project.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
               project.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
             }
-            if (forwardUnauthorizedRequests) headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
             if (keystoneConfig.isRequestGroups) {
               tokenObject.user.id map { userId: String =>
                 fetchGroups(userId) map { groupsList: List[Group] =>
@@ -145,14 +146,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
 
             filterDirector.setFilterAction(FilterAction.PASS)
           case Failure(e: InvalidSubjectTokenException) =>
-            if (forwardUnauthorizedRequests) {
-              headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-              headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-              filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-            } else {
-              filterDirector.responseHeaderManager.putHeader(KeystoneV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + keystoneServiceUri)
-              filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-            }
+            filterDirector.responseHeaderManager.putHeader(KeystoneV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + keystoneServiceUri)
+            filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
           case Failure(e: KeystoneServiceException) =>
             LOG.error("Keystone v3 failure: " + e.getMessage)
           case Failure(e: InvalidAdminCredentialsException) =>
@@ -161,13 +156,18 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             LOG.error("Validation of subject token '" + subjectToken + "' failed for an unknown reason")
         }
       case None =>
-        if (forwardUnauthorizedRequests) {
-          headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-          headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-        } else {
-          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
-        }
+        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+    }
+
+    if (forwardUnauthorizedRequests) {
+      if (authSuccess) {
+        headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
+      } else {
+        LOG.debug("Forwarding indeterminate request") // TODO: Should this be info or debug?
+        headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+        headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+        filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+      }
     }
 
     (filterDirector, authenticateResponse)
