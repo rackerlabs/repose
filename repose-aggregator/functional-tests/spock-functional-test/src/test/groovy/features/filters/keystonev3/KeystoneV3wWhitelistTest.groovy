@@ -5,6 +5,7 @@ import framework.mocks.MockKeystoneV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
@@ -76,7 +77,7 @@ class KeystoneV3wWhitelistTest extends ReposeValveTest{
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain",
+                url: "$reposeEndpoint/servers/$reqDomain/",
                 method: 'GET',
                 headers: [
                         'content-type': 'application/json',
@@ -87,6 +88,5 @@ class KeystoneV3wWhitelistTest extends ReposeValveTest{
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        //mc.orphanedHandlings.size() == 0
     }
 }

@@ -3,7 +3,7 @@
 
     <keystone-service username="admin-username"
                       password="admin-password"
-                      uri="http://localhost:${idendityPort}"
+                      uri="http://localhost:${identityPort}"
                       xmlns="http://docs.openrepose.org/keystone-v3/v1.0"/>
     <white-list>
         <uri-pattern>.*public-info.*</uri-pattern>
