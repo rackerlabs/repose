@@ -149,7 +149,7 @@ class ReposeValveLauncher extends ReposeLauncher {
          */
         def baseCommand = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps"
         //Quote all the items
-        baseCommand = baseCommand.split(" ").collect { item -> "\"${item}\""}
+        baseCommand = baseCommand.split(" ").collect { item -> "\"${item}\""}.join(" ")
         //Override a few things in the servo config file to do testing with debug and heap dump and JMX
         def overrideContent = """
 launcherPath = ${jettyJar}
