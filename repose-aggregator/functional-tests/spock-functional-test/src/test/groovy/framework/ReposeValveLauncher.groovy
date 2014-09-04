@@ -227,8 +227,15 @@ baseCommand = [ ${baseCommand.join(", ")} ]
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
-            def SIGHUP = 1
-            sendServoSignalIfUp(SIGHUP)
+            //Valve responds to a SIGTERM (which is the equivalent of Ctrl-C)
+            //I don't think it ever cooperated with SIGHUP...
+            def SIGSTOP = 23
+            //TODO: why wasn't this using process.destroy in the first place?
+            //NOTE: using process.destroy seems to have way less problems than trying to send lots of signals...
+            //NOTE: For some reason whatever magic process detection this is using, is not working very reliably
+            //TODO: write actual tests around this process handling stuff
+            process.destroy()
+            sendServoSignalIfUp(SIGSTOP)
 
             print("Waiting for Repose to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
@@ -316,6 +323,7 @@ baseCommand = [ ${baseCommand.join(", ")} ]
                     if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
                         rt.exec("taskkill " + pid.toInteger());
                     } else {
+                        println("Sending ${signal} to ${pid.toInteger()}")
                         rt.exec("kill -${signal} " + pid.toInteger());
                     }
                 }
