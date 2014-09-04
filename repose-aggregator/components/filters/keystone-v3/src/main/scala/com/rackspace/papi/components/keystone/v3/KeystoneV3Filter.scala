@@ -18,18 +18,18 @@ class KeystoneV3Filter extends Filter {
 
   private var config: String = _
   private var handlerFactory: KeystoneV3HandlerFactory = _
-  private var configurationManager: ConfigurationService = _
+  private var configurationService: ConfigurationService = _
 
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     LOG.info("Initializing filter using config " + config)
     val powerApiContext = ServletContextHelper.getInstance(filterConfig.getServletContext).getPowerApiContext
-    configurationManager = powerApiContext.configurationService
+    configurationService = powerApiContext.configurationService
     // TODO: These services are passed in to support asynchronous requests, caching, and connection pooling (in the future!)
     handlerFactory = new KeystoneV3HandlerFactory(powerApiContext.akkaServiceClientService, powerApiContext.datastoreService)
     val xsdURL: URL = getClass.getResource("/META-INF/config/schema/keystone-v3.xsd")
     // TODO: Clean up the asInstanceOf below, if possible?
-    configurationManager.subscribeTo(filterConfig.getFilterName, config, xsdURL, handlerFactory.asInstanceOf[UpdateListener[KeystoneV3Config]], classOf[KeystoneV3Config])
+    configurationService.subscribeTo(filterConfig.getFilterName, config, xsdURL, handlerFactory.asInstanceOf[UpdateListener[KeystoneV3Config]], classOf[KeystoneV3Config])
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
@@ -37,6 +37,6 @@ class KeystoneV3Filter extends Filter {
   }
 
   override def destroy() {
-    configurationManager.unsubscribeFrom(config, handlerFactory)
+    configurationService.unsubscribeFrom(config, handlerFactory)
   }
 }
