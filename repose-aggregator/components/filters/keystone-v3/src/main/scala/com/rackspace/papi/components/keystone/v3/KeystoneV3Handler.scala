@@ -161,7 +161,13 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             LOG.error("Validation of subject token '" + subjectToken + "' failed for an unknown reason")
         }
       case None =>
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        if (forwardUnauthorizedRequests) {
+          headerManager.putHeader(KeystoneV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+          headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+        } else {
+          filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+        }
     }
 
     (filterDirector, authenticateResponse)
