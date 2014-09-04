@@ -149,12 +149,19 @@ class ReposeValveLauncher extends ReposeLauncher {
          */
         def baseCommand = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps"
         //Quote all the items
-        baseCommand = baseCommand.split(" ").collect { item -> "\"${item}\""}.join(" ")
+        baseCommand = baseCommand.split(" ").collect { item ->
+            if (!item.isEmpty()) {
+                "\"${item}\""
+            } else {
+                null
+            }
+        }
+        baseCommand.removeAll([null])
         //Override a few things in the servo config file to do testing with debug and heap dump and JMX
         def overrideContent = """
 launcherPath = ${jettyJar}
 reposeWarLocation = ${reposeWar}
-baseCommand = [ ${baseCommand} ]
+baseCommand = [ ${baseCommand.join(", ")} ]
 """
 
         Files.write(overrideFile.toPath(),
@@ -162,7 +169,7 @@ baseCommand = [ ${baseCommand} ]
                 StandardOpenOption.CREATE)
 
         //NOTE: this command is the one that fires up servo itself
-        def servoCommand = "java -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX "+overrideFile.absolutePath
+        def servoCommand = "java -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX " + overrideFile.absolutePath
 
         println("Repose launcher command: ${baseCommand}")
         println("Starting servo: ${servoCommand}")
@@ -194,7 +201,7 @@ baseCommand = [ ${baseCommand} ]
         try {
             jmx = new JmxClient(jmxUrl)
         } catch (Exception ex) {
-            print("Caught the following unexpected exception: "+ex)
+            print("Caught the following unexpected exception: " + ex)
             rtn = false
         }
         return rtn
@@ -259,14 +266,14 @@ baseCommand = [ ${baseCommand} ]
         print('.')
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = (HashSet)jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet) jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
         def String beanName = cfgBean.iterator().next().name.toString()
 
-        def ArrayList filterChain = (ArrayList)jmx.getMBeanAttribute(beanName, "FilterChain")
+        def ArrayList filterChain = (ArrayList) jmx.getMBeanAttribute(beanName, "FilterChain")
 
         if (filterChain == null || filterChain.size() == 0) {
             return beanName.contains("nofilters")
