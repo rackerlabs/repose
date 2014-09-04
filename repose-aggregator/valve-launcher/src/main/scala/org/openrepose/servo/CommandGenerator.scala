@@ -65,8 +65,16 @@ class CommandGenerator(baseCommand: Seq[String],
         Seq()
     }
 
-    val command = baseCommand ++ systemProps ++ Seq("-jar", launcherPath) ++ jettySslParams ++ jettyConfigParams ++ Seq(warPath)
-    LOG.debug("Full generated command: {}", command mkString " ")
+    val launcherPathSeq = Seq("-jar", launcherPath)
+
+    LOG.trace("Hash Separated things!")
+    LOG.trace("baseCommand: {}", baseCommand mkString "#")
+    LOG.trace("systemProps: {}", systemProps mkString "#")
+    LOG.trace("launcherPath: {}", launcherPathSeq mkString "#")
+    LOG.trace("jettySslParams: {}", jettySslParams mkString "#")
+
+    val command = baseCommand ++ systemProps ++ launcherPathSeq ++ jettySslParams ++ jettyConfigParams :+ warPath
+    LOG.debug("Full generated command (hash separated): {}", command mkString "#")
     command
   }
 }

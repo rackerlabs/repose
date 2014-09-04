@@ -223,6 +223,7 @@ class Servo {
           LOG.debug("My War Location: |{}|", warLocation)
           LOG.debug("My JAVA_OPTS: |{}|", config.getString("javaOpts"))
           LOG.debug("My REPOSE_OPTS: |{}|", config.getString("reposeOpts"))
+          LOG.debug("My baseCommand: |{}|", baseCommand mkString "#")
 
           val env = Map("JAVA_OPTS" -> config.getString("reposeOpts"))
 
