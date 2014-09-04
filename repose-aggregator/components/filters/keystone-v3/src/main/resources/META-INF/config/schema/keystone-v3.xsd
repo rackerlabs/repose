@@ -35,7 +35,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="token-cache-timeout" type="intGTEZero" use="optional" default="0">
+        <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Time in milliseconds to cache auth token.</html:p>
@@ -43,7 +43,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="groups-cache-timeout" type="intGTEZero" use="optional" default="600000">
+        <xs:attribute name="groups-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="600000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Time in milliseconds to cache auth groups.</html:p>
@@ -51,7 +51,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="cache-offset" type="intGTEZero" use="optional" default="0">
+        <xs:attribute name="cache-offset" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Cache timeout offset (in milliseconds) for token and group cache. A random value
@@ -125,7 +125,7 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:simpleType name="intGTEZero">
+    <xs:simpleType name="ZeroOrPositiveInteger">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="0"/>
         </xs:restriction>
