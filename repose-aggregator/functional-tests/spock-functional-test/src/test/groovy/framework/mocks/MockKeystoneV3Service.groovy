@@ -572,7 +572,7 @@ class MockKeystoneV3Service {
     {
         "groups": [
             {
-                "description": "Developers cleared for work on all general projects"
+                "description": "Developers cleared for work on all general projects",
                 "domain_id": "\${domainid}",
                 "id": "ea167b",
                 "links": {
@@ -581,7 +581,7 @@ class MockKeystoneV3Service {
                 "name": "Developers"
             },
             {
-                "description": "Developers cleared for work on secret projects"
+                "description": "Developers cleared for work on secret projects",
                 "domain_id": "\${domainid}",
                 "id": "a62db1",
                 "links": {
