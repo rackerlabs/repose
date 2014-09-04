@@ -88,7 +88,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         } else {
           filterDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED)
         }
-      case _ => ()
+      case _ =>
+        LOG.trace("Response from origin service requires no additional processing. Passing it along.")
     }
 
     LOG.debug("Keystone v3 Handling Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
