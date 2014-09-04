@@ -204,7 +204,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
                 val expiration = new DateTime(subjectTokenObject.expires_at)
                 val identityTtl = safeLongToInt(expiration.getMillis - DateTime.now.getMillis)
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
-                val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.min(offsetConfiguredTtl, identityTtl)
+                // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
+                val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
                 LOG.debug("Caching token '" + subjectToken + "' with TTL set to: " + ttl + "ms")
                 datastore.put(TOKEN_KEY_PREFIX + subjectToken, subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
 
