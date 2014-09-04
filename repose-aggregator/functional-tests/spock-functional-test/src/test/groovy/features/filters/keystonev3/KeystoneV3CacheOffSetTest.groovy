@@ -40,7 +40,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         given: "Identity Service returns cache tokens with 1 day expiration"
         MockKeystoneV3Service fakeKeystoneV3Service
         def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
         fakeKeystoneV3Service.resetCounts()
         fakeKeystoneV3Service.with {
             client_token = clientToken
@@ -51,10 +51,10 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
-        and: "All users have unique X-Auth-Token"
+        and: "All users have unique X-Subject-Token"
         def userTokens = (1..uniqueUsers).collect { "random-token-$it" }
 
-        when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Auth-Token"
+        when: "A burst of $uniqueUsers users sends GET requests to REPOSE with an X-Subject-Token"
         fakeKeystoneV3Service.resetCounts()
 
         DateTime initialTokenValidation = DateTime.now()
@@ -66,7 +66,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
                             headers: ['X-Subject-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
-                    mc.receivedResponse.code.equals("200")
+                    assert mc.receivedResponse.code.equals("200")
                     lastTokenValidation = DateTime.now()
                 }
             }
@@ -85,8 +85,8 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 while (minimumTokenExpiration.isAfterNow()) {
-                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': token])
-                    mc.receivedResponse.code.equals("200")
+                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': token])
+                    assert mc.receivedResponse.code.equals("200")
                 }
             }
             clientThreads.add(thread)
@@ -109,7 +109,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': token])
-                mc.receivedResponse.code.equals("200")
+                assert mc.receivedResponse.code.equals("200")
             }
             clientThreads.add(thread)
         }
@@ -120,6 +120,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         fakeKeystoneV3Service.validateTokenCount == uniqueUsers
 
         where:
-        [uniqueUsers, initialCallsPerUser] << [50, 1]
+        uniqueUsers     |initialCallsPerUser
+        50              | 1
     }
 }
