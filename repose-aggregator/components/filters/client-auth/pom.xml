@@ -233,6 +233,17 @@
 
 
                             <module name="TreeWalker">
+
+                                <property name="tabWidth" value="4"/>
+
+                                <module name="Indentation">
+                                    <property name="caseIndent" value="4"/>
+                                    <property name="basicOffset" value="4"/>
+                                    <property name="braceAdjustment" value="0"/>
+                                    <property name="throwsIndent" value="4"/>
+                                </module>
+
+
                                 <module name="StaticVariableName"/>
                                 <module name="GenericWhitespace"/>
                                 <module name="NoWhitespaceBefore">
@@ -254,6 +265,42 @@
 
                                 <module name="WhitespaceAround">
                                     <property name="tokens" value="MINUS_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BAND_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BOR_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BSR_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BXOR_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="DIV_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="MOD_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="SL_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="SR_ASSIGN"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="STAR_ASSIGN"/>
                                 </module>
 
                                 <module name="WhitespaceAround">
