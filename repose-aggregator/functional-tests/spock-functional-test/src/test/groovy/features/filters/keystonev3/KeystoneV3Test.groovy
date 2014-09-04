@@ -6,6 +6,7 @@ import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/25/14.
@@ -61,6 +62,33 @@ class KeystoneV3Test extends ReposeValveTest{
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
-        //mc.orphanedHandlings.size() == 0
+    }
+
+    def "Test send request with expire token" () {
+        given:
+        def reqDomain = fakeKeystoneV3Service.client_domainid
+        def reqUserId = fakeKeystoneV3Service.client_userid
+
+        fakeKeystoneV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now()
+            client_domainid = reqDomain
+            client_userid = reqUserId
+        }
+
+        sleep(100)
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqDomain/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Subject-Token': fakeKeystoneV3Service.client_token,
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "401"
+        mc.handlings.size() == 0
     }
 }
