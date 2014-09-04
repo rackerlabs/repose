@@ -4,7 +4,7 @@ import java.util.ArrayList;
  * Created by eric7500 on 9/2/14.
  */
 public class BadCode {
-    int x;
+   int x;
     String s;
 
     public int getX ( ) {
