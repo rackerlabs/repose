@@ -8,6 +8,11 @@ public class BadCode {
     String s;
 
     public int getX ( ) {
+        return x == 1? x : x;
+    }
+
+    public int getX2 ()
+    {
         return x;
     }
 
