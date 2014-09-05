@@ -273,7 +273,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         keystoneServiceUri + KeystoneV3Endpoints.TOKEN,
         Map[String, String]().asJava,
         createAdminAuthRequest(),
-        MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE))
+        MediaType.APPLICATION_JSON_TYPE,
+        MediaType.APPLICATION_JSON_TYPE))
 
       // Since we *might* get a null back from the akka service client, we have to map it, and then match
       // because we care to match on the status code of the response, if anything was set.
