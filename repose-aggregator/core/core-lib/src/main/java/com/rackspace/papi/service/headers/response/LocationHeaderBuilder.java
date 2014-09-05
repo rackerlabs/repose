@@ -116,7 +116,7 @@ public class LocationHeaderBuilder {
             if (requestedHost.getPort() != DEFAULT_HTTP_PORT) {
                 buffer.append(":").append(requestedHost.getPort());
             }
-            buffer.append(fixPathPrefix(locationUrl.getPath(), requestedContext, proxiedRootPath));
+            buffer.append(fixPathPrefix(locationUrl.getFile(), requestedContext, proxiedRootPath));
         }
 
         return buffer.length() == 0 ? locationUrl.toExternalForm() : buffer.toString();
