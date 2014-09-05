@@ -301,12 +301,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
   }
 
-  private def readToAuthResponseObject(response: ServiceClientResponse) = {
-    response.getData.reset() // TODO: Remove this when we can. It relies on our implementation returning an InputStream that supports reset.
-    val responseJson = Source.fromInputStream(response.getData).mkString
-    responseJson.parseJson.convertTo[AuthResponse]
-  }
-
   private def fetchGroups(userId: String, isRetry: Boolean = false): Try[List[Group]] = {
     Option(datastore.get(GROUPS_KEY_PREFIX + userId)) match {
       case Some(cachedGroups) =>
