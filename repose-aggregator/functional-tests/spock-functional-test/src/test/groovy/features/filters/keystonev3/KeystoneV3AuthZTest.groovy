@@ -50,7 +50,7 @@ class KeystoneV3AuthZTest extends ReposeValveTest {
         fakeKeystoneV3Service.with {
             endpointUrl = endpointResponse
         }
-        def url = "http://localhost:${properties.targetPort}"
+        def url = "http://localhost:${properties.reposePort}"
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url:url +"/v3/"+fakeKeystoneV3Service.client_token+"/ss", method:'GET', headers:['X-Subject-Token': fakeKeystoneV3Service.client_token])
@@ -74,9 +74,9 @@ class KeystoneV3AuthZTest extends ReposeValveTest {
             client_token = token
             servicePort = 99999
         }
-
+        def targetport = properties.targetPort
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:"http://localhost:${properties.targetPort}" + "/v3/"+token+"/ss", method:'GET', headers:['X-Subject-Token': token])
+        MessageChain mc = deproxy.makeRequest(url:"http://localhost:" + targetport + "/v3/"+token+"/ss", method:'GET', headers:['X-Subject-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in keystone-v3.cfg.xml")
 
