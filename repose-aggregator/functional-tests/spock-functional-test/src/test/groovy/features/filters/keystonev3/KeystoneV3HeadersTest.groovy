@@ -21,7 +21,7 @@ class KeystoneV3HeadersTest extends ReposeValveTest{
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         fakeKeystoneV3Service.resetCounts()
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null,fakeKeystoneV3Service.handler)

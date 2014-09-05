@@ -44,7 +44,7 @@ class KeystoneV3NoCacheOffSetTest extends ReposeValveTest{
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         fakeKeystoneV3Service.resetCounts()
         fakeKeystoneV3Service.with {
             client_token = UUID.randomUUID().toString()

@@ -27,7 +27,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         deproxy = new Deproxy()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
                 'identity service', null, fakeKeystoneV3Service.handler)
 

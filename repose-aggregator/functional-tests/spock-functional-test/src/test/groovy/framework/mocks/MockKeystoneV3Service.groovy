@@ -20,11 +20,12 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MockKeystoneV3Service {
 
-    public MockKeystoneV3Service(int identityPort) {
+    public MockKeystoneV3Service(int identityPort, int originServicePort) {
 
         resetHandlers()
 
         this.port = identityPort
+        this.servicePort = originServicePort
 
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1")
 
@@ -37,6 +38,7 @@ class MockKeystoneV3Service {
     }
 
     int port
+    int servicePort
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     boolean isTokenValid = true
@@ -45,7 +47,7 @@ class MockKeystoneV3Service {
     protected AtomicInteger _generateTokenCount = new AtomicInteger(0)
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0)
     protected AtomicInteger _getProjectsCount = new AtomicInteger(0)
-    protected AtomicInteger _getEndpointsCount = new AtomicInteger(0)
+    protected AtomicInteger _getCatalogCount = new AtomicInteger(0)
     protected AtomicInteger _getUserRolesOnDomainCount = new AtomicInteger(0)
 
     void resetCounts() {
@@ -54,7 +56,7 @@ class MockKeystoneV3Service {
         _getGroupsCount.set(0)
         _getProjectsCount.set(0)
         _generateTokenCount.set(0)
-        _getEndpointsCount.set(0)
+        _getCatalogCount.set(0)
         _getUserRolesOnDomainCount.set(0)
     }
 
@@ -72,8 +74,8 @@ class MockKeystoneV3Service {
 
     }
 
-    public int getGetEndpointsCount() {
-        return _getEndpointsCount.get()
+    public int getGetCatalogCount() {
+        return _getCatalogCount.get()
 
     }
 
@@ -99,13 +101,14 @@ class MockKeystoneV3Service {
         getProjectsHandler = this.&getProjects
         generateTokenHandler = this.&generateToken
         getUserRolesOnDomainHandler = this.&getUserRolesOnDomain
-        //getEndpointsHandler = this.&getEndpoints
+        getCatalogHandler = this.&getCatalog
     }
 
     Closure<Response> validateTokenHandler
     Closure<Response> getGroupsHandler
     Closure<Response> getProjectsHandler
     Closure<Response> generateTokenHandler
+    Closure<Response> getCatalogHandler
     //Closure<Response> getEndpointsHandler
     Closure<Response> getUserRolesOnDomainHandler
 
@@ -183,6 +186,15 @@ class MockKeystoneV3Service {
                 _validateTokenCount.incrementAndGet()
                 def tokenId = request.getHeaders().getFirstValue("X-Subject-Token")
                 return validateTokenHandler(tokenId, request)
+            } else {
+                return new Response(405)
+            }
+
+        } else if (isGetCatalogPath(nonQueryPath)) {
+            if (method == "GET") {
+                _getCatalogCount.incrementAndGet()
+                def tokenId = request.getHeaders().getFirstValue("X-Subject-Token")
+                return getCatalogHandler(tokenId, request)
             } else {
                 return new Response(405)
             }
@@ -268,6 +280,10 @@ class MockKeystoneV3Service {
         return nonQueryPath.startsWith("/v3/auth/tokens")
     }
 
+    public static boolean isGetCatalogPath(String nonQueryPath) {
+        return nonQueryPath.startsWith("/v3/auth/catalog")
+    }
+
     String getIssued() {
         return new DateTime()
     }
@@ -294,6 +310,7 @@ class MockKeystoneV3Service {
                 issued      : getIssued(),
                 userid      : client_userid,
                 username    : client_username,
+                endpointurl : endpointUrl,
                 projectid   : client_projectid,
                 projectname : client_projectname,
                 domainid    : client_domainid,
@@ -334,6 +351,7 @@ class MockKeystoneV3Service {
                 issued      : getIssued(),
                 userid      : client_userid,
                 username    : client_username,
+                endpointurl : endpointUrl,
                 projectid   : client_projectid,
                 projectname : client_projectname,
                 domainid    : client_domainid,
@@ -360,6 +378,27 @@ class MockKeystoneV3Service {
         def body = templateEngine.createTemplate(template).make(params)
 
         return new Response(code, null, headers, body)
+    }
+
+    //get catalog associate with token
+    Response getCatalog(String tokenId, Request request) {
+        def params = [
+                identityPort    : this.port,
+                endpointurl     : this.endpointUrl,
+                servicePort     : this.servicePort,
+                token           : request.getHeaders().getFirstValue("X-Subject-Token"),
+                serviceadmin    : service_admin_role
+        ]
+
+        def template
+        def headers = [:]
+
+        headers.put('Content-type', 'application/json')
+        template = getCatalogEndpointJsonTemplate
+
+        def body = templateEngine.createTemplate(template).make(params)
+
+        return new Response(200, null, headers, body)
     }
 
     //get user groups
@@ -466,19 +505,19 @@ class MockKeystoneV3Service {
                             "id": "39dc322ce86c4111b4f06c2eeae0841b",
                             "interface": "public",
                             "region": "RegionOne",
-                            "url": "http://localhost:5000"
+                            "url": "http://\${endpointurl}:5000"
                         },
                         {
                             "id": "ec642f27474842e78bf059f6c48f4e99",
                             "interface": "internal",
                             "region": "RegionOne",
-                            "url": "http://localhost:5000"
+                            "url": "http://\${endpointurl}:5000"
                         },
                         {
                             "id": "c609fc430175452290b62a4242e8a7e8",
                             "interface": "admin",
                             "region": "RegionOne",
-                            "url": "http://localhost:35357"
+                            "url": "http://\${endpointurl}:35357"
                         }
                     ],
                     "id": "4363ae44bdf34a3981fde3b823cb9aa2",
@@ -676,6 +715,44 @@ class MockKeystoneV3Service {
         ],
         "links": {
             "self": "http://identity:35357/v3/projects/\${projectid}/users/\${userid}/roles",
+            "previous": null,
+            "next": null
+        }
+    }
+    """
+
+    //get catalog with x-subject-token
+    def getCatalogEndpointJsonTemplate = """
+    {
+        "catalog": [
+            {
+                "endpoints": [
+                    {
+                        "id": "39dc322ce86c4111b4f06c2eeae0841b",
+                        "interface": "public",
+                        "region": "RegionOne",
+                        "url": "http://\${endpointurl}:\${servicePort}"
+                    },
+                    {
+                        "id": "ec642f27474842e78bf059f6c48f4e99",
+                        "interface": "internal",
+                        "region": "RegionOne",
+                        "url": "http://\${endpointurl}:\${servicePort}"
+                    },
+                    {
+                        "id": "c609fc430175452290b62a4242e8a7e8",
+                        "interface": "admin",
+                        "region": "RegionOne",
+                        "url": "http://\${endpointurl}:\${servicePort}"
+                    }
+                ],
+                "id": "4363ae44bdf34a3981fde3b823cb9aa2",
+                "type": "identity",
+                "name": "keystone"
+            }
+        ],
+        "links": {
+            "self": "https://identity:\${identityPort}/v3/catalog",
             "previous": null,
             "next": null
         }

@@ -11,7 +11,7 @@ import org.rackspace.deproxy.MessageChain
  * Created by jennyvo on 9/4/14.
  * test token expired
  */
-class KeystoneV3CachTokenExpirationTest extends ReposeValveTest{
+class KeystoneV3CacheTokenExpirationTest extends ReposeValveTest{
     def originEndpoint
     def identityEndpoint
 
@@ -40,7 +40,7 @@ class KeystoneV3CachTokenExpirationTest extends ReposeValveTest{
 
         given:
         def clientToken = UUID.randomUUID().toString()
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         fakeKeystoneV3Service.client_token = clientToken
         fakeKeystoneV3Service.tokenExpiresAt = (new DateTime()).plusDays(40);
 

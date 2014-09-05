@@ -40,7 +40,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         given: "Identity Service returns cache tokens with 1 day expiration"
         MockKeystoneV3Service fakeKeystoneV3Service
         def (clientToken,tokenTimeout,cacheOffset) = [UUID.randomUUID().toString(),5000,3000]
-        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort)
+        fakeKeystoneV3Service = new MockKeystoneV3Service(properties.identityPort, properties.targetPort)
         fakeKeystoneV3Service.resetCounts()
         fakeKeystoneV3Service.with {
             client_token = clientToken
@@ -101,7 +101,7 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
         //wait until max token expiration is reached
         while (maximumTokenExpiration.isAfterNow()) {
-            sleep 100
+            sleep 200
         }
 
         clientThreads = new ArrayList<Thread>()
