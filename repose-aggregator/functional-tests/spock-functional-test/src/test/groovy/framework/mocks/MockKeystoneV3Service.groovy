@@ -352,6 +352,7 @@ class MockKeystoneV3Service {
                 userid      : client_userid,
                 username    : client_username,
                 endpointurl : endpointUrl,
+                servicePort : servicePort,
                 projectid   : client_projectid,
                 projectname : client_projectname,
                 domainid    : client_domainid,
@@ -505,19 +506,19 @@ class MockKeystoneV3Service {
                             "id": "39dc322ce86c4111b4f06c2eeae0841b",
                             "interface": "public",
                             "region": "RegionOne",
-                            "url": "http://\${endpointurl}:5000"
+                            "url": "http://\${endpointurl}:\${servicePort}"
                         },
                         {
                             "id": "ec642f27474842e78bf059f6c48f4e99",
                             "interface": "internal",
                             "region": "RegionOne",
-                            "url": "http://\${endpointurl}:5000"
+                            "url": "http://\${endpointurl}:\${servicePort}"
                         },
                         {
                             "id": "c609fc430175452290b62a4242e8a7e8",
                             "interface": "admin",
                             "region": "RegionOne",
-                            "url": "http://\${endpointurl}:35357"
+                            "url": "http://\${endpointurl}:\${servicePort}"
                         }
                     ],
                     "id": "4363ae44bdf34a3981fde3b823cb9aa2",
