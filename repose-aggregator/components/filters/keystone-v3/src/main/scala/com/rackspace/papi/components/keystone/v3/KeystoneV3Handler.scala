@@ -179,7 +179,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     val authResponse = tuple._2
     if (Option(keystoneConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
       filterDirector.setFilterAction(FilterAction.RETURN)
-      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+      filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
     }
 
     filterDirector
@@ -366,7 +366,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   }
 
   private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
-    (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) &&
+    (endpoint.url == keystoneConfig.getServiceEndpoint.getUrl) && // TODO: Handle trailing slash on URL matching?
       Option(keystoneConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
       Option(keystoneConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
       Option(keystoneConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)

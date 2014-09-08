@@ -50,20 +50,19 @@ class KeystoneV3AuthZTest extends ReposeValveTest {
         fakeKeystoneV3Service.with {
             endpointUrl = endpointResponse
         }
-        def url = "http://localhost:${properties.reposePort}"
+        sleep(500) // TODO: Necessary to circumvent token caching. Is there a better way?
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:url +"/v3/"+fakeKeystoneV3Service.client_token+"/ss", method:'GET', headers:['X-Subject-Token': fakeKeystoneV3Service.client_token])
+        MessageChain mc = deproxy.makeRequest(url:"http://localhost:${properties.reposePort}/v3/${fakeKeystoneV3Service.client_token}/ss", method:'GET', headers:['X-Subject-Token': fakeKeystoneV3Service.client_token])
 
         then: "User should receive a #statusCode response"
         mc.receivedResponse.code == statusCode
-        mc.handlings.size() == 1
-
+        mc.handlings.size() == handlings
 
         where:
-        endpointResponse    | statusCode
-        "http://localhost"  | "200"
-        "http://myhost.com" | "403"
+        endpointResponse | statusCode | handlings
+        "localhost"      | "200"      | 1
+        "myhost.com"     | "403"      | 0
     }
 
     def "When user is not authorized should receive a 403 FORBIDDEN response"(){
@@ -74,9 +73,9 @@ class KeystoneV3AuthZTest extends ReposeValveTest {
             client_token = token
             servicePort = 99999
         }
-        def targetport = properties.targetPort
+
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url:"http://localhost:" + targetport + "/v3/"+token+"/ss", method:'GET', headers:['X-Subject-Token': token])
+        MessageChain mc = deproxy.makeRequest(url:"http://localhost:${properties.reposePort}/v3/${token}/ss", method:'GET', headers:['X-Subject-Token': token])
         def foundLogs = reposeLogSearch.searchByString("User token: " + token +
                 ": The user's service catalog does not contain an endpoint that matches the endpoint configured in keystone-v3.cfg.xml")
 
