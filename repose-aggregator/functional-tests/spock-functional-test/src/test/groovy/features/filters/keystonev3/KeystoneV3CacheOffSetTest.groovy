@@ -65,8 +65,12 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
                 (1..initialCallsPerUser).each {
                     MessageChain mc = deproxy.makeRequest(
                             url: reposeEndpoint, method: 'GET',
-                            headers: ['X-Subject-Token': token, 'TEST_THREAD': "User-$index-Call-$it"])
-                    assert mc.receivedResponse.code.equals("200")
+                            headers: [
+                                    'content-type': 'application/json',
+                                    'X-Subject-Token': token,
+                                    'TEST_THREAD': "User-$index-Call-$it"
+                            ])
+                    mc.receivedResponse.code.equals("200")
                     lastTokenValidation = DateTime.now()
                 }
             }
@@ -85,8 +89,13 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
                 while (minimumTokenExpiration.isAfterNow()) {
-                    MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': token])
-                    assert mc.receivedResponse.code.equals("200")
+                    MessageChain mc = deproxy.makeRequest(
+                            url: reposeEndpoint, method: 'GET',
+                            headers: [
+                                    'content-type': 'application/json',
+                                    'X-Subject-Token': token
+                            ])
+                    mc.receivedResponse.code.equals("200")
                 }
             }
             clientThreads.add(thread)
@@ -108,8 +117,13 @@ class KeystoneV3CacheOffSetTest extends ReposeValveTest{
 
         userTokens.eachWithIndex { token, index ->
             def thread = Thread.start {
-                MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': token])
-                assert mc.receivedResponse.code.equals("200")
+                MessageChain mc = deproxy.makeRequest(
+                        url: reposeEndpoint, method: 'GET',
+                        headers: [
+                                'content-type': 'application/json',
+                                'X-Subject-Token': token
+                        ])
+                mc.receivedResponse.code.equals("200")
             }
             clientThreads.add(thread)
         }
