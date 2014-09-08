@@ -74,6 +74,8 @@ class KeystoneV3AdminTokenTest extends ReposeValveTest{
         where:
         reqDomain | adminRespCode | respCode | responseBody                                              | orphanedHandlings
         1111      | 500           | "500"    | ""                                                        | 1
-        1112      | 404           | "500"    | fakeKeystoneV3Service.identityFailureAuthJsonRespTemplate | 1
+        1112      | 404           | "500"    | ""                                                        | 1
+        1113      | 401           | "500"    | fakeKeystoneV3Service.identityFailureAuthJsonRespTemplate | 1
+        1113      | 200           | "500"    | ""                                                        | 1
     }
 }
