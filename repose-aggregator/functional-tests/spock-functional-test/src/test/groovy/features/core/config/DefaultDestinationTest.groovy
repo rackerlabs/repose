@@ -7,6 +7,7 @@ import framework.TestProperties
 import framework.category.Slow
 import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.PortFinder
 
 import spock.lang.Specification
@@ -55,7 +56,7 @@ class DefaultDestinationTest extends Specification {
     }
 
     @Unroll("when defaults: #default1, #default2, #default3")
-    def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
+    def "start with more or less than one default destination endpoint in system model configs, should log error and return 500"() {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
@@ -94,10 +95,8 @@ class DefaultDestinationTest extends Specification {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
-        when: "making a request to repose with and invalid default destination endpoint settings"
-        deproxy.makeRequest(url: url)
-        then: "connection exception should be returned"
-        thrown(ConnectException)
+        expect: "making a request with invalid default destination settings should return 500"
+        deproxy.makeRequest(url: url).receivedResponse.code == "500"
 
 
         where:
@@ -156,7 +155,7 @@ class DefaultDestinationTest extends Specification {
     }
 
     @Unroll("when defaults: #default1, #default2, #default3")
-    def "start with more or less than one default destination and null values, should log error and fail to connect"() {
+    def "start with more or less than one default destination and null values, should log error and return 500"() {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
@@ -196,11 +195,8 @@ class DefaultDestinationTest extends Specification {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
-        when: "making a request to repose with and invalid default destination endpoint settings"
-        deproxy.makeRequest(url: url)
-        then: "connection exception should be returned"
-        thrown(ConnectException)
-
+        expect: "making a request with invalid default destination settings should return 500"
+        deproxy.makeRequest(url: url).receivedResponse.code == "500"
 
         where:
         default1 | default2 | default3
