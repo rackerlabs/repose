@@ -137,6 +137,8 @@ public class XmlFilterChainExecutor {
         if (filter.getReader() instanceof net.sf.saxon.Filter) {
           net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
           transformer = saxonFilter.getTransformer();
+          net.sf.saxon.Controller controller = (net.sf.saxon.Controller) transformer;
+          controller.clearDocumentPool();
         } else if (filter.getReader() instanceof TrAXFilter) {
           TrAXFilter traxFilter = (TrAXFilter) filter.getReader();
           transformer = traxFilter.getTransformer();
