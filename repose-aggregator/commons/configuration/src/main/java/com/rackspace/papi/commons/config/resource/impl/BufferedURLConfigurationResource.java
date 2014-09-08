@@ -17,7 +17,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class BufferedURLConfigurationResource implements ConfigurationResource<BufferedURLConfigurationResource> {
+public class BufferedURLConfigurationResource implements ConfigurationResource {
 
    private final byte[] internalByteArray;
    private final URL resourceUrl;

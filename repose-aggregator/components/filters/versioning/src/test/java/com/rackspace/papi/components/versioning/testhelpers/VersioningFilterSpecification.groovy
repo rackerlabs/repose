@@ -138,7 +138,7 @@ class VersioningFilterSpecification extends Specification {
         def configString = buildFakeConfigXml(mappingList)
 
         //Create a config resource for the ContentNormalizationConfig
-        def configResource = new ConfigurationResource<ServiceVersionMappingList>() {
+        def configResource = new ConfigurationResource() {
 
             @Override
             boolean updated() throws IOException {
@@ -167,7 +167,7 @@ class VersioningFilterSpecification extends Specification {
 
         def systemModelConfigString = buildFakeSystemModelConfigXml(endpoints)
 
-        def systemModelConfigResource = new ConfigurationResource<SystemModel>() {
+        def systemModelConfigResource = new ConfigurationResource() {
             @Override
             boolean updated() throws IOException {
                 return false

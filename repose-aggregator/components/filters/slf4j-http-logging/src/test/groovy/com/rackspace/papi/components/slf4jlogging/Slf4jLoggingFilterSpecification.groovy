@@ -72,7 +72,7 @@ class Slf4jLoggingFilterSpecification extends Specification{
         def configString = buildFakeConfigXml(logEntries)
 
         //Create a config resource for the ContentNormalizationConfig
-        def configResource = new ConfigurationResource<Slf4JHttpLoggingConfig>() {
+        def configResource = new ConfigurationResource() {
 
             @Override
             boolean updated() throws IOException {

@@ -16,7 +16,7 @@ public class ByteArrayConfigurationResourceTest {
 
     public static class WhenUsingByteArrayConfigurationResource {
 
-        private ConfigurationResource<ByteArrayConfigurationResource> byteArrayConfigurationResource;
+        private ConfigurationResource byteArrayConfigurationResource;
 
         @Before
         public void setup() {

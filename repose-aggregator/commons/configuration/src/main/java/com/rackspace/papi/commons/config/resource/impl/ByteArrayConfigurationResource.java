@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ByteArrayConfigurationResource implements ConfigurationResource<ByteArrayConfigurationResource> {
+public class ByteArrayConfigurationResource implements ConfigurationResource {
 
     private final byte[] sourceArray;
     private final String name;

@@ -89,7 +89,7 @@ class CnormMediaTypeIntegrationTest extends Specification {
         def configString = buildFakeConfigXml(mediaTypes)
 
         //Create a config resource for the ContentNormalizationConfig
-        def configResource = new ConfigurationResource<ContentNormalizationConfig>() {
+        def configResource = new ConfigurationResource() {
 
             @Override
             boolean updated() throws IOException {
