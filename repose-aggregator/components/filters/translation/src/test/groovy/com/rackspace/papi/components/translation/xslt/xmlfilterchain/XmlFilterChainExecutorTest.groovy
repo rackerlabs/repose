@@ -10,12 +10,6 @@ import javax.xml.transform.Transformer
 import net.sf.saxon.Filter
 import net.sf.saxon.Controller
 import net.sf.saxon.Configuration
-import net.sf.saxon.om.NamePool
-import net.sf.saxon.lib.StandardURIResolver
-import net.sf.saxon.lib.SchemaURIResolver
-import net.sf.saxon.lib.OutputURIResolver
-import javax.xml.transform.ErrorListener
-import net.sf.saxon.lib.TraceListener
 
 import static org.mockito.Mockito.when
 import static org.mockito.Mockito.mock
@@ -35,32 +29,10 @@ class XmlFilterChainExecutorTest extends Specification {
     Filter filter;
     Controller controller;
     Configuration configuration;
-    NamePool namePool;
-    StandardURIResolver uriResolver;
-    SchemaURIResolver schemaUriResolver;
-    OutputURIResolver outputUriResolver;
-    ErrorListener errorListener;
-    TraceListener traceListener;
 
     def setup(){
 
         factory = mock(SAXTransformerFactory.class)
-        configuration = mock(Configuration.class)
-        namePool = mock(NamePool.class)
-        uriResolver = mock(StandardURIResolver.class)
-        schemaUriResolver = mock(SchemaURIResolver.class)
-        errorListener = mock(ErrorListener.class)
-        traceListener = mock(TraceListener.class)
-
-        when(configuration.getNamePool()).thenReturn(namePool)
-        when(configuration.getSystemURIResolver()).thenReturn(uriResolver)
-        when(configuration.getSchemaURIResolver()).thenReturn(schemaUriResolver)
-        when(configuration.getOutputURIResolver()).thenReturn(outputUriResolver)
-        when(configuration.getStandardErrorOutput()).thenReturn(null)
-        when(configuration.getErrorListener()).thenReturn(null)
-        when(configuration.getRecoveryPolicy()).thenReturn(1)
-        when(configuration.makeTraceListener()).thenReturn(traceListener)
-        when(configuration.getTreeModel()).thenReturn(1)
 
         controller = new Controller(new Configuration())
         filter = new Filter(controller);
