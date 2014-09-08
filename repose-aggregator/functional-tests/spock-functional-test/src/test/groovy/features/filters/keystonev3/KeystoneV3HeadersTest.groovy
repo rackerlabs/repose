@@ -2,8 +2,11 @@ package features.filters.keystonev3
 
 import framework.ReposeValveTest
 import framework.mocks.MockKeystoneV3Service
+import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 
 /**
  * Created by jennyvo on 8/26/14.
@@ -55,6 +58,7 @@ class KeystoneV3HeadersTest extends ReposeValveTest{
         request.headers.contains("X-pp-user")
         request.headers.contains("X-pp-groups")
         request.headers.contains("X-Token-Expires")
+        //request.headers.contains("WWW-Authenticate")
 
         when: "I send a second GET request to Repose with the same token"
         fakeKeystoneV3Service.resetCounts()
@@ -68,5 +72,34 @@ class KeystoneV3HeadersTest extends ReposeValveTest{
         def request2 = mc.handlings[0].request
         //request2.headers.contains("X-Default-Region") --not implemented
         //request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+    }
+
+    def "when client failed to authenticate, the XXX-Authentication header should be expected" () {
+        given:
+        fakeKeystoneV3Service.with {
+            client_domainid = 11111
+            client_userid = 11111
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+        }
+
+        fakeKeystoneV3Service.validateTokenHandler = {
+            tokenId, request ->
+                new Response(404, null, null, fakeKeystoneV3Service.identityFailureAuthJsonRespTemplate)
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/11111/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Subject-Token': fakeKeystoneV3Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "401"
+        mc.receivedResponse.headers.getFirstValue("WWW-Authenticate") == "Keystone uri=http://"+identityEndpoint.hostname+":"+properties.identityPort
     }
 }
