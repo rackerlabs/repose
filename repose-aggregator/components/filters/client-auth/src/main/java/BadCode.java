@@ -1,3 +1,4 @@
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 /**
@@ -13,6 +14,14 @@ public class BadCode {
 
     public int getX2 ()
     {
+        if(true) {
+            return x;
+        }
+
+        synchronized(this) {
+            int number = 5;
+        }
+
         return x;
     }
 
@@ -21,11 +30,28 @@ public class BadCode {
         return x;
     }
 
-    public String callToStringS() {
+
+    public String callToStringS() throws Exception {
+        try(FileWriter r1 = null;) {
+            int z = 1;
+        }
         return(s .toString());
     }
 
     public ArrayList getList ( ) {
         return new ArrayList < Integer > (     ) ;
+    }
+
+    public int switchNum() {
+        switch(1) {
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+            default:
+                return 0;
+        }
+
+
     }
 }
