@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.keystone.v3
 
-import com.rackspace.papi.components.keystone.v3.config.KeystoneV3Config
+import com.rackspace.papi.components.keystone.v3.config.{KeystoneV3Config, OpenstackKeystoneService}
 import com.rackspace.papi.service.datastore.DatastoreService
-import com.rackspace.papi.service.httpclient.HttpClientService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.junit.runner.RunWith
+import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -18,12 +18,24 @@ class KeystoneV3HandlerFactoryTest extends FunSpec with BeforeAndAfter with Matc
   val mockDatastoreService = mock[DatastoreService]
 
   before {
+    when(mockDatastoreService.getDefaultDatastore).thenReturn(null)
+
     handlerFactory = new KeystoneV3HandlerFactory(mockAkkaServiceClient, mockDatastoreService)
   }
 
   describe("buildHandler") {
     it("should return a Keystone v3 handler") {
-      handlerFactory.configurationUpdated(new KeystoneV3Config())
+      val keystoneService = new OpenstackKeystoneService()
+      keystoneService.setUri("")
+
+      val config = new KeystoneV3Config()
+      config.setKeystoneService(keystoneService)
+      config.setTokenCacheTimeout(0)
+      config.setGroupsCacheTimeout(0)
+      config.setCacheOffset(0)
+      config.setForwardUnauthorizedRequests(false)
+
+      handlerFactory.configurationUpdated(config)
       handlerFactory.buildHandler shouldBe a[KeystoneV3Handler]
     }
   }
