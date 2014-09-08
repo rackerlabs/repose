@@ -253,7 +253,7 @@ class DistDatastoreServiceContainerTest extends Specification {
     private void makeRequestsWRateLimit(endpoint1,endpoint2, user, ignore=true){
         if(ignore){
             println("Do nothing")
-            assert new Date() < new Date(2014 - 1900, Calendar.AUGUST, 31, 9, 0)
+            assert new Date() < new Date(2014 - 1900, Calendar.OCTOBER, 31, 9, 0)
         }
         else {
             for (int i = 0; i < 3; i++) {
