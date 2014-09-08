@@ -35,12 +35,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val GROUPS_KEY_PREFIX = "GROUPS:"
 
-  private lazy val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
-  private lazy val tokenCacheTtl = keystoneConfig.getTokenCacheTimeout
-  private lazy val groupsCacheTtl = keystoneConfig.getGroupsCacheTimeout
-  private lazy val cacheOffset = keystoneConfig.getCacheOffset
-  private lazy val forwardUnauthorizedRequests = keystoneConfig.isForwardUnauthorizedRequests
-  private lazy val datastore = datastoreService.getDefaultDatastore
+  private val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
+  private val tokenCacheTtl = keystoneConfig.getTokenCacheTimeout
+  private val groupsCacheTtl = keystoneConfig.getGroupsCacheTimeout
+  private val cacheOffset = keystoneConfig.getCacheOffset
+  private val forwardUnauthorizedRequests = keystoneConfig.isForwardUnauthorizedRequests
+  private val datastore = datastoreService.getDefaultDatastore
 
   private[v3] var cachedAdminToken: String = null
 
