@@ -479,7 +479,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
       keystoneV3Handler invokePrivate authorize((filterDirector, authToken))
       verify(filterDirector).setFilterAction(FilterAction.RETURN)
-      verify(filterDirector).setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+      verify(filterDirector).setResponseStatus(HttpStatusCode.FORBIDDEN)
     }
   }
 
