@@ -131,6 +131,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>openstack-identity-v3</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>openstack-identity-basic-auth</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -241,6 +246,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>openstack-identity-v3</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>openstack-identity-basic-auth</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
