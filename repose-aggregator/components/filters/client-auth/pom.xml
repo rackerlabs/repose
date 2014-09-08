@@ -312,6 +312,22 @@
                                 </module>
 
                                 <module name="WhitespaceAround">
+                                    <property name="tokens" value="LE"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="GE"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LT"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="GT"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
                                     <property name="tokens" value="EQUAL"/>
                                 </module>
 
@@ -325,6 +341,90 @@
 
                                 <module name="WhitespaceAround">
                                     <property name="tokens" value="COLON"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_IF"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_FOR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_WHILE"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_SWITCH"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_TRY"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_SYNCHRONIZED"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_ELSE"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_DO"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LITERAL_FINALLY"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="LCURLY"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BOR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BAND"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BXOR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="MINUS"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="PLUS"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="STAR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="DIV"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="MOD"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="BSR"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="SL"/>
+                                </module>
+
+                                <module name="WhitespaceAround">
+                                    <property name="tokens" value="SR"/>
                                 </module>
 
                                 <module name="TypeName">
