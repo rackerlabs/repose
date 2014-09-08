@@ -49,7 +49,7 @@ class DateTimeFormatConverterTest {
      * As long as the assumption proves false, it will ignore the tests. So we're assuming that we're past the timebomb
      * date, otherwise the test method is ignored
      */
-    def splodeDate = new Date(2014 - 1900, Calendar.AUGUST, 1, 9, 0);
+    def splodeDate = new Date(2014 - 1900, Calendar.DECEMBER, 1, 9, 0);
 
     @Test
     void "valid input gets converted correctly"() {
