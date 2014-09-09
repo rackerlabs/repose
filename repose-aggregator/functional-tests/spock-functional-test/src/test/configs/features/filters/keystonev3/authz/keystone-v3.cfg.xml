@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <keystone-v3 xmlns="http://docs.openrepose.org/keystone-v3/v1.0"
-        request-groups="false"
+        forward-groups="false"
         token-cache-timeout="1">
 
     <keystone-service username="admin-username"

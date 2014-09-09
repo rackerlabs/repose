@@ -62,10 +62,24 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="forward-groups" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Tells the service whether or not to make a GET groups API call to the Keystone service.</html:p>
+                    <html:p>
+                        Tells the filter whether or not to make a GET groups API call to the Keystone service
+                        and populate the X-PP-Groups header with the result.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="forward-catalog" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tells the filter whether or not to forward the service catalog associated with a token in the
+                        X-Catalog header. If forwarded, the service catalog will be base 64 encoded.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

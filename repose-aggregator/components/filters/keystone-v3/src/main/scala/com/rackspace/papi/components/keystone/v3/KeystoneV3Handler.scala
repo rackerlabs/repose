@@ -36,9 +36,11 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private final val GROUPS_KEY_PREFIX = "GROUPS:"
 
   private val keystoneServiceUri = keystoneConfig.getKeystoneService.getUri
+  private val cacheOffset = keystoneConfig.getCacheOffset
   private val tokenCacheTtl = keystoneConfig.getTokenCacheTimeout
   private val groupsCacheTtl = keystoneConfig.getGroupsCacheTimeout
-  private val cacheOffset = keystoneConfig.getCacheOffset
+  private val forwardGroups = keystoneConfig.isForwardGroups
+  private val forwardCatalog = keystoneConfig.isForwardCatalog
   private val forwardUnauthorizedRequests = keystoneConfig.isForwardUnauthorizedRequests
   private val datastore = datastoreService.getDefaultDatastore
 
@@ -115,7 +117,6 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
             headerManager.putHeader(KeystoneV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
             headerManager.putHeader(KeystoneV3Headers.X_AUTHORIZATION.toString, KeystoneV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
             tokenObject.user.name.map(headerManager.putHeader(KeystoneV3Headers.X_USER_NAME.toString, _))
-            tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
             tokenObject.roles.map { roles =>
               headerManager.putHeader(KeystoneV3Headers.X_ROLES, roles.map(_.name) mkString ",")
             }
@@ -127,7 +128,10 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
               project.id.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_ID.toString, _))
               project.name.map(headerManager.putHeader(KeystoneV3Headers.X_PROJECT_NAME.toString, _))
             }
-            if (keystoneConfig.isRequestGroups) {
+            if (forwardCatalog) {
+              tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+            }
+            if (forwardGroups) {
               tokenObject.user.id map { userId: String =>
                 fetchGroups(userId) map { groupsList: List[Group] =>
                   groupsList map { group: Group =>
