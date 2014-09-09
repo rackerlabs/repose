@@ -42,7 +42,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
   private val forwardUnauthorizedRequests = keystoneConfig.isForwardUnauthorizedRequests
   private val datastore = datastoreService.getDefaultDatastore
 
-  private[v3] var cachedAdminToken: String = null
+  private[v3] var cachedAdminToken: Option[String] = None
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     if (isUriWhitelisted(request.getRequestURI, Option(keystoneConfig.getWhiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String]))) {
@@ -266,8 +266,8 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     }
 
     // Check the cached adminToken. If present, return it. Validity of the token is handled in validateSubjectToken by way of retry.
-    if ((cachedAdminToken != null) && !forceFetchAdminToken) {
-      Success(cachedAdminToken)
+    if (cachedAdminToken.isDefined && !forceFetchAdminToken) {
+      Success(cachedAdminToken.get)
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
         keystoneServiceUri + KeystoneV3Endpoints.TOKEN,
@@ -286,7 +286,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
           newAdminToken match {
             case Some(token) =>
               LOG.debug("Caching admin token")
-              cachedAdminToken = token
+              cachedAdminToken = Some(token)
               Success(token)
             case None =>
               LOG.error("Headers not found in a successful response to an admin token request. The Keystone service is not adhering to the Keystone v3 contract.")

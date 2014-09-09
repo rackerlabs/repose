@@ -159,7 +159,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return a Failure when x-subject-token validation fails") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-admin-token")
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
@@ -177,7 +177,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should return a token object when x-subject-token validation succeeds") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-admin-token")
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
@@ -195,7 +195,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       val expirationTime = currentTime.plusMillis(100000)
       val returnJson = "{\"token\":{\"expires_at\":\"" + ISODateTimeFormat.dateTime().print(expirationTime) + "\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
 
-      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-admin-token")
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
@@ -262,7 +262,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     }
 
     it("should return a Success for a cached admin token") {
-      keystoneV3Handler.cachedAdminToken = "test-cached-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-cached-token")
 
       keystoneV3Handler invokePrivate fetchAdminToken(false) shouldBe a[Success[_]]
       keystoneV3Handler.invokePrivate(fetchAdminToken(false)).get should startWith("test-cached-token")
@@ -298,7 +298,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
     it("should cache an admin token when the admin API call succeeds") {
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
-      keystoneV3Handler.cachedAdminToken = null
+      keystoneV3Handler.cachedAdminToken = None
 
       when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
       when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(KeystoneV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
@@ -308,17 +308,18 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
 
       keystoneV3Handler invokePrivate fetchAdminToken(false)
 
-      keystoneV3Handler.cachedAdminToken should startWith("test-admin-token")
+      keystoneV3Handler.cachedAdminToken shouldBe a[Some[_]]
+      keystoneV3Handler.cachedAdminToken.get should startWith("test-admin-token")
     }
   }
 
   describe("fetchGroups") {
-    val fetchGroups = PrivateMethod[Try[List[Group]]]('fetchGroups)
+    val fetchGroups = PrivateMethod[Try[List[_]]]('fetchGroups)
 
     it("should return a Failure when x-subject-token validation fails") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-admin-token")
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
@@ -330,13 +331,13 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       when(mockDatastore.get(anyString)).thenReturn(List(Group("", "", "")).toBuffer.asInstanceOf[Serializable], Nil: _*)
 
       keystoneV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
-      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[Group]]
+      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[_]]
     }
 
     it("should return a list of groups when groups call succeeds") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
 
-      keystoneV3Handler.cachedAdminToken = "test-admin-token"
+      keystoneV3Handler.cachedAdminToken = Some("test-admin-token")
 
       when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
       when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
@@ -345,7 +346,7 @@ class KeystoneV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers wi
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
 
       keystoneV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
-      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[Group]]
+      keystoneV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[_]]
     }
   }
 
