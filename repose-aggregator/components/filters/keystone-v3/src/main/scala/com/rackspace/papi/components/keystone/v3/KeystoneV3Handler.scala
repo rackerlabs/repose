@@ -74,7 +74,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(KeystoneV3Headers.X_DELEGATED)) {
-          filterDirector.responseHeaderManager.putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Keystone uri=" + keystoneServiceUri)
+          filterDirector.responseHeaderManager.appendHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Keystone uri=" + keystoneServiceUri)
         } else {
           // In the case where authentication has failed and we did not receive
           // a delegated WWW-Authenticate header, this means that our own authentication
