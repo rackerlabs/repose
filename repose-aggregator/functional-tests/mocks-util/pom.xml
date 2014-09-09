@@ -4,7 +4,7 @@
     <parent>
         <artifactId>functional-test-support</artifactId>
         <groupId>com.rackspace.papi.test</groupId>
-        <version>5.0.3-SNAPSHOT</version>
+        <version>5.0.4</version>
     </parent>
 
     <groupId>com.rackspace.papi.test.mocks</groupId>
