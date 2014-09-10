@@ -101,4 +101,29 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest{
         "p501"      | 403              | "200"          |"Unauthorized"
         "p502"      | 404              | "200"          |fakeKeystoneV3Service.identityFailureJsonRespTemplate
     }
+
+    def "when client failed to authenticate at the origin service, the WWW-Authenticate header should be expected" () {
+        given:
+        fakeKeystoneV3Service.validateTokenHandler = {
+            tokenId, request ->
+                new Response(404, null, null, fakeKeystoneV3Service.identityFailureJsonRespTemplate)
+        }
+
+        when: "User passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/11111/",
+                method: 'GET',
+                headers: [
+                        'X-Subject-Token': fakeKeystoneV3Service.client_token
+                ],
+                defaultHandler: {
+                    new Response(401, "", ["www-authenticate":"delegated"], "")
+                }
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == "401"
+        mc.receivedResponse.headers.findAll("WWW-Authenticate").size() == 1
+        mc.receivedResponse.headers.findAll("WWW-Authenticate").get(0).matches("Keystone uri=.*")
+    }
 }

@@ -73,8 +73,12 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       case HttpStatusCode.FORBIDDEN | HttpStatusCode.UNAUTHORIZED =>
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
-        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(KeystoneV3Headers.X_DELEGATED)) {
-          filterDirector.responseHeaderManager.appendHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, "Keystone uri=" + keystoneServiceUri)
+        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(KeystoneV3Headers.X_DELEGATED.toLowerCase)) {
+          val responseAuthHeaderValues = response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.toList
+          val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(KeystoneV3Headers.X_DELEGATED))
+          val valuesWithKeystone = ("Keystone uri=" + keystoneServiceUri) :: valuesWithoutDelegated
+
+          filterDirector.responseHeaderManager.putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, valuesWithKeystone: _*)
         } else {
           // In the case where authentication has failed and we did not receive
           // a delegated WWW-Authenticate header, this means that our own authentication
