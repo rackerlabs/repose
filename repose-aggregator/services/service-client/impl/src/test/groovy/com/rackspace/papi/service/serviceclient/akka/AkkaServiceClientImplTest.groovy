@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.serviceclient.akka
 
-import com.rackspace.papi.commons.util.http.ServiceClient
 import com.rackspace.papi.commons.util.http.ServiceClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientService
@@ -9,17 +8,15 @@ import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpRequestBase
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
 
 import javax.ws.rs.core.MediaType
 
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.MatcherAssert.assertThat
 import static org.junit.Assert.assertEquals
-import static org.mockito.Matchers.*
+import static org.mockito.Matchers.anyObject
+import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.*
 
 class AkkaServiceClientImplTest {
@@ -31,7 +28,6 @@ class AkkaServiceClientImplTest {
     private String userToken
     private String adminToken
     private String targetHostUri
-    ArgumentCaptor<HttpRequestBase> requestCaptor
     HttpClientService httpClientService
     String returnString = "getinput"
     HttpClient httpClient
@@ -49,8 +45,7 @@ class AkkaServiceClientImplTest {
         when(httpClientResponse.getHttpClient()).thenReturn(httpClient)
 
         HttpResponse httpResponse = mock(HttpResponse.class)
-        requestCaptor = ArgumentCaptor.forClass(HttpRequestBase.class)
-        when(httpClient.execute(requestCaptor.capture())).thenReturn(httpResponse)
+        when(httpClient.execute(anyObject())).thenReturn(httpResponse)
 
         HttpEntity entity = mock(HttpEntity.class)
         when(httpResponse.getEntity()).thenReturn(entity)
@@ -72,14 +67,7 @@ class AkkaServiceClientImplTest {
         ((HashMap<String, String>) headers).put(ACCEPT_HEADER, MediaType.APPLICATION_XML)
         ((HashMap<String, String>) headers).put(AUTH_TOKEN_HEADER, "admin token")
         ServiceClientResponse serviceClientResponse = akkaServiceClientImpl.get(userToken, targetHostUri, headers)
-        org.junit.Assert.assertEquals("Should retrieve service client with response", serviceClientResponse.getStatusCode(), 200)
-    }
-
-    @Test
-    public void testGetAdminToken() {
-        akkaServiceClientImpl.post(adminToken, targetHostUri, new HashMap(), "", MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE)
-        assertThat(requestCaptor.value.getFirstHeader("Content-Type").value, equalTo(MediaType.APPLICATION_JSON))
-        assertThat(requestCaptor.value.getFirstHeader("Accept").value, equalTo(MediaType.APPLICATION_JSON))
+        Assert.assertEquals("Should retrieve service client with response", serviceClientResponse.getStatusCode(), 200)
     }
 
     @Test
