@@ -43,6 +43,7 @@
             <artifactId>mockrunner-servlet</artifactId>
             <version>1.0.0</version>
             <scope>test</scope>
+            <!-- TODO: This may longer be necessary. -->
             <exclusions>
                 <!-- This exclusion prevents a NoSuchFieldError: W3C_XML_SCHEMA10_NS_URI -->
                 <exclusion>
