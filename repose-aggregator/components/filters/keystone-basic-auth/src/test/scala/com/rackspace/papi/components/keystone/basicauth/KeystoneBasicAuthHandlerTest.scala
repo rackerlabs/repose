@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.keystone.basicauth
 
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.keystone.basicauth.config.KeystoneBasicAuthConfig
@@ -41,19 +40,32 @@ class KeystoneBasicAuthHandlerTest extends FunSpec with BeforeAndAfter with Matc
 
   describe("handleRequest") {
     it("should pass filter") {
-      val mockServletRequest = new MockHttpServletRequest()
+      // given: "a mock'd ServletRequest and ServletResponse"
+      val mockServletRequest = mock[HttpServletRequest]
       val mockServletResponse = mock[ReadableHttpServletResponse]
-      keystoneBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.PASS
+
+      // when: "the filter's/handler's handleRequest() is called"
+      val filterDirector = keystoneBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse)
+
+      // then: "the filter's action should be Pass"
+      filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PASS
     }
   }
 
   describe("handleResponse") {
     it("should pass filter") {
-      val mockServletRequest = new MockHttpServletRequest()
+      // given: "a mock'd ServletRequest and ServletResponse"
+      val mockServletRequest = mock[HttpServletRequest]
       val mockServletResponse = mock[ReadableHttpServletResponse]
+
       // TODO: This should work, but seems to be a limitation of the current ScalaMock.
       //when(mockServletResponse.getStatus()).thenReturn(HttpServletResponse.SC_OK)
-      keystoneBasicAuthHandler.handleResponse(mockServletRequest, mockServletResponse).getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
+
+      // when: "the filter's/handler's handleResponse() is called"
+      val filterDirector = keystoneBasicAuthHandler.handleResponse(mockServletRequest, mockServletResponse)
+
+      // then: "the filter's response status code should be No Content"
+      filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
     }
   }
 }
