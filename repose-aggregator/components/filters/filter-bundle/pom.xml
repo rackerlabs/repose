@@ -129,7 +129,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>keystone-v3</artifactId>
+            <artifactId>openstack-identity-v3</artifactId>
         </dependency>
     </dependencies>
 
@@ -240,7 +240,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>keystone-v3</artifactId>
+                            <artifactId>openstack-identity-v3</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

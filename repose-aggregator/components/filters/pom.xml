@@ -34,7 +34,7 @@
         <module>compression</module>
         <module>header-translation</module>
         <module>uri-stripper</module>
-        <module>keystone-v3</module>
+        <module>openstack-identity-v3</module>
     </modules>
 
     <dependencyManagement>
@@ -239,7 +239,7 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>keystone-v3</artifactId>
+                <artifactId>openstack-identity-v3</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

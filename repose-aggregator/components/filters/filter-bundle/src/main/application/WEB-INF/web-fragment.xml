@@ -113,7 +113,7 @@
     </filter>
 
     <filter>
-        <filter-name>keystone-v3</filter-name>
-        <filter-class>com.rackspace.papi.components.keystone.v3.KeystoneV3Filter</filter-class>
+        <filter-name>openstack-identity-v3</filter-name>
+        <filter-class>com.rackspace.papi.components.openstack.identity.v3.OpenStackIdentityV3Filter</filter-class>
     </filter>
 </web-fragment>
