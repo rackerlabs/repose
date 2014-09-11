@@ -11,7 +11,7 @@ import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse,
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint, WhiteList}
 import com.rackspace.papi.components.openstack.identity.v3.objects._
-import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenstackIdentityV3Headers
+import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenStackIdentityV3Headers
 import com.rackspace.papi.components.openstack.identity.v3.utilities.exceptions.InvalidAdminCredentialsException
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
@@ -101,13 +101,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         ),
         Map(
           responseStatus -> HttpStatusCode.FORBIDDEN,
-          responseWwwAuthenticate -> OpenstackIdentityV3Headers.X_DELEGATED,
+          responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
           resultStatus -> HttpStatusCode.FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
         Map(
           responseStatus -> HttpStatusCode.UNAUTHORIZED,
-          responseWwwAuthenticate -> OpenstackIdentityV3Headers.X_DELEGATED,
+          responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
           resultStatus -> HttpStatusCode.FORBIDDEN,
           resultWwwAuthenticate -> "Keystone uri=http://test-uri.com"
         ),
@@ -117,7 +117,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         ),
         Map(
           responseStatus -> HttpStatusCode.NOT_IMPLEMENTED,
-          responseWwwAuthenticate -> OpenstackIdentityV3Headers.X_DELEGATED,
+          responseWwwAuthenticate -> OpenStackIdentityV3Headers.X_DELEGATED,
           resultStatus -> HttpStatusCode.INTERNAL_SERVER_ERROR
         ),
         Map(
@@ -272,7 +272,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockServiceClientResponse = mock[ServiceClientResponse]
 
       when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenstackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
+      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -286,7 +286,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
       when(mockDatastore.get(anyString)).thenReturn("test-cached-token", Nil: _*)
       when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenstackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
+      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -301,7 +301,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       identityV3Handler.cachedAdminToken = None
 
       when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenstackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
+      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
       when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]), any(classOf[MediaType]))).
         thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures

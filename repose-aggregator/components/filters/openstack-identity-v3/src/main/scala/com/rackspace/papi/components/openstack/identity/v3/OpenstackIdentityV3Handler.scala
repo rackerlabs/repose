@@ -73,9 +73,9 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
       case HttpStatusCode.FORBIDDEN | HttpStatusCode.UNAUTHORIZED =>
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
-        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(OpenstackIdentityV3Headers.X_DELEGATED.toLowerCase)) {
+        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.toLowerCase.contains(OpenStackIdentityV3Headers.X_DELEGATED.toLowerCase)) {
           val responseAuthHeaderValues = response.getHeaders(CommonHttpHeader.WWW_AUTHENTICATE.toString).asScala.toList
-          val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(OpenstackIdentityV3Headers.X_DELEGATED))
+          val valuesWithoutDelegated = responseAuthHeaderValues.filterNot(_.equalsIgnoreCase(OpenStackIdentityV3Headers.X_DELEGATED))
           val valuesWithKeystone = ("Keystone uri=" + identityServiceUri) :: valuesWithoutDelegated
 
           filterDirector.responseHeaderManager.putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString, valuesWithKeystone: _*)
@@ -88,7 +88,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
           filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
         }
       case HttpStatusCode.NOT_IMPLEMENTED =>
-        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(OpenstackIdentityV3Headers.X_DELEGATED)) {
+        if (wwwAuthenticateHeader.isDefined && wwwAuthenticateHeader.get.contains(OpenStackIdentityV3Headers.X_DELEGATED)) {
           LOG.error("Repose authentication component is configured to forward unauthorized requests, but the origin service does not support delegated mode.")
           filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
         } else {
@@ -111,26 +111,26 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
 
     var authSuccess = false
     var authenticateResponse: AuthenticateResponse = null
-    Option(request.getHeader(OpenstackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
+    Option(request.getHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)) match {
       case Some(subjectToken) =>
         validateSubjectToken(subjectToken) match {
           case Success(tokenObject: AuthenticateResponse) =>
             authSuccess = true
             authenticateResponse = tokenObject
 
-            headerManager.putHeader(OpenstackIdentityV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
-            headerManager.putHeader(OpenstackIdentityV3Headers.X_AUTHORIZATION.toString, OpenstackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-            tokenObject.user.name.map(headerManager.putHeader(OpenstackIdentityV3Headers.X_USER_NAME.toString, _))
+            headerManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
+            headerManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+            tokenObject.user.name.map(headerManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
             tokenObject.roles.map { roles =>
-              headerManager.putHeader(OpenstackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
+              headerManager.putHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
             }
             tokenObject.user.id.map { id =>
-              headerManager.putHeader(OpenstackIdentityV3Headers.X_USER_ID.toString, id)
+              headerManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
               headerManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
             }
             tokenObject.project.map { project =>
-              project.id.map(headerManager.putHeader(OpenstackIdentityV3Headers.X_PROJECT_ID.toString, _))
-              project.name.map(headerManager.putHeader(OpenstackIdentityV3Headers.X_PROJECT_NAME.toString, _))
+              project.id.map(headerManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
+              project.name.map(headerManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
             }
             if (forwardCatalog) {
               tokenObject.catalog.map(catalog => headerManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
@@ -154,7 +154,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
 
             filterDirector.setFilterAction(FilterAction.PASS)
           case Failure(e: InvalidSubjectTokenException) =>
-            filterDirector.responseHeaderManager.putHeader(OpenstackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
+            filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
             filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
           case Failure(e: IdentityServiceException) =>
             LOG.error("OpenStack Identity v3 failure: " + e.getMessage)
@@ -169,11 +169,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
 
     if (forwardUnauthorizedRequests) {
       if (authSuccess) {
-        headerManager.putHeader(OpenstackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
+        headerManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
       } else {
         LOG.debug("Forwarding indeterminate request") // TODO: Should this be info or debug?
-        headerManager.putHeader(OpenstackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-        headerManager.putHeader(OpenstackIdentityV3Headers.X_AUTHORIZATION, OpenstackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
+        headerManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+        headerManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
         filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
       }
     }
@@ -201,12 +201,12 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
         fetchAdminToken(isRetry) match {
           case Success(adminToken) =>
             val headerMap = Map(
-              OpenstackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
-              OpenstackIdentityV3Headers.X_SUBJECT_TOKEN -> subjectToken,
+              OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
+              OpenStackIdentityV3Headers.X_SUBJECT_TOKEN -> subjectToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
             )
             val validateTokenResponse = Option(akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken,
-              identityServiceUri + OpenstackIdentityV3Endpoints.TOKEN,
+              identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
               headerMap.asJava))
 
             // Since we *might* get a null back from the akka service client, we have to map it, and then match
@@ -278,7 +278,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
       Success(cachedAdminToken.get)
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-        identityServiceUri + OpenstackIdentityV3Endpoints.TOKEN,
+        identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
         Map[String, String]().asJava,
         createAdminAuthRequest(),
         MediaType.APPLICATION_JSON_TYPE,
@@ -289,7 +289,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
       authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
         // Since the operation is a POST, a 201 should be returned if the operation was successful
         case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
-          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenstackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
+          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
           newAdminToken match {
             case Some(token) =>
@@ -318,11 +318,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
         fetchAdminToken(isRetry) match {
           case Success(adminToken) =>
             val headerMap = Map(
-              OpenstackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
+              OpenStackIdentityV3Headers.X_AUTH_TOKEN -> adminToken,
               HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON
             )
             val groupsResponse = Option(akkaServiceClient.get(GROUPS_KEY_PREFIX + userId,
-              identityServiceUri + OpenstackIdentityV3Endpoints.GROUPS(userId),
+              identityServiceUri + OpenStackIdentityV3Endpoints.GROUPS(userId),
               headerMap.asJava))
 
             // Since we *might* get a null back from the akka service client, we have to map it, and then match
