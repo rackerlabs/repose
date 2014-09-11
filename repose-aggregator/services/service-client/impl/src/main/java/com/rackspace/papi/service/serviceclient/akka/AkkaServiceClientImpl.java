@@ -31,6 +31,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     private final ServiceClient serviceClient;
     private ActorSystem actorSystem;
     private ActorRef tokenActorRef;
+    private int numberOfActors;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AkkaServiceClientImpl.class);
     final Timeout t = new Timeout(50, TimeUnit.SECONDS);
     private final Cache<Object, Future> quickFutureCache;
@@ -40,7 +41,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
     @Autowired
     public AkkaServiceClientImpl(HttpClientService httpClientService) {
         this.serviceClient = getServiceClient(httpClientService);
-        int numberOfActors = serviceClient.getPoolSize();
+        numberOfActors = serviceClient.getPoolSize();
 
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
@@ -74,8 +75,13 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     @Override
     public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
+        return post(requestKey, uri, headers, payload, contentMediaType, MediaType.APPLICATION_XML_TYPE);
+    }
+
+    @Override
+    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType) {
         ServiceClientResponse scr = null;
-        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType);
+        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType, acceptMediaType);
         try {
             Future<ServiceClientResponse> future = getFuture(apr);
             scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));

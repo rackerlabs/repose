@@ -279,8 +279,9 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
         keystoneServiceUri + KeystoneV3Endpoints.TOKEN,
-        Map("Accept" -> MediaType.APPLICATION_JSON).asJava,
+        Map[String, String]().asJava,
         createAdminAuthRequest(),
+        MediaType.APPLICATION_JSON_TYPE,
         MediaType.APPLICATION_JSON_TYPE))
 
       // Since we *might* get a null back from the akka service client, we have to map it, and then match
@@ -288,7 +289,7 @@ class KeystoneV3Handler(keystoneConfig: KeystoneV3Config, akkaServiceClient: Akk
       authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
         // Since the operation is a POST, a 201 should be returned if the operation was successful
         case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
-          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter(header => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue)
+          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(KeystoneV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
           newAdminToken match {
             case Some(token) =>

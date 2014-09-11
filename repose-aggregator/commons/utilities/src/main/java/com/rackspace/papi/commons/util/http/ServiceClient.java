@@ -148,11 +148,17 @@ public class ServiceClient {
     }
 
     public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
+        return post(uri, body, contentMediaType, MediaType.APPLICATION_XML_TYPE);
+    }
+
+    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType, MediaType acceptMediaType) {
         HttpPost post = new HttpPost(uri);
 
         Map<String, String> headers= new HashMap<>();
-        String localContentType = contentMediaType.getType() + "/" + contentMediaType.getSubtype();
+        String localContentType= contentMediaType.getType() +"/"+ contentMediaType.getSubtype();
+        String localAcceptType= acceptMediaType.getType() +"/"+ acceptMediaType.getSubtype();
         headers.put(CONTENT_TYPE_HEADER, localContentType); //test
+        headers.put(ACCEPT_HEADER, localAcceptType);
 
         setHeaders(post, headers);
 
