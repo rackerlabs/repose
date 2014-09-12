@@ -48,7 +48,7 @@ class InvalidServiceNameTest extends Specification {
     }
 
 
-    def "start with invalid service name in system model configs, should log error and fail to connect"() {
+    def "start with invalid service name in system model configs, should log error and return 500"() {
         given:
         // set the common and good configs
         reposeConfigProvider.cleanConfigDirectory()
@@ -60,7 +60,9 @@ class InvalidServiceNameTest extends Specification {
         // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 url,
                 properties.getConfigDirectory(),
                 reposePort
@@ -81,10 +83,8 @@ class InvalidServiceNameTest extends Specification {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
-        when: "making a request to repose with and invalid service name"
-        deproxy.makeRequest(url: url)
-        then: "connection exception should be returned"
-        thrown(ConnectException)
+        expect: "making a request to repose with an invalid service name returns 500"
+        deproxy.makeRequest(url: url).receivedResponse.code == "500"
 
     }
 
@@ -101,7 +101,9 @@ class InvalidServiceNameTest extends Specification {
         // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 url,
                 properties.getConfigDirectory(),
                 reposePort

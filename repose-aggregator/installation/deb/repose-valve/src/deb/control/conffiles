@@ -1,5 +1,1 @@
-/etc/repose/container.cfg.xml
-/etc/repose/system-model.cfg.xml
-/etc/repose/response-messaging.cfg.xml
-/etc/repose/log4j.properties
 /etc/init.d/repose-valve

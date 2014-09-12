@@ -15,7 +15,7 @@
     <name>Repose - Installation Valve DEB</name>
 
     <description>
-        Module for the valve DEB.
+        Module for the Valve DEB.
     </description>
 
     <packaging>pom</packaging>
@@ -27,21 +27,11 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-repose-valve-jar</id>
+                                <id>copy-repose-valve-launcher-jar</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -49,13 +39,33 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.core</groupId>
-                                            <artifactId>valve</artifactId>
+                                            <groupId>org.openrepose.valve</groupId>
+                                            <artifactId>valve-launcher</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
-                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
-                                            <destFileName>valve-${project.version}.jar</destFileName-->
-                                            <destFileName>repose-valve.jar</destFileName>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destFileName>servo.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>copy-jetty-runner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.eclipse.jetty</groupId>
+                                            <artifactId>jetty-runner</artifactId>
+                                            <version>${jetty.version}</version>
+                                            <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -72,112 +82,127 @@
 
                         <executions>
                             <execution>
-
                                 <configuration>
                                     <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
                                     <dataSet>
-                                        <!-- The jar file -->
+                                        <!-- The JAR file. -->
                                         <data>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>
+                                                    /usr/share/repose
+                                                </prefix>
+                                                <!-- TODO: Should probably be root/root -->
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>555</filemode>
+                                            </mapper>
                                             <src>
                                                 <!-- TODO: The actual artifact ID should be used.
-                                                ${project.build.directory}/valve-${project.version}.jar-->
-                                                ${project.build.directory}/repose-valve.jar
+                                                ${project.build.directory}/valve-launcher-${project.version}.jar-->
+                                                ${project.build.directory}/servo.jar
                                             </src>
+                                        </data>
+
+                                        <!-- The Jetty Runner file. -->
+                                        <data>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/lib/repose</prefix>
+                                                <prefix>
+                                                    /usr/share/repose
+                                                </prefix>
+                                                <!-- TODO: Should probably be root/root -->
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>555</filemode>
                                             </mapper>
+                                            <src>
+                                                ${project.build.directory}/jetty-runner-${jetty.version}.jar
+                                            </src>
                                         </data>
 
-                                        <!--The git.properties file -->
+                                        <!-- The clean up script. -->
                                         <data>
-                                            <src>${basedir}/target/git.properties</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/usr/share/doc/repose-valve</prefix>
-                                                <filemode>644</filemode>
-                                            </mapper>
-                                        </data>
-
-                                        <!-- The config directory and files -->
-                                        <data>
-                                            <src>${basedir}/../../configs/core</src>
-                                            <type>directory</type>
-
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>/etc/repose</prefix>
-                                                <filemode>600</filemode>
-                                            </mapper>
-                                        </data>
-
-                                        <!-- The clean up script -->
-                                        <data>
-                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>/usr/bin</prefix>
+                                                <prefix>
+                                                    /usr/bin
+                                                </prefix>
                                                 <filemode>755</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </src>
                                         </data>
 
-                                        <!-- The start script -->
+                                        <!-- The start script. -->
                                         <data>
-                                            <src>src/deb/etc/init.d/repose-valve</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/etc/init.d</prefix>
+                                                <prefix>
+                                                    /etc/init.d
+                                                </prefix>
                                                 <filemode>755</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../configs/etc/init.d/deb-repose-valve
+                                            </src>
+                                            <dst>
+                                                repose-valve
+                                            </dst>
                                         </data>
 
-                                        <!-- The /var/log/repose directory -->
+                                        <!-- The config file. -->
                                         <data>
-                                            <src>src/deb/.log_dir_placeholder</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/var/log/repose</prefix>
+                                                <prefix>
+                                                    /etc/repose
+                                                </prefix>
+                                                <user>
+                                                    repose
+                                                </user>
+                                                <group>
+                                                    repose
+                                                </group>
+                                                <filemode>640</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../configs/etc/repose/deb-repose-valve.conf
+                                            </src>
+                                            <dst>
+                                                repose-valve.conf
+                                            </dst>
                                         </data>
 
-                                        <!-- The /var/repose directory -->
+                                        <!-- This adds the license file on installation. -->
                                         <data>
-                                            <src>src/deb/.var_repose_dir_placeholder</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
-                                                <prefix>/var/repose</prefix>
+                                                <prefix>
+                                                    /usr/share/doc/${project.artifactId}
+                                                </prefix>
+                                                <filemode>444</filemode>
                                             </mapper>
+                                            <src>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </src>
                                         </data>
-
-                                        <!-- The logrotate script -->
-                                        <data>
-                                            <src>src/deb/etc/logrotate.d/repose</src>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>/etc/logrotate.d</prefix>
-                                                <filemode>644</filemode>
-                                            </mapper>
-                                        </data>
-
-                                        <!--This adds the license file on installation.-->
-                                        <data>
-                                            <src>${basedir}/../../../../LICENSE.txt</src>
-                                            <type>file</type>
-                                            <mapper>
-                                                <type>perm</type>
-                                                <prefix>/usr/share/doc/repose/${project.artifactId}</prefix>
-                                                <filemode>644</filemode>
-                                            </mapper>
-                                        </data>
-
                                     </dataSet>
                                 </configuration>
                             </execution>

@@ -20,9 +20,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--module>cli-utils</module-->
+        <module>cli-utils</module>
         <module>repose-war</module>
-        <module>repose-filter-bundle</module>
+        <module>repose-filters</module>
         <module>repose-extension-filters</module>
         <module>repose-valve</module>
     </modules>
@@ -34,7 +34,7 @@
                 <plugin>
                     <groupId>org.vafer</groupId>
                     <artifactId>jdeb</artifactId>
-                    <version>0.9</version>
+                    <version>1.0</version>
 
                     <executions>
                         <execution>

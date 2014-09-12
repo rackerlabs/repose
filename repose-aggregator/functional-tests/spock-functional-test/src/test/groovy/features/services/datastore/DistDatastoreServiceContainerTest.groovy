@@ -6,7 +6,6 @@ import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.ReposeLogSearch
-import framework.ReposeValveTest
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -82,7 +81,7 @@ class DistDatastoreServiceContainerTest extends Specification {
         reposeLogSearch.deleteLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        def rootWar = properties.getReposeRootWar()
+        def rootWar = properties.getReposeWar()
 
         repose1 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node1", rootWar, reposePort1)
         repose1.start()

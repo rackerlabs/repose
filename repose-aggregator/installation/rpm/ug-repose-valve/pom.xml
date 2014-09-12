@@ -27,21 +27,11 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-repose-valve-jar</id>
+                                <id>copy-repose-valve-launcher-jar</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -49,13 +39,33 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>com.rackspace.papi.core</groupId>
-                                            <artifactId>valve</artifactId>
+                                            <groupId>org.openrepose.valve</groupId>
+                                            <artifactId>valve-launcher</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
-                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.
-                                            <destFileName>valve-${project.version}.jar</destFileName-->
-                                            <destFileName>repose-valve.jar</destFileName>
+                                            <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                            <destFileName>servo.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+
+                            <execution>
+                                <id>copy-jetty-runner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.eclipse.jetty</groupId>
+                                            <artifactId>jetty-runner</artifactId>
+                                            <version>${jetty.version}</version>
+                                            <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
@@ -70,117 +80,95 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                         <configuration>
+
                             <name>ug-repose-valve</name>
                             <mappings>
+                                <!-- The jar file -->
                                 <mapping>
-                                    <directory>/usr/share/lib/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
+                                    <directory>/usr/share/repose</directory>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
                                             <location>
                                                 <!-- TODO: The actual artifact ID should be used.
-                                                ${project.build.directory}/valve-${project.version}.jar-->
-                                                ${project.build.directory}/repose-valve.jar
+                                                ${project.build.directory}/valve-launcher-${project.version}.jar-->
+                                                ${project.build.directory}/servo.jar
                                             </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The jetty file -->
                                 <mapping>
-                                    <directory>/usr/share/doc/repose-valve</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
+                                    <directory>/usr/share/repose</directory>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/target/git.properties</location>
+                                            <location>
+                                                ${project.build.directory}/jetty-runner-${jetty.version}.jar
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The clean up script -->
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <configuration>noreplace</configuration>
+                                    <directory>/usr/bin</directory>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <!-- Grabs all the config files in configs/core -->
-                                            <location>${basedir}/../../configs/core</location>
+                                            <location>
+                                                ${basedir}/../../bash/clean-repose-deploy
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The start script -->
                                 <mapping>
                                     <directory>/etc/init.d</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/init.d/ug-repose-valve
+                                            </location>
+                                            <destination>
+                                                repose-valve
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
 
+                                <!-- The config file -->
                                 <mapping>
-                                    <directory>/var/log/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/.log_dir_placeholder</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/var/repose</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>760</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>src/rpm/.var_repose_dir_placeholder</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/etc/logrotate.d</directory>
+                                    <directory>/etc/repose/</directory>
                                     <directoryIncluded>false</directoryIncluded>
                                     <filemode>644</filemode>
                                     <sources>
                                         <source>
-                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                            <location>
+                                                ${basedir}/../../configs/etc/repose/ug-repose-valve.conf
+                                            </location>
+                                            <destination>
+                                                repose-valve.conf
+                                            </destination>
                                         </source>
                                     </sources>
                                 </mapping>
 
-                                <mapping>
-                                    <directory>/usr/local/bin</directory>
-                                    <filemode>755</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>${basedir}/../../bash/clean-repose-deploy</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <!--This adds the license file.-->
+                                <!-- This adds the license file on installation.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../../LICENSE.txt</location>
+                                            <location>
+                                                ${basedir}/../../../../LICENSE.txt
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -188,18 +176,12 @@
                             </mappings>
 
                             <requires>
-                                <require>java &gt;= 1.7.0</require>
-                                <require>logrotate</require>
+                                <require>repose</require>
                                 <require>daemonize</require>
                             </requires>
 
-                            <preinstallScriptlet>
-                                <script>
-                                    getent group intermediary || groupadd -r intermediary
-                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
-                                </script>
-                            </preinstallScriptlet>
                             <group>Applications/Internet</group>
+
                         </configuration>
                     </plugin>
                 </plugins>

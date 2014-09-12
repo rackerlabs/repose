@@ -27,16 +27,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
@@ -74,7 +64,7 @@
                                     <directory>/usr/share/repose/filters</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <location>
@@ -85,24 +75,12 @@
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-                                    <sources>
-                                        <source>
-                                            <location>${basedir}/target/git.properties</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>755</filemode>
+                                    <filemode>644</filemode>
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
@@ -114,11 +92,9 @@
                                 <!--This adds the license file.-->
                                 <mapping>
                                     <directory>/usr/share/doc/repose/${project.artifactId}/</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>770</filemode>
+                                    <filemode>444</filemode>
                                     <sources>
                                         <source>
                                             <location>${basedir}/../../../../LICENSE.txt</location>

@@ -29,7 +29,7 @@ class EmbeddedTomcatProxyTest extends Specification {
 
         def configDirectory = properties.getConfigDirectory()
         def configTemplates = properties.getRawConfigDirectory()
-        def rootWar = properties.getReposeRootWar()
+        def rootWar = properties.getReposeWar()
         def buildDirectory = properties.getReposeHome() + "/.."
         def mocksWar = properties.getMocksWar()
         def mocksPath = MocksUtil.getServletPath(mocksWar)

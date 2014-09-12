@@ -57,7 +57,9 @@ class HeaderNormalizationJMXTest extends Specification {
 
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 urlBase,
                 properties.getConfigDirectory(),
                 reposePort

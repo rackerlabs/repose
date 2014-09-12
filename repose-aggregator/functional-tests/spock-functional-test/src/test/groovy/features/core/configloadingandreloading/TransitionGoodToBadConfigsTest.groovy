@@ -59,7 +59,9 @@ class TransitionGoodToBadConfigsTest extends Specification {
         // start repose
         repose = new ReposeValveLauncher(
                 reposeConfigProvider,
-                properties.getReposeJar(),
+                properties.getServoJar(),
+                properties.getJettyJar(),
+                properties.getReposeWar(),
                 url,
                 properties.getConfigDirectory(),
                 reposePort

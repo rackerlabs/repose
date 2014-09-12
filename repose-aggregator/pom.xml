@@ -45,6 +45,7 @@
         <module>core</module>
         <module>components</module>
         <module>extensions</module>
+        <module>valve-launcher</module>
         <module>installation</module>
         <module>experimental</module>
         <module>functional-tests</module>

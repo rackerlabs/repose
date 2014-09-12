@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JAVA_REPOSE_CLI="/usr/share/lib/repose/repose-cli.jar"
+JAVA_REPOSE_CLI="/usr/share/repose/repose-cli.jar"
 
 function printUsage() {
    echo -e "Deletes a cache object from Repose's distributed datastore.\n\nUsage: dd-remove.sh <remote-host-address> <cache-key-string>"

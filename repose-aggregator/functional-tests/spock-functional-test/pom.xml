@@ -25,7 +25,6 @@
 
         <project.set.dir>${project.basedir}/../..</project.set.dir>
 
-        <repose.valve.dir>${project.set.dir}/core/valve/target</repose.valve.dir>
         <filter.dir>${project.set.dir}/components/filters/filter-bundle/target</filter.dir>
         <filter.extensions.dir>${project.set.dir}/extensions/extensions-filter-bundle/target
         </filter.extensions.dir>
@@ -36,7 +35,6 @@
         </filter.experimental.dir>
         <filter.experimental.ear>experimental-filter-bundle-*.ear</filter.experimental.ear>
 
-        <repose.valve.jar>repose-valve.jar</repose.valve.jar>
         <filter.ear>filter-bundle-*.ear</filter.ear>
         <filter.extensions.ear>extensions-filter-bundle-*.ear</filter.extensions.ear>
 
@@ -45,23 +43,22 @@
         <repose.home>${project.build.directory}/repose_home</repose.home>
         <repose.config.directory>${repose.home}/configs</repose.config.directory>
         <repose.raw.config.directory>${project.basedir}/src/test/configs</repose.raw.config.directory>
-        <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
         <repose.config.templates>${project.build.directory}/configs</repose.config.templates>
+        <!-- TODO: The actual artifact ID should be used.-->
+        <repose.servo.jar.location>${repose.home}/servo.jar</repose.servo.jar.location>
+        <repose.jetty.jar.location>${repose.home}/jetty-runner-${jetty.version}.jar</repose.jetty.jar.location>
+        <repose.root.war.location>${repose.home}/repose-${project.version}.war</repose.root.war.location>
 
-        <repose.root.war.directory>${project.set.dir}/core/web-application/target</repose.root.war.directory>
-        <repose.root.war>ROOT.war</repose.root.war>
         <glassfish.jar.dir>${project.set.dir}/functional-tests/glassfish-support/target</glassfish.jar.dir>
         <glassfish.jar>test-glassfish-container-${project.version}-jar-with-dependencies.jar</glassfish.jar>
         <repose.glassfish.jar.location>${repose.home}/${glassfish.jar}</repose.glassfish.jar.location>
         <tomcat.jar.dir>${project.set.dir}/functional-tests/tomcat-support/target</tomcat.jar.dir>
         <tomcat.jar>test-tomcat-container-${project.version}-jar-with-dependencies.jar</tomcat.jar>
         <repose.tomcat.jar.location>${repose.home}/${tomcat.jar}</repose.tomcat.jar.location>
-        <repose.root.war.location>${repose.home}/${repose.root.war}</repose.root.war.location>
         <mocks.war.dir>${project.set.dir}/functional-tests/mocks-servlet/target</mocks.war.dir>
         <mocks.war>mocks-servlet-${project.version}.war</mocks.war>
         <mocks.war.location>${repose.home}/${mocks.war}</mocks.war.location>
     </properties>
-
 
     <dependencies>
         <dependency>
@@ -88,7 +85,6 @@
             <artifactId>org.linkedin.util-groovy</artifactId>
             <version>1.8.0</version>
             <scope>test</scope>
-
         </dependency>
 
         <dependency>
@@ -123,7 +119,6 @@
             <version>2.12.0-rax</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.rackspace.papi.test.mocks</groupId>
             <artifactId>mocks-util</artifactId>
@@ -139,12 +134,6 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>datastore-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>valve</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -382,7 +371,6 @@
 
     </profiles>
 
-
     <build>
         <testResources>
             <testResource>
@@ -404,6 +392,7 @@
                 </includes>
                 <targetPath>${project.build.directory}/repose_home/artifacts</targetPath>
             </testResource>
+
             <testResource>
                 <directory>${filter.extensions.dir}</directory>
                 <includes>
@@ -421,19 +410,13 @@
             </testResource>
 
             <testResource>
-                <directory>${repose.valve.dir}</directory>
-                <includes>
-                    <include>${repose.valve.jar}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
-            </testResource>
-            <testResource>
                 <directory>${glassfish.jar.dir}</directory>
                 <includes>
                     <include>${glassfish.jar}</include>
                 </includes>
                 <targetPath>${project.build.directory}/repose_home</targetPath>
             </testResource>
+
             <testResource>
                 <directory>${tomcat.jar.dir}</directory>
                 <includes>
@@ -441,13 +424,7 @@
                 </includes>
                 <targetPath>${project.build.directory}/repose_home</targetPath>
             </testResource>
-            <testResource>
-                <directory>${repose.root.war.directory}</directory>
-                <includes>
-                    <include>${repose.root.war}</include>
-                </includes>
-                <targetPath>${project.build.directory}/repose_home</targetPath>
-            </testResource>
+
             <testResource>
                 <directory>${mocks.war.dir}</directory>
                 <includes>
@@ -539,6 +516,77 @@
                         <configuration>
                             <destFile>${project.basedir}/../../target/jacoco-it.exec</destFile>
                             <propertyName>jacocoArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-repose-valve-launcher-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openrepose.valve</groupId>
+                                    <artifactId>valve-launcher</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <!-- TODO: This should not be necessary as the actual artifact ID should be used.-->
+                                    <destFileName>servo.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/repose_home</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-repose-application-war</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.rackspace.papi.core</groupId>
+                                    <artifactId>web-application</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>war</type>
+                                    <destFileName>repose-${project.version}.war</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/repose_home</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-jetty-runner</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.eclipse.jetty</groupId>
+                                    <artifactId>jetty-runner</artifactId>
+                                    <version>${jetty.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/repose_home</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
                 </executions>

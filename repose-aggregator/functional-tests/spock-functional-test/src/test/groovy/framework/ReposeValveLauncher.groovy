@@ -4,6 +4,9 @@ import framework.client.jmx.JmxClient
 import org.linkedin.util.clock.SystemClock
 import org.rackspace.deproxy.PortFinder
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -11,7 +14,9 @@ import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForC
 class ReposeValveLauncher extends ReposeLauncher {
 
     def boolean debugEnabled
-    def String reposeJar
+    def String servoJar
+    def String jettyJar
+    def String reposeWar
     def String configDir
 
     def clock = new SystemClock()
@@ -24,14 +29,18 @@ class ReposeValveLauncher extends ReposeLauncher {
     def debugPort = null
     def classPaths = []
 
-    Process process
+    def Process process
+    def StringBuffer sout
+    def StringBuffer serr
 
     def ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
                         TestProperties properties) {
         this(configurationProvider,
-                properties.reposeJar,
+                properties.servoJar,
+                properties.jettyJar,
+                properties.reposeWar,
                 properties.reposeEndpoint,
                 properties.configDirectory,
                 properties.reposePort
@@ -39,12 +48,16 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
-                        String reposeJar,
+                        String servoJar,
+                        String jettyJar,
+                        String reposeWar,
                         String reposeEndpoint,
                         String configDir,
                         int reposePort) {
         this.configurationProvider = configurationProvider
-        this.reposeJar = reposeJar
+        this.servoJar = servoJar
+        this.jettyJar = jettyJar
+        this.reposeWar = reposeWar
         this.reposeEndpoint = reposeEndpoint
         this.reposePort = reposePort
         this.configDir = configDir
@@ -71,13 +84,23 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting) {
 
-        File jarFile = new File(reposeJar)
-        if (!jarFile.exists() || !jarFile.isFile()) {
-            throw new FileNotFoundException("Missing or invalid Repose Valve Jar file.")
+        File servoFile = new File(servoJar)
+        if (!servoFile.exists() || !servoFile.canRead() || !servoFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Servo Jar file.")
+        }
+
+        File jettyFile = new File(jettyJar)
+        if (!jettyFile.exists() || !jettyFile.canRead() || !jettyFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Jetty Jar file.")
+        }
+
+        File reposeFile = new File(reposeWar)
+        if (!reposeFile.exists() || !reposeFile.canRead() || !reposeFile.isFile()) {
+            throw new FileNotFoundException("Missing or invalid Repose Application War file.")
         }
 
         File configFolder = new File(configDir)
-        if (!configFolder.exists() || !configFolder.isDirectory()) {
+        if (!configFolder.exists() || !configFolder.canRead() || !configFolder.isDirectory()) {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
@@ -89,13 +112,12 @@ class ReposeValveLauncher extends ReposeLauncher {
             })
         }
 
-        def jmxprops = ""
+        def jmxprops
         def debugProps = ""
         def jacocoProps = ""
         def classPath = ""
 
         if (debugEnabled) {
-
             if (!debugPort) {
                 debugPort = PortFinder.Singleton.getNextOpenPort()
             }
@@ -116,39 +138,73 @@ class ReposeValveLauncher extends ReposeLauncher {
             jacocoProps = System.getProperty('jacocoArguements')
         }
 
-        def cmd = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps -jar $reposeJar -c $configDir"
-        println("Starting repose: ${cmd}")
+        def overrideFile = File.createTempFile("overrideFile", ".conf")
+        overrideFile.deleteOnExit()
 
-        def th = new Thread({ this.process = cmd.execute() });
+        /**
+         * NOTE: this command is the one that is going to be repose itself
+         * NOTE: I don't know if the classPath stuff is going to work at all....
+         * Have to do some magic here in order to get this string to cooperate with the typesafe config file
+         * For example ":" must be quoted, so the JVM opts -XX: need to be quoted in the string
+         */
+        def baseCommand = "java -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof -XX:MaxPermSize=128M $classPath $debugProps $jmxprops $jacocoProps"
+        //Quote all the items
+        baseCommand = baseCommand.split(" ").collect { item ->
+            if (!item.isEmpty()) {
+                "\"${item}\""
+            } else {
+                null
+            }
+        }
+        baseCommand.removeAll([null])
+        //Override a few things in the servo config file to do testing with debug and heap dump and JMX
+        def overrideContent = """
+launcherPath = ${jettyJar}
+reposeWarLocation = ${reposeWar}
+baseCommand = [ ${baseCommand.join(", ")} ]
+"""
+
+        Files.write(overrideFile.toPath(),
+                overrideContent.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE)
+
+        //NOTE: this command is the one that fires up servo itself
+        def servoCommand = "java -jar $servoJar -c $configDir --XX_CONFIGURATION_OVERRIDE_FILE_XX " + overrideFile.absolutePath
+
+        println("Repose launcher command: ${baseCommand}")
+        println("Starting servo: ${servoCommand}")
+
+        def th = new Thread({ process = servoCommand.execute() });
+        sout = new StringBuffer()
+        serr = new StringBuffer()
 
         th.run()
         th.join()
+        process.consumeProcessOutput(sout, serr)
 
-        def jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:${jmxPort}/jmxrmi"
-
-        waitForCondition(clock, '60s', '1s') {
-            connectViaJmxRemote(jmxUrl)
-        }
 
         if (waitOnJmxAfterStarting) {
             print("Waiting for repose to start")
+            def jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:${jmxPort}/jmxrmi"
+
+            waitForCondition(clock, '60s', '1s') {
+                connectViaJmxRemote(jmxUrl)
+            }
             waitForCondition(clock, '60s', '1s', {
                 isFilterChainInitialized()
             })
         }
-
-        // TODO: improve on this.  embedding a sleep for now, but how can we ensure Repose is up and
-        // ready to receive requests without actually sending a request through (skews the metrics if we do)
-        //sleep(10000)
     }
 
-    def connectViaJmxRemote(jmxUrl) {
+    def connectViaJmxRemote(String jmxUrl) {
+        def rtn = true;
         try {
             jmx = new JmxClient(jmxUrl)
-            return true
         } catch (Exception ex) {
-            return false
+            print("Caught the following unexpected exception: " + ex)
+            rtn = false
         }
+        return rtn
     }
 
 
@@ -171,15 +227,24 @@ class ReposeValveLauncher extends ReposeLauncher {
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
             println("Stopping Repose");
-            this.process.destroy()
+            //Valve responds to a SIGTERM (which is the equivalent of Ctrl-C)
+            //I don't think it ever cooperated with SIGHUP...
+            def SIGSTOP = 23
+            //TODO: why wasn't this using process.destroy in the first place?
+            //NOTE: using process.destroy seems to have way less problems than trying to send lots of signals...
+            //NOTE: For some reason whatever magic process detection this is using, is not working very reliably
+            //TODO: write actual tests around this process handling stuff
+            process.destroy()
+            sendServoSignalIfUp(SIGSTOP)
 
             print("Waiting for Repose to shutdown")
             waitForCondition(clock, "${timeout}", '1s', {
                 print(".")
                 !isUp()
             })
-
             println()
+            println("STD_OUT:\n${sout}\n")
+            println("STD_ERR:\n${serr}\n")
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
             killIfUp()
@@ -208,41 +273,44 @@ class ReposeValveLauncher extends ReposeLauncher {
         print('.')
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet) jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
         def String beanName = cfgBean.iterator().next().name.toString()
 
-        def ArrayList filterchain = jmx.getMBeanAttribute(beanName, "FilterChain")
+        def ArrayList filterChain = (ArrayList) jmx.getMBeanAttribute(beanName, "FilterChain")
 
-
-        if (filterchain == null || filterchain.size() == 0) {
+        if (filterChain == null || filterChain.size() == 0) {
             return beanName.contains("nofilters")
         }
 
         def initialized = true
 
-        filterchain.each { data ->
+        filterChain.each { data ->
             if (data."successfully initialized" == false) {
                 initialized = false
             }
         }
-
         return initialized
-
     }
 
     @Override
     public boolean isUp() {
-        println TestUtils.getJvmProcesses()
-        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
+        def processes = TestUtils.getJvmProcesses()
+        //println processes
+        return processes.contains("servo.jar")
     }
 
-    private void killIfUp() {
+    private static void killIfUp() {
+        def SIGKILL = 9
+        sendServoSignalIfUp(SIGKILL)
+    }
+
+    private static void sendServoSignalIfUp(signal) {
         String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar .*spocktest .*/
+        def regex = /(\d*) servo.jar .*spocktest .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
 
@@ -252,10 +320,12 @@ class ReposeValveLauncher extends ReposeLauncher {
                 if (pid != null && !pid.isEmpty()) {
                     println("Killing running repose-valve process: " + pid)
                     Runtime rt = Runtime.getRuntime();
-                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
+                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
                         rt.exec("taskkill " + pid.toInteger());
-                    else
-                        rt.exec("kill -9 " + pid.toInteger());
+                    } else {
+                        println("Sending ${signal} to ${pid.toInteger()}")
+                        rt.exec("kill -${signal} " + pid.toInteger());
+                    }
                 }
             }
         }
