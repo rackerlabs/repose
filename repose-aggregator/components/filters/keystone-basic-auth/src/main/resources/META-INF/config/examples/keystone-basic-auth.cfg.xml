@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<keystone-basic-auth
-        xmlns="http://docs.openrepose.org/keystone-basic-auth/v1.0"
-        todo-attribute="true">
-    <todo-element>true</todo-element>
-</keystone-basic-auth>

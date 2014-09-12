@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openstackidentity-basic-auth
+        xmlns="http://docs.openrepose.org/openstackidentity-basic-auth/v1.0"
+        todo-attribute="true">
+    <todo-element>true</todo-element>
+</openstackidentity-basic-auth>
