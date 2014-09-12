@@ -433,10 +433,12 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     it("should return a random int between configured ttl +/- offset") {
       val firstCall = identityV3Handler.offsetTtl(1000, 100)
       val secondCall = identityV3Handler.offsetTtl(1000, 100)
+      val thirdCall = identityV3Handler.offsetTtl(1000, 100)
 
-      firstCall shouldBe 1000 +- 1000
-      secondCall shouldBe 1000 +- 1000
-      firstCall should not be secondCall
+      firstCall shouldBe 1000 +- 100
+      secondCall shouldBe 1000 +- 100
+      thirdCall shouldBe 1000 +- 100
+      firstCall should (not be secondCall or not be thirdCall)
     }
   }
 
