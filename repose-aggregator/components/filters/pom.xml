@@ -34,6 +34,7 @@
         <module>compression</module>
         <module>header-translation</module>
         <module>uri-stripper</module>
+        <module>openstack-identity-v3</module>
     </modules>
 
     <dependencyManagement>
@@ -236,6 +237,11 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>openstack-identity-v3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -41,7 +41,7 @@ import java.util.Set;
  */
 public class ServiceClient {
     private static final String ACCEPT_HEADER = "Accept";
-    private static final String MEDIA_TYPE = "application/xml";
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
     private static final int TIMEOUT = 30000;
     private String targetHostUri;
@@ -134,7 +134,7 @@ public class ServiceClient {
                 EntityUtils.consume(entity);
             }
 
-            return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), stream);
+            return new ServiceClientResponse(httpResponse.getStatusLine().getStatusCode(), httpResponse.getAllHeaders(), stream);
         } catch (ServiceClientException  ex){
             LOG.error("Failed to obtain an HTTP default client connection", ex);
         } catch (IOException ex) {
@@ -147,14 +147,18 @@ public class ServiceClient {
         return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
     }
 
-    public ServiceClientResponse post(String uri, String body, MediaType contentType) {
+    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
+        return post(uri, body, contentMediaType, MediaType.APPLICATION_XML_TYPE);
+    }
 
+    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType, MediaType acceptMediaType) {
         HttpPost post = new HttpPost(uri);
 
-        Map<String, String> headers= new HashMap<String, String>();
-        String localContentType= contentType.getType() +"/"+ contentType.getSubtype();
-        headers.put("Content-Type",localContentType); //test
-        headers.put(ACCEPT_HEADER,MEDIA_TYPE);
+        Map<String, String> headers= new HashMap<>();
+        String localContentType= contentMediaType.getType() +"/"+ contentMediaType.getSubtype();
+        String localAcceptType= acceptMediaType.getType() +"/"+ acceptMediaType.getSubtype();
+        headers.put(CONTENT_TYPE_HEADER, localContentType); //test
+        headers.put(ACCEPT_HEADER, localAcceptType);
 
         setHeaders(post, headers);
 
@@ -163,7 +167,6 @@ public class ServiceClient {
         }
         return execute(post);
     }
-
 
     public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
 

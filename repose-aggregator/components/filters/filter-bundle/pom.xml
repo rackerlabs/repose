@@ -126,6 +126,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-stripper</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>openstack-identity-v3</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -231,6 +236,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>uri-stripper</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>openstack-identity-v3</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

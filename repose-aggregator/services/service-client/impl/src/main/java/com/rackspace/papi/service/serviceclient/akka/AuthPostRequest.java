@@ -11,14 +11,16 @@ public class AuthPostRequest implements ConsistentHashable {
     private Map<String, String> headers;
     private String hashKey;
     private String payload;
-    private MediaType mediaType;
+    private MediaType contentMediaType;
+    private MediaType acceptMediaType;
 
-    public AuthPostRequest(String hashKey, String uri, Map<String, String> headers, String payload, MediaType mediaType) {
+    public AuthPostRequest(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType) {
         this.uri = uri;
         this.headers = headers;
         this.payload = payload;
         this.hashKey = hashKey;
-        this.mediaType = mediaType;
+        this.contentMediaType = contentMediaType;
+        this.acceptMediaType = acceptMediaType;
     }
 
     public String getUri() {
@@ -37,11 +39,19 @@ public class AuthPostRequest implements ConsistentHashable {
         return hashKey;
     }
 
-    public MediaType getMediaType() {
-        return mediaType;
+    public MediaType getContentMediaType() {
+        return contentMediaType;
     }
 
-    public void setMediaType(MediaType mediaType) {
-        this.mediaType = mediaType;
+    public void setContentMediaType(MediaType contentMediaType) {
+        this.contentMediaType = contentMediaType;
+    }
+
+    public MediaType getAcceptMediaType() {
+        return acceptMediaType;
+    }
+
+    public void setAcceptMediaType(MediaType acceptMediaType) {
+        this.acceptMediaType = acceptMediaType;
     }
 }

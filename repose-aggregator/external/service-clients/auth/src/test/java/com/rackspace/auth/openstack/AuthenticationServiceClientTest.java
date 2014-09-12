@@ -30,7 +30,7 @@ public class AuthenticationServiceClientTest {
     public static class TestParent {
         AuthenticationServiceClient authenticationServiceClient;
         ResponseUnmarshaller responseUnmarshaller;
-        ServiceClientResponse<AuthenticateResponse> serviceClientResponseGet, serviceClientResponsePost;
+        ServiceClientResponse serviceClientResponseGet, serviceClientResponsePost;
         ServiceClient serviceClient;
         String tenant;
         String userToken;
@@ -61,7 +61,7 @@ public class AuthenticationServiceClientTest {
 
             authenticationServiceClient =
                     new AuthenticationServiceClient(targetHostUri, username, password, tenantId, responseUnmarshaller,
-                            responseUnmarshaller, mock(JaxbEntityToXml.class), serviceClient,
+                            responseUnmarshaller, mock(JaxbEntityToXml.class),
                             akkaServiceClient);
         }
 
