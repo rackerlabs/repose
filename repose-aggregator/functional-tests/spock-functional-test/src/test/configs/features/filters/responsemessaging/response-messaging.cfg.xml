@@ -129,4 +129,8 @@
         <message media-type="*/*" href="file:////${repose.config.directory}/responsefor5xx"/>
     </status-code>
 
+    <status-code id="2xx" code-regex="2\d\d" overwrite="ALWAYS">
+        <message media-type="application/xml" href="file:////${repose.config.directory}/responseforNewline"/>
+    </status-code>
+
 </response-messaging>
