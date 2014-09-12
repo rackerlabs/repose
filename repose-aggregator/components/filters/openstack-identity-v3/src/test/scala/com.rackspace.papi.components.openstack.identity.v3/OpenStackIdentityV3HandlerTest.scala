@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyMap, anyString, argThat, contains, intThat}
-import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
@@ -140,15 +140,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("authenticate") {
-    val authenticate = PrivateMethod[(FilterDirector, AuthenticateResponse)]('authenticate)
+    val authenticate = PrivateMethod[Try[AuthenticateResponse]]('authenticate)
 
-    it("should return unauthorized when the x-subject-token header is not present") {
+    it("should return a Failure when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      val (filterDirector, _) = identityV3Handler invokePrivate authenticate(mockRequest)
-
-      filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
-      filterDirector.getFilterAction should be(FilterAction.RETURN)
+      identityV3Handler invokePrivate authenticate(mockRequest) shouldBe a[Failure[_]]
+      an [InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(mockRequest)).get
     }
   }
 
@@ -164,6 +162,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
 
       identityV3Handler invokePrivate validateSubjectToken("test-subject-token", false) shouldBe a[Failure[_]]
+      an [InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(validateSubjectToken("test-subject-token", false)).get
     }
 
     it("should return a Success for a cached admin token") {
