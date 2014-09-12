@@ -24,8 +24,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,8 +38,6 @@ import java.util.Set;
  * Creates apache http clients with basic auth
  */
 public class ServiceClient {
-    private static final String ACCEPT_HEADER = "Accept";
-    private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
     private static final int TIMEOUT = 30000;
     private String targetHostUri;
@@ -99,15 +95,6 @@ public class ServiceClient {
 
     }
 
-    private static class ReposeHostnameVerifier implements HostnameVerifier {
-
-        @Override
-        public boolean verify(String hostname, SSLSession sslSession) {
-            LOG.info("verifying: " + hostname);
-            return true;
-        }
-    }
-
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
 
         final Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -148,19 +135,23 @@ public class ServiceClient {
     }
 
     public ServiceClientResponse post(String uri, String body, MediaType contentMediaType) {
-        return post(uri, body, contentMediaType, MediaType.APPLICATION_XML_TYPE);
+        return post(uri, new HashMap<String, String>(), body, contentMediaType);
     }
 
-    public ServiceClientResponse post(String uri, String body, MediaType contentMediaType, MediaType acceptMediaType) {
+    public ServiceClientResponse post(String uri, Map<String, String> headers, String body, MediaType contentMediaType) {
         HttpPost post = new HttpPost(uri);
 
-        Map<String, String> headers= new HashMap<>();
+        Map<String, String> requestHeaders = new HashMap<>();
+        requestHeaders.putAll(headers);
         String localContentType= contentMediaType.getType() +"/"+ contentMediaType.getSubtype();
-        String localAcceptType= acceptMediaType.getType() +"/"+ acceptMediaType.getSubtype();
-        headers.put(CONTENT_TYPE_HEADER, localContentType); //test
-        headers.put(ACCEPT_HEADER, localAcceptType);
+        requestHeaders.put(CommonHttpHeader.CONTENT_TYPE.toString(), localContentType);
 
-        setHeaders(post, headers);
+        // TODO: Remove setting the accept type to XML by default
+        if (!requestHeaders.containsKey(CommonHttpHeader.ACCEPT.toString())) {
+            requestHeaders.put(CommonHttpHeader.ACCEPT.toString(), MediaType.APPLICATION_XML);
+        }
+
+        setHeaders(post, requestHeaders);
 
         if (body != null && !body.isEmpty()) {
             post.setEntity(new InputStreamEntity(new ByteArrayInputStream(body.getBytes()),body.length()));
@@ -170,7 +161,7 @@ public class ServiceClient {
 
     public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters){
 
-        URI uriBuilt = null;
+        URI uriBuilt;
         HttpGet httpget = new HttpGet(uri);
 
         if (queryParameters != null) {
