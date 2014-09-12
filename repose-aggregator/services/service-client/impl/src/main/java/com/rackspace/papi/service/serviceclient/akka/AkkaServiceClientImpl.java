@@ -75,13 +75,8 @@ public class AkkaServiceClientImpl implements AkkaServiceClient {
 
     @Override
     public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType) {
-        return post(requestKey, uri, headers, payload, contentMediaType, MediaType.APPLICATION_XML_TYPE);
-    }
-
-    @Override
-    public ServiceClientResponse post(String requestKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, MediaType acceptMediaType) {
         ServiceClientResponse scr = null;
-        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType, acceptMediaType);
+        AuthPostRequest apr = new AuthPostRequest(requestKey, uri, headers, payload, contentMediaType);
         try {
             Future<ServiceClientResponse> future = getFuture(apr);
             scr = Await.result(future, Duration.create(50, TimeUnit.SECONDS));
