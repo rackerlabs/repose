@@ -11,8 +11,7 @@ import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse,
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint, WhiteList}
 import com.rackspace.papi.components.openstack.identity.v3.objects._
-import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenStackIdentityV3Headers
-import com.rackspace.papi.components.openstack.identity.v3.utilities.exceptions.InvalidAdminCredentialsException
+import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient

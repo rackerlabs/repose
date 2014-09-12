@@ -11,7 +11,6 @@ import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdent
 import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
-import com.rackspace.papi.components.openstack.identity.v3.utilities.exceptions._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
