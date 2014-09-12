@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
+           targetNamespace="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- Elements -->
+    <xs:element name="openstack-identity-basic-auth" type="OpenStackIdentityBasicAuthConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="OpenStackIdentityBasicAuthConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the OpenStack Identity Basic Auth filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="todo-element" type="ToDoElement" minOccurs="0" maxOccurs="1" default="false"/>
+        </xs:sequence>
+
+        <xs:attribute name="todo-attribute" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>TODO: This is an Attribute.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="ToDoElement">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>TODO: This is an Element.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:boolean"/>
+    </xs:simpleType>
+</xs:schema>

@@ -119,6 +119,6 @@
 
     <filter>
         <filter-name>openstack-identity-basic-auth</filter-name>
-        <filter-class>com.rackspace.papi.components.openstack.identity.basicauth.KeystoneBasicAuthFilter</filter-class>
+        <filter-class>com.rackspace.papi.components.openstack.identity.basicauth.OpenStackIdentityBasicAuthFilter</filter-class>
     </filter>
 </web-fragment>
