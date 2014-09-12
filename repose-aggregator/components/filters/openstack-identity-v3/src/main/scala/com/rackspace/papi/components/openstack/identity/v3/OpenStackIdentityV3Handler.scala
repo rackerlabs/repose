@@ -43,8 +43,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
   private val datastore = datastoreService.getDefaultDatastore
 
-  private[v3] var cachedAdminToken: Option[String] = None
-
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
 
@@ -262,38 +260,39 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
     }
 
     // Check the cached adminToken. If present, return it. Validity of the token is handled in validateSubjectToken by way of retry.
-    if (cachedAdminToken.isDefined && !forceFetchAdminToken) {
-      Success(cachedAdminToken.get)
-    } else {
-      val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-        identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
-        Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava,
-        createAdminAuthRequest(),
-        MediaType.APPLICATION_JSON_TYPE))
+    Option(datastore.get(ADMIN_TOKEN_KEY)) match {
+      case Some(adminToken) if !forceFetchAdminToken =>
+        Success(adminToken.asInstanceOf[String])
+      case _ =>
+        val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
+          identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
+          Map[String, String]().asJava,
+          createAdminAuthRequest(),
+          MediaType.APPLICATION_JSON_TYPE))
 
-      // Since we *might* get a null back from the akka service client, we have to map it, and then match
-      // because we care to match on the status code of the response, if anything was set.
-      authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
-        // Since the operation is a POST, a 201 should be returned if the operation was successful
-        case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
-          val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
+        // Since we *might* get a null back from the akka service client, we have to map it, and then match
+        // because we care to match on the status code of the response, if anything was set.
+        authTokenResponse.map(response => HttpStatusCode.fromInt(response.getStatusCode)) match {
+          // Since the operation is a POST, a 201 should be returned if the operation was successful
+          case Some(statusCode) if statusCode == HttpStatusCode.CREATED =>
+            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) => header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
 
-          newAdminToken match {
-            case Some(token) =>
-              LOG.debug("Caching admin token")
-              cachedAdminToken = Some(token)
-              Success(token)
-            case None =>
-              LOG.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
-              Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
-          }
-        case Some(_) =>
-          LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + authTokenResponse.get.getStatusCode)
-          Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
-        case None =>
-          LOG.error("Unable to get admin token. Request to OpenStack Identity service timed out.")
-          Failure(new IdentityServiceException("OpenStack Identity service could not be reached to obtain admin token"))
-      }
+            newAdminToken match {
+              case Some(token) =>
+                LOG.debug("Caching admin token")
+                datastore.put(ADMIN_TOKEN_KEY, token)
+                Success(token)
+              case None =>
+                LOG.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
+                Failure(new IdentityServiceException("OpenStack Identity service did not return headers with a successful response"))
+            }
+          case Some(_) =>
+            LOG.error("Unable to get admin token. Please verify your admin credentials. Response Code: " + authTokenResponse.get.getStatusCode)
+            Failure(new InvalidAdminCredentialsException("Failed to fetch admin token"))
+          case None =>
+            LOG.error("Unable to get admin token. Request to OpenStack Identity service timed out.")
+            Failure(new IdentityServiceException("OpenStack Identity service could not be reached to obtain admin token"))
+        }
     }
   }
 
