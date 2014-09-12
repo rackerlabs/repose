@@ -7,7 +7,7 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdentityV3Config
+import com.rackspace.papi.components.openstack.identity.v3.config.{WhiteList, OpenstackIdentityV3Config}
 import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
@@ -48,7 +48,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
 
-    if (isUriWhitelisted(request.getRequestURI, Option(identityConfig.getWhiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String]))) {
+    if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       filterDirector.setFilterAction(FilterAction.PASS)
     } else {
@@ -382,8 +382,10 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   private def jsonStringToObject[T: JsonFormat](json: String) =
     json.parseJson.convertTo[T]
 
-  private val isUriWhitelisted = (requestUri: String, whiteList: List[String]) =>
-    whiteList.filter(requestUri.matches).nonEmpty
+  private val isUriWhitelisted = (requestUri: String, whiteList: WhiteList) => {
+    val convertedWhiteList = Option(whiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String])
+    convertedWhiteList.filter(requestUri.matches).nonEmpty
+  }
 
   private val safeLongToInt = (l: Long) =>
     math.min(l, Int.MaxValue).toInt
