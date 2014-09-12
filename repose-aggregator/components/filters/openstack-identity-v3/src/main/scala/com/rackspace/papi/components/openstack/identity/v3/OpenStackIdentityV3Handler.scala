@@ -46,14 +46,25 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   private[v3] var cachedAdminToken: Option[String] = None
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
+
     if (isUriWhitelisted(request.getRequestURI, Option(identityConfig.getWhiteList).map(_.getUriPattern.asScala.toList).getOrElse(List.empty[String]))) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
-      val filterDirector: FilterDirector = new FilterDirectorImpl()
       filterDirector.setFilterAction(FilterAction.PASS)
-      filterDirector
     } else {
-      authorize(authenticate(request))
+      val (authDirector, authResponse) = authenticate(request)
+      val authorized = isAuthorized(authResponse)
+
+      filterDirector.setFilterAction(authDirector.getFilterAction)
+      filterDirector.setResponseStatus(authDirector.getResponseStatus)
+
+      if (!authorized) {
+        filterDirector.setFilterAction(FilterAction.RETURN)
+        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+      }
     }
+
+    filterDirector
   }
 
   override def handleResponse(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
@@ -180,17 +191,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
     (filterDirector, authenticateResponse)
   }
 
-  // TODO: Extract the filter director, take a list of ServiceForAuthenticateResponse, return a boolean
-  private def authorize(tuple: (FilterDirector, AuthenticateResponse)): FilterDirector = {
-    val filterDirector = tuple._1
-    val authResponse = tuple._2
-    if (Option(identityConfig.getServiceEndpoint).isDefined && !containsEndpoint(authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))) {
-      filterDirector.setFilterAction(FilterAction.RETURN)
-      filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
-    }
-
-    filterDirector
-  }
+  private def isAuthorized(authResponse: AuthenticateResponse) =
+    Option(identityConfig.getServiceEndpoint).isEmpty || containsEndpoint(authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))
 
   private def validateSubjectToken(subjectToken: String, isRetry: Boolean = false): Try[AuthenticateResponse] = {
     Option(datastore.get(TOKEN_KEY_PREFIX + subjectToken)) match {

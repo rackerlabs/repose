@@ -449,35 +449,28 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("authorize") {
-    val authorize = PrivateMethod[FilterDirector]('authorize)
+    val isAuthorized = PrivateMethod[Boolean]('isAuthorized)
 
-    it("should make no changes when not configured to check endpoints") {
-      val filterDirector = mock[FilterDirector]
-      identityV3Handler invokePrivate authorize((filterDirector, null))
-      verifyZeroInteractions(filterDirector)
+    it("should return true when not configured to check endpoints") {
+      identityV3Handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null, null, null)) should be (true)
     }
 
-    it("should make no changes when configured and the endpoint is present") {
+    it("should return true when configured and the endpoint is present") {
       identityConfig.setServiceEndpoint(new ServiceEndpoint)
       identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
-      identityV3Handler invokePrivate authorize((filterDirector, authToken))
-      verifyZeroInteractions(filterDirector)
+      identityV3Handler invokePrivate isAuthorized(authToken) should be (true)
     }
 
-    it("should change the status code and action when configured and the endpoint is not present") {
+    it("should return false when configured and the endpoint is not present") {
       identityConfig.setServiceEndpoint(new ServiceEndpoint)
       identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
-      identityV3Handler invokePrivate authorize((filterDirector, authToken))
-      verify(filterDirector).setFilterAction(FilterAction.RETURN)
-      verify(filterDirector).setResponseStatus(HttpStatusCode.FORBIDDEN)
+      identityV3Handler invokePrivate isAuthorized(authToken) should be (false)
     }
   }
 
