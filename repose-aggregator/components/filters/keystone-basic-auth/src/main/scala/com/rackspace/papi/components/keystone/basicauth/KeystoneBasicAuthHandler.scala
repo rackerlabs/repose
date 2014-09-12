@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.keystone.basicauth
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.keystone.basicauth.config.KeystoneBasicAuthConfig
@@ -20,16 +20,34 @@ class KeystoneBasicAuthHandler(keystoneConfig: KeystoneBasicAuthConfig, akkaServ
     LOG.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     // TODO: Handle the Request
+    // IF request has a HTTP Basic authentication header (Authorization), THEN ...
+    //    IF the userName/apiKey is in the cache,
+    //    THEN add the token header;
+    //    ELSE
+    //     - unbase 64 API userName/apiKey
+    //     - request a token
+    //       IF a token was received, THEN
+    //        - add the token header
+    //        - cache the token (configurable cache timeout)
+    //       ELSE - NO token received
+    //        - set the response status code to 401
+    //        - consume the remainder of the filter chain
+    // ELSE - NO basic header
+    //  - Simply send request goes through
     filterDirector.setFilterAction(FilterAction.PASS)
+    filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK) // 200
     filterDirector
   }
 
   override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    // TODO: This should work, but due to what appears to be a limitation of the current ScalaMock it causes an error during testing.
-    //LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
+    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     // TODO: Handle the Response
-    filterDirector.setResponseStatusCode(HttpServletResponse.SC_NO_CONTENT)
+    // IF response Status Code is 401, THEN
+    //  - add HTTP Basic authentication header (WWW-Authenticate)
+    //    IF request has a HTTP Basic authentication header (Authorization),
+    //    THEN remove the userName/apiKey from the cache
+    filterDirector.setResponseStatusCode(HttpServletResponse.SC_NO_CONTENT) // 204
     LOG.debug("Keystone Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
   }
