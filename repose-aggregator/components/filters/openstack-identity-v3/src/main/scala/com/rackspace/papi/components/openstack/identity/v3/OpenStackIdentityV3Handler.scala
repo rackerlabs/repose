@@ -34,6 +34,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   private final val TOKEN_KEY_PREFIX = "TOKEN:"
   private final val GROUPS_KEY_PREFIX = "GROUPS:"
 
+  private val datastore = datastoreService.getDefaultDatastore
   private val identityServiceUri = identityConfig.getOpenstackIdentityService.getUri
   private val cacheOffset = identityConfig.getCacheOffset
   private val tokenCacheTtl = identityConfig.getTokenCacheTimeout
@@ -41,7 +42,13 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
   private val forwardGroups = identityConfig.isForwardGroups
   private val forwardCatalog = identityConfig.isForwardCatalog
   private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
-  private val datastore = datastoreService.getDefaultDatastore
+  private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
+    Endpoint(id = "configured-endpoint",
+      url = serviceEndpoint.getUrl,
+      name = Option(serviceEndpoint.getName),
+      interface = Option(serviceEndpoint.getInterface),
+      region = Option(serviceEndpoint.getRegion))
+  }
 
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
@@ -176,8 +183,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
     }
   }
 
-  private def isAuthorized(authResponse: AuthenticateResponse) =
-    Option(identityConfig.getServiceEndpoint).isEmpty || containsEndpoint(authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint]))
+  private def isAuthorized(authResponse: AuthenticateResponse) = {
+    configuredServiceEndpoint forall { configuredEndpoint =>
+      val tokenEndpoints = authResponse.catalog.map(catalog => catalog.map(service => service.endpoints).flatten).getOrElse(List.empty[Endpoint])
+
+      containsRequiredEndpoint(tokenEndpoints, configuredEndpoint)
+    }
+  }
+
+  private def containsRequiredEndpoint(endpointsList: List[Endpoint], endpointRequirement: Endpoint) =
+    endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def validateSubjectToken(subjectToken: String, isRetry: Boolean = false): Try[AuthenticateResponse] = {
     Option(datastore.get(TOKEN_KEY_PREFIX + subjectToken)) match {
@@ -357,13 +372,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
-  }
-
-  private def containsEndpoint(endpoints: List[Endpoint]): Boolean = endpoints.exists { endpoint: Endpoint =>
-    (endpoint.url == identityConfig.getServiceEndpoint.getUrl) && // TODO: Handle trailing slash on URL matching?
-      Option(identityConfig.getServiceEndpoint.getRegion).map(region => endpoint.region.exists(_ == region)).getOrElse(true) &&
-      Option(identityConfig.getServiceEndpoint.getName).map(name => endpoint.name.exists(_ == name)).getOrElse(true) &&
-      Option(identityConfig.getServiceEndpoint.getInterface).map(interface => endpoint.interface.exists(_ == interface)).getOrElse(true)
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true

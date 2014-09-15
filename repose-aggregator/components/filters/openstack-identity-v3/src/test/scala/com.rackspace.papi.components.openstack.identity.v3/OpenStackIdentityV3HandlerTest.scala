@@ -46,6 +46,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getOpenstackIdentityService.setUsername("user")
     identityConfig.getOpenstackIdentityService.setPassword("password")
     identityConfig.getOpenstackIdentityService.setUri("http://test-uri.com")
+    identityConfig.setServiceEndpoint(new ServiceEndpoint())
+    identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
 
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
@@ -357,67 +359,63 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
-  describe("containsEndpoint") {
-    val containsEndpoint = PrivateMethod[Boolean]('containsEndpoint)
+  describe("containsRequiredEndpoint") {
+    val containsRequiredEndpoint = PrivateMethod[Boolean]('containsRequiredEndpoint)
 
     it("should return true when there is an endpoint that matches the url") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com")),
+        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and region does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setRegion("DFW")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and region doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setRegion("DFW")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and name does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setName("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and name doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setName("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and interface does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setInterface("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and interface doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setInterface("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
   }
 
@@ -446,12 +444,16 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     val isAuthorized = PrivateMethod[Boolean]('isAuthorized)
 
     it("should return true when not configured to check endpoints") {
-      identityV3Handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null, null, null)) should be(true)
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(new OpenstackIdentityService())
+      config.getOpenstackIdentityService.setUri("")
+
+      val handler = new OpenStackIdentityV3Handler(config, mockAkkaServiceClient, mockDatastoreService)
+
+      handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null, null, null)) should be(true)
     }
 
     it("should return true when configured and the endpoint is present") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
@@ -459,8 +461,6 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
 
     it("should return false when configured and the endpoint is not present") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
