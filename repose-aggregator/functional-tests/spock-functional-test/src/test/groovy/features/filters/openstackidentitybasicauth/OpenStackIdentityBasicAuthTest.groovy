@@ -36,16 +36,14 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
 
         fakeIdentityService.with {
-            generateTokenHandler { Request request, xml ->
-                new Response(HttpServletResponse.SC_NO_CONTENT, null, null, null)
+            generateTokenHandler = { Request request, xml -> new Response(HttpServletResponse.SC_NO_CONTENT)
                 // TODO: Flesh out the generateTokenHandler.
                 // IF the body is a userName/apiKey request,
                 // THEN return the Client token response;
                 // ELSE IF the body is userName/passWord request,
                 // THEN return the Admin token response.
             }
-            validateTokenHandler { tokenId, request, xml ->
-                new Response(HttpServletResponse.SC_NO_CONTENT, null, null, null)
+            validateTokenHandler = { tokenId, request, xml -> new Response(HttpServletResponse.SC_NO_CONTENT)
                 // TODO: Flesh out the validateTokenHandler.
                 // IF the tokenID matches the token from the Client token response,
                 // THEN return the Token Validated response.
@@ -74,15 +72,15 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "simply pass it on down the filter chain and this configuration will respond with a 401 and add an HTTP Basic authentication header"
         messageChain.receivedResponse.code == "401"
-        messageChain.receivedResponse.getHeaders().contains(HttpHeaders.WWW_AUTHENTICATE)
-        messageChain.getOrphanedHandlings() == 1
+        messageChain.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic")
+        messageChain.getOrphanedHandlings() == 0
     }
 
     def "When the request does have an HTTP Basic authentication header, then get a token and validate it"() {
         given:
         fakeIdentityService.with {
-            //client_tenant = reqTenant
             //client_userid = reqTenant
+            //client_tenant = reqTenant
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             generateTokenHandler = {

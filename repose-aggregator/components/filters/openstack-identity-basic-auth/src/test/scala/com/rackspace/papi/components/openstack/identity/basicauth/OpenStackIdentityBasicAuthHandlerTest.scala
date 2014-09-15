@@ -29,8 +29,7 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
     mockDatastoreService = mock[DatastoreService]
     mockDatastore = mock[Datastore]
     openStackIdentityBasicAuthConfig = new OpenStackIdentityBasicAuthConfig()
-    openStackIdentityBasicAuthConfig.setTodoAttribute(true)
-    openStackIdentityBasicAuthConfig.setTodoElement(true)
+    openStackIdentityBasicAuthConfig.setTokenCacheTimeout(0)
 
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
@@ -47,9 +46,9 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
       // when: "the filter's/handler's handleRequest() is called without an HTTP Basic authentication header"
       val filterDirector = openStackIdentityBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse)
 
-      // then: "the filter's response status code should be 200."
+      // then: "the filter's response status code should be OK (200)."
       filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PASS
-      filterDirector.getResponseStatusCode should be (HttpServletResponse.SC_OK) // 200
+      filterDirector.getResponseStatusCode should be (HttpServletResponse.SC_OK)
     }
   }
 
@@ -62,13 +61,13 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
   //    val mockServletResponse = mock[ReadableHttpServletResponse]
   //
   //    // TODO: This should work, but seems to be a limitation of the current ScalaMock.
-  //    //when(mockServletResponse.getStatus()).thenReturn(HttpServletResponse.SC_OK) // 200
+  //    //when(mockServletResponse.getStatus()).thenReturn(HttpServletResponse.SC_OK)
   //
   //    // when: "the filter's/handler's handleResponse() is called"
   //    val filterDirector = openStackIdentityBasicAuthHandler.handleResponse(mockServletRequest, mockServletResponse)
   //
-  //    // then: "the filter's response status code should be No Content"
-  //    filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT) // 204
+  //    // then: "the filter's response status code should be No Content (204)"
+  //    filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_NO_CONTENT)
   //  }
   //}
 }

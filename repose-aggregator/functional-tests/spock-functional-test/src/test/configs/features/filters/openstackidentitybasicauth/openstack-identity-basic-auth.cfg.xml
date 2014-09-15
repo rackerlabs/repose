@@ -2,6 +2,4 @@
 
 <openstack-identity-basic-auth
         xmlns="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
-        todo-attribute="true">
-    <todo-element>true</todo-element>
-</openstack-identity-basic-auth>
+        token-cache-timeout="0"/>

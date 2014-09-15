@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.openstack.identity.basicauth
 
 import com.rackspace.papi.components.openstack.identity.basicauth.BasicAuthUtils._
+import org.apache.commons.codec.binary.Base64
 import org.scalatest.{FunSpec, Matchers}
 
 class BasicAuthUtilsTest extends FunSpec with Matchers {
@@ -13,14 +14,14 @@ class BasicAuthUtilsTest extends FunSpec with Matchers {
       "userName:apiKey::" ->("userName", "apiKey::"), // Extra trailing colons
       "userName::a:p:i:K:e:y:" ->("userName", ":a:p:i:K:e:y:")
     )
-    cases.foreach { case (input, (username, password)) =>
-      it(s"decodes $input into $username and $password") {
-        val inputBytes = input.getBytes()
+    cases.foreach { case (decoded, (expectedUsername, expectedPassword)) =>
+      it(s"decodes $decoded into $expectedUsername and $expectedPassword") {
+        val authValue =  new String(Base64.encodeBase64(decoded.getBytes()))
 
-        val (extractedUsername, extractedPassword) = extractCreds(inputBytes)
+        val (extractedUsername, extractedPassword) = extractCreds(authValue)
 
-        extractedUsername shouldBe username
-        extractedPassword shouldBe password
+        extractedUsername shouldBe expectedUsername
+        extractedPassword shouldBe expectedPassword
       }
     }
   }

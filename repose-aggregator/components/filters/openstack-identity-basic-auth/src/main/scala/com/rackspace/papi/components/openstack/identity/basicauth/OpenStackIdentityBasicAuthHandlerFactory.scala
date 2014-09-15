@@ -12,8 +12,7 @@ class OpenStackIdentityBasicAuthHandlerFactory(akkaServiceClient: AkkaServiceCli
   extends AbstractConfiguredFilterHandlerFactory[OpenStackIdentityBasicAuthHandler] {
 
   private var openStackIdentityBasicAuthHandler: OpenStackIdentityBasicAuthHandler = _
-  private var todoAttribute: Boolean = false
-  private var todoElement: Boolean = false
+  private var tokenCacheTimeoutAttribute: Int = 0
 
   override def buildHandler: OpenStackIdentityBasicAuthHandler = {
     if (isInitialized) openStackIdentityBasicAuthHandler
@@ -44,8 +43,7 @@ class OpenStackIdentityBasicAuthHandlerFactory(akkaServiceClient: AkkaServiceCli
 
     override def configurationUpdated(config: OpenStackIdentityBasicAuthConfig) {
       initialized = false
-      todoAttribute = config.isTodoAttribute
-      todoElement = config.isTodoElement
+      tokenCacheTimeoutAttribute = config.getTokenCacheTimeout
       initialized = true
     }
 
