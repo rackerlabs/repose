@@ -72,8 +72,8 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "simply pass it on down the filter chain and this configuration will respond with a 401 and add an HTTP Basic authentication header"
         messageChain.receivedResponse.code == "401"
-        messageChain.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic")
-        messageChain.getOrphanedHandlings() == 0
+        messageChain.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        messageChain.getOrphanedHandlings().empty
     }
 
     def "When the request does have an HTTP Basic authentication header, then get a token and validate it"() {
@@ -95,7 +95,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         then: "then get a token and validate it"
         messageChain.receivedResponse.code == "200"
         messageChain.receivedResponse.getBody().toString().contains(":-)")
-        messageChain.getOrphanedHandlings() == 0
+        messageChain.getOrphanedHandlings().empty
     }
 
     def "When the request does have an HTTP Basic authentication header that is cached, then use the cached token"() {
@@ -105,6 +105,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         then: "use the cached token"
         messageChain.receivedResponse.code == "200"
         messageChain.receivedResponse.getBody().toString().contains(":-)")
-        messageChain.getOrphanedHandlings() == 1
+        messageChain.getOrphanedHandlings().size() == 1
     }
 }

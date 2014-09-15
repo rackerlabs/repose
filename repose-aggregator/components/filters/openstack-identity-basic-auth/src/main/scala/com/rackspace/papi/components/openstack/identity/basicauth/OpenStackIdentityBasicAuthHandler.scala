@@ -21,7 +21,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   private val datastore = datastoreService.getDefaultDatastore
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.info("Handling HTTP Request")
+    LOG.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     // IF request has a HTTP Basic authentication header (Authorization) with method of Basic, THEN ...; ELSE ...
     val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
@@ -58,19 +58,15 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
         filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
         //// set the response status code to FORBIDDEN (403)
         //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
-        // consume the remainder of the filter chain
-        filterDirector.setFilterAction(FilterAction.RETURN)
       }
-    } else {
-      // Simply send request on through
-      filterDirector.setFilterAction(FilterAction.PASS)
-      //filterDirector.setResponseStatusCode(HttpServletResponse.SC_OK)
     }
+    // No matter what, we need to process the response.
+    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     filterDirector
   }
 
   override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.info("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
+    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     // IF response Status Code is UNAUTHORIZED (401) OR FORBIDDEN (403), THEN
     if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
