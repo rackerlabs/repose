@@ -44,6 +44,13 @@ public interface FilterDirector {
 
    int getResponseStatusCode();
 
+   /**
+    * Informs the Filter Chain whether to continue (PASS), stop and return immediately (RETURN), or continue and then
+    * handle the response on the unwind (PROCESS_RESPONSE).
+    * The default is NOT_SET and shouldn't be used. This should always be set to one of the other three.
+    *
+    * @param action the action to take
+    */
    void setFilterAction(FilterAction action);
 
    void setResponseStatus(HttpStatusCode delegatedStatus);
