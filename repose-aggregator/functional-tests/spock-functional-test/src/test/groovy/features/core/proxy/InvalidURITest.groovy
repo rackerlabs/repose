@@ -28,6 +28,7 @@ class InvalidURITest extends ReposeValveTest {
         messageChain.receivedResponse.code == "400"
 
         where:
+        // Deproxy currently does not support non-UTF-8 characters, so only invalid UTF-8 characters are tested
         [uriSuffixGiven, method] <<
                 [['[', ']', '{', '}', '`', '^', '|', '\\', '<', '>'],
                 ["POST", "GET", "PUT", "DELETE", "TRACE", "OPTIONS", "PATCH"]].combinations()
