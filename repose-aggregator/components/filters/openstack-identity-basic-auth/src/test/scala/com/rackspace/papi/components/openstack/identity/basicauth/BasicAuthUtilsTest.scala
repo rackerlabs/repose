@@ -16,7 +16,7 @@ class BasicAuthUtilsTest extends FunSpec with Matchers {
     )
     cases.foreach { case (decoded, (expectedUsername, expectedPassword)) =>
       it(s"decodes $decoded into $expectedUsername and $expectedPassword") {
-        val authValue =  new String(Base64.encodeBase64(decoded.getBytes()))
+        val authValue =  new String(Base64.encodeBase64URLSafeString(decoded.getBytes()))
 
         val (extractedUsername, extractedPassword) = extractCreds(authValue)
 

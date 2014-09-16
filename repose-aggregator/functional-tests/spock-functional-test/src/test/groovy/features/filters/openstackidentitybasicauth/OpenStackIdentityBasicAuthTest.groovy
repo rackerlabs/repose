@@ -2,6 +2,7 @@ package features.filters.openstackidentitybasicauth
 
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
+import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
@@ -18,10 +19,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
     def static MockIdentityService fakeIdentityService
 
     def setupSpec() {
-        int deproxyPort = properties.targetPort
-        int reposePort = properties.reposePort
         deproxy = new Deproxy()
-        deproxy.addEndpoint(deproxyPort)
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
@@ -31,24 +29,9 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         repose.start()
 
         //TODO: The port finding logic is not working!
-        originEndpoint = deproxy.addEndpoint(properties.targetPort + 10, 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
-
-        fakeIdentityService.with {
-            generateTokenHandler = { Request request, xml -> new Response(HttpServletResponse.SC_NO_CONTENT)
-                // TODO: Flesh out the generateTokenHandler.
-                // IF the body is a userName/apiKey request,
-                // THEN return the Client token response;
-                // ELSE IF the body is userName/passWord request,
-                // THEN return the Admin token response.
-            }
-            validateTokenHandler = { tokenId, request, xml -> new Response(HttpServletResponse.SC_NO_CONTENT)
-                // TODO: Flesh out the validateTokenHandler.
-                // IF the tokenID matches the token from the Client token response,
-                // THEN return the Token Validated response.
-            }
-        }
     }
 
     def cleanupSpec() {
@@ -66,7 +49,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "When the request does not have an HTTP Basic authentication header, then simply pass it on down the filter chain and this configuration will respond with a 401 and add an HTTP Basic authentication header"() {
+    def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint])
 
@@ -79,8 +62,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
     def "When the request does have an HTTP Basic authentication header, then get a token and validate it"() {
         given:
         fakeIdentityService.with {
-            //client_userid = reqTenant
-            //client_tenant = reqTenant
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             generateTokenHandler = {
@@ -90,21 +71,12 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         }
 
         when: "the request does have an HTTP Basic authentication header"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint])
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_userid).bytes)])
 
         then: "then get a token and validate it"
         messageChain.receivedResponse.code == "200"
         messageChain.receivedResponse.getBody().toString().contains(":-)")
         messageChain.getOrphanedHandlings().empty
-    }
-
-    def "When the request does have an HTTP Basic authentication header that is cached, then use the cached token"() {
-        when: "the request does have an HTTP Basic authentication header that is cached"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint])
-
-        then: "use the cached token"
-        messageChain.receivedResponse.code == "200"
-        messageChain.receivedResponse.getBody().toString().contains(":-)")
-        messageChain.getOrphanedHandlings().size() == 1
     }
 }

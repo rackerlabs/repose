@@ -42,9 +42,9 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
           // Base64 Decode and split the userName/apiKey
           val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
           // request a token
-          //token = def getTokenFromUserNameAPIKey(userName, apiKey): Try[Token]
+          val token2 = getTokenFromUserNameAPIKey(userName, apiKey)
           // IF a token was received, THEN ...
-          if (token.isDefined) {
+          if (token2.isDefined) {
             // add the token header
             filterDirector.requestHeaderManager().appendHeader("TODO_HEADER_NAME", token.get.toString)
             // cache the token with the configured cache timeout
@@ -86,5 +86,22 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     }
     LOG.debug("OpenStack Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
+  }
+
+  private def getTokenFromUserNameAPIKey(userName: String, apiKey: String): Option[String] = {
+    //val responseOption = Option(akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken,
+    //  identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
+    //  headerMap.asJava))
+    Option(
+      s"""
+    |{
+    | "auth": {
+    |   "RAX-KSKEY:apiKeyCredentials": {
+    |     "username": "${userName}",
+    |     "apiKey": "${apiKey}"
+    |   }
+    | }
+    |}
+    """.stripMargin)
   }
 }
