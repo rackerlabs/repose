@@ -1,0 +1,7 @@
+<![CDATA[
+<response
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="202">
+  <message>Woohooo!  You got a 202!</message>
+</response>
+]]>

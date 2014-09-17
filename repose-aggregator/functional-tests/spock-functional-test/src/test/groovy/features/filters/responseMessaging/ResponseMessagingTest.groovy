@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -153,6 +154,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
+
     @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
     def "Requests - headers should keep its case in requests"() {
 
@@ -211,6 +213,19 @@ class ResponseMessagingTest extends ReposeValveTest {
         //"Content-Type" | "APPLICATION/xml"
     }
 
+    // cloud feed issue
+    def "Response messaging service should reserve new lines from client templates" () {
+        when: "A request it to repose, repose should reserve the newline from msg template"
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, headers: ["Accept": "application/xml"],
+                            defaultHandler: { return new Response(202, null, null,null) }])
+
+        then: "Repose should return the expected response code"
+        messageChain.receivedResponse.code == "202"
+
+        and: "Repose should return the expected response body"
+        messageChain.receivedResponse.body == RESP_BODY_W_NEWLINE
+    }
+
     @Shared
     def PLAIN_RESPONSE_333 = """X-PP-Groups: WIZARD
 	    MY-DATE: 2012-03-09T14:56:32Z"""
@@ -245,5 +260,13 @@ class ResponseMessagingTest extends ReposeValveTest {
     }
 }"""
     @Shared String ORIGINAL_BODY = "Origin Service says hello!"
+
+    @Shared String RESP_BODY_W_NEWLINE = """<![CDATA[
+<response
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="202">
+  <message>Woohooo!  You got a 202!</message>
+</response>
+]]>"""
 
 }
