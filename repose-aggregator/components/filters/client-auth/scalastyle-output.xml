@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle version="5.0">
-      
-    </checkstyle>
+ <file name="/Users/eric7500/Developer/repose/repose-aggregator/components/filters/client-auth/src/main/scala/s.scala">
+  <error column="6" line="43" source="org.scalastyle.scalariform.ImportGroupingChecker" severity="warning" message="Imports should be grouped together"></error>
+  <error column="6" line="8" source="org.scalastyle.file.RegexChecker" severity="warning"  message="No space before paren after for, if, or while"></error>
+  <error column="8" line="9" source="org.scalastyle.file.RegexChecker" severity="warning"  message="Too many spaces before paren after for, if, or while"></error>
+  <error column="6" line="31" source="org.scalastyle.file.RegexChecker" severity="warning" message="No space before if or while left brace"></error>
+  <error column="6" line="36" source="org.scalastyle.file.RegexChecker" severity="warning" message="Too many spaces before if or while left brace"></error>
+  <error column="6" line="39" source="org.scalastyle.file.RegexChecker" severity="warning" message="Too many spaces before if or while left brace"></error>
+  <error column="10" line="14" source="org.scalastyle.file.RegexChecker" severity="warning"message="No space before else left brace"></error>
+  <error column="8" line="33" source="org.scalastyle.file.RegexChecker" severity="warning" message="Too many spaces before else left brace"></error>
+  <error column="4" line="7" source="org.scalastyle.file.RegexChecker" severity="warning"  message="No space before for or do left brace"></error>
+  <error column="6" line="27" source="org.scalastyle.file.RegexChecker" severity="warning" message="Too many spaces before for or do left brace"></error>
+  <error column="2" line="6" source="org.scalastyle.file.RegexChecker" severity="warning"  message="No space before class or method left brace"></error>
+  <error column="0" line="3" source="org.scalastyle.file.RegexChecker" severity="warning"  message="Too many spaces before class or method left brace"></error>
+  <error column="6" line="19" source="org.scalastyle.file.RegexChecker" severity="warning" message="No space before try, catch, or finally left brace"></error>
+  <error column="8" line="23" source="org.scalastyle.file.RegexChecker" severity="warning" message="Too many spaces before try, catch, or finally left brace"></error>
+  <error column="15" line="39" source="org.scalastyle.file.RegexChecker" severity="warning"message="Brace on a newline gross"></error>
+  <error column="10" line="11" source="org.scalastyle.file.RegexChecker" severity="warning"message="else if on separate lines"></error>
+  <error column="0" line="1" source="org.scalastyle.file.RegexChecker" severity="warning"  message="Blank line after package please!"></error>
+  <error column="0" line="2" source="org.scalastyle.file.RegexChecker" severity="warning"  message="Blank line after import please!"></error>
+ </file>
+</checkstyle>
