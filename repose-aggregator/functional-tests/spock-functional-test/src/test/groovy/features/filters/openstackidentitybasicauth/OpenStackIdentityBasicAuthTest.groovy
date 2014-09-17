@@ -10,6 +10,7 @@ import org.rackspace.deproxy.Response
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+import javax.xml.transform.stream.StreamSource
 
 class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
@@ -44,17 +45,12 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         }
     }
 
-    def setup() {
-        sleep 500
-        fakeIdentityService.resetHandlers()
-    }
-
     def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint])
 
-        then: "simply pass it on down the filter chain and this configuration will respond with a 401 and add an HTTP Basic authentication header"
-        messageChain.receivedResponse.code == "401"
+        then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
+        messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         messageChain.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         messageChain.getOrphanedHandlings().empty
     }
@@ -75,8 +71,10 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
                 headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_userid).bytes)])
 
         then: "then get a token and validate it"
-        messageChain.receivedResponse.code == "200"
-        messageChain.receivedResponse.getBody().toString().contains(":-)")
+        messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         messageChain.getOrphanedHandlings().empty
+    }
+
+    def "When the Admin Token is not properly configured, then the response status code is SC_SERVICE_UNAVAILABLE (503)"() {
     }
 }

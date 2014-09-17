@@ -1,8 +1,9 @@
 package com.rackspace.papi.components.openstack.identity.basicauth
 
+import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.HttpHeaders
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.openstack.identity.basicauth.config.OpenStackIdentityBasicAuthConfig
@@ -17,6 +18,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   extends AbstractFilterLogicHandler {
 
   private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityBasicAuthHandler])
+  //private val identityServiceUri = basicAuthConfig.getOpenstackIdentityService.getUri
   private val tokenCacheTtl = basicAuthConfig.getTokenCacheTimeout
   private val datastore = datastoreService.getDefaultDatastore
 
@@ -42,11 +44,11 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
           // Base64 Decode and split the userName/apiKey
           val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
           // request a token
-          val token2 = getTokenFromUserNameAPIKey(userName, apiKey)
+          val token2 = getUserTokenFromUserNameAPIKey(userName, apiKey)
           // IF a token was received, THEN ...
-          if (token2.isDefined) {
+          if (token2._2.isDefined) {
             // add the token header
-            filterDirector.requestHeaderManager().appendHeader("TODO_HEADER_NAME", token.get.toString)
+            filterDirector.requestHeaderManager().appendHeader("TODO_HEADER_NAME", token2._2.get)
             // cache the token with the configured cache timeout
             datastore.put(authValue, token, tokenCacheTtl, TimeUnit.MILLISECONDS)
             tokenFound = true
@@ -88,20 +90,55 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     filterDirector
   }
 
-  private def getTokenFromUserNameAPIKey(userName: String, apiKey: String): Option[String] = {
-    //val responseOption = Option(akkaServiceClient.get(TOKEN_KEY_PREFIX + subjectToken,
-    //  identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
-    //  headerMap.asJava))
-    Option(
-      s"""
-    |{
-    | "auth": {
-    |   "RAX-KSKEY:apiKeyCredentials": {
-    |     "username": "${userName}",
-    |     "apiKey": "${apiKey}"
-    |   }
-    | }
-    |}
-    """.stripMargin)
+  private def getAdminToken(): Option[String] = {
+//    val adminName = "TODO: GET_ADMIN_NAME"
+//    val adminPass = "TODO: GET_ADMIN_PASS"
+//    val payload = s"""
+//      |{
+//      |  "auth": {
+//      |    "passwordCredentials": {
+//      |      "username": "${adminName}",
+//      |      "password": "${adminPass}"
+//      |    }
+//      |  }
+//      |}
+//      """.stripMargin
+    None
+  }
+
+  private def getTokenFromAuthResponse(data: InputStream): Option[String] = {
+    None
+  }
+
+  private def getUserTokenFromUserNameAPIKey(userName: String, apiKey: String): (Int,Option[String]) = {
+    val adminToken = getAdminToken()
+    if(adminToken.isDefined) {
+      val payload = s"""
+      |{
+      |  "auth": {
+      |    "RAX-KSKEY:apiKeyCredentials": {
+      |      "username": "${userName}",
+      |      "apiKey": "${apiKey}"
+      |    }
+      |  }
+      |}
+      """.stripMargin
+
+      val serviceClientResponse = akkaServiceClient.post(
+        adminToken.get,
+        /*identityServiceUri +*/ "/v2.0/tokens",
+        new java.util.HashMap[String,String](),
+        payload,
+        MediaType.APPLICATION_JSON_TYPE,
+        MediaType.APPLICATION_JSON_TYPE)
+      serviceClientResponse.getStatusCode match {
+        case HttpServletResponse.SC_OK =>
+          (serviceClientResponse.getStatusCode,
+          getTokenFromAuthResponse(serviceClientResponse.getData))
+        case _ => (serviceClientResponse.getStatusCode, None)
+      }
+    } else {
+      (HttpServletResponse.SC_SERVICE_UNAVAILABLE, None)
+    }
   }
 }
