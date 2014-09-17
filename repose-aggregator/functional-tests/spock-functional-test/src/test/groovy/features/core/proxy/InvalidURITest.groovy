@@ -16,6 +16,7 @@ class InvalidURITest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedfalse", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/invaliduri", params)
         repose.start()
         waitUntilReadyToServiceRequests()
 
@@ -27,6 +28,7 @@ class InvalidURITest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: "/path/"+uriSuffixGiven, method: method)
         then:
         messageChain.receivedResponse.code == "400"
+        messageChain.receivedResponse.body.contains('Invalid URI message')
 
         where:
         // Deproxy currently does not support non-UTF-8 characters, so only invalid UTF-8 characters are tested
