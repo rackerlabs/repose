@@ -192,14 +192,7 @@
             </plugin>
             <!-- I think this is legit, rules go in scalastyle_config.xml -->
 
-
             <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.12.1</version>
-            </plugin-->
-            <!-- how does this even work -->
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
@@ -219,15 +212,9 @@
 
                         <module name="Checker">
 
-                            <!-- Checks for Size Violations.                    -->
-                            <!-- See http://checkstyle.sf.net/config_sizes.html -->
-                            <module name="FileLength">
-                                <property name="max" value="3500"/>
-                                <property name="fileExtensions" value="java"/>
-                            </module>
 
-                            <!-- Checks for whitespace                               -->
-                            <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+
+
                             <module name="FileTabCharacter"/>
 
 
@@ -242,8 +229,12 @@
                                     <property name="throwsIndent" value="4"/>
                                 </module>
 
+                                <module name="AvoidStarImport">
+                                    <property name="excludes" value=""/>
+                                    <property name="allowClassImports" value="true"/>
+                                    <property name="allowStaticMemberImports" value="true"/>
+                                </module>
 
-                                <module name="StaticVariableName"/>
                                 <module name="GenericWhitespace"/>
                                 <module name="NoWhitespaceBefore">
                                     <property name="tokens" value="DOT"/>
@@ -426,9 +417,7 @@
                                     <property name="tokens" value="SR"/>
                                 </module>
 
-                                <module name="TypeName">
-                                    <property name="format" value="^_?[A-Z][a-zA-Z0-9]*$"/>
-                                </module>
+
 
                                 <module name="LeftCurly">
                                     <property name="option" value="eol"/>
@@ -438,7 +427,7 @@
                         </module>
                     </checkstyleRules>
                 </configuration>
-            </plugin>
+            </plugin-->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
