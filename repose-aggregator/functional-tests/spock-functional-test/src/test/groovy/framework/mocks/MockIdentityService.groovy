@@ -112,6 +112,7 @@ class MockIdentityService {
     def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
     def client_userid = 12345;
+    def client_apikey = "this-is-the-api-key";
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
@@ -298,17 +299,37 @@ class MockIdentityService {
 
     Response validateToken(String tokenId, Request request, boolean xml) {
         def path = request.getPath()
-        def request_token = tokenId
 
-        def params = [
-                expires     : getExpires(),
-                userid      : client_userid,
-                username    : client_username,
-                tenant      : client_tenant,
-                tenanttwo   : client_tenant_file,
-                token       : request_token,
-                serviceadmin: service_admin_role
-        ];
+        def params
+
+        // IF the token to validate is the Client token,
+        // THEN return the Client token response;
+        // ELSE IF the token to validate is the Admin token,
+        // THEN return the Admin token response;
+        // ELSE the token is NOT valid.
+        if (tokenId == client_token) {
+            params = [
+                    expires     : getExpires(),
+                    userid      : client_userid,
+                    username    : client_username,
+                    tenant      : client_tenant,
+                    tenanttwo   : client_tenant_file,
+                    token       : client_token,
+                    serviceadmin: service_admin_role
+            ];
+        } else if (tokenId == admin_token) {
+            params = [
+                    expires     : getExpires(),
+                    userid      : admin_userid,
+                    username    : admin_username,
+                    tenant      : admin_tenant,
+                    tenanttwo   : admin_tenant,
+                    token       : admin_token,
+                    serviceadmin: service_admin_role
+            ];
+        } else {
+            isTokenValid = false
+        }
 
         def code;
         def template;
@@ -340,6 +361,8 @@ class MockIdentityService {
             } else {
                 template = identityFailureJsonTemplate
             }
+            // Reset the flag for the next call.
+            isTokenValid = true
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -392,16 +415,39 @@ class MockIdentityService {
             return new Response(400);
         }
 
-        def params = [
-                expires     : getExpires(),
-                userid      : admin_userid,
-                username    : admin_username,
-                tenant      : admin_tenant,
-                tenanttwo   : admin_tenant,
-                token       : admin_token,
-                serviceadmin: service_admin_role
-        ];
+        def params
 
+        // IF the body is a Client userName/apiKey request,
+        // THEN return the Client token response;
+        // ELSE /*IF the body is userName/passWord request*/,
+        // THEN return the Admin token response.
+        if (request.body.contains("username") &&
+                request.body.contains(client_username) &&
+                request.body.contains("apiKey") &&
+                request.body.contains(client_apikey.toString())) {
+            params = [
+                    expires     : getExpires(),
+                    userid      : client_userid,
+                    username    : client_username,
+                    tenant      : client_tenant,
+                    tenanttwo   : client_tenant,
+                    token       : client_token,
+                    serviceadmin: service_admin_role
+            ];
+        } else /*if (request.body.contains("username") &&
+                request.body.contains(admin_username) &&
+                request.body.contains("password") &&
+                request.body.contains(admin_password.toString()))*/ {
+            params = [
+                    expires     : getExpires(),
+                    userid      : admin_userid,
+                    username    : admin_username,
+                    tenant      : admin_tenant,
+                    tenanttwo   : admin_tenant,
+                    token       : admin_token,
+                    serviceadmin: service_admin_role
+            ];
+        }
 
         def code;
         def template;
