@@ -17,6 +17,7 @@ class InvalidURITest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedfalse", params)
         repose.start()
+        waitUntilReadyToServiceRequests()
 
     }
 
