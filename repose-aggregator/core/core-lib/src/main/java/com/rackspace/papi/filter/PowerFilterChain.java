@@ -255,7 +255,7 @@ public class PowerFilterChain implements FilterChain {
                 filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             }
         } else {
-            long start = tracer.traceEnter();
+            tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
             long delay = tracer.traceExit(mutableHttpResponse, "route");
             if (filterTimer != null) {
