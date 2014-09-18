@@ -23,6 +23,9 @@ import scala.util.{Failure, Random, Success, Try}
 class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient) {
   private final val LOG = LoggerFactory.getLogger(getClass)
 
+  private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
+  private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
+
   private final val ADMIN_TOKEN_KEY = "IDENTITY:V3:ADMIN_TOKEN"
   private final val TOKEN_KEY_PREFIX = "IDENTITY:V3:TOKEN:"
   private final val GROUPS_KEY_PREFIX = "IDENTITY:V3:GROUPS:"
@@ -64,7 +67,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
       case _ =>
         val authTokenResponse = Option(akkaServiceClient.post(
           ADMIN_TOKEN_KEY,
-          identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
+          identityServiceUri + TOKEN_ENDPOINT,
           Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON_TYPE).asJava,
           createAdminAuthRequest(),
           MediaType.APPLICATION_JSON_TYPE
@@ -109,7 +112,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             )
             val validateTokenResponse = Option(akkaServiceClient.get(
               TOKEN_KEY_PREFIX + subjectToken,
-              identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
+              identityServiceUri + TOKEN_ENDPOINT,
               headerMap.asJava
             ))
 
@@ -162,7 +165,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             )
             val groupsResponse = Option(akkaServiceClient.get(
               GROUPS_KEY_PREFIX + userId,
-              identityServiceUri + OpenStackIdentityV3Endpoints.GROUPS(userId),
+              identityServiceUri + GROUPS_ENDPOINT(userId),
               headerMap.asJava
             ))
 
