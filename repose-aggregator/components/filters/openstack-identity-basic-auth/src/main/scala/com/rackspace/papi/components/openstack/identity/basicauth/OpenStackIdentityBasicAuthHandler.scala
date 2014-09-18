@@ -38,17 +38,14 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
       for (authHeader <- authMethodBasicHeaders.get) {
         val authValue = authHeader.replace("Basic ", "")
-        LOG.error("authValue = "+authValue)
         var token = Option(datastore.get(TOKEN_KEY_PREFIX + authValue))
         // IF the userName/apiKey is in the cache,
         // THEN add the token header;
         // ELSE ...
         if (token.isDefined) {
-          LOG.error("token = "+token.get.toString)
           filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
           tokenFound = true
         } else {
-          LOG.error("token = NOT FOUND IN CACHE")
           // request a token
           token = getUserToken(authValue)
           // IF a token was received, THEN ...
@@ -56,7 +53,6 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
             // add the token header
             filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
             // cache the token with the configured cache timeout
-            LOG.error("Caching \""+TOKEN_KEY_PREFIX + authValue+"\" with value \""+token.get.toString+"\" for "+(tokenCacheTtlMillis/1000)+" seconds.")
             datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
             tokenFound = true
           }
@@ -71,29 +67,6 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     }
     // No matter what, we need to process the response.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-    filterDirector
-  }
-
-  override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
-    // IF response Status Code is UNAUTHORIZED (401) OR FORBIDDEN (403), THEN
-    if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
-      httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
-      // add HTTP Basic authentication header (WWW-Authenticate) with the realm of RAX-KEY
-      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-      // IF request has a HTTP Basic authentication header (Authorization),
-      // THEN remove the encoded userName/apiKey (Key) & token (Value) cached in the Datastore
-      val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
-      if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
-        for (authHeader <- authMethodBasicHeaders.get) {
-          val authValue = authHeader.replace("Basic ", "")
-          datastore.remove(X_AUTH_TOKEN + authValue)
-        }
-      }
-    }
-    LOG.debug("OpenStack Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
   }
 
@@ -123,8 +96,8 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       authTokenResponse.get.getStatusCode match {
         // Since the operation is a POST, an OK (200) for V2 or CREATED (201) for V3 should be returned if the operation was successful
         case HttpServletResponse.SC_OK | HttpServletResponse.SC_CREATED =>
-          def authRespDataRaw  = authTokenResponse.get.getData
-          def authRespDataStr  = Source.fromInputStream(authRespDataRaw).mkString
+          def authRespDataRaw = authTokenResponse.get.getData
+          def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
           def authRespDataJson = JSON.parseFull(authRespDataStr)
           //authRespDataJson.map(_("access")("token")("id")).getOrElse(None)
           def authRespDataJsonMap = authRespDataJson.get
@@ -138,5 +111,28 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     else {
       None
     }
+  }
+
+  override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
+    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
+    // IF response Status Code is UNAUTHORIZED (401) OR FORBIDDEN (403), THEN
+    if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
+      httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
+      // add HTTP Basic authentication header (WWW-Authenticate) with the realm of RAX-KEY
+      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+      // IF request has a HTTP Basic authentication header (Authorization),
+      // THEN remove the encoded userName/apiKey (Key) & token (Value) cached in the Datastore
+      val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
+      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
+      if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
+        for (authHeader <- authMethodBasicHeaders.get) {
+          val authValue = authHeader.replace("Basic ", "")
+          datastore.remove(X_AUTH_TOKEN + authValue)
+        }
+      }
+    }
+    LOG.debug("OpenStack Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    filterDirector
   }
 }

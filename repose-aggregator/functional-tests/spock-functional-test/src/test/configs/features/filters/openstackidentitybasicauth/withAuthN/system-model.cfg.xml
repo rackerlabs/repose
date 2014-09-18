@@ -8,12 +8,17 @@
         </nodes>
 
         <filters>
-            <filter name="openstack-identity-basic-auth" />
-            <filter name="client-auth" />
+            <filter name="openstack-identity-basic-auth"/>
+            <filter name="client-auth"/>
         </filters>
 
         <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true" />
+            <endpoint id="target"
+                      protocol="http"
+                      hostname="localhost"
+                      root-path="/"
+                      port="${targetPort}"
+                      default="true"/>
         </destinations>
 
     </repose-cluster>

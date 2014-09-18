@@ -11,7 +11,7 @@ object BasicAuthUtils {
    * @param decoded the cleaned header value to be decoded and split
    * @return a tuple of the (username, API Key)
    */
-  def extractCreds(authValue:String): (String, String) = {
+  def extractCreds(authValue: String): (String, String) = {
     val decodedString = new String(Base64.decodeBase64(authValue))
     val username = decodedString.split(":").head
     val password = decodedString.replace(s"$username:", "")

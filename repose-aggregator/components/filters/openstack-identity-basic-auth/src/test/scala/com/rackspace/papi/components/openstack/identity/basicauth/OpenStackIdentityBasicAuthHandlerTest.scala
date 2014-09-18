@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.openstack.identity.basicauth
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
@@ -48,7 +48,7 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
 
       // then: "the filter's response status code should be UNAUTHORIZED (401)."
       filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PROCESS_RESPONSE
-      filterDirector.getResponseStatusCode should be (HttpServletResponse.SC_UNAUTHORIZED)
+      filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_UNAUTHORIZED)
     }
   }
 
