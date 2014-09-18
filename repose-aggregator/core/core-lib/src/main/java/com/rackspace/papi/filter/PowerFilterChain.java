@@ -52,7 +52,6 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
-    private MetricsService metricsService;
     private TimerByCategory filterTimer;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
@@ -63,7 +62,6 @@ public class PowerFilterChain implements FilterChain {
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.router = router;
-        this.metricsService = metricsService;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
