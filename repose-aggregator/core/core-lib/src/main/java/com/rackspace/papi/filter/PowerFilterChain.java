@@ -177,9 +177,8 @@ public class PowerFilterChain implements FilterChain {
 
         //converting log object to json string
         RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
-        String jsonStringOfRequestLog = convertPojoToJsonString(requestLog);
 
-        return jsonStringOfRequestLog;
+        return convertPojoToJsonString(requestLog);
     }
 
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
@@ -192,17 +191,15 @@ public class PowerFilterChain implements FilterChain {
 
         //converting log object to json string
         ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
-        String jsonStringOfResponseLog = convertPojoToJsonString(responseLog);
 
-        return jsonStringOfResponseLog;
+        return convertPojoToJsonString(responseLog);
     }
 
     private String convertPojoToJsonString(Object object) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);//http://stackoverflow.com/a/8395924
-        String prettyJsonStringOfPojo = objectMapper.writeValueAsString(object);
 
-        return prettyJsonStringOfPojo;
+        return objectMapper.writeValueAsString(object);
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
