@@ -2,4 +2,5 @@
 
 <openstack-identity-basic-auth
         xmlns="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
-        token-cache-timeout="0"/>
+        openstack-identity-service-uri="http://identity.example.com"
+        token-cache-timeout-millis="0"/>

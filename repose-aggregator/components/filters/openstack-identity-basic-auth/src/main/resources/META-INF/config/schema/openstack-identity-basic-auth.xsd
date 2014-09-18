@@ -18,7 +18,14 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
+        <xs:attribute name="openstack-identity-service-uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The target OpenStack Identity endpoint URI for credential requests.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="token-cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Time in milliseconds to cache auth token.</html:p>
