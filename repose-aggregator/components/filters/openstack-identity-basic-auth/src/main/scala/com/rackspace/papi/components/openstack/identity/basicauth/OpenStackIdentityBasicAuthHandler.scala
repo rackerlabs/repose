@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.openstack.identity.basicauth
 
-import java.io.InputStream
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
@@ -14,12 +13,18 @@ import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
+import scala.io.Source
+import scala.util.parsing.json._
+
 class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicAuthConfig, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler {
 
   private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityBasicAuthHandler])
-  //private val identityServiceUri = basicAuthConfig.getOpenstackIdentityService.getUri
-  private val tokenCacheTtl = basicAuthConfig.getTokenCacheTimeout
+  private final val TOKEN_KEY_PREFIX = "TOKEN:"
+  private final val X_AUTH_TOKEN = "X-Auth-Token"
+  private val identityServiceUri = basicAuthConfig.getOpenstackIdentityServiceUri
+  private val tokenCacheTtlMillis = basicAuthConfig.getTokenCacheTimeoutMillis
   private val datastore = datastoreService.getDefaultDatastore
 
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
@@ -33,34 +38,36 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
       for (authHeader <- authMethodBasicHeaders.get) {
         val authValue = authHeader.replace("Basic ", "")
-        val token = Option(datastore.get(authValue))
+        LOG.error("authValue = "+authValue)
+        var token = Option(datastore.get(TOKEN_KEY_PREFIX + authValue))
         // IF the userName/apiKey is in the cache,
         // THEN add the token header;
         // ELSE ...
         if (token.isDefined) {
-          filterDirector.requestHeaderManager().appendHeader("TODO_HEADER_NAME", token.get.toString)
+          LOG.error("token = "+token.get.toString)
+          filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
           tokenFound = true
         } else {
-          // Base64 Decode and split the userName/apiKey
-          val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
+          LOG.error("token = NOT FOUND IN CACHE")
           // request a token
-          val token2 = getUserTokenFromUserNameAPIKey(userName, apiKey)
+          token = getUserToken(authValue)
           // IF a token was received, THEN ...
-          if (token2._2.isDefined) {
+          if (token.isDefined) {
             // add the token header
-            filterDirector.requestHeaderManager().appendHeader("TODO_HEADER_NAME", token2._2.get)
+            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
             // cache the token with the configured cache timeout
-            datastore.put(authValue, token, tokenCacheTtl, TimeUnit.MILLISECONDS)
+            LOG.error("Caching \""+TOKEN_KEY_PREFIX + authValue+"\" with value \""+token.get.toString+"\" for "+(tokenCacheTtlMillis/1000)+" seconds.")
+            datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
             tokenFound = true
           }
         }
       }
-      if (!tokenFound) {
-        // set the response status code to UNAUTHORIZED (401)
-        filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
-        //// set the response status code to FORBIDDEN (403)
-        //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
-      }
+    }
+    if (!tokenFound) {
+      // set the response status code to UNAUTHORIZED (401)
+      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
+      //// set the response status code to FORBIDDEN (403)
+      //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
     }
     // No matter what, we need to process the response.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
@@ -82,7 +89,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
         for (authHeader <- authMethodBasicHeaders.get) {
           val authValue = authHeader.replace("Basic ", "")
-          datastore.remove(authValue)
+          datastore.remove(X_AUTH_TOKEN + authValue)
         }
       }
     }
@@ -90,30 +97,10 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     filterDirector
   }
 
-  private def getAdminToken(): Option[String] = {
-//    val adminName = "TODO: GET_ADMIN_NAME"
-//    val adminPass = "TODO: GET_ADMIN_PASS"
-//    val payload = s"""
-//      |{
-//      |  "auth": {
-//      |    "passwordCredentials": {
-//      |      "username": "${adminName}",
-//      |      "password": "${adminPass}"
-//      |    }
-//      |  }
-//      |}
-//      """.stripMargin
-    None
-  }
-
-  private def getTokenFromAuthResponse(data: InputStream): Option[String] = {
-    None
-  }
-
-  private def getUserTokenFromUserNameAPIKey(userName: String, apiKey: String): (Int,Option[String]) = {
-    val adminToken = getAdminToken()
-    if(adminToken.isDefined) {
-      val payload = s"""
+  private def getUserToken(authValue: String): Option[String] = {
+    val createJsonAuthRequest = (encoded: String) => {
+      val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
+      s"""
       |{
       |  "auth": {
       |    "RAX-KSKEY:apiKeyCredentials": {
@@ -123,22 +110,33 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       |  }
       |}
       """.stripMargin
+    }
+    // Base64 Decode and split the userName/apiKey
+    val authTokenResponse = Option(akkaServiceClient.post(authValue,
+      identityServiceUri + "/v2.0/tokens",
+      Map[String, String]().asJava,
+      createJsonAuthRequest(authValue),
+      MediaType.APPLICATION_JSON_TYPE,
+      MediaType.APPLICATION_JSON_TYPE))
 
-      val serviceClientResponse = akkaServiceClient.post(
-        adminToken.get,
-        /*identityServiceUri +*/ "/v2.0/tokens",
-        new java.util.HashMap[String,String](),
-        payload,
-        MediaType.APPLICATION_JSON_TYPE,
-        MediaType.APPLICATION_JSON_TYPE)
-      serviceClientResponse.getStatusCode match {
-        case HttpServletResponse.SC_OK =>
-          (serviceClientResponse.getStatusCode,
-          getTokenFromAuthResponse(serviceClientResponse.getData))
-        case _ => (serviceClientResponse.getStatusCode, None)
+    if (authTokenResponse.isDefined) {
+      authTokenResponse.get.getStatusCode match {
+        // Since the operation is a POST, an OK (200) for V2 or CREATED (201) for V3 should be returned if the operation was successful
+        case HttpServletResponse.SC_OK | HttpServletResponse.SC_CREATED =>
+          def authRespDataRaw  = authTokenResponse.get.getData
+          def authRespDataStr  = Source.fromInputStream(authRespDataRaw).mkString
+          def authRespDataJson = JSON.parseFull(authRespDataStr)
+          //authRespDataJson.map(_("access")("token")("id")).getOrElse(None)
+          def authRespDataJsonMap = authRespDataJson.get
+          LOG.debug(authRespDataJsonMap.toString())
+          //Option("TODO: RETRIEVE THIS")
+          Option("this-is-the-token")
+        case _ =>
+          None
       }
-    } else {
-      (HttpServletResponse.SC_SERVICE_UNAVAILABLE, None)
+    }
+    else {
+      None
     }
   }
 }

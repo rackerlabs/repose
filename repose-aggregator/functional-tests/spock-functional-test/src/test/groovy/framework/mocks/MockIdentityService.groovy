@@ -266,11 +266,11 @@ class MockIdentityService {
     }
 
     public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath == "/tokens"
+        return nonQueryPath.contains("/tokens")
     }
 
     public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.startsWith("/tokens")
+        return nonQueryPath.contains("/tokens")
     }
 
 
@@ -404,15 +404,14 @@ class MockIdentityService {
 
     Response generateToken(Request request, boolean xml) {
 
-        try {
-
-            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
-            validator.validate(sampleSource);
-
-        } catch (Exception e) {
-
-            println("Admin token XSD validation error: " + e);
-            return new Response(400);
+        if(xml) {
+            try {
+                final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+                validator.validate(sampleSource);
+            } catch (Exception e) {
+                println("Admin token XSD validation error: " + e);
+                return new Response(400);
+            }
         }
 
         def params

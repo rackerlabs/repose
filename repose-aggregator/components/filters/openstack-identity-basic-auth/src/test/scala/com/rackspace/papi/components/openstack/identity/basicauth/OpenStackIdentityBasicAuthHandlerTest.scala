@@ -29,7 +29,7 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
     mockDatastoreService = mock[DatastoreService]
     mockDatastore = mock[Datastore]
     openStackIdentityBasicAuthConfig = new OpenStackIdentityBasicAuthConfig()
-    openStackIdentityBasicAuthConfig.setTokenCacheTimeout(0)
+    openStackIdentityBasicAuthConfig.setTokenCacheTimeoutMillis(0)
 
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
@@ -46,9 +46,9 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
       // when: "the filter's/handler's handleRequest() is called without an HTTP Basic authentication header"
       val filterDirector = openStackIdentityBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse)
 
-      // then: "the filter's response status code should be OK (200)."
-      filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PASS
-      filterDirector.getResponseStatusCode should be (HttpServletResponse.SC_OK)
+      // then: "the filter's response status code should be UNAUTHORIZED (401)."
+      filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PROCESS_RESPONSE
+      filterDirector.getResponseStatusCode should be (HttpServletResponse.SC_UNAUTHORIZED)
     }
   }
 
