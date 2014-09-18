@@ -279,9 +279,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, akka
     } else {
       val authTokenResponse = Option(akkaServiceClient.post(ADMIN_TOKEN_KEY,
         identityServiceUri + OpenStackIdentityV3Endpoints.TOKEN,
-        Map[String, String]().asJava,
+        Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava,
         createAdminAuthRequest(),
-        MediaType.APPLICATION_JSON_TYPE,
         MediaType.APPLICATION_JSON_TYPE))
 
       // Since we *might* get a null back from the akka service client, we have to map it, and then match
