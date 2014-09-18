@@ -21,7 +21,7 @@ import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
 class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient) {
-  private final val LOG = LoggerFactory.getLogger(getClass)
+  private final val LOG = LoggerFactory.getLogger(classOf[OpenStackIdentityV3API])
 
   private final val TOKEN_ENDPOINT = "/v3/auth/tokens"
   private final val GROUPS_ENDPOINT = (userId: String) => s"/v3/users/$userId/groups"
