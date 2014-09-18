@@ -31,6 +31,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -256,10 +258,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
         try {
+            new URI(mutableHttpRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
+        } catch (URISyntaxException use) {
+            LOG.debug("Invalid URI requested: {}", mutableHttpRequest.getRequestURI());
+            mutableHttpResponse.sendError(HttpStatusCode.BAD_REQUEST.intValue(), "Error processing request");
+            mutableHttpResponse.setLastException(use);
         } catch (Exception ex) {
             LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
             mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");

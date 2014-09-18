@@ -1,25 +1,31 @@
-package com.rackspace.papi.filter;
+package com.rackspace.papi.filter
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager
+import com.rackspace.papi.service.context.ContextAdapter
+import com.rackspace.papi.service.context.ServiceContext
+import com.rackspace.papi.service.context.container.ContainerConfigurationService
+import com.rackspace.papi.service.event.PowerProxyEventManager
+import com.rackspace.papi.service.headers.response.ResponseHeaderService
+import com.rackspace.papi.service.reporting.ReportingService
+import com.rackspace.papi.service.rms.ResponseMessageService
+import org.junit.Ignore
+import org.junit.Test
+import org.junit.experimental.runners.Enclosed
+import org.junit.runner.RunWith
+import org.springframework.mock.web.MockHttpServletResponse
 
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
-import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.event.PowerProxyEventManager;
-import com.rackspace.papi.service.rms.ResponseMessageService;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import javax.naming.Context
+import javax.naming.NamingException
+import javax.servlet.*
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Enumeration;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
-
+import static com.rackspace.papi.commons.util.servlet.http.RequestValuesImpl.REQUEST_URI_ATTRIBUTE
+import static org.hamcrest.Matchers.equalTo
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertThat
+import static org.mockito.Matchers.any
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 /**
  * @author fran
  */
@@ -76,6 +82,23 @@ public class PowerFilterTest {
             powerFilter.init(mockedFilterConfig);
 
             powerFilter.doFilter(request, response, mockedFilterChain);
+        }
+
+        @Test
+        public void should400WithBadUri() throws Exception {
+            PowerFilter powerFilter = new PowerFilter()
+            def contextAdapter = mock(ContextAdapter)
+            when(contextAdapter.containerConfigurationService()).thenReturn(mock(ContainerConfigurationService))
+            when(contextAdapter.responseMessageService()).thenReturn(mock(ResponseMessageService))
+            powerFilter.papiContext = contextAdapter
+            powerFilter.responseHeaderService = mock(ResponseHeaderService)
+            powerFilter.reportingService = mock(ReportingService)
+            def request = mock(HttpServletRequest.class)
+            when(request.getAttribute(REQUEST_URI_ATTRIBUTE)).thenReturn("http://openrepose.org/[butts]")
+            def response = new MockHttpServletResponse()
+            powerFilter.doFilter(request, response, mock(FilterChain.class))
+
+            assertThat(response.getStatus(), equalTo(HttpServletResponse.SC_BAD_REQUEST))
         }
     }
 }
