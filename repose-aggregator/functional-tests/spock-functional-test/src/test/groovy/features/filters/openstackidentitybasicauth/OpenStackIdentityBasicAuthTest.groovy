@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Ignore
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
@@ -42,6 +43,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         }
     }
 
+    @Ignore
     def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
         def messageChain = deproxy.makeRequest([url: reposeEndpoint])

@@ -404,7 +404,9 @@ class MockIdentityService {
 
     Response generateToken(Request request, boolean xml) {
 
-        if(xml) {
+        // Since the SchemaFactory does not appear to import parent XSD's,
+        // the validation is skipped for the API Key Credentials that are defined externally.
+        if(xml && !(request.body.toString().contains("apiKeyCredentials"))) {
             try {
                 final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
                 validator.validate(sampleSource);

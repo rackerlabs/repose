@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.parsing.json._
+import scala.xml._
 
 class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicAuthConfig, akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractFilterLogicHandler {
@@ -42,19 +42,25 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
         // IF the userName/apiKey is in the cache,
         // THEN add the token header;
         // ELSE ...
-        if (token.isDefined) {
-          filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-          tokenFound = true
+        if (token.isDefined && !(token.isEmpty)) {
+          val tokenStr = token.get.toString
+          if(tokenStr.length > 0) {
+            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
+            tokenFound = true
+          }
         } else {
           // request a token
           token = getUserToken(authValue)
           // IF a token was received, THEN ...
-          if (token.isDefined) {
-            // add the token header
-            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-            // cache the token with the configured cache timeout
-            datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
-            tokenFound = true
+          if (token.isDefined && !(token.isEmpty)) {
+            val tokenStr = token.get.toString
+            if(tokenStr.length > 0) {
+              // add the token header
+              filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
+              // cache the token with the configured cache timeout
+              datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
+              tokenFound = true
+            }
           }
         }
       }
@@ -73,15 +79,13 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   private def getUserToken(authValue: String): Option[String] = {
     val createJsonAuthRequest = (encoded: String) => {
       val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
-      s"""
-      |{
-      |  "auth": {
-      |    "RAX-KSKEY:apiKeyCredentials": {
-      |      "username": "${userName}",
-      |      "apiKey": "${apiKey}"
-      |    }
-      |  }
-      |}
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+      |<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+      |  <apiKeyCredentials
+      |    xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+      |    username="${userName}"
+      |    apiKey="${apiKey}"/>
+      |</auth>
       """.stripMargin
     }
     // Base64 Decode and split the userName/apiKey
@@ -89,24 +93,16 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       identityServiceUri + "/v2.0/tokens",
       Map[String, String]().asJava,
       createJsonAuthRequest(authValue),
-      MediaType.APPLICATION_JSON_TYPE,
-      MediaType.APPLICATION_JSON_TYPE))
+      MediaType.APPLICATION_XML_TYPE,
+      MediaType.APPLICATION_XML_TYPE))
 
     if (authTokenResponse.isDefined) {
-      authTokenResponse.get.getStatusCode match {
-        // Since the operation is a POST, an OK (200) for V2 or CREATED (201) for V3 should be returned if the operation was successful
-        case HttpServletResponse.SC_OK | HttpServletResponse.SC_CREATED =>
-          def authRespDataRaw = authTokenResponse.get.getData
-          def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
-          def authRespDataJson = JSON.parseFull(authRespDataStr)
-          //authRespDataJson.map(_("access")("token")("id")).getOrElse(None)
-          def authRespDataJsonMap = authRespDataJson.get
-          LOG.debug(authRespDataJsonMap.toString())
-          //Option("TODO: RETRIEVE THIS")
-          Option("this-is-the-token")
-        case _ =>
-          None
-      }
+
+      def authRespDataRaw = authTokenResponse.get.getData
+      def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
+      def xmlString = XML.loadString(authRespDataStr)
+      val idString = (xmlString \\ "access" \ "token" \ "@id").text
+      Option(idString)
     }
     else {
       None
