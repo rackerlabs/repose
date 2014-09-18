@@ -181,7 +181,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         final Map<String, String> headers = new HashMap<>();
 
         //defaulting to json format
-        if (format.equalsIgnoreCase("xml")) {
+        if ("xml".equalsIgnoreCase(format)) {
             format = MediaType.APPLICATION_XML;
         } else {
             format = MediaType.APPLICATION_JSON;
