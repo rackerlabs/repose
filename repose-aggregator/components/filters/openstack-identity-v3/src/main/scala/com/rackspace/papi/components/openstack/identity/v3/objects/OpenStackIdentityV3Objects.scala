@@ -17,7 +17,28 @@ case class Endpoint(id: String,
                     region: Option[String] = None,
                     url: String,
                     service_id: Option[String] = None
-                     ) extends Serializable
+                     ) extends Serializable {
+
+  /**
+   * Determines whether or not this endpoint meets the requirements set forth by the values contained in
+   * endpointRequirement for the purpose of authorization.
+   *
+   * @param endpointRequirement an endpoint containing fields with required values
+   * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
+   */
+  def meetsRequirement(endpointRequirement: Endpoint) = {
+    def compare(available: Option[String], required: Option[String]) = (available, required) match {
+      case (Some(x), Some(y)) => x == y
+      case (None, Some(_)) => false
+      case _ => true
+    }
+
+    this.url == endpointRequirement.url &&
+      compare(this.region, endpointRequirement.region) &&
+      compare(this.name, endpointRequirement.name) &&
+      compare(this.interface, endpointRequirement.interface)
+  }
+}
 
 case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
                                             // openstackType: String, // TODO: this probably won't work since the actual name of the key is "type"
