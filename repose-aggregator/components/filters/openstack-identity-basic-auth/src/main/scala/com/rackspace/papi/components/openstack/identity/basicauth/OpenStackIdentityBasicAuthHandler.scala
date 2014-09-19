@@ -79,20 +79,20 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   private def getUserToken(authValue: String): Option[String] = {
     val createJsonAuthRequest = (encoded: String) => {
       val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
-      s"""<?xml version="1.0" encoding="UTF-8"?>
-      |<auth xmlns="http://docs.openstack.org/identity/api/v2.0">
-      |  <apiKeyCredentials
-      |    xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-      |    username="${userName}"
-      |    apiKey="${apiKey}"/>
-      |</auth>
-      """.stripMargin
+      // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
+      //<?xml version="1.0" encoding="UTF-8"?>
+      <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
+        <apiKeyCredentials
+          xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+          username={ userName }
+          apiKey={ apiKey }/>
+      </auth>
     }
     // Base64 Decode and split the userName/apiKey
     val authTokenResponse = Option(akkaServiceClient.post(authValue,
       identityServiceUri + "/v2.0/tokens",
       Map[String, String]().asJava,
-      createJsonAuthRequest(authValue),
+      createJsonAuthRequest(authValue).toString,
       MediaType.APPLICATION_XML_TYPE,
       MediaType.APPLICATION_XML_TYPE))
 
