@@ -1,10 +1,13 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
+import com.rackspace.papi.components.translation.TranslationHandler;
 import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
+import net.sf.saxon.om.DocumentInfo;
+import net.sf.saxon.om.DocumentPool;
 import org.apache.xalan.transformer.TrAXFilter;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.QueryParameters;
@@ -23,6 +26,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -129,6 +133,7 @@ public class XmlFilterChainExecutor {
     }
 
     public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
+        List<String> uris = findInputUris(inputs);
         try {
             for (XmlFilterReference filter : chain.getFilters()) {
                 // pass the input stream to all transforms as a param inputstream
@@ -138,7 +143,8 @@ public class XmlFilterChainExecutor {
                     net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
                     transformer = saxonFilter.getTransformer();
                     net.sf.saxon.Controller controller = (net.sf.saxon.Controller) transformer;
-                    controller.clearDocumentPool();
+
+                    removeInputUrisFromPool(controller.getDocumentPool(), uris);
                 } else if (filter.getReader() instanceof TrAXFilter) {
                     TrAXFilter traxFilter = (TrAXFilter) filter.getReader();
                     transformer = traxFilter.getTransformer();
@@ -160,6 +166,31 @@ public class XmlFilterChainExecutor {
             transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
         } catch (TransformerException ex) {
             throw new XsltException(ex);
+        }
+    }
+
+    private List<String> findInputUris(List<XsltParameter> inputs) {
+        List<String> uris = new ArrayList<String>();
+        for(XsltParameter parameter : inputs) {
+            if(isInputUriName(parameter.getName())) {
+                uris.add((String)parameter.getValue());
+            }
+        }
+        return uris;
+    }
+
+    private boolean isInputUriName(String name) {
+        return TranslationHandler.INPUT_HEADERS_URI.equals(name) ||
+               TranslationHandler.INPUT_QUERY_URI.equals(name)   ||
+               TranslationHandler.INPUT_REQUEST_URI.equals(name);
+    }
+
+    private void removeInputUrisFromPool(DocumentPool documentPool, List<String> uris) {
+        for(String uri : uris) {
+            DocumentInfo documentInfo = documentPool.find(uri);
+            if(documentInfo != null) {
+                documentPool.discard(documentInfo);
+            }
         }
     }
 

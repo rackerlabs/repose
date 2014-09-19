@@ -31,6 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
+    public static final String INPUT_HEADERS_URI = "input-headers-uri";
+    public static final String INPUT_QUERY_URI = "input-query-uri";
+    public static final String INPUT_REQUEST_URI = "input-request-uri";
 
   private static final int DEFAULT_BUFFER_SIZE = 2048;
   private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
@@ -101,9 +104,9 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
       id = response.getResponseId();
     }
     /* Input/Output URIs */
-    inputs.add(new XsltParameter("input-headers-uri", "repose:input:headers:" + id));
-    inputs.add(new XsltParameter("input-query-uri", "repose:input:query:" + id));
-    inputs.add(new XsltParameter("input-request-uri", "repose:input:request:" + id));
+    inputs.add(new XsltParameter(INPUT_HEADERS_URI, "repose:input:headers:" + id));
+    inputs.add(new XsltParameter(INPUT_QUERY_URI, "repose:input:query:" + id));
+    inputs.add(new XsltParameter(INPUT_REQUEST_URI, "repose:input:request:" + id));
     inputs.add(new XsltParameter("output-headers-uri", "repose:output:headers.xml"));
     inputs.add(new XsltParameter("output-query-uri", "repose:output:query.xml"));
     inputs.add(new XsltParameter("output-request-uri", "repose:output:request.xml"));
