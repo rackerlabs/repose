@@ -301,37 +301,17 @@ class MockIdentityService {
 
     Response validateToken(String tokenId, Request request, boolean xml) {
         def path = request.getPath()
+        def request_token = tokenId
 
-        def params
-
-        // IF the token to validate is the Client token,
-        // THEN return the Client token response;
-        // ELSE IF the token to validate is the Admin token,
-        // THEN return the Admin token response;
-        // ELSE the token is NOT valid.
-        if (tokenId == client_token) {
-            params = [
-                    expires     : getExpires(),
-                    userid      : client_userid,
-                    username    : client_username,
-                    tenant      : client_tenant,
-                    tenanttwo   : client_tenant_file,
-                    token       : client_token,
-                    serviceadmin: service_admin_role
-            ];
-        } else if (tokenId == admin_token) {
-            params = [
-                    expires     : getExpires(),
-                    userid      : admin_userid,
-                    username    : admin_username,
-                    tenant      : admin_tenant,
-                    tenanttwo   : admin_tenant,
-                    token       : admin_token,
-                    serviceadmin: service_admin_role
-            ];
-        } else {
-            isTokenValid = false
-        }
+        def params = [
+                expires : getExpires(),
+                userid : client_userid,
+                username : client_username,
+                tenant : client_tenant,
+                tenanttwo : client_tenant_file,
+                token : request_token,
+                serviceadmin: service_admin_role
+                ];
 
         def code;
         def template;
@@ -363,8 +343,6 @@ class MockIdentityService {
             } else {
                 template = identityFailureJsonTemplate
             }
-            // Reset the flag for the next call.
-            isTokenValid = true
         }
 
         def body = templateEngine.createTemplate(template).make(params)
@@ -437,10 +415,10 @@ class MockIdentityService {
                     token       : client_token,
                     serviceadmin: service_admin_role
             ];
-        } else /*if (request.body.contains("username") &&
-                request.body.contains(admin_username) &&
+        } else if (request.body.contains("username") &&
+                request.body.contains(admin_username) /*&&
                 request.body.contains("password") &&
-                request.body.contains(admin_password.toString()))*/ {
+                request.body.contains(admin_password.toString())*/) {
             params = [
                     expires     : getExpires(),
                     userid      : admin_userid,
@@ -450,6 +428,8 @@ class MockIdentityService {
                     token       : admin_token,
                     serviceadmin: service_admin_role
             ];
+        } else {
+            isTokenValid = false
         }
 
         def code;
@@ -479,6 +459,8 @@ class MockIdentityService {
             } else {
                 template = identityFailureJsonTemplate
             }
+            // Reset the flag for the next call.
+            isTokenValid = true
         }
 
         def body = templateEngine.createTemplate(template).make(params)
