@@ -81,7 +81,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
     @Override
     public AuthenticateResponse validateToken(String tenant, String userToken) { //this is where we ask auth service if token is valid
 
-        OpenStackToken token = null;
         AuthenticateResponse authenticateResponse = null;
         ServiceClientResponse serviceResponse = validateUser(userToken, tenant, false);
 
