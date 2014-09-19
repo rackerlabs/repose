@@ -119,7 +119,9 @@ class MockIdentityService {
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
     def admin_userid = 67890;
+    def invalid_key = "invalidKey"
     Validator validator;
+
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -460,7 +462,7 @@ class MockIdentityService {
             headers.put('Content-type', 'application/json')
         }
 
-        if (isTokenValid) {
+        if (isTokenValid || client_apikey != invalid_key) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
@@ -468,7 +470,10 @@ class MockIdentityService {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            code = 404
+            if (client_apikey == invalid_key)
+                code = 401
+            else
+                code = 404
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {

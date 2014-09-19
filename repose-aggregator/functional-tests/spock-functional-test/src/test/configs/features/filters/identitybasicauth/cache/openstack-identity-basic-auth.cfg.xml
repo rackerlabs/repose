@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openstack-identity-basic-auth
+        xmlns="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
+        openstack-identity-service-uri="http://localhost:${identityPort}"
+        token-cache-timeout-millis="5000"/>
