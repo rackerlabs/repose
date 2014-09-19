@@ -1,48 +1,84 @@
 package com.rackspace.auth.openstack
-
-import com.rackspace.auth.AuthServiceException
-import com.rackspace.papi.commons.util.http.ServiceClient
+import com.rackspace.auth.ResponseUnmarshaller
+import com.rackspace.papi.commons.util.http.ServiceClientResponse
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
-import org.junit.Test
+import org.openstack.docs.identity.api.v2.AuthenticationRequest
+import org.openstack.docs.identity.api.v2.ObjectFactory
+import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername
+import spock.lang.Shared
+import spock.lang.Specification
 
+import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
-import javax.xml.bind.JAXBException
+import javax.xml.datatype.DatatypeFactory
 
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
+class AuthenticationServiceClientGroovyTest extends Specification {
+    @Shared def objectFactory = new ObjectFactory()
+    @Shared def coreJaxbContext = JAXBContext.newInstance(
+                org.openstack.docs.identity.api.v2.ObjectFactory.class,
+                com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class)
+    @Shared def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
+    @Shared def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
 
-class AuthenticationServiceClientGroovyTest {
+    def 'can make a call to an auth service to validate a token'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
 
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
+        akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
 
-    @Test
-    void whenConvertingAStreamItShouldReturnABase64EncodedString() {
-        JAXBContext coreJaxbContext;
-        JAXBContext groupJaxbContext;
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
-        try {
-            coreJaxbContext = JAXBContext.newInstance(
-                    org.openstack.docs.identity.api.v2.ObjectFactory.class,
-                    com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
-            groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class);
-        } catch (JAXBException e) {
-            LOG.error("Problem creating the jaxb context for the OpenStack Auth objects.", e);
-            throw new AuthServiceException("Possible deployment problem! Unable to build JAXB Context for OpenStack Auth schema types. Reason: "
-                    + e.getMessage(), e);
+        when:
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+
+        then:
+        response.token.id == "${userToValidate.token}"
+        response.user.name == "${userToValidate.user}"
+    }
+
+    def createAuthenticationServiceClient(def adminUser, def adminPassword, def adminTenant, def akkaServiceClient) {
+        new AuthenticationServiceClient("http://some/uri", adminUser, adminPassword, adminTenant,
+                new ResponseUnmarshaller(coreJaxbContext), new ResponseUnmarshaller(groupJaxbContext),
+                jaxbEntityToXml, akkaServiceClient)
+    }
+
+    private String createAuthenticationRequest(def adminUser, def adminPassword, def adminTenant) {
+        PasswordCredentialsRequiredUsername credentials = objectFactory.createPasswordCredentialsRequiredUsername().with {
+            username = adminUser
+            password = adminPassword
+            it
         }
+        AuthenticationRequest request = objectFactory.createAuthenticationRequest().with {
+            tenantId = adminTenant
+            credential = objectFactory.createPasswordCredentials(credentials)
+            it
+        }
+        jaxbEntityToXml.transform(objectFactory.createAuth(request))
+    }
 
-
-        ServiceClient serviceClient = mock(ServiceClient.class);
-        when(serviceClient.getPoolSize()).thenReturn(100);
-        AkkaServiceClient akkaAuthenticationClient= mock(AkkaServiceClient.class)
-
-        def AuthenticationServiceClient asc = new AuthenticationServiceClient("http:hostname.com", "user", "pass", "id",
-                null, null, new JaxbEntityToXml(coreJaxbContext), akkaAuthenticationClient)
-        def InputStream inputStream = new ByteArrayInputStream("test".getBytes())
-        def String s
-
-        s = asc.convertStreamToBase64String(inputStream)
-
-        assert s == "dGVzdA=="
+    private String createAuthenticateResponse(def username, def token) {
+        def authenticateResponse = objectFactory.createAuthenticateResponse().with {
+            it.token = objectFactory.createToken().with {
+                it.id = token
+                def time = new GregorianCalendar()
+                time.setTime(new Date() + 1)
+                it.expires = DatatypeFactory.newInstance().newXMLGregorianCalendar(time)
+                it
+            }
+            it.user = objectFactory.createUserForAuthenticateResponse().with {
+                it.name = username
+                it
+            }
+            it
+        }
+        jaxbEntityToXml.transform(objectFactory.createAccess(authenticateResponse))
     }
 }
