@@ -68,7 +68,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         val authTokenResponse = Option(akkaServiceClient.post(
           ADMIN_TOKEN_KEY,
           identityServiceUri + TOKEN_ENDPOINT,
-          Map(CommonHttpHeader.ACCEPT -> MediaType.APPLICATION_JSON_TYPE).asJava,
+          Map(CommonHttpHeader.ACCEPT.toString -> MediaType.APPLICATION_JSON).asJava,
           createAdminAuthRequest(),
           MediaType.APPLICATION_JSON_TYPE
         ))
