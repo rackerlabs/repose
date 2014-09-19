@@ -93,11 +93,9 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       identityServiceUri + "/v2.0/tokens",
       Map[String, String]().asJava,
       createJsonAuthRequest(authValue).toString,
-      MediaType.APPLICATION_XML_TYPE,
       MediaType.APPLICATION_XML_TYPE))
 
     if (authTokenResponse.isDefined) {
-
       def authRespDataRaw = authTokenResponse.get.getData
       def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
       def xmlString = XML.loadString(authRespDataStr)
