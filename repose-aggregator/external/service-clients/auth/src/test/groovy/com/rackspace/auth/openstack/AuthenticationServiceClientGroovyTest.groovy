@@ -44,6 +44,18 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         response.user.name == "${userToValidate.user}"
     }
 
+    def "when converting a stream, it should return a base 64 encoded string"() {
+        given:
+        def asc = createAuthenticationServiceClient(null, null, null, Mock(AkkaServiceClient))
+        def inputStream = new ByteArrayInputStream("test".getBytes())
+
+        when:
+        def convertedStream = asc.convertStreamToBase64String(inputStream)
+
+        then:
+        convertedStream == "dGVzdA=="
+    }
+
     def createAuthenticationServiceClient(def adminUser, def adminPassword, def adminTenant, def akkaServiceClient) {
         new AuthenticationServiceClient("http://some/uri", adminUser, adminPassword, adminTenant,
                 new ResponseUnmarshaller(coreJaxbContext), new ResponseUnmarshaller(groupJaxbContext),
