@@ -4,6 +4,7 @@ import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Request
 import spock.lang.Ignore
 
 import javax.servlet.http.HttpServletResponse
@@ -28,7 +29,7 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
         repose.start()
 
         //TODO: The port finding logic is not working!
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return OpenStackIdentityBasicAuthTest.handleOriginRequest(request) })
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
     }
@@ -45,7 +46,7 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
 
     def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint])
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
         messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
@@ -61,6 +62,7 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
 
         then: "then get a token for it"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.receivedResponse.body.equals(OpenStackIdentityBasicAuthTest.ORIGIN_PASS_BODY)
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         messageChain.orphanedHandlings.size() == 1
@@ -76,6 +78,7 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
 
         then: "get the token from the cache"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.receivedResponse.body.equals(OpenStackIdentityBasicAuthTest.ORIGIN_PASS_BODY)
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         messageChain.orphanedHandlings.size() == 0
@@ -92,6 +95,7 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
 
         then: "get the token from the Identity (Keystone) service"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.receivedResponse.body.equals(OpenStackIdentityBasicAuthTest.ORIGIN_PASS_BODY)
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         messageChain.orphanedHandlings.size() == 1
