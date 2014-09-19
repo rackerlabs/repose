@@ -1,4 +1,6 @@
 package com.rackspace.auth.openstack
+
+import com.rackspace.auth.AuthServiceException
 import com.rackspace.auth.ResponseUnmarshaller
 import com.rackspace.papi.commons.util.http.ServiceClientResponse
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml
@@ -42,6 +44,22 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         then:
         response.token.id == userToValidate.token
         response.user.name == userToValidate.user
+    }
+
+    def 'throws an AuthServiceException when the admin token can not be retrieved'() {
+        given:
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, _, _) >>
+                new ServiceClientResponse(401, new ByteArrayInputStream())
+        def client = createAuthenticationServiceClient("user", "pass", "12345", akkaServiceClient)
+
+        when:
+        client.validateToken("123456", "someToken")
+
+        then:
+        def e = thrown(AuthServiceException)
+        e.getMessage() =~ "Unable to retrieve admin token"
+        AppenderForTesting.getMessages().find { it =~ "Unable to get admin token.  Verify admin credentials. 401" }
     }
 
     def 'reuses the admin token if it is still valid'() {
