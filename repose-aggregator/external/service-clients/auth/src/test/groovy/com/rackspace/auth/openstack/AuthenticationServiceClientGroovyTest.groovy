@@ -40,8 +40,41 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         def response = client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        response.token.id == "${userToValidate.token}"
-        response.user.name == "${userToValidate.user}"
+        response.token.id == userToValidate.token
+        response.user.name == userToValidate.user
+    }
+
+    def 'reuses the admin token if it is still valid'() {
+        given: "We have no admin token on the first pass"
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
+        def newTokenToValidate = "newToken"
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, _) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))
+        akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", _) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when: "We ask to validate a token"
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+
+        then: "We get a response and an admin token is retrieved"
+        response.token.id == userToValidate.token
+
+        when: "The admin token call would provide a new token"
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "BrandNewToken").getBytes()))
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
+        akkaServiceClient.get("TOKEN:$newTokenToValidate", "http://some/uri/tokens/$newTokenToValidate", authHeaders) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, newTokenToValidate).getBytes()))
+        response = client.validateToken(userToValidate.tenant, newTokenToValidate)
+
+        then: "We get a response using the old admin token"
+        response.token.id == newTokenToValidate
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {
