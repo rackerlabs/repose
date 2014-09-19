@@ -33,7 +33,7 @@ public abstract class AbstractJaxbTransform {
                throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
             }
          }
-      });
+      }, Pool.DEFAULT_MIN_POOL_SIZE, 100);
 
       unmarshallerPool = new GenericBlockingResourcePool<Unmarshaller>(new ConstructionStrategy<Unmarshaller>() {
 
@@ -45,7 +45,7 @@ public abstract class AbstractJaxbTransform {
                throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
             }
          }
-      });
+      }, Pool.DEFAULT_MIN_POOL_SIZE, 100);
    }
 
    protected Pool<Marshaller> getMarshallerPool() {
