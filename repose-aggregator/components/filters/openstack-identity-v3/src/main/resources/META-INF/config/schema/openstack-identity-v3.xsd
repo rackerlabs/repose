@@ -21,6 +21,9 @@
             <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
             <xs:element name="openstack-identity-service" type="OpenstackIdentityService" minOccurs="1" maxOccurs="1"/>
             <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="validate-project-id-in-uri" type="ValidateProjectID" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="roles-which-bypass-project-id-check" type="IgnoreProjectIDRoles" minOccurs="0"
+                        maxOccurs="1"/>
         </xs:all>
 
         <xs:attribute name="forward-unauthorized-requests" type="xs:boolean" use="optional" default="false">
@@ -183,5 +186,43 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ValidateProjectID">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If this element is present, the OpenStack Identity V3 filter will attempt to match the project ID
+                    parsed from the URI against the set of project IDs in the token provided by the Identity service.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This attribute represents a regular expression which will be used to parse the project ID
+                        out of the uri. A capture group should be present around the portion of the regex which matches
+                        the project ID.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="IgnoreProjectIDRoles">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of roles to bypass the project id check.
+                    Users with any of the roles specified will not be required to have a project id.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 </xs:schema>
