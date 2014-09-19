@@ -10,6 +10,7 @@ import org.openstack.docs.identity.api.v2.ObjectFactory
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
@@ -22,6 +23,10 @@ class AuthenticationServiceClientGroovyTest extends Specification {
                 com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class)
     @Shared def groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class)
     @Shared def jaxbEntityToXml = new JaxbEntityToXml(coreJaxbContext)
+
+    def setup() {
+        AppenderForTesting.clear()
+    }
 
     def 'can make a call to an auth service to validate a token'() {
         given:
@@ -93,6 +98,50 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         then: "We get a response using the old admin token"
         response.token.id == newTokenToValidate
+    }
+
+    def 'logs a message when the users token is not found when validating a user'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        akkaServiceClient.post("ADMIN_TOKEN", _, _, _, _) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))
+        akkaServiceClient.get("TOKEN:token", _, _) >>
+                new ServiceClientResponse(404, new ByteArrayInputStream())
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        client.validateToken("foo","token")
+
+        then:
+        AppenderForTesting.getMessages().find { it =~ "Unable to validate token.  Invalid token. 404" }
+    }
+
+    @Unroll
+    def 'logs a message and throws an exception for a #statusCode status code when validating a user'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        akkaServiceClient.post("ADMIN_TOKEN", _, _, _, _) >>
+                new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))
+        akkaServiceClient.get("TOKEN:token", _, _) >>
+                new ServiceClientResponse(statusCode, new ByteArrayInputStream())
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        client.validateToken("foo","token")
+
+        then:
+        def e = thrown(AuthServiceException)
+        e.getMessage() =~ "Unable to validate token. Response from http://some/uri: $statusCode"
+        AppenderForTesting.getMessages().find { it =~ "Authentication Service returned an unexpected response status code: $statusCode" }
+
+        where:
+        statusCode << (200..599) - 200 - 401 - 404
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {
