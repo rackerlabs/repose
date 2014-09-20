@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MockIdentityService {
 
+    def static DEFAULT_CLIENT_API_KEY = "this-is-the-api-key"
     public MockIdentityService(int identityPort, int originServicePort) {
 
         resetHandlers()
@@ -112,7 +113,7 @@ class MockIdentityService {
     def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
     def client_userid = 12345;
-    def client_apikey = "this-is-the-api-key";
+    def client_apikey = DEFAULT_CLIENT_API_KEY;
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
