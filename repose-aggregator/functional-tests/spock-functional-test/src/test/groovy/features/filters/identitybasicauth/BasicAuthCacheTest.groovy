@@ -23,7 +23,8 @@ class BasicAuthCacheTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/idenditybasicauth/cache", params)
+        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth", params)
+        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth/cache", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
     }
