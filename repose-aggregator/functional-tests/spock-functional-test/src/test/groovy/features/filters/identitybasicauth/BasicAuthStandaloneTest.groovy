@@ -5,6 +5,8 @@ import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
+import org.rackspace.deproxy.Response
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
@@ -18,6 +20,8 @@ import static framework.TestUtils.timedSearch
 class BasicAuthStandaloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
+    def static ORIGIN_PASS_BODY = ":-)"
+    def static ORIGIN_FAIL_BODY = "8^("
 
     def static MockIdentityService fakeIdentityService
 
@@ -33,9 +37,26 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+    }
+
+    /**
+     * Since there is no Auth-N/Auth-Z filter inline with the Basic Auth filter under test,
+     * the origin service is simply making sure the AUTHORIZATION and/or X-AUTH-TOKEN headers are present with the
+     * client information (e.g. User Name, API Key, Token) from the Mock Identity service.
+     * @param request the HttpServletRequest from the "Client"
+     * @return the HttpServletResponse from the "Origin"
+     */
+    def static Response handleOriginRequest(Request request) {
+        if (request.getHeaders().getFirstValue(HttpHeaders.AUTHORIZATION).equals(
+                'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)) ||
+                request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)) {
+            return new Response(HttpServletResponse.SC_OK, null, null, ORIGIN_PASS_BODY)
+        } else {
+            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, ORIGIN_FAIL_BODY)
+        }
     }
 
     def cleanupSpec() {
@@ -51,8 +72,9 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         then: "request should pass as no basic auth filter"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
         mc.handlings.size() == 1
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "when start repose with x-auth-token, basicauth shouldn't work" () {
@@ -65,9 +87,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
-        mc.handlings.size() == 0
-        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
+        mc.handlings.size() == 1
+        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "when send request with credential" () {
@@ -80,13 +103,14 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         then: "request should pass as no basic auth filter"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getFirstValue("Authorization")
-        !mc.handlings[0].request.headers.getFirstValue("WWW-Authenticate")
-        !mc.handlings[0].request.headers.contains("X-Auth-Token")
-        mc.getOrphanedHandlings().empty
-        timedSearch(10) {
-            reposeLogSearch.searchByString("WARNING").size()  > 0
-        }
+        mc.handlings[0].request.headers.contains("X-Auth-Token")
+        mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
+    }
+
+    def "Log a very loud WARNING stating the OpenStack Basic Auth filter cannot be used alone."() {
+        expect: "check for the WARNING."
+        reposeLogSearch.searchByString("WARNING").size()  > 0
     }
 }
