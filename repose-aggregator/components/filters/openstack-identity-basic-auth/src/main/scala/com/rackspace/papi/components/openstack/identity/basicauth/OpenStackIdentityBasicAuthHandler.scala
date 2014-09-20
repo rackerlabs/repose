@@ -30,46 +30,55 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
     LOG.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
-    // IF request has a HTTP Basic authentication header (Authorization) with method of Basic, THEN ...; ELSE ...
-    val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-    val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
-    var tokenFound = false
-    if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
-      // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
-      for (authHeader <- authMethodBasicHeaders.get) {
-        val authValue = authHeader.replace("Basic ", "")
-        var token = Option(datastore.get(TOKEN_KEY_PREFIX + authValue))
-        // IF the userName/apiKey is in the cache,
-        // THEN add the token header;
-        // ELSE ...
-        if (token.isDefined && !(token.isEmpty)) {
-          val tokenStr = token.get.toString
-          if(tokenStr.length > 0) {
-            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-            tokenFound = true
-          }
-        } else {
-          // request a token
-          token = getUserToken(authValue)
-          // IF a token was received, THEN ...
+    // IF request already has an X-Auth-Token header,
+    // THEN skip any HTTP Basic authentication headers (Authorization) that may be present.
+    val optionXAuthHeaders = Option(httpServletRequest.getHeaders(X_AUTH_TOKEN))
+    if (!optionXAuthHeaders.isDefined || !(optionXAuthHeaders.get.hasMoreElements)) {
+      // IF request has a HTTP Basic authentication header (Authorization) with method of Basic, THEN ...
+      val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
+      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
+      if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
+        // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
+        var tokenFound = false
+        // THIS First in wins
+        val authHeader = authMethodBasicHeaders.get.next()
+        // OR Loop through until we find a good one.
+        //for (authHeader <- authMethodBasicHeaders.get.next()
+        //if !tokenFound) {
+          val authValue = authHeader.replace("Basic ", "")
+          var token = Option(datastore.get(TOKEN_KEY_PREFIX + authValue))
+          // IF the userName/apiKey is in the cache,
+          // THEN add the token header;
+          // ELSE ...
           if (token.isDefined && !(token.isEmpty)) {
             val tokenStr = token.get.toString
-            if(tokenStr.length > 0) {
-              // add the token header
+            if (tokenStr.length > 0) {
               filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-              // cache the token with the configured cache timeout
-              datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
               tokenFound = true
             }
+          } else {
+            // request a token
+            token = getUserToken(authValue)
+            // IF a token was received, THEN ...
+            if (token.isDefined && !(token.isEmpty)) {
+              val tokenStr = token.get.toString
+              if (tokenStr.length > 0) {
+                // add the token header
+                filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
+                // cache the token with the configured cache timeout
+                datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
+                tokenFound = true
+              }
+            }
           }
+        //}
+        if (!tokenFound) {
+          // set the response status code to UNAUTHORIZED (401)
+          filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
+          //// set the response status code to FORBIDDEN (403)
+          //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
         }
       }
-    }
-    if (!tokenFound) {
-      // set the response status code to UNAUTHORIZED (401)
-      filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
-      //// set the response status code to FORBIDDEN (403)
-      //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
     }
     // No matter what, we need to process the response.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
