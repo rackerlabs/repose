@@ -46,9 +46,8 @@ class OpenStackIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
       // when: "the filter's/handler's handleRequest() is called without an HTTP Basic authentication header"
       val filterDirector = openStackIdentityBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse)
 
-      // then: "the filter's response status code should be UNAUTHORIZED (401)."
+      // then: "the filter's response status code would only be processed if it were set to UNAUTHORIZED (401) by another filter/service."
       filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PROCESS_RESPONSE
-      filterDirector.getResponseStatusCode should be(HttpServletResponse.SC_UNAUTHORIZED)
     }
   }
 
