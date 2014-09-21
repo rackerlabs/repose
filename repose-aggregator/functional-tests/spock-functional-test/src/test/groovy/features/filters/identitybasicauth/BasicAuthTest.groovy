@@ -141,16 +141,16 @@ class BasicAuthTest extends ReposeValveTest {
         }
         def headers = ['X-Auth-Token': fakeIdentityService.client_token]
 
-        when: "the request does have an HTTP Basic authentication header"
+        when: "the request already has an x-auth-token header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "then get a token and validate it"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
         !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
-        mc.handlings[0].request.headers.contains("X-Auth-Token")
-        mc.orphanedHandlings.size() == 0
+        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
+        mc.orphanedHandlings.size() == 1
     }
 
     def "When the Admin Token is not properly configured, then the response status code is SC_SERVICE_UNAVAILABLE (503)"() {
