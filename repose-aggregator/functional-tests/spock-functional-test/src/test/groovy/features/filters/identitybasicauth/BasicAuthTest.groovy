@@ -45,7 +45,7 @@ class BasicAuthTest extends ReposeValveTest {
 
     def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint])
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
@@ -115,17 +115,13 @@ class BasicAuthTest extends ReposeValveTest {
                     new Response(adminResponseCode, null, null, responseBody)
             }
         }
-        def authorized =  Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+        def headers = [
+                'content-type': 'application/json',
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+        ]
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqTenant/",
-                method: 'GET',
-                headers: [
-                        'content-type': 'application/json',
-                        'Authorization': 'Basic '+authorized
-                ]
-        )
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == responseCode
