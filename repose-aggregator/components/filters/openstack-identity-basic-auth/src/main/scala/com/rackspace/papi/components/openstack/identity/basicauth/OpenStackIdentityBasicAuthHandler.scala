@@ -30,6 +30,8 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   override def handleRequest(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
     LOG.debug("Handling HTTP Request")
     val filterDirector: FilterDirector = new FilterDirectorImpl()
+    // We need to process the Response unless a couple of specific conditions occur.
+    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     // IF request already has an X-Auth-Token header,
     // THEN skip any HTTP Basic authentication headers (Authorization) that may be present.
     val optionXAuthHeaders = Option(httpServletRequest.getHeaders(X_AUTH_TOKEN))
@@ -40,6 +42,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
       if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
         // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
         var tokenFound = false
+        var code = HttpServletResponse.SC_OK
         // THIS First in wins
         val authHeader = authMethodBasicHeaders.get.next()
         // OR Loop through until we find a good one.
@@ -58,7 +61,9 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
             }
           } else {
             // request a token
-            token = getUserToken(authValue)
+            val rtn = getUserToken(authValue)
+            code = rtn._1
+            token = rtn._2
             // IF a token was received, THEN ...
             if (token.isDefined && !(token.isEmpty)) {
               val tokenStr = token.get.toString
@@ -72,21 +77,47 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
             }
           }
         //}
+        // IF the Token was not found, THEN ...
         if (!tokenFound) {
-          // set the response status code to UNAUTHORIZED (401)
-          filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)
-          //// set the response status code to FORBIDDEN (403)
-          //filterDirector.setResponseStatusCode(HttpServletResponse.SC_FORBIDDEN)
+          // IF the status code from the Identity Service is:
+          // BAD_REQUEST (400), UNAUTHORIZED (401), FORBIDDEN (403), or NOT_FOUND (404)
+          // THEN set the response to UNAUTHORIZED (401);
+          // ELSE IF the status code from the Identity Service is:
+          // METHOD_NOT_ALLOWED (405), NOT_ACCEPTABLE (406), REQUEST_TIMEOUT (408),
+          // INTERNAL_SERVER_ERROR (500), NOT_IMPLEMENTED (501), BAD_GATEWAY (502),
+          // SERVICE_UNAVAILABLE (503), GATEWAY_TIMEOUT (504), or HTTP_VERSION_NOT_SUPPORTED (505)
+          // THEN set the response to INTERNAL_SERVER_ERROR (500) and Return;
+          // ELSE set the response to INTERNAL_SERVER_ERROR (500) and Return.
+          code match {
+            case HttpServletResponse.SC_BAD_REQUEST |                 // (400)
+                 HttpServletResponse.SC_UNAUTHORIZED |                // (401)
+                 HttpServletResponse.SC_FORBIDDEN |                   // (403)
+                 HttpServletResponse.SC_NOT_FOUND =>                  // (404)
+              filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+            case HttpServletResponse.SC_METHOD_NOT_ALLOWED |          // (405)
+                 HttpServletResponse.SC_NOT_ACCEPTABLE |              // (406)
+                 HttpServletResponse.SC_REQUEST_TIMEOUT |             // (408)
+                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR |       // (500)
+                 HttpServletResponse.SC_NOT_IMPLEMENTED |             // (501)
+                 HttpServletResponse.SC_BAD_GATEWAY |                 // (502)
+                 HttpServletResponse.SC_SERVICE_UNAVAILABLE |         // (503)
+                 HttpServletResponse.SC_GATEWAY_TIMEOUT |             // (504)
+                 HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED => // (505)
+              filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+              filterDirector.setFilterAction(FilterAction.RETURN)
+            case _ =>
+              filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+              filterDirector.setFilterAction(FilterAction.RETURN)
+          }
         }
       }
     }
-    // No matter what, we need to process the response.
-    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
     filterDirector
   }
 
-  private def getUserToken(authValue: String): Option[String] = {
+  private def getUserToken(authValue: String): (Int, Option[String]) = {
     val createJsonAuthRequest = (encoded: String) => {
+      // Base64 Decode and split the userName/apiKey
       val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
       //<?xml version="1.0" encoding="UTF-8"?>
@@ -97,22 +128,32 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
           apiKey={ apiKey }/>
       </auth>
     }
-    // Base64 Decode and split the userName/apiKey
+    // Request a User Token based on the extracted User Name/API Key.
     val authTokenResponse = Option(akkaServiceClient.post(authValue,
       identityServiceUri,
       Map[String, String]().asJava,
       createJsonAuthRequest(authValue).toString,
       MediaType.APPLICATION_XML_TYPE))
 
+    // IF the Akka Service Client gives a response, THEN...;
+    // ELSE just return INTERNAL_SERVER_ERROR (500).
     if (authTokenResponse.isDefined) {
-      def authRespDataRaw = authTokenResponse.get.getData
-      def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
-      def xmlString = XML.loadString(authRespDataStr)
-      val idString = (xmlString \\ "access" \ "token" \ "@id").text
-      Option(idString)
+      val statusCode = authTokenResponse.get.getStatusCode
+      // IF the response is OK (200),
+      // THEN extract the Token;
+      // ELSE just return the code.
+      if (statusCode == HttpServletResponse.SC_OK) {
+        def authRespDataRaw = authTokenResponse.get.getData
+        def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
+        def xmlString = XML.loadString(authRespDataStr)
+        val idString = (xmlString \\ "access" \ "token" \ "@id").text
+        (statusCode, Option(idString))
+      } else {
+        (statusCode, None)
+      }
     }
     else {
-      None
+        (HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None)
     }
   }
 
