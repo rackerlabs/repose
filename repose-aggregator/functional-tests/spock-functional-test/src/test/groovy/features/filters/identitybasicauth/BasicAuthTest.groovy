@@ -80,8 +80,8 @@ class BasicAuthTest extends ReposeValveTest {
         then: "then get a token and validate it"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getFirstValue("Authorization")
-        !mc.handlings[0].request.headers.getFirstValue("WWW-Authenticate")
+        mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
+        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
         !mc.handlings[0].request.headers.contains("X-Auth-Token")
         mc.orphanedHandlings.size() == 0
     }
@@ -147,8 +147,8 @@ class BasicAuthTest extends ReposeValveTest {
         then: "then get a token and validate it"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
-        !mc.handlings[0].request.headers.getFirstValue("Authorization")
-        !mc.handlings[0].request.headers.getFirstValue("WWW-Authenticate")
+        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
+        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.contains("X-Auth-Token")
         mc.orphanedHandlings.size() == 0
     }
