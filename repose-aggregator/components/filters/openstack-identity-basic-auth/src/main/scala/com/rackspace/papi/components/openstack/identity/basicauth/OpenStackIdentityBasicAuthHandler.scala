@@ -99,7 +99,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     }
     // Base64 Decode and split the userName/apiKey
     val authTokenResponse = Option(akkaServiceClient.post(authValue,
-      identityServiceUri + "/v2.0/tokens",
+      identityServiceUri,
       Map[String, String]().asJava,
       createJsonAuthRequest(authValue).toString,
       MediaType.APPLICATION_XML_TYPE))

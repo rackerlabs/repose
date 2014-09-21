@@ -2,5 +2,5 @@
 
 <openstack-identity-basic-auth
         xmlns="http://docs.openrepose.org/openstack-identity-basic-auth/v1.0"
-        openstack-identity-service-uri="http://localhost:${identityPort}"
+        openstack-identity-service-uri="http://localhost:${identityPort}/tokens"
         token-cache-timeout-millis="5000"/>
