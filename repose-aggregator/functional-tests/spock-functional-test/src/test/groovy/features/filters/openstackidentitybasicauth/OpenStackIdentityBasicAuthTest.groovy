@@ -83,7 +83,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         messageChain.handlings.size() == 1
         messageChain.orphanedHandlings.size() == 0
-        //messageChain.orphanedHandlings.empty // Slower than size() == 0
     }
 
     def "Don't touch the other WWW_AUTHENTICATE headers, just add the HTTP Basic authentication header."() {
@@ -102,7 +101,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         messageChain.handlings.size() == 1
         messageChain.orphanedHandlings.size() == 0
-        //messageChain.orphanedHandlings.empty // Slower than size() == 0
     }
 
     //@Ignore // TODO: This would require tight coupling with the other filters and monitoring the system model.
@@ -125,7 +123,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         messageChain.handlings.size() == 1
         messageChain.orphanedHandlings.size() == 0
-        //messageChain.orphanedHandlings.empty // Slower than size() == 0
         !messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
@@ -144,7 +141,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         messageChain.handlings.size() == 1
         messageChain.orphanedHandlings.size() == 0
-        //messageChain.orphanedHandlings.empty // Slower than size() == 0
         !messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
@@ -230,7 +226,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         messageChain.orphanedHandlings.size() == 0
-        //messageChain.orphanedHandlings.empty // Slower than size() == 0
     }
 
     def "Ensure that subsequent calls outside the cache timeout are retrieving a new token not from the cache"() {

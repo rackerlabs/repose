@@ -109,6 +109,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
     }
 
+    //@Ignore // TODO: This would require tight coupling with the other filters and monitoring the system model.
     def "Log a very loud WARNING stating the OpenStack Basic Auth filter cannot be used alone."() {
         expect: "check for the WARNING."
         reposeLogSearch.searchByString("WARNING").size()  > 0
