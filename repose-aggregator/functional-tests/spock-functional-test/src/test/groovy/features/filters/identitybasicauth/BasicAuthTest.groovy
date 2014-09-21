@@ -81,9 +81,9 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
-        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
-        !mc.handlings[0].request.headers.contains("X-Auth-Token")
-        mc.orphanedHandlings.size() == 0
+        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
+        mc.orphanedHandlings.size() == 1
     }
 
     def "When the request send with invalid key or username, then will fail to authenticate"() {
