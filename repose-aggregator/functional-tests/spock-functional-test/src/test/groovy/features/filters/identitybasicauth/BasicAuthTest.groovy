@@ -50,7 +50,7 @@ class BasicAuthTest extends ReposeValveTest {
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-        mc.getOrphanedHandlings().empty
+        mc.orphanedHandlings.size() == 0
     }
 
     def "When the request does have an HTTP Basic authentication header, then get a token and validate it"() {
@@ -78,7 +78,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("Authorization")
         !mc.handlings[0].request.headers.getFirstValue("WWW-Authenticate")
         !mc.handlings[0].request.headers.contains("X-Auth-Token")
-        mc.getOrphanedHandlings().empty
+        mc.orphanedHandlings.size() == 0
     }
 
     def "When the request send with invalid key or username, then will fail to authenticate"() {
@@ -98,7 +98,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-        mc.getOrphanedHandlings().empty
+        mc.orphanedHandlings.size() == 0
     }
 
     @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
@@ -152,7 +152,7 @@ class BasicAuthTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.getFirstValue("Authorization")
         !mc.handlings[0].request.headers.getFirstValue("WWW-Authenticate")
         mc.handlings[0].request.headers.contains("X-Auth-Token")
-        mc.getOrphanedHandlings().empty
+        mc.orphanedHandlings.size() == 0
     }
 
     def "When the Admin Token is not properly configured, then the response status code is SC_SERVICE_UNAVAILABLE (503)"() {
