@@ -5,7 +5,7 @@ import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
-import spock.lang.Ignore
+import org.rackspace.deproxy.Response
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
@@ -29,9 +29,23 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
         repose.start()
 
         //TODO: The port finding logic is not working!
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return OpenStackIdentityBasicAuthTest.handleOriginRequest(request) })
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+    }
+
+    /**
+     * Since the is Auth-N filter is inline with the Basic Auth filter under test,
+     * the origin service is simply making sure the X-AUTH-TOKEN header is present.
+     * @param request the HttpServletRequest from the "Client"
+     * @return the HttpServletResponse from the "Origin"
+     */
+    def static Response handleOriginRequest(Request request) {
+        if (request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)) {
+            return new Response(HttpServletResponse.SC_OK, null, null, OpenStackIdentityBasicAuthTest.ORIGIN_PASS_BODY)
+        } else {
+            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, OpenStackIdentityBasicAuthTest.ORIGIN_FAIL_BODY)
+        }
     }
 
     def cleanupSpec() {
@@ -54,7 +68,6 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
         messageChain.getOrphanedHandlings().empty
     }
 
-    @Ignore
     def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
@@ -65,10 +78,9 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
         messageChain.receivedResponse.body.equals(OpenStackIdentityBasicAuthTest.ORIGIN_PASS_BODY)
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        messageChain.orphanedHandlings.size() == 1
+        messageChain.orphanedHandlings.size() == 4
     }
 
-    @Ignore
     def "Ensure that subsequent calls within the cache timeout are retrieving the token from the cache"() {
         when: "multiple requests that have the same HTTP Basic authentication header"
         def messageChain0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
@@ -84,7 +96,6 @@ class OpenStackIdentityBasicAuthWithAuthNTest extends ReposeValveTest {
         messageChain.orphanedHandlings.size() == 0
     }
 
-    @Ignore
     def "Ensure that subsequent calls outside the cache timeout are retrieving a new token not from the cache"() {
         when: "multiple requests that have the same HTTP Basic authentication header, but are separated by more than the cache timeout"
         def messageChain0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
