@@ -269,11 +269,11 @@ class MockIdentityService {
     }
 
     public static boolean isGenerateTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.contains("/tokens")
+        return nonQueryPath == "/tokens"
     }
 
     public static boolean isTokenCallPath(String nonQueryPath) {
-        return nonQueryPath.contains("/tokens")
+        return nonQueryPath.startsWith("/tokens")
     }
 
 
@@ -406,7 +406,7 @@ class MockIdentityService {
         if (request.body.contains("username") &&
                 request.body.contains(client_username) &&
                 request.body.contains("apiKey") &&
-                request.body.contains(client_apikey.toString())) {
+                request.body.contains(client_apikey)) {
             params = [
                     expires     : getExpires(),
                     userid      : client_userid,
@@ -419,7 +419,7 @@ class MockIdentityService {
         } else if (request.body.contains("username") &&
                 request.body.contains(admin_username) /*&&
                 request.body.contains("password") &&
-                request.body.contains(admin_password.toString())*/) {
+                request.body.contains(admin_password)*/) {
             params = [
                     expires     : getExpires(),
                     userid      : admin_userid,
@@ -443,7 +443,7 @@ class MockIdentityService {
             headers.put('Content-type', 'application/json')
         }
 
-        if (isTokenValid || client_apikey != invalid_key) {
+        if (isTokenValid) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
