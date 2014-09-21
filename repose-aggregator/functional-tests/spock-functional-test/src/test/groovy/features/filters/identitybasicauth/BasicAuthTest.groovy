@@ -110,7 +110,7 @@ class BasicAuthTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             generateTokenHandler = {
                 request, xml ->
-                    new Response(adminResponseCode, null, null, responseBody)
+                    new Response(adminResponseCode, null, null, "")
             }
         }
         def headers = [
@@ -127,10 +127,10 @@ class BasicAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == orphanedHandlings
 
         where:
-        reqTenant   | adminResponseCode | responseCode | responseBody                   | orphanedHandlings
-        1111        | 500               | "500"        | ""                             | 1
-        1112        | 404               | "500"        | ""                             | 1
-        1113        | 401               | "401"        | ""                             | 1
+        reqTenant   | adminResponseCode | responseCode | orphanedHandlings
+        1111        | 500               | "500"        | 1
+        1112        | 404               | "500"        | 1
+        1113        | 401               | "401"        | 1
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {
