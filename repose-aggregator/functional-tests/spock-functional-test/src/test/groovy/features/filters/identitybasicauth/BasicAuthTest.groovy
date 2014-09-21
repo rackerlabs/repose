@@ -89,7 +89,7 @@ class BasicAuthTest extends ReposeValveTest {
     def "When the request send with invalid key or username, then will fail to authenticate"() {
         given:
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.invalid_key).bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
@@ -99,7 +99,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-        mc.orphanedHandlings.size() == 0
+        mc.orphanedHandlings.size() == 1
     }
 
     @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
