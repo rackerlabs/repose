@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
@@ -28,9 +29,23 @@ class BasicAuthTest extends ReposeValveTest {
 
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+    }
+
+    /**
+     * Since the is Auth-N filter is inline with the Basic Auth filter under test,
+     * the origin service is simply making sure the X-AUTH-TOKEN header is present.
+     * @param request the HttpServletRequest from the "Client"
+     * @return the HttpServletResponse from the "Origin"
+     */
+    def static Response handleOriginRequest(Request request) {
+        if (request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)) {
+            return new Response(HttpServletResponse.SC_OK, null, null, BasicAuthStandaloneTest.ORIGIN_PASS_BODY)
+        } else {
+            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, BasicAuthStandaloneTest.ORIGIN_FAIL_BODY)
+        }
     }
 
     def cleanupSpec() {
@@ -55,16 +70,6 @@ class BasicAuthTest extends ReposeValveTest {
 
     def "When the request does have an HTTP Basic authentication header, then get a token and validate it"() {
         given:
-        /*
-        fakeIdentityService.with {
-            client_token = UUID.randomUUID().toString()
-            tokenExpiresAt = DateTime.now().plusDays(1)
-            generateTokenHandler = {
-                request, xml ->
-                    new Response(HttpServletResponse.SC_NO_CONTENT, null, null, null)
-            }
-        }
-        */
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
@@ -83,10 +88,6 @@ class BasicAuthTest extends ReposeValveTest {
 
     def "When the request send with invalid key or username, then will fail to authenticate"() {
         given:
-        fakeIdentityService.with {
-            client_apikey = invalid_key
-            client_username = "username"
-        }
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
@@ -106,9 +107,6 @@ class BasicAuthTest extends ReposeValveTest {
 
         given:
         fakeIdentityService.with {
-            //client_tenant = reqTenant
-            //client_userid = reqTenant
-            //client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             generateTokenHandler = {
                 request, xml ->
