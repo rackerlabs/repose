@@ -438,17 +438,20 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>codenarc-maven-plugin</artifactId>
-                <version>0.17-1</version>
+                <version>0.18-1</version>
                 <configuration>
                     <sourceDirectory>${basedir}/src/test/groovy</sourceDirectory>
                     <maxPriority1Violations>0</maxPriority1Violations>
                     <maxPriority2Violations>0</maxPriority2Violations>
                     <maxPriority3Violations>0</maxPriority3Violations>
-                    <rulesetfiles>${basedir}/ruleset.xml</rulesetfiles>
+                    <!--rulesetfiles>${basedir}/rulesets/ruleset.xml</rulesetfiles-->
+                    <!--rulesetfiles>/Users/eric7500/Developer/repose/repose-aggregator/components/filters/client-auth/ruleset.xml</rulesetfiles-->
+                    <xmlOutputDirectory>${basedir}/</xmlOutputDirectory>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>prepare-package</phase>
+                        <id>execution1</id>
+                        <phase>install</phase>
                         <goals>
                             <goal>codenarc</goal>
                         </goals>
