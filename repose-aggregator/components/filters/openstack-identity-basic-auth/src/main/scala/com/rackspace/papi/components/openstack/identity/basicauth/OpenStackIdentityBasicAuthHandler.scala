@@ -94,12 +94,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
         }
       }
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    // TODO: This is required for Deproxy MessageChain.orphanedHandlings() to stabilize before the Deproxy.makeRequest() returns.
-    Thread sleep 500 // All Pass
-    //Thread sleep 250 // Every other one Passes
-    //Thread sleep 125 // First one passes
-    ////////////////////////////////////////////////////////////////////////////////
+
     filterDirector
   }
 

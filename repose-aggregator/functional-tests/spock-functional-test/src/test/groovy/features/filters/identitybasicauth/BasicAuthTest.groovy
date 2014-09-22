@@ -128,6 +128,7 @@ class BasicAuthTest extends ReposeValveTest {
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
+        sleep 500
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == filterStatusCode.toString()
