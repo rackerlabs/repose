@@ -129,25 +129,21 @@ class BasicAuthTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "Request body sent from repose to the origin service should contain"
-        //mc.receivedResponse.code == filterStatusCode.toString()
+        mc.receivedResponse.code == filterStatusCode.toString()
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == 1
 
         where:
         reqTenant | identityStatusCode                                | filterStatusCode
-        //9400      | HttpServletResponse.SC_BAD_REQUEST                | HttpServletResponse.SC_UNAUTHORIZED
+        9400      | HttpServletResponse.SC_BAD_REQUEST                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         9401      | HttpServletResponse.SC_UNAUTHORIZED               | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN                  | HttpServletResponse.SC_UNAUTHORIZED
+        9403      | HttpServletResponse.SC_FORBIDDEN                  | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         9404      | HttpServletResponse.SC_NOT_FOUND                  | HttpServletResponse.SC_UNAUTHORIZED
-        //9405      | HttpServletResponse.SC_METHOD_NOT_ALLOWED         | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9406      | HttpServletResponse.SC_NOT_ACCEPTABLE             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9408      | HttpServletResponse.SC_REQUEST_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9501      | HttpServletResponse.SC_NOT_IMPLEMENTED            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9502      | HttpServletResponse.SC_BAD_GATEWAY                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE        | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        //9505      | HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9502      | HttpServletResponse.SC_BAD_GATEWAY                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE        | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {

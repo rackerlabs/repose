@@ -79,38 +79,18 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
         //}
         // IF the Token was not found, THEN ...
         if (!tokenFound) {
-          // IF the status code from the Identity Service is:
-          // BAD_REQUEST (400), UNAUTHORIZED (401), FORBIDDEN (403), or NOT_FOUND (404)
-          // THEN set the response to UNAUTHORIZED (401);
-          // ELSE IF the status code from the Identity Service is:
-          // METHOD_NOT_ALLOWED (405), NOT_ACCEPTABLE (406), REQUEST_TIMEOUT (408),
-          // INTERNAL_SERVER_ERROR (500), NOT_IMPLEMENTED (501), BAD_GATEWAY (502),
-          // SERVICE_UNAVAILABLE (503), GATEWAY_TIMEOUT (504), or HTTP_VERSION_NOT_SUPPORTED (505)
-          // THEN set the response to INTERNAL_SERVER_ERROR (500) and Return;
-          // ELSE set the response to INTERNAL_SERVER_ERROR (500) and Return.
+          // IF the status code from the Identity Service is UNAUTHORIZED (401) or NOT_FOUND (404)
+          // THEN set the response, add the header, and return;
+          // ELSE set the response to INTERNAL_SERVER_ERROR (500) and return.
           code match {
-            case HttpServletResponse.SC_BAD_REQUEST |                 // (400)
-                 HttpServletResponse.SC_UNAUTHORIZED |                // (401)
-                 HttpServletResponse.SC_FORBIDDEN |                   // (403)
+            case HttpServletResponse.SC_UNAUTHORIZED |                // (401)
                  HttpServletResponse.SC_NOT_FOUND =>                  // (404)
-              handleUnauthorized(filterDirector, httpServletRequest)
-              filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
-              filterDirector.setFilterAction(FilterAction.RETURN)
-            case HttpServletResponse.SC_METHOD_NOT_ALLOWED |          // (405)
-                 HttpServletResponse.SC_NOT_ACCEPTABLE |              // (406)
-                 HttpServletResponse.SC_REQUEST_TIMEOUT |             // (408)
-                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR |       // (500)
-                 HttpServletResponse.SC_NOT_IMPLEMENTED |             // (501)
-                 HttpServletResponse.SC_BAD_GATEWAY |                 // (502)
-                 HttpServletResponse.SC_SERVICE_UNAVAILABLE |         // (503)
-                 HttpServletResponse.SC_GATEWAY_TIMEOUT |             // (504)
-                 HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED => // (505)
-              filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
-              filterDirector.setFilterAction(FilterAction.RETURN)
+            handleUnauthorized(filterDirector, httpServletRequest)
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)           // (401)
             case _ =>
-              filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
-              filterDirector.setFilterAction(FilterAction.RETURN)
+            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)  // (500)
           }
+          filterDirector.setFilterAction(FilterAction.RETURN)
         }
       }
     }
