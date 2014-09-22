@@ -444,7 +444,7 @@
                     <maxPriority1Violations>0</maxPriority1Violations>
                     <maxPriority2Violations>0</maxPriority2Violations>
                     <maxPriority3Violations>0</maxPriority3Violations>
-                    <rulesetfiles>${basedir}/Ruleset.xml</rulesetfiles>
+                    <rulesetfiles>${basedir}/ruleset.xml</rulesetfiles>
                 </configuration>
                 <executions>
                     <execution>
@@ -471,7 +471,7 @@
                     <maxPriority1Violations>0</maxPriority1Violations>
                     <maxPriority2Violations>0</maxPriority2Violations>
                     <maxPriority3Violations>0</maxPriority3Violations>
-                    <rulesetfiles>${basedir}/Ruleset.xml</rulesetfiles>
+                    <rulesetfiles>${basedir}/ruleset.xml</rulesetfiles>
                 </configuration>
                 <executions>
                     <execution>

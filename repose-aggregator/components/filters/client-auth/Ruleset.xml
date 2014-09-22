@@ -5,24 +5,14 @@
 
     <description>Sample rule set</description>
 
-    <property name='priority' value='1'/>
-
-
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="AuthorTagNotAllowed"/>
         <property name='regex' value='\@author'/>
     </rule>
 
-    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="DUMMY REGEX TEST"/>
-        <property name='regex' value='class GroovClass'/>
-    </rule>
-
     <rule class='org.codenarc.rule.formatting.SpaceAfterIf'>
         <property name='priority' value='1'/>
     </rule>
-
-    <rule-script path='rules/MyStaticFieldRule.groovy'/>
 
 </ruleset>
