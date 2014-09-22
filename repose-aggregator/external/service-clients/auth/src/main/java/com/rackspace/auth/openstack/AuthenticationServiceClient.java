@@ -126,14 +126,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
     }
 
-    private OpenStackToken getOpenStackToken(ServiceClientResponse serviceResponse) {
-        final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-        OpenStackToken token;
-
-        token = new OpenStackToken(authenticateResponse);
-        return token;
-    }
-
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
         final Map<String, String> headers = new HashMap<>();
