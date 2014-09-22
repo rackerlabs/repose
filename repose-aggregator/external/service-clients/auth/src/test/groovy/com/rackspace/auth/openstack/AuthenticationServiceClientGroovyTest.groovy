@@ -109,15 +109,19 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         response.token.id == userToValidate.token
     }
 
-    def 'logs a message when the users token is not found when validating a user'() {
+    @Unroll
+    def 'logs a message when the users token is not found when validating a user #desc'() {
         given:
-        def statusCode = 404
         def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
         def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
 
         def akkaServiceClient = Mock(AkkaServiceClient)
-        mockAdminTokenRequest(akkaServiceClient, admin)
-        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, statusCode)
+        mockAdminTokenRequest(akkaServiceClient, admin, 200, adminTokenCalls)
+        userAuthCalls.each { responseCode ->
+            def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
+            1 * akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders) >>
+                new ServiceClientResponse(responseCode, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
+        }
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -125,7 +129,12 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         client.validateToken(userToValidate.tenant, userToValidate.token)
 
         then:
-        AppenderForTesting.getMessages().find { it =~ "Unable to validate token.  Invalid token. $statusCode" }
+        AppenderForTesting.getMessages().find { it =~ "Unable to validate token.  Invalid token. ${userAuthCalls.last()}" }
+
+        where:
+        desc                                | adminTokenCalls | userAuthCalls
+        "with an admin token"               | 1               | [404]
+        "after replacing a bad admin token" | 2               | [401, 404]
     }
 
     @Unroll
