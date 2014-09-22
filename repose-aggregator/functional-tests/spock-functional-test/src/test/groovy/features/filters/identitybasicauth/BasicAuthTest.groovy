@@ -44,6 +44,47 @@ class BasicAuthTest extends ReposeValveTest {
         }
     }
 
+    def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
+        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)])
+
+        then: "then get a token for it"
+        messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
+        messageChain.orphanedHandlings.size() == 4
+    }
+
+    def "Ensure that subsequent calls within the cache timeout are retrieving the token from the cache"() {
+        when: "multiple requests that have the same HTTP Basic authentication header"
+        def messageChain0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)])
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)])
+
+        then: "get the token from the cache"
+        messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
+        messageChain.orphanedHandlings.size() == 0
+    }
+
+    def "Ensure that subsequent calls outside the cache timeout are retrieving a new token not from the cache"() {
+        when: "multiple requests that have the same HTTP Basic authentication header, but are separated by more than the cache timeout"
+        def messageChain0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)])
+        sleep(5000) // How do I get this programmatically from the config.
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET',
+                headers: [(HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)])
+
+        then: "get the token from the Identity (Keystone) service"
+        messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getCountByName("X-Auth-Token") == 1
+        messageChain.handlings.get(messageChain.handlings.size() - 1).request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
+        messageChain.orphanedHandlings.size() == 1
+    }
+
     def "No HTTP Basic authentication header sent."() {
         when: "the request does not have an HTTP Basic authentication header"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
