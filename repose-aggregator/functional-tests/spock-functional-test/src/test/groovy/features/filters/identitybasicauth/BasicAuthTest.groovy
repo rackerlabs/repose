@@ -103,6 +103,12 @@ class BasicAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // TODO: This requires a delay for Deproxy MessageChain.orphanedHandlings() to stabilize before the Deproxy.makeRequest() returns.
+    //Thread sleep 500 // All Pass
+    //Thread sleep 250 // Every other one Passes
+    //Thread sleep 125 // First one passes
+    ////////////////////////////////////////////////////////////////////////////////
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
 
