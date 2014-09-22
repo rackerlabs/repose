@@ -35,7 +35,7 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         def akkaServiceClient = Mock(AkkaServiceClient)
         mockAdminTokenRequest(admin, akkaServiceClient)
-        mockUserAuthenticationRequest(akkaServiceClient, admin, userToValidate)
+        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate)
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -72,7 +72,7 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         def akkaServiceClient = Mock(AkkaServiceClient)
         mockAdminTokenRequest(admin, akkaServiceClient)
-        mockUserAuthenticationRequest(akkaServiceClient, admin, userToValidate)
+        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate)
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -94,14 +94,30 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         response.token.id == newTokenToValidate
     }
 
-//    def 'gets a new admin token if the current one is expired and validates the user'() {
-//        given:
-//
-//
-//        when:
-//
-//        then:
-//    }
+    def 'gets a new admin token if the current one is expired and validates the user'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>>
+                [new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes())),
+                 new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())),]
+        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, 401)
+        mockUserAuthenticationRequest(akkaServiceClient, "newAdminToken", userToValidate, 200)
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        def response = client.validateToken(userToValidate.tenant, userToValidate.token)
+
+        then:
+        AppenderForTesting.getMessages().find {
+            it =~ "Unable to validate token: 401 :admin token expired. Retrieving new admin token and retrying token validation..."
+        }
+        response.token.id == userToValidate.token
+    }
 
     def 'logs a message when the users token is not found when validating a user'() {
         given:
@@ -111,7 +127,7 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         def akkaServiceClient = Mock(AkkaServiceClient)
         mockAdminTokenRequest(admin, akkaServiceClient)
-        mockUserAuthenticationRequest(akkaServiceClient, admin, userToValidate, statusCode)
+        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, statusCode)
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -130,7 +146,7 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         def akkaServiceClient = Mock(AkkaServiceClient)
         mockAdminTokenRequest(admin, akkaServiceClient)
-        mockUserAuthenticationRequest(akkaServiceClient, admin, userToValidate, statusCode)
+        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, statusCode)
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -159,15 +175,15 @@ class AuthenticationServiceClientGroovyTest extends Specification {
     }
 
 
-    private void mockUserAuthenticationRequest(AkkaServiceClient akkaServiceClient, LinkedHashMap<String, String> admin, LinkedHashMap<String, String> userToValidate, int responseCode = 200) {
-        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": admin.token]
-        akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders) >>
+    private void mockUserAuthenticationRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200) {
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken]
+        1 * akkaServiceClient.get("TOKEN:${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}", authHeaders) >>
                 new ServiceClientResponse(responseCode, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
     }
 
     private void mockAdminTokenRequest(LinkedHashMap<String, String> admin, AkkaServiceClient akkaServiceClient, int responseCode = 200) {
         def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
-        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>
+        1 * akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>
                 new ServiceClientResponse(responseCode, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes()))
     }
 
