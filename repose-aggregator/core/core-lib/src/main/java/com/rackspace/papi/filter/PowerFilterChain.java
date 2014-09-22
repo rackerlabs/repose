@@ -75,7 +75,7 @@ public class PowerFilterChain implements FilterChain {
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
 
             boolean addTraceHeader = traceRequest(request);
-            boolean useTrace = addTraceHeader || filterTimer != null;
+            boolean useTrace = addTraceHeader || (filterTimer != null);
 
             tracer = new RequestTracer(useTrace, addTraceHeader);
             currentFilters = getFilterChainForRequest(request.getRequestURI());
