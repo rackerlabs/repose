@@ -198,10 +198,11 @@ public class XmlFilterChainExecutor {
         for(String uri : uris) {
             DocumentInfo documentInfo = documentPool.find(uri);
             if(documentInfo != null) {
+                LOG.trace("Removing document {}", uri);
                 documentPool.discard(documentInfo);
             }
             else {
-                LOG.warn("Tried to remove document {} but wasn't present.", uri);
+                LOG.trace("Tried to remove document {} but wasn't present.", uri);
             }
         }
     }
