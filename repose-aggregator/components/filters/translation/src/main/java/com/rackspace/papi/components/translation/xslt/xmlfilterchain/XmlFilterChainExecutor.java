@@ -143,8 +143,6 @@ public class XmlFilterChainExecutor {
                     net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
                     transformer = saxonFilter.getTransformer();
                     net.sf.saxon.Controller controller = (net.sf.saxon.Controller) transformer;
-
-                    removeInputUrisFromPool(controller.getDocumentPool(), uris);
                 } else if (filter.getReader() instanceof TrAXFilter) {
                     TrAXFilter traxFilter = (TrAXFilter) filter.getReader();
                     transformer = traxFilter.getTransformer();
@@ -164,6 +162,17 @@ public class XmlFilterChainExecutor {
             Transformer transformer = chain.getFactory().newTransformer();
             transformer.setOutputProperties(format);
             transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
+
+            //remove documents from cache
+            for (XmlFilterReference filter : chain.getFilters()) {
+                if (filter.getReader() instanceof net.sf.saxon.Filter) {
+                    net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
+                    Transformer filterTransformer = saxonFilter.getTransformer();
+                    net.sf.saxon.Controller controller = (net.sf.saxon.Controller) filterTransformer;
+
+                    removeInputUrisFromPool(controller.getDocumentPool(), uris);
+                }
+            }
         } catch (TransformerException ex) {
             throw new XsltException(ex);
         }
@@ -190,6 +199,9 @@ public class XmlFilterChainExecutor {
             DocumentInfo documentInfo = documentPool.find(uri);
             if(documentInfo != null) {
                 documentPool.discard(documentInfo);
+            }
+            else {
+                LOG.warn("Tried to remove document {} but wasn't present.", uri);
             }
         }
     }
