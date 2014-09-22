@@ -1,5 +1,4 @@
 package features.filters.identitybasicauth
-
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
@@ -10,9 +9,6 @@ import org.rackspace.deproxy.Response
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
-
-import static framework.TestUtils.timedSearch
-
 /**
  * Created by jennyvo on 9/17/14.
  * Basic Auth filter can't be used alone, have to use with client-auth filter
@@ -37,7 +33,8 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         repose.start()
 
-        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
+        //originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
     }
@@ -66,18 +63,18 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
             deproxy.shutdown()
     }
 
-    def "when start repose with basic auth in filter without client-auth" () {
+    def "when start repose with basic auth, send request without credential" () {
         when: "send request without credential"
         MessageChain mc = deproxy.makeRequest([url: reposeEndpoint])
 
         then: "request should pass as no basic auth filter"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
-        mc.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
-        mc.handlings.size() == 1
+        //mc.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
+        //mc.handlings.size() == 1
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    def "when start repose with x-auth-token, basicauth shouldn't work" () {
+    def "when start repose with basic auth only, x-auth-token shouldn't work" () {
         given:
         def headers = [
                 "X-Auth-Token": fakeIdentityService.client_token
@@ -87,10 +84,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "request should pass as no basic auth filter"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
-        mc.handlings.size() == 1
-        !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
+        mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        //mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
+        //mc.handlings.size() == 1
+        mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
     def "when send request with credential" () {
@@ -103,8 +100,9 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         then: "request should pass as no basic auth filter"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
+        //mc.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         mc.handlings.size() == 1
+        mc.handlings[0].request.headers.contains(HttpHeaders.AUTHORIZATION)
         mc.handlings[0].request.headers.contains("X-Auth-Token")
         mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
     }
