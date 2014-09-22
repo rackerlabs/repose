@@ -2,7 +2,7 @@
 class GroovClass {
     void hello() {
         println "hello, world"
-
-        if       (1==1){println "true"}
+        boolean x = true;
+        if       (x){println "true"}
     }
 }

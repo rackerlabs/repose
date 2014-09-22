@@ -445,7 +445,6 @@
                     <maxPriority2Violations>0</maxPriority2Violations>
                     <maxPriority3Violations>0</maxPriority3Violations>
                     <!--rulesetfiles>${basedir}/rulesets/ruleset.xml</rulesetfiles-->
-                    <!--rulesetfiles>/Users/eric7500/Developer/repose/repose-aggregator/components/filters/client-auth/ruleset.xml</rulesetfiles-->
                     <xmlOutputDirectory>${basedir}/</xmlOutputDirectory>
                 </configuration>
                 <executions>
@@ -457,7 +456,6 @@
                         </goals>
                     </execution>
                 </executions>
-
             </plugin>
 
         </plugins>

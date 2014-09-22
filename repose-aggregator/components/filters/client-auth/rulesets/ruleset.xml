@@ -3,16 +3,13 @@
          xsi:schemaLocation="http://codenarc.org/ruleset/1.0 http://codenarc.org/ruleset-schema.xsd"
          xsi:noNamespaceSchemaLocation="http://codenarc.org/ruleset-schema.xsd">
 
-    <description>Sample rule set</description>
+    <description>Dummy rule set</description>
 
-
-    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="AuthorTagNotAllowed"/>
-        <property name='regex' value='\@author'/>
+    <rule class='org.codenarc.rule.formatting.SpaceAfterIf'>
         <property name='priority' value='1'/>
     </rule>
 
-    <rule class='org.codenarc.rule.formatting.SpaceAfterIf'>
+    <rule class='org.codenarc.rule.basic.EmptyIfStatement'>
         <property name='priority' value='1'/>
     </rule>
 
