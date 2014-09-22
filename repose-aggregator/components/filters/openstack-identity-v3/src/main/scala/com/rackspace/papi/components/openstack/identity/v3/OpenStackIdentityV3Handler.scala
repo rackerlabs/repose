@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import spray.json._
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, identityAPI: OpenStackIdentityV3API)
@@ -27,6 +28,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val forwardGroups = identityConfig.isForwardGroups
   private val forwardCatalog = identityConfig.isForwardCatalog
   private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
+  private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
     Endpoint(id = "configured-endpoint",
       url = serviceEndpoint.getUrl,
@@ -188,7 +190,35 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
 
-  private def matchesProject(projectFromUri: String, roles: List[Role]): Boolean = true
+  private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
+    projectIdUriRegex match {
+      case Some(regex) =>
+        // Extract the project ID from the URI
+        val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
+
+        // Bind the default project ID, if available
+        val defaultProjectId = token.project.map(_.id).getOrElse(None)
+
+        // Attempt to match the extracted project ID against the project IDs in the token
+        extractedProjectId match {
+          case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
+          case None => false
+        }
+      case None => true
+    }
+  }
+
+  private def extractProjectIdFromUri(projectIdRegex: Regex, uri: String): Option[String] =
+    projectIdRegex.findFirstMatchIn(uri).map(regexMatch => regexMatch.group(1))
+
+  private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
+    defaultProjectId.exists(_.equals(projectFromUri)) ||
+      roles.exists(role =>
+        role.project_id.exists(rolePID =>
+          rolePID.equals(projectFromUri)
+        )
+      )
+  }
 
   private def base64Encode(s: String) =
     Base64.encodeBase64String(s.getBytes)

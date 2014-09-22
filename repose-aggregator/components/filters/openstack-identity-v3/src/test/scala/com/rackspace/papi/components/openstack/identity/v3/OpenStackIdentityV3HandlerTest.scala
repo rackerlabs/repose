@@ -4,7 +4,7 @@ import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.papi.commons.util.http.header.HeaderName
 import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode}
 import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
-import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint, WhiteList}
+import com.rackspace.papi.components.openstack.identity.v3.config._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
@@ -14,6 +14,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
+import scala.util.matching.Regex
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
@@ -31,6 +32,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getOpenstackIdentityService.setUri("http://test-uri.com")
     identityConfig.setServiceEndpoint(new ServiceEndpoint())
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+    identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
+    identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
     identityAPI = mock[OpenStackIdentityV3API]
 
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
@@ -244,6 +247,58 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should return a base64 encoded string") {
       identityV3Handler invokePrivate base64Encode("{\"endpoints\":[\"endpoint\":{\"id\":\"test-id\",\"url\":\"http://test-url.com/test\"}]}") should fullyMatch regex "eyJlbmRwb2ludHMiOlsiZW5kcG9pbnQiOnsiaWQiOiJ0ZXN0LWlkIiwidXJsIjoiaHR0cDovL3Rlc3QtdXJsLmNvbS90ZXN0In1dfQ=="
+    }
+  }
+
+  describe("isProjectIdValid") {
+    val isProjectIdValid = PrivateMethod[Boolean]('isProjectIdValid)
+
+    it("should return true if no validate project id in uri config element is present") {
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(new OpenstackIdentityService())
+      config.getOpenstackIdentityService.setUri("")
+
+      val handler = new OpenStackIdentityV3Handler(config, identityAPI)
+
+      handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, null, null, null, null, null, null, null)) shouldBe true
+    }
+
+    it("should return false if no a project ID could not be extracted from the URI") {
+      identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(null, null, null, None, None, None, None, null)) shouldBe false
+    }
+  }
+
+  describe("extractProjectIdFromUri") {
+    val extractProjectIdFromUri = PrivateMethod[Option[String]]('extractProjectIdFromUri)
+
+    it("should return None if the regex does not match") {
+      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/bar/12345") shouldBe None
+    }
+
+    it("should return None if the regex does not contain a capture group") {
+      identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/\d+""".r, "/bar/12345") shouldBe None
+    }
+
+    it("should return Some(projectId) if the regex matches and a capture group is present") {
+      val projectId = identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/foo/12345")
+      projectId shouldBe a [Some[_]]
+      projectId.get shouldEqual "12345"
+    }
+  }
+
+  describe("projectMatches") {
+    val projectMatches = PrivateMethod[Boolean]('projectMatches)
+
+    it("should return false if no project IDs match") {
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("09876")))) shouldBe false
+    }
+
+    it("should return true if the default project ID matches") {
+      identityV3Handler invokePrivate projectMatches("12345", Some("12345"), List(Role("id", "name", Some("09876")))) shouldBe true
+    }
+
+    it("should return true if a role project ID matches") {
+      identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("12345")))) shouldBe true
     }
   }
 }
