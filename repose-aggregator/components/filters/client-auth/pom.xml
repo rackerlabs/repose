@@ -167,7 +167,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
+            <!--plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
                 <version>0.5.0</version>
@@ -189,7 +189,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <!-- I think this is legit, rules go in scalastyle_config.xml -->
 
             <!--plugin>
@@ -429,14 +429,62 @@
                 </configuration>
             </plugin-->
 
-            <plugin>
+            <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>codenarc-maven-plugin</artifactId>
                 <version>0.18.1-1-SNAPSHOT</version>
+            </plugin-->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>codenarc-maven-plugin</artifactId>
+                <version>0.17-1</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/test/groovy</sourceDirectory>
+                    <maxPriority1Violations>0</maxPriority1Violations>
+                    <maxPriority2Violations>0</maxPriority2Violations>
+                    <maxPriority3Violations>0</maxPriority3Violations>
+                    <rulesetfiles>${basedir}/Ruleset.xml</rulesetfiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>codenarc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
             </plugin>
 
         </plugins>
     </build>
+
+    <!--reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>codenarc-maven-plugin</artifactId>
+                <version>0.18.1-1-SNAPSHOT</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/test/groovy</sourceDirectory>
+                    <maxPriority1Violations>0</maxPriority1Violations>
+                    <maxPriority2Violations>0</maxPriority2Violations>
+                    <maxPriority3Violations>0</maxPriority3Violations>
+                    <rulesetfiles>${basedir}/Ruleset.xml</rulesetfiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>codenarc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+        </plugins>
+    </reporting-->
 
 
 </project>
