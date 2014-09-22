@@ -64,6 +64,7 @@ class BasicAuthTest extends ReposeValveTest {
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
+        mc.handlings.size() == 0
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         mc.orphanedHandlings.size() == 0
     }
@@ -102,7 +103,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
     }
 
-    @Unroll("Sending request with admin response set to HTTP #adminResponseCode")
+    @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
 
         given:
@@ -110,7 +111,7 @@ class BasicAuthTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             generateTokenHandler = {
                 request, xml ->
-                    new Response(adminResponseCode, null, null, "")
+                    new Response(identityStatusCode, null, null, null)
             }
         }
         def headers = [
@@ -122,15 +123,25 @@ class BasicAuthTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
 
         then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
+        //mc.receivedResponse.code == filterStatusCode.toString()
         mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == orphanedHandlings
+        mc.orphanedHandlings.size() == 1
 
         where:
-        reqTenant   | adminResponseCode | responseCode | orphanedHandlings
-        1111        | 500               | "500"        | 1
-        1112        | 404               | "500"        | 1
-        1113        | 401               | "401"        | 1
+        reqTenant | identityStatusCode                                | filterStatusCode
+        //9400      | HttpServletResponse.SC_BAD_REQUEST                | HttpServletResponse.SC_UNAUTHORIZED
+        9401      | HttpServletResponse.SC_UNAUTHORIZED               | HttpServletResponse.SC_UNAUTHORIZED
+        9403      | HttpServletResponse.SC_FORBIDDEN                  | HttpServletResponse.SC_UNAUTHORIZED
+        9404      | HttpServletResponse.SC_NOT_FOUND                  | HttpServletResponse.SC_UNAUTHORIZED
+        //9405      | HttpServletResponse.SC_METHOD_NOT_ALLOWED         | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9406      | HttpServletResponse.SC_NOT_ACCEPTABLE             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9408      | HttpServletResponse.SC_REQUEST_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9501      | HttpServletResponse.SC_NOT_IMPLEMENTED            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9502      | HttpServletResponse.SC_BAD_GATEWAY                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE        | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        //9505      | HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {
@@ -150,7 +161,7 @@ class BasicAuthTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
         !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
-        mc.orphanedHandlings.size() == 1
+        mc.orphanedHandlings.size() == 2
     }
 
     def "When the Admin Token is not properly configured, then the response status code is SC_SERVICE_UNAVAILABLE (503)"() {
