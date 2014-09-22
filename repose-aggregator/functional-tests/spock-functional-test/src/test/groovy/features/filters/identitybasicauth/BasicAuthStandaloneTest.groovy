@@ -203,7 +203,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         when: "multiple requests that have the same HTTP Basic authentication header, but are separated by more than the cache timeout"
         def messageChain0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-        sleep(5000) // How do I get this programmatically from the config.
+        sleep 5000 // How do I get this programmatically from the config.
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get the token from the Identity (Keystone) service"
@@ -248,6 +248,10 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         ]
 
         when: "the request does have an HTTP Basic authentication header"
+        ////////////////////////////////////////////////////////////////////////////////
+        // TODO: This requires a delay for Deproxy MessageChain.orphanedHandlings() to stabilize from the previous test to prevent corruption.
+        sleep 500
+        ////////////////////////////////////////////////////////////////////////////////
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "request should pass as no basic auth filter"
