@@ -3,6 +3,6 @@ class GroovClass {
     void hello() {
         println "hello, world"
 
-        if(true){}
+        if       (1==1){println "true"}
     }
 }
