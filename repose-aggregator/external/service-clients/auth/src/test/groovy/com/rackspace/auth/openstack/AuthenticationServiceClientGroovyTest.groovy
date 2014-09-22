@@ -138,14 +138,17 @@ class AuthenticationServiceClientGroovyTest extends Specification {
     }
 
     @Unroll
-    def 'logs a message and throws an exception for a #statusCode status code when validating a user'() {
+    def 'logs a message and throws an exception for a #statusMap.statusCode status code when validating a user'() {
         given:
         def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
         def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
 
         def akkaServiceClient = Mock(AkkaServiceClient)
-        mockAdminTokenRequest(akkaServiceClient, admin)
-        mockUserAuthenticationRequest(akkaServiceClient, admin.token, userToValidate, statusCode)
+        mockAdminTokenRequest(akkaServiceClient, admin, 200, statusMap.userAuthCalls.size())
+        statusMap.userAuthCalls.each { statusCode ->
+            1 * akkaServiceClient.get("TOKEN:${userToValidate.token}", _, _) >>
+                    new ServiceClientResponse(statusCode, new ByteArrayInputStream(createAuthenticateResponse(userToValidate.user, userToValidate.token).getBytes()))
+        }
 
         def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
 
@@ -154,11 +157,25 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         then:
         def e = thrown(AuthServiceException)
-        e.getMessage() =~ "Unable to validate token. Response from http://some/uri: $statusCode"
-        AppenderForTesting.getMessages().find { it =~ "Authentication Service returned an unexpected response status code: $statusCode" }
+        e.getMessage() =~ statusMap.errorMessage
+        AppenderForTesting.getMessages().find { it =~ statusMap.logMessage }
 
         where:
-        statusCode << (200..599) - 200 - 401 - 404
+        statusMap << getStatusList().collect { code ->
+            [statusCode: code,
+             userAuthCalls: [code],
+             errorMessage: "Unable to validate token. Response from http://some/uri: $code",
+             logMessage: "Authentication Service returned an unexpected response status code: $code",]
+        } + getStatusList().collect { code ->
+            [statusCode: code,
+             userAuthCalls: [401,code],
+             errorMessage: "Unable to authenticate user with configured Admin credentials",
+             logMessage: "Still unable to validate token: $code",]
+        }
+    }
+
+    def getStatusList() {
+        ((200..599) - 200 - 401 - 404)
     }
 
     def "when converting a stream, it should return a base 64 encoded string"() {
