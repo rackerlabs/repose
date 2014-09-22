@@ -214,7 +214,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
-  describe("authorize") {
+  describe("isAuthorized") {
     val isAuthorized = PrivateMethod[Boolean]('isAuthorized)
 
     it("should return true when not configured to check endpoints") {

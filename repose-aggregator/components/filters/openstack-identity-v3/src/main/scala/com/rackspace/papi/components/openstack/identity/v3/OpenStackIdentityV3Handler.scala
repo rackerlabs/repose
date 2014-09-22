@@ -40,6 +40,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   override def handleRequest(request: HttpServletRequest, response: ReadableHttpServletResponse): FilterDirector = {
     val filterDirector: FilterDirector = new FilterDirectorImpl()
 
+    // Check if the request URI is whitelisted and pass it along if so
     if (isUriWhitelisted(request.getRequestURI, identityConfig.getWhiteList)) {
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       filterDirector.setFilterAction(FilterAction.PASS)
@@ -51,10 +52,13 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
       var authSuccess = false
+
+      // Attempt to validate the request token with the Identity service
       authenticate(request) match {
         case Success(tokenObject) =>
           authSuccess = true
 
+          // Set the appropriate headers for a valid request
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
           tokenObject.user.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
@@ -88,6 +92,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           // TODO: Set X-Impersonator-Id, same as above
           // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
 
+          // Attempt to authorize the token against a configured endpoint
           if (isAuthorized(tokenObject)) {
             filterDirector.setFilterAction(FilterAction.PASS)
           } else {
@@ -101,6 +106,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           LOG.error(e.getMessage)
       }
 
+      // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
       if (forwardUnauthorizedRequests) {
         if (authSuccess) {
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
