@@ -1,11 +1,11 @@
 package features.filters.identitybasicauth
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityService
 import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
@@ -29,24 +29,9 @@ class BasicAuthTest extends ReposeValveTest {
 
         repose.start()
 
-        //originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
-    }
-
-    /**
-     * Since the is Auth-N filter is inline with the Basic Auth filter under test,
-     * the origin service is simply making sure the X-AUTH-TOKEN header is present.
-     * @param request the HttpServletRequest from the "Client"
-     * @return the HttpServletResponse from the "Origin"
-     */
-    def static Response handleOriginRequest(Request request) {
-        if (request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)) {
-            return new Response(HttpServletResponse.SC_OK, null, null, BasicAuthStandaloneTest.ORIGIN_PASS_BODY)
-        } else {
-            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, BasicAuthStandaloneTest.ORIGIN_FAIL_BODY)
-        }
     }
 
     def cleanupSpec() {
@@ -122,7 +107,7 @@ class BasicAuthTest extends ReposeValveTest {
             }
         }
         def headers = [
-                'content-type': 'application/json',
+                'content-type'             : 'application/json',
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
@@ -136,16 +121,16 @@ class BasicAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 1
 
         where:
-        reqTenant | identityStatusCode                                | filterStatusCode
-        9400      | HttpServletResponse.SC_BAD_REQUEST                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9401      | HttpServletResponse.SC_UNAUTHORIZED               | HttpServletResponse.SC_UNAUTHORIZED
-        9403      | HttpServletResponse.SC_FORBIDDEN                  | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9404      | HttpServletResponse.SC_NOT_FOUND                  | HttpServletResponse.SC_UNAUTHORIZED
-        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9502      | HttpServletResponse.SC_BAD_GATEWAY                | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE        | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT            | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        reqTenant | identityStatusCode                           | filterStatusCode
+        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
+        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_UNAUTHORIZED
+        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9502      | HttpServletResponse.SC_BAD_GATEWAY           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
     def "When the request does have an x-auth-token, then still work with client-auth"() {
