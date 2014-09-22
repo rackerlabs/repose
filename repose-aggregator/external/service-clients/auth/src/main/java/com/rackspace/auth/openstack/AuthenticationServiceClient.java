@@ -151,7 +151,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
                 endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-                if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
+                if (endpointListResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                     endpointList = getEndpointList(endpointListResponse);
                 } else {
                     LOG.error("Still unable to get endpoints: " + endpointListResponse.getStatusCode());

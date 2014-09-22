@@ -1,5 +1,4 @@
 package com.rackspace.auth.openstack
-
 import com.rackspace.auth.AuthServiceException
 import com.rackspace.auth.ResponseUnmarshaller
 import com.rackspace.papi.commons.util.http.ServiceClientResponse
@@ -178,6 +177,51 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         ((200..599) - 200 - 401 - 404)
     }
 
+    def "can get endpoints for a given user token"() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        mockAdminTokenRequest(akkaServiceClient, admin)
+        mockUserEndpointRequest(akkaServiceClient, admin.token, userToValidate)
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        def response = client.getEndpointsForToken(userToValidate.token)
+
+        then:
+        response[0].id == 12345
+        response[0].publicURL == "http://foo.com"
+    }
+
+    def 'gets a new admin token if the current one is expired and gets the endpoint for the user'() {
+        given:
+        def admin = [user: "adminUser", password: "adminPass", tenant: "adminTenant", token: "adminToken"]
+        def userToValidate = [user: "normalUser", tenant: "normalTenant", token: "normalToken"]
+
+        def akkaServiceClient = Mock(AkkaServiceClient)
+        def adminAuthRequest = createAuthenticationRequest(admin.user, admin.password, admin.tenant)
+        akkaServiceClient.post("ADMIN_TOKEN", "http://some/uri/tokens", _, adminAuthRequest, MediaType.APPLICATION_XML_TYPE) >>>
+                [new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, admin.token).getBytes())),
+                 new ServiceClientResponse(200, new ByteArrayInputStream(createAuthenticateResponse(admin.user, "newAdminToken").getBytes())),]
+        mockUserEndpointRequest(akkaServiceClient, admin.token, userToValidate, 401)
+        mockUserEndpointRequest(akkaServiceClient, "newAdminToken", userToValidate, 200)
+
+        def client = createAuthenticationServiceClient(admin.user, admin.password, admin.tenant, akkaServiceClient)
+
+        when:
+        def response = client.getEndpointsForToken(userToValidate.token)
+
+        then:
+        AppenderForTesting.getMessages().find {
+            it =~ "Unable to get endpoints for user: 401 :admin token expired. Retrieving new admin token and retrying endpoints retrieval..."
+        }
+        response[0].id == 12345
+        response[0].publicURL == "http://foo.com"
+    }
+
     def "when converting a stream, it should return a base 64 encoded string"() {
         given:
         def asc = createAuthenticationServiceClient(null, null, null, Mock(AkkaServiceClient))
@@ -188,6 +232,13 @@ class AuthenticationServiceClientGroovyTest extends Specification {
 
         then:
         convertedStream == "dGVzdA=="
+    }
+
+    private void mockUserEndpointRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200, int timesCalled = 1) {
+        def authHeaders = ["Accept": MediaType.APPLICATION_XML, "X-Auth-Token": adminToken]
+        timesCalled * akkaServiceClient.get("ENDPOINTS${userToValidate.token}", "http://some/uri/tokens/${userToValidate.token}/endpoints", authHeaders) >>> (1..timesCalled).collect {
+            new ServiceClientResponse(responseCode, new ByteArrayInputStream(createEndpointResponse().getBytes()))
+        }
     }
 
     private void mockUserAuthenticationRequest(AkkaServiceClient akkaServiceClient, String adminToken, LinkedHashMap<String, String> userToValidate, int responseCode = 200, int timesCalled = 1) {
@@ -208,6 +259,16 @@ class AuthenticationServiceClientGroovyTest extends Specification {
         new AuthenticationServiceClient("http://some/uri", adminUser, adminPassword, adminTenant,
                 new ResponseUnmarshaller(coreJaxbContext), new ResponseUnmarshaller(groupJaxbContext),
                 jaxbEntityToXml, akkaServiceClient)
+    }
+
+    private String createEndpointResponse() {
+        def endpointList = objectFactory.createEndpointList()
+        endpointList.getEndpoint().add(objectFactory.createEndpoint().with {
+            id = 12345
+            publicURL = new URL("http://foo.com")
+            it
+        })
+        jaxbEntityToXml.transform(objectFactory.createEndpoints(endpointList))
     }
 
     private String createAuthenticationRequest(def adminUser, def adminPassword, def adminTenant) {
