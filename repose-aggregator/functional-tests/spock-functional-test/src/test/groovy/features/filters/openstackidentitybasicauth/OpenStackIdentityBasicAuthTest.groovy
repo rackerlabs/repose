@@ -55,7 +55,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
             return new Response(HttpServletResponse.SC_OK, null, null, ORIGIN_PASS_BODY)
         } else if (request.headers.findAll(HttpHeaders.USER_AGENT).contains(ORIGIN_PASS_BODY + ORIGIN_FAIL_BODY)) {
             def headers = [
-                    (HttpHeaders.WWW_AUTHENTICATE): "Keystone realm=\"RAX-KEY\""
+                    (HttpHeaders.WWW_AUTHENTICATE): ("Keystone uri=localhost")
             ]
             return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, headers, ORIGIN_FAIL_BODY)
         } else {
@@ -97,7 +97,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401), add an HTTP Basic authentication header, and don't touch the Keystone header"
         messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         messageChain.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
-        messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Keystone realm=\"RAX-KEY\"")
+        messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Keystone uri=localhost")
         messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         messageChain.handlings.size() == 1
         messageChain.orphanedHandlings.size() == 0
@@ -175,9 +175,7 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "then get a token for it"
         messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
-        messageChain.handlings.size() == 1
-        messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 0
+        messageChain.handlings.size() == 0
         messageChain.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
 
         where:
