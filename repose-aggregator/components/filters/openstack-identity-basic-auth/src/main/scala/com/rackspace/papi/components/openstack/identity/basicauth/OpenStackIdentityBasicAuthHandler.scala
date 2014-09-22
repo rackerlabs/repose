@@ -93,7 +93,9 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
                  HttpServletResponse.SC_UNAUTHORIZED |                // (401)
                  HttpServletResponse.SC_FORBIDDEN |                   // (403)
                  HttpServletResponse.SC_NOT_FOUND =>                  // (404)
+              handleUnauthorized(filterDirector, httpServletRequest)
               filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+              filterDirector.setFilterAction(FilterAction.RETURN)
             case HttpServletResponse.SC_METHOD_NOT_ALLOWED |          // (405)
                  HttpServletResponse.SC_NOT_ACCEPTABLE |              // (406)
                  HttpServletResponse.SC_REQUEST_TIMEOUT |             // (408)
@@ -116,7 +118,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
   }
 
   private def getUserToken(authValue: String): (Int, Option[String]) = {
-    val createJsonAuthRequest = (encoded: String) => {
+    val createAuthRequest = (encoded: String) => {
       // Base64 Decode and split the userName/apiKey
       val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
@@ -132,7 +134,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     val authTokenResponse = Option(akkaServiceClient.post(authValue,
       identityServiceUri,
       Map[String, String]().asJava,
-      createJsonAuthRequest(authValue).toString,
+      createAuthRequest(authValue).toString,
       MediaType.APPLICATION_XML_TYPE))
 
     // IF the Akka Service Client gives a response, THEN...;
@@ -163,20 +165,24 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
     // IF response Status Code is UNAUTHORIZED (401) OR FORBIDDEN (403), THEN
     if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
       httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
-      // add HTTP Basic authentication header (WWW-Authenticate) with the realm of RAX-KEY
-      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-      // IF request has a HTTP Basic authentication header (Authorization),
-      // THEN remove the encoded userName/apiKey (Key) & token (Value) cached in the Datastore
-      val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
-      if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
-        for (authHeader <- authMethodBasicHeaders.get) {
-          val authValue = authHeader.replace("Basic ", "")
-          datastore.remove(X_AUTH_TOKEN + authValue)
-        }
-      }
+      handleUnauthorized(filterDirector, httpServletRequest)
     }
     LOG.debug("OpenStack Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
     filterDirector
+  }
+
+  private def handleUnauthorized(filterDirector: FilterDirector, httpServletRequest: HttpServletRequest) {
+    // add HTTP Basic authentication header (WWW-Authenticate) with the realm of RAX-KEY
+    filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+    // IF request has a HTTP Basic authentication header (Authorization),
+    // THEN remove the encoded userName/apiKey (Key) & token (Value) cached in the Datastore
+    val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
+    val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
+    if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
+      for (authHeader <- authMethodBasicHeaders.get) {
+        val authValue = authHeader.replace("Basic ", "")
+        datastore.remove(X_AUTH_TOKEN + authValue)
+      }
+    }
   }
 }
