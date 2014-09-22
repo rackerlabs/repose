@@ -16,8 +16,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-    def static ORIGIN_PASS_BODY = ":-)"
-    def static ORIGIN_FAIL_BODY = "8^("
 
     def static MockIdentityService fakeIdentityService
 
@@ -32,7 +30,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         repose.start()
 
-        //TODO: The port finding logic is not working!
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service', null, { Request request -> return handleOriginRequest(request) })
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
@@ -44,22 +41,22 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
     /**
      * Since there is no Auth-N/Auth-Z filter inline with the Basic Auth filter under test,
-     * the origin service is simply making sure the AUTHORIZATION and/or X-AUTH-TOKEN headers are present with the
-     * client information (e.g. User Name, API Key, Token) from the Mock Identity service.
+     * the origin service is simply making sure the X-AUTH-TOKEN headers are present with the
+     * User Token from the Mock Identity service.
      * @param request the HttpServletRequest from the "Client"
      * @return the HttpServletResponse from the "Origin"
      */
     def static Response handleOriginRequest(Request request) {
-        // IF there is an Authorization header with the the
+        // IF there is an Authorization header with the Client Token,
+        // THEN return a Response with Status Code OK (200);
+        // ELSE return a Response with Status Code UNAUTHORIZED (401) AND add a Keystone header.
         if (request.headers.findAll("X-Auth-Token").contains(fakeIdentityService.client_token)) {
-            return new Response(HttpServletResponse.SC_OK, null, null, ORIGIN_PASS_BODY)
-        } else if (request.headers.findAll(HttpHeaders.USER_AGENT).contains(ORIGIN_PASS_BODY + ORIGIN_FAIL_BODY)) {
+            return new Response(HttpServletResponse.SC_OK, null, null, null)
+        } else {
             def headers = [
                     (HttpHeaders.WWW_AUTHENTICATE): ("Keystone uri=localhost")
             ]
-            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, headers, ORIGIN_FAIL_BODY)
-        } else {
-            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, null, ORIGIN_FAIL_BODY)
+            return new Response(HttpServletResponse.SC_UNAUTHORIZED, null, headers, null)
         }
     }
 
@@ -73,30 +70,12 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
         }
     }
 
-    def "No HTTP Basic authentication header sent."() {
-        when: "the request does not have an HTTP Basic authentication header"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
-
-        then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401) and add an HTTP Basic authentication header"
-        messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
-        messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
-        messageChain.handlings.size() == 1
-        messageChain.orphanedHandlings.size() == 0
-    }
-
-    def "Don't touch the other WWW_AUTHENTICATE headers, just add the HTTP Basic authentication header."() {
-        given: "the trigger header for our custom Origin Service Handler"
-        def headers = [
-                (HttpHeaders.USER_AGENT): (ORIGIN_PASS_BODY + ORIGIN_FAIL_BODY)
-        ]
-
+    def "No HTTP Basic authentication header sent and don't touch the other WWW_AUTHENTICATE headers, just add the HTTP Basic authentication header."() {
         when: "the request does not have any authentication header"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+        def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: 'GET')
 
         then: "simply pass it on down the filter chain and this configuration will respond with a SC_UNAUTHORIZED (401), add an HTTP Basic authentication header, and don't touch the Keystone header"
         messageChain.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_FAIL_BODY)
         messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Keystone uri=localhost")
         messageChain.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
         messageChain.handlings.size() == 1
@@ -155,7 +134,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "then get a token for it"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -200,7 +178,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "then get a token for it"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -219,7 +196,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "get the token from the cache"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -239,7 +215,6 @@ class OpenStackIdentityBasicAuthTest extends ReposeValveTest {
 
         then: "get the token from the Identity (Keystone) service"
         messageChain.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        messageChain.receivedResponse.body.equals(ORIGIN_PASS_BODY)
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         messageChain.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
