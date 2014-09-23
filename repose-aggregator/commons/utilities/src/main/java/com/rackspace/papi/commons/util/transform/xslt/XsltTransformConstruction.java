@@ -25,6 +25,6 @@ public class XsltTransformConstruction {
                                                                   configurationException);
                         }
                     }
-                }, Pool.DEFAULT_MIN_POOL_SIZE, 100);
+                });
     }
 }
