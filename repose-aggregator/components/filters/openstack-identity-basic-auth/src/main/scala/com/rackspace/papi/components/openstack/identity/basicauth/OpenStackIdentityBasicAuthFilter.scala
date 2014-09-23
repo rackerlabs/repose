@@ -33,6 +33,7 @@ class OpenStackIdentityBasicAuthFilter extends Filter {
       handlerFactory.asInstanceOf[UpdateListener[OpenStackIdentityBasicAuthConfig]],
       classOf[OpenStackIdentityBasicAuthConfig]
     )
+    LOG.warn("WARNING: This filter cannot be used alone, it requires an AuthFilter after it.")
   }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
