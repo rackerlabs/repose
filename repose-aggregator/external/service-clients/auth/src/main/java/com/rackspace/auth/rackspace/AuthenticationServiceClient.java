@@ -44,7 +44,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
     public AuthToken validateToken(ExtractorResult<String> account, String token) {
         AuthToken authToken = null;
 
-        final ServiceClientResponse<FullToken> serviceResponse = serviceClient.get(targetHostUri + "/token/" + token, headers,
+        final ServiceClientResponse serviceResponse = serviceClient.get(targetHostUri + "/token/" + token, headers,
                 "belongsTo", account.getResult(),
                 "type", account.getKey());
 
@@ -75,7 +75,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
     @Override
     public AuthGroups getGroups(String userName) {
-        final ServiceClientResponse<GroupsList> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userName + "/groups", headers);
+        final ServiceClientResponse serviceResponse = serviceClient.get(targetHostUri + "/users/" + userName + "/groups", headers);
         final int response = serviceResponse.getStatusCode();
         final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
         AuthGroups authGroups = null;
