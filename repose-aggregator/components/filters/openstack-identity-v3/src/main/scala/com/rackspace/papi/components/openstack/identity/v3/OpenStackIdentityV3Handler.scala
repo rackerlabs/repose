@@ -45,77 +45,92 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       LOG.debug("Request URI matches a configured whitelist pattern! Allowing request to pass through.")
       filterDirector.setFilterAction(FilterAction.PASS)
     } else {
-      val requestHeaderManager = filterDirector.requestHeaderManager()
+      val requestHeaderManager = filterDirector.requestHeaderManager
 
       // Set the default behavior for this filter
       filterDirector.setFilterAction(FilterAction.RETURN)
       filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR)
 
-      var authSuccess = false
+      // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
+      var failureInValidation = false
 
       // Attempt to validate the request token with the Identity service
-      authenticate(request) match {
+      val token = authenticate(request) match {
         case Success(tokenObject) =>
-          authSuccess = true
-
-          // Set the appropriate headers for a valid request
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, tokenObject.expires_at)
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-          tokenObject.user.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
-          tokenObject.roles.map { roles =>
-            requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
-          }
-          tokenObject.user.id.map { id =>
-            requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
-            requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
-          }
-          tokenObject.project.map { project =>
-            project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
-            project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
-          }
-          if (forwardCatalog) {
-            tokenObject.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
-          }
-          if (forwardGroups) {
-            tokenObject.user.id map { userId: String =>
-              identityAPI.getGroups(userId) map { groupsList: List[Group] =>
-                groupsList map { group: Group =>
-                  requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group.name + ";q=1.0")
-                }
-              }
-            } orElse {
-              LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
-              None
-            }
-          }
-          // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
-          // TODO: Set X-Impersonator-Id, same as above
-          // TODO: Set X-Default-Region, may require another API call? Doesn't seem to be returned in a token
-
-          // Attempt to authorize the token against a configured endpoint
-          if (isAuthorized(tokenObject)) {
-            filterDirector.setFilterAction(FilterAction.PASS)
-          } else {
-            filterDirector.setFilterAction(FilterAction.RETURN)
-            filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
-          }
+          Some(tokenObject)
         case Failure(e: InvalidSubjectTokenException) =>
+          failureInValidation = true
           filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
           filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
+          None
         case Failure(e) =>
+          failureInValidation = true
           LOG.error(e.getMessage)
+          None
       }
 
-      // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
-      if (forwardUnauthorizedRequests) {
-        if (authSuccess) {
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
-        } else {
-          LOG.debug("Forwarding indeterminate request")
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified (not in-scope)
-          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+      // Attempt to check the project ID if configured to do so
+      if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
+        failureInValidation = true
+        filterDirector.setFilterAction(FilterAction.RETURN)
+        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+      }
+
+      // Attempt to authorize the token against a configured endpoint
+      if (!failureInValidation && !isAuthorized(token.get)) {
+        failureInValidation = true
+        filterDirector.setFilterAction(FilterAction.RETURN)
+        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+      }
+
+      // If all validation succeeds, pass the request and set headers
+      if (!failureInValidation) {
+        filterDirector.setFilterAction(FilterAction.PASS)
+        
+        // Set the appropriate headers
+        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
+        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+        token.get.user.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_NAME.toString, _))
+        token.get.roles.map { roles =>
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_ROLES, roles.map(_.name) mkString ",")
         }
+        token.get.user.id.map { id =>
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
+          requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
+        }
+        token.get.project.map { project =>
+          project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
+          project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
+        }
+        if (forwardCatalog) {
+          token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
+        }
+        if (forwardGroups) {
+          token.get.user.id map { userId: String =>
+            identityAPI.getGroups(userId) map { groupsList: List[Group] =>
+              groupsList map { group: Group =>
+                requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group.name + ";q=1.0")
+              }
+            }
+          } orElse {
+            LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
+            None
+          }
+        }
+        // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
+        // TODO: Set X-Impersonator-Id, same as above
+        // TODO: Set X-Default-Region
+      }
+      
+      // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
+      // TODO: Should unauthorized or unmatching project-id requests be forwarded? They currently will be.
+      if (forwardUnauthorizedRequests && !failureInValidation) {
+        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
+      } else if (forwardUnauthorizedRequests) {
+        LOG.debug("Forwarding indeterminate request")
+        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+        filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
       }
     }
 
@@ -224,6 +239,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           rolePID.equals(projectFromUri)
         )
       )
+    // TODO: Handle RAX-AUTH:projectId check in each role as well
   }
 
   private def base64Encode(s: String) =
