@@ -1,57 +1,39 @@
 package com.rackspace.papi.components.openstack.identity.v3
 
-import java.io.ByteArrayInputStream
-import java.util.concurrent.TimeUnit
-import javax.ws.rs.core.MediaType
-
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import com.rackspace.papi.commons.util.http.header.HeaderName
-import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode, ServiceClientResponse}
+import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode}
 import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
-import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint, WhiteList}
 import com.rackspace.papi.components.openstack.identity.v3.objects._
-import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenStackIdentityV3Headers
-import com.rackspace.papi.components.openstack.identity.v3.utilities.exceptions.InvalidAdminCredentialsException
+import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
-import com.rackspace.papi.service.datastore.DatastoreService
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
-import org.apache.http.message.BasicHeader
-import org.hamcrest.Matchers.{equalTo, lessThanOrEqualTo}
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyMap, anyString, argThat, contains, intThat}
-import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
 class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Matchers with PrivateMethodTester with MockitoSugar {
 
   var identityV3Handler: OpenStackIdentityV3Handler = _
   var identityConfig: OpenstackIdentityV3Config = _
-  var mockAkkaServiceClient: AkkaServiceClient = _
-  var mockDatastoreService: DatastoreService = _
-  var mockDatastore: Datastore = _
+  var identityAPI: OpenStackIdentityV3API = _
 
   before {
-    mockAkkaServiceClient = mock[AkkaServiceClient]
-    mockDatastoreService = mock[DatastoreService]
-    mockDatastore = mock[Datastore]
     identityConfig = new OpenstackIdentityV3Config()
     identityConfig.setOpenstackIdentityService(new OpenstackIdentityService())
     identityConfig.getOpenstackIdentityService.setUsername("user")
     identityConfig.getOpenstackIdentityService.setPassword("password")
     identityConfig.getOpenstackIdentityService.setUri("http://test-uri.com")
+    identityConfig.setServiceEndpoint(new ServiceEndpoint())
+    identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
+    identityAPI = mock[OpenStackIdentityV3API]
 
-    when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-    when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
-
-    identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, mockAkkaServiceClient, mockDatastoreService)
+    identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
   }
 
   describe("handleRequest") {
@@ -141,210 +123,13 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
   }
 
   describe("authenticate") {
-    val authenticate = PrivateMethod[(FilterDirector, AuthenticateResponse)]('authenticate)
+    val authenticate = PrivateMethod[Try[AuthenticateResponse]]('authenticate)
 
-    it("should return unauthorized when the x-subject-token header is not present") {
+    it("should return a Failure when the x-subject-token header is not present") {
       val mockRequest = new MockHttpServletRequest()
 
-      val (filterDirector, _) = identityV3Handler invokePrivate authenticate(mockRequest)
-
-      filterDirector.getResponseStatus should be(HttpStatusCode.UNAUTHORIZED)
-      filterDirector.getFilterAction should be(FilterAction.RETURN)
-    }
-  }
-
-  describe("validateSubjectToken") {
-    val validateSubjectToken = PrivateMethod[Try[_]]('validateSubjectToken)
-
-    it("should return a Failure when x-subject-token validation fails") {
-      val mockGetServiceClientResponse = mock[ServiceClientResponse]
-
-      identityV3Handler.cachedAdminToken = Some("test-admin-token")
-
-      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-
-      identityV3Handler invokePrivate validateSubjectToken("test-subject-token", false) shouldBe a[Failure[_]]
-    }
-
-    it("should return a Success for a cached admin token") {
-      when(mockDatastore.get(anyString)).thenReturn(AuthenticateResponse(null, null, null, null, null, null, null, null), Nil: _*)
-
-      identityV3Handler invokePrivate validateSubjectToken("test-subject-token", false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(validateSubjectToken("test-subject-token", false)).get shouldBe an[AuthenticateResponse]
-    }
-
-    it("should return a token object when x-subject-token validation succeeds") {
-      val mockGetServiceClientResponse = mock[ServiceClientResponse]
-
-      identityV3Handler.cachedAdminToken = Some("test-admin-token")
-
-      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
-      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
-        "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
-          .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-
-      identityV3Handler invokePrivate validateSubjectToken("test-subject-token", false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(validateSubjectToken("test-subject-token", false)).get shouldBe an[AuthenticateResponse]
-    }
-
-    it("should cache a token object when x-subject-token validation succeeds with the correct TTL") {
-      val mockGetServiceClientResponse = mock[ServiceClientResponse]
-      val currentTime = DateTime.now()
-      val expirationTime = currentTime.plusMillis(100000)
-      val returnJson = "{\"token\":{\"expires_at\":\"" + ISODateTimeFormat.dateTime().print(expirationTime) + "\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
-
-      identityV3Handler.cachedAdminToken = Some("test-admin-token")
-
-      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
-      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(returnJson.getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-
-      identityV3Handler invokePrivate validateSubjectToken("test-subject-token", false)
-
-      verify(mockDatastore).put(argThat(equalTo("TOKEN:test-subject-token")), any[Serializable], intThat(lessThanOrEqualTo((expirationTime.getMillis - currentTime.getMillis).toInt)), any[TimeUnit])
-    }
-  }
-
-  describe("fetchAdminToken") {
-    val fetchAdminToken = PrivateMethod[Try[String]]('fetchAdminToken)
-
-    it("should build a JSON auth token request without a domain ID") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue)
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-
-      identityV3Handler invokePrivate fetchAdminToken(false)
-
-      verify(mockAkkaServiceClient).post(
-        anyString,
-        anyString,
-        anyMap.asInstanceOf[java.util.Map[String, String]],
-        contains("{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"user\",\"password\":\"password\"}}}}}"),
-        any[MediaType]
-      )
-    }
-
-    it("should build a JSON auth token request with a string domain ID") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      identityConfig.getOpenstackIdentityService.setProjectId("projectId")
-
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue)
-
-      identityV3Handler invokePrivate fetchAdminToken(false)
-
-      verify(mockAkkaServiceClient).post(
-        anyString,
-        anyString,
-        anyMap.asInstanceOf[java.util.Map[String, String]],
-        contains("{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"user\",\"password\":\"password\"}}},\"scope\":{\"project\":{\"id\":\"projectId\"}}}}"),
-        any[MediaType]
-      )
-    }
-
-    it("should return a Failure when unable to retrieve admin token") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.UNAUTHORIZED.intValue)
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-
-      identityV3Handler invokePrivate fetchAdminToken(false) shouldBe a[Failure[_]]
-      identityV3Handler.invokePrivate(fetchAdminToken(false)).failed.get shouldBe a[InvalidAdminCredentialsException]
-    }
-
-    it("should return a Success for a cached admin token") {
-      identityV3Handler.cachedAdminToken = Some("test-cached-token")
-
-      identityV3Handler invokePrivate fetchAdminToken(false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(fetchAdminToken(false)).get should startWith("test-cached-token")
-    }
-
-    it("should return an admin token as a string when the admin API call succeeds") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
-      when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-
-      identityV3Handler invokePrivate fetchAdminToken(false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(fetchAdminToken(false)).get should startWith("test-admin-token")
-    }
-
-    it("should return a new admin token (non-cached) if force is set to true") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      when(mockDatastore.get(anyString)).thenReturn("test-cached-token", Nil: _*)
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
-      when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-
-      identityV3Handler invokePrivate fetchAdminToken(true) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(fetchAdminToken(true)).get should startWith("test-admin-token")
-    }
-
-    it("should cache an admin token when the admin API call succeeds") {
-      val mockServiceClientResponse = mock[ServiceClientResponse]
-
-      identityV3Handler.cachedAdminToken = None
-
-      when(mockServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.CREATED.intValue)
-      when(mockServiceClientResponse.getHeaders).thenReturn(Array(new BasicHeader(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN, "test-admin-token")), Nil: _*)
-      when(mockServiceClientResponse.getData).thenReturn(new ByteArrayInputStream("{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}".getBytes))
-      when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
-        thenReturn(mockServiceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
-
-      identityV3Handler invokePrivate fetchAdminToken(false)
-
-      identityV3Handler.cachedAdminToken shouldBe a[Some[_]]
-      identityV3Handler.cachedAdminToken.get should startWith("test-admin-token")
-    }
-  }
-
-  describe("fetchGroups") {
-    val fetchGroups = PrivateMethod[Try[List[_]]]('fetchGroups)
-
-    it("should return a Failure when x-subject-token validation fails") {
-      val mockGetServiceClientResponse = mock[ServiceClientResponse]
-
-      identityV3Handler.cachedAdminToken = Some("test-admin-token")
-
-      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.NOT_FOUND.intValue)
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-
-      identityV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Failure[_]]
-    }
-
-    it("should return a Success for cached groups") {
-      when(mockDatastore.get(anyString)).thenReturn(List(Group("", "", "")).toBuffer.asInstanceOf[Serializable], Nil: _*)
-
-      identityV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[_]]
-    }
-
-    it("should return a list of groups when groups call succeeds") {
-      val mockGetServiceClientResponse = mock[ServiceClientResponse]
-
-      identityV3Handler.cachedAdminToken = Some("test-admin-token")
-
-      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
-      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
-        "{\"groups\":[{\"description\":\"Developersclearedforworkonallgeneralprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"Developers\"},{\"description\":\"Developersclearedforworkonsecretprojects\",\"domain_id\":\"--domain-id--\",\"id\":\"--group-id--\",\"links\":{\"self\":\"http://identity:35357/v3/groups/--group-id--\"},\"name\":\"SecureDevelopers\"}],\"links\":{\"self\":\"http://identity:35357/v3/users/--user-id--/groups\",\"previous\":null,\"next\":null}}"
-          .getBytes))
-      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
-
-      identityV3Handler invokePrivate fetchGroups("test-user-id", false) shouldBe a[Success[_]]
-      identityV3Handler.invokePrivate(fetchGroups("test-user-id", false)).get shouldBe a[List[_]]
+      identityV3Handler invokePrivate authenticate(mockRequest) shouldBe a[Failure[_]]
+      an[InvalidSubjectTokenException] should be thrownBy identityV3Handler.invokePrivate(authenticate(mockRequest)).get
     }
   }
 
@@ -366,119 +151,91 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     }
   }
 
-  describe("containsEndpoint") {
-    val containsEndpoint = PrivateMethod[Boolean]('containsEndpoint)
+  describe("containsRequiredEndpoint") {
+    val containsRequiredEndpoint = PrivateMethod[Boolean]('containsRequiredEndpoint)
 
     it("should return true when there is an endpoint that matches the url") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("should return false when there isn't an endpoint that matches the url") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.banana.com")),
+        Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and region does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setRegion("DFW")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, null, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and region doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setRegion("DFW")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, None, Option("DFW"), "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and name does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setName("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), None, Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and name doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setName("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com"))) should be(false)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), null, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, Option("foo"), None, None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
 
     it("Should return true when the url matches and interface does") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setInterface("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com"))) should be(true)
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("foo"), Option("foo"), Option("DFW"), "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+      ) should be(true)
     }
 
     it("Should return false when the url matches and interface doesn't") {
-      val serviceEndpoint = new ServiceEndpoint
-      serviceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      serviceEndpoint.setInterface("foo")
-      identityConfig.setServiceEndpoint(serviceEndpoint)
-      identityV3Handler invokePrivate containsEndpoint(List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com"))) should be(false)
-    }
-  }
-
-  describe("offsetTtl") {
-    it("should return the configured ttl is offset is 0") {
-      identityV3Handler.offsetTtl(1000, 0) shouldBe 1000
-    }
-
-    it("should return 0 if the configured ttl is 0") {
-      identityV3Handler.offsetTtl(0, 1000) shouldBe 0
-    }
-
-    it("should return a random int between configured ttl +/- offset") {
-      val firstCall = identityV3Handler.offsetTtl(1000, 100)
-      val secondCall = identityV3Handler.offsetTtl(1000, 100)
-
-      firstCall shouldBe 1000 +- 1000
-      secondCall shouldBe 1000 +- 1000
-      firstCall should not be secondCall
+      identityV3Handler invokePrivate containsRequiredEndpoint(
+        List(Endpoint(null, None, None, None, "http://www.woot.com"), Endpoint(null, Option("bar"), None, None, "http://www.notreallyawebsite.com")),
+        Endpoint(null, None, Option("foo"), None, "http://www.notreallyawebsite.com")
+      ) should be(false)
     }
   }
 
   describe("authorize") {
-    val authorize = PrivateMethod[FilterDirector]('authorize)
+    val isAuthorized = PrivateMethod[Boolean]('isAuthorized)
 
-    it("should make no changes when not configured to check endpoints") {
-      val filterDirector = mock[FilterDirector]
-      identityV3Handler invokePrivate authorize((filterDirector, null))
-      verifyZeroInteractions(filterDirector)
+    it("should return true when not configured to check endpoints") {
+      val config = new OpenstackIdentityV3Config()
+      config.setOpenstackIdentityService(new OpenstackIdentityService())
+      config.getOpenstackIdentityService.setUri("")
+
+      val handler = new OpenStackIdentityV3Handler(config, identityAPI)
+
+      handler invokePrivate isAuthorized(AuthenticateResponse(null, null, null, null, null, null, null, null)) should be(true)
     }
 
-    it("should make no changes when configured and the endpoint is present") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
+    it("should return true when configured and the endpoint is present") {
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.notreallyawebsite.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
-      identityV3Handler invokePrivate authorize((filterDirector, authToken))
-      verifyZeroInteractions(filterDirector)
+      identityV3Handler invokePrivate isAuthorized(authToken) should be(true)
     }
 
-    it("should change the status code and action when configured and the endpoint is not present") {
-      identityConfig.setServiceEndpoint(new ServiceEndpoint)
-      identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
-      val filterDirector = mock[FilterDirector]
+    it("should return false when configured and the endpoint is not present") {
       val catalog = List(ServiceForAuthenticationResponse(List(Endpoint(null, None, None, None, "http://www.woot.com")), null, null))
       val authToken = AuthenticateResponse(null, null, null, null, null, Option(catalog), null, null)
 
-      identityV3Handler invokePrivate authorize((filterDirector, authToken))
-      verify(filterDirector).setFilterAction(FilterAction.RETURN)
-      verify(filterDirector).setResponseStatus(HttpStatusCode.FORBIDDEN)
+      identityV3Handler invokePrivate isAuthorized(authToken) should be(false)
     }
   }
 
