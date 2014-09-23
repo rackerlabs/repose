@@ -1,19 +1,17 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain
-
+import com.rackspace.papi.components.translation.TranslationHandler
 import com.rackspace.papi.components.translation.xslt.XsltParameter
-import net.sf.saxon.lib.StandardURIResolver
-import org.xml.sax.XMLReader
+import net.sf.saxon.Configuration
+import net.sf.saxon.Controller
+import net.sf.saxon.Filter
+import net.sf.saxon.value.TextFragmentValue
 import spock.lang.Specification
 
-import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.Transformer
-import net.sf.saxon.Filter
-import net.sf.saxon.Controller
-import net.sf.saxon.Configuration
+import javax.xml.transform.sax.SAXTransformerFactory
 
-import static org.mockito.Mockito.when
 import static org.mockito.Mockito.mock
-
+import static org.mockito.Mockito.when
 /**
  * Created by dimi5963 on 9/8/14.
  */
@@ -48,12 +46,25 @@ class XmlFilterChainExecutorTest extends Specification {
 
     }
 
-    def "Execute Chain for Saxon"() {
+    def "Execute Chain for Saxon will remove expected documents"() {
         given:
         XmlFilterChainExecutor executor = new XmlFilterChainExecutor(chain)
+        controller.getDocumentPool().add(new TextFragmentValue("butts", "a uri"), "a uri")
+        inputs.add(new XsltParameter(TranslationHandler.INPUT_HEADERS_URI, "a uri"))
         when:
         executor.executeChain(input, out, inputs, outputs)
         then:
-        controller.getDocumentPool().find("some thing") == null
+        controller.getDocumentPool().find("a uri") == null
+    }
+
+    def "Execute Chain for Saxon will not remove expected documents"() {
+        given:
+        XmlFilterChainExecutor executor = new XmlFilterChainExecutor(chain)
+        controller.getDocumentPool().add(new TextFragmentValue("butts", "a uri"), "a uri")
+        inputs.add(new XsltParameter("butts", "a uri"))
+        when:
+        executor.executeChain(input, out, inputs, outputs)
+        then:
+        controller.getDocumentPool().find("a uri")
     }
 }

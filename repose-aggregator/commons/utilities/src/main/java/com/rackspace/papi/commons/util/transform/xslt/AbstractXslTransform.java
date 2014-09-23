@@ -28,7 +28,7 @@ public abstract class AbstractXslTransform {
                        + configurationException.getMessage(), configurationException);
             }
          }
-      });
+      }, Pool.DEFAULT_MIN_POOL_SIZE, 100);
    }
 
    protected Pool<Transformer> getXslTransformerPool() {

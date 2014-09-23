@@ -78,7 +78,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
   }
 
   private Pool<XmlFilterChain> buildChainPool(final TranslationBase translation) {
-    return new GenericBlockingResourcePool<XmlFilterChain>(new XmlFilterChainFactory(xsltChainBuilder, translation, configurationRoot, config));
+    return new GenericBlockingResourcePool<XmlFilterChain>(new XmlFilterChainFactory(xsltChainBuilder, translation, configurationRoot, config), Pool.DEFAULT_MIN_POOL_SIZE, 100);
   }
 
   private void addStyleSheetsToWatchList(final TranslationBase translation) {
