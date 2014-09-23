@@ -142,6 +142,29 @@ class BasicAuthTest extends ReposeValveTest {
         mc.orphanedHandlings.size() == 0
     }
 
+    def "When the request has an x-auth-token, then still work with client-auth"() {
+        given:
+        def headers = ['X-Auth-Token': fakeIdentityService.client_token]
+
+        when: "the request already has an x-auth-token header"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
+
+        then: "then get a token and validate it"
+        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
+        mc.handlings.size() == 1
+        !mc.handlings[0].request.headers.getFirstValue(HttpHeaders.AUTHORIZATION)
+        !mc.receivedResponse.headers.getFirstValue(HttpHeaders.WWW_AUTHENTICATE)
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token")
+        ////////////////////////////////////////////////////////////////////////////////
+        // IF this test is ran by itself OR the First in the suite,
+        // THEN it has to retrieve the Admin Token using the Admin User Name and Password;
+        // ELSE IF this test is ran as part of the suite,
+        // THEN it has the potential to have already cached it.
+        mc.orphanedHandlings.size() == 3 ||         // Single/First
+                mc.orphanedHandlings.size() == 2    // Suite
+        ////////////////////////////////////////////////////////////////////////////////
+    }
+
     def "When the request send with invalid key or username, then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def headers = [
