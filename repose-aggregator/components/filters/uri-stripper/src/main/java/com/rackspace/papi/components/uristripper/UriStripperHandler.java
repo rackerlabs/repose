@@ -46,7 +46,6 @@ public class UriStripperHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
         final FilterDirector filterDirector = new FilterDirectorImpl();
-        final HeaderManager headerManager = filterDirector.requestHeaderManager();
 
         filterDirector.setFilterAction(FilterAction.PASS);
 

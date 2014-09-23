@@ -52,7 +52,6 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
-    private MetricsService metricsService;
     private TimerByCategory filterTimer;
 
     public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
@@ -63,7 +62,6 @@ public class PowerFilterChain implements FilterChain {
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.router = router;
-        this.metricsService = metricsService;
         if (metricsService != null) {
             filterTimer = metricsService.newTimerByCategory(FilterProcessingTime.class, "Delay", TimeUnit.MILLISECONDS,
                     TimeUnit.MILLISECONDS);
@@ -76,13 +74,8 @@ public class PowerFilterChain implements FilterChain {
 
             final HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-            boolean useTrace;
             boolean addTraceHeader = traceRequest(request);
-            if (addTraceHeader || filterTimer != null) {
-                useTrace = true;
-            } else {
-                useTrace = false;
-            }
+            boolean useTrace = addTraceHeader || (filterTimer != null);
 
             tracer = new RequestTracer(useTrace, addTraceHeader);
             currentFilters = getFilterChainForRequest(request.getRequestURI());
@@ -182,9 +175,8 @@ public class PowerFilterChain implements FilterChain {
 
         //converting log object to json string
         RequestLog requestLog = new RequestLog(mutableHttpRequest, filterContext);
-        String jsonStringOfRequestLog = convertPojoToJsonString(requestLog);
 
-        return jsonStringOfRequestLog;
+        return convertPojoToJsonString(requestLog);
     }
 
     private String intrafilterResponseLog(MutableHttpServletResponse mutableHttpResponse,
@@ -197,17 +189,15 @@ public class PowerFilterChain implements FilterChain {
 
         //converting log object to json string
         ResponseLog responseLog = new ResponseLog(mutableHttpResponse, filterContext);
-        String jsonStringOfResponseLog = convertPojoToJsonString(responseLog);
 
-        return jsonStringOfResponseLog;
+        return convertPojoToJsonString(responseLog);
     }
 
     private String convertPojoToJsonString(Object object) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);//http://stackoverflow.com/a/8395924
-        String prettyJsonStringOfPojo = objectMapper.writeValueAsString(object);
 
-        return prettyJsonStringOfPojo;
+        return objectMapper.writeValueAsString(object);
     }
 
     private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
@@ -260,7 +250,7 @@ public class PowerFilterChain implements FilterChain {
                 filterTimer.update(filter.getFilterConfig().getName(), delay, TimeUnit.MILLISECONDS);
             }
         } else {
-            long start = tracer.traceEnter();
+            tracer.traceEnter();
             doRouting(mutableHttpRequest, servletResponse);
             long delay = tracer.traceExit(mutableHttpResponse, "route");
             if (filterTimer != null) {
