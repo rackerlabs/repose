@@ -1,0 +1,219 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+
+
+
+    <module name="FileTabCharacter"/>
+
+
+    <module name="TreeWalker">
+
+        <property name="tabWidth" value="4"/>
+
+        <module name="Indentation">
+            <property name="caseIndent" value="4"/>
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="throwsIndent" value="4"/>
+        </module>
+
+        <module name="AvoidStarImport">
+            <property name="excludes" value=""/>
+            <property name="allowClassImports" value="true"/>
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
+
+        <module name="GenericWhitespace"/>
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="DOT"/>
+            <property name="allowLineBreaks" value="true"/>
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="SEMI"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="PLUS_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="MINUS_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BAND_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BOR_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BSR_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BXOR_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="DIV_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="MOD_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="SL_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="SR_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="STAR_ASSIGN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LAND"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LOR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LE"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="GE"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LT"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="GT"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="EQUAL"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="NOT_EQUAL"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="QUESTION"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="COLON"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_IF"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_FOR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_WHILE"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_SWITCH"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_TRY"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_SYNCHRONIZED"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_ELSE"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_DO"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LITERAL_FINALLY"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="LCURLY"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BOR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BAND"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BXOR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="MINUS"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="PLUS"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="STAR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="DIV"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="MOD"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="BSR"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="SL"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="tokens" value="SR"/>
+        </module>
+
+
+
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+        </module>
+
+    </module>
+</module>
