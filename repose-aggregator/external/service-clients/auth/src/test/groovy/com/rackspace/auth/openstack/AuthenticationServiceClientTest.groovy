@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
-class AuthenticationServiceClientGroovyTest extends Specification {
+class AuthenticationServiceClientTest extends Specification {
     @Shared def objectFactory = new ObjectFactory()
     @Shared def coreJaxbContext = JAXBContext.newInstance(
                 org.openstack.docs.identity.api.v2.ObjectFactory.class,
