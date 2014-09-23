@@ -4,6 +4,8 @@ import com.rackspace.auth.AuthToken;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of AuthToken {@link com.rackspace.auth.AuthToken} to parse the AuthenticationResponse from an Rackspace Auth Service
@@ -74,5 +76,12 @@ public class RackspaceToken extends AuthToken implements Serializable {
     @Override
     public String getDefaultRegion(){
         return "";
+    }
+
+    @Override
+    public List<String> getTenantIds() {
+        ArrayList<String> tenantIds = new ArrayList<>();
+        tenantIds.add(accountId);
+        return tenantIds;
     }
 }
