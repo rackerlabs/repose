@@ -2,7 +2,6 @@ package ThisPackageNeedsABlankLine
 import scala.util.Random;
 class s(xi: Int)  {
   var x: Int = xi
-
   def getX ={
     for (5 <- Range){
       while(true) {
@@ -43,8 +42,18 @@ class s(xi: Int)  {
       import java.util.ArrayList;
       ArrayList e;
 
+
+      x match {
+        case A => // compare x to A, because of the uppercase
+        case b => // assign x to b
+        case `b` => // compare x to b, because of the backtick
+      }
     }
   }
+
+
+
 }
+//this breaks things
 
 
