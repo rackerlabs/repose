@@ -109,27 +109,27 @@
     </check>
 
 
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
-            <parameter name="regex"></parameter>
+            <parameter name="regex">def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def</parameter>
         </parameters>
         <customMessage>min 1 blank lines around methods</customMessage>
-    </check-->
+    </check>
 
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
-            <parameter name="regex"></parameter>
+            <parameter name="regex">class.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def</parameter>
         </parameters>
         <customMessage>min 1 blank lines around class</customMessage>
-    </check-->
+    </check>
 
 
-    <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
+    <check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
-            <parameter name="regex"></parameter>
+            <parameter name="regex">\n\n\n(\n)+.*\}</parameter>
         </parameters>
         <customMessage>max 2 blank lines before }</customMessage>
-    </check-->
+    </check>
 
     <!--check enabled="true" class="org.scalastyle.file.RegexChecker" level="warning">
         <parameters>
