@@ -160,51 +160,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
     }
 
-    def "Ensure that subsequent calls within the cache timeout are retrieving the token from the cache"() {
-        given: "the HTTP Basic authentication header containing the User Name and API Key"
-        sleep(3000) //wait for sometime for any previous cache same token
-        def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
-        ]
-
-        when: "multiple requests that have the same HTTP Basic authentication header"
-        MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-        MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-
-        then: "get the token from the cache"
-        mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc0.orphanedHandlings.size() == 1
-        mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc1.orphanedHandlings.size() == 0
-    }
-
-    def "Ensure that subsequent calls outside the cache timeout are retrieving a new token not from the cache"() {
-        given: "the HTTP Basic authentication header containing the User Name and API Key"
-        def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
-        ]
-
-        when: "multiple requests that have the same HTTP Basic authentication header"
-        sleep(3000) //wait for sometime for any previous cache same token
-        MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-        sleep 3000 // How do I get this programmatically from the config.
-        MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-
-        then: "get the token from the Identity (Keystone) service"
-        mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc0.orphanedHandlings.size() == 1
-        mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc1.orphanedHandlings.size() == 1
-    }
-
     // NOTE: This would normally be removed by a Header Normalization filter.
     def "when start repose with basic auth only, x-auth-token should work"() {
         given:
@@ -253,6 +208,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
     def "Log a very loud WARNING stating the OpenStack Basic Auth filter cannot be used alone."() {
         expect: "check for the WARNING."
-        reposeLogSearch.searchByString("WARNING").size() > 0
+        reposeLogSearch.searchByString("WARNING: This filter cannot be used alone, it requires an AuthFilter after it.").size() > 0
     }
 }

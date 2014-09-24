@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -13,6 +14,7 @@ import javax.ws.rs.core.HttpHeaders
  * Created by jennyvo on 9/17/14.
  * Test basic auth cache acts the same as client-auth
  */
+@Ignore("Ignore this test for now - will revisit and update when this caching functionality implemented")
 class BasicAuthCacheTest extends ReposeValveTest {
 
     @Shared def identityEndpoint
