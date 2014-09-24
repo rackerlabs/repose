@@ -73,7 +73,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
         filterDirector.setFilterAction(FilterAction.RETURN)
-        filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
+        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
       }
 
       // Attempt to authorize the token against a configured endpoint
