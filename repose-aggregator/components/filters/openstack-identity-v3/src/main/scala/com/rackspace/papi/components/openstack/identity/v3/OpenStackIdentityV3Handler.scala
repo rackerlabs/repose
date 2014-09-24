@@ -123,7 +123,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       }
       
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
-      // TODO: Should unauthorized or unmatching project-id requests be forwarded? They currently will be.
       if (forwardUnauthorizedRequests && !failureInValidation) {
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
       } else if (forwardUnauthorizedRequests) {
