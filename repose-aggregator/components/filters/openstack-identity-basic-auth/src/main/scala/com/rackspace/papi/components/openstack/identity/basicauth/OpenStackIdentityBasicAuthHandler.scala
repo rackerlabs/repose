@@ -67,7 +67,7 @@ class OpenStackIdentityBasicAuthHandler(basicAuthConfig: OpenStackIdentityBasicA
             // IF a token was received, THEN ...
             if (token.isDefined && !(token.isEmpty)) {
               val tokenStr = token.get.toString
-              if (tokenStr.length > 0) {
+              if (tokenCacheTtlMillis > 0 && tokenStr.length > 0) {
                 // add the token header
                 filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
                 // cache the token with the configured cache timeout
