@@ -25,10 +25,10 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="token-cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="0">
+        <xs:attribute name="token-cache-timeout-millis" type="ZeroOrPositiveInteger" use="optional" default="600000">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Time in milliseconds to cache auth token.</html:p>
+                    <html:p>Time in milliseconds to cache auth token. The default is 10 minutes. A value of Zero (0) is disabled.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
