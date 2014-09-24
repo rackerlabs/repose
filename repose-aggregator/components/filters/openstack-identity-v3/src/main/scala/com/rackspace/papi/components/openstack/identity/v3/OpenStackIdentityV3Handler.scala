@@ -233,13 +233,19 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     projectIdRegex.findFirstMatchIn(uri).map(regexMatch => regexMatch.group(1))
 
   private def projectMatches(projectFromUri: String, defaultProjectId: Option[String], roles: List[Role]): Boolean = {
-    defaultProjectId.exists(_.equals(projectFromUri)) ||
-      roles.exists(role =>
-        role.project_id.exists(rolePID =>
-          rolePID.equals(projectFromUri)
-        )
+    val defaultIdMatches = defaultProjectId.exists(_.equals(projectFromUri))
+    val keystoneRolesIdMatches = roles.exists(role =>
+      role.project_id.exists(rolePID =>
+        rolePID.equals(projectFromUri)
       )
-    // TODO: Handle RAX-AUTH:projectId check in each role as well
+    )
+    val raxRolesIdMatches = roles.exists(role =>
+      role.rax_project_id.exists(rolePID =>
+        rolePID.equals(projectFromUri)
+      )
+    )
+
+    defaultIdMatches || keystoneRolesIdMatches || raxRolesIdMatches
   }
 
   private def base64Encode(s: String) =
