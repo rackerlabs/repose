@@ -35,6 +35,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+        fakeIdentityService.checkTokenValid = true
     }
 
     def setup() {
@@ -124,7 +125,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((userName + ":" + apiKey).bytes)
         ]
-        fakeIdentityService.client_apikey = fakeIdentityService.invalid_key
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)

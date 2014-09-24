@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MockIdentityService {
 
-    def static DEFAULT_CLIENT_API_KEY = "this-is-the-api-key"
     public MockIdentityService(int identityPort, int originServicePort) {
 
         resetHandlers()
@@ -42,6 +41,7 @@ class MockIdentityService {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
+    boolean checkTokenValid = false;
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
@@ -113,16 +113,14 @@ class MockIdentityService {
     def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
     def client_userid = 12345;
-    def client_apikey = DEFAULT_CLIENT_API_KEY;
+    def client_apikey = 'this-is-the-api-key';
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
     def admin_userid = 67890;
-    def invalid_key = "invalidKey"
     Validator validator;
-
 
     def templateEngine = new SimpleTemplateEngine();
 
@@ -399,27 +397,44 @@ class MockIdentityService {
 
         def params
 
-        // IF the body is a Client userName/apiKey request,
-        // THEN return the Client token response;
-        // ELSE /*IF the body is userName/passWord request*/,
-        // THEN return the Admin token response.
-        if (request.body.contains("username") &&
-                request.body.contains(client_username) &&
-                request.body.contains("apiKey") &&
-                request.body.contains(client_apikey)) {
-            params = [
-                    expires     : getExpires(),
-                    userid      : client_userid,
-                    username    : client_username,
-                    tenant      : client_tenant,
-                    tenanttwo   : client_tenant,
-                    token       : client_token,
-                    serviceadmin: service_admin_role
-            ];
-        } else if (request.body.contains("username") &&
-                request.body.contains(admin_username) /*&&
+        def isTokenChecked = true
+        // IF the body of the request should be evaluated to determine the validity of the Token, THEN ...
+        // ELSE the just use the isTokenValid value.
+        if(checkTokenValid) {
+            // IF the body is a Client userName/apiKey request,
+            // THEN return the Client token response;
+            // ELSE /*IF the body is userName/passWord request*/,
+            // THEN return the Admin token response.
+            if (request.body.contains("username") &&
+                    request.body.contains(client_username) &&
+                    request.body.contains("apiKey") &&
+                    request.body.contains(client_apikey)) {
+                params = [
+                        expires     : getExpires(),
+                        userid      : client_userid,
+                        username    : client_username,
+                        tenant      : client_tenant,
+                        tenanttwo   : client_tenant,
+                        token       : client_token,
+                        serviceadmin: service_admin_role
+                ];
+            } else if (request.body.contains("username") &&
+                    request.body.contains(admin_username) /*&&
                 request.body.contains("password") &&
                 request.body.contains(admin_password)*/) {
+                params = [
+                        expires     : getExpires(),
+                        userid      : admin_userid,
+                        username    : admin_username,
+                        tenant      : admin_tenant,
+                        tenanttwo   : admin_tenant,
+                        token       : admin_token,
+                        serviceadmin: service_admin_role
+                ];
+            } else {
+                isTokenChecked = false
+            }
+        } else {
             params = [
                     expires     : getExpires(),
                     userid      : admin_userid,
@@ -429,8 +444,6 @@ class MockIdentityService {
                     token       : admin_token,
                     serviceadmin: service_admin_role
             ];
-        } else {
-            isTokenValid = false
         }
 
         def code;
@@ -443,7 +456,7 @@ class MockIdentityService {
             headers.put('Content-type', 'application/json')
         }
 
-        if (isTokenValid) {
+        if (isTokenValid && isTokenChecked) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
@@ -457,8 +470,6 @@ class MockIdentityService {
             } else {
                 template = identityFailureJsonTemplate
             }
-            // Reset the flag for the next call.
-            isTokenValid = true
         }
 
         def body = templateEngine.createTemplate(template).make(params)

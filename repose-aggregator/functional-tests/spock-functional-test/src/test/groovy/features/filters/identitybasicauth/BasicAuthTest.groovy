@@ -29,6 +29,7 @@ class BasicAuthTest extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityService(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityService.handler)
+        fakeIdentityService.checkTokenValid = true
     }
 
     def setup() {
@@ -169,7 +170,7 @@ class BasicAuthTest extends ReposeValveTest {
     def "When the request send with invalid key or username, then will fail to authenticate"() {
         given: "the HTTP Basic authentication header containing the User Name and invalid API Key"
         def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.invalid_key).bytes)
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":BAD-API-KEY").bytes)
         ]
 
         when: "the request does have an HTTP Basic authentication header"
