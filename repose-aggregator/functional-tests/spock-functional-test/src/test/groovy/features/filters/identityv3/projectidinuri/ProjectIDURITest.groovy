@@ -1,0 +1,183 @@
+package features.filters.identityv3.projectidinuri
+
+import framework.ReposeValveTest
+import framework.mocks.MockIdentityV3Service
+import org.joda.time.DateTime
+import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
+import spock.lang.Unroll
+
+class ProjectIDURITest extends ReposeValveTest{
+    def static originEndpoint
+    def static identityEndpoint
+    def static MockIdentityV3Service fakeIdentityV3Service
+
+    def setupSpec() {
+        deproxy = new Deproxy()
+        def params = properties.defaultTemplateParams
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/common",params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/projectidinuri/serviceroles", params)
+        repose.start()
+        waitUntilReadyToServiceRequests('401')
+
+        originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
+        fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
+                'identity service', null, fakeIdentityV3Service.handler)
+    }
+
+    def cleanupSpec() {
+        if(deproxy)
+            deproxy.shutdown()
+        if(repose)
+            repose.stop()
+    }
+
+    def setup(){
+        fakeIdentityV3Service.resetHandlers()
+    }
+
+    @Unroll("With project: #requestProject, response project: #responseProject, identity resp code (#authResponseCode), and group resp code (#groupResponseCode), return #responseCode")
+    def "when authenticating project id - fail"() {
+        given:
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_projectid = responseProject
+            service_admin_role = "not-admin"
+            client_userid = requestProject
+        }
+
+        if (authResponseCode != 200) {
+            fakeIdentityV3Service.validateTokenHandler = {
+                tokenId, request ->
+                    new Response(authResponseCode)
+            }
+        }
+
+        if (groupResponseCode != 200) {
+            fakeIdentityV3Service.getGroupsHandler = {
+                userId, request ->
+                    new Response(groupResponseCode)
+            }
+        }
+
+        when:
+        "User passes a request through repose with request project: $requestProject, response project: $responseProject in a role that is not bypassed"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestProject/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == responseCode
+        mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
+
+        where:
+        requestProject | responseProject | authResponseCode | groupResponseCode | x_www_auth | responseCode
+        713            | 713             | 500              | 200               | false      | "500"
+        714            | 714             | 404              | 200               | true       | "401"
+        715            | 715             | 200              | 404               | false      | "500"
+        716            | 716             | 200              | 500               | false      | "500"
+        711            | 712             | 200              | 200               | true       | "401"
+    }
+
+    @Unroll("With Project ID: #requestProject, return from identity with response project: #responseProject, and role: #serviceAdminRole, return 200")
+    def "when authenticating project id and roles that bypass"() {
+        given:
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_projectid = responseProject
+            service_admin_role = serviceAdminRole
+            client_userid = requestProject
+        }
+
+        when: "User passes a request through repose with request tenant: $requestProject, response tenant: $responseProject in a bypassed role = $serviceAdminRole"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$requestProject/",
+                method: 'GET',
+                headers: [
+                        'content-type': 'application/json',
+                        'X-Subject-Token': fakeIdentityV3Service.client_token
+                ]
+        )
+
+        then: "Request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == responseCode
+        mc.handlings.size() == 1
+        mc.handlings[0].endpoint == originEndpoint
+        def request2 = mc.handlings[0].request
+        request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
+        request2.headers.getFirstValue("x-project-id") == responseProject.toString()
+        request2.headers.contains("x-token-expires")
+        request2.headers.getFirstValue("x-pp-user") == responseProject.toString()
+        request2.headers.contains("x-roles")
+        request2.headers.getFirstValue("x-authorization") == "Proxy"
+        request2.headers.getFirstValue("x-user-name") == "username"
+
+        mc.receivedResponse.headers.contains("www-authenticate") == false
+
+        where:
+        requestProject | responseProject  | serviceAdminRole      | responseCode
+        717            | 717              | "not-admin"           | "200"
+        718            | 719              | "service:admin-role1" | "200"
+        720            | 720              | "service:admin-role1" | "200"
+    }
+
+    def "Should not split request headers according to rfc"() {
+        given:
+        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36", "x-pp-user": "usertest1," +
+                "usertest2, usertest3", "accept": "application/xml;q=1 , application/json;q=0.5"]
+        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_projectid = 720
+            client_userid = 720
+        }
+
+        when: "User passes a request through repose"
+        def mc = deproxy.makeRequest(url:reposeEndpoint + "/servers/720/", method:'GET', headers:['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token] + reqHeaders)
+
+        then:
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("user-agent") == 1
+        mc.handlings[0].request.headers.getCountByName("x-pp-user") == 4
+        mc.handlings[0].request.headers.getCountByName("accept") == 2
+    }
+
+    def "Should not split response headers according to rfc"() {
+        given: "Origin service returns headers "
+        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def xmlResp = { request -> return new Response(201, "Created", respHeaders) }
+        Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
+        fakeIdentityV3Service.with {
+            client_token = UUID.randomUUID().toString()
+            tokenExpiresAt = DateTime.now().plusDays(1)
+            client_projectid = 123
+            client_userid = 123
+        }
+
+        when: "User passes a request through repose"
+        def mc =
+                deproxy.makeRequest(
+                        url: reposeEndpoint + "/servers/123/",
+                        method: 'GET',
+                        headers: ['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token],
+                        defaultHandler: xmlResp
+                )
+
+        then:
+        mc.receivedResponse.code == "201"
+        mc.receivedResponse.headers.findAll("location").size() == 1
+        mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+}
