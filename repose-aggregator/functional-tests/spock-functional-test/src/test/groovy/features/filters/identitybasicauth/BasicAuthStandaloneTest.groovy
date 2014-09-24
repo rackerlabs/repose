@@ -116,7 +116,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
     }
 
     @Unroll("Sending request with invalid UserName #userName and API Key #apiKey pair.")
@@ -132,7 +131,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         then: "Request reject if invalid apikey or username"
         mc.receivedResponse.code == HttpServletResponse.SC_UNAUTHORIZED.toString()
         mc.handlings.size() == 0
-        mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
 
         where:
@@ -164,6 +162,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
     def "Ensure that subsequent calls within the cache timeout are retrieving the token from the cache"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
+        sleep(3000) //wait for sometime for any previous cache same token
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
@@ -176,14 +175,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        ////////////////////////////////////////////////////////////////////////////////
-        // IF this test is ran by itself OR the First in the suite,
-        // THEN it has to retrieve the Admin Token using the Admin User Name and Password;
-        // ELSE IF this test is ran as part of the suite,
-        // THEN it has the potential to have already cached it.
-        mc0.orphanedHandlings.size() == 1 ||         // Single/First
-                mc0.orphanedHandlings.size() == 0    // Suite
-        ////////////////////////////////////////////////////////////////////////////////
+        mc0.orphanedHandlings.size() == 1
         mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -197,6 +189,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         ]
 
         when: "multiple requests that have the same HTTP Basic authentication header"
+        sleep(3000) //wait for sometime for any previous cache same token
         MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
         sleep 3000 // How do I get this programmatically from the config.
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
@@ -205,14 +198,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        ////////////////////////////////////////////////////////////////////////////////
-        // IF this test is ran by itself OR the First in the suite,
-        // THEN it has to retrieve the Admin Token using the Admin User Name and Password;
-        // ELSE IF this test is ran as part of the suite,
-        // THEN it has the potential to have already cached it.
-        mc0.orphanedHandlings.size() == 1 ||         // Single/First
-                mc0.orphanedHandlings.size() == 0    // Suite
-        ////////////////////////////////////////////////////////////////////////////////
+        mc0.orphanedHandlings.size() == 1
         mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
