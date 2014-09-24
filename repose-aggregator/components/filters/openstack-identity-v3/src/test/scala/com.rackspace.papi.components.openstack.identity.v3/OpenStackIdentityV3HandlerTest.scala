@@ -48,7 +48,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test1")
 
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.PASS
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction equals FilterAction.PASS
     }
 
     it("should attempt validation if uri isn't in the whitelist") {
@@ -60,8 +60,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setRequestURI("/test3")
 
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction should be theSameInstanceAs FilterAction.RETURN
-      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus should be theSameInstanceAs HttpStatusCode.UNAUTHORIZED
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction equals FilterAction.RETURN
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus equals HttpStatusCode.UNAUTHORIZED
     }
   }
 

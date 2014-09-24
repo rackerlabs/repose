@@ -47,7 +47,7 @@ class RackspaceIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
       val filterDirector = rackspaceIdentityBasicAuthHandler.handleRequest(mockServletRequest, mockServletResponse)
 
       // then: "the filter's response status code would only be processed if it were set to UNAUTHORIZED (401) by another filter/service."
-      filterDirector.getFilterAction should be theSameInstanceAs FilterAction.PROCESS_RESPONSE
+      filterDirector.getFilterAction equals FilterAction.PROCESS_RESPONSE
     }
   }
 
