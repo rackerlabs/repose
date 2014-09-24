@@ -305,14 +305,14 @@ class MockIdentityService {
         def request_token = tokenId
 
         def params = [
-                expires : getExpires(),
-                userid : client_userid,
-                username : client_username,
-                tenant : client_tenant,
-                tenanttwo : client_tenant_file,
-                token : request_token,
+                expires     : getExpires(),
+                userid      : client_userid,
+                username    : client_username,
+                tenant      : client_tenant,
+                tenanttwo   : client_tenant_file,
+                token       : request_token,
                 serviceadmin: service_admin_role
-                ];
+        ];
 
         def code;
         def template;
@@ -451,10 +451,7 @@ class MockIdentityService {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            if (client_apikey == invalid_key)
-                code = 401
-            else
-                code = 404
+            code = 404
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {
