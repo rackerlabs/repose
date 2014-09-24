@@ -328,7 +328,13 @@
     <build>
         <pluginManagement>
             <plugins>
-
+                <!-- todo: remove this once the 2.10 plugin is no longer broken -->
+                <!-- http://stackoverflow.com/questions/25983852/maven-javadoc-plugin-breaks-mvn-releaseperform/25986409#25986409 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9.1</version>
+                </plugin>
                 <!-- todo: figure out how these work and move them to where they belong -->
                 <!--For JAXB Schema Compilation Support-->
                 <plugin>
