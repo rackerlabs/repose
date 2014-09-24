@@ -38,6 +38,18 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="send-all-project-ids" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to false, a single X-Project-Id is sent.
+                        If set to true, all project IDs returned by the Identity service are added as multiple
+                        X-Project-Id headers.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
