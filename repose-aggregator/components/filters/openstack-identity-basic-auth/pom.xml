@@ -24,17 +24,15 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
         </dependency>
 
-        <!-- TODO: Need to extract this dependency and manage it. -->
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
-            <version>2.2.0</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- Mockrunner for mock HttpServletRequest -->
@@ -43,14 +41,6 @@
             <artifactId>mockrunner-servlet</artifactId>
             <version>1.0.0</version>
             <scope>test</scope>
-            <!-- TODO: This may longer be necessary. -->
-            <exclusions>
-                <!-- This exclusion prevents a NoSuchFieldError: W3C_XML_SCHEMA10_NS_URI -->
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- These three are required because of our coupling between filters and core -->
