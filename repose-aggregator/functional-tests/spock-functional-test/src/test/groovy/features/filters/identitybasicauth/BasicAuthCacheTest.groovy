@@ -24,14 +24,18 @@ class BasicAuthCacheTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identitybasicauth", params)
-        repose.configurationProvider.applyConfigs("features/filters/identitybasicauth/cache", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
     }
 
-    def cleanup() {
-        deproxy.shutdown()
-        repose.stop()
+    def cleanupSpec() {
+        if (deproxy) {
+            deproxy.shutdown()
+        }
+
+        if (repose) {
+            repose.stop()
+        }
     }
 
     /**

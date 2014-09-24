@@ -198,7 +198,7 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
 
         when: "multiple requests that have the same HTTP Basic authentication header"
         MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-        sleep 5000 // How do I get this programmatically from the config.
+        sleep 3000 // How do I get this programmatically from the config.
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get the token from the Identity (Keystone) service"
