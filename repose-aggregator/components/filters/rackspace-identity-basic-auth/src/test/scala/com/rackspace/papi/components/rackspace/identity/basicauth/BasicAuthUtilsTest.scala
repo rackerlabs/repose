@@ -18,7 +18,7 @@ class BasicAuthUtilsTest extends FunSpec with Matchers {
       it(s"decodes $decoded into $expectedUsername and $expectedPassword") {
         val authValue = new String(Base64.encodeBase64URLSafeString(decoded.getBytes()))
 
-        val (extractedUsername, extractedPassword) = extractCreds(authValue)
+        val (extractedUsername, extractedPassword) = extractCredentials(authValue)
 
         extractedUsername shouldBe expectedUsername
         extractedPassword shouldBe expectedPassword

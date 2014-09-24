@@ -11,7 +11,7 @@ object BasicAuthUtils {
    * @param decoded the cleaned header value to be decoded and split
    * @return a tuple of the (username, API Key)
    */
-  def extractCreds(authValue: String): (String, String) = {
+  def extractCredentials(authValue: String): (String, String) = {
     val decodedString = new String(Base64.decodeBase64(authValue))
     val username = decodedString.split(":").head
     val password = decodedString.replace(s"$username:", "")
@@ -24,7 +24,7 @@ object BasicAuthUtils {
    * @param method the auth method to search for
    * @return an Iterator of the Authentication header values that match the desired auth method
    */
-  def getBasicAuthHdrs(optionHeaders: Option[java.util.Enumeration[String]], method: String): Option[Iterator[String]] = {
+  def getBasicAuthHeaders(optionHeaders: Option[java.util.Enumeration[String]], method: String): Option[Iterator[String]] = {
     if (optionHeaders.isDefined && !optionHeaders.isEmpty) {
       val wwwAuthenticateHeaders = JavaConverters.enumerationAsScalaIteratorConverter(optionHeaders.get).asScala
       Option(wwwAuthenticateHeaders.filter(_.toUpperCase.startsWith(method.toUpperCase)))

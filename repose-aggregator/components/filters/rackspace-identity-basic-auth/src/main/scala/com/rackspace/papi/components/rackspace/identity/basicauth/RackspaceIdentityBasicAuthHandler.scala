@@ -38,7 +38,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
     if (!optionXAuthHeaders.isDefined || !(optionXAuthHeaders.get.hasMoreElements)) {
       // IF request has a HTTP Basic authentication header (Authorization) with method of Basic, THEN ...
       val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
+      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(optionHeaders, "Basic")
       if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
         // FOR EACH HTTP Basic authentication header (Authorization) with method Basic...
         var tokenFound = false
@@ -105,7 +105,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
   private def getUserToken(authValue: String): (Int, Option[String]) = {
     val createAuthRequest = (encoded: String) => {
       // Base64 Decode and split the userName/apiKey
-      val (userName, apiKey) = BasicAuthUtils.extractCreds(authValue)
+      val (userName, apiKey) = BasicAuthUtils.extractCredentials(authValue)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
       //<?xml version="1.0" encoding="UTF-8"?>
       <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
@@ -162,7 +162,7 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
     // IF request has a HTTP Basic authentication header (Authorization),
     // THEN remove the encoded userName/apiKey (Key) & token (Value) cached in the Datastore
     val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-    val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHdrs(optionHeaders, "Basic")
+    val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(optionHeaders, "Basic")
     if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
       for (authHeader <- authMethodBasicHeaders.get) {
         val authValue = authHeader.replace("Basic ", "")
