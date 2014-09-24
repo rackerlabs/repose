@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rackspace-identity-basic-auth
+        xmlns="rackspace-identity-basic-auth.xsd"
+        rackspace-identity-service-uri="http://identity.example.com:8080/v2.0/tokens"
+        token-cache-timeout-millis="0"/>

@@ -118,7 +118,7 @@
     </filter>
 
     <filter>
-        <filter-name>openstack-identity-basic-auth</filter-name>
-        <filter-class>com.rackspace.papi.components.openstack.identity.basicauth.OpenStackIdentityBasicAuthFilter</filter-class>
+        <filter-name>rackspace-identity-basic-auth</filter-name>
+        <filter-class>com.rackspace.papi.components.rackspace.identity.basicauth.RackspaceIdentityBasicAuthFilter</filter-class>
     </filter>
 </web-fragment>

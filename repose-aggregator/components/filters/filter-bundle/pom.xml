@@ -134,7 +134,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>openstack-identity-basic-auth</artifactId>
+            <artifactId>rackspace-identity-basic-auth</artifactId>
         </dependency>
     </dependencies>
 
@@ -250,7 +250,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>openstack-identity-basic-auth</artifactId>
+                            <artifactId>rackspace-identity-basic-auth</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

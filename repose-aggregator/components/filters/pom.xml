@@ -35,7 +35,7 @@
         <module>header-translation</module>
         <module>uri-stripper</module>
         <module>openstack-identity-v3</module>
-        <module>openstack-identity-basic-auth</module>
+        <module>rackspace-identity-basic-auth</module>
     </modules>
 
     <dependencyManagement>
@@ -246,7 +246,7 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>openstack-identity-basic-auth</artifactId>
+                <artifactId>rackspace-identity-basic-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

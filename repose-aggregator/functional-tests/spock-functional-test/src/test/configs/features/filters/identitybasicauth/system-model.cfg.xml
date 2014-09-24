@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="openstack-identity-basic-auth"/>
+            <filter name="rackspace-identity-basic-auth"/>
             <filter name="client-auth"/>
         </filters>
 
