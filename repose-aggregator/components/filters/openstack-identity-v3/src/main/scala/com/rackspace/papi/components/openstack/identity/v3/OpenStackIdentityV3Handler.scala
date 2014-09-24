@@ -29,6 +29,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   private val forwardCatalog = identityConfig.isForwardCatalog
   private val forwardUnauthorizedRequests = identityConfig.isForwardUnauthorizedRequests
   private val projectIdUriRegex = Option(identityConfig.getValidateProjectIdInUri).map(_.getRegex.r)
+  private val bypassProjectIdCheckRoles = Option(identityConfig.getRolesWhichBypassProjectIdCheck).map(_.getRole.asScala.toList)
   private val configuredServiceEndpoint = Option(identityConfig.getServiceEndpoint) map { serviceEndpoint =>
     Endpoint(id = "configured-endpoint",
       url = serviceEndpoint.getUrl,
@@ -208,21 +209,30 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
   }
 
-  private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[Role]): Boolean = true
+  private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =
+    userRoles.exists(userRole => ignoreProjectRoles.exists(ignoreRole => ignoreRole.equals(userRole)))
 
   private def isProjectIdValid(requestUri: String, token: AuthenticateResponse): Boolean = {
     projectIdUriRegex match {
       case Some(regex) =>
-        // Extract the project ID from the URI
-        val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
+        // Check whether or not this user should bypass project ID validation
+        val userRoles = token.roles.getOrElse(List[Role]()).map(_.name)
+        val bypassProjectIdCheck = hasIgnoreEnabledRole(bypassProjectIdCheckRoles.getOrElse(List[String]()), userRoles)
 
-        // Bind the default project ID, if available
-        val defaultProjectId = token.project.map(_.id).getOrElse(None)
+        if (bypassProjectIdCheck) {
+          true
+        } else {
+          // Extract the project ID from the URI
+          val extractedProjectId = extractProjectIdFromUri(regex, requestUri)
 
-        // Attempt to match the extracted project ID against the project IDs in the token
-        extractedProjectId match {
-          case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
-          case None => false
+          // Bind the default project ID, if available
+          val defaultProjectId = token.project.map(_.id).getOrElse(None)
+
+          // Attempt to match the extracted project ID against the project IDs in the token
+          extractedProjectId match {
+            case Some(projectId) => projectMatches(projectId, defaultProjectId, token.roles.getOrElse(List[Role]()))
+            case None => false
+          }
         }
       case None => true
     }

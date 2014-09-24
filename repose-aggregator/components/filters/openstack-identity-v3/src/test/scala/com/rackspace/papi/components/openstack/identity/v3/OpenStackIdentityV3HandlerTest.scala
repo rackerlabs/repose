@@ -14,7 +14,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 
-import scala.util.matching.Regex
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
@@ -34,6 +33,8 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getServiceEndpoint.setUrl("http://www.notreallyawebsite.com")
     identityConfig.setValidateProjectIdInUri(new ValidateProjectID())
     identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
+    identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
+    identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
     identityAPI = mock[OpenStackIdentityV3API]
 
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
@@ -263,6 +264,10 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, null, null, null, null, null, null, null)) shouldBe true
     }
 
+    it("should return true if the user had a role which bypasses validation") {
+      identityV3Handler invokePrivate isProjectIdValid("", AuthenticateResponse(null, null, null, None, None, None, Some(List(Role("12345", "admin"))), null)) shouldBe true
+    }
+
     it("should return false if no a project ID could not be extracted from the URI") {
       identityV3Handler invokePrivate isProjectIdValid("/foo/bar", AuthenticateResponse(null, null, null, None, None, None, None, null)) shouldBe false
     }
@@ -281,7 +286,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should return Some(projectId) if the regex matches and a capture group is present") {
       val projectId = identityV3Handler invokePrivate extractProjectIdFromUri("""/foo/(\d+)""".r, "/foo/12345")
-      projectId shouldBe a [Some[_]]
+      projectId shouldBe a[Some[_]]
       projectId.get shouldEqual "12345"
     }
   }
@@ -299,6 +304,24 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should return true if a role project ID matches") {
       identityV3Handler invokePrivate projectMatches("12345", Some("09876"), List(Role("id", "name", Some("12345")))) shouldBe true
+    }
+  }
+
+  describe("hasIgnoreEnabledRole") {
+    val hasIgnoreEnabledRole = PrivateMethod[Boolean]('hasIgnoreEnabledRole)
+
+    it("should return false if the user does not have a role which is in the bypass roles list") {
+      val ignoreRoles = List("a", "b", "c")
+      val userRoles = List("d", "e")
+
+      identityV3Handler invokePrivate hasIgnoreEnabledRole(ignoreRoles, userRoles) shouldBe false
+    }
+
+    it("should return true if the user does have a role which is in the bypass roles list") {
+      val ignoreRoles = List("a", "b", "c")
+      val userRoles = List("a", "e")
+
+      identityV3Handler invokePrivate hasIgnoreEnabledRole(ignoreRoles, userRoles) shouldBe true
     }
   }
 }
