@@ -102,22 +102,6 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         !mc.receivedResponse.headers.findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
-        given: "the HTTP Basic authentication header containing the User Name and API Key"
-        def headers = [
-                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
-        ]
-
-        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
-
-        then: "then get a token for it"
-        mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
-        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-    }
-
     @Unroll("Sending request with invalid UserName #userName and API Key #apiKey pair.")
     def "Fail to retrieve a token for an HTTP Basic authentication header with an invalid UserName/ApiKey pair"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
@@ -177,19 +161,21 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
-    def "when send request with credential"() {
+    def "Retrieve a token for an HTTP Basic authentication header with UserName/ApiKey"() {
+        given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
 
-        when: "the request does have an HTTP Basic authentication header"
+        when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "request should pass as no basic auth filter"
+        then: "then get a token for it"
         mc.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.contains(HttpHeaders.AUTHORIZATION)
-        mc.handlings[0].request.headers.contains("X-Auth-Token")
+        mc.handlings[0].request.headers.getCountByName(HttpHeaders.AUTHORIZATION) == 1
+        mc.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
         mc.orphanedHandlings.size() == 1 // This is the call to the Mock Identity service through deproxy.
         !mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
