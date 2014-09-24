@@ -167,7 +167,7 @@
                 </configuration>
             </plugin>
 
-            <!--plugin>
+            <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
                 <version>0.5.0</version>
@@ -189,10 +189,10 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
-            <!-- I think this is legit, rules go in scalastyle_config.xml -->
+            </plugin>
 
-            <!--plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
@@ -208,11 +208,11 @@
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                 </configuration>
-            </plugin-->
+            </plugin>
 
 
 
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>codenarc-maven-plugin</artifactId>
                 <version>0.18-1</version>
@@ -221,7 +221,7 @@
                     <maxPriority1Violations>0</maxPriority1Violations>
                     <maxPriority2Violations>0</maxPriority2Violations>
                     <maxPriority3Violations>0</maxPriority3Violations>
-
+                    <rulesetfiles>${basedir}/rulesets/ruleset.xml</rulesetfiles>
                     <xmlOutputDirectory>${basedir}/</xmlOutputDirectory>
                 </configuration>
                 <executions>
@@ -233,7 +233,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
 
         </plugins>
     </build>
