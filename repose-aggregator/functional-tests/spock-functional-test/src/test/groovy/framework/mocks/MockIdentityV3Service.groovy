@@ -119,6 +119,7 @@ class MockIdentityV3Service {
     def client_projectid = 1234567
     def client_projectname = "this-is-the-project"
     def client_projectid2 = "openstack-project"
+    def client_projectname2 = "this-is-the-project2"
     def admin_domainid = 'this-is-the-admin-domain'
     def admin_domainname = 'example.com'
     def admin_token = 'this-is-the-admin-token'
