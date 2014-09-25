@@ -117,7 +117,7 @@ class ProjectIDURITest extends ReposeValveTest{
         request2.headers.getFirstValue("x-forwarded-for") == "127.0.0.1"
         request2.headers.getFirstValue("x-project-id") == responseProject.toString()
         request2.headers.contains("x-token-expires")
-        request2.headers.getFirstValue("x-pp-user") == responseProject.toString()
+        request2.headers.getFirstValue("x-pp-user") == requestProject.toString()
         request2.headers.contains("x-roles")
         request2.headers.getFirstValue("x-authorization") == "Proxy"
         request2.headers.getFirstValue("x-user-name") == "username"
