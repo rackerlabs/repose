@@ -119,6 +119,10 @@ class MockIdentityV3Service {
     def client_userid = 12345
     def client_projectid = 1234567
     def client_projectname = "this-is-the-project"
+<<<<<<< HEAD
+=======
+    def client_projectid2 = "openstack-project"
+>>>>>>> e3ff635... update mock service to support project id in roles
     def admin_domainid = 'this-is-the-admin-domain'
     def admin_domainname = 'example.com'
     def admin_token = 'this-is-the-admin-token'
@@ -314,6 +318,7 @@ class MockIdentityV3Service {
                 servicePort : servicePort,
                 projectid   : client_projectid,
                 projectname : client_projectname,
+                projectid2  : client_projectid2,
                 domainid    : client_domainid,
                 domainname  : client_domainname,
                 serviceadmin: service_admin_role
@@ -356,6 +361,7 @@ class MockIdentityV3Service {
                 servicePort : this.servicePort,
                 projectid   : client_projectid,
                 projectname : client_projectname,
+                projectid2  : client_projectid2,
                 domainid    : client_domainid,
                 domainname  : client_domainname,
                 serviceadmin: service_admin_role
@@ -552,14 +558,16 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/76e72a"
                     },
-                    "name": "admin"
+                    "name": "admin",
+                     "RAX-AUTH:projectId": "\${projectid}"
                 },
                 {
                     "id": "f4f392",
                     "links": {
                         "self": "http://identity:35357/v3/roles/f4f392"
                     },
-                    "name": "member"
+                    "name": "member",
+                    "project_id": "\${projectid2}"
                 }
             ],
             "user": {
