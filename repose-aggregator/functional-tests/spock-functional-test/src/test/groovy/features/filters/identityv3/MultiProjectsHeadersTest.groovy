@@ -4,6 +4,7 @@ import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 9/24/14.
@@ -42,7 +43,8 @@ class MultiProjectsHeadersTest extends ReposeValveTest{
         fakeIdentityV3Service.resetHandlers()
     }
 
-    def "When user have multi-projects will retrieve all projects to headers" (){
+    @Unroll
+    def "When user have multi-projects will retrieve all projects to headers" () {
         given:
         fakeIdentityV3Service.with {
             client_token = clientToken
@@ -70,10 +72,10 @@ class MultiProjectsHeadersTest extends ReposeValveTest{
         }
 
         where:
-        clientToken     | defaultProject    | secondProject     | reqProject        |serviceRespCode    | numberProjects
-        "123456"        | "test-project"    | "123456"          |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "test-project"    | "test-project"    |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"          | "123456"          |UUID.randomUUID()  | "200"             | 1
-        "123456"        | "test-project"    | "223456"          |UUID.randomUUID()  | "401"             | 0
+        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
+        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "test-project"  | "test-project"  |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "123456"        | "123456"        |UUID.randomUUID()  | "200"             | 1
+
     }
 }
