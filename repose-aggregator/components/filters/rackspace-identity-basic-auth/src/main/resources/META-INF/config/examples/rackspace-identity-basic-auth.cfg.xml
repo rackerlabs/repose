@@ -3,4 +3,4 @@
 <rackspace-identity-basic-auth
         xmlns="http://docs.openrepose.org/rackspace-identity-basic-auth/v1.0"
         rackspace-identity-service-uri="http://identity.example.com:8080/v2.0/tokens"
-        token-cache-timeout-millis="0"/>
+        token-cache-timeout-millis="600000"/>
