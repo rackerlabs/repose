@@ -134,15 +134,17 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         // TODO: Set X-Impersonator-Id, same as above
         // TODO: Set X-Default-Region
       }
-      
+
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
-      if (forwardUnauthorizedRequests && !failureInValidation) {
-        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
-      } else if (forwardUnauthorizedRequests) {
-        LOG.debug("Forwarding indeterminate request")
-        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
-        requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
-        filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+      if (forwardUnauthorizedRequests) {
+        if (!failureInValidation) {
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Confirmed.name)
+        } else {
+          LOG.debug("Forwarding indeterminate request")
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IDENTITY_STATUS, IdentityStatus.Indeterminate.name)
+          requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
+          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
+        }
       }
     }
 
