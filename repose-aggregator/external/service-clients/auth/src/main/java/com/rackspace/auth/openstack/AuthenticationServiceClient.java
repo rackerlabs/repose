@@ -125,14 +125,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return akkaServiceClient.get(TOKEN_PREFIX + userToken, targetHostUri + TOKENS + userToken, headers);
     }
 
-    private OpenStackToken getOpenStackToken(ServiceClientResponse serviceResponse) {
-        final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-        OpenStackToken token;
-
-        token = new OpenStackToken(authenticateResponse);
-        return token;
-    }
-
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
         final Map<String, String> headers = new HashMap<>();
@@ -158,7 +150,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
                 endpointListResponse = akkaServiceClient.get(ENDPOINTS_PREFIX + userToken, targetHostUri + TOKENS + userToken + ENDPOINTS, headers);
 
-                if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
+                if (endpointListResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                     endpointList = getEndpointList(endpointListResponse);
                 } else {
                     LOG.error("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
