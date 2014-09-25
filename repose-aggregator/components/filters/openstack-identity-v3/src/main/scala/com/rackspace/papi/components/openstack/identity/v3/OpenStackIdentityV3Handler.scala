@@ -73,6 +73,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Attempt to check the project ID if configured to do so
       if (!failureInValidation && !isProjectIdValid(request.getRequestURI, token.get)) {
         failureInValidation = true
+        filterDirector.responseHeaderManager.putHeader(OpenStackIdentityV3Headers.WWW_AUTHENTICATE, "Keystone uri=" + identityServiceUri)
         filterDirector.setFilterAction(FilterAction.RETURN)
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED)
       }
