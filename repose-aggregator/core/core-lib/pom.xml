@@ -16,7 +16,7 @@
 
     <properties>
         <reposeVersion>${project.version}</reposeVersion>
-        <reposeVersionName>Altair</reposeVersionName>
+        <reposeVersionName>Bowser</reposeVersionName>
         <sonar.jacoco.itReportPath>${project.basedir}/../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
