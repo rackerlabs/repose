@@ -84,6 +84,26 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         filterDirector.setResponseStatus(HttpStatusCode.FORBIDDEN)
       }
 
+      // Attempt to fetch groups if configured to do so
+      val userGroups = if (!failureInValidation && forwardGroups) {
+        token.get.user.id map { userId =>
+          identityAPI.getGroups(userId) match {
+            case Success(groupsList) =>
+              groupsList.map(_.name)
+            case Failure(e) =>
+              failureInValidation = true
+              LOG.error(e.getMessage)
+              List[String]()
+          }
+        } getOrElse {
+          failureInValidation = true
+          LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
+          List[String]()
+        }
+      } else {
+        List[String]()
+      }
+
       // If all validation succeeds, pass the request and set headers
       if (!failureInValidation) {
         filterDirector.setFilterAction(FilterAction.PASS)
@@ -107,16 +127,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
         }
         if (forwardGroups) {
-          token.get.user.id map { userId: String =>
-            identityAPI.getGroups(userId) map { groupsList: List[Group] =>
-              groupsList map { group: Group =>
-                requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group.name + ";q=1.0")
-              }
-            }
-          } orElse {
-            LOG.warn("The X-PP-Groups header could not be populated. The user ID was not present in the token retrieved from Keystone.")
-            None
-          }
+          userGroups.foreach(group => requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group + ";q=1.0"))
         }
         // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
         // TODO: Set X-Impersonator-Id, same as above
