@@ -555,7 +555,7 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/76e72a"
                     },
-                    "name": "admin",
+                    "name": "\${serviceadmin}",
                      "RAX-AUTH:projectId": "\${projectid}"
                 },
                 {
@@ -563,7 +563,7 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/f4f392"
                     },
-                    "name": "member",
+                    "name": "\${projectid2}",
                     "project_id": "\${projectid2}"
                 }
             ],
