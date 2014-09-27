@@ -116,4 +116,9 @@
         <filter-name>uri-stripper</filter-name>
         <filter-class>com.rackspace.papi.components.uristripper.UriStripperFilter</filter-class>
     </filter>
+    <filter>
+        <filter-name>rackspace-auth-identity</filter-name>
+        <filter-class>com.rackspace.identity.repose.authIdentity.RackspaceAuthIdentityFilter</filter-class>
+    </filter>
+
 </web-fragment>

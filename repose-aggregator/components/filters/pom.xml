@@ -249,6 +249,11 @@
                 <artifactId>uri-stripper</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>rackspace-auth-identity</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

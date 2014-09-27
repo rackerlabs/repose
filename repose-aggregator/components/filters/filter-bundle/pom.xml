@@ -131,6 +131,10 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-stripper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>rackspace-auth-identity</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
