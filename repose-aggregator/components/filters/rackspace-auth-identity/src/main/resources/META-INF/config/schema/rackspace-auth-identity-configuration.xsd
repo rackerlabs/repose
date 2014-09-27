@@ -20,28 +20,23 @@
             <xs:element name="v1_1" type="IdentityV1.1" minOccurs="0" maxOccurs="1"/>
             <xs:element name="v2_0" type="IdentityV2" minOccurs="0" maxOccurs="1"/>
         </xs:all>
-
-        <xs:attribute name="content-body-read-limit" type="xs:positiveInteger" use="optional" default="4096">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>How much of the body to parse, before bailing</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="IdentityV2">
+    <xs:complexType name="IdentityGroupConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>If this element is specified, the filter will attempt to parse out a payload for the identity
                     v2.0 contract (either json or xml) and extract the username. Group will be as configured, or the
-                    default of PreAuth_2_0. The default quality applied to the header will be 0.6
+                    default of PreAuth. The default quality applied to the header will be 0.6
+
+                    If you want to have different groups for 1.1 and for 2.0 you need to specify them, else they will
+                    use the same default.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="PreAuth_2_0"/>
+            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="Pre_Auth"/>
             <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.6"/>
         </xs:all>
 
@@ -55,33 +50,19 @@
 
     </xs:complexType>
 
-    <xs:complexType name="IdentityV1.1">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    If this element is specified, the filter will attempt to parse out a payload for the identity
-                    v1.1 contract (either json or xml) and extract the username. Group will be as configured, or the
-                    default of PreAuth_1_1. The default quality applied to the header will be 0.6
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
+    <xs:complexType name="IdentityV2">
+        <xs:complexContent>
+            <xs:extension base="IdentityGroupConfig">
 
-        <xs:all>
-            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="PreAuth_1_1"/>
-            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.6"/>
-        </xs:all>
-
-
-        <xs:attribute name="content-body-read-limit" type="xs:positiveInteger" use="optional" default="4096">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        How much of the body to read before aborting.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
+    <xs:complexType name="IdentityV1.1">
+        <xs:complexContent>
+            <xs:extension base="IdentityGroupConfig">
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 </xs:schema>
