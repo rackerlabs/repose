@@ -36,7 +36,7 @@ class RackspaceAuthIdentityHandlerTest extends FunSpec with Matchers with Mockit
 
   describe("Sets the correct header for") {
     describe("for auth 2.0") {
-      val groupsHeader = Set("0.7", "V20Group")
+      val groupsHeader = Set("V20Group;q=0.7")
       it("user/APIKEY payload in json") {
         mockRequest.resetAll()
         mockRequest.setBodyContent(
@@ -59,7 +59,7 @@ class RackspaceAuthIdentityHandlerTest extends FunSpec with Matchers with Mockit
         val headersToAdd = director.requestHeaderManager().headersToAdd()
 
         val pp_userHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.USER.toString))
-        pp_userHeader.asScala shouldBe Set("demoauthor", "0.7")
+        pp_userHeader.asScala shouldBe Set("demoauthor;q=0.7")
 
         val pp_groupsHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.GROUPS.toString))
         pp_groupsHeader.asScala shouldBe groupsHeader
@@ -82,14 +82,14 @@ class RackspaceAuthIdentityHandlerTest extends FunSpec with Matchers with Mockit
         val headersToAdd = director.requestHeaderManager().headersToAdd()
 
         val pp_userHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.USER.toString))
-        pp_userHeader.asScala shouldBe Set("demoauthor", "0.7")
+        pp_userHeader.asScala shouldBe Set("demoauthor;q=0.7")
 
         val pp_groupsHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.GROUPS.toString))
         pp_groupsHeader.asScala shouldBe groupsHeader
       }
     }
     describe("for auth 1.1") {
-      val groupsHeader = Set("V11Group", "0.6")
+      val groupsHeader = Set("V11Group;q=0.6")
       it("payload in xml") {
         mockRequest.setBodyContent(
           """
@@ -108,7 +108,7 @@ class RackspaceAuthIdentityHandlerTest extends FunSpec with Matchers with Mockit
         val headersToAdd = director.requestHeaderManager().headersToAdd()
 
         val pp_userHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.USER.toString))
-        pp_userHeader.asScala shouldBe Set("hub_cap", "0.6")
+        pp_userHeader.asScala shouldBe Set("hub_cap;q=0.6")
 
         val pp_groupsHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.GROUPS.toString))
         pp_groupsHeader.asScala shouldBe groupsHeader
@@ -131,7 +131,7 @@ class RackspaceAuthIdentityHandlerTest extends FunSpec with Matchers with Mockit
         val headersToAdd = director.requestHeaderManager().headersToAdd()
 
         val pp_userHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.USER.toString))
-        pp_userHeader.asScala shouldBe Set("hub_cap", "0.6")
+        pp_userHeader.asScala shouldBe Set("hub_cap;q=0.6")
 
         val pp_groupsHeader = headersToAdd.get(HeaderName.wrap(PowerApiHeader.GROUPS.toString))
         pp_groupsHeader.asScala shouldBe groupsHeader
