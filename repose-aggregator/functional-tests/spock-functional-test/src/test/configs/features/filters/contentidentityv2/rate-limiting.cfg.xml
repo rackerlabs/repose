@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+    <request-endpoint uri-regex="/service/limits" include-absolute-limits="false"/>
+
+    <limit-group id="test" groups="test-group" default="false">
+        <limit uri="/my post" uri-regex="/my/post" http-methods="POST" unit="DAY" value="1" />
+    </limit-group>
+
+    <limit-group id="Standard" groups="IP_Standard" default="true">
+        <limit uri="/*" uri-regex="(/).*" http-methods="ALL" unit="SECOND" value="50" />
+    </limit-group>
+
+</rate-limiting>

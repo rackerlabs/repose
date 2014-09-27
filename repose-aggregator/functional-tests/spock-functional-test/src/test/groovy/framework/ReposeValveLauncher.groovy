@@ -134,11 +134,11 @@ class ReposeValveLauncher implements ReposeLauncher {
 
         def jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:${jmxPort}/jmxrmi"
 
-        waitForCondition(clock, '60s', '1s') {
-            connectViaJmxRemote(jmxUrl)
-        }
-
         if (waitOnJmxAfterStarting) {
+            waitForCondition(clock, '60s', '1s') {
+                connectViaJmxRemote(jmxUrl)
+            }
+
             print("Waiting for repose to start")
             waitForCondition(clock, '60s', '1s', {
                 isFilterChainInitialized()
