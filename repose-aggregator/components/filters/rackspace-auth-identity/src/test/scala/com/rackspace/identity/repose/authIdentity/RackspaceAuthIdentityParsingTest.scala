@@ -1,12 +1,13 @@
+package com.rackspace.identity.repose.authIdentity
+
 import java.io.ByteArrayInputStream
 
-import com.rackspace.identity.repose.authIdentity.{IdentityV2, IdentityV11, RackspaceAuthIdentityConfig, RackspaceAuthIdentityHandler}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class HandlerTest extends FunSpec with Matchers {
+class RackspaceAuthIdentityParsingTest extends FunSpec with Matchers {
 
   def auth1_1Config() = {
     val conf = new RackspaceAuthIdentityConfig
@@ -46,7 +47,7 @@ class HandlerTest extends FunSpec with Matchers {
 
 
         val username = handler.username1_1XML(new ByteArrayInputStream(payload.getBytes))
-        username shouldBe "hub_cap"
+        username shouldBe Some("hub_cap")
       }
     }
     describe("JSON") {
@@ -63,7 +64,7 @@ class HandlerTest extends FunSpec with Matchers {
 
         val username = handler.username1_1JSON(new ByteArrayInputStream(payload.getBytes))
 
-        username shouldBe "hub_cap"
+        username shouldBe Some("hub_cap")
       }
     }
   }
