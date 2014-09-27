@@ -30,8 +30,8 @@ class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) ex
 
     //This logic is exactly the same regardless of the configuration, so lets reuse it
     val updateHeaders: (IdentityGroupConfig, String) => Unit = { (config, username) =>
-      headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality)
-      headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality)
+      headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality.toDouble)
+      headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality.toDouble)
       director.setFilterAction(FilterAction.PROCESS_RESPONSE)
     }
 
