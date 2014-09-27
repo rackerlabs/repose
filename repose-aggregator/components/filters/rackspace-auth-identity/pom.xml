@@ -24,6 +24,14 @@
         <sonar.jacoco.itReportPath>${project.basedir}/../../../target/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>typesafe</id>
+            <name>typesafe-releases</name>
+            <url>http://repo.typesafe.com/typesafe/maven-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.core</groupId>
@@ -49,6 +57,13 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.10</artifactId>
+        </dependency>
+
+        <!-- going to use play-json, so we can lense, rather than object -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_2.10</artifactId>
+            <version>2.3.4</version>
         </dependency>
 
         <!-- super handy lazy logging! -->
