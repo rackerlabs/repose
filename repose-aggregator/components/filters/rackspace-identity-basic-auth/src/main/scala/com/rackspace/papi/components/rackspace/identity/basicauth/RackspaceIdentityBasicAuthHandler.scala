@@ -32,68 +32,76 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
     val filterDirector: FilterDirector = new FilterDirectorImpl()
     // We need to process the Response unless a couple of specific conditions occur.
     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE)
-    val optionXAuthHeaders = Option(httpServletRequest.getHeaders(X_AUTH_TOKEN))
-    if (!optionXAuthHeaders.isDefined || !(optionXAuthHeaders.get.hasMoreElements)) {
-      val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(optionHeaders, "Basic")
-      if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
-        var tokenFound = false
-        var code = HttpServletResponse.SC_OK
-        val authHeader = authMethodBasicHeaders.get.next()
-        val authValue = authHeader.replace("Basic ", "")
-        var token = Option(datastore.get(TOKEN_KEY_PREFIX + authValue))
-        if (token.isDefined && !(token.isEmpty)) {
-          val tokenStr = token.get.toString
-          if (tokenStr.length > 0) {
-            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-            tokenFound = true
+    if (!httpServletRequest.getHeaderNames.asScala.toList.contains(X_AUTH_TOKEN)) {
+      withEncodedCredentials(httpServletRequest) { encodedCredentials =>
+        Option(datastore.get(TOKEN_KEY_PREFIX + encodedCredentials)) match {
+          case Some(token) => {
+            val tokenString = token.toString()
+            filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenString)
           }
-        } else {
-          // request a token
-          val rtn = getUserToken(authValue)
-          code = rtn._1
-          token = rtn._2
-          if (token.isDefined && !(token.isEmpty)) {
-            val tokenStr = token.get.toString
-            if (tokenStr.length > 0) {
-              if (tokenCacheTtlMillis > 0) {
-                datastore.put(TOKEN_KEY_PREFIX + authValue, token.get.toString, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
+          case None => {
+            // request a token
+            getUserToken(encodedCredentials) match {
+              case (code, Some(token)) => {
+                val tokenStr = token.toString()
+                if (tokenCacheTtlMillis > 0) {
+                  datastore.put(TOKEN_KEY_PREFIX + encodedCredentials, tokenStr, tokenCacheTtlMillis, TimeUnit.MILLISECONDS)
+                }
+                filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, tokenStr)
               }
-              // add the token header
-              filterDirector.requestHeaderManager().appendHeader(X_AUTH_TOKEN, token.get.toString)
-              // set the flag
-              tokenFound = true
+              case (code, _) => {
+                if (code == HttpServletResponse.SC_UNAUTHORIZED) {
+                  filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED) // (401)
+                  filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+                  datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+                } else {
+                  filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR) // (500)
+                }
+                filterDirector.setFilterAction(FilterAction.RETURN)
+              }
             }
           }
         }
-        if (!tokenFound) {
-          code match {
-            case HttpServletResponse.SC_UNAUTHORIZED |                // (401)
-                 HttpServletResponse.SC_NOT_FOUND =>                  // (404)
-            handleUnauthorized(filterDirector, httpServletRequest)
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_UNAUTHORIZED)           // (401)
-            case _ =>
-            filterDirector.setResponseStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)  // (500)
-          }
-          filterDirector.setFilterAction(FilterAction.RETURN)
-        }
       }
     }
-
     filterDirector
   }
 
+  override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
+    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
+    val filterDirector: FilterDirector = new FilterDirectorImpl()
+    if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
+      httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
+      filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
+      withEncodedCredentials(httpServletRequest) { encodedCredentials =>
+        datastore.remove(TOKEN_KEY_PREFIX + encodedCredentials)
+      }
+    }
+    LOG.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
+    filterDirector
+  }
+
+  private def withEncodedCredentials(request: HttpServletRequest)(f: String => Unit): Unit = {
+    Option(request.getHeaders(HttpHeaders.AUTHORIZATION)).map { authHeader =>
+      val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(authHeader, "Basic")
+      if (authMethodBasicHeaders.nonEmpty) {
+        val firstHeader = authMethodBasicHeaders.next()
+        f(firstHeader.replace("Basic ", ""))
+      }
+    }
+  }
+
   private def getUserToken(authValue: String): (Int, Option[String]) = {
-    val createAuthRequest = (encoded: String) => {
+    def createAuthRequest(encoded: String) = {
       // Base64 Decode and split the userName/apiKey
       val (userName, apiKey) = BasicAuthUtils.extractCredentials(authValue)
       // Scala's standard XML syntax does not support the XML declaration w/o a lot of hoops
       //<?xml version="1.0" encoding="UTF-8"?>
       <auth xmlns="http://docs.openstack.org/identity/api/v2.0">
         <apiKeyCredentials
-          xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
-          username={ userName }
-          apiKey={ apiKey }/>
+        xmlns="http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0"
+        username={userName}
+        apiKey={apiKey}/>
       </auth>
     }
     // Request a User Token based on the extracted User Name/API Key.
@@ -103,44 +111,17 @@ class RackspaceIdentityBasicAuthHandler(basicAuthConfig: RackspaceIdentityBasicA
       createAuthRequest(authValue).toString,
       MediaType.APPLICATION_XML_TYPE))
 
-    if (authTokenResponse.isDefined) {
-      val statusCode = authTokenResponse.get.getStatusCode
+    authTokenResponse.map { tokenResponse =>
+      val statusCode = tokenResponse.getStatusCode
       if (statusCode == HttpServletResponse.SC_OK) {
-        def authRespDataRaw = authTokenResponse.get.getData
-        def authRespDataStr = Source.fromInputStream(authRespDataRaw).mkString
-        def xmlString = XML.loadString(authRespDataStr)
+        val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData()).mkString)
         val idString = (xmlString \\ "access" \ "token" \ "@id").text
         (statusCode, Option(idString))
       } else {
         (statusCode, None)
       }
-    }
-    else {
-        (HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None)
-    }
-  }
-
-  override def handleResponse(httpServletRequest: HttpServletRequest, httpServletResponse: ReadableHttpServletResponse): FilterDirector = {
-    LOG.debug("Handling HTTP Response. Incoming status code: " + httpServletResponse.getStatus())
-    val filterDirector: FilterDirector = new FilterDirectorImpl()
-    if (httpServletResponse.getStatus == HttpServletResponse.SC_UNAUTHORIZED ||
-      httpServletResponse.getStatus == HttpServletResponse.SC_FORBIDDEN) {
-      handleUnauthorized(filterDirector, httpServletRequest)
-    }
-    LOG.debug("Rackspace Identity Basic Auth Response. Outgoing status code: " + filterDirector.getResponseStatus.intValue)
-    filterDirector
-  }
-
-  private def handleUnauthorized(filterDirector: FilterDirector, httpServletRequest: HttpServletRequest) {
-    // add HTTP Basic authentication header (WWW-Authenticate) with the realm of RAX-KEY
-    filterDirector.responseHeaderManager().appendHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"RAX-KEY\"")
-    val optionHeaders = Option(httpServletRequest.getHeaders(HttpHeaders.AUTHORIZATION))
-    val authMethodBasicHeaders = BasicAuthUtils.getBasicAuthHeaders(optionHeaders, "Basic")
-    if (authMethodBasicHeaders.isDefined && !(authMethodBasicHeaders.get.isEmpty)) {
-      for (authHeader <- authMethodBasicHeaders.get) {
-        val authValue = authHeader.replace("Basic ", "")
-        datastore.remove(X_AUTH_TOKEN + authValue)
-      }
+    } getOrElse {
+      (HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None)
     }
   }
 }

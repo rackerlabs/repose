@@ -24,12 +24,8 @@ object BasicAuthUtils {
    * @param method the auth method to search for
    * @return an Iterator of the Authentication header values that match the desired auth method
    */
-  def getBasicAuthHeaders(optionHeaders: Option[java.util.Enumeration[String]], method: String): Option[Iterator[String]] = {
-    if (optionHeaders.isDefined && !optionHeaders.isEmpty) {
-      val wwwAuthenticateHeaders = JavaConverters.enumerationAsScalaIteratorConverter(optionHeaders.get).asScala
-      Option(wwwAuthenticateHeaders.filter(_.toUpperCase.startsWith(method.toUpperCase)))
-    } else {
-      None
-    }
+  def getBasicAuthHeaders(headers: java.util.Enumeration[String], method: String): Iterator[String] = {
+      import scala.collection.JavaConverters._
+      headers.asScala.filter(_.toUpperCase.startsWith(method.toUpperCase()))
   }
 }

@@ -2,6 +2,7 @@ package com.rackspace.papi.components.rackspace.identity.basicauth
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.mockrunner.mock.web.MockHttpServletRequest
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
@@ -40,7 +41,7 @@ class RackspaceIdentityBasicAuthHandlerTest extends FunSpec with BeforeAndAfter 
   describe("handleRequest") {
     it("should simply pass if there is not an HTTP Basic authentication header") {
       // given: "a mock'd ServletRequest and ServletResponse"
-      val mockServletRequest = mock[HttpServletRequest]
+      val mockServletRequest = new MockHttpServletRequest
       val mockServletResponse = mock[ReadableHttpServletResponse]
 
       // when: "the filter's/handler's handleRequest() is called without an HTTP Basic authentication header"
