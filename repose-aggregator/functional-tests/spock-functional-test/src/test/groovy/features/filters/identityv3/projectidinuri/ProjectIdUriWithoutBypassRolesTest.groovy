@@ -8,7 +8,7 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
-class ProjectIDURIWOBypassRolesTest extends ReposeValveTest{
+class ProjectIdUriWithoutBypassRolesTest extends ReposeValveTest{
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
