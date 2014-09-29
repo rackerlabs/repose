@@ -134,6 +134,7 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rackspace-auth-identity</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
