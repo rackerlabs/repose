@@ -62,6 +62,9 @@ case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
                                        rax_default_region: Option[String] = None
                                         ) extends Serializable
 
+case class ImpersonatorForAuthenticationResponse(id: Option[String] = None,
+                                                 name: Option[String] = None)
+
 case class AuthenticateResponse(expires_at: String,
                                 issued_at: String,
                                 methods: List[String],
@@ -69,7 +72,8 @@ case class AuthenticateResponse(expires_at: String,
                                 project: Option[ProjectForAuthenticateResponse],
                                 catalog: Option[List[ServiceForAuthenticationResponse]],
                                 roles: Option[List[Role]],
-                                user: UserForAuthenticateResponse
+                                user: UserForAuthenticateResponse,
+                                rax_impersonator: Option[ImpersonatorForAuthenticationResponse] = None
                                  ) extends Serializable
 
 case class UserNamePasswordRequest(domain: Option[Domain] = None,
