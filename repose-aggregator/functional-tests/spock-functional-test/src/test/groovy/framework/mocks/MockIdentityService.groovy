@@ -464,7 +464,7 @@ class MockIdentityService {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            code = 404
+            code = 401
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {

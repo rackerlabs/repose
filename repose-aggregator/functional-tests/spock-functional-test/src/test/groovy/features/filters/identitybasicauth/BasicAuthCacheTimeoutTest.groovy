@@ -58,7 +58,6 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         ]
 
         when: "multiple requests that have the same HTTP Basic authentication header"
-        sleep 3000 // wait for any previous token cache timeout
         MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
@@ -66,7 +65,6 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc0.orphanedHandlings.size() == 4
         mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
@@ -80,7 +78,6 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         ]
 
         when: "multiple requests that have the same HTTP Basic authentication header, but are separated by more than the cache timeout"
-        sleep 3000 // wait for any previous token cache timeout
         MessageChain mc0 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
         sleep 3000 // How do I get this programmatically from the config.
         MessageChain mc1 = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
@@ -89,7 +86,6 @@ class BasicAuthCacheTimeoutTest extends ReposeValveTest {
         mc0.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc0.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc0.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
-        mc0.orphanedHandlings.size() == 4 || mc0.orphanedHandlings.size() == 3
         mc1.receivedResponse.code == HttpServletResponse.SC_OK.toString()
         mc1.handlings[0].request.headers.getCountByName("X-Auth-Token") == 1
         mc1.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)

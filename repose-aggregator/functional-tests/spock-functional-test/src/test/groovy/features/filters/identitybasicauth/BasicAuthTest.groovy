@@ -6,6 +6,7 @@ import org.apache.commons.codec.binary.Base64
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 import javax.servlet.http.HttpServletResponse
@@ -109,6 +110,7 @@ class BasicAuthTest extends ReposeValveTest {
         mc.receivedResponse.getHeaders().findAll(HttpHeaders.WWW_AUTHENTICATE).contains("Basic realm=\"RAX-KEY\"")
     }
 
+    @Ignore // This test was removed due to a current limitation of the MockIdentityService to not differentiate between the two services calling it.
     @Unroll("Sending request with admin response set to HTTP #identityStatusCode")
     def "when failing to authenticate admin client"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key and the Mock Identity Service's generateTokenHandler"
@@ -148,7 +150,6 @@ class BasicAuthTest extends ReposeValveTest {
         def headers = ['X-Auth-Token': fakeIdentityService.client_token]
 
         when: "the request already has an x-auth-token header"
-        sleep(3000) //wait for sometime for any previous cache same token
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
         then: "get a token and validate it"

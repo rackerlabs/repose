@@ -196,4 +196,38 @@ class BasicAuthStandaloneTest extends ReposeValveTest {
         expect: "check for the WARNING."
         reposeLogSearch.searchByString("WARNING: This filter cannot be used alone, it requires an AuthFilter after it.").size() > 0
     }
+
+    @Unroll("Sending request to the Identity service returns HTTP Status Code #identityStatusCode")
+    def "when failing to authenticate admin client"() {
+        given: "the HTTP Basic authentication header containing the User Name and API Key and the Mock Identity Service's generateTokenHandler"
+        fakeIdentityService.with {
+            generateTokenHandler = {
+                request, xml ->
+                    new Response(identityStatusCode, null, null, null)
+            }
+        }
+        def headers = [
+                'content-type'             : 'application/json',
+                (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
+        ]
+
+        when: "user passes a request through repose"
+        MessageChain mc = deproxy.makeRequest(url: "$reposeEndpoint/servers/$reqTenant/", method: 'GET', headers: headers)
+
+        then: "request body sent from repose to the origin service should contain"
+        mc.receivedResponse.code == filterStatusCode.toString()
+        mc.handlings.size() == 0
+
+        where:
+        reqTenant | identityStatusCode                           | filterStatusCode
+        9400      | HttpServletResponse.SC_BAD_REQUEST           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9401      | HttpServletResponse.SC_UNAUTHORIZED          | HttpServletResponse.SC_UNAUTHORIZED
+        9403      | HttpServletResponse.SC_FORBIDDEN             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9404      | HttpServletResponse.SC_NOT_FOUND             | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9500      | HttpServletResponse.SC_INTERNAL_SERVER_ERROR | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9501      | HttpServletResponse.SC_NOT_IMPLEMENTED       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9502      | HttpServletResponse.SC_BAD_GATEWAY           | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9503      | HttpServletResponse.SC_SERVICE_UNAVAILABLE   | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        9504      | HttpServletResponse.SC_GATEWAY_TIMEOUT       | HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+    }
 }
