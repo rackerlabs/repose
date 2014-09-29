@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>filters-support</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>6.1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>rackspace-identity-basic-auth</artifactId>
