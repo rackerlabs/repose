@@ -12,8 +12,9 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
+import org.scalatest._
 
+import scala.collection.JavaConversions
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
@@ -66,6 +67,28 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).getFilterAction equals FilterAction.RETURN
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).getResponseStatus equals HttpStatusCode.UNAUTHORIZED
+    }
+
+    it("should add the X-Default-Region if rax_default_region is available for the user") {
+      when(identityAPI.validateToken("123456")).thenReturn(
+        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.setHeader("X-Subject-Token", "123456")
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain (
+        Entry(
+          HeaderName.wrap("X-Default-Region"),
+          JavaConversions.setAsJavaSet(Set("ORD")))
+      )
+    }
+
+    it("should not include X-Default-Region if rax_default_region is not available for the user") {
+      when(identityAPI.validateToken("123456")).thenReturn(
+        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null))))
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.setHeader("X-Subject-Token", "123456")
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key (HeaderName.wrap("X-Default-Region"))
     }
   }
 

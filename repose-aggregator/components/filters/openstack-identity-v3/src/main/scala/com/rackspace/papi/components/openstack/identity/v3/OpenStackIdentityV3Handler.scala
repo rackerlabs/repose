@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest
 import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityV3Config, WhiteList}
-import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
@@ -55,6 +54,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
 
+<<<<<<< HEAD
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request) match {
         case Success(tokenObject) =>
@@ -120,6 +120,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
+        token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
         token.get.project.map { project =>
           project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
           project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
