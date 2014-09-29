@@ -32,7 +32,6 @@ public class OpenStackAuthenticationHeaderManager {
     // the highest QUALITY in terms of using the user it supplies for rate limiting
     private static final String QUALITY = ";q=1.0";
     private final String wwwAuthHeaderContents;
-    private static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
     private final String endpointsBase64;
     private final boolean sendAllTenantIds;
 
@@ -75,7 +74,7 @@ public class OpenStackAuthenticationHeaderManager {
             setExtendedAuthorization();
             setIdentityStatus();
         } else if (filterDirector.getResponseStatusCode() == HttpStatusCode.UNAUTHORIZED.intValue()) {
-            filterDirector.responseHeaderManager().putHeader(WWW_AUTHENTICATE_HEADER, wwwAuthHeaderContents);
+            filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), wwwAuthHeaderContents);
         }
     }
 
