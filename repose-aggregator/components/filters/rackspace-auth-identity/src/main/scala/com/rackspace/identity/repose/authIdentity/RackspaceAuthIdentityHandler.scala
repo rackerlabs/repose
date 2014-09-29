@@ -56,7 +56,7 @@ class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) ex
    * Build a function that takes our config, the request itself, functions to transform if given json, and if given XML
    * and then a resultant function that can take that config and the username to do the work with.
    */
-  def parseUsername(config: IdentityGroupConfig, inputStream:InputStream, contentType:String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(f: (IdentityGroupConfig, String) => Unit) = {
+  def parseUsername(config: IdentityGroupConfig, inputStream:InputStream, contentType:String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, String) => Unit) = {
     val group = config.getGroup
     val quality = config.getQuality
 
@@ -72,7 +72,7 @@ class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) ex
       }
 
       usernameOpt.map { username =>
-        f(config, username)
+        usernameFunction(config, username)
       }
     } catch {
       case e: Exception =>
