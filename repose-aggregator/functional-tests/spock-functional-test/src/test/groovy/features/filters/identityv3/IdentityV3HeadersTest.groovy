@@ -47,7 +47,7 @@ class IdentityV3HeadersTest extends ReposeValveTest{
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request = mc.handlings[0].request
-        //request.headers.contains("X-Default-Region") --not implemented
+        request.headers.contains("X-Default-Region")
         request.headers.contains("X-Authorization")
         request.headers.contains("X-Project-Id")
         request.headers.contains("X-Project-Name")

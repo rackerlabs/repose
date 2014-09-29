@@ -128,6 +128,7 @@ class MockIdentityV3Service {
     def service_admin_role = 'service:admin-role1'
     def endpointUrl = "localhost"
     def admin_userid = 67890
+    def default_region = "DFLT"
     Validator validator
 
     def templateEngine = new SimpleTemplateEngine()
@@ -307,18 +308,18 @@ class MockIdentityV3Service {
         def request_token = tokenId
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role
+                expires      : getExpires(),
+                issued       : getIssued(),
+                userid       : client_userid,
+                username     : client_username,
+                endpointurl  : endpointUrl,
+                servicePort  : servicePort,
+                projectid    : client_projectid,
+                projectname  : client_projectname,
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
+                defaultregion: default_region,
         ]
         def code
         def template
@@ -350,18 +351,18 @@ class MockIdentityV3Service {
         }
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : this.servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role
+                expires      : getExpires(),
+                issued       : getIssued(),
+                userid       : client_userid,
+                username     : client_username,
+                endpointurl  : endpointUrl,
+                servicePort  : this.servicePort,
+                projectid    : client_projectid,
+                projectname  : client_projectname,
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
+                defaultregion: default_region,
         ]
 
 
@@ -579,7 +580,8 @@ class MockIdentityV3Service {
                 "links": {
                     "self": "http://identity:35357/v3/users/\${userid}"
                 },
-                "name": "\${username}"
+                "name": "\${username}",
+                "RAX-AUTH:defaultRegion": "\${defaultregion}"
             }
         }
     }
