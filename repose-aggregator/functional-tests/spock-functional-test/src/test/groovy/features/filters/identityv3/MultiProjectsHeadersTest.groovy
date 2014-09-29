@@ -10,7 +10,7 @@ import spock.lang.Unroll
  * Created by jennyvo on 9/24/14.
  * test option returning multi projects in the headers
  */
-class MultiProjectsHeadersTest extends ReposeValveTest{
+class MultiProjectIdsHeadersTest extends ReposeValveTest{
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -22,8 +22,9 @@ class MultiProjectsHeadersTest extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojects", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojectids", params)
         repose.start()
+        waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
@@ -76,6 +77,6 @@ class MultiProjectsHeadersTest extends ReposeValveTest{
         "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
         "123456"        | "test-project"  | "test-project"  |UUID.randomUUID()  | "200"             | 2
         "123456"        | "123456"        | "123456"        |UUID.randomUUID()  | "200"             | 1
-
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
     }
 }
