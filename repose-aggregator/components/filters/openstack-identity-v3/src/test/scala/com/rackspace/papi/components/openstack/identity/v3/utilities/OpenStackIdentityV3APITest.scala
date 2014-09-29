@@ -191,7 +191,6 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
-      response shouldBe a[Success[AuthenticateResponse]]
       response.get.user.rax_default_region shouldBe Some("ORD")
     }
 
@@ -206,7 +205,6 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
 
       val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
-      response shouldBe a[Success[AuthenticateResponse]]
       response.get.user.rax_default_region shouldBe None
     }
 
