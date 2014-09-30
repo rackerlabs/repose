@@ -41,6 +41,7 @@ class MockIdentityService {
 
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     boolean isTokenValid = true;
+    boolean checkTokenValid = false;
 
     protected AtomicInteger _validateTokenCount = new AtomicInteger(0);
     protected AtomicInteger _getGroupsCount = new AtomicInteger(0);
@@ -112,6 +113,7 @@ class MockIdentityService {
     def client_tenant_file = 'this-is-the-nast-id'
     def client_username = 'username';
     def client_userid = 12345;
+    def client_apikey = 'this-is-the-api-key';
     def admin_token = 'this-is-the-admin-token';
     def admin_tenant = 'this-is-the-admin-tenant'
     def admin_username = 'admin_username';
@@ -381,27 +383,68 @@ class MockIdentityService {
 
     Response generateToken(Request request, boolean xml) {
 
-        try {
-
-            final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
-            validator.validate(sampleSource);
-
-        } catch (Exception e) {
-
-            println("Admin token XSD validation error: " + e);
-            return new Response(400);
+        // Since the SchemaFactory does not appear to import parent XSD's,
+        // the validation is skipped for the API Key Credentials that are defined externally.
+        if(xml && !(request.body.toString().contains("apiKeyCredentials"))) {
+            try {
+                final StreamSource sampleSource = new StreamSource(new ByteArrayInputStream(request.body.getBytes()));
+                validator.validate(sampleSource);
+            } catch (Exception e) {
+                println("Admin token XSD validation error: " + e);
+                return new Response(400);
+            }
         }
 
-        def params = [
-                expires     : getExpires(),
-                userid      : admin_userid,
-                username    : admin_username,
-                tenant      : admin_tenant,
-                tenanttwo   : admin_tenant,
-                token       : admin_token,
-                serviceadmin: service_admin_role
-        ];
+        def params
 
+        def isTokenChecked = true
+        // IF the body of the request should be evaluated to determine the validity of the Token, THEN ...
+        // ELSE the just use the isTokenValid value.
+        if(checkTokenValid) {
+            // IF the body is a Client userName/apiKey request,
+            // THEN return the Client token response;
+            // ELSE /*IF the body is userName/passWord request*/,
+            // THEN return the Admin token response.
+            if (request.body.contains("username") &&
+                    request.body.contains(client_username) &&
+                    request.body.contains("apiKey") &&
+                    request.body.contains(client_apikey)) {
+                params = [
+                        expires     : getExpires(),
+                        userid      : client_userid,
+                        username    : client_username,
+                        tenant      : client_tenant,
+                        tenanttwo   : client_tenant,
+                        token       : client_token,
+                        serviceadmin: service_admin_role
+                ];
+            } else if (request.body.contains("username") &&
+                    request.body.contains(admin_username) /*&&
+                request.body.contains("password") &&
+                request.body.contains(admin_password)*/) {
+                params = [
+                        expires     : getExpires(),
+                        userid      : admin_userid,
+                        username    : admin_username,
+                        tenant      : admin_tenant,
+                        tenanttwo   : admin_tenant,
+                        token       : admin_token,
+                        serviceadmin: service_admin_role
+                ];
+            } else {
+                isTokenChecked = false
+            }
+        } else {
+            params = [
+                    expires     : getExpires(),
+                    userid      : admin_userid,
+                    username    : admin_username,
+                    tenant      : admin_tenant,
+                    tenanttwo   : admin_tenant,
+                    token       : admin_token,
+                    serviceadmin: service_admin_role
+            ];
+        }
 
         def code;
         def template;
@@ -413,7 +456,7 @@ class MockIdentityService {
             headers.put('Content-type', 'application/json')
         }
 
-        if (isTokenValid) {
+        if (isTokenValid && isTokenChecked) {
             code = 200;
             if (xml) {
                 template = identitySuccessXmlTemplate
@@ -421,7 +464,7 @@ class MockIdentityService {
                 template = identitySuccessJsonTemplate
             }
         } else {
-            code = 404
+            code = 401
             if (xml) {
                 template = identityFailureXmlTemplate
             } else {
