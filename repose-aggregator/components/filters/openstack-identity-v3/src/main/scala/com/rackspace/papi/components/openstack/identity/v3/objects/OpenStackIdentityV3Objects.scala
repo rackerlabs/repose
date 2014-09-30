@@ -49,6 +49,7 @@ case class ServiceForAuthenticationResponse(endpoints: List[Endpoint],
 case class Role(id: String,
                 name: String,
                 project_id: Option[String] = None,
+                rax_project_id: Option[String] = None,
                 domain_id: Option[String] = None,
                 description: Option[String] = None
                  ) extends Serializable
