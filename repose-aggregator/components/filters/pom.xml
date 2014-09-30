@@ -18,6 +18,7 @@
         <module>header-id-mapping</module>
         <module>uri-identity</module>
         <module>content-identity-auth-2.0</module>
+        <module>rackspace-auth-identity</module>
         <module>content-normalization</module>
         <module>service-authentication</module>
         <module>rate-limiting</module>
