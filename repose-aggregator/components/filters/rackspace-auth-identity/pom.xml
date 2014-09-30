@@ -73,13 +73,6 @@
             <version>2.1.2</version>
         </dependency>
 
-        <!-- Mockrunner for mock HttpServletRequest -->
-        <dependency>
-            <groupId>com.mockrunner</groupId>
-            <artifactId>mockrunner-servlet</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
