@@ -1,5 +1,4 @@
 package framework.mocks
-
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -13,7 +12,6 @@ import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
-
 /**
  * Created by jennyvo on 8/8/14
  * Simulates responses from an Identity V3 Service.
@@ -128,13 +126,9 @@ class MockIdentityV3Service {
     def service_admin_role = 'service:admin-role1'
     def endpointUrl = "localhost"
     def admin_userid = 67890
-<<<<<<< HEAD
-    def default_region = "DFLT"
-=======
     def impersonate_id = ""
     def impersonate_name = ""
     def default_region = "ORD"
->>>>>>> a25dd18... update mock service include impersonate and default region
     Validator validator
 
     def templateEngine = new SimpleTemplateEngine()
@@ -315,7 +309,6 @@ class MockIdentityV3Service {
         def impersonateid = impersonate_id
 
         def params = [
-<<<<<<< HEAD
                 expires      : getExpires(),
                 issued       : getIssued(),
                 userid       : client_userid,
@@ -327,23 +320,7 @@ class MockIdentityV3Service {
                 domainid     : client_domainid,
                 domainname   : client_domainname,
                 serviceadmin : service_admin_role,
-                defaultregion: default_region,
-=======
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
-                impersonateid: impersonate_id,
-                impersonatename: impersonate_name,
                 defaultregion: default_region
->>>>>>> a25dd18... update mock service include impersonate and default region
         ]
 
         def code
@@ -379,7 +356,6 @@ class MockIdentityV3Service {
         }
 
         def params = [
-<<<<<<< HEAD
                 expires      : getExpires(),
                 issued       : getIssued(),
                 userid       : client_userid,
@@ -391,21 +367,7 @@ class MockIdentityV3Service {
                 domainid     : client_domainid,
                 domainname   : client_domainname,
                 serviceadmin : service_admin_role,
-                defaultregion: default_region,
-=======
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : this.servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
                 defaultregion: default_region
->>>>>>> a25dd18... update mock service include impersonate and default region
         ]
 
 
