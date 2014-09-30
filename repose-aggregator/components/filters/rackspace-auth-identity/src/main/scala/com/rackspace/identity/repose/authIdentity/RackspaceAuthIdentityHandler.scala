@@ -32,20 +32,17 @@ class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) ex
     val updateHeaders: (IdentityGroupConfig, String) => Unit = { (config, username) =>
       headerManager.appendHeader(PowerApiHeader.USER.toString, username, config.getQuality.toDouble)
       headerManager.appendHeader(PowerApiHeader.GROUPS.toString, config.getGroup, config.getQuality.toDouble)
-      director.setFilterAction(FilterAction.PROCESS_RESPONSE)
+      director.setFilterAction(FilterAction.PASS) //We don't want to muck with the response, just the headers
     }
 
-    val inputStream = new BufferedInputStream(request.getInputStream())
-
+    val inputStream = request.getInputStream()
 
     //If the config for v11 is set, do the work
     Option(filterConfig.getV11).map { config =>
-      inputStream.mark(config.getContentBodyReadLimit.intValue())
       parseUsername(config, inputStream, contentType, username1_1JSON, username1_1XML)(updateHeaders)
     }
     //If the config for v20 is set, do the work it's not likely that both will be set, or that both will succeed
     Option(filterConfig.getV20).map { config =>
-      inputStream.mark(config.getContentBodyReadLimit.intValue())
       parseUsername(config, inputStream, contentType, username2_0JSON, username2_0XML)(updateHeaders)
     }
 
@@ -57,11 +54,10 @@ class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) ex
    * and then a resultant function that can take that config and the username to do the work with.
    */
   def parseUsername(config: IdentityGroupConfig, inputStream:InputStream, contentType:String, json: UsernameParsingFunction, xml: UsernameParsingFunction)(usernameFunction: (IdentityGroupConfig, String) => Unit) = {
-    val group = config.getGroup
-    val quality = config.getQuality
-
     val limit = BigInt(config.getContentBodyReadLimit).toLong
+    //Copied this limited read stuff from the other content-identity filter...
     val limitedInputStream = new LimitedReadInputStream(limit, inputStream) //Allows me to reset?
+    limitedInputStream.mark(limit.toInt)
     try {
       val usernameOpt = if (contentType.contains("xml")) {
         //It's probably xml, lets try to xpath it
