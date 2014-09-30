@@ -39,6 +39,7 @@ class IdentityV3HeadersTest extends ReposeValveTest{
     def "When token is validated, set of headers should be generated"(){
         when: "I send a GET request to Repose with an X-Auth-Token header"
         fakeIdentityV3Service.resetCounts()
+        fakeIdentityV3Service.default_region = "DFW"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Subject-Token': fakeIdentityV3Service.client_token])
 
         then: "Repose should validate the token and path the user's default region as the X-Default_Region header to the origin service"
@@ -57,7 +58,7 @@ class IdentityV3HeadersTest extends ReposeValveTest{
         request.headers.contains("X-pp-user")
         request.headers.contains("X-pp-groups")
         request.headers.contains("X-Token-Expires")
-        //request.headers.contains("WWW-Authenticate")
+        request.headers.getFirstValue("X-Default-Region") == "DFW"
 
         when: "I send a second GET request to Repose with the same token"
         fakeIdentityV3Service.resetCounts()
@@ -69,8 +70,8 @@ class IdentityV3HeadersTest extends ReposeValveTest{
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
         def request2 = mc.handlings[0].request
-        //request2.headers.contains("X-Default-Region") --not implemented
-        //request2.headers.getFirstValue("X-Default-Region") == "the-default-region"
+        request2.headers.contains("X-Default-Region")
+        request2.headers.getFirstValue("X-Default-Region") == "DFW"
     }
 
     def "when client failed to authenticate, the XXX-Authentication header should be expected" () {
