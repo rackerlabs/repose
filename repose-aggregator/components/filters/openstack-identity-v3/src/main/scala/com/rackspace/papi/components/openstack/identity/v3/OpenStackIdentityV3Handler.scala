@@ -122,8 +122,8 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
         token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
         identityConfig.isSendAllProjectIds match {
-          case false if projectIdUriRegex exists(_ != None) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
-          case false if token flatMap(_.project) flatMap(_.id) exists(_ != None) =>
+          case false if projectIdUriRegex isDefined => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
+          case false if token flatMap(_.project) flatMap(_.id) isDefined =>
             token flatMap(_.project) map { project =>
               project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
               project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
