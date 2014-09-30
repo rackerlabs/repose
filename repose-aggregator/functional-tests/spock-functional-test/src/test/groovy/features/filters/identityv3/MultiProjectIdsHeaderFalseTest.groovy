@@ -70,14 +70,13 @@ class MultiProjectIdsHeaderFalseTest extends ReposeValveTest{
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
             assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject)
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(secondProject)
         }
 
         where:
         defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
-        "test-project"  | "12345"         | "test-proj-id"  |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 1
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
+        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 1
+        "test-project"  | "12345"         | "test-proj-id"  |UUID.randomUUID()  | "200"             | 1
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "401"             | 1
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             |1
     }
 }
