@@ -54,7 +54,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
 
-<<<<<<< HEAD
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request) match {
         case Success(tokenObject) =>
