@@ -21,6 +21,7 @@ class MockIdentityV3Service {
     public MockIdentityV3Service(int identityPort, int originServicePort) {
 
         resetHandlers()
+        resetParameters()
 
         this.port = identityPort
         this.servicePort = originServicePort
@@ -130,6 +131,27 @@ class MockIdentityV3Service {
     def impersonate_name = ""
     def default_region = "ORD"
     Validator validator
+
+    void resetParameters() {
+        client_token = 'this-is-the-token'
+        client_domainid = 123456
+        client_domainname = 'this-is-the-domain'
+        client_username = 'username'
+        client_userid = 12345
+        client_projectid = 1234567
+        client_projectname = "this-is-the-project"
+        admin_domainid = 'this-is-the-admin-domain'
+        admin_domainname = 'example.com'
+        admin_token = 'this-is-the-admin-token'
+        admin_project = 'this-is-the-admin-project'
+        admin_username = 'admin_username'
+        service_admin_role = 'service:admin-role1'
+        endpointUrl = "localhost"
+        admin_userid = 67890
+        impersonate_id = ""
+        impersonate_name = ""
+        default_region = "ORD"
+    }
 
     def templateEngine = new SimpleTemplateEngine()
 
@@ -787,11 +809,25 @@ class MockIdentityV3Service {
             ],
             "RAX-AUTH:impersonator":{
             "id":"\${impersonateid}",
-            "name":"impersonator.\${impersionatename}"
+            "name":"\${impersonatename}"
             },
             "roles":[
             { "id":"123", "name":"Racker" }
             ],
+            "user": {
+                "domain": {
+                    "id": "\${domainid}",
+                    "links": {
+                        "self": "http://identity:35357/v3/domains/\${domainid}"
+                    },
+                    "name": "example.com"
+                },
+                "id": "\${userid}",
+                "links": {
+                    "self": "http://identity:35357/v3/users/\${userid}"
+                },
+                "name": "\${username}"
+            }
         }
     }
     """
