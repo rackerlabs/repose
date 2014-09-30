@@ -108,7 +108,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // If all validation succeeds, pass the request and set headers
       if (!failureInValidation) {
         filterDirector.setFilterAction(FilterAction.PASS)
-        
+
         // Set the appropriate headers
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_TOKEN_EXPIRES, token.get.expires_at)
         requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_AUTHORIZATION.toString, OpenStackIdentityV3Headers.X_AUTH_PROXY) // TODO: Add the project ID if verified
@@ -121,9 +121,15 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
         token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
-        token.get.project.map { project =>
-          project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
-          project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
+        identityConfig.isSendAllProjectIds match {
+          case false if projectIdUriRegex exists(_ != None) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
+          case false if token flatMap(_.project) flatMap(_.id) exists(_ != None) =>
+            token flatMap(_.project) map { project =>
+              project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
+              project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
+            }
+          case false => None
+          case true => writeProjectHeader(token flatMap(_.project) flatMap(_.id) get, token flatMap(_.roles) get, writeAll = true, filterDirector)
         }
         token.get.rax_impersonator.map { impersonator =>
           impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
@@ -222,7 +228,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     val projectsFromRoles: Set[String] = if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
     def projects: Set[String] = projectsFromRoles + projectFromUri
 
-    filterDirector.requestHeaderManager().appendHeader("X-PROJECT-ID", projects.toArray: _*)
+    filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
   private def hasIgnoreEnabledRole(ignoreProjectRoles: List[String], userRoles: List[String]): Boolean =
