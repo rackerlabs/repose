@@ -9,6 +9,8 @@ import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
 import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +18,11 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class BufferedURLConfigurationResource implements ConfigurationResource {
 
+   private static final Logger LOG = LoggerFactory.getLogger(BufferedURLConfigurationResource.class);
    private final byte[] internalByteArray;
    private final URL resourceUrl;
    private ByteBuffer byteBuffer;
@@ -65,7 +69,9 @@ public class BufferedURLConfigurationResource implements ConfigurationResource {
          while ((read = urlInput.read(internalByteArray)) > -1) {
             splitter.write(internalByteArray, 0, read);
          }
-      } finally {
+      } catch(IOException e) {
+          Arrays.fill(internalByteArray, (byte) 0);
+      }finally {
          splitter.close();
 
          if (urlInput != null) {
@@ -79,17 +85,21 @@ public class BufferedURLConfigurationResource implements ConfigurationResource {
 
    @Override
    public synchronized boolean updated() throws IOException {
-      final ByteBuffer freshBuffer = new CyclicByteBuffer();
-      final byte[] newDigest = read(freshBuffer);
+       final ByteBuffer freshBuffer = new CyclicByteBuffer();
+       final byte[] newDigest = read(freshBuffer);
 
-      if (digest == null || !new ByteArrayComparator(digest, newDigest).arraysAreEqual()) {
-         byteBuffer = freshBuffer;
-         digest = newDigest;
-
-         return true;
-      }
-
-      return false;
+       if (digest == null && new ByteArrayComparator(newDigest, new byte[16]).arraysAreEqual()) {
+           LOG.error("Error reading resource: " + name());
+           byteBuffer = freshBuffer;
+           digest = newDigest;
+           return false;
+       } else if (digest == null || !new ByteArrayComparator(digest, newDigest).arraysAreEqual()) {
+           byteBuffer = freshBuffer;
+           digest = newDigest;
+           return true;
+       } else {
+           return false;
+       }
    }
 
    @Override
