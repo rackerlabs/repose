@@ -55,7 +55,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
       // Track whether or not a failure has occurred so that we can stop checking the request after we know it is bad
       var failureInValidation = false
 
-<<<<<<< HEAD
       // Attempt to validate the request token with the Identity service
       val token = authenticate(request) match {
         case Success(tokenObject) =>
@@ -136,8 +135,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         if (forwardGroups) {
           userGroups.foreach(group => requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group + ";q=1.0"))
         }
-        // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
-        // TODO: Set X-Impersonator-Id, same as above
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
