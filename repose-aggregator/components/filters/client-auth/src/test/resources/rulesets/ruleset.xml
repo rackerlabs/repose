@@ -8,12 +8,53 @@
 
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="No fors lol"/>
-        <property name='regex' value='for'/>
+        <property name="name" value="Require space before else, catch, or finally"/>
+        <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
+        <property name='priority' value='1'/>
     </rule>
 
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before and after a ?"/>
+        <property name='regex' value='[^\s-]\?|\?[^\s-]'/>
+        <property name='priority' value='1'/>
+    </rule>
 
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before and after a :"/>
+        <property name='regex' value='[^\s-]:|:[^\s-]'/>
+        <property name='priority' value='1'/>
+    </rule>
 
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Max 2 blank lines before }"/>
+        <property name='regex' value='\n\n\n(\n)+.*\}'/>
+        <property name='priority' value='1'/>
+    </rule>
 
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Blanks around class or method"/>
+        <property name='regex' value='class.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def|def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="MissingBlankLineAfterPackage"/>
+        <property name='regex' value='package.*\n.*'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="MissingBlankLineAfterImport"/>
+        <property name='regex' value='import.*\n.*'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <!--rule class='org.codenarc.rule.formatting.MissingBlankLineAfterPackage'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.formatting.MissingBlankLineAfterImports'>
+        <property name='priority' value='1'/>
+    </rule-->
 
 </ruleset>
