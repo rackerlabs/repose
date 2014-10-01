@@ -76,6 +76,11 @@
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.rackspace.papi.components.api-checker</groupId>
+            <artifactId>checker-core</artifactId>
+            <version>1.0.18</version>
+        </dependency>
     </dependencies>
 
     <build>
