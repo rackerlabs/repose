@@ -38,6 +38,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     identityConfig.getValidateProjectIdInUri.setRegex("""/foo/(\d+)""")
     identityConfig.setRolesWhichBypassProjectIdCheck(new IgnoreProjectIDRoles())
     identityConfig.getRolesWhichBypassProjectIdCheck.getRole.add("admin")
+    identityConfig.setForwardGroups(false)
     identityAPI = mock[OpenStackIdentityV3API]
 
     identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
@@ -78,6 +79,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
+      identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain (
         Entry(
@@ -93,6 +95,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
+      identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key (HeaderName.wrap("X-Default-Region"))
     }
