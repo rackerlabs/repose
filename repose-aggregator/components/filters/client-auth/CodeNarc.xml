@@ -1,0 +1,89 @@
+<?xml version='1.0'?>
+<CodeNarc url='http://www.codenarc.org' version='0.18'>
+    <Report timestamp='Oct 1, 2014 2:38:11 PM'/>
+    <Project title='Repose Components - Client Authentication'>
+        <SourceDirectory>src/test/groovy</SourceDirectory>
+    </Project>
+    <PackageSummary totalFiles='5' filesWithViolations='3' priority1='0' priority2='0' priority3='13'></PackageSummary>
+    <Package path='' totalFiles='1' filesWithViolations='1' priority1='0' priority2='0' priority3='2'>
+        <File name='GroovClass.groovy'>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='6'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='7'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='com' totalFiles='4' filesWithViolations='2' priority1='0' priority2='0' priority3='11'></Package>
+    <Package path='com/rackspace' totalFiles='4' filesWithViolations='2' priority1='0' priority2='0'
+             priority3='11'></Package>
+    <Package path='com/rackspace/papi' totalFiles='4' filesWithViolations='2' priority1='0' priority2='0'
+             priority3='11'></Package>
+    <Package path='com/rackspace/papi/components' totalFiles='4' filesWithViolations='2' priority1='0' priority2='0'
+             priority3='11'></Package>
+    <Package path='com/rackspace/papi/components/clientauth' totalFiles='4' filesWithViolations='2' priority1='0'
+             priority2='0' priority3='11'></Package>
+    <Package path='com/rackspace/papi/components/clientauth/common' totalFiles='3' filesWithViolations='2' priority1='0'
+             priority2='0' priority3='11'>
+        <File name='AuthenticationHandlerTest.groovy'>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='16'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='29'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+        </File>
+        <File name='EndpointsConfigurationTest.groovy'>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='6'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='30'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='35'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='37'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='38'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='50'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='56'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='60'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+            <Violation ruleName='No fors lol' priority='3' lineNumber='61'>
+                <SourceLine><![CDATA[for]]></SourceLine>
+                <Message><![CDATA[Match found for illegal regular expression "for"]]></Message>
+            </Violation>
+        </File>
+    </Package>
+    <Package path='com/rackspace/papi/components/clientauth/openstack' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Package path='com/rackspace/papi/components/clientauth/openstack/v1_0' totalFiles='1' filesWithViolations='0'
+             priority1='0' priority2='0' priority3='0'></Package>
+    <Rules>
+        <Rule name='No fors lol'>
+            <Description><![CDATA[No description provided for rule named [No fors lol]]]></Description>
+        </Rule>
+    </Rules>
+</CodeNarc>

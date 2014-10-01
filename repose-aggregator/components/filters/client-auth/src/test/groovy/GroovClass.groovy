@@ -3,7 +3,10 @@ class GroovClass{
     void hello() {
         println "hello, world"
         boolean x = true;
-        if(x){println "uhh"}
+        if(x){}
+        for(int i = 0; i < 10; i++){
+            println "for"
+        }
 
     }
 }
