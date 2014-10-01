@@ -1,5 +1,4 @@
 package framework.mocks
-
 import groovy.text.SimpleTemplateEngine
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -13,7 +12,6 @@ import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
-
 /**
  * Created by jennyvo on 8/8/14
  * Simulates responses from an Identity V3 Service.
@@ -128,6 +126,9 @@ class MockIdentityV3Service {
     def service_admin_role = 'service:admin-role1'
     def endpointUrl = "localhost"
     def admin_userid = 67890
+    def impersonate_id = ""
+    def impersonate_name = ""
+    def default_region = "ORD"
     Validator validator
 
     def templateEngine = new SimpleTemplateEngine()
@@ -305,21 +306,24 @@ class MockIdentityV3Service {
     Response validateToken(String tokenId, Request request) {
         def path = request.getPath()
         def request_token = tokenId
+        def impersonateid = impersonate_id
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
+                expires      : getExpires(),
+                issued       : getIssued(),
+                userid       : client_userid,
+                username     : client_username,
+                endpointurl  : endpointUrl,
+                servicePort  : servicePort,
+                projectid    : client_projectid,
+                projectname  : client_projectname,
                 projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
+                defaultregion: default_region
         ]
+
         def code
         def template
         def headers = [:]
@@ -328,8 +332,11 @@ class MockIdentityV3Service {
 
         if (isTokenValid) {
             code = 200
-            template = identitySuccessJsonFullRespTemplate
-
+            if (impersonateid != "") {
+                template = identityImpersonateSuccessfulResponse
+            } else {
+                template = identitySuccessJsonFullRespTemplate
+            }
         } else {
             template = identityFailureJsonRespTemplate
         }
@@ -350,18 +357,19 @@ class MockIdentityV3Service {
         }
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : this.servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
+                expires      : getExpires(),
+                issued       : getIssued(),
+                userid       : client_userid,
+                username     : client_username,
+                endpointurl  : endpointUrl,
+                servicePort  : this.servicePort,
+                projectid    : client_projectid,
+                projectname  : client_projectname,
                 projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
+                defaultregion: default_region
         ]
 
 
@@ -579,7 +587,8 @@ class MockIdentityV3Service {
                 "links": {
                     "self": "http://identity:35357/v3/users/\${userid}"
                 },
-                "name": "\${username}"
+                "name": "\${username}",
+                "RAX-AUTH:defaultRegion": "\${defaultregion}"
             }
         }
     }
@@ -765,4 +774,24 @@ class MockIdentityV3Service {
         }
     }
     """
+    //validate token response for impersonate
+    def identityImpersonateSuccessfulResponse = """
+    {
+        "token":{
+            "expires_at": "\${expires}",
+            "issued_at": "2013-02-27T16:30:59.999999Z",
+            "methods": [
+                "password"
+            ],
+            "RAX-AUTH:impersonator":{
+            "id":"\${impersonateid}",
+            "name":"impersonator.\${impersionatename}"
+            },
+            "roles":[
+            { "id":"123", "name":"Racker" }
+            ],
+        }
+    }
+    """
+
 }

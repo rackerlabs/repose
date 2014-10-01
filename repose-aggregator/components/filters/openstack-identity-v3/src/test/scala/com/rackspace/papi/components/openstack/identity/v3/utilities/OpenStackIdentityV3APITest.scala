@@ -180,6 +180,34 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfter with Matche
       identityV3API.invokePrivate(validateSubjectToken("test-subject-token", true)).get shouldBe an[AuthenticateResponse]
     }
 
+    it("should correctly map the default region to the authentication response") {
+      val mockGetServiceClientResponse = mock[ServiceClientResponse]
+
+      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
+      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
+        "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\", \"RAX-AUTH:defaultRegion\":\"ORD\"}}}"
+          .getBytes))
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      response.get.user.rax_default_region shouldBe Some("ORD")
+    }
+
+    it("should correctly map none to the default region if there is not one provided") {
+      val mockGetServiceClientResponse = mock[ServiceClientResponse]
+
+      when(mockGetServiceClientResponse.getStatusCode).thenReturn(HttpStatusCode.OK.intValue)
+      when(mockGetServiceClientResponse.getData).thenReturn(new ByteArrayInputStream(
+        "{\"token\":{\"expires_at\":\"2013-02-27T18:30:59.999999Z\",\"issued_at\":\"2013-02-27T16:30:59.999999Z\",\"methods\":[\"password\"],\"user\":{\"domain\":{\"id\":\"1789d1\",\"links\":{\"self\":\"http://identity:35357/v3/domains/1789d1\"},\"name\":\"example.com\"},\"id\":\"0ca8f6\",\"links\":{\"self\":\"http://identity:35357/v3/users/0ca8f6\"},\"name\":\"Joe\"}}}"
+          .getBytes))
+      when(mockAkkaServiceClient.get(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]])).thenReturn(mockGetServiceClientResponse)
+      when(mockDatastore.get(argThat(equalTo("IDENTITY:V3:ADMIN_TOKEN")))).thenReturn("test-admin-token", Nil: _*)
+
+      val response: Try[AuthenticateResponse] = identityV3API validateToken("test-subject-token", true)
+      response.get.user.rax_default_region shouldBe None
+    }
+
     it("should cache a token object when x-subject-token validation succeeds with the correct TTL") {
       val mockGetServiceClientResponse = mock[ServiceClientResponse]
       val currentTime = DateTime.now()

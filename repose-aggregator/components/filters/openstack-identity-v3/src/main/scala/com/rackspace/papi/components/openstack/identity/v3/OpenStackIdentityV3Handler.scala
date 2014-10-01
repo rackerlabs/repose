@@ -120,6 +120,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_USER_ID.toString, id)
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
+        token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
         token.get.project.map { project =>
           project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
           project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
@@ -132,7 +133,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
         // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
         // TODO: Set X-Impersonator-Id, same as above
-        // TODO: Set X-Default-Region
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests

@@ -58,7 +58,8 @@ case class UserForAuthenticateResponse(domain: DomainsForAuthenticateResponse,
                                        id: Option[String] = None,
                                        name: Option[String] = None,
                                        description: Option[String] = None,
-                                       default_project_id: Option[String] = None
+                                       default_project_id: Option[String] = None,
+                                       rax_default_region: Option[String] = None
                                         ) extends Serializable
 
 case class AuthenticateResponse(expires_at: String,
