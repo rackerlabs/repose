@@ -71,9 +71,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should add the X-Default-Region if rax_default_region is available for the user") {
       when(identityAPI.validateToken("123456")).thenReturn(
-        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
+        Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+              Option(List(Role("1","admin"))), UserForAuthenticateResponse(null, None, None, None, None, Some("ORD")))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
+      identityConfig.setForwardGroups(false)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain (
         Entry(
@@ -84,9 +86,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should not include X-Default-Region if rax_default_region is not available for the user") {
       when(identityAPI.validateToken("123456")).thenReturn(
-        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null))))
+        Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
+      identityConfig.setForwardGroups(false)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key (HeaderName.wrap("X-Default-Region"))
     }

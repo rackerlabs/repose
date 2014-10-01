@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest
 import com.rackspace.papi.commons.util.http._
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityV3Config, WhiteList}
+import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
@@ -132,7 +133,6 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
         }
         // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
         // TODO: Set X-Impersonator-Id, same as above
-        // TODO: Set X-Default-Region
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
