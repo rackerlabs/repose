@@ -254,7 +254,7 @@
                             <target>
                                 <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath"/>
                                 <codenarc
-                                        ruleSetFiles="rulesets/eric.xml"
+                                        ruleSetFiles="file:/Users/eric7500/Developer/repose/repose-aggregator/components/filters/client-auth/src/test/resources/rulesets/ruleset.xml"
                                         maxPriority1Violations="0"
                                         maxPriority2Violations="0"
                                         maxPriority3Violations="0"
@@ -263,7 +263,7 @@
                                         <option name="outputFile" value="${basedir}/CodeNarc.xml" />
                                         <option name="title" value="${project.name}" />
                                     </report>
-                                    <fileset dir="src/">
+                                    <fileset dir="src/test/groovy">
                                         <include name="**/*.groovy"/>
                                     </fileset>
                                 </codenarc>
