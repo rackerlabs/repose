@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:auth="http://docs.rackspacecloud.com/auth/api/v1.1"
+        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        targetNamespace="http://docs.rackspacecloud.com/auth/api/v1.1">
+
+    <annotation>
+        <xsd:appinfo
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <xsdxt:title>Auth Admin API Schema Types</xsdxt:title>
+            <xsdxt:link rev="index" href="api.xsd"/>
+            <xsdxt:link rev="index" href="adminAuthRequest.xsd"/>
+            <xsdxt:link rev="index" href="user.xsd"/>
+            <xsdxt:link rev="index" href="groups.xsd"/>
+            <xsdxt:link rev="index" href="full-token.xsd"/>
+            <xsdxt:link rev="index" href="baseURLs.xsd"/>
+        </xsd:appinfo>
+        <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                This is the main index XML Schema document for the Rackspace
+                Cloud Authentication Admin API.
+            </p>
+        </xsd:documentation>
+    </annotation>
+
+    <!-- Inlcude Public API -->
+    <include schemaLocation="api.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    This is the main index XML Schema document for the Rackspace
+                    Cloud Authentication Public API.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <!-- Add Administration Stuff -->
+    <include schemaLocation="adminCredentials.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Defines credentials used to obtain an auth token.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <include schemaLocation="user.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Contains entities related to a user.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+   <include schemaLocation="groups.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Contains entities related to groups.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <include schemaLocation="full-token.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Full token definition.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <include schemaLocation="baseURLs.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Entities related to baseURLs and baseURLRefrences, used to
+                    build serviceCatalogs.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+</schema>

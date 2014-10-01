@@ -24,6 +24,7 @@
         <module>jee6-schemas</module>
         <module>service-clients</module>
         <module>os-auth-schemas</module>
+        <module>rs-auth-schemas</module>
         <module>pjl-compressingFilter</module>
     </modules>
 </project>

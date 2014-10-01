@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:auth="http://docs.rackspacecloud.com/auth/api/v1.1"
+        xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+        targetNamespace="http://docs.rackspacecloud.com/auth/api/v1.1">
+
+    <annotation>
+        <xsd:appinfo
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <xsdxt:title>Base URLs</xsdxt:title>
+            <xsdxt:link rel="index" href="admin-api.xsd"/>
+        </xsd:appinfo>
+        <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                This schema defines base URLs and base URL references.
+            </p>
+        </xsd:documentation>
+    </annotation>
+
+    <include schemaLocation="user.xsd">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Contains entities related to a user.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <element name="baseURLs" type="auth:BaseURLList">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A list of base URLs.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/baseURLs.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/baseURLs.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+    <element name="baseURL" type="auth:BaseURL">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A base URLs.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/baseURL.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/baseURL.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+    <element name="baseURLRef" type="auth:BaseURLRef">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A refrence to a base URL.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/baseURLRequest.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/baseURLRequest.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+    <element name="baseURLRefs" type="auth:BaseURLRefList">
+        <annotation>
+            <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    A list of base URL refrences.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/baseURLRefs.xml"/>
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/baseURLRefs.json"/>
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+
+    <!-- Complex Types -->
+    <complexType name="BaseURL">
+        <attribute name="id" type="xsd:int" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        An ID uniquely identifying the base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="userType" type="auth:UserType" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        What type of user informatins hould be appended to this
+                        baseURL to form a complete endpoint.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="serviceName" type="xsd:string" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The base URL's service name.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="region" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The URL's region.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="publicURL" type="xsd:anyURI" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The public base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="internalURL" type="xsd:anyURI" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The internal version of the public base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="adminURL" type="xsd:anyURI" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The admin base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="default" type="xsd:boolean" default="false" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        If true the baseURL is automatically added to
+                        new accounts.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="enabled" type="xsd:boolean" default="true" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        True if the Base URL is enabled (active). 
+                        A Base URL cannot be added if it's disabled or inactive (false). 
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+
+    <complexType name="BaseURLRef">
+        <attribute name="id" type="xsd:int" use="required">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        An ID uniquely identifying the base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="href" type="xsd:anyURI" use="optional">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A hyperlink refrence to the base URL.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="v1Default" type="xsd:boolean" use="optional" default="false">
+            <annotation>
+                <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        If true, then the refred to base URL is used in version
+                        1.0 of the Auth service.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+
+    <complexType name="BaseURLList">
+        <sequence>
+            <element name="baseURL" type="auth:BaseURL" minOccurs="0" maxOccurs="1000"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="BaseURLRefList">
+        <sequence>
+            <element name="baseURLRef" type="auth:BaseURLRef" minOccurs="0" maxOccurs="1000"/>
+        </sequence>
+    </complexType>
+</schema>
