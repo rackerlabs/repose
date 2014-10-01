@@ -99,9 +99,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is available") {
       when(identityAPI.validateToken("123456")).thenReturn(
-        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
+        Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null), Some(new ImpersonatorForAuthenticationResponse(Some("ImpersonationId"), Some("ImpersonationName"))))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
+      identityConfig.setForwardGroups(false)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       val headers: util.Map[HeaderName, util.Set[String]] = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd
       headers should contain(
@@ -118,9 +120,11 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
 
     it("should not add the X-Impersonator-Name and X-Impersonator-ID headers if the impersonator's information is not available") {
       when(identityAPI.validateToken("123456")).thenReturn(
-        Try(new AuthenticateResponse("1", "2", List(), None, None, None, None, new UserForAuthenticateResponse(null))))
+        Try(new AuthenticateResponse("1", "2", List(), None, None, Option(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
+          Option(List(Role("1","admin"))), new UserForAuthenticateResponse(null))))
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
+      identityConfig.setForwardGroups(false)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       val headers: util.Map[HeaderName, util.Set[String]] = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Name")
