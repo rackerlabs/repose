@@ -588,11 +588,7 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/76e72a"
                     },
-<<<<<<< HEAD
                     "name": "\${serviceadmin}",
-=======
-                    "name": "admin",
->>>>>>> update mock service to support project id in roles
                      "RAX-AUTH:projectId": "\${projectid}"
                 },
                 {
@@ -600,11 +596,7 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/f4f392"
                     },
-<<<<<<< HEAD
-                    "name": "\${projectid2}",
-=======
                     "name": "member",
->>>>>>> update mock service to support project id in roles
                     "project_id": "\${projectid2}"
                 }
             ],
