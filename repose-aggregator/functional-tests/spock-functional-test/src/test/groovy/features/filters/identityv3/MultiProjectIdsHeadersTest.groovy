@@ -44,7 +44,7 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest{
         fakeIdentityV3Service.resetHandlers()
     }
 
-    @Unroll
+    @Unroll ("#defaultProject, #secondProject, request project #reqProject")
     def "When user have multi-projects will retrieve all projects to headers" () {
         given:
         fakeIdentityV3Service.with {
@@ -75,8 +75,9 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest{
         where:
         defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
         "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "test-project"  | "test-project"  |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"        | "123456"        |UUID.randomUUID()  | "200"             | 1
+        "test-project"  | "12345"         | "12345"         |UUID.randomUUID()  | "200"             | 2
+        "test-project"  | "12345"         | "test-project"  |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "401"             | 1
         "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
     }
 }
