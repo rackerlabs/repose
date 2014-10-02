@@ -332,21 +332,21 @@ class MockIdentityV3Service {
         def impersonateid = impersonate_id
 
         def params = [
-                expires      : getExpires(),
-                issued       : getIssued(),
-                userid       : client_userid,
-                username     : client_username,
-                endpointurl  : endpointUrl,
-                servicePort  : servicePort,
-                projectid    : client_projectid,
-                projectname  : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
-                impersonateid: impersonate_id,
+                expires        : getExpires(),
+                issued         : getIssued(),
+                userid         : client_userid,
+                username       : client_username,
+                endpointurl    : endpointUrl,
+                servicePort    : servicePort,
+                projectid      : client_projectid,
+                projectname    : client_projectname,
+                projectid2     : client_projectid2,
+                domainid       : client_domainid,
+                domainname     : client_domainname,
+                serviceadmin   : service_admin_role,
+                impersonateid  : impersonate_id,
                 impersonatename: impersonate_name,
-                defaultregion: default_region
+                defaultregion  : default_region
         ]
 
         def code
@@ -390,10 +390,10 @@ class MockIdentityV3Service {
                 servicePort  : this.servicePort,
                 projectid    : client_projectid,
                 projectname  : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
+                projectid2   : client_projectid2,
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
                 defaultregion: default_region
         ]
 
