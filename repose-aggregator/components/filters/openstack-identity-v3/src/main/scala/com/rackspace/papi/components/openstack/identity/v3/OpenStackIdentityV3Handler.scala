@@ -125,14 +125,16 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
           project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
         }
+        token.get.rax_impersonator.map { impersonator =>
+          impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
+          impersonator.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_NAME.toString,_))
+        }
         if (forwardCatalog) {
           token.get.catalog.map(catalog => requestHeaderManager.putHeader(PowerApiHeader.X_CATALOG.toString, base64Encode(catalog.toJson.compactPrint)))
         }
         if (forwardGroups) {
           userGroups.foreach(group => requestHeaderManager.appendHeader(PowerApiHeader.GROUPS.toString, group + ";q=1.0"))
         }
-        // TODO: Set X-Impersonator-Name, need to check response for impersonator (out of scope)
-        // TODO: Set X-Impersonator-Id, same as above
       }
 
       // Forward potentially unauthorized requests if configured to do so, or denote authorized requests
