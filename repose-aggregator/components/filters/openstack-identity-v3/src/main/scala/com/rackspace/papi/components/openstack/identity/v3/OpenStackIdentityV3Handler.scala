@@ -121,9 +121,11 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
         token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
+        LOG.warn("**********************6")
+
         identityConfig.isSendAllProjectIds match {
-          case false if projectIdUriRegex isDefined => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
-          case false if token flatMap(_.project) flatMap(_.id) isDefined =>
+          case false if projectIdUriRegex.isDefined => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
+          case false if token.flatMap(_.project).flatMap(_.id).isDefined =>
             token flatMap(_.project) map { project =>
               project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
               project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
@@ -225,9 +227,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
-    val projectsFromRoles: Set[String] = if (writeAll) roles.map({ role => role.project_id.get}).toSet else Set.empty
+    val projectsFromRoles:Set[String] = {
+      if (writeAll){
+        val roleList = for {
+          r <- roles
+          pid <- r.project_id
+        } yield pid
+        roleList.toSet
+      } else {
+        Set.empty
+      }
+    }
     def projects: Set[String] = projectsFromRoles + projectFromUri
-
     filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 

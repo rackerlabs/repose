@@ -276,13 +276,29 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
     val roles = List(Role(null, null, Option("12345"), null, null), Role(null, null, Option("67890"), null, null))
 
     it("should only provide the url project when the flag says to not write all") {
-      identityV3Handler invokePrivate writeProjectHeader("abcde", roles, false, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("abcde"))
+      val randomness = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(randomness, roles, false, filterDirector)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(randomness))
     }
 
     it("should provide all the projects when the flag says to write all") {
-      identityV3Handler invokePrivate writeProjectHeader("abcde", roles, true, filterDirector)
-      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq("abcde"))
+      val randomness = java.util.UUID.randomUUID.toString
+      identityV3Handler invokePrivate writeProjectHeader(randomness, roles, true, filterDirector)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("12345"), org.mockito.Matchers.eq("67890"), org.mockito.Matchers.eq(randomness))
+    }
+
+    it("should handle when roles are present but project ids are missing") {
+      val randomness = java.util.UUID.randomUUID.toString
+      val roleList = List(Role(null, null, None, None, None), Role(null, null, None, None, None))
+      identityV3Handler invokePrivate writeProjectHeader(randomness, roleList, true, filterDirector)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq(randomness))
+    }
+
+    it("should handle when project ids are missing and not missing") {
+      val randomness = java.util.UUID.randomUUID.toString
+      val roleList = List(Role(null, null, None, None, None), Role(null, null, Option("foo"), None, None), Role(null, null, None, None, None))
+      identityV3Handler invokePrivate writeProjectHeader(randomness, roleList, true, filterDirector)
+      verify(headerManager).appendHeader(org.mockito.Matchers.eq("X-Project-ID"), org.mockito.Matchers.eq("foo"), org.mockito.Matchers.eq(randomness))
     }
   }
 
