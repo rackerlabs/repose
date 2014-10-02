@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.ratelimit;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.datastore.Datastore;
@@ -27,7 +28,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private RateLimitCache rateLimitCache;
     //Volatile
-    private Pattern describeLimitsUriRegex;
+    private Optional<Pattern> describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
     private RateLimitingService service;
     private final DatastoreService datastoreService;
@@ -90,7 +91,11 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             service = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
 
-            describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
+            if (configurationObject.getRequestEndpoint() != null) {
+                describeLimitsUriRegex = Optional.of(Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex()));
+            } else {
+                describeLimitsUriRegex = Optional.absent();
+            }
 
             rateLimitingConfig = configurationObject;
 
@@ -114,8 +119,12 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
         final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();
         final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
-        boolean includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
 
-        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(),rateLimitingConfig.getDatastoreWarnLimit().intValue());
+        boolean includeAbsoluteLimits = false;
+        if (rateLimitingConfig.getRequestEndpoint() != null) {
+            includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
+        }
+
+        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode(), rateLimitingConfig.getDatastoreWarnLimit().intValue());
     }
 }

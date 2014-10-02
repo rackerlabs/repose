@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.ratelimit;
 
+import com.google.common.base.Optional;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -33,12 +34,12 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
   private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.APPLICATION_JSON);
   private MediaType originalPreferredAccept;
   private final boolean includeAbsoluteLimits;
-  private final Pattern describeLimitsUriPattern;
+  private final Optional<Pattern> describeLimitsUriPattern;
   private final RateLimitingServiceHelper rateLimitingServiceHelper;
   private boolean overLimit429ResponseCode;
   private int datastoreWarnLimit;
 
-  public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern, boolean overLimit429ResponseCode, int datastoreWarnLimit) {
+  public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Optional<Pattern> describeLimitsUriPattern, boolean overLimit429ResponseCode, int datastoreWarnLimit) {
     this.includeAbsoluteLimits = includeAbsoluteLimits;
     this.describeLimitsUriPattern = describeLimitsUriPattern;
     this.rateLimitingServiceHelper = rateLimitingServiceHelper;
@@ -76,7 +77,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         }
 
       // Does the request match the configured getCurrentLimits API call endpoint?
-      if (pass && describeLimitsUriPattern.matcher(requestUri).matches()) {
+      if (pass && describeLimitsUriPattern.isPresent() && describeLimitsUriPattern.get().matcher(requestUri).matches()) {
         describeLimitsForRequest(request, director, preferredMediaType);
       }
     } else {
