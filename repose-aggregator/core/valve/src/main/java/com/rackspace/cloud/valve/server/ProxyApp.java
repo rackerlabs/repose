@@ -1,10 +1,7 @@
 package com.rackspace.cloud.valve.server;
 
-import com.rackspace.cloud.valve.logging.DefaultLogConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +11,11 @@ import java.io.IOException;
  */
 public final class ProxyApp {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private static final String DEFAULT_CFG_DIR = "/etc/repose";
    private static final int UPPER_PORT = 49150;
    private static final int LOWER_PORT = 1024;
 
    public static void main(String[] args) throws IOException {
-
-      DefaultLogConfigurator.configure();
-
       final CommandLineArguments commandLineArgs = new CommandLineArguments();
       final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
 
@@ -30,7 +23,7 @@ public final class ProxyApp {
          cmdLineParser.parseArgument(args);
        } catch (CmdLineException e) {
            
-         displayUsage(cmdLineParser, e);
+         displayUsage(null, cmdLineParser, e);
          return;
       }
 
@@ -41,9 +34,7 @@ public final class ProxyApp {
       try{
         validateConfigDirectory(commandLineArgs);
       }catch(IOException e){
-          LOG.trace("Unable to validate config directory", e);
-        System.err.println(e.getMessage());
-        cmdLineParser.printUsage(System.err);
+        displayUsage("Unable to validate config directory", cmdLineParser, e);
         return;
       }
 
@@ -60,18 +51,19 @@ public final class ProxyApp {
    }
 
 
+   @SuppressWarnings("PMD.SystemPrintln")
    private static boolean validPorts(CommandLineArguments commandLineArgs) {
       boolean valid = true;
 
       Integer httpPort = commandLineArgs.getHttpPort();
       if ((httpPort != null) && (!(portIsInRange(httpPort)))) {
-         LOG.info("Invalid Repose http port, use a value between 1024 and 49150");
+         System.err.println("Invalid Repose http port, use a value between 1024 and 49150");
          valid = false;
       }
 
       Integer httpsPort = commandLineArgs.getHttpsPort();
       if (httpsPort != null && !portIsInRange(httpsPort)) {
-         LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
+         System.err.println("Invalid Repose https port, use a value between 1024 and 49150");
          valid = false;
       }
 
@@ -85,10 +77,19 @@ public final class ProxyApp {
          File file = new File(commandLineArgs.getConfigDirectory());
          commandLineArgs.setConfigDirectory(file.getCanonicalPath());
       }
+      // IF there is a usable Log4J Properties file in the configuration directory,
+      // THEN add it to the System properties.
+      File log4jProps = new File(commandLineArgs.getConfigDirectory() + "/log4j.properties");
+      if(log4jProps.exists() && log4jProps.isFile() && log4jProps.canRead()){
+         System.getProperties().setProperty("log4j.configuration", log4jProps.toURI().toASCIIString());
+      }
    }
    
    @SuppressWarnings("PMD.SystemPrintln")
-   private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
+   private static void displayUsage(String msg, CmdLineParser cmdLineParser, Exception e) {
+      if(msg != null && msg.length() > 0) {
+          System.err.println(msg);
+      }
       System.err.println(e.getMessage());
       System.err.println("java -jar repose-valve.jar [options...]");
       cmdLineParser.printUsage(System.err);

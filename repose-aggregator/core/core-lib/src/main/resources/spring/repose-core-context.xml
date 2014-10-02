@@ -44,7 +44,7 @@
     </bean>
 
     <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
-        <constructor-arg index="0" ref="log4jLoggingService"/>
+        <constructor-arg index="0" ref="loggingService"/>
         <constructor-arg index="1" ref="serviceRegistry"/>
         <constructor-arg index="2" ref="configurationManager"/>
     </bean>
@@ -54,7 +54,7 @@
         <constructor-arg index="0" ref="containerConfigurationListener"/>
     </bean>
 
-    <bean name="log4jLoggingService"
+    <bean name="loggingService"
           class="com.rackspace.papi.service.logging.LoggingServiceImpl"/>
 
     <bean name="healthCheckServiceContext"
