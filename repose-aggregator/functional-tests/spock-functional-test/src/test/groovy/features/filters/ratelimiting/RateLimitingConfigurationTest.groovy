@@ -3,7 +3,7 @@ package features.filters.ratelimiting
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
-class ConfigurationTest extends ReposeValveTest {
+class RateLimitingConfigurationTest extends ReposeValveTest {
 
     def "when starting Repose with a rate limiting config without the request-endpoint element, should not throw a NPE"() {
         given:
