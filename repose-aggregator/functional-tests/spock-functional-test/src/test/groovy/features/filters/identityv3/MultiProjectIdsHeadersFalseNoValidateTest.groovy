@@ -8,10 +8,9 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 9/29/14.
- * test option when send-all-project-ids set to false
+ * Created by jennyvo on 10/3/14.
  */
-class MultiProjectIdsHeaderFalseTest extends ReposeValveTest{
+class MultiProjectIdsHeadersFalseNoValidateTest extends ReposeValveTest{
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -23,7 +22,7 @@ class MultiProjectIdsHeaderFalseTest extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojectids/sendallprojectidsfalse", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojectids/sendallprojectidsfalse/novalidateprojectid", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -46,7 +45,7 @@ class MultiProjectIdsHeaderFalseTest extends ReposeValveTest{
     }
 
     @Unroll ("#defaultProject, #secondProject, request project #reqProject")
-    def "When user have multi-projects will retrieve all projects to headers" () {
+    def "When user have multi-projects will retrieve only default project to headers" () {
         given:
         fakeIdentityV3Service.with {
             client_token = clientToken
@@ -69,14 +68,51 @@ class MultiProjectIdsHeaderFalseTest extends ReposeValveTest{
         else {
             assert mc.handlings.size() == 1
             assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
-            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(reqProject)
+            assert mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject)
         }
 
         where:
         defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
         "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 1
         "test-project"  | "12345"         | "12345"         |UUID.randomUUID()  | "200"             | 1
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "401"             | 1
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 1
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 1
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 1
+        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 1
+    }
+
+    @Unroll ("No project id form token object: request project #reqProject")
+    def "when no project id form token object" () {
+        given:
+        fakeIdentityV3Service.with {
+            identitySuccessJsonRespTemplate = identitySuccessJsonRespShortTemplate
+            client_token = clientToken
+            tokenExpiresAt = (new DateTime()).plusDays(1)
+            client_projectid = defaultProject
+            client_projectid2 = secondProject
+        }
+
+        when: "User passes a request through repose with $reqProject"
+        MessageChain mc = deproxy.makeRequest(
+                url: "$reposeEndpoint/servers/$reqProject",
+                method: 'GET',
+                headers: ['content-type': 'application/json', 'X-Subject-Token': fakeIdentityV3Service.client_token])
+
+        then: "Everything gets passed as is to the origin service (no matter the user)"
+        mc.receivedResponse.code == serviceRespCode
+
+        if (serviceRespCode != "200")
+            assert mc.handlings.size() == 0
+        else {
+            assert mc.handlings.size() == 1
+            assert mc.handlings[0].request.headers.findAll("x-project-id").size() == numberProjects
+            assert !mc.handlings[0].request.headers.findAll("x-project-id").contains(defaultProject)
+        }
+
+        where:
+        defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
+        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 0
     }
 }

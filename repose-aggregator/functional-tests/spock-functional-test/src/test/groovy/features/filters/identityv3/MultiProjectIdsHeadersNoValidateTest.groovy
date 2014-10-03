@@ -1,4 +1,5 @@
 package features.filters.identityv3
+
 import framework.ReposeValveTest
 import framework.mocks.MockIdentityV3Service
 import org.joda.time.DateTime
@@ -7,10 +8,10 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
- * Created by jennyvo on 9/24/14.
- * test option returning multi projects in the headers
+ * Created by jennyvo on 10/3/14.
+ * Return all project ids to headers but not validate project id from uri
  */
-class MultiProjectIdsHeadersTest extends ReposeValveTest{
+class MultiProjectIdsHeadersNoValidateTest extends ReposeValveTest{
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -22,7 +23,7 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest{
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojectids", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/multiprojectids/novalidateprojectid", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -77,8 +78,9 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest{
         "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 2
         "test-project"  | "12345"         | "12345"         |UUID.randomUUID()  | "200"             | 2
         "test-project"  | "12345"         | "test-project"  |UUID.randomUUID()  | "200"             | 2
-        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "401"             | 1
-        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "401"             | 2
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 1
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 2
+        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 2
     }
 
     @Unroll ("No project id form token object: request project #reqProject")
@@ -111,7 +113,9 @@ class MultiProjectIdsHeadersTest extends ReposeValveTest{
 
         where:
         defaultProject  | secondProject   | reqProject      | clientToken       | serviceRespCode   | numberProjects
-        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "401"             | 0
-        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "401"             | 0
+        "123456"        | "test-project"  | "123456"        |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "123456"        | "test-proj-id"  |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "test-project"  | "openstack"     |UUID.randomUUID()  | "200"             | 0
+        "123456"        | "test-project"  | ""              |UUID.randomUUID()  | "200"             | 0
     }
 }

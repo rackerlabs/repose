@@ -360,7 +360,7 @@ class MockIdentityV3Service {
             if (impersonateid != "") {
                 template = identityImpersonateSuccessfulResponse
             } else {
-                template = identitySuccessJsonFullRespTemplate
+                template = identitySuccessJsonRespTemplate
             }
         } else {
             template = identityFailureJsonRespTemplate
@@ -406,7 +406,7 @@ class MockIdentityV3Service {
 
         if (isTokenValid) {
             code = 201
-            template = identitySuccessJsonFullRespTemplate
+            template = identitySuccessJsonRespTemplate
             headers.put('X-Subject-Token', admin_token)
         } else {
             code = 404
@@ -507,7 +507,7 @@ class MockIdentityV3Service {
     }
 
     // successful authenticate response /v3/auth/tokens?nocatalog
-    def identitySuccessJsonRespTemplate = """
+    def identitySuccessJsonRespShortTemplate = """
     {
         "token": {
             "expires_at": "\${expires}",
@@ -533,7 +533,7 @@ class MockIdentityV3Service {
     }
     """
     // this is full response with service catalog /v3/auth/tokens
-    def identitySuccessJsonFullRespTemplate = """
+    def identitySuccessJsonRespTemplate = """
     {
         "token": {
             "catalog": [
