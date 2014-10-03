@@ -120,6 +120,8 @@ class MockIdentityService {
     def service_admin_role = 'service:admin-role1';
     def endpointUrl = "localhost"
     def admin_userid = 67890;
+    def impersonate_id = ""
+    def impersonate_name = ""
     Validator validator;
 
     def templateEngine = new SimpleTemplateEngine();
@@ -301,6 +303,7 @@ class MockIdentityService {
     Response validateToken(String tokenId, Request request, boolean xml) {
         def path = request.getPath()
         def request_token = tokenId
+        def impersonateid = impersonate_id
 
         def params = [
                 expires     : getExpires(),
@@ -309,7 +312,9 @@ class MockIdentityService {
                 tenant      : client_tenant,
                 tenanttwo   : client_tenant_file,
                 token       : request_token,
-                serviceadmin: service_admin_role
+                serviceadmin: service_admin_role,
+                impersonateid: impersonate_id,
+                impersonatename: impersonate_name
         ];
 
         def code;
@@ -329,11 +334,17 @@ class MockIdentityService {
                     template = rackerTokenXmlTemplate
                 } else if (tokenId == "failureRacker") {
                     template = rackerTokenWithoutProperRoleXmlTemplate
+                } else if (impersonateid != "") {
+                    template = identityImpersonateSuccessfulXmlTemplate
                 } else {
                     template = identitySuccessXmlTemplate
                 }
             } else {
-                template = identitySuccessJsonTemplate
+                if (impersonateid != "") {
+                    template = identityImpersonateSuccessfulJsonTemplate
+                } else {
+                    template = identitySuccessJsonTemplate
+                }
             }
         } else {
             code = 404
@@ -875,4 +886,64 @@ class MockIdentityService {
     </user>
 </access>
 """
+
+    def identityImpersonateSuccessfulXmlTemplate = """
+<?xml version="1.0" encoding="UTF-8"?>
+<access xmlns="http://docs.openstack.org/identity/api/v2.0" xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+    <token id="\${token}" expires="\${expires}">
+        <tenant id="\${tenant}" name="\${tenant}"/>
+    </token>
+    <user id="\${userid}" name="\${username}">
+        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <role id="123" name="compute:admin" />
+            <role id="234" name="object-store:admin" />
+        </roles>
+    </user>
+    <RAX-AUTH:impersonator id="\${impersonateid}" username="\${impersonatename}">
+        <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
+            <role id="123" name="Racker" />
+            <role id="234" name="object-store:admin" />
+        </roles>
+    </RAX-AUTH:impersonator>
+</access>
+"""
+    def identityImpersonateSuccessfulJsonTemplate = """
+{"access":{
+    "token":{
+        "id":"\${token}"
+        "expires":"\${expires}",
+        "tenant":{
+            "id": "\${tenant}",
+            "name": "\${tenant}"
+        }
+    },
+
+    "user":{
+        "id":"\${userid}",
+        "name":"\${tenant}",
+        "roles":[
+        {
+            "id":"123",
+            "name":"compute:admin"
+        },
+        {
+            "id":"234",
+            "name":"object-store:admin",
+        }
+        ]
+    },
+
+    "RAX-AUTH:impersonator":{
+        "id":"\${impersonateid}",
+        "name":"\${impersonatename}",
+        "roles":[
+            {"id":"123",
+            "name":"Racker"},
+            {"id":"234",
+            "name":"object-store:admin"}
+        ]
+    }
+ }
+}
+    """
 }
