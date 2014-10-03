@@ -128,7 +128,7 @@ class RackspaceAuthIdentityTest extends ReposeValveTest {
         invalidData  | contentXml  | "invalidData"
         xmlOverLimit | contentXml  | "xmlOverLimit"
     }
-
+    // Joe Savak - we don't need to do other v1.1 internal contracts
     @Unroll("When request contains identity 1.1 in content #testName Expected user is #expectedUser")
     def "when using identity1.1 identifying requests by header"() {
 
@@ -150,11 +150,8 @@ class RackspaceAuthIdentityTest extends ReposeValveTest {
 
         where:
         requestBody               | contentType | expectedUser  | testName
-        xmlPasswordCred11         | contentXml  | "test-user"   | "xmlPasswordCred11"
-        xmlPasswordCredEmptyKey11 | contentXml  | "test-user"   | "xmlPasswordCredEmptyKey11"
         xmlKeyCred11              | contentXml  | "test-user"   | "xmlKeyCred11"
         xmlKeyCredEmptyKey11      | contentXml  | "test-user"   | "xmlKeyCredEmptyKey11"
-        jsonPasswordCred11        | contentJSON | "test-user"   | "jsonPasswordCred11"
         jsonKeyCred11             | contentJSON | "test-user"   | "jsonKeyCred11"
         jsonKeyCredEmptyKey11     | contentJSON | "test-user"   | "jsonKeyCredEmptyKey11"
     }
