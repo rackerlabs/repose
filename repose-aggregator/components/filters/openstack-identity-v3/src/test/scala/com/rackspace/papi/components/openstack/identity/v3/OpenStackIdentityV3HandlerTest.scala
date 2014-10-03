@@ -11,7 +11,8 @@ import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.junit.runner.RunWith
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito
+import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest._
@@ -181,7 +182,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key(HeaderName.wrap("X-Project-Id"))
     }
 
-    it("should return all project ids returned by identity as multiple x-project-id headers if all project ids is true") {
+    it("should return default project id and roles project ids returned by identity as multiple x-project-id headers if all project ids is true") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
@@ -196,6 +197,24 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         Entry(
           HeaderName.wrap("X-Project-Id"),
           JavaConversions.setAsJavaSet(Set("ProjectIdFromProject", "ProjectIdFromRoles")))
+      )
+    }
+
+    it("should return all project ids returned by identity as multiple x-project-id headers if all project ids is true") {
+      when(identityAPI.validateToken("123456")).thenReturn(
+        Try(AuthenticateResponse("1", "2", List(), None,
+          Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
+          Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com")))) ),
+          Some(List(Role("1","admin", Some("ProjectIdFromRoles"), Some("RaxExtensionProjectId")))), UserForAuthenticateResponse(null))))
+      val mockRequest = new MockHttpServletRequest()
+      mockRequest.setHeader("X-Subject-Token", "123456")
+      mockRequest.setRequestURI("/foo/12345")
+      identityConfig.setSendAllProjectIds(true)
+      identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
+      identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should contain(
+        Entry(
+          HeaderName.wrap("X-Project-Id"),
+          JavaConversions.setAsJavaSet(Set("ProjectIdFromProject", "ProjectIdFromRoles", "RaxExtensionProjectId")))
       )
     }
   }

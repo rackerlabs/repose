@@ -127,7 +127,7 @@ class ProjectIdUriTest extends ReposeValveTest{
         where:
         requestProject | responseProject  | serviceAdminRole      | responseCode
         717            | 717              | "not-admin"           | "200"
-        718            | 719              | "service:admin-role1" | "200"
+        718            | 718              | "service:admin-role1" | "200"
         720            | 720              | "service:admin-role1" | "200"
     }
 

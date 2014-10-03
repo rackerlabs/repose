@@ -121,17 +121,18 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
           requestHeaderManager.appendHeader(PowerApiHeader.USER.toString, id, 1.0)
         }
         token.get.user.rax_default_region.map { requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_DEFAULT_REGION.toString, _) }
-        LOG.warn("**********************6")
-
-        identityConfig.isSendAllProjectIds match {
-          case false if projectIdUriRegex.isDefined => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).get, token.get.roles.get, writeAll = false, filterDirector)
-          case false if token.flatMap(_.project).flatMap(_.id).isDefined =>
-            token flatMap(_.project) map { project =>
-              project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
-              project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
-            }
-          case false => None
-          case true => writeProjectHeader(token flatMap(_.project) flatMap(_.id) get, token flatMap(_.roles) get, writeAll = true, filterDirector)
+        if(identityConfig.isSendAllProjectIds) {
+          writeProjectHeader(token.flatMap(_.project.flatMap(_.id)).orNull, token.flatMap(_.roles).orNull, writeAll = true, filterDirector)
+        } else {
+          projectIdUriRegex match {
+            case Some(regex) => writeProjectHeader(extractProjectIdFromUri(projectIdUriRegex.get, request.getRequestURI).orNull, token.flatMap(_.roles).get, writeAll = false, filterDirector)
+            case None if token.flatMap(_.project).flatMap(_.id).isDefined =>
+              token flatMap(_.project) map { project =>
+                project.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_ID.toString, _))
+                project.name.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_PROJECT_NAME.toString, _))
+              }
+            case None => None
+          }
         }
         token.get.rax_impersonator.map { impersonator =>
           impersonator.id.map(requestHeaderManager.putHeader(OpenStackIdentityV3Headers.X_IMPERSONATOR_ID.toString,_))
@@ -228,17 +229,14 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
 
   private def writeProjectHeader(projectFromUri: String, roles: List[Role], writeAll: Boolean, filterDirector: FilterDirector) = {
     val projectsFromRoles:Set[String] = {
-      if (writeAll){
-        val roleList = for {
-          r <- roles
-          pid <- r.project_id
-        } yield pid
-        roleList.toSet
+      if (writeAll && roles != null) {
+        (roles.collect { case Role(_, _, Some(projectId), _, _, _) => projectId } :::
+          roles.collect { case Role(_, _, _, Some(raxId), _, _) => raxId }).toSet
       } else {
         Set.empty
       }
     }
-    def projects: Set[String] = projectsFromRoles + projectFromUri
+    def projects: Set[String] = if(projectFromUri != null) projectsFromRoles + projectFromUri else projectsFromRoles
     filterDirector.requestHeaderManager().appendHeader(OpenStackIdentityV3Headers.X_PROJECT_ID, projects.toArray: _*)
   }
 
