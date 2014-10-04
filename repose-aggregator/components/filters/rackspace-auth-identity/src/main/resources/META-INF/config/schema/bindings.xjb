@@ -6,6 +6,6 @@
         schemaLocation="rackspace-auth-identity-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.identity.repose.authIdentity" />
+        <package name="com.rackspace.identity.repose.authidentity" />
     </schemaBindings>
 </bindings>
