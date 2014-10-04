@@ -1,4 +1,4 @@
-package com.rackspace.identity.repose.authIdentity
+package com.rackspace.identity.repose.authidentity
 
 import javax.servlet._
 
