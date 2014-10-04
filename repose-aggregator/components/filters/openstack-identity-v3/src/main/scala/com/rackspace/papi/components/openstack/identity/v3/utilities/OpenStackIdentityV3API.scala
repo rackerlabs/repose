@@ -82,7 +82,11 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             newAdminToken match {
               case Some(token) =>
                 LOG.debug("Caching admin token")
-                datastore.put(ADMIN_TOKEN_KEY, token)
+
+                val adminTokenObject = jsonStringToObject[AuthResponse](inputStreamToString(authTokenResponse.get.getData)).token
+                val adminTokenTtl = safeLongToInt(new DateTime(adminTokenObject.expires_at).getMillis - DateTime.now.getMillis)
+
+                datastore.put(ADMIN_TOKEN_KEY, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
               case None =>
                 LOG.error("Headers not found in a successful response to an admin token request. The OpenStack Identity service is not adhering to the v3 contract.")
