@@ -66,7 +66,7 @@ class RackspaceAuthIdentityTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/rackspaceAuthIdentity", params)
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
     }
 
@@ -155,7 +155,6 @@ class RackspaceAuthIdentityTest extends ReposeValveTest {
         jsonKeyCredEmptyKey11 | contentJSON | "test-user"  | "jsonKeyCredEmptyKey11"
     }
 
-
     @Unroll("Does not affect #method requests")
     def "Does not affect non-post requests"() {
         when: "Request is a #method"
@@ -174,5 +173,18 @@ class RackspaceAuthIdentityTest extends ReposeValveTest {
         "GET"    | _
         "DELETE" | _
         "PUT"    | _
+    }
+
+    def "Does not affect random post requests"() {
+        when:
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, method: 'POST'])
+        def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
+
+        then: "Repose will not add any headers"
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 0
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 0
+
+        and: "The result will be passed through"
+        messageChain.receivedResponse.code == "200"
     }
 }
