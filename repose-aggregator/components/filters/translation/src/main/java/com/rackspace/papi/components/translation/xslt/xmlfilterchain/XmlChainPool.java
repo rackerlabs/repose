@@ -3,11 +3,10 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.pooling.Pool;
-import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.components.translation.config.HttpMethod;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import org.apache.commons.pool.ObjectPool;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -23,14 +22,14 @@ public class XmlChainPool {
   private final boolean acceptAllContentTypes;
   private final String accept;
   private final boolean acceptAll;
-  private final Pool<XmlFilterChain> pool;
+  private final ObjectPool<XmlFilterChain> pool;
   private final String resultContentType;
   private final Pattern statusRegex;
   private boolean allMethods;
   private final List<HttpMethod> httpMethods;
   private final List<XsltParameter> params;
 
-  public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, Pool<XmlFilterChain> pool) {
+  public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, ObjectPool<XmlFilterChain> pool) {
     this.contentType = contentType;
     this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
     this.accept = accept;
@@ -77,25 +76,32 @@ public class XmlChainPool {
   }
 
   public TranslationResult executePool(final InputStream in, final OutputStream out, final List<XsltParameter> inputs) {
-    TranslationResult result = (TranslationResult) getPool().use(new ResourceContext<XmlFilterChain, TranslationResult>() {
-      @Override
-      public TranslationResult perform(XmlFilterChain chain) {
+      TranslationResult result = null;
+      XmlFilterChain xmlFilterChain;
+      try {
+          xmlFilterChain = getPool().borrowObject();
+          try {
+              inputs.addAll(getParams());
+              List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
 
-        inputs.addAll(getParams());
-        List<XsltParameter<? extends OutputStream>> outputs = getOutputParameters();
-
-        try {
-          chain.executeChain(in, out, inputs, outputs);
-        } catch (XsltException ex) {
-          LOG.warn("Error processing transforms", ex.getMessage(), ex);
-          return new TranslationResult(false);
-        }
-        return new TranslationResult(true, outputs);
+              xmlFilterChain.executeChain(in, out, inputs, outputs);
+              result = new TranslationResult(true, outputs);
+          } catch (XsltException ex) {
+              LOG.warn("Error processing transforms", ex.getMessage(), ex);
+              result = new TranslationResult(false);
+              getPool().invalidateObject(xmlFilterChain);
+              xmlFilterChain = null;
+          } finally {
+              if(xmlFilterChain != null) {
+                  getPool().returnObject(xmlFilterChain);
+              }
+          }
+      } catch (Exception e) {
+          LOG.warn("Error getting xmlFilterChain from the pool", e);
+          result = new TranslationResult(false);
       }
-    });
 
-    return result;
-
+      return result;
   }
 
   public String getContentType() {
@@ -106,7 +112,7 @@ public class XmlChainPool {
     return accept;
   }
 
-  public Pool<XmlFilterChain> getPool() {
+  public ObjectPool<XmlFilterChain> getPool() {
     return pool;
   }
 
