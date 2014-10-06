@@ -108,6 +108,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
+      identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       val headers: util.Map[HeaderName, util.Set[String]] = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd
       headers should contain(
@@ -129,10 +130,12 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       val mockRequest = new MockHttpServletRequest()
       mockRequest.setHeader("X-Subject-Token", "123456")
       identityConfig.setForwardGroups(false)
+      identityConfig.setValidateProjectIdInUri(null)
       identityV3Handler = new OpenStackIdentityV3Handler(identityConfig, identityAPI)
       val headers: util.Map[HeaderName, util.Set[String]] = identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Name")
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Id")
+    }
 
     it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
       when(identityAPI.validateToken("123456")).thenReturn(
