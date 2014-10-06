@@ -50,8 +50,10 @@ class DateTimeFormatConverterTest {
      *
      * As long as the assumption proves false, it will ignore the tests. So we're assuming that we're past the timebomb
      * date, otherwise the test method is ignored
+     *
+     * Moved splodeDate to 2020, because this is a really old branch, and it won't ever get to jdk 1.7
      */
-    def splodeDate = new Date(2014 - 1900, Calendar.JULY, 1, 9, 0);
+    def splodeDate = new Date(2020 - 1900, Calendar.JULY, 1, 9, 0);
 
     @Test
     void "valid input gets converted correctly"() {
