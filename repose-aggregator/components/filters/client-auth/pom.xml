@@ -189,10 +189,10 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
 
 
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
@@ -210,40 +210,12 @@
                 </configuration>
             </plugin-->
 
-
-
+            <!--CodeNarc to use in a project, declare this plugin and bind to validate phase-->
             <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>codenarc-maven-plugin</artifactId>
-                <version>0.18-1</version>
-                <configuration>
-                    <sourceDirectory>${basedir}/src/test/groovy</sourceDirectory>
-                    <maxPriority1Violations>0</maxPriority1Violations>
-                    <maxPriority2Violations>0</maxPriority2Violations>
-                    <maxPriority3Violations>0</maxPriority3Violations>
-                    <rulesetfiles>${basedir}/rulesets/ruleset.xml</rulesetfiles>
-                    <xmlOutputDirectory>${basedir}/</xmlOutputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>execution1</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>codenarc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin-->
-
-
-
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
-                    <!--CodeNarc to use in a project, declare this plugin and bind to validate phase-->
                     <execution>
                         <id>codenarc</id>
                         <phase>test</phase>
@@ -254,7 +226,7 @@
                             <target>
                                 <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath"/>
                                 <codenarc
-                                        ruleSetFiles="file:/Users/eric7500/Developer/repose/repose-aggregator/components/filters/client-auth/src/test/resources/rulesets/ruleset.xml"
+                                        ruleSetFiles="file:${basedir}/ruleset.xml"
                                         maxPriority1Violations="0"
                                         maxPriority2Violations="0"
                                         maxPriority3Violations="0"
@@ -284,14 +256,9 @@
                         </exclusions>
                     </dependency>
                 </dependencies>
-            </plugin>
-
-
+            </plugin-->
 
         </plugins>
     </build>
-
-
-
 
 </project>

@@ -25,8 +25,6 @@
         <property name='priority' value='1'/>
     </rule>
 
-
-
     <rule class='org.codenarc.rule.formatting.SpaceAroundOperatorRule'>
         <property name='priority' value='1'/>
     </rule>
@@ -71,8 +69,6 @@
         <property name='priority' value='1'/>
     </rule>
 
-
-
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before else, catch, or finally"/>
         <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
@@ -90,8 +86,6 @@
         <property name='regex' value='[^\s-]:|:[^\s-]'/>
         <property name='priority' value='1'/>
     </rule>
-
-
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Max 2 blank lines before }"/>
@@ -111,24 +105,17 @@
         <property name='priority' value='1'/>
     </rule>
 
-
-
-
     <!--rule class='org.codenarc.rule.formatting.SpaceAfterSynchronized?!?!?????'>
         <property name='priority' value='1'/>
     </rule-->
 
-
-
     <!--rule class='org.codenarc.rule.basic.EmptyIfStatementRule'>
             <property name='priority' value='1'/>
-        </rule-->
-
+    </rule-->
 
     <!--rule class='org.codenarc.rule.formatting.SpaceAfterTypeCast?!?!?!?!?!?'>
             <property name='priority' value='1'/>
-        </rule-->
-
+    </rule-->
 
     <!--rule class='org.codenarc.rule.formatting.MissingBlankLineAfterPackageRule'>
         <property name='priority' value='1'/>
