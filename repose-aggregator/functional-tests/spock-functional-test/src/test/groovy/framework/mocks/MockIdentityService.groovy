@@ -907,6 +907,7 @@ class MockIdentityService {
     </RAX-AUTH:impersonator>
 </access>
 """
+
     def identityImpersonateSuccessfulJsonTemplate = """
 {"access":{
     "token":{

@@ -9,7 +9,7 @@ import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
 
-class Impersonation extends ReposeValveTest {
+class ImpersonationTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -41,7 +41,7 @@ class Impersonation extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "impersonation"() {
+    def "when using impersonation in client auth, repose should add X-Impersonator-Name and X-Impersonator-Id headers"() {
 
         fakeIdentityService.with {
             client_token = UUID.randomUUID()
@@ -52,7 +52,7 @@ class Impersonation extends ReposeValveTest {
             impersonate_id="567"
         }
 
-        when: "User passes a request through repose"
+        when: "User passes a request through repose with an impersonator"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant/",
                 method: 'GET',
@@ -62,7 +62,7 @@ class Impersonation extends ReposeValveTest {
                 ]
         )
 
-        then: "Request body sent from repose to the origin service should contain"
+        then: "Repose should add X-Impersonator-Name and X-Impersonator-Id"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
         mc.handlings[0].endpoint == originEndpoint
