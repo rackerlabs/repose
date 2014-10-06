@@ -8,10 +8,13 @@ import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -26,6 +29,7 @@ import java.util.UUID;
 // mock classes that are marked as final.
 @SuppressWarnings("com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
 public class MutableHttpServletRequest extends HttpServletRequestWrapper {
+    private static final Logger LOG = LoggerFactory.getLogger(MutableHttpServletRequest.class);
 
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
@@ -198,6 +202,21 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public Enumeration<String> getHeaders(String name) {
         return values.getHeaders().getHeaders(name);
+    }
+
+    @Override
+    public String getContentType() {
+        Enumeration<String> contentTypeHeaders = getHeaders(HttpHeaders.CONTENT_TYPE);
+        String contentType = null;
+
+        if (contentTypeHeaders.hasMoreElements()) {
+            contentType = contentTypeHeaders.nextElement();
+            if (contentTypeHeaders.hasMoreElements()) {
+                LOG.error("Multiple values found in the Content-Type header.");
+            }
+        }
+
+        return (contentType == null) ? null : contentType;
     }
 
     public HeaderValue getPreferredHeader(String name) {

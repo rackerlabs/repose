@@ -11,13 +11,14 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -409,5 +410,28 @@ public class MutableHttpServletRequestTest {
 
         }
 
+    }
+
+    public static class WhenDealingWithContentType {
+
+        private MutableHttpServletRequest mutableHttpServletRequest;
+        private HttpServletRequest request;
+
+        @Before
+        public void setup() throws IOException {
+            request = mock(HttpServletRequest.class);
+
+            when(request.getHeaderNames()).thenReturn(createStringEnumeration(HttpHeaders.CONTENT_TYPE));
+            when(request.getHeaders(HttpHeaders.CONTENT_TYPE)).thenReturn(createStringEnumeration("text/plain"));
+
+            mutableHttpServletRequest = MutableHttpServletRequest.wrap(request);
+        }
+
+        @Test
+        public void shouldAccuratelyReflectChanges() {
+            mutableHttpServletRequest.replaceHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+
+            assertThat(mutableHttpServletRequest.getContentType(), equalTo("application/json"));
+        }
     }
 }
