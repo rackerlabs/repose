@@ -134,7 +134,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Name")
       headers.keySet() should not contain HeaderName.wrap("X-Impersonator-Id")
 
-    it("should set the x-project-id header to the enforced value if it is set and send all project ids is not set/false") {
+    it("should set the x-project-id header to the uri project id value if it is set and send all project ids is not set/false") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
               Some(ProjectForAuthenticateResponse(null, Some("ProjectIdToNotSee"))),
@@ -151,7 +151,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
         )
     }
 
-    it("should set the x-project-id header to the default project id if send all project ids is not set/false") {
+    it("should set the x-project-id header to the default project id if send all project ids is not set/false and there is no uri project id validation") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("DefaultProjectIdToSee"))),
@@ -169,7 +169,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       )
     }
 
-    it("should not set the x-project-id header if there is no default and send all project ids is not set/false") {
+    it("should not set the x-project-id header if there is no default and send all project ids is not set/false and there is no uri project id validation") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None, None,
           Some(List(ServiceForAuthenticationResponse(List(Endpoint("foo", None, None, None, "http://www.notreallyawebsite.com"))))),
@@ -182,7 +182,7 @@ class OpenStackIdentityV3HandlerTest extends FunSpec with BeforeAndAfter with Ma
       identityV3Handler.handleRequest(mockRequest, mockServletResponse).requestHeaderManager.headersToAdd should not contain key(HeaderName.wrap("X-Project-Id"))
     }
 
-    it("should return default project id and roles project ids returned by identity as multiple x-project-id headers if all project ids is true") {
+    it("should return default project id and roles project ids returned by identity as multiple x-project-id headers if all project ids is true and there is no uri project id validation") {
       when(identityAPI.validateToken("123456")).thenReturn(
         Try(AuthenticateResponse("1", "2", List(), None,
           Some(ProjectForAuthenticateResponse(null, Some("ProjectIdFromProject"))),
