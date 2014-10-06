@@ -10,7 +10,7 @@ import spock.lang.Unroll
  * rackspace auth identity test include test for both versions v2.0 and v1.1
  */
 
-class RackspaceAuthIdentityTest extends ReposeValveTest {
+class RackspaceAuthUserTest extends ReposeValveTest {
 
     static Map contentXml = ["content-type": "application/xml"]
     static Map contentJSON = ["content-type": "application/json"]

@@ -1,4 +1,4 @@
-package com.rackspace.identity.repose.authidentity
+package com.rackspace.identity.repose.rackspaceauthuser
 
 import java.io.ByteArrayInputStream
 
@@ -7,7 +7,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthIdentityParsingTest extends FunSpec with Matchers {
+class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
 
   def auth1_1Config() = {
     val conf = new RackspaceAuthIdentityConfig
@@ -33,7 +33,7 @@ class RackspaceAuthIdentityParsingTest extends FunSpec with Matchers {
   }
 
   describe("Auth 1.1 Requests") {
-    val handler = new RackspaceAuthIdentityHandler(auth1_1Config())
+    val handler = new RackspaceAuthUserHandler(auth1_1Config())
     describe("XML") {
       it("Parses the XML credentials payload into a username") {
         val payload =
@@ -70,7 +70,7 @@ class RackspaceAuthIdentityParsingTest extends FunSpec with Matchers {
   }
 
   describe("Auth 2.0 requests") {
-    val handler = new RackspaceAuthIdentityHandler(auth2_0Config())
+    val handler = new RackspaceAuthUserHandler(auth2_0Config())
     describe("XML") {
       it("parses the username out of a User/Password request") {
         val payload =

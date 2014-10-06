@@ -118,7 +118,7 @@
     </filter>
     <filter>
         <filter-name>rackspace-auth-identity</filter-name>
-        <filter-class>com.rackspace.identity.repose.authidentity.RackspaceAuthIdentityFilter</filter-class>
+        <filter-class>com.rackspace.identity.repose.rackspaceauthuser.RackspaceAuthUserFilter</filter-class>
     </filter>
 
 </web-fragment>

@@ -1,4 +1,4 @@
-package com.rackspace.identity.repose.authidentity
+package com.rackspace.identity.repose.rackspaceauthuser
 
 import java.util
 import java.util.concurrent.atomic.{AtomicReference, AtomicBoolean}
@@ -6,11 +6,11 @@ import java.util.concurrent.atomic.{AtomicReference, AtomicBoolean}
 import com.rackspace.papi.commons.config.manager.UpdateListener
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
 
-class RackspaceAuthIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory[RackspaceAuthIdentityHandler] {
+class RackspaceAuthUserHandlerFactory extends AbstractConfiguredFilterHandlerFactory[RackspaceAuthUserHandler] {
 
-  private val handlerReference = new AtomicReference[RackspaceAuthIdentityHandler]()
+  private val handlerReference = new AtomicReference[RackspaceAuthUserHandler]()
 
-  override protected def buildHandler(): RackspaceAuthIdentityHandler = {
+  override protected def buildHandler(): RackspaceAuthUserHandler = {
     if(isInitialized) {
       handlerReference.get
     } else {
@@ -30,7 +30,7 @@ class RackspaceAuthIdentityHandlerFactory extends AbstractConfiguredFilterHandle
     private val initialized = new AtomicBoolean()
 
     override def configurationUpdated(config: RackspaceAuthIdentityConfig): Unit = {
-      val handler = new RackspaceAuthIdentityHandler(config)
+      val handler = new RackspaceAuthUserHandler(config)
       handlerReference.set(handler)
       initialized.set(true)
     }

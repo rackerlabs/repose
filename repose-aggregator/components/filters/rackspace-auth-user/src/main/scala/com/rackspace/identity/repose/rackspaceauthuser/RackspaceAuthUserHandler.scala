@@ -1,4 +1,4 @@
-package com.rackspace.identity.repose.authidentity
+package com.rackspace.identity.repose.rackspaceauthuser
 
 import java.io.{BufferedInputStream, InputStream}
 import javax.servlet.http.HttpServletRequest
@@ -16,7 +16,7 @@ import play.api.libs.json.{JsError, JsSuccess, Json}
 import scala.io.Source
 import scala.xml.XML
 
-class RackspaceAuthIdentityHandler(filterConfig: RackspaceAuthIdentityConfig) extends AbstractFilterLogicHandler with LazyLogging {
+class RackspaceAuthUserHandler(filterConfig: RackspaceAuthIdentityConfig) extends AbstractFilterLogicHandler with LazyLogging {
 
   type UsernameParsingFunction = InputStream => Option[String]
 
