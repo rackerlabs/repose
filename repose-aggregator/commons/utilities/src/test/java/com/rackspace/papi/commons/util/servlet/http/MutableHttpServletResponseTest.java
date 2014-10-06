@@ -4,8 +4,7 @@ import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import java.io.*;
-import java.util.Date;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -14,9 +13,13 @@ import org.junit.runner.RunWith;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
+import java.io.*;
+import java.util.Date;
+import java.util.LinkedList;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -209,6 +212,31 @@ public class MutableHttpServletResponseTest {
       assertEquals("available should be " + dataLen, dataLen, in.available());
     }
   }
+
+    public static class WhenDealingWithContentType {
+
+        private MutableHttpServletResponse mutableHttpServletResponse;
+        private HttpServletRequest request;
+        private HttpServletResponse response;
+
+        @Before
+        public void setup() throws IOException {
+            request = mock(HttpServletRequest.class);
+            response = mock(HttpServletResponse.class);
+
+            when(response.getHeaderNames()).thenReturn(new LinkedList<String>() {{ add(HttpHeaders.CONTENT_TYPE); }});
+            when(response.getHeaders(HttpHeaders.CONTENT_TYPE)).thenReturn(new LinkedList<String>() {{ add("text/plain"); }});
+
+            mutableHttpServletResponse = MutableHttpServletResponse.wrap(request, response);
+        }
+
+        @Test
+        public void shouldAccuratelyReflectChanges() {
+            mutableHttpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+
+            assertThat(mutableHttpServletResponse.getContentType(), equalTo("application/json"));
+        }
+    }
 
   @Ignore
   public static class WhenGettingWriter {
