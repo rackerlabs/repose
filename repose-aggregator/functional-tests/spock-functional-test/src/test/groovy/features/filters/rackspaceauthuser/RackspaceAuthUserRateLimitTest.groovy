@@ -16,8 +16,8 @@ class RackspaceAuthUserRateLimitTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser/rate-limiting", params)
-        repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests()
+        //For this test, we need to wait for JMX to tell us it's ready to go, and then we can do stuff
+        repose.start([waitOnJmxAfterStarting: true])
     }
 
     def cleanupSpec() {
@@ -39,13 +39,13 @@ class RackspaceAuthUserRateLimitTest extends ReposeValveTest {
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with two values"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 2
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").size() == 1
 
         and: "Repose will send user from Request body"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-user").contains(expectedUser + ";q=0.8")
 
         and: "Repose will send two values for x-pp-groups"
-        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 2
+        ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").size() == 1
 
         and: "Repose will send 'My Group' for x-pp-groups"
         ((Handling) sentRequest).request.getHeaders().findAll("x-pp-groups").contains("2_0-Group;q=0.8")
