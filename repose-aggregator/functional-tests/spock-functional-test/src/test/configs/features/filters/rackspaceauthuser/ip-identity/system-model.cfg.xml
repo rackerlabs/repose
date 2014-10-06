@@ -8,7 +8,7 @@
 
         <filters>
             <filter name="rackspace-auth-user"/>
-            <filter name="rate-limiting"/>
+            <filter name="ip-identity"/>
         </filters>
 
         <destinations>

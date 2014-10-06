@@ -7,7 +7,7 @@
         </nodes>
 
         <filters>
-            <filter name="rackspace-auth-identity"/>
+            <filter name="rackspace-auth-user"/>
         </filters>
 
         <destinations>
