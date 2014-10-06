@@ -25,6 +25,8 @@
         <property name='priority' value='1'/>
     </rule>
 
+
+
     <rule class='org.codenarc.rule.formatting.SpaceAroundOperatorRule'>
         <property name='priority' value='1'/>
     </rule>
@@ -68,6 +70,8 @@
     <rule class='org.codenarc.rule.formatting.BracesForTryCatchFinallyRule'>
         <property name='priority' value='1'/>
     </rule>
+
+
 
     <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Require space before else, catch, or finally"/>
