@@ -43,6 +43,18 @@ class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
 }
 """
 
+    static String jsonPasswordCredAuthr2 = """
+{
+    "auth":{
+        "passwordCredentials":{
+            "username":"demoauthr2",
+            "password":"theUsersPassword"
+        },
+        "tenantId": "12345678"
+    }
+}
+"""
+
     def static String jsonApiKeyCred = """{
     "auth": {
         "RAX-KSKEY:apiKeyCredentials": {
@@ -245,5 +257,6 @@ class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
         where:
         requestBody             | contentType | expectedUser | testName
         xmlPasswordCred         | contentXml  | "demoauthor" | "xmlPasswordCred"
+        jsonPasswordCredAuthr2        | contentJSON | "demoauthr2" | "jsonPasswordKey"
     }
 }
