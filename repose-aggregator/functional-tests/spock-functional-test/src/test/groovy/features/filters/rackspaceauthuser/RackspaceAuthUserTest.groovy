@@ -1,4 +1,4 @@
-package features.filters.rackspaceAuthIdentity
+package features.filters.rackspaceauthuser
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
@@ -7,7 +7,7 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /*
- * rackspace auth identity test include test for both versions v2.0 and v1.1
+ * rackspace auth user test include test for both versions v2.0 and v1.1
  */
 
 class RackspaceAuthUserTest extends ReposeValveTest {
@@ -65,7 +65,7 @@ class RackspaceAuthUserTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/rackspaceAuthIdentity", params)
+        repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
     }

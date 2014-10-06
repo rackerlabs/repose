@@ -133,7 +133,7 @@
         </dependency>
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>rackspace-auth-identity</artifactId>
+            <artifactId>rackspace-auth-user</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

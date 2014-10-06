@@ -19,7 +19,7 @@
         <module>uri-identity</module>
         <module>content-identity-auth-1.1</module>
         <module>content-identity-auth-2.0</module>
-        <module>rackspace-auth-identity</module>
+        <module>rackspace-auth-user</module>
         <module>content-normalization</module>
         <module>service-authentication</module>
         <module>rate-limiting</module>
@@ -247,11 +247,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-stripper</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>rackspace-auth-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

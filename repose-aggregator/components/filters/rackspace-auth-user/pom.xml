@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>rackspace-auth-identity</artifactId>
+    <artifactId>rackspace-auth-user</artifactId>
 
-    <name>Rackspace Authentication Identity filter</name>
+    <name>Rackspace Authentication User filter</name>
     <description>
         This filter extracts the username from the Auth 1.1 and Auth 2.0 contract to enable rate limiting based on
         who is trying to authenticate.

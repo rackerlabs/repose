@@ -1,4 +1,4 @@
-package features.filters.rackspaceAuthIdentity
+package features.filters.rackspaceauthuser
 
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
@@ -6,11 +6,7 @@ import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
-/*
- * rackspace auth identity test include test for both versions v2.0 and v1.1
- */
-
-class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
+class RackspaceAuthUserRateLimitTest extends ReposeValveTest {
 
     static Map contentXml = ["content-type": "application/xml"]
     static Map contentJSON = ["content-type": "application/json"]
@@ -77,7 +73,7 @@ class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/rackspaceAuthIdentity/rate-limiting", params)
+        repose.configurationProvider.applyConfigs("features/filters/rackspaceauthuser/rate-limiting", params)
         repose.start([waitOnJmxAfterStarting: false])
         waitUntilReadyToServiceRequests()
     }
@@ -125,7 +121,7 @@ class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
     def "when attempting to identity user by content and passed bad content"() {
 
         when: "Request body contains user credentials"
-        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method:"POST"])
+        def messageChain = deproxy.makeRequest([url: reposeEndpoint, requestBody: requestBody, headers: contentType, method: "POST"])
         def sentRequest = ((MessageChain) messageChain).getHandlings()[0]
 
         then: "Repose will send x-pp-user with a single value"
@@ -255,8 +251,8 @@ class RackspaceAuthIdentityRateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "413"
 
         where:
-        requestBody             | contentType | expectedUser | testName
-        xmlPasswordCred         | contentXml  | "demoauthor" | "xmlPasswordCred"
-        jsonPasswordCredAuthr2        | contentJSON | "demoauthr2" | "jsonPasswordKey"
+        requestBody            | contentType | expectedUser | testName
+        xmlPasswordCred        | contentXml  | "demoauthor" | "xmlPasswordCred"
+        jsonPasswordCredAuthr2 | contentJSON | "demoauthr2" | "jsonPasswordKey"
     }
 }
