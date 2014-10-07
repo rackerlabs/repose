@@ -212,11 +212,11 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         if (contentTypeHeaders.hasMoreElements()) {
             contentType = contentTypeHeaders.nextElement();
             if (contentTypeHeaders.hasMoreElements()) {
-                LOG.error("Multiple values found in the Content-Type header.");
+                LOG.warn("Multiple values found in the Content-Type header.");
             }
         }
 
-        return (contentType == null) ? null : contentType;
+        return contentType;
     }
 
     public HeaderValue getPreferredHeader(String name) {

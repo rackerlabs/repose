@@ -390,10 +390,10 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         if (contentTypeIterator.hasNext()) {
             contentType = contentTypeIterator.next();
             if (contentTypeIterator.hasNext()) {
-                LOG.error("Multiple values found in the Content-Type header.");
+                LOG.warn("Multiple values found in the Content-Type header.");
             }
         }
 
-        return (contentType == null) ? null : contentType;
+        return contentType;
     }
 }
