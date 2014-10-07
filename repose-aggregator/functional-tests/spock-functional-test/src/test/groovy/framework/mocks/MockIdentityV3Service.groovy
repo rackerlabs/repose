@@ -119,6 +119,7 @@ class MockIdentityV3Service {
     def client_projectid = 1234567
     def client_projectname = "this-is-the-project"
     def client_projectid2 = "openstack-project"
+    def client_projectname2 = "this-is-the-project2"
     def admin_domainid = 'this-is-the-admin-domain'
     def admin_domainname = 'example.com'
     def admin_token = 'this-is-the-admin-token'
@@ -331,21 +332,21 @@ class MockIdentityV3Service {
         def impersonateid = impersonate_id
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
-                impersonateid: impersonate_id,
+                expires        : getExpires(),
+                issued         : getIssued(),
+                userid         : client_userid,
+                username       : client_username,
+                endpointurl    : endpointUrl,
+                servicePort    : servicePort,
+                projectid      : client_projectid,
+                projectname    : client_projectname,
+                projectid2     : client_projectid2,
+                domainid       : client_domainid,
+                domainname     : client_domainname,
+                serviceadmin   : service_admin_role,
+                impersonateid  : impersonate_id,
                 impersonatename: impersonate_name,
-                defaultregion: default_region
+                defaultregion  : default_region
         ]
 
         def code
@@ -359,7 +360,7 @@ class MockIdentityV3Service {
             if (impersonateid != "") {
                 template = identityImpersonateSuccessfulResponse
             } else {
-                template = identitySuccessJsonFullRespTemplate
+                template = identitySuccessJsonRespTemplate
             }
         } else {
             template = identityFailureJsonRespTemplate
@@ -381,18 +382,18 @@ class MockIdentityV3Service {
         }
 
         def params = [
-                expires     : getExpires(),
-                issued      : getIssued(),
-                userid      : client_userid,
-                username    : client_username,
-                endpointurl : endpointUrl,
-                servicePort : this.servicePort,
-                projectid   : client_projectid,
-                projectname : client_projectname,
-                projectid2  : client_projectid2,
-                domainid    : client_domainid,
-                domainname  : client_domainname,
-                serviceadmin: service_admin_role,
+                expires      : getExpires(),
+                issued       : getIssued(),
+                userid       : client_userid,
+                username     : client_username,
+                endpointurl  : endpointUrl,
+                servicePort  : this.servicePort,
+                projectid    : client_projectid,
+                projectname  : client_projectname,
+                projectid2   : client_projectid2,
+                domainid     : client_domainid,
+                domainname   : client_domainname,
+                serviceadmin : service_admin_role,
                 defaultregion: default_region
         ]
 
@@ -405,7 +406,7 @@ class MockIdentityV3Service {
 
         if (isTokenValid) {
             code = 201
-            template = identitySuccessJsonFullRespTemplate
+            template = identitySuccessJsonRespTemplate
             headers.put('X-Subject-Token', admin_token)
         } else {
             code = 404
@@ -506,7 +507,7 @@ class MockIdentityV3Service {
     }
 
     // successful authenticate response /v3/auth/tokens?nocatalog
-    def identitySuccessJsonRespTemplate = """
+    def identitySuccessJsonRespShortTemplate = """
     {
         "token": {
             "expires_at": "\${expires}",
@@ -532,7 +533,7 @@ class MockIdentityV3Service {
     }
     """
     // this is full response with service catalog /v3/auth/tokens
-    def identitySuccessJsonFullRespTemplate = """
+    def identitySuccessJsonRespTemplate = """
     {
         "token": {
             "catalog": [
@@ -595,7 +596,7 @@ class MockIdentityV3Service {
                     "links": {
                         "self": "http://identity:35357/v3/roles/f4f392"
                     },
-                    "name": "\${projectid2}",
+                    "name": "member",
                     "project_id": "\${projectid2}"
                 }
             ],
