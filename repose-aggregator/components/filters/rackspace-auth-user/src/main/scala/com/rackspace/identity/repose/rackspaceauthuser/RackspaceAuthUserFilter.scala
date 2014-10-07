@@ -31,8 +31,8 @@ class RackspaceAuthUserFilter extends Filter with LazyLogging {
     configurationService.subscribeTo(filterConfig.getFilterName,
       config,
       xsdURL,
-      handlerFactory.asInstanceOf[UpdateListener[RackspaceAuthIdentityConfig]],
-      classOf[RackspaceAuthIdentityConfig])
+      handlerFactory.asInstanceOf[UpdateListener[RackspaceAuthUserConfig]],
+      classOf[RackspaceAuthUserConfig])
 
   }
 

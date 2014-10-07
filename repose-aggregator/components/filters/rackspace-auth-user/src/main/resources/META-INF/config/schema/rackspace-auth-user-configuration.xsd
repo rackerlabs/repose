@@ -2,14 +2,14 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns="http://docs.openrepose.org/rackspace-auth-identity/v1.0"
-           targetNamespace="http://docs.openrepose.org/rackspace-auth-identity/v1.0"
+           xmlns="http://docs.openrepose.org/rackspace-auth-user/v1.0"
+           targetNamespace="http://docs.openrepose.org/rackspace-auth-user/v1.0"
            elementFormDefault="qualified">
 
     <!-- Auth 2.0 message body content Identity Configuration -->
-    <xs:element name="rackspace-auth-identity" type="RackspaceAuthIdentityConfig"/>
+    <xs:element name="rackspace-auth-user" type="RackspaceAuthUserConfig"/>
 
-    <xs:complexType name="RackspaceAuthIdentityConfig">
+    <xs:complexType name="RackspaceAuthUserConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Configure optionally an extraction for auth 1.1 or auth 2.0</html:p>

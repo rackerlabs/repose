@@ -10,7 +10,7 @@ import org.scalatest.{FunSpec, Matchers}
 class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
 
   def auth1_1Config() = {
-    val conf = new RackspaceAuthIdentityConfig
+    val conf = new RackspaceAuthUserConfig
 
     val v11 = new IdentityV11()
     v11.setContentBodyReadLimit(BigInt(4096 * 1024).bigInteger)
@@ -21,7 +21,7 @@ class RackspaceAuthUserParsingTest extends FunSpec with Matchers {
     conf
   }
   def auth2_0Config() = {
-    val conf = new RackspaceAuthIdentityConfig
+    val conf = new RackspaceAuthUserConfig
 
     val v20 = new IdentityV2()
     v20.setContentBodyReadLimit(BigInt(4096 * 1024).bigInteger)
