@@ -1,0 +1,132 @@
+<ruleset xmlns="http://codenarc.org/ruleset/1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://codenarc.org/ruleset/1.0 http://codenarc.org/ruleset-schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://codenarc.org/ruleset-schema.xsd">
+
+    <description>Sample rule set</description>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterIfRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterForRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterWhileRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterSwitchRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterCatchRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+
+
+    <rule class='org.codenarc.rule.formatting.SpaceAroundOperatorRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceBeforeOpeningBraceRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterOpeningBraceRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceBeforeClosingBraceRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterCommaRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.SpaceAfterSemicolonRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.BracesForClassRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.BracesForForLoopRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.BracesForIfElseRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.BracesForMethodRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.formatting.BracesForTryCatchFinallyRule'>
+        <property name='priority' value='1'/>
+    </rule>
+
+
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before else, catch, or finally"/>
+        <property name='regex' value='[^\s-]else|[^\s-]catch|[^\s-]finally'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before and after a ?"/>
+        <property name='regex' value='[^\s-]\?|\?[^\s-]'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Require space before and after a :"/>
+        <property name='regex' value='[^\s-]:|:[^\s-]'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Max 2 blank lines before }"/>
+        <property name='regex' value='\n\n\n(\n)+.*\}'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Blanks around class"/>
+        <property name='regex' value='class.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def'/>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Blanks around method"/>
+        <property name='regex' value='def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def'/>
+        <property name='priority' value='1'/>
+    </rule>
+
+    <!--rule class='org.codenarc.rule.formatting.SpaceAfterSynchronized?!?!?????'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.basic.EmptyIfStatementRule'>
+            <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.formatting.SpaceAfterTypeCast?!?!?!?!?!?'>
+            <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.formatting.MissingBlankLineAfterPackageRule'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+    <!--rule class='org.codenarc.rule.formatting.MissingBlankLineAfterImportsRule'>
+        <property name='priority' value='1'/>
+    </rule-->
+
+</ruleset>
