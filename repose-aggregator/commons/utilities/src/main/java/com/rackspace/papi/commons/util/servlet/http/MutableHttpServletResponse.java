@@ -15,6 +15,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -380,4 +381,19 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     Enumeration<String> headerNames = headers.getHeaderNames();
     return headerNames != null ? Collections.list(headerNames) : null;
   }
+
+    @Override
+    public String getContentType() {
+        Iterator<String> contentTypeIterator = getHeaders(HttpHeaders.CONTENT_TYPE).iterator();
+        String contentType = null;
+
+        if (contentTypeIterator.hasNext()) {
+            contentType = contentTypeIterator.next();
+            if (contentTypeIterator.hasNext()) {
+                LOG.warn("Multiple values found in the Content-Type header.");
+            }
+        }
+
+        return contentType;
+    }
 }
