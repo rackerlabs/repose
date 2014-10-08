@@ -16,7 +16,19 @@ class RequestBodyForwardingTest extends ReposeValveTest {
         repose.start()
     }
 
-    def "when GET request with body, body should be dropped"() {
+    def "when GET request with body, Deproxy should forward body"() {
+        given:
+        String testBody = "some test body"
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: "http://localhost:${properties.targetPort}", requestBody: testBody)
+
+        then:
+        mc.getSentRequest().getBody().toString().equals(testBody)
+        mc.handlings.get(0).getRequest().getBody().toString().equals(testBody)
+    }
+
+    def "when GET request with body, Repose should drop body"() {
         given:
         String testBody = "some test body"
 
