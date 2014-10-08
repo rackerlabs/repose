@@ -37,7 +37,7 @@ class EmptyRequestBodyTest extends ReposeValveTest {
         String requestBody = "request body"
 
         when:
-        def mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
 
         then:
         mc.getSentRequest().getBody().toString() == requestBody
@@ -54,7 +54,7 @@ class EmptyRequestBodyTest extends ReposeValveTest {
         String requestBody = "request body"
 
         when:
-        def mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: method, requestBody: requestBody)
 
         then:
         mc.getSentRequest().getBody().toString() == requestBody
