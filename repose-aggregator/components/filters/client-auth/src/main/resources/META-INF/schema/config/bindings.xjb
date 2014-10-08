@@ -6,6 +6,6 @@
         schemaLocation="client-auth-n-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.components.clientauth.config" />
+        <package name="org.openrepose.filters.clientauth.clientauth.config" />
     </schemaBindings>
 </bindings>

@@ -6,6 +6,6 @@
         schemaLocation="openstack-ids-auth.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.components.clientauth.openstack.config" />
+        <package name="org.openrepose.filters.clientauth.clientauth.openstack.config" />
     </schemaBindings>
 </bindings>
