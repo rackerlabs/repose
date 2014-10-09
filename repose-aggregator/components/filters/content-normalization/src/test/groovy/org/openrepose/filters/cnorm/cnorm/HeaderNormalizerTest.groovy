@@ -1,7 +1,7 @@
-package com.rackspace.papi.components.cnorm
+package org.openrepose.filters.cnorm.cnorm
 
 import org.openrepose.commons.utils.http.header.HeaderName
-import com.rackspace.papi.components.cnorm.normalizer.HeaderNormalizer
+import org.openrepose.filters.cnorm.cnorm.normalizer.HeaderNormalizer
 import com.rackspace.papi.components.normalization.config.HeaderFilterList
 import com.rackspace.papi.components.normalization.config.HttpHeader
 import com.rackspace.papi.components.normalization.config.HttpHeaderList

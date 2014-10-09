@@ -1,8 +1,8 @@
-package com.rackspace.papi.components.cnorm;
+package org.openrepose.filters.cnorm.cnorm;
 
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.cnorm.normalizer.HeaderNormalizer;
-import com.rackspace.papi.components.cnorm.normalizer.MediaTypeNormalizer;
+import org.openrepose.filters.cnorm.cnorm.normalizer.HeaderNormalizer;
+import org.openrepose.filters.cnorm.cnorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;

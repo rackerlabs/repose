@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.cnorm.normalizer;
+package org.openrepose.filters.cnorm.cnorm.normalizer;
 
 import com.rackspace.papi.components.normalization.config.HeaderFilterList;
 import com.rackspace.papi.components.normalization.config.HttpHeader;
