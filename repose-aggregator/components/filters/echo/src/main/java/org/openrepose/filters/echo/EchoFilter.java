@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.routing;
+package org.openrepose.filters.echo;
 
 import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.slf4j.Logger;

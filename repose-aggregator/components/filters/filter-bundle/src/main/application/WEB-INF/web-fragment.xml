@@ -79,7 +79,7 @@
 
     <filter>
         <filter-name>echo</filter-name>
-        <filter-class>com.rackspace.papi.components.routing.EchoFilter</filter-class>
+        <filter-class>org.openrepose.filters.echo.EchoFilter</filter-class>
     </filter>
 
     <filter>
