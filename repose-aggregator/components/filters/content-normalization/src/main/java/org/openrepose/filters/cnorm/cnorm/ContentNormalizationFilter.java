@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.cnorm;
+package org.openrepose.filters.cnorm.cnorm;
 
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;

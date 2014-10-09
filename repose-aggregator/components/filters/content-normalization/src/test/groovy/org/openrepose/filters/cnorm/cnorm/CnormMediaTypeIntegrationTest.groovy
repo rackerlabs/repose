@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.cnorm
+package org.openrepose.filters.cnorm.cnorm
 
 import com.mockrunner.mock.web.*
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager

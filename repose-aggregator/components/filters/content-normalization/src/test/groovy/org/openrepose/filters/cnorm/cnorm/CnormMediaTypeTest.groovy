@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.cnorm
+package org.openrepose.filters.cnorm.cnorm
 
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName
