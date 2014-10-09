@@ -69,7 +69,7 @@
 
     <filter>
         <filter-name>versioning</filter-name>
-        <filter-class>com.rackspace.papi.components.versioning.VersioningFilter</filter-class>
+        <filter-class>org.openrepose.filters.versioning.VersioningFilter</filter-class>
     </filter>
 
     <filter>

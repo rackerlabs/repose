@@ -2,7 +2,7 @@ package com.rackspace.cloud.valve.jetty.apps;
 
 import com.rackspace.cloud.valve.jetty.servlet.VersionOneServlet;
 import com.rackspace.cloud.valve.jetty.servlet.VersionTwoServlet;
-import com.rackspace.papi.components.versioning.VersioningFilter;
+import org.openrepose.filters.versioning.VersioningFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
