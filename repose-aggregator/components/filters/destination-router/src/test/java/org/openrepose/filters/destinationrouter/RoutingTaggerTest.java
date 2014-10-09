@@ -1,4 +1,4 @@
-package org.openrepose.components.routing.servlet;
+package org.openrepose.filters.destinationrouter;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -7,12 +7,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.components.routing.servlet.config.Target;
+import org.openrepose.filters.destinationrouter.DestinationRouterHandlerFactory;
+import org.openrepose.filters.destinationrouter.RoutingTagger;
+import org.openrepose.filters.routing.servlet.config.Target;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
+import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 

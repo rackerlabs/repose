@@ -1,4 +1,4 @@
-package org.openrepose.components.routing.servlet;
+package org.openrepose.filters.destinationrouter;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
