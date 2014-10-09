@@ -2,16 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.components.compression;
+package org.openrepose.filters.compression;
 
 import java.util.Vector;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
+import com.rackspace.components.compression.Compression;
+import com.rackspace.components.compression.ContentCompressionConfig;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.filter.compression.CompressionHandler;
-import org.openrepose.filter.compression.CompressionHandlerFactory;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;

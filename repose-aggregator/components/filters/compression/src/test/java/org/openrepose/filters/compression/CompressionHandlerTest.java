@@ -1,4 +1,4 @@
-package com.rackspace.components.compression;
+package org.openrepose.filters.compression;
 
 import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.utils.http.HttpStatusCode;
@@ -9,7 +9,6 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrepose.filter.compression.CompressionHandler;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 

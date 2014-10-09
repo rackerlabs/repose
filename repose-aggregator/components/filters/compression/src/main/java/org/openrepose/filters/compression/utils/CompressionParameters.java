@@ -1,4 +1,4 @@
-package org.openrepose.filter.compression.utils;
+package org.openrepose.filters.compression.utils;
 
 
 public enum CompressionParameters {
