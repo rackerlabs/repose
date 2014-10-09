@@ -114,7 +114,7 @@
 
     <filter>
         <filter-name>openstack-identity-v3</filter-name>
-        <filter-class>com.rackspace.papi.components.openstack.identity.v3.OpenStackIdentityV3Filter</filter-class>
+        <filter-class>org.openrepose.filters.openstackidentityv3.OpenStackIdentityV3Filter</filter-class>
     </filter>
 
     <filter>

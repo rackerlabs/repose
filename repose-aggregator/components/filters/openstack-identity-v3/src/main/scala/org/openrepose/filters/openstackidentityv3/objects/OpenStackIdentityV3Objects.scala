@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.openstack.identity.v3.objects
+package org.openrepose.filters.openstackidentityv3.objects
 
 case class DomainsForAuthenticateResponse(id: Option[String] = None,
                                           name: Option[String] = None,

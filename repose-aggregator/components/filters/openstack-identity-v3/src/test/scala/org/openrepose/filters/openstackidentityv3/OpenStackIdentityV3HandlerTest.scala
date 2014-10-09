@@ -1,21 +1,20 @@
-package com.rackspace.papi.components.openstack.identity.v3
+package org.openrepose.filters.openstackidentityv3
 
 import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.commons.utils.http.{header, CommonHttpHeader, HttpStatusCode}
-import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import com.rackspace.papi.components.openstack.identity.v3.config._
-import com.rackspace.papi.components.openstack.identity.v3.objects._
-import com.rackspace.papi.components.openstack.identity.v3.utilities._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{verify, when}
+import org.openrepose.commons.utils.http.header.HeaderName
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
+import org.openrepose.filters.openstackidentityv3.objects._
+import org.openrepose.filters.openstackidentityv3.utilities._
+import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest._
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Try}

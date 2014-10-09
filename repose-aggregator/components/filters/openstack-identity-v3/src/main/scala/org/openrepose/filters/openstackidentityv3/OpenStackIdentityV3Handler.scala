@@ -1,9 +1,7 @@
-package com.rackspace.papi.components.openstack.identity.v3
+package org.openrepose.filters.openstackidentityv3
 
 import javax.servlet.http.HttpServletRequest
 
-import org.openrepose.commons.utils.http._
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityV3Config, WhiteList}
 import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
@@ -12,6 +10,8 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
 import org.apache.commons.codec.binary.Base64
+import org.openrepose.commons.utils.http._
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import org.slf4j.LoggerFactory
 import spray.json._
 

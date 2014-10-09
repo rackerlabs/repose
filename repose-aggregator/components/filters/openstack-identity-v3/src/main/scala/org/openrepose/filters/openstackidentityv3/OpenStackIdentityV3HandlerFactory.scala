@@ -1,13 +1,13 @@
-package com.rackspace.papi.components.openstack.identity.v3
+package org.openrepose.filters.openstackidentityv3
 
 import java.util
 
-import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdentityV3Config
 import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenStackIdentityV3API
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
+import org.openrepose.commons.config.manager.UpdateListener
 
 class OpenStackIdentityV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractConfiguredFilterHandlerFactory[OpenStackIdentityV3Handler] {

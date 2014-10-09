@@ -1,6 +1,6 @@
-package com.rackspace.papi.components.openstack.identity.v3.json.spray
+package org.openrepose.filters.openstackidentityv3.json.spray
 
-import com.rackspace.papi.components.openstack.identity.v3.objects._
+import org.openrepose.filters.openstackidentityv3.objects._
 import spray.json.DefaultJsonProtocol
 
 object IdentityJsonProtocol extends DefaultJsonProtocol {
