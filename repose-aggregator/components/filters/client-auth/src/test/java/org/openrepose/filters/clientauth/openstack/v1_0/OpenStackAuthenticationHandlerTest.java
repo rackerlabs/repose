@@ -8,27 +8,6 @@ import com.rackspace.auth.openstack.OpenStackGroup;
 import com.rackspace.auth.openstack.OpenStackToken;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-<<<<<<< Updated upstream:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/openstack/v1_0/OpenStackAuthenticationHandlerTest.java
-import org.openrepose.filters.clientauth.common.*;
-import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
-import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
-import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
-import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import com.rackspace.papi.components.datastore.Datastore;
-=======
-import org.openrepose.filters.clientauth.clientauth.common.*;
-import org.openrepose.filters.clientauth.clientauth.openstack.config.ClientMapping;
-import org.openrepose.filters.clientauth.clientauth.openstack.config.OpenStackIdentityService;
-import org.openrepose.filters.clientauth.clientauth.openstack.config.OpenstackAuth;
-import org.openrepose.filters.clientauth.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.services.datastore.api.Datastore;
->>>>>>> Stashed changes:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/clientauth/openstack/v1_0/OpenStackAuthenticationHandlerTest.java
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.junit.Before;
@@ -36,6 +15,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.io.ObjectSerializer;
+import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.filters.clientauth.common.*;
+import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
+import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
+import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
+import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
+import org.openrepose.services.datastore.api.Datastore;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;

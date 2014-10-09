@@ -1,10 +1,6 @@
-<<<<<<< Updated upstream:repose-aggregator/components/filters/client-auth/src/test/groovy/org/openrepose/filters/clientauth/common/EndpointsCacheTest.groovy
 package org.openrepose.filters.clientauth.common
-import com.rackspace.papi.components.datastore.Datastore
-=======
-package org.openrepose.filters.clientauth.clientauth.common
+
 import org.openrepose.services.datastore.api.Datastore
->>>>>>> Stashed changes:repose-aggregator/components/filters/client-auth/src/test/groovy/org/openrepose/filters/clientauth/clientauth/common/EndpointsCacheTest.groovy
 import spock.lang.Specification
 
 class EndpointsCacheTest extends Specification {
