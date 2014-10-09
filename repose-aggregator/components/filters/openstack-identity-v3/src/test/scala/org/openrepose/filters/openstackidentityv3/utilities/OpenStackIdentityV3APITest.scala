@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.openstack.identity.v3.utilities
+package org.openrepose.filters.openstackidentityv3.utilities
 
 import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
@@ -7,7 +7,7 @@ import javax.ws.rs.core.MediaType
 import org.openrepose.commons.utils.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
-import com.rackspace.papi.components.openstack.identity.v3.objects.{AuthenticateResponse, Group}
+import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.message.BasicHeader
 import org.hamcrest.Matchers.{equalTo, is, lessThanOrEqualTo, theInstance}

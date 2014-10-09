@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.openstack.identity.v3.utilities
+package org.openrepose.filters.openstackidentityv3.utilities
 
 object OpenStackIdentityV3Headers {
   final val X_AUTH_TOKEN = "X-Auth-Token"

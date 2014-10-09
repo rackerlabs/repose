@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.openstack.identity.v3
+package org.openrepose.filters.openstackidentityv3
 
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import com.rackspace.papi.service.datastore.DatastoreService

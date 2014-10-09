@@ -1,14 +1,14 @@
-package com.rackspace.papi.components.openstack.identity.v3
+package org.openrepose.filters.openstackidentityv3
 
 import java.net.URL
 import javax.servlet._
 
-import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdentityV3Config
 import com.rackspace.papi.filter.FilterConfigHelper
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.context.ServletContextHelper
+import org.openrepose.commons.config.manager.UpdateListener
 import org.slf4j.LoggerFactory
 
 class OpenStackIdentityV3Filter extends Filter {
