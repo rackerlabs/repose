@@ -5,7 +5,7 @@
 
     <description>Sample rule set</description>
 
-    <rule class='org.codenarc.rule.formatting.SpaceAfterIfRule'>
+    <!--rule class='org.codenarc.rule.formatting.SpaceAfterIfRule'>
         <property name='priority' value='1'/>
     </rule>
 
@@ -95,7 +95,21 @@
         <property name="name" value="Max 2 blank lines before }"/>
         <property name='regex' value='\n\n\n(\n)+.*\}'/>
         <property name='priority' value='1'/>
-    </rule>
+    </rule-->
+
+
+
+    <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
+        <property name="name" value="Blanks around method"/>
+        <property name='regex' value='def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def'/>
+        <property name='priority' value='1'/>
+    </rule-->
+
+
+
+
+
+
 
     <!--rule class='org.codenarc.rule.generic.IllegalRegexRule'>
         <property name="name" value="Blanks around class"/>
@@ -103,11 +117,7 @@
         <property name='priority' value='1'/>
     </rule-->
 
-    <rule class='org.codenarc.rule.generic.IllegalRegexRule'>
-        <property name="name" value="Blanks around method"/>
-        <property name='regex' value='def.*\{(.|\n|\s)*\}\n[^\s-]|[^\s-]\n.*def'/>
-        <property name='priority' value='1'/>
-    </rule>
+
 
     <!--rule class='org.codenarc.rule.formatting.SpaceAfterSynchronized?!?!?????'>
         <property name='priority' value='1'/>
