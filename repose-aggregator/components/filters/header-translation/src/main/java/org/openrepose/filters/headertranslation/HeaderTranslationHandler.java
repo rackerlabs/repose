@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.header.translation;
+package org.openrepose.filters.headertranslation;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;

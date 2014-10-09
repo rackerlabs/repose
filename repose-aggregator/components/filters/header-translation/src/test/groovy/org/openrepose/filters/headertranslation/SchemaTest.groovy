@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.header.translation
+package org.openrepose.filters.headertranslation
 import org.junit.Before
 import org.junit.Test
 import org.xml.sax.SAXParseException
