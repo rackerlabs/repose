@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.ErrorResult;

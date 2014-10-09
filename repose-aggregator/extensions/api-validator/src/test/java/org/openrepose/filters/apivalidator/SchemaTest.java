@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import org.junit.Before;
 import org.junit.Test;

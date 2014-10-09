@@ -1,11 +1,13 @@
-package org.openrepose.components.apivalidator.filter
+package org.openrepose.filters.apivalidator
 
 import com.rackspace.com.papi.components.checker.handler.InstrumentedHandler
-import com.rackspace.com.papi.components.checker.handler.ResultHandler
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
+import org.openrepose.filters.apivalidator.DispatchHandler
+import org.openrepose.filters.apivalidator.ValidatorConfigurator
+import org.openrepose.filters.apivalidator.ValidatorInfo
 
 
 class ValidatorConfiguratorTest {

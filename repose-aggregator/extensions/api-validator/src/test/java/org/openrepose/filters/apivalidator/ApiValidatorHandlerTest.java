@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Validator;
 import org.openrepose.commons.utils.http.HttpStatusCode;
@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.apivalidator.ApiValidatorHandler;
+import org.openrepose.filters.apivalidator.ValidatorInfo;
 
 import javax.servlet.FilterChain;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;

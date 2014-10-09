@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;

@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.apivalidator.DispatchHandler;
+import org.openrepose.filters.apivalidator.ValidatorInfo;
 
 import java.net.URL;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.openrepose.components.apivalidator.filter;
+package org.openrepose.filters.apivalidator;
 
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
@@ -11,6 +11,9 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.openrepose.filters.apivalidator.ApiValidatorHandler;
+import org.openrepose.filters.apivalidator.ApiValidatorHandlerFactory;
+import org.openrepose.filters.apivalidator.ValidatorInfo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
