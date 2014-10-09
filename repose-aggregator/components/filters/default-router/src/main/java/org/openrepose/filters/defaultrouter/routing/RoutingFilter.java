@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.routing;
+package org.openrepose.filters.defaultrouter.routing;
 
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;

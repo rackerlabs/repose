@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.routing
+package org.openrepose.filters.defaultrouter.routing
 
 import com.google.common.base.Optional
 import com.rackspace.papi.filter.SystemModelInterrogator
