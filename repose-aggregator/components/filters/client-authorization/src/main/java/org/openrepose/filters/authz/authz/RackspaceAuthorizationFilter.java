@@ -1,4 +1,4 @@
-package org.openrepose.components.rackspace.authz;
+package org.openrepose.filters.authz.authz;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
