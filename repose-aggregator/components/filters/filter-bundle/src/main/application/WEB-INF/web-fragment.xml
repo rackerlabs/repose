@@ -74,7 +74,7 @@
 
     <filter>
         <filter-name>translation</filter-name>
-        <filter-class>com.rackspace.papi.components.translation.TranslationFilter</filter-class>
+        <filter-class>org.openrepose.filters.translation.TranslationFilter</filter-class>
     </filter>
 
     <filter>

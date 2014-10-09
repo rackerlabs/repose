@@ -6,6 +6,6 @@
         schemaLocation="http-basic.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.filters.clientauthbasic.config" />
+        <package name="org.openrepose.filters.clientauth.basic.config" />
     </schemaBindings>
 </bindings>
