@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils;
 
 import com.rackspace.papi.model.*;
-import com.rackspace.papi.service.datastore.DatastoreAccessControl;
+import org.openrepose.services.datastore.api.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.config.*;
 import org.junit.Before;
 import org.junit.Test;

@@ -7,7 +7,7 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServiceContextName;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import org.openrepose.services.datastore.api.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.event.common.EventService;

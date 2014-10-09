@@ -1,11 +1,20 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
+<<<<<<< Updated upstream:repose-aggregator/components/filters/client-auth/src/main/java/org/openrepose/filters/clientauth/atomfeed/FeedCacheInvalidator.java
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import com.rackspace.papi.components.datastore.Datastore;
+=======
+import org.openrepose.filters.clientauth.clientauth.common.AuthGroupCache;
+import org.openrepose.filters.clientauth.clientauth.common.AuthTokenCache;
+import org.openrepose.filters.clientauth.clientauth.common.AuthUserCache;
+import org.openrepose.filters.clientauth.clientauth.common.EndpointsCache;
+import org.openrepose.filters.clientauth.clientauth.openstack.v1_0.OsAuthCachePrefix;
+import org.openrepose.services.datastore.api.Datastore;
+>>>>>>> Stashed changes:repose-aggregator/components/filters/client-auth/src/main/java/org/openrepose/filters/clientauth/clientauth/atomfeed/FeedCacheInvalidator.java
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;

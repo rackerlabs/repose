@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import org.openrepose.services.datastore.api.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterViewService;
 import com.rackspace.papi.service.event.common.EventService;

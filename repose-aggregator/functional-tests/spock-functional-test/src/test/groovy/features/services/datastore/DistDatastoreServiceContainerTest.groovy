@@ -1,7 +1,7 @@
 package features.services.datastore
 
 import org.openrepose.commons.utils.io.ObjectSerializer
-import com.rackspace.papi.components.datastore.StringValue
+import org.openrepose.services.datastore.api.StringValue
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher

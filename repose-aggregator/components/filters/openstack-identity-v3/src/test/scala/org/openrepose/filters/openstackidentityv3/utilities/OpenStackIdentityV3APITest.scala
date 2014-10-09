@@ -3,8 +3,6 @@ package org.openrepose.filters.openstackidentityv3.utilities
 import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.MediaType
-
-import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.message.BasicHeader
 import org.hamcrest.Matchers.{equalTo, is, lessThanOrEqualTo, theInstance}
@@ -15,6 +13,7 @@ import org.mockito.Mockito._
 import org.openrepose.commons.utils.http.{HttpStatusCode, ServiceClientResponse}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
 import org.openrepose.filters.openstackidentityv3.objects.{AuthenticateResponse, Group}
+import org.openrepose.services.datastore.api.Datastore
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}
 

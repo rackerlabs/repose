@@ -3,7 +3,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.distributed.servle
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import org.openrepose.services.datastore.api.DatastoreService;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

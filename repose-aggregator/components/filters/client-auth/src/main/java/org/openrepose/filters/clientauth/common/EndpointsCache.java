@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.common;
 
-import com.rackspace.papi.components.datastore.Datastore;
+import org.openrepose.services.datastore.api.Datastore;
 import org.slf4j.Logger;
 
 import java.io.IOException;

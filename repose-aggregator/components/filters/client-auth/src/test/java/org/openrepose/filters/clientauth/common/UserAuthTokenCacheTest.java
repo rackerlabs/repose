@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.common;
 
 import com.rackspace.auth.AuthToken;
-import com.rackspace.papi.components.datastore.Datastore;
+import org.openrepose.services.datastore.api.Datastore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

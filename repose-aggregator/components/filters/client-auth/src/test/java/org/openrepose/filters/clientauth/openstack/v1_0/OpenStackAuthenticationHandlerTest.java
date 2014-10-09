@@ -14,12 +14,21 @@ import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+<<<<<<< Updated upstream:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/openstack/v1_0/OpenStackAuthenticationHandlerTest.java
 import org.openrepose.filters.clientauth.common.*;
 import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
 import com.rackspace.papi.components.datastore.Datastore;
+=======
+import org.openrepose.filters.clientauth.clientauth.common.*;
+import org.openrepose.filters.clientauth.clientauth.openstack.config.ClientMapping;
+import org.openrepose.filters.clientauth.clientauth.openstack.config.OpenStackIdentityService;
+import org.openrepose.filters.clientauth.clientauth.openstack.config.OpenstackAuth;
+import org.openrepose.filters.clientauth.clientauth.openstack.config.ServiceAdminRoles;
+import org.openrepose.services.datastore.api.Datastore;
+>>>>>>> Stashed changes:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/clientauth/openstack/v1_0/OpenStackAuthenticationHandlerTest.java
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.junit.Before;

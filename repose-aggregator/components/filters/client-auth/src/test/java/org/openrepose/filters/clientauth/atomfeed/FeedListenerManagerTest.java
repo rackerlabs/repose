@@ -3,6 +3,7 @@ package org.openrepose.filters.clientauth.atomfeed;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.OpenStackToken;
+<<<<<<< Updated upstream:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/atomfeed/FeedListenerManagerTest.java
 import org.openrepose.filters.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
@@ -10,6 +11,15 @@ import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.impl.ehcache.EHCacheDatastore;
+=======
+import org.openrepose.filters.clientauth.clientauth.atomfeed.sax.SaxAuthFeedReader;
+import org.openrepose.filters.clientauth.clientauth.common.AuthGroupCache;
+import org.openrepose.filters.clientauth.clientauth.common.AuthTokenCache;
+import org.openrepose.filters.clientauth.clientauth.common.AuthUserCache;
+import org.openrepose.filters.clientauth.clientauth.openstack.v1_0.OsAuthCachePrefix;
+import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastore;
+>>>>>>> Stashed changes:repose-aggregator/components/filters/client-auth/src/test/java/org/openrepose/filters/clientauth/clientauth/atomfeed/FeedListenerManagerTest.java
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

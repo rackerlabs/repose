@@ -3,7 +3,7 @@ package org.openrepose.filters.authz;
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.datastore.Datastore;
+import org.openrepose.services.datastore.api.Datastore;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;

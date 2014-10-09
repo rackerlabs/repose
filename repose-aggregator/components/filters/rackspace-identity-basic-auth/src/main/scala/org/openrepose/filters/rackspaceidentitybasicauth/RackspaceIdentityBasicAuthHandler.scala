@@ -9,8 +9,8 @@ import com.rackspace.papi.components.rackspace.identity.basicauth.config.Rackspa
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
-import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
+import org.openrepose.services.datastore.api.DatastoreService
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._

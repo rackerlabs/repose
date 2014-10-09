@@ -1,7 +1,7 @@
 package com.rackspace.repose.service.ratelimit.cache;
 
-import com.rackspace.papi.components.datastore.Patchable;
-import com.rackspace.papi.components.datastore.distributed.SerializablePatch;
+import org.openrepose.services.datastore.api.Patchable;
+import org.openrepose.services.datastore.api.distributed.SerializablePatch;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.apache.commons.lang3.tuple.Pair;
 

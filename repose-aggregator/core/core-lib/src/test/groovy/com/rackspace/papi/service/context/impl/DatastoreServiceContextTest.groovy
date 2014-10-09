@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.impl
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.context.ServiceContext
-import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl
+import org.openrepose.services.datastore.impl.DatastoreServiceImpl
 import org.junit.Test
 
 import static org.hamcrest.CoreMatchers.equalTo

@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
-import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.impl.DatastoreServiceImpl;
+import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.impl.DatastoreServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

@@ -1,14 +1,14 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.datastore.distributed.ClusterView;
-import com.rackspace.papi.components.datastore.impl.distributed.ThreadSafeClusterView;
+import org.openrepose.services.datastore.api.distributed.ClusterView;
+import org.openrepose.services.datastore.impl.distributed.ThreadSafeClusterView;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.datastore.DatastoreAccessControl;
+import org.openrepose.services.datastore.api.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;

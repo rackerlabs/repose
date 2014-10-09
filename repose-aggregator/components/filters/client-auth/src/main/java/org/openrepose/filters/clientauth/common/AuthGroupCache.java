@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.common;
 
 import com.rackspace.auth.AuthGroups;
-import com.rackspace.papi.components.datastore.Datastore;
+import org.openrepose.services.datastore.api.Datastore;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
