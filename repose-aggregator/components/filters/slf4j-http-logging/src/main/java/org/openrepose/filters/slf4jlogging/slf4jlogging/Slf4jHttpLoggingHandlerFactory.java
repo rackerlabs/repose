@@ -1,8 +1,8 @@
-package com.rackspace.papi.components.slf4jlogging;
+package org.openrepose.filters.slf4jlogging.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog;
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog;
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.slf4j.LoggerFactory;
 

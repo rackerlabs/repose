@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.slf4jlogging
+package org.openrepose.filters.slf4jlogging.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest

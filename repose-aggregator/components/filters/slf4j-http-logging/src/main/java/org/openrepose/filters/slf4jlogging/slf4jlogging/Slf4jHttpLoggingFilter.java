@@ -1,6 +1,6 @@
-package com.rackspace.papi.components.slf4jlogging;
+package org.openrepose.filters.slf4jlogging.slf4jlogging;
 
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;

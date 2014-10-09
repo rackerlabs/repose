@@ -1,11 +1,8 @@
-package com.rackspace.papi.components.slf4jlogging
+package org.openrepose.filters.slf4jlogging.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
 import com.mockrunner.mock.web.MockHttpServletResponse
-import org.apache.log4j.Logger
-import org.apache.log4j.SimpleLayout
-import org.apache.log4j.WriterAppender
 import spock.lang.Shared
 
 import javax.servlet.http.HttpServletRequest
