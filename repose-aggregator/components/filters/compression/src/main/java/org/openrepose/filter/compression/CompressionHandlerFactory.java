@@ -1,14 +1,17 @@
-package com.rackspace.components.compression;
+package org.openrepose.filter.compression;
 
+import com.rackspace.components.compression.Compression;
+import com.rackspace.components.compression.ContentCompressionConfig;
 import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.components.compression.util.CompressionConfigWrapper;
+import org.openrepose.filter.compression.utils.CompressionConfigWrapper;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.Map;
 import javax.servlet.FilterConfig;
-import com.rackspace.components.compression.util.CompressionParameters;
+import org.openrepose.filter.compression.utils.CompressionParameters;
 import java.util.HashMap;
 import javax.servlet.ServletException;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 

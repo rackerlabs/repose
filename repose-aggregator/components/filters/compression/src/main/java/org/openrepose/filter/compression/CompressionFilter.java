@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.components.compression;
+package org.openrepose.filter.compression;
 
+import com.rackspace.components.compression.ContentCompressionConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;

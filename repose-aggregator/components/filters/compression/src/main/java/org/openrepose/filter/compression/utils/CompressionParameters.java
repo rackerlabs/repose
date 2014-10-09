@@ -1,4 +1,4 @@
-package com.rackspace.components.compression.util;
+package org.openrepose.filter.compression.utils;
 
 
 public enum CompressionParameters {

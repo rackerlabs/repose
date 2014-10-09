@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.components.compression;
+package org.openrepose.filter.compression;
 
 import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.utils.http.HttpStatusCode;
