@@ -1,8 +1,8 @@
-package com.rackspace.papi.components.identity.header_mapping;
+package org.openrepose.filters.headeridmapping;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
-import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HeaderIdMappingConfig;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;

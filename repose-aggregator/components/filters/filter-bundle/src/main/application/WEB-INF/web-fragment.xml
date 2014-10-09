@@ -19,7 +19,7 @@
 
     <filter>
         <filter-name>header-id-mapping</filter-name>
-        <filter-class>com.rackspace.papi.components.identity.header_mapping.HeaderIdMappingFilter</filter-class>
+        <filter-class>org.openrepose.filters.headeridmapping.HeaderIdMappingFilter</filter-class>
     </filter>
 
     <filter>

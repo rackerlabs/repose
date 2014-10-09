@@ -1,10 +1,10 @@
-package com.rackspace.papi.components.identity.header_mapping;
+package org.openrepose.filters.headeridmapping;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
-import com.rackspace.papi.components.identity.header_mapping.extractor.HeaderValueExtractor;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.extractor.HeaderValueExtractor;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;

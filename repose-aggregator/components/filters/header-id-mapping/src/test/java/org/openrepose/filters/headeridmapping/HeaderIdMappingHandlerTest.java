@@ -1,11 +1,13 @@
-package com.rackspace.papi.components.identity.header_mapping;
+package org.openrepose.filters.headeridmapping;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
-import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
-import com.rackspace.papi.components.identity.header_mapping.config.HttpHeaderList;
+import org.openrepose.filters.headeridmapping.HeaderIdMappingHandler;
+import org.openrepose.filters.headeridmapping.HeaderIdMappingHandlerFactory;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HeaderIdMappingConfig;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeaderList;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;

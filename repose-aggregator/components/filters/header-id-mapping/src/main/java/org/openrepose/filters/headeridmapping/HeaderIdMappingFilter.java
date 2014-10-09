@@ -1,6 +1,6 @@
-package com.rackspace.papi.components.identity.header_mapping;
+package org.openrepose.filters.headeridmapping;
 
-import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
+import org.openrepose.filters.headeridmapping.header_mapping.config.HeaderIdMappingConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
