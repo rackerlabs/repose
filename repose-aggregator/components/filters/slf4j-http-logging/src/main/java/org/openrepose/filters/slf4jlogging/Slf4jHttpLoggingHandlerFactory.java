@@ -1,4 +1,4 @@
-package org.openrepose.filters.slf4jlogging.slf4jlogging;
+package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog;

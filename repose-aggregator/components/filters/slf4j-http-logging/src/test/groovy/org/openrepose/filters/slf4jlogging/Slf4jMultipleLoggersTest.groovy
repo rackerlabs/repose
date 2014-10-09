@@ -1,4 +1,4 @@
-package org.openrepose.filters.slf4jlogging.slf4jlogging
+package org.openrepose.filters.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterChain
 import com.mockrunner.mock.web.MockHttpServletRequest
@@ -7,7 +7,7 @@ import spock.lang.Shared
 
 import javax.servlet.http.HttpServletRequest
 
-class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
+class Slf4jMultipleLoggersTest extends Slf4jLoggingFilterSpecification {
 
     @Shared
     Slf4jHttpLoggingFilter filter
@@ -15,11 +15,13 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
     def setupSpec() {
         filter = configureFilter([
                 //Configure a logger with all the things so I can verify all the things we claim to support
-                logConfig("uberLogger", "%a\t%A\t%b\t%B\t%h\t%m\t%p\t%q\t%t\t%s\t%u\t%U\t%{Accept}i\t%r\t%H\t%{X-Derp-header}o\t%D\t%T\t%M")
+                logConfig("firstLogger", "%r"),
+                logConfig("secondLogger", "%m"),
+                logConfig("thirdLogger", "%a")
         ])
     }
 
-    def "The SLF4j logging filter logs to the named logger"(){
+    def "The SLF4j logging filter logs to the named loggers"(){
         given:
         MockFilterChain chain = new MockFilterChain()
         MockHttpServletRequest request = new MockHttpServletRequest()
@@ -46,9 +48,10 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         response.getWriter().flush()
         response.getWriter().close() //I think this should shove the body in there
 
-        //Set up a logger target to get those bits of information
-        //This implementation is log4j dependent because we're verifying the backend
-        def outputStream = prepLoggerOutputStream("uberLogger")
+        def os1 = prepLoggerOutputStream("firstLogger")
+        def os2 = prepLoggerOutputStream("secondLogger")
+        def os3 = prepLoggerOutputStream("thirdLogger")
+
 
 
         when:
@@ -58,32 +61,17 @@ class Slf4jLoggingIntegrationTest extends Slf4jLoggingFilterSpecification {
         then:
         requestList.size() == 1
 
-        def allLogs = logLines(outputStream)
+        def stream1 = logLines(os1)
+        stream1.size() == 1
+        stream1.first() == "INFO - GET http://www.example.com/derp/derp?herp=derp HTTP/1.1"
 
-        allLogs.size() == 1
+        def stream2 = logLines(os2)
+        stream2.size() == 1
+        stream2.first() == "INFO - GET"
 
-        def splitLog = allLogs.first().split("\t").toList()
-
-        //splitLog.size() == 19
-
-        splitLog[0] == "INFO - 127.0.0.1" //REMOTE_ADDRESS
-        splitLog[1] == "10.10.220.220" //LOCAL_ADDRESS
-        splitLog[2] == "-" //REPSONSE_CLF_BYTES -- Should be contentLength, but it's not, maybe because mocking
-        splitLog[3] == "0" //Should be response Bytes, 10, but it's not
-        splitLog[4] == "10.10.220.221" //configured remote host
-        splitLog[5] == "GET" //making a get
-        splitLog[6] == "12345" //CANONICAL port
-        splitLog[7] == "?herp=derp" //QueryString
-        //splitLog[8] == //Should be within a certain amount of time from nowish say a minute?
-        splitLog[9] == "200" //Status code
-        splitLog[10] == "leUser" //Remote user
-        splitLog[11] == "http://www.example.com/derp/derp?herp=derp" //URL Requested
-        splitLog[12] == "application/xml" //Request accept header
-        splitLog[13] == "GET http://www.example.com/derp/derp?herp=derp HTTP/1.1" //Request line
-        splitLog[14] == "HTTP/1.1" //Request Protocol
-        splitLog[15] == "lolwut"
-
-        //The rest seem to be somewhat magical, or it's my argument parsing insanity
+        def stream3 = logLines(os3)
+        stream3.size() == 1
+        stream3.first() == "INFO - 127.0.0.1"
 
     }
 

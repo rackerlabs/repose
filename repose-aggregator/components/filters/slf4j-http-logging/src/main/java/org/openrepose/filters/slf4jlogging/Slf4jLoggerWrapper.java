@@ -1,4 +1,4 @@
-package org.openrepose.filters.slf4jlogging.slf4jlogging;
+package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
 import org.slf4j.Logger;

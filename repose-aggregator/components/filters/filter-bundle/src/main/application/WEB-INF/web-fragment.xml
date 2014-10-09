@@ -49,7 +49,7 @@
 
     <filter>
         <filter-name>slf4j-http-logging</filter-name>
-        <filter-class>org.openrepose.filters.slf4jlogging.slf4jlogging.Slf4jHttpLoggingFilter</filter-class>
+        <filter-class>org.openrepose.filters.slf4jlogging.Slf4jHttpLoggingFilter</filter-class>
     </filter>
 
     <filter>
