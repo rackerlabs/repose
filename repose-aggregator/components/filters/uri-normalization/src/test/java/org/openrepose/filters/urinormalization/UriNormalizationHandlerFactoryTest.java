@@ -1,9 +1,11 @@
-package com.rackspace.papi.components.unorm;
+package org.openrepose.filters.urinormalization;
 
 
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.filters.urinormalization.UriNormalizationHandler;
+import org.openrepose.filters.urinormalization.UriNormalizationHandlerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

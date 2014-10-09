@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.unorm.normalizer;
+package org.openrepose.filters.urinormalization.normalizer;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;

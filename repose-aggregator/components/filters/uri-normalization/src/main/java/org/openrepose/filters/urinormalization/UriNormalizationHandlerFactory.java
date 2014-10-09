@@ -1,9 +1,9 @@
-package com.rackspace.papi.components.unorm;
+package org.openrepose.filters.urinormalization;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer;
-import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
-import com.rackspace.papi.components.unorm.normalizer.MultiInstanceWhiteListFactory;
+import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
+import org.openrepose.filters.urinormalization.normalizer.MultiInstanceWhiteListFactory;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;

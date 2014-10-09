@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.unorm;
+package org.openrepose.filters.urinormalization;
 
 import org.openrepose.commons.utils.http.normal.Normalizer;
 import org.openrepose.commons.utils.regex.RegexSelector;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.unorm.normalizer;
+package org.openrepose.filters.urinormalization.normalizer;
 
 import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
 import com.rackspace.papi.components.uri.normalization.config.UriParameter;

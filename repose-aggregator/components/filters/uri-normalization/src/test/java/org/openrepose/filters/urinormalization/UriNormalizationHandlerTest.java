@@ -1,8 +1,10 @@
-package com.rackspace.papi.components.unorm;
+package org.openrepose.filters.urinormalization;
 
 import org.openrepose.commons.utils.http.normal.Normalizer;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
+import org.openrepose.filters.urinormalization.QueryParameterNormalizer;
+import org.openrepose.filters.urinormalization.UriNormalizationHandler;
+import org.openrepose.filters.urinormalization.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.junit.Before;
