@@ -24,7 +24,7 @@
 
     <filter>
         <filter-name>content-normalization</filter-name>
-        <filter-class>com.rackspace.papi.components.cnorm.ContentNormalizationFilter</filter-class>
+        <filter-class>org.openrepose.filters.cnorm.cnorm.ContentNormalizationFilter</filter-class>
     </filter>
 
     <filter>
@@ -99,7 +99,7 @@
 
     <filter>
         <filter-name>compression</filter-name>
-        <filter-class>org.openrepose.filter.compression.CompressionFilter</filter-class>
+        <filter-class>org.openrepose.filters.compression.CompressionFilter</filter-class>
     </filter>
 
     <filter>
