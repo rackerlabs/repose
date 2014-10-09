@@ -54,7 +54,7 @@
 
     <filter>
         <filter-name>rate-limiting</filter-name>
-        <filter-class>com.rackspace.papi.components.ratelimit.RateLimitingFilter</filter-class>
+        <filter-class>org.openrepose.filters.ratelimiting.RateLimitingFilter</filter-class>
     </filter>
 
     <filter>

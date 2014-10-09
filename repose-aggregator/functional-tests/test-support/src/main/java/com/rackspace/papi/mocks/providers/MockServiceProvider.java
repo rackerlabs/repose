@@ -4,7 +4,7 @@ import com.rackspace.repose.service.limits.schema.AbsoluteLimit;
 import com.rackspace.repose.service.limits.schema.AbsoluteLimitList;
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.limits.schema.ObjectFactory;
-import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
+import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 import org.openstack.docs.identity.api.v2.UnauthorizedFault;
 
 import javax.servlet.http.HttpServletRequest;
