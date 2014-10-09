@@ -24,7 +24,7 @@
     </bean>
 
     <bean name="akkaServiceClientService"
-          class="com.rackspace.papi.service.serviceclient.akka.AkkaServiceClientImpl">
+          class="org.openrepose.services.serviceclient.akka.impl.AkkaServiceClientImpl">
         <constructor-arg index="0" ref="httpConnectionPoolService"/>
     </bean>
 

@@ -6,11 +6,11 @@ import com.mockrunner.mock.web.MockHttpServletRequest
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import com.rackspace.papi.filter.logic.FilterAction
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.junit.runner.RunWith
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
 import org.openrepose.services.datastore.api.{Datastore, DatastoreService}
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers, PrivateMethodTester}

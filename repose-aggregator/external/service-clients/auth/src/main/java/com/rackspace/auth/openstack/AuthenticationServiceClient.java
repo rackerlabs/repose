@@ -10,7 +10,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.openstack.docs.identity.api.v2.*;

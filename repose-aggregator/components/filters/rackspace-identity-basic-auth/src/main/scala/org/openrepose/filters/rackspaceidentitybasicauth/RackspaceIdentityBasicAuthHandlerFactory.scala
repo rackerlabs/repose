@@ -5,8 +5,8 @@ import java.util
 import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.openrepose.services.datastore.api.DatastoreService
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
 
 class RackspaceIdentityBasicAuthHandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractConfiguredFilterHandlerFactory[RackspaceIdentityBasicAuthHandler] {

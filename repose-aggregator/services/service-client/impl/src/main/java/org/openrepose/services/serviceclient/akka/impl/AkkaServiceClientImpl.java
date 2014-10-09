@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.serviceclient.akka;
+package org.openrepose.services.serviceclient.akka.impl;
 
 
 import akka.actor.*;
@@ -11,6 +11,7 @@ import org.openrepose.commons.utils.http.ServiceClientResponse;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import scala.concurrent.Await;

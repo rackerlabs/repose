@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.serviceclient.akka;
+package org.openrepose.services.serviceclient.akka.impl;
 
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;

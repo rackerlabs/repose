@@ -6,7 +6,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.services.datastore.api.Datastore;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.httpclient.HttpClientService;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.filters.authz.cache.EndpointListCache;

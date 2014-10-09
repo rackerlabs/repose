@@ -3,7 +3,7 @@ package com.rackspace.auth.openstack;
 import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

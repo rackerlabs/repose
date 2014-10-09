@@ -3,7 +3,6 @@ package org.openrepose.filters.openstackidentityv3.utilities
 import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.{HttpHeaders, MediaType}
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
@@ -11,6 +10,7 @@ import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Conf
 import org.openrepose.filters.openstackidentityv3.json.spray.IdentityJsonProtocol._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.services.datastore.api.Datastore
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
 import org.slf4j.LoggerFactory
 import spray.json._
 

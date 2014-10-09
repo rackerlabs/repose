@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.rackspace.identity.basicauth
 
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.junit.runner.RunWith
 import org.openrepose.services.datastore.api.DatastoreService
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}

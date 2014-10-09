@@ -16,7 +16,7 @@ import org.openrepose.filters.clientauth.openstack.config.IgnoreTenantRoles;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
 import org.openrepose.services.datastore.api.Datastore;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 
