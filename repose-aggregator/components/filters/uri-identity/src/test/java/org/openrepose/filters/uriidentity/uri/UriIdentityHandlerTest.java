@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.uri;
+package org.openrepose.filters.uriidentity.uri;
 
 
 

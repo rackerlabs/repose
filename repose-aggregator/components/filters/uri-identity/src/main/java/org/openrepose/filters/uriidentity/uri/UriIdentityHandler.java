@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.uri;
+package org.openrepose.filters.uriidentity.uri;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;

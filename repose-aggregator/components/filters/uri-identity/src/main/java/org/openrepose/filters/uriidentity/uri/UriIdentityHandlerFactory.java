@@ -1,9 +1,9 @@
-package com.rackspace.papi.components.identity.uri;
+package org.openrepose.filters.uriidentity.uri;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
-import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
-import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
+import org.openrepose.filters.uriidentity.uri.config.IdentificationMapping;
+import org.openrepose.filters.uriidentity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;

@@ -1,11 +1,11 @@
-package com.rackspace.papi.components.identity.uri;
+package org.openrepose.filters.uriidentity.uri;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
-import com.rackspace.papi.components.identity.uri.config.IdentificationMappingList;
-import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
+import org.openrepose.filters.uriidentity.uri.config.IdentificationMapping;
+import org.openrepose.filters.uriidentity.uri.config.IdentificationMappingList;
+import org.openrepose.filters.uriidentity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;

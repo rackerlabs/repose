@@ -1,7 +1,7 @@
-package com.rackspace.papi.components.identity.uri;
+package org.openrepose.filters.uriidentity.uri;
 
 
-import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
+import org.openrepose.filters.uriidentity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
