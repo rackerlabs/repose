@@ -1,4 +1,4 @@
-package org.openrepose.components.rackspace.authz.cache;
+package org.openrepose.filters.authz.authz.cache;
 
 import java.io.IOException;
 import java.util.List;
