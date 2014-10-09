@@ -8,7 +8,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
-import com.rackspace.papi.service.httpclient.HttpClientService;
+import org.openrepose.services.httpclient.api.HttpClientService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;

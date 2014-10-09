@@ -1,8 +1,8 @@
 package org.openrepose.services.serviceclient.akka.impl
 
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import com.rackspace.papi.service.httpclient.HttpClientResponse
-import com.rackspace.papi.service.httpclient.HttpClientService
+import org.openrepose.services.httpclient.api.HttpClientResponse
+import org.openrepose.services.httpclient.api.HttpClientService
 import org.apache.commons.io.IOUtils
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
@@ -12,7 +12,6 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.openrepose.services.serviceclient.akka.impl.AkkaServiceClientImpl
 
 import javax.ws.rs.core.MediaType
 

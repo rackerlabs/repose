@@ -9,7 +9,7 @@ import com.rackspace.papi.service.context.ServiceContext
 import org.openrepose.services.healthcheck.api.HealthCheckService
 import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.api.Severity
-import com.rackspace.papi.service.httpclient.HttpClientService
+import org.openrepose.services.httpclient.api.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import org.junit.Before
 import org.junit.Test

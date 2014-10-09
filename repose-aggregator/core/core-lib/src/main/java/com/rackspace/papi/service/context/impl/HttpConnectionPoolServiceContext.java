@@ -7,7 +7,7 @@ import com.rackspace.papi.service.context.ServiceContext;
 import org.openrepose.services.healthcheck.api.HealthCheckService;
 import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.api.Severity;
-import com.rackspace.papi.service.httpclient.HttpClientService;
+import org.openrepose.services.httpclient.api.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * Manages the {@link com.rackspace.papi.service.httpclient.HttpClientService} instance and
+ * Manages the {@link org.openrepose.services.httpclient.api.HttpClientService} instance and
  * subscribes to the http-connection-pool.cfg.xml configuration file.
  */
 

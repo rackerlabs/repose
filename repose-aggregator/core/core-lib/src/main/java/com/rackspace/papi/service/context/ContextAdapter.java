@@ -11,7 +11,7 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import org.openrepose.services.healthcheck.api.HealthCheckService;
-import com.rackspace.papi.service.httpclient.HttpClientService;
+import org.openrepose.services.httpclient.api.HttpClientService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
