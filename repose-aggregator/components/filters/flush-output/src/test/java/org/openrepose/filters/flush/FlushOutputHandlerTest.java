@@ -1,4 +1,4 @@
-package org.openrepose.components.flush;
+package org.openrepose.filters.flush;
 
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;

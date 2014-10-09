@@ -1,4 +1,4 @@
-package org.openrepose.components.flush;
+package org.openrepose.filters.flush;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
