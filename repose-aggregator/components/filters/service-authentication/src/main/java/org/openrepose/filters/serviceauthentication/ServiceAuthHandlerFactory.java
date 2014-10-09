@@ -1,5 +1,6 @@
-package com.rackspace.papi.components.service.authentication;
+package org.openrepose.filters.serviceauthentication;
 
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.io.UnsupportedEncodingException;

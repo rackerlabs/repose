@@ -1,6 +1,7 @@
-package com.rackspace.papi.components.service.authentication;
+package org.openrepose.filters.serviceauthentication;
 
 
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;

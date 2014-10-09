@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.service.authentication;
+package org.openrepose.filters.serviceauthentication;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;

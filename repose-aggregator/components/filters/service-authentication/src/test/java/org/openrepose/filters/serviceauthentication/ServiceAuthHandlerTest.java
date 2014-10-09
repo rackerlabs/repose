@@ -1,5 +1,7 @@
-package com.rackspace.papi.components.service.authentication;
+package org.openrepose.filters.serviceauthentication;
 
+import com.rackspace.papi.components.service.authentication.Credentials;
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
@@ -10,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.serviceauthentication.ServiceAuthHandler;
+import org.openrepose.filters.serviceauthentication.ServiceAuthHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
