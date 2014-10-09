@@ -89,7 +89,7 @@
 
     <filter>
         <filter-name>ip-identity</filter-name>
-        <filter-class>com.rackspace.papi.components.identity.ip.IpIdentityFilter</filter-class>
+        <filter-class>org.openrepose.filters.clientipidentity.IpIdentityFilter</filter-class>
     </filter>
 
     <filter>

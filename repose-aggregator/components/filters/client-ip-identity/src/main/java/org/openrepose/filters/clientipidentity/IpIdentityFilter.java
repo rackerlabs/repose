@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.ip;
+package org.openrepose.filters.clientipidentity;
 
 
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.ip;
+package org.openrepose.filters.clientipidentity;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.net.IpAddressRange;
