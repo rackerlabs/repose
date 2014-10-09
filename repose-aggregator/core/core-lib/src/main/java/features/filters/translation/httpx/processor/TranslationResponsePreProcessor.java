@@ -1,7 +1,7 @@
 package features.filters.translation.httpx.processor;
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import features.filters.translation.httpx.processor.cdata.UnknownContentStreamProcessor;
 import features.filters.translation.httpx.processor.common.InputStreamProcessor;
 import features.filters.translation.httpx.processor.json.JsonxStreamProcessor;

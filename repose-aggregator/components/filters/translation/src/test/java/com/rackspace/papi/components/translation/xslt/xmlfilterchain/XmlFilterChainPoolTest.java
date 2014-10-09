@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MimeType;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
 import com.rackspace.papi.components.translation.config.HttpMethod;
 import org.junit.Before;
 import org.junit.Test;

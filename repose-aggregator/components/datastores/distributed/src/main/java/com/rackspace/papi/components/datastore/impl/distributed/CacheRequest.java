@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.ArrayUtilities;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
-import com.rackspace.papi.commons.util.http.HeaderConstant;
-import com.rackspace.papi.commons.util.io.BufferCapacityException;
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import org.openrepose.commons.utils.ArrayUtilities;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.ExtendedHttpHeader;
+import org.openrepose.commons.utils.http.HeaderConstant;
+import org.openrepose.commons.utils.io.BufferCapacityException;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 
 import javax.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationBase;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;

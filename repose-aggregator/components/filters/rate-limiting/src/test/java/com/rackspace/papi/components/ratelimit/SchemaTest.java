@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.ratelimit;
 
 
-import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.commons.utils.transform.Transform;
+import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;

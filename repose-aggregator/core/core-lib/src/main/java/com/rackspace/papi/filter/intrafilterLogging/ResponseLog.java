@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.intrafilterLogging;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.FilterContext;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;

@@ -4,7 +4,7 @@
  */
 package org.openrepose.filters.clientauth.clientauth.atomfeed.sax;
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Before;

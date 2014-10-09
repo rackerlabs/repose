@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
+import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.PowerProxyEventKernel;

@@ -1,6 +1,6 @@
 package com.rackspace.cloud.valve.jetty.servlet;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.HttpStatusCode;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

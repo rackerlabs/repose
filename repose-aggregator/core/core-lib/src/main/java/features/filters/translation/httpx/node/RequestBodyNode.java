@@ -2,8 +2,8 @@ package features.filters.translation.httpx.node;
 
 import com.rackspace.httpx.Body;
 import com.rackspace.httpx.Request;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MimeType;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
 import features.filters.translation.httpx.ObjectFactoryUser;
 import features.filters.translation.httpx.processor.TranslationPreProcessor;
 import org.slf4j.Logger;

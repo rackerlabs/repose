@@ -3,11 +3,11 @@
 
     <parent>
         <artifactId>functional-test-support</artifactId>
-        <groupId>com.rackspace.papi.test</groupId>
+        <groupId>org.openrepose.commons.utils.test</groupId>
         <version>6.1.1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.test.mocks</groupId>
+    <groupId>org.openrepose.commons.utils.test.mocks</groupId>
     <artifactId>mocks-servlet</artifactId>
     <packaging>war</packaging>
 
@@ -25,7 +25,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.papi.test.mocks</groupId>
+            <groupId>org.openrepose.commons.utils.test.mocks</groupId>
             <artifactId>mocks-util</artifactId>
             <version>${project.version}</version>
         </dependency>

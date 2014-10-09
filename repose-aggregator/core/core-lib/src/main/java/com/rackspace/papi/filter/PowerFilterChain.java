@@ -1,9 +1,9 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.FilterProcessingTime;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.intrafilterLogging.RequestLog;
 import com.rackspace.papi.filter.intrafilterLogging.ResponseLog;

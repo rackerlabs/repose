@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.cnorm.normalizer;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.components.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.ACCEPT;
+import static org.openrepose.commons.utils.http.CommonHttpHeader.ACCEPT;
 
 public class MediaTypeNormalizer {
     private static final Logger LOG = LoggerFactory.getLogger(MediaTypeNormalizer.class);

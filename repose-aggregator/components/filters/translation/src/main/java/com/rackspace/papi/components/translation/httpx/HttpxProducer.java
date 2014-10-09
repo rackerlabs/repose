@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.translation.httpx;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.header.HeaderName;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.servlet.http.HeaderContainer;
-import com.rackspace.papi.commons.util.servlet.http.RequestHeaderContainer;
-import com.rackspace.papi.commons.util.servlet.http.ResponseHeaderContainer;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.servlet.http.HeaderContainer;
+import org.openrepose.commons.utils.servlet.http.RequestHeaderContainer;
+import org.openrepose.commons.utils.servlet.http.ResponseHeaderContainer;
 import org.openrepose.repose.httpx.v1.*;
 
 import javax.servlet.http.HttpServletRequest;

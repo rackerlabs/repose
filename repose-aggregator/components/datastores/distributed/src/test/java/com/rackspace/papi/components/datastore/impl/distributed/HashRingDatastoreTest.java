@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.StringValue;

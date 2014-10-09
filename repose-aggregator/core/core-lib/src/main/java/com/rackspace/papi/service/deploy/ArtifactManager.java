@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarArchiveEntryHelper;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import org.slf4j.Logger;

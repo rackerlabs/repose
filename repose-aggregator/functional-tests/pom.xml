@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Repose - Functional Test Support</name>
-    <groupId>com.rackspace.papi.test</groupId>
+    <groupId>org.openrepose.commons.utils.test</groupId>
     <artifactId>functional-test-support</artifactId>
     <packaging>pom</packaging>
 

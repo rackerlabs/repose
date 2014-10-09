@@ -2,8 +2,8 @@ package org.openrepose.filters.clientauth.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.*;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.*;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;

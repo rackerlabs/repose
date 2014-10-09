@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.identity.ip;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.net.IpAddressRange;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.net.IpAddressRange;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.slf4j.LoggerFactory;

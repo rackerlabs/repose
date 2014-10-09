@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.unorm.normalizer;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.media.MimeType;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.media.MimeType;
 import com.rackspace.papi.components.uri.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;

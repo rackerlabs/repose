@@ -3,9 +3,9 @@ package com.rackspace.papi.components.openstack.identity.v3
 import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import com.rackspace.papi.commons.util.http.header.HeaderName
-import com.rackspace.papi.commons.util.http.{header, CommonHttpHeader, HttpStatusCode}
-import com.rackspace.papi.commons.util.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
+import org.openrepose.commons.utils.http.header.HeaderName
+import org.openrepose.commons.utils.http.{header, CommonHttpHeader, HttpStatusCode}
+import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
 import com.rackspace.papi.components.openstack.identity.v3.config._
 import com.rackspace.papi.components.openstack.identity.v3.objects._
 import com.rackspace.papi.components.openstack.identity.v3.utilities._

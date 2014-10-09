@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.slf4jlogging;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog;
 import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLoggingConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;

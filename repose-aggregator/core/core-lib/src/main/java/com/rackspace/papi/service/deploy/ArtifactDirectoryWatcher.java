@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.util.Destroyable;
+import org.openrepose.commons.utils.Destroyable;
 import com.rackspace.papi.service.event.common.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

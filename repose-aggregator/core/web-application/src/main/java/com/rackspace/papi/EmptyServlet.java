@@ -1,6 +1,6 @@
 package com.rackspace.papi;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.HttpStatusCode;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;

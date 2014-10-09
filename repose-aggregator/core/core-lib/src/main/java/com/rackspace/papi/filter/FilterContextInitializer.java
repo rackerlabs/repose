@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;

@@ -14,7 +14,7 @@ public class StringUtilitiesTest {
 
       @Test
       public void shouldHandleNulls() {
-         assertTrue(com.rackspace.papi.commons.util.StringUtilities.isBlank(null));
+         assertTrue(org.openrepose.commons.utils.StringUtilities.isBlank(null));
       }
 
       @Test

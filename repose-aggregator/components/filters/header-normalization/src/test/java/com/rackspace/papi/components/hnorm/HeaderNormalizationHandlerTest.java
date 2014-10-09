@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.hnorm;
 
-import com.rackspace.papi.commons.util.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderName;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;

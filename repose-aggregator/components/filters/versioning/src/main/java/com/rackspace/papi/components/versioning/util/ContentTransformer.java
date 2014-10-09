@@ -1,13 +1,13 @@
 package com.rackspace.papi.components.versioning.util;
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.transform.StreamTransform;
-import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
-import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltToStringTransform;
-import com.rackspace.papi.commons.util.transform.xslt.XsltToStreamTransform;
-import com.rackspace.papi.commons.util.xslt.TemplatesFactory;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.commons.utils.transform.Transform;
+import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
+import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
+import org.openrepose.commons.utils.transform.xslt.JaxbXsltToStringTransform;
+import org.openrepose.commons.utils.transform.xslt.XsltToStreamTransform;
+import org.openrepose.commons.utils.xslt.TemplatesFactory;
 import com.rackspace.papi.servlet.PowerApiContextException;
 
 import javax.xml.bind.JAXBContext;

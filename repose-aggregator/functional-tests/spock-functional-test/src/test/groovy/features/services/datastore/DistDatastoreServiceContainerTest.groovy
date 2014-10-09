@@ -1,12 +1,11 @@
 package features.services.datastore
 
-import com.rackspace.papi.commons.util.io.ObjectSerializer
+import org.openrepose.commons.utils.io.ObjectSerializer
 import com.rackspace.papi.components.datastore.StringValue
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher
 import framework.ReposeLogSearch
-import framework.ReposeValveTest
 import framework.TestProperties
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain

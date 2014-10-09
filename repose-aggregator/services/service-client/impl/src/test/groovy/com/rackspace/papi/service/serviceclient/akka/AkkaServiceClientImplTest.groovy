@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.serviceclient.akka
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse
+import org.openrepose.commons.utils.http.ServiceClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.HttpClientService
 import org.apache.commons.io.IOUtils

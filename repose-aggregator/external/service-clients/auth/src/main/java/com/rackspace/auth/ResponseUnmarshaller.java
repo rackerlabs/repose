@@ -1,6 +1,6 @@
 package com.rackspace.auth;
 
-import com.rackspace.papi.commons.util.pooling.*;
+import org.openrepose.commons.utils.pooling.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

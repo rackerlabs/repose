@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

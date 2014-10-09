@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.versioning;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;

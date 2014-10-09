@@ -1,13 +1,13 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.string.JCharSequenceFactory;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.string.JCharSequenceFactory;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 
-import static com.rackspace.papi.commons.util.StringUriUtilities.indexOfUriFragment;
+import static org.openrepose.commons.utils.StringUriUtilities.indexOfUriFragment;
 
 public class VersionedRequest {
    

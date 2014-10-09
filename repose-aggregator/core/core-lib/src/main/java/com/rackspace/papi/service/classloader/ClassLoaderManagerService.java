@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.classloader;
 
-import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 
 import java.util.Collection;
 

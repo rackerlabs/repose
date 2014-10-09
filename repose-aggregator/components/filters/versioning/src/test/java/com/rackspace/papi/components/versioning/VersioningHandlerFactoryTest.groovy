@@ -1,23 +1,12 @@
 package com.rackspace.papi.components.versioning
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
-import com.rackspace.papi.filter.SystemModelInterrogator
-import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.reporting.metrics.MetricsService
-import org.junit.Ignore
-import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.powermock.api.mockito.PowerMockito
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.junit4.PowerMockRunner
-import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationContext
-import spock.lang.Shared
 import spock.lang.Specification
 
 

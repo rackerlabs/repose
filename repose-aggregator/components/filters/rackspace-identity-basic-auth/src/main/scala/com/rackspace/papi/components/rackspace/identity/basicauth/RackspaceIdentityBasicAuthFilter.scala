@@ -3,7 +3,7 @@ package com.rackspace.papi.components.rackspace.identity.basicauth
 import java.net.URL
 import javax.servlet._
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import com.rackspace.papi.filter.FilterConfigHelper
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate

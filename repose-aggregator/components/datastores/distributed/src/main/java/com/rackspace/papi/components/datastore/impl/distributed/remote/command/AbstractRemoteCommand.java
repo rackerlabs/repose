@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.impl.distributed.DatastoreHeader;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;

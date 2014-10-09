@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.rms;
 
-import com.rackspace.papi.commons.util.InputStreamUtilities;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.InputStreamUtilities;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.io.ByteBufferInputStream;
+import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
+import org.openrepose.commons.utils.io.buffer.ByteBuffer;
+import org.openrepose.commons.utils.io.buffer.CyclicByteBuffer;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.OverwriteType;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
@@ -19,14 +19,12 @@ import org.junit.runner.RunWith;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-import javax.servlet.ServletInputStream;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

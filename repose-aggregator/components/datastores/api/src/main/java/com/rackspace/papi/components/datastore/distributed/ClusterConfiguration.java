@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.distributed;
 
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 
 public class ClusterConfiguration {
 

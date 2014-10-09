@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.identity.uri;
 
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderName;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMappingList;
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;

@@ -1,16 +1,14 @@
 package com.rackspace.papi.components.routing
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.http.HttpStatusCode
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.filter.logic.FilterAction
 import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.SimplePassFilterDirector
 import com.rackspace.papi.model.Destination
-import com.rackspace.papi.service.httpclient.HttpClientNotFoundException
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 import static org.mockito.Mockito.mock
 import static org.powermock.api.mockito.PowerMockito.when

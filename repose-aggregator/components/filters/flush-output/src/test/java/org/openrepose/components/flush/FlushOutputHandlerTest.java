@@ -1,6 +1,6 @@
 package org.openrepose.components.flush;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;

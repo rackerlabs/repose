@@ -3,7 +3,7 @@
 
     <parent>
         <artifactId>functional-test-support</artifactId>
-        <groupId>com.rackspace.papi.test</groupId>
+        <groupId>org.openrepose.commons.utils.test</groupId>
         <version>6.1.1.0-SNAPSHOT</version>
     </parent>
 
@@ -38,7 +38,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.rackspace.papi.test.glassfish.ReposeGlassfishServer</mainClass>
+                            <mainClass>org.openrepose.commons.utils.test.glassfish.ReposeGlassfishServer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

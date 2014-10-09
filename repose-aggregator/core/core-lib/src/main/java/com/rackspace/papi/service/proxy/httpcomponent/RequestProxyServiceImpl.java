@@ -1,11 +1,11 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.proxy.ProxyRequestException;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.service.httpclient.HttpClientNotFoundException;
 import com.rackspace.papi.service.httpclient.HttpClientResponse;

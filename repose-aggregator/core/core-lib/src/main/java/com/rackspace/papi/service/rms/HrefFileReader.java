@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.rms;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

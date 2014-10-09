@@ -2,7 +2,7 @@ package com.rackspace.papi.components.openstack.identity.v3
 
 import java.util
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdentityV3Config
 import com.rackspace.papi.components.openstack.identity.v3.utilities.OpenStackIdentityV3API
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory

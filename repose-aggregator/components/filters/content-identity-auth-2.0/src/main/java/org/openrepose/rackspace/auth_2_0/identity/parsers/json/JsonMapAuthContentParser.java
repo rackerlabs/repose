@@ -1,6 +1,6 @@
 package org.openrepose.rackspace.auth_2_0.identity.parsers.json;
 
-import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
+import org.openrepose.commons.utils.transform.json.JacksonJaxbTransform;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 import org.openrepose.rackspace.auth_2_0.identity.parsers.AuthContentParser;
 

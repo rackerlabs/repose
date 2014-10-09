@@ -1,7 +1,7 @@
 package com.rackspace.repose.experimental.servletContract;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

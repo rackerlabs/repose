@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
+import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;

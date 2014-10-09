@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.Destroyable;
+import org.openrepose.commons.utils.Destroyable;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 

@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet;
 
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
+import org.openrepose.commons.utils.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.Patch;

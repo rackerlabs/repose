@@ -1,6 +1,6 @@
 package com.rackspace.papi.http.proxy.common;
 
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.CONTENT_LENGTH;
+import static org.openrepose.commons.utils.http.CommonHttpHeader.CONTENT_LENGTH;
 import com.rackspace.papi.http.proxy.HttpException;
 import java.io.IOException;
 import java.util.Arrays;

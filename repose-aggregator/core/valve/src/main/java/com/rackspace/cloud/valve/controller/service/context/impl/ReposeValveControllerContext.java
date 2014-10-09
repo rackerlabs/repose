@@ -1,10 +1,10 @@
 package com.rackspace.cloud.valve.controller.service.context.impl;
 
 import com.rackspace.cloud.valve.controller.service.ControllerService;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.net.NetUtilities;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.net.NetUtilities;
+import org.openrepose.commons.utils.regex.ExtractorResult;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;

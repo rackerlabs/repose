@@ -4,7 +4,7 @@ import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.rackspace.papi.commons.util.http.{CommonHttpHeader, HttpStatusCode}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.OpenstackIdentityV3Config
 import com.rackspace.papi.components.openstack.identity.v3.json.spray.IdentityJsonProtocol._

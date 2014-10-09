@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.clientauth.common;
 
-import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 
 import java.util.ArrayList;
 import java.util.List;

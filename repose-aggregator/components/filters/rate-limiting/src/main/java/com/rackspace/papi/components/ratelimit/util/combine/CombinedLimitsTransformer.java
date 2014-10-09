@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
-import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
-import com.rackspace.papi.commons.util.transform.StreamTransform;
-import com.rackspace.papi.commons.util.transform.xslt.AbstractXslTransform;
-import com.rackspace.papi.commons.util.transform.xslt.XsltTransformationException;
+import org.openrepose.commons.utils.pooling.SimpleResourceContext;
+import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.commons.utils.transform.xslt.AbstractXslTransform;
+import org.openrepose.commons.utils.transform.xslt.XsltTransformationException;
 
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.limits.schema.ObjectFactory;

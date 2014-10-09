@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.*;

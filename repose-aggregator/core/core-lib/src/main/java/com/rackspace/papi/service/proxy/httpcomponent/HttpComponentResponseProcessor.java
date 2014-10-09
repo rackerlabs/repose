@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

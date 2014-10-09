@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.header.translation;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;

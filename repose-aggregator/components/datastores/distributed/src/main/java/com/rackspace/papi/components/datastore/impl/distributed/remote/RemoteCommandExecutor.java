@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote;
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
-import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.proxy.ProxyRequestException;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 
 import java.io.IOException;
 

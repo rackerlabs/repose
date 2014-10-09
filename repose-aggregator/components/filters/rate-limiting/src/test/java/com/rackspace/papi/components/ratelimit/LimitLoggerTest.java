@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import com.rackspace.papi.components.ratelimit.log.LimitLogger;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

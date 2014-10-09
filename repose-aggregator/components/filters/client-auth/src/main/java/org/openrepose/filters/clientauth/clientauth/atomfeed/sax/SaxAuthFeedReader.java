@@ -4,31 +4,29 @@
  */
 package org.openrepose.filters.clientauth.clientauth.atomfeed.sax;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-
-import com.rackspace.papi.commons.util.http.ServiceClient;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClient;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.AuthFeedReader;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.CacheKeyType;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.CacheKeys;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.FeedCacheKeys;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /*
  * Simple Atom Feed reader using Jersey + Sax Parser specifically for RS Identity Feed

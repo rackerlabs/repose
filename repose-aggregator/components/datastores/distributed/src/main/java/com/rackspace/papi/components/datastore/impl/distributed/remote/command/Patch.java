@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
-import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.http.ExtendedHttpHeader;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.io.ObjectSerializer;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import com.rackspace.papi.components.datastore.distributed.SerializablePatch;

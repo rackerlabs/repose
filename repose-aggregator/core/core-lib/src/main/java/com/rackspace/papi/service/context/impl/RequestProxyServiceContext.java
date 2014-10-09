@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.ReposeCluster;

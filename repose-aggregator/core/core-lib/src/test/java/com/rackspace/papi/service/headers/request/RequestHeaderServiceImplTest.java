@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.headers.request;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
 import org.junit.Before;
 import org.junit.Test;

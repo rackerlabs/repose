@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter.logic;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.thread.KeyedStackLock;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.thread.KeyedStackLock;
 
 import java.util.Map;
 

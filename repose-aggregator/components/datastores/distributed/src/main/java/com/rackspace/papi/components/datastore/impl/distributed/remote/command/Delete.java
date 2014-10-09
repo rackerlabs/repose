@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 

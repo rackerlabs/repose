@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueParser;
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.header.HeaderValueParser;
+import org.openrepose.commons.utils.http.media.MediaType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;

@@ -3,9 +3,9 @@ package features.filters.translation.httpx.node;
 import com.rackspace.httpx.AcceptHeader;
 import com.rackspace.httpx.RequestHeaders;
 import com.rackspace.httpx.SimpleParameter;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.media.MediaRangeParser;
+import org.openrepose.commons.utils.http.media.MediaType;
 import features.filters.translation.httpx.ObjectFactoryUser;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class AcceptHeaderNode extends ObjectFactoryUser implements Node {
         if (StringUtilities.isNotBlank(requestAcceptHeader)) {
             final List<MediaType> mediaRanges = new MediaRangeParser(requestAcceptHeader).parse();
 
-            for (com.rackspace.papi.commons.util.http.media.MediaType range : mediaRanges) {
+            for (org.openrepose.commons.utils.http.media.MediaType range : mediaRanges) {
                 com.rackspace.httpx.MediaRange mediaRange = getObjectFactory().createMediaRange();
 
                 mediaRange.setType(range.getMimeType().getType());

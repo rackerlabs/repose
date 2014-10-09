@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.headers.response;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;

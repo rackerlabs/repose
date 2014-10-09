@@ -1,12 +1,12 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.filter.PowerFilter;
-import com.rackspace.papi.jetty.JettyException;
-import com.rackspace.papi.jetty.JettyServerBuilder;
-import com.rackspace.papi.jetty.JettyTestingContext;
+import org.openrepose.commons.utils.jetty.JettyException;
+import org.openrepose.commons.utils.jetty.JettyServerBuilder;
+import org.openrepose.commons.utils.jetty.JettyTestingContext;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.test.DummyServlet;
+import org.openrepose.commons.utils.test.DummyServlet;
 
 public class StandAloneVersioningServer extends JettyTestingContext {
 

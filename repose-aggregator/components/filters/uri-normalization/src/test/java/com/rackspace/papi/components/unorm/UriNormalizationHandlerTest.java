@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.unorm;
 
-import com.rackspace.papi.commons.util.http.normal.Normalizer;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.http.normal.Normalizer;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;

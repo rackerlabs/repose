@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.unorm.normalizer;
 
-import com.rackspace.papi.commons.util.http.normal.ParameterFilter;
-import com.rackspace.papi.commons.util.http.normal.ParameterFilterFactory;
+import org.openrepose.commons.utils.http.normal.ParameterFilter;
+import org.openrepose.commons.utils.http.normal.ParameterFilterFactory;
 import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
 
 /**

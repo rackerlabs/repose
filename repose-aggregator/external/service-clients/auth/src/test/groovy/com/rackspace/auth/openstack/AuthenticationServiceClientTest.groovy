@@ -2,8 +2,8 @@ package com.rackspace.auth.openstack
 
 import com.rackspace.auth.AuthServiceException
 import com.rackspace.auth.ResponseUnmarshaller
-import com.rackspace.papi.commons.util.http.ServiceClientResponse
-import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml
+import org.openrepose.commons.utils.http.ServiceClientResponse
+import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType
 import javax.xml.bind.JAXBContext
 import javax.xml.datatype.DatatypeFactory
 
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class AuthenticationServiceClientTest extends Specification {

@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.ratelimit.util;
 
-import com.rackspace.papi.commons.util.logging.ExceptionLogger;
-import com.rackspace.papi.commons.util.xslt.TemplatesFactory;
+import org.openrepose.commons.utils.logging.ExceptionLogger;
+import org.openrepose.commons.utils.xslt.TemplatesFactory;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 

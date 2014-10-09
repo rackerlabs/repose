@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.slf4jlogging;
 
-import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;

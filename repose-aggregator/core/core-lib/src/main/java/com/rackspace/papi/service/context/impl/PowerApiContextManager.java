@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.HttpsURLConnectionSslInitializer;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.HttpsURLConnectionSslInitializer;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.versioning.testhelpers;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 
 import javax.servlet.http.HttpServletRequest;
 

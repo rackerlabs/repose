@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.logic;
 
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 
 import javax.servlet.http.HttpServletRequest;
 

@@ -3,8 +3,8 @@ package org.openrepose.filters.clientauth.clientauth.common
 import com.rackspace.auth.AuthGroup
 import com.rackspace.auth.AuthGroups
 import com.rackspace.auth.AuthToken
-import com.rackspace.papi.commons.util.regex.ExtractorResult
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.regex.ExtractorResult
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.filter.logic.FilterDirector
 import spock.lang.Specification
 

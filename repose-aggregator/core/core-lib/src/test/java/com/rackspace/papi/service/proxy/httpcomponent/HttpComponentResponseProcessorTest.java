@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

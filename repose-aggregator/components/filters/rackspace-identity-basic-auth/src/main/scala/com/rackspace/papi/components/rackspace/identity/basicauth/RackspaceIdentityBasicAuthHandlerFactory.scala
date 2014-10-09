@@ -2,7 +2,7 @@ package com.rackspace.papi.components.rackspace.identity.basicauth
 
 import java.util
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
 import com.rackspace.papi.service.datastore.DatastoreService

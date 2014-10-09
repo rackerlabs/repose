@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.identity.header.extractor;
 
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import org.openrepose.commons.utils.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import org.junit.Before;
 import org.junit.Test;

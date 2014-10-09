@@ -3,7 +3,7 @@ package com.rackspace.identity.repose.rackspaceauthuser
 import java.util
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
 
 class RackspaceAuthUserHandlerFactory extends AbstractConfiguredFilterHandlerFactory[RackspaceAuthUserHandler] {

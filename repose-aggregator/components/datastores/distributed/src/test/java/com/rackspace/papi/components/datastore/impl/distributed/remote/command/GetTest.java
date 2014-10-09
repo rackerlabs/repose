@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote.command;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.impl.distributed.CacheRequest;
 import org.junit.Assert;

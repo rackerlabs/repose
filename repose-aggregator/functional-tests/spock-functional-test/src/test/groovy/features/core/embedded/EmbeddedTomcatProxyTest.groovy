@@ -1,6 +1,6 @@
 package features.core.embedded
-import com.rackspace.papi.test.mocks.util.MocksUtil
-import com.rackspace.papi.test.mocks.util.RequestInfo
+import org.openrepose.commons.utils.test.mocks.util.MocksUtil
+import org.openrepose.commons.utils.test.mocks.util.RequestInfo
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher

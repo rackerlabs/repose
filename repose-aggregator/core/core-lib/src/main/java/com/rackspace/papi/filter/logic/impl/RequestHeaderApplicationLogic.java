@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.logic.impl;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 
 import java.util.Set;

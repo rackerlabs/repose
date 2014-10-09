@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.hnorm;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;

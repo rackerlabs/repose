@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

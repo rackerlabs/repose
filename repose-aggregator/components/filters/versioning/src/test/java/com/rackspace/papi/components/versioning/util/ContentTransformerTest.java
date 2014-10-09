@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.versioning.util;
 
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.commons.utils.transform.Transform;
+import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import org.apache.commons.io.FileUtils;

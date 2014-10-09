@@ -1,8 +1,8 @@
 package com.rackspace.repose.service.ratelimit
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import com.rackspace.papi.commons.util.http.PowerApiHeader
-import com.rackspace.papi.commons.util.http.media.MimeType
+import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.commons.utils.http.media.MimeType
 import com.rackspace.papi.components.ratelimit.RateLimitingServiceHelper
 import spock.lang.Shared
 import spock.lang.Specification
@@ -11,7 +11,6 @@ import spock.lang.Unroll
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MediaType
 
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceHelperTest extends Specification {

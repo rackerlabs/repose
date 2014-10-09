@@ -3,9 +3,9 @@ package com.rackspace.identity.repose.rackspaceauthuser
 import java.io.InputStream
 import javax.servlet.http.HttpServletRequest
 
-import com.rackspace.papi.commons.util.http.PowerApiHeader
-import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.http.PowerApiHeader
+import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}

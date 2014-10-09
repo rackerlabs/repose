@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
-import com.rackspace.papi.commons.util.transform.StreamTransform;
+import org.openrepose.commons.utils.transform.StreamTransform;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
 import com.rackspace.papi.components.ratelimit.util.TransformHelper;
 import com.rackspace.repose.service.limits.schema.HttpMethod;

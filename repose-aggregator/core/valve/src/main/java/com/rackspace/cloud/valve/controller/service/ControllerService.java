@@ -1,7 +1,7 @@
 
 package com.rackspace.cloud.valve.controller.service;
 
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import org.openrepose.commons.utils.regex.ExtractorResult;
 import com.rackspace.papi.model.Node;
 import java.util.Map;
 import java.util.Set;

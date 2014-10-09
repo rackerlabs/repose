@@ -1,7 +1,7 @@
 package features.filters.translation.httpx.processor.json;
 
-import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
+import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import features.filters.translation.httpx.processor.common.Element;
 import features.filters.translation.httpx.processor.common.InputStreamProcessor;
 import features.filters.translation.httpx.processor.common.PreProcessorException;

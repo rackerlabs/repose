@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.httpx;
 
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
 import org.openrepose.repose.httpx.v1.QueryParameters;

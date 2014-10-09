@@ -1,12 +1,12 @@
 package org.openrepose.filters.clientauth.clientauth.atomfeed.sax;
 
-import com.rackspace.papi.commons.util.http.ServiceClient;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import org.openrepose.filters.clientauth.clientauth.atomfeed.CacheKeys;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.commons.utils.http.ServiceClient;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.filters.clientauth.clientauth.atomfeed.CacheKeys;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -3,7 +3,7 @@ package features.filters.translation.httpx.node;
 import com.rackspace.httpx.ComplexParameter;
 import com.rackspace.httpx.RequestHead;
 import com.rackspace.httpx.RequestHeaders;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import features.filters.translation.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletRequest;

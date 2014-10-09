@@ -1,6 +1,6 @@
 package features.filters.translation.httpx.processor.cdata;
 
-import com.rackspace.papi.commons.util.io.InputStreamMerger;
+import org.openrepose.commons.utils.io.InputStreamMerger;
 import features.filters.translation.httpx.processor.common.InputStreamProcessor;
 import features.filters.translation.httpx.processor.common.PreProcessorException;
 

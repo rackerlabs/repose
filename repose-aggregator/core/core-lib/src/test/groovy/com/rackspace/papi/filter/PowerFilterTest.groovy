@@ -19,7 +19,7 @@ import javax.servlet.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import static com.rackspace.papi.commons.util.servlet.http.RequestValuesImpl.REQUEST_URI_ATTRIBUTE
+import static org.openrepose.commons.utils.servlet.http.RequestValuesImpl.REQUEST_URI_ATTRIBUTE
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertThat

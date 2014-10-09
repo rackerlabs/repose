@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.versioning;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;

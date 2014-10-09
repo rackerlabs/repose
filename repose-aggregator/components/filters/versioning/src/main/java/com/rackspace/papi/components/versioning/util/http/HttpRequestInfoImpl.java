@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.versioning.util.http;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.header.HeaderValue;
+import org.openrepose.commons.utils.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.servlet.RequestMediaRangeInterrogator;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

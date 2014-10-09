@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.routing;
 
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
+import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
 import org.slf4j.Logger;
 
 import javax.servlet.*;

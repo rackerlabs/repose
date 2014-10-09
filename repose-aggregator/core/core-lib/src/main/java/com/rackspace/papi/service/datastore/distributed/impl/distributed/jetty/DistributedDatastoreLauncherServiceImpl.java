@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;

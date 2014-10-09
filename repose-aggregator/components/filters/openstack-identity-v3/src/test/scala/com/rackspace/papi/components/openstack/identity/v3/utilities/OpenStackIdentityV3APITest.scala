@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream
 import java.util.concurrent.TimeUnit
 import javax.ws.rs.core.MediaType
 
-import com.rackspace.papi.commons.util.http.{HttpStatusCode, ServiceClientResponse}
+import org.openrepose.commons.utils.http.{HttpStatusCode, ServiceClientResponse}
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config, ServiceEndpoint}
 import com.rackspace.papi.components.openstack.identity.v3.objects.{AuthenticateResponse, Group}

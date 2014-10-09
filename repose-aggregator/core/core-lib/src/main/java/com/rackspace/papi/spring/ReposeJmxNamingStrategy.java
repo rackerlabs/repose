@@ -1,6 +1,6 @@
 package com.rackspace.papi.spring;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import java.util.UUID;
 import javax.management.MalformedObjectNameException;

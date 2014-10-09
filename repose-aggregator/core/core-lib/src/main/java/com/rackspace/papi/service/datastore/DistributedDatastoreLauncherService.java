@@ -4,7 +4,7 @@
  */
 package com.rackspace.papi.service.datastore;
 
-import com.rackspace.papi.commons.util.Destroyable;
+import org.openrepose.commons.utils.Destroyable;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;

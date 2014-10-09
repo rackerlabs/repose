@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter.logic.common;
 
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.FilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.SimplePassFilterDirector;

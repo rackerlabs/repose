@@ -6,9 +6,9 @@ package org.openrepose.filters.clientauth.clientauth.atomfeed.sax;
 
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.auth.openstack.AdminToken;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 import org.slf4j.LoggerFactory;

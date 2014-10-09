@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
+import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

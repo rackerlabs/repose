@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.datastore.distributed.impl.ehcache;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;

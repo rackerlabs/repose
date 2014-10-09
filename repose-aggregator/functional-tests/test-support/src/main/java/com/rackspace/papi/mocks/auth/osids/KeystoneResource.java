@@ -1,6 +1,6 @@
 package com.rackspace.papi.mocks.auth.osids;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.mocks.BaseResource;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystonePropertiesProvider;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystoneProvider;

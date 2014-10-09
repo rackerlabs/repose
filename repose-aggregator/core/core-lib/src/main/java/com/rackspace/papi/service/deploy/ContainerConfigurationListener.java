@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
-import com.rackspace.papi.commons.util.classloader.ear.EarUnpacker;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.classloader.ear.DefaultEarArchiveEntryHelper;
+import org.openrepose.commons.utils.classloader.ear.EarArchiveEntryHelper;
+import org.openrepose.commons.utils.classloader.ear.EarUnpacker;
 import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;

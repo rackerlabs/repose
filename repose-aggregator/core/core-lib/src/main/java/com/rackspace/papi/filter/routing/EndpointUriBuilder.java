@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUriUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;

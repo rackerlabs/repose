@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.identity.header_mapping.extractor;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 
 import javax.servlet.http.HttpServletRequest;

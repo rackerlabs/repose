@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.serviceclient.akka;
 
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.slf4j.Logger;

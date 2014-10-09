@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.versioning.util.http;
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import org.openrepose.commons.utils.http.media.MediaType;
 
 // NOTE: This does not belong in util - this is a domain object for versioning only
 public interface RequestHeaderInfo {

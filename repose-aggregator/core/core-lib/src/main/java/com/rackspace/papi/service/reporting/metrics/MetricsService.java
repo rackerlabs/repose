@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.reporting.metrics;
 
-import com.rackspace.papi.commons.util.Destroyable;
+import org.openrepose.commons.utils.Destroyable;
 import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Meter;

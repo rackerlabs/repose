@@ -1,10 +1,10 @@
 package com.rackspace.papi.external.testing.mocks
 
-import com.rackspace.papi.test.mocks.HeaderList
-import com.rackspace.papi.test.mocks.NameValuePair
-import com.rackspace.papi.test.mocks.ObjectFactory
-import com.rackspace.papi.test.mocks.RequestInformation
-import com.rackspace.papi.test.mocks.util.RequestInfo
+import org.openrepose.commons.utils.test.mocks.HeaderList
+import org.openrepose.commons.utils.test.mocks.NameValuePair
+import org.openrepose.commons.utils.test.mocks.ObjectFactory
+import org.openrepose.commons.utils.test.mocks.RequestInformation
+import org.openrepose.commons.utils.test.mocks.util.RequestInfo
 import org.junit.Test
 
 class RequestInfoTest {

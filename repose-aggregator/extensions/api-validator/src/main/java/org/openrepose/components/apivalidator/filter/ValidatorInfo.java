@@ -2,7 +2,7 @@ package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.encoding.EncodingProvider;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.encoding.EncodingProvider;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.Patch;

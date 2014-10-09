@@ -1,11 +1,10 @@
 package com.rackspace.papi.jmx
 
-import com.rackspace.papi.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
 import com.rackspace.papi.model.*
 import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.healthcheck.HealthCheckReport
 import com.rackspace.papi.service.healthcheck.HealthCheckService
 import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
 import com.rackspace.papi.service.healthcheck.Severity

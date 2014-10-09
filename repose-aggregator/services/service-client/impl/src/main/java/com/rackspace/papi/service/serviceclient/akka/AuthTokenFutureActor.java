@@ -2,8 +2,8 @@ package com.rackspace.papi.service.serviceclient.akka;
 
 
 import akka.actor.UntypedActor;
-import com.rackspace.papi.commons.util.http.ServiceClient;
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import org.openrepose.commons.utils.http.ServiceClient;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
 
 public class AuthTokenFutureActor extends UntypedActor {
 

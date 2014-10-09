@@ -1,6 +1,6 @@
 package com.rackspace.cloud.valve.jetty.servlet;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.HttpStatusCode;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

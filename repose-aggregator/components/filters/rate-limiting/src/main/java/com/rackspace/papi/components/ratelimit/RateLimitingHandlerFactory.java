@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.components.datastore.Datastore;
 import com.rackspace.papi.components.ratelimit.write.ActiveLimitsWriter;
 import com.rackspace.papi.components.ratelimit.write.CombinedLimitsWriter;

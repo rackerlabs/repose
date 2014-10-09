@@ -2,12 +2,12 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.RequestTimeout;
 import com.rackspace.papi.ResponseCode;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.filter.routing.DestinationLocation;
 import com.rackspace.papi.filter.routing.DestinationLocationBuilder;

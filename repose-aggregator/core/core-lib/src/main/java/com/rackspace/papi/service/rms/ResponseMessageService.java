@@ -16,7 +16,7 @@
  */
 package com.rackspace.papi.service.rms;
 
-import com.rackspace.papi.commons.util.Destroyable;
+import org.openrepose.commons.utils.Destroyable;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 
 import javax.servlet.http.HttpServletRequest;

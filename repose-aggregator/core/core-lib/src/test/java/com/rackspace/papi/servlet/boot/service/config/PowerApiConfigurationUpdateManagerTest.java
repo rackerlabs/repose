@@ -1,8 +1,8 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.parser.common.ConfigurationParser;
+import org.openrepose.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;

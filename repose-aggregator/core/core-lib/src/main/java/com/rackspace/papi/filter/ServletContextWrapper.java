@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

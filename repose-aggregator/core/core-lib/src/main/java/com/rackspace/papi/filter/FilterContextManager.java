@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.model.Filter;
 import java.util.Collection;
 

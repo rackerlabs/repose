@@ -1,9 +1,9 @@
 package com.rackspace.papi.jmx;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.utils.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Filter;

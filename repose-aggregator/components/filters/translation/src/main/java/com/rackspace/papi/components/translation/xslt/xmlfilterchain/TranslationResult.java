@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.filter.logic.FilterDirector;

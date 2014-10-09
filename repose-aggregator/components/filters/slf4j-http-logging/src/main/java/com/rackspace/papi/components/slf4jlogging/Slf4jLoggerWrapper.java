@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.slf4jlogging;
 
-import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
 import org.slf4j.Logger;
 
 public class Slf4jLoggerWrapper {

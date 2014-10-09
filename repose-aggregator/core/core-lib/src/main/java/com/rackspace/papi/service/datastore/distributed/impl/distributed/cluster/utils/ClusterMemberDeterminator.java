@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;

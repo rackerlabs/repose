@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.ratelimit.log;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;

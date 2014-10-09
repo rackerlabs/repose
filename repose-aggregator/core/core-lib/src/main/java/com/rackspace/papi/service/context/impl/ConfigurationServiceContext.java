@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceResolver;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
+import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;

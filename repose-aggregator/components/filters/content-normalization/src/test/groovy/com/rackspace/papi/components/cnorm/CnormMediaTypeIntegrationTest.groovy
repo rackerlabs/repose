@@ -1,11 +1,10 @@
 package com.rackspace.papi.components.cnorm
 
 import com.mockrunner.mock.web.*
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager
-import com.rackspace.papi.commons.config.resource.ConfigurationResource
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver
-import com.rackspace.papi.commons.util.http.CommonHttpHeader
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
+import org.openrepose.commons.config.manager.ConfigurationUpdateManager
+import org.openrepose.commons.config.resource.ConfigurationResource
+import org.openrepose.commons.config.resource.ConfigurationResourceResolver
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import com.rackspace.papi.components.normalization.config.MediaType
 import com.rackspace.papi.service.context.ServletContextHelper
 import com.rackspace.papi.spring.SpringConfiguration

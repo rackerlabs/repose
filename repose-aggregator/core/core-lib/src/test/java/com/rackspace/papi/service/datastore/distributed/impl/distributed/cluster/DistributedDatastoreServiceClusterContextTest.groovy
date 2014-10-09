@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster
 
-import com.rackspace.papi.commons.config.resource.ConfigurationResource
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver
+import org.openrepose.commons.config.resource.ConfigurationResource
+import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import com.rackspace.papi.domain.ReposeInstanceInfo
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService

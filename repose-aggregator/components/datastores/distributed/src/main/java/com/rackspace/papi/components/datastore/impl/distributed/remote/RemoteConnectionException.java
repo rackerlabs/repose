@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote;
 
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+import org.openrepose.commons.utils.pooling.ResourceContextException;
 
 public class RemoteConnectionException extends ResourceContextException {
 

@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import com.rackspace.papi.components.datastore.impl.distributed.ThreadSafeClusterView;
 import com.rackspace.papi.domain.ReposeInstanceInfo;

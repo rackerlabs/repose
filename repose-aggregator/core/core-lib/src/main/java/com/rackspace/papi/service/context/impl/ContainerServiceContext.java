@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.service.ServiceRegistry;

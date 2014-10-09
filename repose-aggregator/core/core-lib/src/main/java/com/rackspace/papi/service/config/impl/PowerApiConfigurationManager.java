@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.config.impl;
 
-import com.rackspace.papi.commons.config.ConfigurationResourceException;
-import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
-import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import org.openrepose.commons.config.ConfigurationResourceException;
+import org.openrepose.commons.config.manager.ConfigurationUpdateManager;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.config.parser.ConfigurationParserFactory;
+import org.openrepose.commons.config.parser.common.ConfigurationParser;
+import org.openrepose.commons.config.resource.ConfigurationResource;
+import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.slf4j.Logger;

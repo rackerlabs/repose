@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.ratelimit.util;
 
-import com.rackspace.papi.commons.util.transform.StreamTransform;
-import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
-import com.rackspace.papi.commons.util.transform.xslt.StreamToXsltTransform;
+import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
+import org.openrepose.commons.utils.transform.xslt.StreamToXsltTransform;
 import com.rackspace.repose.service.limits.schema.Limits;
 import com.rackspace.repose.service.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.combine.CombinedLimitsTransformer;

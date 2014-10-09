@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.slf4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;

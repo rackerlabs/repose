@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.rms;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 

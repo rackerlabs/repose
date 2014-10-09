@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.http.HeaderConstant;
+import org.openrepose.commons.utils.http.HeaderConstant;
 
 public enum DatastoreHeader implements HeaderConstant {
 

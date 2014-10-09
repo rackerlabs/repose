@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
-import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
+import org.openrepose.commons.utils.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.components.datastore.distributed.ClusterView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

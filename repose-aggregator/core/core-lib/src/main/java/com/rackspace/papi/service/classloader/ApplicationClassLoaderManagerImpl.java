@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.classloader;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

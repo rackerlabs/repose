@@ -1,13 +1,10 @@
 package com.rackspace.papi.components.datastore.impl.distributed.remote;
 
-import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.proxy.ProxyRequestException;
-import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import org.openrepose.commons.utils.http.ServiceClientResponse;
+import org.openrepose.commons.utils.proxy.ProxyRequestException;
+import org.openrepose.commons.utils.proxy.RequestProxyService;
 import com.rackspace.papi.components.datastore.DatastoreOperationException;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +13,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RemoteCommandExecutorTest {
 

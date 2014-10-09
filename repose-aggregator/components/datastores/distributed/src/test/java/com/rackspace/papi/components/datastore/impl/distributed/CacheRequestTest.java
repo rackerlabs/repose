@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.impl.distributed;
 
-import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
-import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
+import org.openrepose.commons.utils.http.ExtendedHttpHeader;
+import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
 import com.rackspace.papi.components.datastore.distributed.RemoteBehavior;
 import org.junit.Before;
 import org.junit.Ignore;

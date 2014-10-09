@@ -4,7 +4,7 @@
  */
 package com.rackspace.papi.components.header.translation;
 
-import com.rackspace.papi.commons.util.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderName;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import com.rackspace.papi.filter.logic.FilterDirector;

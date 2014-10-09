@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.hnorm.util;
 
-import com.rackspace.papi.commons.util.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderName;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;

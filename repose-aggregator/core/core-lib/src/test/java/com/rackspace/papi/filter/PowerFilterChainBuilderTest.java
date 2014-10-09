@@ -2,9 +2,9 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoader;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarDescriptor;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;

@@ -1,11 +1,15 @@
 package org.openrepose.filters.clientauth.clientauth;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.ServiceClient;
-import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import org.openrepose.filters.clientauth.clientauth.atomfeed.FeedListenerManager;
+import com.rackspace.papi.components.datastore.Datastore;
+import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.httpclient.HttpClientService;
+import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.StringUtilities;
+import org.openrepose.commons.utils.http.ServiceClient;
+import org.openrepose.commons.utils.regex.KeyedRegexExtractor;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.AuthFeedReader;
+import org.openrepose.filters.clientauth.clientauth.atomfeed.FeedListenerManager;
 import org.openrepose.filters.clientauth.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import org.openrepose.filters.clientauth.clientauth.common.AuthenticationHandler;
 import org.openrepose.filters.clientauth.clientauth.common.UriMatcher;
@@ -15,10 +19,6 @@ import org.openrepose.filters.clientauth.clientauth.config.URIPattern;
 import org.openrepose.filters.clientauth.clientauth.config.WhiteList;
 import org.openrepose.filters.clientauth.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.clientauth.openstack.v1_0.OpenStackAuthenticationHandlerFactory;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
-import com.rackspace.papi.components.datastore.Datastore;
-import com.rackspace.papi.service.httpclient.HttpClientService;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

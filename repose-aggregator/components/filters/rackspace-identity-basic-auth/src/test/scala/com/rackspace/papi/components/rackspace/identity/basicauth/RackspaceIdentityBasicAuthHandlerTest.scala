@@ -3,7 +3,7 @@ package com.rackspace.papi.components.rackspace.identity.basicauth
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.mockrunner.mock.web.MockHttpServletRequest
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.datastore.Datastore
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import com.rackspace.papi.filter.logic.FilterAction

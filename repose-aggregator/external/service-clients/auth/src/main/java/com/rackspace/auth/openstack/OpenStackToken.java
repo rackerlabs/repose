@@ -1,7 +1,7 @@
 package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthToken;
-import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.commons.utils.StringUtilities;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;

@@ -1,7 +1,7 @@
 
 package com.rackspace.papi.components.hnorm.util;
 
-import com.rackspace.papi.commons.util.http.header.HeaderName;
+import org.openrepose.commons.utils.http.header.HeaderName;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeader;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
 

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.hnorm;
 
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
 import com.rackspace.papi.components.hnorm.util.HeaderNormalizer;
 import com.rackspace.papi.filter.logic.FilterAction;

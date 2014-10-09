@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.banner;
 
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
+import org.openrepose.commons.utils.io.RawInputStreamReader;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,7 @@
 package org.openrepose.cli.command.datastore.distributed;
 
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
-import com.rackspace.papi.commons.util.encoding.UUIDEncodingProvider;
+import org.openrepose.commons.utils.io.charset.CharacterSets;
+import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.components.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;

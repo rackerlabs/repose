@@ -4,22 +4,14 @@
  */
 package com.rackspace.papi.service.headers.request;
 
-import com.rackspace.papi.commons.util.http.normal.Normalizer;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import java.util.LinkedList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.After;
-import org.junit.AfterClass;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
-import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
 
 
 @RunWith(Enclosed.class)

@@ -1,10 +1,10 @@
 package com.rackspace.papi.filter;
 
 import com.google.common.base.Optional;
-import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
-import com.rackspace.papi.commons.util.net.NetworkNameResolver;
-import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
-import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
+import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
+import org.openrepose.commons.utils.net.NetworkNameResolver;
+import org.openrepose.commons.utils.net.StaticNetworkInterfaceProvider;
+import org.openrepose.commons.utils.net.StaticNetworkNameResolver;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.*;

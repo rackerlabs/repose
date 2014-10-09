@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.openrepose.commons.utils.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ServiceContext;

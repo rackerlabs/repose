@@ -2,12 +2,12 @@ package com.rackspace.papi.filter;
 
 import com.google.common.base.Optional;
 import com.rackspace.papi.ResponseCode;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.servlet.filter.ApplicationContextAwareFilter;
+import org.openrepose.commons.utils.servlet.http.HttpServletHelper;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
+import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
