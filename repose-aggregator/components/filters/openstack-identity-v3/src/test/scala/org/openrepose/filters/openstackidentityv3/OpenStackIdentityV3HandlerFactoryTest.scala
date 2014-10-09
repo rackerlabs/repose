@@ -1,10 +1,10 @@
 package org.openrepose.filters.openstackidentityv3
 
-import com.rackspace.papi.components.openstack.identity.v3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import com.rackspace.papi.service.datastore.DatastoreService
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
+import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}

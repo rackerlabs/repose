@@ -3,13 +3,13 @@ package org.openrepose.filters.openstackidentityv3
 import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import com.rackspace.papi.components.openstack.identity.v3.config._
 import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpStatusCode}
 import org.openrepose.commons.utils.servlet.http.{MutableHttpServletResponse, ReadableHttpServletResponse}
+import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
 import org.scalatest._
