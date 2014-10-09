@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.header;
+package org.openrepose.filters.headeridentity;
 
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.header.extractor;
+package org.openrepose.filters.headeridentity.extractor;
 
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;

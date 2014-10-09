@@ -14,7 +14,7 @@
 
     <filter>
         <filter-name>header-identity</filter-name>
-        <filter-class>com.rackspace.papi.components.identity.header.HeaderIdentityFilter</filter-class>
+        <filter-class>org.openrepose.filters.headeridentity.HeaderIdentityFilter</filter-class>
     </filter>
 
     <filter>

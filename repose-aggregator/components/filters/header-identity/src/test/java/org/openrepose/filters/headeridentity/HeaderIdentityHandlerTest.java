@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.identity.header;
+package org.openrepose.filters.headeridentity;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
