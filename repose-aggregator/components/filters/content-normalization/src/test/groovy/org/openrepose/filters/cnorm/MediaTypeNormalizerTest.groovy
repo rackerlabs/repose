@@ -2,8 +2,8 @@ package org.openrepose.filters.cnorm
 
 import org.openrepose.filters.cnorm.normalizer.MediaTypeNormalizer
 import com.rackspace.papi.components.normalization.config.MediaType
-import com.rackspace.papi.filter.logic.FilterDirector
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
 import spock.lang.Unroll
 

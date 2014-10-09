@@ -4,7 +4,7 @@ import java.util
 
 import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 

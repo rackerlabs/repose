@@ -2,13 +2,13 @@ package org.openrepose.filters.destinationrouter;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.filters.DestinationRouter;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
-import com.rackspace.papi.service.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filters.DestinationRouter;
+import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.service.reporting.metrics.impl.MeterByCategorySum;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;

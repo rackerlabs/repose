@@ -3,7 +3,7 @@ package org.openrepose.filters.headeridentity;
 import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;

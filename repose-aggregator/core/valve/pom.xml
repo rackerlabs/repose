@@ -89,7 +89,7 @@
 
         <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose.core.service</groupId>
             <artifactId>rate-limiting-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -146,7 +146,7 @@
                             </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.rackspace.cloud.valve.server.ProxyApp</mainClass>
+                                    <mainClass>org.openrepose.core.valve.ProxyApp</mainClass>
                                 </transformer>
                                 <!-- http://www.hagelnx.com/prog/814 -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

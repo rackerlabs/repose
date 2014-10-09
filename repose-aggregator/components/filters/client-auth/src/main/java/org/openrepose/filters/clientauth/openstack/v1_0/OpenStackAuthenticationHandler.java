@@ -8,7 +8,7 @@ import com.rackspace.auth.openstack.OpenStackToken;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.clientauth.common.*;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 import org.slf4j.Logger;

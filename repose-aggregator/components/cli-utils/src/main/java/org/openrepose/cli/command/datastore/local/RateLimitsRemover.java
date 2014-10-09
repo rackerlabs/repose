@@ -1,6 +1,6 @@
 package org.openrepose.cli.command.datastore.local;
 
-import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
+import org.openrepose.core.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
 import org.slf4j.Logger;

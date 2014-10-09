@@ -3,7 +3,7 @@ package org.openrepose.filters.headertranslation;
 import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.header.translation.config.Header;
 import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;

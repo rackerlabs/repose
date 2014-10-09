@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import com.rackspace.papi.components.identity.header.config.HttpHeaderList;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

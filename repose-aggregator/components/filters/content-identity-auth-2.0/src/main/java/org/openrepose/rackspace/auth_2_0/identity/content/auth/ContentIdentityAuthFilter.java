@@ -1,8 +1,8 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ServletContextHelper;
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 
 import javax.servlet.*;

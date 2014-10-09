@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.ratelimit.RateLimitingService;
 import org.openrepose.services.ratelimit.RateLimitingServiceFactory;

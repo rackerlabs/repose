@@ -1,6 +1,6 @@
 package org.openrepose.services.httpclient.impl
 
-import com.rackspace.papi.service.httpclient.config.PoolType
+import org.openrepose.core.service.httpclient.config.PoolType
 
 
 class PoolTypeHelper {

@@ -5,7 +5,7 @@ import com.rackspace.auth.AuthGroups
 import com.rackspace.auth.AuthToken
 import org.openrepose.commons.utils.regex.ExtractorResult
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.FilterDirector
 import spock.lang.Specification
 
 class AuthenticationHandlerTest extends Specification {

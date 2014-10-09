@@ -5,10 +5,9 @@ import com.mockrunner.mock.web.MockServletContext
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.filters.slf4jlogging.Slf4jHttpLoggingFilter
 import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
-import com.rackspace.papi.service.context.ServletContextHelper
-import com.rackspace.papi.spring.SpringConfiguration
+import org.openrepose.core.service.context.ServletContextHelper
+import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.log4j.Logger
 import org.apache.log4j.SimpleLayout

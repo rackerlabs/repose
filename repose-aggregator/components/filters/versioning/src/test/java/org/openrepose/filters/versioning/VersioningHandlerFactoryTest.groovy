@@ -1,11 +1,11 @@
 package org.openrepose.filters.versioning
 
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
-import com.rackspace.papi.domain.Port
-import com.rackspace.papi.domain.ServicePorts
+import org.openrepose.core.domain.Port
+import org.openrepose.core.domain.ServicePorts
 import com.rackspace.papi.model.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService
-import com.rackspace.papi.service.reporting.metrics.MetricsService
+import org.openrepose.core.service.reporting.metrics.MetricsService
 import org.mockito.Mockito
 import spock.lang.Specification
 

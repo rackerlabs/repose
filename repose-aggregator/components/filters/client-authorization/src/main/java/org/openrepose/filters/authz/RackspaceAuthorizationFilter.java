@@ -1,10 +1,10 @@
 package org.openrepose.filters.authz;
 
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ContextAdapter;
+import org.openrepose.core.service.context.ServletContextHelper;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;

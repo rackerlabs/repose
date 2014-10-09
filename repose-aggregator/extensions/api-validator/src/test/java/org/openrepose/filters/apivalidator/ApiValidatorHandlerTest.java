@@ -7,13 +7,11 @@ import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.filters.apivalidator.ApiValidatorHandler;
-import org.openrepose.filters.apivalidator.ValidatorInfo;
 
 import javax.servlet.FilterChain;
 import java.util.ArrayList;

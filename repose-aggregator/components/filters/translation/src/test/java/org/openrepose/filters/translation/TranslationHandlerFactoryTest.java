@@ -1,7 +1,7 @@
 package org.openrepose.filters.translation;
 
 import org.openrepose.filters.translation.config.*;
-import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.core.service.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

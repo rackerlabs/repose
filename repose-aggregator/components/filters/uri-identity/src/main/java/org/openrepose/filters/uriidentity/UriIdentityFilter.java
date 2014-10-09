@@ -2,10 +2,10 @@ package org.openrepose.filters.uriidentity;
 
 
 import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ServletContextHelper;
 
 import javax.servlet.*;
 import java.io.IOException;

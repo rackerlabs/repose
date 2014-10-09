@@ -8,7 +8,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.papi.service</groupId>
+    <groupId>org.openrepose.core.service</groupId>
     <artifactId>service-client-support</artifactId>
 
     <name>Repose Services - ServiceClient Support</name>

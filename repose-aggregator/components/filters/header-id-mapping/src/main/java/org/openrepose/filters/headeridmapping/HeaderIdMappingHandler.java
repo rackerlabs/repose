@@ -5,11 +5,11 @@ import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.headeridmapping.header_mapping.config.HttpHeader;
 import org.openrepose.filters.headeridmapping.extractor.HeaderValueExtractor;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.HeaderManager;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.HeaderManager;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

@@ -8,8 +8,8 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
 import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;

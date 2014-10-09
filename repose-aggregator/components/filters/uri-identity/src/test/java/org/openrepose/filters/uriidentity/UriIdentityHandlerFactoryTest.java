@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.uriidentity.config.IdentificationMapping;
 import org.openrepose.filters.uriidentity.config.IdentificationMappingList;
 import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
 

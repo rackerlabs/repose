@@ -12,7 +12,7 @@ import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import org.openrepose.filters.versioning.util.VersionChoiceFactory;
 import org.openrepose.filters.versioning.util.http.HttpRequestInfo;
 import org.openrepose.filters.versioning.util.http.UniformResourceInfo;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;

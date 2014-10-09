@@ -1,5 +1,5 @@
 package framework
-import com.rackspace.cloud.valve.server.PowerApiValveServerControl
+import org.openrepose.core.valve.PowerApiValveServerControl
 
 class ReposeInProcessValveLauncher extends ReposeLauncher {
 

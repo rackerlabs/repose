@@ -6,14 +6,12 @@ import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.filters.serviceauthentication.ServiceAuthHandler;
-import org.openrepose.filters.serviceauthentication.ServiceAuthHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 

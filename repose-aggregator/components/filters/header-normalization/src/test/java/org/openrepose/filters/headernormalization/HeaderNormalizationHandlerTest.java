@@ -1,15 +1,13 @@
 package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.utils.http.header.HeaderName;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.filters.headernormalization.HeaderNormalizationHandler;
-import org.openrepose.filters.headernormalization.HeaderNormalizationHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;

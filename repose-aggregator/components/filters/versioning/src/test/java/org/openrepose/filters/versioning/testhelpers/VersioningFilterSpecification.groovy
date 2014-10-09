@@ -8,11 +8,11 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.filters.versioning.VersioningFilter
 import com.rackspace.papi.components.versioning.config.MediaTypeList
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping
-import com.rackspace.papi.domain.Port
-import com.rackspace.papi.domain.ServicePorts
+import org.openrepose.core.domain.Port
+import org.openrepose.core.domain.ServicePorts
 import com.rackspace.papi.model.DestinationEndpoint
-import com.rackspace.papi.service.context.ServletContextHelper
-import com.rackspace.papi.spring.SpringConfiguration
+import org.openrepose.core.service.context.ServletContextHelper
+import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Specification

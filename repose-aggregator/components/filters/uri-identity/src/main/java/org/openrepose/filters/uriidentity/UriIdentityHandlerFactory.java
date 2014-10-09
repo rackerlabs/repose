@@ -4,7 +4,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.filters.uriidentity.config.IdentificationMapping;
 import org.openrepose.filters.uriidentity.config.UriIdentityConfig;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;

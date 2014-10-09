@@ -1,8 +1,8 @@
 package org.openrepose.services.httpclient.impl
 
 import org.openrepose.services.httpclient.HttpClientResponse
-import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
-import com.rackspace.papi.service.httpclient.config.PoolType
+import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig
+import org.openrepose.core.service.httpclient.config.PoolType
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet

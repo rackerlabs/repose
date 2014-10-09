@@ -1,12 +1,12 @@
 package org.openrepose.filters.clientauth;
 
 import org.openrepose.filters.clientauth.config.ClientAuthConfig;
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.jmx.ConfigurationInformation;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.jmx.ConfigurationInformation;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ContextAdapter;
+import org.openrepose.core.service.context.ServletContextHelper;
 import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.DatastoreService;
 import org.slf4j.Logger;

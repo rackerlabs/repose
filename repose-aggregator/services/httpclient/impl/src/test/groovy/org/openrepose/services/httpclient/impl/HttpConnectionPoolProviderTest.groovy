@@ -1,10 +1,9 @@
 package org.openrepose.services.httpclient.impl
-import com.rackspace.papi.service.httpclient.config.PoolType
+import org.openrepose.core.service.httpclient.config.PoolType
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.params.CoreConnectionPNames
 import org.junit.Before
 import org.junit.Test
-import org.openrepose.services.httpclient.impl.HttpConnectionPoolProvider
 
 import static junit.framework.Assert.assertNotNull
 import static org.junit.Assert.assertEquals

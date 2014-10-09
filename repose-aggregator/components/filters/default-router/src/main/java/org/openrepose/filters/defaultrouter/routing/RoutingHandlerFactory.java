@@ -2,8 +2,8 @@ package org.openrepose.filters.defaultrouter.routing;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.SystemModelInterrogator;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;

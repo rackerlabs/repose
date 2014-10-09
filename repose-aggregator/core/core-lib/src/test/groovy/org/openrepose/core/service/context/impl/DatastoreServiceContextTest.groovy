@@ -1,0 +1,63 @@
+package org.openrepose.core.service.context.impl
+import org.openrepose.core.service.ServiceRegistry
+import org.openrepose.core.service.context.ServiceContext
+import org.openrepose.services.datastore.impl.DatastoreServiceImpl
+import org.junit.Test
+
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.CoreMatchers.nullValue
+import static org.hamcrest.collection.IsArrayContaining.hasItemInArray
+import static org.junit.Assert.assertThat
+/**
+ * Created by eric7500 on 6/19/14.
+ */
+public class DatastoreServiceContextTest {
+
+    @Test
+    public void testRegisterNotNull() {
+        DatastoreServiceContext dsc = new DatastoreServiceContext(null,new ServiceRegistry(),null);
+        int initialSize = dsc.registry.boundServiceContexts.size();
+        dsc.register();
+        ServiceContext[] registries = dsc.registry.boundServiceContexts.toArray();
+        assertThat(dsc.registry.boundServiceContexts.size(),equalTo(initialSize+1));
+        assertThat(registries,hasItemInArray(dsc));
+    }
+
+    @Test
+    public void testRegistryNull() {
+        DatastoreServiceContext dsc = new DatastoreServiceContext(null,null,null);
+        assertThat(dsc.registry,nullValue());
+    }
+
+    @Test
+    public void testNullDatastoreService() {
+        DatastoreServiceContext dsc = new DatastoreServiceContext(null,null,null);
+        assertThat(dsc.getService(),nullValue());
+    }
+
+
+    @Test
+    public void testNotNullDatastoreService() {
+        DatastoreServiceImpl dsi = new DatastoreServiceImpl();
+        DatastoreServiceContext dsc = new DatastoreServiceContext(dsi,null,null);
+        assertThat(dsc.getService(),equalTo(dsi));
+    }
+
+    @Test
+    public void testServiceName() {
+        DatastoreServiceContext dsc = new DatastoreServiceContext(null,null,null);
+        assertThat(dsc.getServiceName(),equalTo("powerapi:/datastore/service"));
+    }
+
+    @Test
+    public void testContextInitialized() {
+        DatastoreServiceContext dsc = new DatastoreServiceContext(null,new ServiceRegistry(),null);
+        int initialSize = dsc.registry.boundServiceContexts.size();
+        dsc.contextInitialized(null);
+        ServiceContext[] registries = dsc.registry.boundServiceContexts.toArray();
+        assertThat(dsc.registry.boundServiceContexts.size(),equalTo(initialSize+1));
+        assertThat(registries,hasItemInArray(dsc));
+    }
+
+
+}

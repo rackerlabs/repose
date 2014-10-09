@@ -4,7 +4,7 @@ import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.services.datastore.Datastore;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.services.httpclient.HttpClientService;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;

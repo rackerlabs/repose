@@ -1,11 +1,11 @@
 package org.openrepose.filters.translation;
 
 import org.openrepose.filters.translation.config.TranslationConfig;
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.servlet.InitParameter;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ServletContextHelper;
+import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
 
 import javax.servlet.*;

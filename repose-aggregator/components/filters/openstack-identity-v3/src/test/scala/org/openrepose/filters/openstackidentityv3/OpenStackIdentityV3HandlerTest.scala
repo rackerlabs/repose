@@ -3,7 +3,7 @@ package org.openrepose.filters.openstackidentityv3
 import java.util
 
 import com.mockrunner.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector, HeaderManager}
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector, HeaderManager}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.header.HeaderName

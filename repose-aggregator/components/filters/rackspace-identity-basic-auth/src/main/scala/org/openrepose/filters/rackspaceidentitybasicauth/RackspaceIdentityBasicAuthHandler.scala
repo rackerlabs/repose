@@ -6,9 +6,9 @@ import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.openrepose.services.datastore.DatastoreService
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.slf4j.LoggerFactory

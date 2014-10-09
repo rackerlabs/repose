@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
 import com.rackspace.papi.components.normalization.config.MediaType
 import com.rackspace.papi.components.normalization.config.MediaTypeList
-import com.rackspace.papi.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.FilterDirector
 import spock.lang.Specification
 import spock.lang.Unroll
 

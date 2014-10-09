@@ -19,7 +19,7 @@
     </bean>
 
     <!--
-    <bean id="namingStrategy" class="com.rackspace.papi.spring.ReposeJmxNamingStrategy">
+    <bean id="namingStrategy" class="org.openrepose.core.spring.ReposeJmxNamingStrategy">
         <property name="attributeSource" ref="attributeSource"/>
     </bean>
 
@@ -34,7 +34,7 @@
     </bean>
 
     <!-- Service Contexts -->
-    <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
+    <bean name="artifactManagerServiceContext" class="org.openrepose.core.service.deploy.ArtifactManagerServiceContext">
         <constructor-arg index="0" ref="artifactManager"/>
         <constructor-arg index="1" ref="eventManager"/>
         <constructor-arg index="2" ref="containerConfigurationListener"/>
@@ -43,30 +43,30 @@
         <constructor-arg index="5" ref="threadingServiceContext"/>
     </bean>
 
-    <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
+    <bean name="loggingServiceContext" class="org.openrepose.core.service.context.impl.LoggingServiceContext">
         <constructor-arg index="0" ref="loggingService"/>
         <constructor-arg index="1" ref="serviceRegistry"/>
         <constructor-arg index="2" ref="configurationManager"/>
     </bean>
 
     <!-- Services -->
-    <bean name="artifactManager" class="com.rackspace.papi.service.deploy.ArtifactManager">
+    <bean name="artifactManager" class="org.openrepose.core.service.deploy.ArtifactManager">
         <constructor-arg index="0" ref="containerConfigurationListener"/>
     </bean>
 
     <bean name="loggingService"
-          class="com.rackspace.papi.service.logging.LoggingServiceImpl"/>
+          class="org.openrepose.core.service.logging.LoggingServiceImpl"/>
 
     <bean name="healthCheckServiceContext"
-          class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
+          class="org.openrepose.core.service.context.impl.HealthServiceContext"/>
 
     <bean name="healthCheckService" scope="singleton" lazy-init="true"
           class="org.openrepose.services.healthcheck.impl.HealthCheckServiceImpl"/>
 
     <bean name="distributedDatastoreServiceContext"
-          class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>
+          class="org.openrepose.core.service.context.impl.DistributedDatastoreServiceContext"/>
 
     <bean name="distributedDatastoreServiceClusterContext"
-          class="com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
+          class="org.openrepose.core.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
 
 </beans>

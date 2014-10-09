@@ -2,10 +2,10 @@ package org.openrepose.filters.clientipidentity;
 
 
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ServletContextHelper;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;

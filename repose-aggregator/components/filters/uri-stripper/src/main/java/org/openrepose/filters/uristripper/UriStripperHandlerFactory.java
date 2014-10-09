@@ -2,7 +2,7 @@ package org.openrepose.filters.uristripper;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.HashMap;
 import java.util.Map;

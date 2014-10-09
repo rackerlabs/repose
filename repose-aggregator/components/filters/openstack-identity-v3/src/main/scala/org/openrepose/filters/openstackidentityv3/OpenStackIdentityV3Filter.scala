@@ -3,10 +3,10 @@ package org.openrepose.filters.openstackidentityv3
 import java.net.URL
 import javax.servlet._
 
-import com.rackspace.papi.filter.FilterConfigHelper
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate
-import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.context.ServletContextHelper
+import org.openrepose.core.filter.FilterConfigHelper
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
+import org.openrepose.core.service.config.ConfigurationService
+import org.openrepose.core.service.context.ServletContextHelper
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.slf4j.LoggerFactory

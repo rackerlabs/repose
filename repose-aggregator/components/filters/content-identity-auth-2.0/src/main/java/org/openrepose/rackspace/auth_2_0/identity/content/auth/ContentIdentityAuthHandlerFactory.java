@@ -2,7 +2,7 @@ package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.transform.json.JacksonJaxbTransform;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 

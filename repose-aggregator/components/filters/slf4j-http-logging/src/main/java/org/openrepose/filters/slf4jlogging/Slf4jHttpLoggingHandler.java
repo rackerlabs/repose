@@ -2,10 +2,10 @@ package org.openrepose.filters.slf4jlogging;
 
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

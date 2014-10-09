@@ -8,8 +8,8 @@ import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.service.reporting.metrics.MetricsService;
 
 import java.util.Collection;
 import java.util.HashMap;

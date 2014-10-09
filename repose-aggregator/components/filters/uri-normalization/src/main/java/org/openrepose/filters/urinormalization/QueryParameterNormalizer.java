@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.http.normal.Normalizer;
 import org.openrepose.commons.utils.regex.RegexSelector;
 import org.openrepose.commons.utils.regex.SelectorResult;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;

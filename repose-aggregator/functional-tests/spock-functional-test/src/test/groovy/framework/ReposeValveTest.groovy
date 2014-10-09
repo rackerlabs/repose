@@ -88,7 +88,7 @@ abstract class ReposeValveTest extends Specification {
             waitForCondition(clock, '35s', '1s', {
                 if(checkLogMessage &&
                         logSearch.searchByString(
-                                "com.rackspace.papi.filter.PowerFilter  - Repose ready").size() > 0){
+                                "org.openrepose.core.filter.PowerFilter  - Repose ready").size() > 0){
                     return true
                 }
                 try {

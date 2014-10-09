@@ -1,6 +1,6 @@
 package org.openrepose.filters.ratelimiting;
 
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 
 import java.util.Set;
 

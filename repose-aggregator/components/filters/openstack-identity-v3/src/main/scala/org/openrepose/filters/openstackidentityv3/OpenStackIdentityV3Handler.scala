@@ -2,9 +2,9 @@ package org.openrepose.filters.openstackidentityv3
 
 import javax.servlet.http.HttpServletRequest
 
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse

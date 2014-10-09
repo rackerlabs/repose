@@ -1,14 +1,12 @@
 package org.openrepose.filters.destinationrouter;
 
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.openrepose.filters.destinationrouter.DestinationRouterHandlerFactory;
-import org.openrepose.filters.destinationrouter.RoutingTagger;
 import org.openrepose.filters.routing.servlet.config.Target;
 
 import javax.servlet.http.HttpServletRequest;

@@ -4,8 +4,8 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.*;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 
 import java.util.Date;

@@ -5,10 +5,10 @@ import javax.servlet._
 
 import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
-import com.rackspace.papi.filter.FilterConfigHelper
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate
-import com.rackspace.papi.service.config.ConfigurationService
-import com.rackspace.papi.service.context.ServletContextHelper
+import org.openrepose.core.filter.FilterConfigHelper
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
+import org.openrepose.core.service.config.ConfigurationService
+import org.openrepose.core.service.context.ServletContextHelper
 import org.slf4j.LoggerFactory
 
 class RackspaceIdentityBasicAuthFilter extends Filter {

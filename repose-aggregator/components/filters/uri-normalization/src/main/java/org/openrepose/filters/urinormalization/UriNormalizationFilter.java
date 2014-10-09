@@ -1,15 +1,15 @@
 package org.openrepose.filters.urinormalization;
 
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
-import com.rackspace.papi.filter.FilterConfigHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.core.filter.FilterConfigHelper;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.service.context.ServletContextHelper;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;
 
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.openrepose.core.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 
 public class UriNormalizationFilter implements Filter {

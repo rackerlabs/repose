@@ -1,6 +1,6 @@
 package org.openrepose.cli.command.datastore.local;
 
-import com.rackspace.papi.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
+import org.openrepose.core.service.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;

@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth;
 
 import org.openrepose.services.datastore.Datastore;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.services.httpclient.HttpClientService;
 import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.commons.config.manager.UpdateListener;

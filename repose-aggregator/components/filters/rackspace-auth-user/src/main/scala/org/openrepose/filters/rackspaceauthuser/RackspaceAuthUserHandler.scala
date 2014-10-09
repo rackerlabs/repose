@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServletRequest
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
-import com.rackspace.papi.filter.logic.{FilterAction, FilterDirector}
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.{FilterAction, FilterDirector}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import play.api.libs.json.{JsError, JsSuccess, Json}
 

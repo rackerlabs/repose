@@ -60,7 +60,7 @@
 
         <!-- todo: this is a dirty hack to allow patch in rate limiting to work, hopefully this can be removed when we switch to osgi -->
         <dependency>
-            <groupId>com.rackspace.papi.service</groupId>
+            <groupId>org.openrepose.core.service</groupId>
             <artifactId>rate-limiting-service</artifactId>
             <version>${project.version}</version>
         </dependency>

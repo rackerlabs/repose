@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.media.MimeType;
 import com.rackspace.papi.components.uri.normalization.config.MediaType;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,7 +5,7 @@ import com.rackspace.components.compression.ContentCompressionConfig;
 import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.compression.utils.CompressionConfigWrapper;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.Map;
 import javax.servlet.FilterConfig;
 import org.openrepose.filters.compression.utils.CompressionParameters;

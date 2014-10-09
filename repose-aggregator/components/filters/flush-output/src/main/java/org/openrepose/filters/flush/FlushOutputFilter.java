@@ -1,6 +1,6 @@
 package org.openrepose.filters.flush;
 
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import java.io.IOException;
 import javax.servlet.*;
 

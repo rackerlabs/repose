@@ -2,11 +2,11 @@ package org.openrepose.filters.uriidentity;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.HeaderManager;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.HeaderManager;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

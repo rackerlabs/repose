@@ -8,10 +8,10 @@ import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;

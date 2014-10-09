@@ -8,7 +8,7 @@ import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
 import org.openrepose.commons.utils.transform.xslt.JaxbXsltToStringTransform;
 import org.openrepose.commons.utils.transform.xslt.XsltToStreamTransform;
 import org.openrepose.commons.utils.xslt.TemplatesFactory;
-import com.rackspace.papi.servlet.PowerApiContextException;
+import org.openrepose.core.servlet.PowerApiContextException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

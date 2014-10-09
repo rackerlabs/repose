@@ -7,7 +7,7 @@ import org.rackspace.deproxy.Deproxy
 
 @Category(Slow.class)
 class DestinationRouterJMXTest extends ReposeValveTest{
-    String PREFIX = "\"repose-node1-com.rackspace.papi.filters\":type=\"DestinationRouter\",scope=\""
+    String PREFIX = "\"repose-node1-org.openrepose.core.filters\":type=\"DestinationRouter\",scope=\""
 
     String NAME_TARGET = "\",name=\"endpoint\""
     String NAME_TARGET_ALL = "\",name=\"ACROSS ALL\""

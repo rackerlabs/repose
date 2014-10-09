@@ -68,7 +68,7 @@ abstract class AbstractReposeLauncher extends ReposeLauncher {
         print('.')
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = jmx.getMBeans("*com.rackspace.papi.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = jmx.getMBeans("*org.openrepose.core.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }

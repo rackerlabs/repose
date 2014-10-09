@@ -2,7 +2,7 @@ package org.openrepose.filters.ratelimiting.util;
 
 import org.openrepose.commons.utils.logging.ExceptionLogger;
 import org.openrepose.commons.utils.xslt.TemplatesFactory;
-import com.rackspace.papi.servlet.PowerApiContextException;
+import org.openrepose.core.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 
 import javax.xml.bind.JAXBContext;

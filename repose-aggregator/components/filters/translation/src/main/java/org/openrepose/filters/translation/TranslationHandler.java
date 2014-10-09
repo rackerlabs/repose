@@ -16,11 +16,11 @@ import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.filters.translation.xslt.XsltParameter;
 import org.openrepose.filters.translation.xslt.xmlfilterchain.TranslationResult;
 import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlChainPool;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import features.filters.translation.httpx.processor.TranslationPreProcessor;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.translation.httpx.processor.TranslationPreProcessor;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;

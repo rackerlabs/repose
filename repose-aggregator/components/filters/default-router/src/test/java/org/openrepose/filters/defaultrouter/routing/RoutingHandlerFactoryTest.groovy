@@ -1,7 +1,7 @@
 package org.openrepose.filters.defaultrouter.routing
 
 import com.google.common.base.Optional
-import com.rackspace.papi.filter.SystemModelInterrogator
+import org.openrepose.core.filter.SystemModelInterrogator
 import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
 import com.rackspace.papi.model.Destination

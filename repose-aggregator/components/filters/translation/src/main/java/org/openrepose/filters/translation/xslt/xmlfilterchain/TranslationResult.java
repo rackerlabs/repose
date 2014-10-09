@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.charset.CharacterSets;
 import org.openrepose.filters.translation.httpx.HttpxMarshaller;
 import org.openrepose.filters.translation.xslt.XsltParameter;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.repose.httpx.v1.*;
 import org.slf4j.Logger;
 

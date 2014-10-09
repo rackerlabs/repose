@@ -6,6 +6,6 @@
         schemaLocation="response-messaging.xsd">
           
     <schemaBindings>
-        <package name="com.rackspace.papi.service.rms.config" />
+        <package name="org.openrepose.core.service.rms.config" />
     </schemaBindings>
 </bindings>

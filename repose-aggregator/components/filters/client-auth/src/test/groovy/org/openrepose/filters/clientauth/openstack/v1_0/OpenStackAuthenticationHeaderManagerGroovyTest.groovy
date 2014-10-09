@@ -4,8 +4,8 @@ import com.rackspace.auth.AuthGroup
 import com.rackspace.auth.AuthToken
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.http.header.HeaderName
-import com.rackspace.papi.filter.logic.FilterDirector
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
 
 class OpenStackAuthenticationHeaderManagerGroovyTest extends Specification {

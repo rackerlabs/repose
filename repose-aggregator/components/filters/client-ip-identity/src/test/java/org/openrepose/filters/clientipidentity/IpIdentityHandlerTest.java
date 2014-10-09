@@ -7,12 +7,9 @@ import org.openrepose.commons.utils.net.IpAddressRange;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.components.identity.ip.config.WhiteList;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.filters.clientipidentity.IpIdentityGroup;
-import org.openrepose.filters.clientipidentity.IpIdentityHandler;
-import org.openrepose.filters.clientipidentity.IpIdentityHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.UnknownHostException;

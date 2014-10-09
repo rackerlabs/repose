@@ -5,8 +5,8 @@ import org.openrepose.filters.cnorm.normalizer.HeaderNormalizer
 import com.rackspace.papi.components.normalization.config.HeaderFilterList
 import com.rackspace.papi.components.normalization.config.HttpHeader
 import com.rackspace.papi.components.normalization.config.HttpHeaderList
-import com.rackspace.papi.filter.logic.FilterDirector
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.core.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest

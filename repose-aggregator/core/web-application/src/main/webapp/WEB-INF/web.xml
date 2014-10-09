@@ -21,13 +21,13 @@
     
     <listener>
         <display-name>Repose Context Loader</display-name>
-        <listener-class>com.rackspace.papi.service.context.impl.PowerApiContextManager</listener-class>
+        <listener-class>org.openrepose.core.service.context.impl.PowerApiContextManager</listener-class>
     </listener>
 
     <!-- Servlets -->
     <servlet id="power-api-servlet">
         <servlet-name>empty-servlet</servlet-name>
-        <servlet-class>com.rackspace.papi.EmptyServlet</servlet-class>
+        <servlet-class>org.openrepose.core.EmptyServlet</servlet-class>
     </servlet>
     
     <servlet-mapping id="power-api-servlet-mapping">
@@ -38,7 +38,7 @@
     <!-- Filters -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>com.rackspace.papi.filter.ValvePowerFilter</filter-class>
+        <filter-class>org.openrepose.core.filter.ValvePowerFilter</filter-class>
     </filter>
     
     <filter-mapping id="power-api-filter-mapping">

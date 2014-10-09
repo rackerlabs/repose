@@ -6,8 +6,8 @@ import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import com.rackspace.papi.components.normalization.config.MediaType
-import com.rackspace.papi.service.context.ServletContextHelper
-import com.rackspace.papi.spring.SpringConfiguration
+import org.openrepose.core.service.context.ServletContextHelper
+import org.openrepose.core.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Shared

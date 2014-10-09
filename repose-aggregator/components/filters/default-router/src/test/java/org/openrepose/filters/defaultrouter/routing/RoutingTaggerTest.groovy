@@ -2,9 +2,9 @@ package org.openrepose.filters.defaultrouter.routing
 
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.filter.logic.FilterAction
-import com.rackspace.papi.filter.logic.FilterDirector
-import com.rackspace.papi.filter.logic.impl.SimplePassFilterDirector
+import org.openrepose.core.filter.logic.FilterAction
+import org.openrepose.core.filter.logic.FilterDirector
+import org.openrepose.core.filter.logic.impl.SimplePassFilterDirector
 import com.rackspace.papi.model.Destination
 import spock.lang.Specification
 

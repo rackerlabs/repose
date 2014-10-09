@@ -2,8 +2,8 @@ package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.service.reporting.metrics.MetricsService;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.core.service.reporting.metrics.MetricsService;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
