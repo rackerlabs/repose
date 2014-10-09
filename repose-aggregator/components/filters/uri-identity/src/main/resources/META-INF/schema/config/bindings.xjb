@@ -6,6 +6,6 @@
         schemaLocation="uri-identity-configuration.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.filters.uriidentity.uri.config" />
+        <package name="org.openrepose.filters.uriidentity.config" />
     </schemaBindings>
 </bindings>

@@ -1,7 +1,7 @@
 package com.rackspace.cloud.valve.jetty;
 
 import com.rackspace.cloud.valve.jetty.servlet.BasicResponseServlet;
-import org.openrepose.filters.clientauth.clientauth.ClientAuthenticationFilter;
+import org.openrepose.filters.clientauth.ClientAuthenticationFilter;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
