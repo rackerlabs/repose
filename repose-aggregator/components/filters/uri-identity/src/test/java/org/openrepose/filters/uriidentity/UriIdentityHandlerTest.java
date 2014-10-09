@@ -1,4 +1,4 @@
-package org.openrepose.filters.uriidentity.uri;
+package org.openrepose.filters.uriidentity;
 
 
 

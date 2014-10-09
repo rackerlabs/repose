@@ -29,7 +29,7 @@
 
     <filter>
         <filter-name>uri-identity</filter-name>
-        <filter-class>org.openrepose.filters.uriidentity.uri.UriIdentityFilter</filter-class>
+        <filter-class>org.openrepose.filters.uriidentity.UriIdentityFilter</filter-class>
     </filter>
 
     <filter>

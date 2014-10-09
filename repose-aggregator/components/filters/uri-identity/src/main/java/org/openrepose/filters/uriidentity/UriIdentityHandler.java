@@ -1,4 +1,4 @@
-package org.openrepose.filters.uriidentity.uri;
+package org.openrepose.filters.uriidentity;
 
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
