@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.papi.components.header.translation;
+package org.openrepose.filters.headertranslation;
 
 import org.openrepose.commons.utils.http.header.HeaderName;
 import com.rackspace.papi.components.header.translation.config.Header;
@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.filters.headertranslation.HeaderTranslationHandler;
+import org.openrepose.filters.headertranslation.HeaderTranslationHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;

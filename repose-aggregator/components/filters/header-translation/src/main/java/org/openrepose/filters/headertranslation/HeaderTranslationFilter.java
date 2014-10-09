@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.header.translation;
+package org.openrepose.filters.headertranslation;
 
 
 import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
