@@ -1,11 +1,11 @@
-package com.rackspace.papi.components.slf4jlogging
+package org.openrepose.filters.slf4jlogging.slf4jlogging
 
 import com.mockrunner.mock.web.MockFilterConfig
 import com.mockrunner.mock.web.MockServletContext
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import com.rackspace.papi.components.slf4jlogging.config.Slf4JHttpLog
+import org.openrepose.filters.slf4jlogging.slf4jlogging.config.Slf4JHttpLog
 import com.rackspace.papi.service.context.ServletContextHelper
 import com.rackspace.papi.spring.SpringConfiguration
 import groovy.xml.StreamingMarkupBuilder
