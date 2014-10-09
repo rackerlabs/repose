@@ -1,4 +1,4 @@
-package org.openrepose.filters.authz.authz.cache;
+package org.openrepose.filters.authz.cache;
 
 import com.rackspace.papi.components.datastore.Datastore;
 import org.junit.Before;

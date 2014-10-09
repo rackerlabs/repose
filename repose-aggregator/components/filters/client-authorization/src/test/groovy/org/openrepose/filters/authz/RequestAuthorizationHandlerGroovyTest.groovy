@@ -1,4 +1,4 @@
-package org.openrepose.filters.authz.authz
+package org.openrepose.filters.authz
 
 import com.rackspace.auth.openstack.AuthenticationService
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -9,8 +9,8 @@ import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl
 import org.openrepose.components.authz.rackspace.config.IgnoreTenantRoles
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint
-import org.openrepose.filters.authz.authz.cache.CachedEndpoint
-import org.openrepose.filters.authz.authz.cache.EndpointListCache
+import org.openrepose.filters.authz.cache.CachedEndpoint
+import org.openrepose.filters.authz.cache.EndpointListCache
 import org.openstack.docs.identity.api.v2.AuthenticateResponse
 import org.openstack.docs.identity.api.v2.Endpoint
 import spock.lang.Specification

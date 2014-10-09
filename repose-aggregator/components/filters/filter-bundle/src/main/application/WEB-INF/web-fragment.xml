@@ -84,7 +84,7 @@
 
     <filter>
         <filter-name>client-authorization</filter-name>
-        <filter-class>org.openrepose.filters.authz.authz.RackspaceAuthorizationFilter</filter-class>
+        <filter-class>org.openrepose.filters.authzRackspaceAuthorizationFilter</filter-class>
     </filter>
 
     <filter>

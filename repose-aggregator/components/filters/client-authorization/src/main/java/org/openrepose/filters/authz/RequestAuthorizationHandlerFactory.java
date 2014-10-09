@@ -1,4 +1,4 @@
-package org.openrepose.filters.authz.authz;
+package org.openrepose.filters.authz;
 
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.openstack.AuthenticationServiceFactory;
@@ -9,8 +9,8 @@ import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
-import org.openrepose.filters.authz.authz.cache.EndpointListCache;
-import org.openrepose.filters.authz.authz.cache.EndpointListCacheImpl;
+import org.openrepose.filters.authz.cache.EndpointListCache;
+import org.openrepose.filters.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
