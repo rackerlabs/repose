@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.routing;
+package org.openrepose.filters.defaultrouter.routing;
 
 import com.google.common.base.Optional;
 import org.openrepose.commons.config.manager.UpdateListener;

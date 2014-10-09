@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.routing
+package org.openrepose.filters.defaultrouter.routing
 
 import org.openrepose.commons.utils.http.HttpStatusCode
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
