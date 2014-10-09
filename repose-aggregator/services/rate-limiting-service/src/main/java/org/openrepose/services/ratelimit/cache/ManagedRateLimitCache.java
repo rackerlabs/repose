@@ -1,6 +1,6 @@
 package org.openrepose.services.ratelimit.cache;
 
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import com.rackspace.repose.service.limits.schema.TimeUnit;
 import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;

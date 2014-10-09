@@ -1,12 +1,12 @@
 package org.openrepose.services.datastore.impl.ehcache;
 
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.SerializationUtils;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
-import org.openrepose.services.datastore.api.Patch;
-import org.openrepose.services.datastore.api.Patchable;
+import org.openrepose.services.datastore.DatastoreOperationException;
+import org.openrepose.services.datastore.Patch;
+import org.openrepose.services.datastore.Patchable;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;

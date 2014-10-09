@@ -1,6 +1,6 @@
 package features.services.datastore
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.services.datastore.api.StringValue
+import org.openrepose.services.datastore.StringValue
 import framework.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain

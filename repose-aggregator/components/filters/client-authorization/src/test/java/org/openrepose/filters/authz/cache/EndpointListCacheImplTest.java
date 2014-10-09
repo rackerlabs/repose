@@ -1,6 +1,6 @@
 package org.openrepose.filters.authz.cache;
 
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

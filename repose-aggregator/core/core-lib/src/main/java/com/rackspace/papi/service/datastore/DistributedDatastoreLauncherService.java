@@ -9,7 +9,7 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.routing.RoutingService;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.DatastoreService;
 
 
 public interface DistributedDatastoreLauncherService extends Destroyable{

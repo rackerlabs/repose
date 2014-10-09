@@ -8,7 +8,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import org.openrepose.services.healthcheck.api.HealthCheckService;
+import org.openrepose.services.healthcheck.HealthCheckService;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 

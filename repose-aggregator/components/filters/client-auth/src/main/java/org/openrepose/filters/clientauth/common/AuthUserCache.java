@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.common;
 
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 
 import java.io.IOException;
 import java.io.Serializable;

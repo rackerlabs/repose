@@ -1,9 +1,9 @@
 package org.openrepose.services.healthcheck.impl;
 
-import org.openrepose.services.healthcheck.api.HealthCheckReport;
-import org.openrepose.services.healthcheck.api.HealthCheckService;
-import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.api.Severity;
+import org.openrepose.services.healthcheck.HealthCheckReport;
+import org.openrepose.services.healthcheck.HealthCheckService;
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

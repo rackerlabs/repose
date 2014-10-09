@@ -1,7 +1,7 @@
-package org.openrepose.services.datastore.api;
+package org.openrepose.services.datastore;
 
-import org.openrepose.services.datastore.api.distributed.ClusterConfiguration;
-import org.openrepose.services.datastore.api.distributed.DistributedDatastore;
+import org.openrepose.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.services.datastore.distributed.DistributedDatastore;
 
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s

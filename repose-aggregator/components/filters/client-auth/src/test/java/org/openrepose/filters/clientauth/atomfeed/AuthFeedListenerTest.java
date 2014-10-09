@@ -15,7 +15,7 @@ import org.openrepose.filters.clientauth.common.AuthGroupCache;
 import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.openstack.v1_0.OsAuthCachePrefix;
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastore;
 import org.openstack.docs.identity.api.v2.*;
 

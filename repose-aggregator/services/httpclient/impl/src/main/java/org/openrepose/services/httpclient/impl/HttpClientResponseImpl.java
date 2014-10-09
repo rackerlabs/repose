@@ -1,6 +1,6 @@
 package org.openrepose.services.httpclient.impl;
 
-import org.openrepose.services.httpclient.api.HttpClientResponse;
+import org.openrepose.services.httpclient.HttpClientResponse;
 import org.apache.http.client.HttpClient;
 
 /**

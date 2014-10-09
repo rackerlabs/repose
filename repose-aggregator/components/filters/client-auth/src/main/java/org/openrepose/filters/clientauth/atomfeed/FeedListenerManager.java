@@ -1,7 +1,7 @@
 package org.openrepose.filters.clientauth.atomfeed;
 
 // Class that will manage atom feed pollers which will delete items from cache
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import java.util.List;
 import org.slf4j.LoggerFactory;
 

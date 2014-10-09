@@ -1,4 +1,4 @@
-package org.openrepose.services.datastore.api;
+package org.openrepose.services.datastore;
 
 /**
  * A manager for {@link Datastore}s that manages their creation and lifecycle.

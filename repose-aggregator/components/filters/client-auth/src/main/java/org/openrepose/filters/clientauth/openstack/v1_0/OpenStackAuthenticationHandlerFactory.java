@@ -16,9 +16,9 @@ import org.openrepose.filters.clientauth.openstack.config.IgnoreTenantRoles;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.httpclient.api.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.httpclient.HttpClientService;
 
 import java.util.ArrayList;
 import java.util.List;

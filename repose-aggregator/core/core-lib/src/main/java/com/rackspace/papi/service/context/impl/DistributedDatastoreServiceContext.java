@@ -9,7 +9,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.DistributedDatastoreLauncherService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;

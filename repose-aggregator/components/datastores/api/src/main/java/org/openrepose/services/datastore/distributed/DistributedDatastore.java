@@ -1,7 +1,7 @@
-package org.openrepose.services.datastore.api.distributed;
+package org.openrepose.services.datastore.distributed;
 
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.datastore.DatastoreOperationException;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ public interface DistributedDatastore extends Datastore {
      * @param ttl Duration to store the value for
      * @param timeUnit Unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param remoteBehavior Whether or not to allow remote storage of this value
-     * @throws org.openrepose.services.datastore.api.DatastoreOperationException if an exception occurs when
+     * @throws org.openrepose.services.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
     void put(String key, byte[] id, final Serializable value, final int ttl, final TimeUnit timeUnit,
@@ -45,7 +45,7 @@ public interface DistributedDatastore extends Datastore {
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @param remoteBehavior Whether or not to allow remote storage of this value
      * @return the patched and stored value
-     * @throws org.openrepose.services.datastore.api.DatastoreOperationException if an exception occurs when
+     * @throws org.openrepose.services.datastore.DatastoreOperationException if an exception occurs when
      *         attempting to store the value
      */
     Serializable patch(String key, byte[] id, final SerializablePatch patch, final int ttl, final TimeUnit timeUnit,

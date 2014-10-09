@@ -1,16 +1,14 @@
 package org.openrepose.services.datastore.impl.distributed.remote;
 
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
-import org.openrepose.services.datastore.api.StringValue;
-import org.openrepose.services.datastore.api.distributed.ClusterView;
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
-import org.openrepose.services.datastore.api.hash.MD5MessageDigestFactory;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.datastore.DatastoreOperationException;
+import org.openrepose.services.datastore.StringValue;
+import org.openrepose.services.datastore.distributed.ClusterView;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.hash.MD5MessageDigestFactory;
 import org.openrepose.services.datastore.impl.distributed.DatastoreAction;
 import org.openrepose.services.datastore.impl.distributed.HashRingDatastore;
-import org.openrepose.services.datastore.impl.distributed.remote.RemoteCommandExecutor;
-import org.openrepose.services.datastore.impl.distributed.remote.RemoteConnectionException;
 import org.openrepose.services.datastore.impl.distributed.remote.command.Get;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +17,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import static org.openrepose.services.datastore.api.distributed.RemoteBehavior.ALLOW_FORWARDING;
+import static org.openrepose.services.datastore.distributed.RemoteBehavior.ALLOW_FORWARDING;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

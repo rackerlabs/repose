@@ -1,7 +1,7 @@
 package features.services.datastore
 
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.services.datastore.api.StringValue
+import org.openrepose.services.datastore.StringValue
 import framework.ReposeConfigurationProvider
 import framework.ReposeContainerLauncher
 import framework.ReposeLauncher

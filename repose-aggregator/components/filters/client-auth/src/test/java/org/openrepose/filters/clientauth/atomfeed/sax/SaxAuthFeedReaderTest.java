@@ -1,6 +1,6 @@
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

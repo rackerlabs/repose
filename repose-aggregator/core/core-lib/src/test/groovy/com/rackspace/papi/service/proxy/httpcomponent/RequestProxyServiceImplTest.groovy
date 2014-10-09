@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent
-import org.openrepose.services.httpclient.api.HttpClientResponse
-import org.openrepose.services.httpclient.api.HttpClientService
+import org.openrepose.services.httpclient.HttpClientResponse
+import org.openrepose.services.httpclient.HttpClientService
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.StatusLine

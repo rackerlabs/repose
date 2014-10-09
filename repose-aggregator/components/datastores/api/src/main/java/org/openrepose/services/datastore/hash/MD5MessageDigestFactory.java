@@ -1,6 +1,6 @@
-package org.openrepose.services.datastore.api.hash;
+package org.openrepose.services.datastore.hash;
 
-public final class MD5MessageDigestFactory extends org.openrepose.services.datastore.api.hash.AbstractMessageDigestFactory {
+public final class MD5MessageDigestFactory extends org.openrepose.services.datastore.hash.AbstractMessageDigestFactory {
 
    private static final MessageDigestFactory INSTANCE = new MD5MessageDigestFactory();
 

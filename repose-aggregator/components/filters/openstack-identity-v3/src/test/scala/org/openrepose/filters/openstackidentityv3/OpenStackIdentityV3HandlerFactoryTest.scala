@@ -3,8 +3,8 @@ package org.openrepose.filters.openstackidentityv3
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
-import org.openrepose.services.datastore.api.DatastoreService
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
+import org.openrepose.services.datastore.DatastoreService
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}

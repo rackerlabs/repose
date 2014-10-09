@@ -6,8 +6,8 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
-import org.openrepose.services.datastore.api.DatastoreService
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient
+import org.openrepose.services.datastore.DatastoreService
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient
 
 class OpenStackIdentityV3HandlerFactory(akkaServiceClient: AkkaServiceClient, datastoreService: DatastoreService)
   extends AbstractConfiguredFilterHandlerFactory[OpenStackIdentityV3Handler] {

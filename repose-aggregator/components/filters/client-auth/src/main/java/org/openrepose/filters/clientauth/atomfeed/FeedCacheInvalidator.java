@@ -5,7 +5,7 @@ import org.openrepose.filters.clientauth.common.AuthTokenCache;
 import org.openrepose.filters.clientauth.common.AuthUserCache;
 import org.openrepose.filters.clientauth.common.EndpointsCache;
 import org.openrepose.filters.clientauth.openstack.v1_0.OsAuthCachePrefix;
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;

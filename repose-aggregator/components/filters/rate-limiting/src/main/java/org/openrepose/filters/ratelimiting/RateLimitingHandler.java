@@ -15,7 +15,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
+import org.openrepose.services.datastore.DatastoreOperationException;
 import org.openrepose.services.ratelimit.RateLimitingServiceImpl;
 import org.openrepose.services.ratelimit.exception.CacheException;
 import org.openrepose.services.ratelimit.exception.OverLimitException;

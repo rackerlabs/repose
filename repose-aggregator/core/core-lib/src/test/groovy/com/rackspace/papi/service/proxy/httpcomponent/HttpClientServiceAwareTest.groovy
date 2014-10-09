@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent
 
-import org.openrepose.services.httpclient.api.HttpClientService
+import org.openrepose.services.httpclient.HttpClientService
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired

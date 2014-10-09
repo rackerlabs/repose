@@ -2,7 +2,7 @@ package org.openrepose.services.datastore.impl.distributed;
 
 import org.openrepose.commons.utils.net.NetworkInterfaceProvider;
 import org.openrepose.commons.utils.net.StaticNetworkInterfaceProvider;
-import org.openrepose.services.datastore.api.distributed.ClusterView;
+import org.openrepose.services.datastore.distributed.ClusterView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

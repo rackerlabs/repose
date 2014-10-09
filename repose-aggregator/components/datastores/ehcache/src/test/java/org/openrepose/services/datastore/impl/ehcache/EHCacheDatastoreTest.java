@@ -1,6 +1,6 @@
 package org.openrepose.services.datastore.impl.ehcache;
 
-import org.openrepose.services.datastore.api.StringValue;
+import org.openrepose.services.datastore.StringValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastore;
 
 import java.io.Serializable;
 import java.util.UUID;

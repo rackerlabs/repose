@@ -1,7 +1,7 @@
 package org.openrepose.services.datastore.impl.ehcache;
 
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.datastore.api.DatastoreManager;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.datastore.DatastoreManager;
 import com.yammer.metrics.ehcache.InstrumentedEhcache;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

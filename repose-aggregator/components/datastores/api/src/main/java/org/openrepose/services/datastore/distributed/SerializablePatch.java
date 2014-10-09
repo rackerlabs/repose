@@ -1,6 +1,6 @@
-package org.openrepose.services.datastore.api.distributed;
+package org.openrepose.services.datastore.distributed;
 
-import org.openrepose.services.datastore.api.Patch;
+import org.openrepose.services.datastore.Patch;
 
 import java.io.Serializable;
 

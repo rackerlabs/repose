@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import com.rackspace.papi.service.context.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.ServletContextEvent;
 
 /**
- * Manages the {@link org.openrepose.services.serviceclient.akka.api.AkkaServiceClient}
+ * Manages the {@link org.openrepose.services.serviceclient.akka.AkkaServiceClient}
  */
 
 public class AkkaServiceClientContext implements ServiceContext<AkkaServiceClient> {

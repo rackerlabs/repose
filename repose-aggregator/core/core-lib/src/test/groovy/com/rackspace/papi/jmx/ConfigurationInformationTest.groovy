@@ -5,9 +5,9 @@ import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
 import com.rackspace.papi.model.*
 import com.rackspace.papi.service.config.ConfigurationService
-import org.openrepose.services.healthcheck.api.HealthCheckService
-import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy
-import org.openrepose.services.healthcheck.api.Severity
+import org.openrepose.services.healthcheck.HealthCheckService
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy
+import org.openrepose.services.healthcheck.Severity
 import org.apache.log4j.Logger
 import org.apache.log4j.SimpleLayout
 import org.apache.log4j.WriterAppender

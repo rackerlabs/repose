@@ -1,4 +1,4 @@
-package org.openrepose.services.datastore.api.distributed;
+package org.openrepose.services.datastore.distributed;
 
 /**
  *

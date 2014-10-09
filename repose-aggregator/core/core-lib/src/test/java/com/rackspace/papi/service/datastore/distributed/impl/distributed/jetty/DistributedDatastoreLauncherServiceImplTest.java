@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.jetty;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.datastore.impl.DatastoreServiceImpl;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.servlet.DistributedDatastoreServletContextManager;
 import org.eclipse.jetty.server.Server;

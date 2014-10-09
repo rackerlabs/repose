@@ -1,6 +1,6 @@
 package org.openrepose.services.ratelimit.cache;
 
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,10 +9,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.cache.ManagedRateLimitCache;
-import org.openrepose.services.ratelimit.cache.NextAvailableResponse;
-import org.openrepose.services.ratelimit.cache.UserRateLimit;
 
 import java.util.ArrayList;
 import java.util.HashMap;

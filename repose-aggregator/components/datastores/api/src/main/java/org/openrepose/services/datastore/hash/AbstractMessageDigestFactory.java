@@ -1,4 +1,4 @@
-package org.openrepose.services.datastore.api.hash;
+package org.openrepose.services.datastore.hash;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

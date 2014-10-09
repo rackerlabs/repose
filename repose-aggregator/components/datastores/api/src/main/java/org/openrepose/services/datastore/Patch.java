@@ -1,4 +1,4 @@
-package org.openrepose.services.datastore.api;
+package org.openrepose.services.datastore;
 
 /**
  * An interface for a Patch (of T).

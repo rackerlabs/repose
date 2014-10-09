@@ -1,8 +1,8 @@
 package org.openrepose.services.serviceclient.akka.impl
 
 import org.openrepose.commons.utils.http.ServiceClientResponse
-import org.openrepose.services.httpclient.api.HttpClientResponse
-import org.openrepose.services.httpclient.api.HttpClientService
+import org.openrepose.services.httpclient.HttpClientResponse
+import org.openrepose.services.httpclient.HttpClientService
 import org.apache.commons.io.IOUtils
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse

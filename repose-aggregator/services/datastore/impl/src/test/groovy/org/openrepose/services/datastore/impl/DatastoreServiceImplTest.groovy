@@ -1,7 +1,7 @@
 package org.openrepose.services.datastore.impl
-import org.openrepose.services.datastore.api.Datastore
-import org.openrepose.services.datastore.api.DatastoreManager
-import org.openrepose.services.datastore.api.distributed.DistributedDatastore
+import org.openrepose.services.datastore.Datastore
+import org.openrepose.services.datastore.DatastoreManager
+import org.openrepose.services.datastore.distributed.DistributedDatastore
 import org.junit.Before
 import org.junit.Test
 

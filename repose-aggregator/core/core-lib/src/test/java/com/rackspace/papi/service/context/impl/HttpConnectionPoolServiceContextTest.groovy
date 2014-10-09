@@ -6,10 +6,10 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.context.ServiceContext
-import org.openrepose.services.healthcheck.api.HealthCheckService
-import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy
-import org.openrepose.services.healthcheck.api.Severity
-import org.openrepose.services.httpclient.api.HttpClientService
+import org.openrepose.services.healthcheck.HealthCheckService
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy
+import org.openrepose.services.healthcheck.Severity
+import org.openrepose.services.httpclient.HttpClientService
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import org.junit.Before
 import org.junit.Test

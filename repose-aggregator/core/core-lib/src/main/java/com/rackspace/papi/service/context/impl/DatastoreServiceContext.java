@@ -3,7 +3,7 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.DatastoreService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

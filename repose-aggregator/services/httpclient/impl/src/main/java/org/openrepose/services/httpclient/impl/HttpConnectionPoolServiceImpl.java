@@ -1,8 +1,8 @@
 package org.openrepose.services.httpclient.impl;
 
-import org.openrepose.services.httpclient.api.HttpClientNotFoundException;
-import org.openrepose.services.httpclient.api.HttpClientResponse;
-import org.openrepose.services.httpclient.api.HttpClientService;
+import org.openrepose.services.httpclient.HttpClientNotFoundException;
+import org.openrepose.services.httpclient.HttpClientResponse;
+import org.openrepose.services.httpclient.HttpClientService;
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig;
 import com.rackspace.papi.service.httpclient.config.PoolType;
 import org.apache.http.client.HttpClient;

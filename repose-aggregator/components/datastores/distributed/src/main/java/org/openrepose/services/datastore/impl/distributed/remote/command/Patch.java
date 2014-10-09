@@ -6,9 +6,9 @@ import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
-import org.openrepose.services.datastore.api.distributed.SerializablePatch;
+import org.openrepose.services.datastore.DatastoreOperationException;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.distributed.SerializablePatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

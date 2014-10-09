@@ -1,6 +1,6 @@
 package org.openrepose.services.datastore.impl.distributed;
 
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
 
 import java.net.InetSocketAddress;
 

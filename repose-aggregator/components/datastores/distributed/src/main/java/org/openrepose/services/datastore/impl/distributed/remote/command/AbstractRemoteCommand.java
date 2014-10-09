@@ -4,7 +4,7 @@ import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.proxy.RequestProxyService;
 import org.openrepose.services.datastore.impl.distributed.DatastoreHeader;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.services.datastore.impl.distributed.remote.RemoteCommand;
 
 import java.net.InetSocketAddress;

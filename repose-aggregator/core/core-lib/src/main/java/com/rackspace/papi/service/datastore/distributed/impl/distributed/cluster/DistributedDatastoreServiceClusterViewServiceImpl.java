@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
-import org.openrepose.services.datastore.api.distributed.ClusterView;
-import org.openrepose.services.datastore.api.DatastoreAccessControl;
+import org.openrepose.services.datastore.distributed.ClusterView;
+import org.openrepose.services.datastore.DatastoreAccessControl;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;

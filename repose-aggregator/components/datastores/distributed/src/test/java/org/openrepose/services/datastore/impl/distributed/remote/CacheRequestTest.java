@@ -2,7 +2,7 @@ package org.openrepose.services.datastore.impl.distributed.remote;
 
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

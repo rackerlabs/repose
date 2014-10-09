@@ -1,4 +1,4 @@
-package org.openrepose.services.httpclient.api;
+package org.openrepose.services.httpclient;
 
 import org.apache.http.client.HttpClient;
 

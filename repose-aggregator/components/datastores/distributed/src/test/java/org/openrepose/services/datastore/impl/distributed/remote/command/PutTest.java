@@ -3,7 +3,7 @@ package org.openrepose.services.datastore.impl.distributed.remote.command;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
-import org.openrepose.services.datastore.api.DatastoreOperationException;
+import org.openrepose.services.datastore.DatastoreOperationException;
 import org.openrepose.services.datastore.impl.distributed.CacheRequest;
 import org.junit.Assert;
 import org.junit.Test;

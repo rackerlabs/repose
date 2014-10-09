@@ -1,4 +1,4 @@
-package org.openrepose.services.healthcheck.api;
+package org.openrepose.services.healthcheck;
 
 import java.util.Map;
 import java.util.Set;

@@ -4,7 +4,7 @@
  */
 package org.openrepose.filters.clientauth.atomfeed.sax;
 
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;

@@ -1,4 +1,4 @@
-package org.openrepose.services.serviceclient.akka.api;
+package org.openrepose.services.serviceclient.akka;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 

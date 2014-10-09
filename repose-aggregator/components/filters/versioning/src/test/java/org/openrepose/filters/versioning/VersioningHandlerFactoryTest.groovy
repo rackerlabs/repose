@@ -4,7 +4,7 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.domain.Port
 import com.rackspace.papi.domain.ServicePorts
 import com.rackspace.papi.model.SystemModel
-import org.openrepose.services.healthcheck.api.HealthCheckService
+import org.openrepose.services.healthcheck.HealthCheckService
 import com.rackspace.papi.service.reporting.metrics.MetricsService
 import org.mockito.Mockito
 import spock.lang.Specification

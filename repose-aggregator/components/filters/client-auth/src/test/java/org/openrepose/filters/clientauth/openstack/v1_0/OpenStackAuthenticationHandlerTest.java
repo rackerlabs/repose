@@ -26,7 +26,7 @@ import org.openrepose.filters.clientauth.openstack.config.ClientMapping;
 import org.openrepose.filters.clientauth.openstack.config.OpenStackIdentityService;
 import org.openrepose.filters.clientauth.openstack.config.OpenstackAuth;
 import org.openrepose.filters.clientauth.openstack.config.ServiceAdminRoles;
-import org.openrepose.services.datastore.api.Datastore;
+import org.openrepose.services.datastore.Datastore;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
 package org.openrepose.services.httpclient.impl
 
-import org.openrepose.services.httpclient.api.HttpClientResponse
+import org.openrepose.services.httpclient.HttpClientResponse
 import com.rackspace.papi.service.httpclient.config.HttpConnectionPoolConfig
 import com.rackspace.papi.service.httpclient.config.PoolType
 import org.apache.http.client.HttpClient

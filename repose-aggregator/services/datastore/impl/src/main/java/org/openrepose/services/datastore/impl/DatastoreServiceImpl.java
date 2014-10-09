@@ -1,11 +1,11 @@
 package org.openrepose.services.datastore.impl;
 
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.datastore.api.DatastoreManager;
-import org.openrepose.services.datastore.api.distributed.ClusterConfiguration;
-import org.openrepose.services.datastore.api.distributed.DistributedDatastore;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.datastore.DatastoreManager;
+import org.openrepose.services.datastore.distributed.ClusterConfiguration;
+import org.openrepose.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.services.datastore.impl.distributed.HashRingDatastoreManager;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.DatastoreService;
 import org.openrepose.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

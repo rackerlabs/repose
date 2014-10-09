@@ -6,7 +6,7 @@ import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.http.HeaderConstant;
 import org.openrepose.commons.utils.io.BufferCapacityException;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.services.datastore.api.distributed.RemoteBehavior;
+import org.openrepose.services.datastore.distributed.RemoteBehavior;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.openrepose.services.datastore.api;
+package org.openrepose.services.datastore;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;

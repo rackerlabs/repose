@@ -3,7 +3,7 @@ package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluste
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.services.datastore.api.DatastoreAccessControl;
+import org.openrepose.services.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.config.HostAccessControl;
 import org.slf4j.Logger;

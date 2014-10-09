@@ -1,6 +1,6 @@
-package org.openrepose.services.datastore.api.distributed;
+package org.openrepose.services.datastore.distributed;
 
-import org.openrepose.services.datastore.api.DatastoreOperationException;
+import org.openrepose.services.datastore.DatastoreOperationException;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;

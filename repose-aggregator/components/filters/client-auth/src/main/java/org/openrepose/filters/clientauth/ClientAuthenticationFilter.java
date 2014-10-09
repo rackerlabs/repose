@@ -7,8 +7,8 @@ import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import org.openrepose.services.datastore.api.Datastore;
-import org.openrepose.services.datastore.api.DatastoreService;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.datastore.DatastoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,8 @@
 package com.rackspace.auth.openstack;
 
 
-import org.openrepose.services.serviceclient.akka.api.AkkaServiceClient;
-import org.openrepose.services.httpclient.api.HttpClientService;
+import org.openrepose.services.serviceclient.akka.AkkaServiceClient;
+import org.openrepose.services.httpclient.HttpClientService;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

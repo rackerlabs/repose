@@ -1,20 +1,20 @@
 package com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.services.datastore.api.distributed.ClusterView;
+import org.openrepose.services.datastore.distributed.ClusterView;
 import org.openrepose.services.datastore.impl.distributed.ThreadSafeClusterView;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import org.openrepose.services.datastore.api.DatastoreAccessControl;
+import org.openrepose.services.datastore.DatastoreAccessControl;
 import com.rackspace.papi.service.datastore.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.AccessListDeterminator;
 import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster.utils.ClusterMemberDeterminator;
-import org.openrepose.services.healthcheck.api.HealthCheckService;
-import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy;
-import org.openrepose.services.healthcheck.api.Severity;
+import org.openrepose.services.healthcheck.HealthCheckService;
+import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
+import org.openrepose.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
