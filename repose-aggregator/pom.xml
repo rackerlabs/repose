@@ -954,7 +954,7 @@
                 </configuration>
             </plugin>
 
-            <!--plugin>
+            <plugin>
                 <groupId>org.scalastyle</groupId>
                 <artifactId>scalastyle-maven-plugin</artifactId>
                 <version>0.6.0</version>
@@ -976,56 +976,8 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
 
-
-
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>codenarc</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <taskdef name="codenarc" classname="org.codenarc.ant.CodeNarcTask" classpathref="maven.plugin.classpath"/>
-                                <codenarc
-                                        ruleSetFiles="file:${basedir}/ruleset.xml"
-                                        maxPriority1Violations="0"
-                                        maxPriority2Violations="0"
-                                        maxPriority3Violations="0"
-                                        >
-                                    <report type="xml">
-                                        <option name="outputFile" value="${basedir}/CodeNarc.xml" />
-                                        <option name="title" value="${project.name}" />
-                                    </report>
-                                    <fileset dir="src/test/groovy">
-                                        <include name="**/GroovClass.groovy"/>
-                                    </fileset>
-                                </codenarc>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codenarc</groupId>
-                        <artifactId>CodeNarc</artifactId>
-                        <version>0.21</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>ant</groupId>
-                                <artifactId>ant</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
-            </plugin-->
 
             <!-- this is working now that doxygen is commented out-->
             <plugin>
