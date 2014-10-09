@@ -9,8 +9,8 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.ratelimit.RateLimitingService;
-import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
+import org.openrepose.services.ratelimit.RateLimitingService;
+import org.openrepose.services.ratelimit.exception.OverLimitException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;

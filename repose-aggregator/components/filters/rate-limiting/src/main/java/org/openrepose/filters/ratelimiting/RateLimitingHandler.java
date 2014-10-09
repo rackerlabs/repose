@@ -16,9 +16,9 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.services.datastore.api.DatastoreOperationException;
-import com.rackspace.repose.service.ratelimit.RateLimitingServiceImpl;
-import com.rackspace.repose.service.ratelimit.exception.CacheException;
-import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
+import org.openrepose.services.ratelimit.RateLimitingServiceImpl;
+import org.openrepose.services.ratelimit.exception.CacheException;
+import org.openrepose.services.ratelimit.exception.OverLimitException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
