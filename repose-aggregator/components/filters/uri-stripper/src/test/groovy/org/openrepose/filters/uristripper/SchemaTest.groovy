@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.uristripper
+package org.openrepose.filters.uristripper
 
 import org.junit.Before
 import org.junit.Test

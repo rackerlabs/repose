@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.uristripper;
+package org.openrepose.filters.uristripper;
 
 
 import com.rackspace.papi.components.uristripper.config.UriStripperConfig;
