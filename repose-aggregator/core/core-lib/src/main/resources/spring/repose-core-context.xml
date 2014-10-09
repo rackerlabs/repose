@@ -61,7 +61,7 @@
           class="com.rackspace.papi.service.context.impl.HealthServiceContext"/>
 
     <bean name="healthCheckService" scope="singleton" lazy-init="true"
-          class="com.rackspace.papi.service.healthcheck.HealthCheckServiceImpl"/>
+          class="org.openrepose.services.healthcheck.impl.HealthCheckServiceImpl"/>
 
     <bean name="distributedDatastoreServiceContext"
           class="com.rackspace.papi.service.context.impl.DistributedDatastoreServiceContext"/>

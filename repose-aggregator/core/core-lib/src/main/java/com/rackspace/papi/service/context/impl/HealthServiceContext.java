@@ -2,7 +2,7 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import org.openrepose.services.healthcheck.api.HealthCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.healthcheck;
+package org.openrepose.services.healthcheck.api;
 
 public enum Severity {
 

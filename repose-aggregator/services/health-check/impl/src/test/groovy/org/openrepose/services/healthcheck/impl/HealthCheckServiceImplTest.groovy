@@ -1,7 +1,12 @@
-package com.rackspace.papi.service.healthcheck
+package org.openrepose.services.healthcheck.impl
 
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.services.healthcheck.api.HealthCheckReport
+import org.openrepose.services.healthcheck.api.HealthCheckService
+import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy
+import org.openrepose.services.healthcheck.api.Severity
+import org.openrepose.services.healthcheck.impl.HealthCheckServiceImpl
 
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.hamcrest.CoreMatchers.hasItem

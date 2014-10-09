@@ -13,7 +13,7 @@ import com.rackspace.papi.service.datastore.distributed.impl.distributed.cluster
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
-import com.rackspace.papi.service.healthcheck.HealthCheckService;
+import org.openrepose.services.healthcheck.api.HealthCheckService;
 import com.rackspace.papi.service.httpclient.HttpClientService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.reporting.ReportingService;

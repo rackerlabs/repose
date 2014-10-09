@@ -6,9 +6,9 @@ import com.rackspace.papi.domain.ReposeInstanceInfo
 import com.rackspace.papi.service.ServiceRegistry
 import com.rackspace.papi.service.config.ConfigurationService
 import com.rackspace.papi.service.context.impl.MetricsServiceContext
-import com.rackspace.papi.service.healthcheck.HealthCheckService
-import com.rackspace.papi.service.healthcheck.HealthCheckServiceProxy
-import com.rackspace.papi.service.healthcheck.Severity
+import org.openrepose.services.healthcheck.api.HealthCheckService
+import org.openrepose.services.healthcheck.api.HealthCheckServiceProxy
+import org.openrepose.services.healthcheck.api.Severity
 import org.junit.Before
 import org.junit.Test
 
