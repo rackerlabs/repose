@@ -1,7 +1,7 @@
-package com.rackspace.papi.components.hnorm;
+package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
+import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.reporting.metrics.MetricsService;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;

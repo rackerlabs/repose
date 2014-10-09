@@ -1,8 +1,8 @@
-package com.rackspace.papi.components.hnorm;
+package org.openrepose.filters.headernormalization;
 
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
-import com.rackspace.papi.components.hnorm.util.HeaderNormalizer;
+import org.openrepose.filters.headernormalization.util.CompiledRegexAndList;
+import org.openrepose.filters.headernormalization.util.HeaderNormalizer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;

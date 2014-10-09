@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.hnorm;
+package org.openrepose.filters.headernormalization;
 
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;

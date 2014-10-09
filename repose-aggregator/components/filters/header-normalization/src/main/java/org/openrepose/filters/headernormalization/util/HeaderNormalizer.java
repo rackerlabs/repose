@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.hnorm.util;
+package org.openrepose.filters.headernormalization.util;
 
 import org.openrepose.commons.utils.http.header.HeaderName;
 
