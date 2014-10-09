@@ -1,6 +1,6 @@
-package org.openrepose.filters.cnorm.cnorm
+package org.openrepose.filters.cnorm
 
-import org.openrepose.filters.cnorm.cnorm.normalizer.MediaTypeNormalizer
+import org.openrepose.filters.cnorm.normalizer.MediaTypeNormalizer
 import com.rackspace.papi.components.normalization.config.MediaType
 import com.rackspace.papi.filter.logic.FilterDirector
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl

@@ -1,4 +1,4 @@
-package org.openrepose.filters.cnorm.cnorm
+package org.openrepose.filters.cnorm
 
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName

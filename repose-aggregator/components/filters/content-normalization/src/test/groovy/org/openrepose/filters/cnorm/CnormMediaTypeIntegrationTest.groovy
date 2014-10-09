@@ -1,4 +1,4 @@
-package org.openrepose.filters.cnorm.cnorm
+package org.openrepose.filters.cnorm
 
 import com.mockrunner.mock.web.*
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager

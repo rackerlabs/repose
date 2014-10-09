@@ -1,4 +1,4 @@
-package org.openrepose.filters.cnorm.cnorm
+package org.openrepose.filters.cnorm
 
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
 import spock.lang.Specification

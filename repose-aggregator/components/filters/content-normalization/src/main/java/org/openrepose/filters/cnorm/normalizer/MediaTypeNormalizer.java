@@ -1,4 +1,4 @@
-package org.openrepose.filters.cnorm.cnorm.normalizer;
+package org.openrepose.filters.cnorm.normalizer;
 
 import org.openrepose.commons.utils.StringUtilities;
 import com.rackspace.papi.components.normalization.config.MediaType;
