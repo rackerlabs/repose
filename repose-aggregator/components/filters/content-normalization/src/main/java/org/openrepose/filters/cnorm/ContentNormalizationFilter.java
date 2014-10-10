@@ -1,15 +1,16 @@
 package org.openrepose.filters.cnorm;
 
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServletContextHelper;
-import java.io.IOException;
-import java.net.URL;
-import javax.servlet.*;
+import org.openrepose.filters.cnorm.config.ContentNormalizationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.net.URL;
 
 public class ContentNormalizationFilter implements Filter {
 

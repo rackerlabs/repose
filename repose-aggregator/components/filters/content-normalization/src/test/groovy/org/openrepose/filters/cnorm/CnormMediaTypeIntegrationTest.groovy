@@ -1,14 +1,14 @@
 package org.openrepose.filters.cnorm
 
 import com.mockrunner.mock.web.*
+import groovy.xml.StreamingMarkupBuilder
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import com.rackspace.papi.components.normalization.config.MediaType
 import org.openrepose.core.services.context.ServletContextHelper
 import org.openrepose.core.spring.SpringConfiguration
-import groovy.xml.StreamingMarkupBuilder
+import org.openrepose.filters.cnorm.config.MediaType
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import spock.lang.Shared
 import spock.lang.Specification

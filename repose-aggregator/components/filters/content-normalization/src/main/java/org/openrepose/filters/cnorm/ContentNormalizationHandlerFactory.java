@@ -1,12 +1,12 @@
 package org.openrepose.filters.cnorm;
 
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.filters.cnorm.config.ContentNormalizationConfig;
+import org.openrepose.filters.cnorm.config.HeaderFilterList;
+import org.openrepose.filters.cnorm.config.MediaTypeList;
 import org.openrepose.filters.cnorm.normalizer.HeaderNormalizer;
 import org.openrepose.filters.cnorm.normalizer.MediaTypeNormalizer;
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
-import com.rackspace.papi.components.normalization.config.HeaderFilterList;
-import com.rackspace.papi.components.normalization.config.MediaTypeList;
-import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.HashMap;
 import java.util.Map;

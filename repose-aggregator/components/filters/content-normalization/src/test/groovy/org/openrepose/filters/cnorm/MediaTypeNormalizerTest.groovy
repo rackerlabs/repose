@@ -1,9 +1,9 @@
 package org.openrepose.filters.cnorm
 
-import org.openrepose.filters.cnorm.normalizer.MediaTypeNormalizer
-import com.rackspace.papi.components.normalization.config.MediaType
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.filters.cnorm.config.MediaType
+import org.openrepose.filters.cnorm.normalizer.MediaTypeNormalizer
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-
 
 class MediaTypeNormalizerTest extends Specification {
 

@@ -3,10 +3,10 @@ package org.openrepose.filters.cnorm
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
-import com.rackspace.papi.components.normalization.config.MediaType
-import com.rackspace.papi.components.normalization.config.MediaTypeList
 import org.openrepose.core.filter.logic.FilterDirector
+import org.openrepose.filters.cnorm.config.ContentNormalizationConfig
+import org.openrepose.filters.cnorm.config.MediaType
+import org.openrepose.filters.cnorm.config.MediaTypeList
 import spock.lang.Specification
 import spock.lang.Unroll
 

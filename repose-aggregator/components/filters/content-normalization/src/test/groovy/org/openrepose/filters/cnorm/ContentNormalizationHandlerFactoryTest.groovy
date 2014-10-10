@@ -1,8 +1,7 @@
 package org.openrepose.filters.cnorm
 
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig
+import org.openrepose.filters.cnorm.config.ContentNormalizationConfig
 import spock.lang.Specification
-
 
 class ContentNormalizationHandlerFactoryTest extends Specification {
 

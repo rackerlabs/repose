@@ -1,9 +1,9 @@
 package org.openrepose.filters.cnorm.normalizer;
 
 import org.openrepose.commons.utils.StringUtilities;
-import com.rackspace.papi.components.normalization.config.MediaType;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
+import org.openrepose.filters.cnorm.config.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

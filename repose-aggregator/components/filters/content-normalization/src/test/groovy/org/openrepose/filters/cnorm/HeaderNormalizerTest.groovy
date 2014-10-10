@@ -1,12 +1,12 @@
 package org.openrepose.filters.cnorm
 
 import org.openrepose.commons.utils.http.header.HeaderName
-import org.openrepose.filters.cnorm.normalizer.HeaderNormalizer
-import com.rackspace.papi.components.normalization.config.HeaderFilterList
-import com.rackspace.papi.components.normalization.config.HttpHeader
-import com.rackspace.papi.components.normalization.config.HttpHeaderList
 import org.openrepose.core.filter.logic.FilterDirector
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl
+import org.openrepose.filters.cnorm.config.HeaderFilterList
+import org.openrepose.filters.cnorm.config.HttpHeader
+import org.openrepose.filters.cnorm.config.HttpHeaderList
+import org.openrepose.filters.cnorm.normalizer.HeaderNormalizer
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
