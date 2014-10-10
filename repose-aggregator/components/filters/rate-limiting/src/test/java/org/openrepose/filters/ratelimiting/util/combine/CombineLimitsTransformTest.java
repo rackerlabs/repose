@@ -35,7 +35,7 @@ public class CombineLimitsTransformTest {
     public static final String COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
     public static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
 
-    private final Pattern validationPattern = Pattern.compile(".*(<rates>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
+    private final Pattern validationPattern = Pattern.compile(".*(<rates xmlns.*>.*</rates>).*(<absolute>.*</absolute>).*", Pattern.DOTALL);
     private final Pattern validationPatternJson = Pattern.compile(".*\"rate\":.*(\"absolute\":).*", Pattern.DOTALL);
     private StreamTransform<LimitsTransformPair, OutputStream> combiner;
 

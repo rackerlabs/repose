@@ -1,6 +1,7 @@
 package org.openrepose.services.ratelimit.cache.cache.util
 
 import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter
+import org.openrepose.services.ratelimit.config.TimeUnit
 import spock.lang.Specification
 
 class TimeUnitConverterTest extends Specification {

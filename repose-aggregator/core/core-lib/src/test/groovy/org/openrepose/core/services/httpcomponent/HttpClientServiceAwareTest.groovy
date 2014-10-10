@@ -1,8 +1,8 @@
 package org.openrepose.core.services.httpcomponent
 
-import org.openrepose.services.httpclient.HttpClientService
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.openrepose.services.httpclient.HttpClientService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.test.context.ContextConfiguration
