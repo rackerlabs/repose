@@ -1,6 +1,6 @@
 package org.openrepose.filters.compression;
 
-import com.rackspace.external.pjlcompression.CompressingFilter;
+import org.openrepose.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import org.openrepose.filters.compression.utils.CompressionConfigWrapper;

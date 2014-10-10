@@ -1,6 +1,6 @@
 package org.openrepose.filters.compression;
 
-import com.rackspace.external.pjlcompression.CompressingFilter;
+import org.openrepose.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
 import org.openrepose.core.filter.PowerFilterChain;
