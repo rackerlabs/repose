@@ -1,16 +1,16 @@
 package org.openrepose.filters.ratelimiting;
 
 
-import org.openrepose.commons.utils.transform.Transform;
-import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
-import com.rackspace.repose.service.limits.schema.Limits;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.transform.Transform;
+import org.openrepose.commons.utils.transform.jaxb.StreamToJaxbTransform;
+import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
+import org.openrepose.services.ratelimit.config.Limits;
+import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -40,8 +40,7 @@ public class SchemaTest {
         @Before
         public void standUp() throws Exception {
             jaxbContext = JAXBContext.newInstance(
-                    com.rackspace.repose.service.limits.schema.ObjectFactory.class,
-                    com.rackspace.repose.service.ratelimit.config.ObjectFactory.class);
+                    org.openrepose.services.ratelimit.config.ObjectFactory.class);
 
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 

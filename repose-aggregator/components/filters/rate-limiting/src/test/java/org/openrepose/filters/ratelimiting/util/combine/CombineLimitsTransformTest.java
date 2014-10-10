@@ -1,19 +1,14 @@
 package org.openrepose.filters.ratelimiting.util.combine;
 
-import org.openrepose.commons.utils.transform.StreamTransform;
-import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
-import org.openrepose.filters.ratelimiting.util.TransformHelper;
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.ObjectFactory;
-import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import org.openrepose.services.ratelimit.RateLimitListBuilder;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openrepose.commons.utils.transform.StreamTransform;
+import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
+import org.openrepose.filters.ratelimiting.util.TransformHelper;
+import org.openrepose.services.ratelimit.RateLimitListBuilder;
+import org.openrepose.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.services.ratelimit.config.*;
 
 import javax.xml.bind.JAXBContext;
 import java.io.ByteArrayOutputStream;

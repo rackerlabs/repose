@@ -1,13 +1,12 @@
 package org.openrepose.services.ratelimit.cache
-import com.rackspace.repose.service.limits.schema.HttpMethod
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit
+
 import org.apache.commons.lang3.tuple.Pair
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Test
-import org.openrepose.services.ratelimit.cache.CachedRateLimit
-import org.openrepose.services.ratelimit.cache.UserRateLimit
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit
+import org.openrepose.services.ratelimit.config.HttpMethod
 
 import java.util.concurrent.TimeUnit
 
@@ -28,7 +27,7 @@ class UserRateLimitTest {
         String limitId = "testId"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 1)
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRatelimit)
         startingLimitMap.put(limitId, cachedRateLimit)
@@ -49,8 +48,8 @@ class UserRateLimitTest {
         String limitId2 = "testId2"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 0)
-        ConfiguredRatelimit configuredRatelimit2 = validConfiguredRateLimit(limitId2, uriRegex, [HttpMethod.ALL], com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 0)
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 0)
+        ConfiguredRatelimit configuredRatelimit2 = validConfiguredRateLimit(limitId2, uriRegex, [HttpMethod.ALL], org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 0)
 
         UserRateLimit rateLimit = new UserRateLimit()
 
@@ -68,7 +67,7 @@ class UserRateLimitTest {
         String limitId = "testId"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 1)
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 1)
 
         UserRateLimit rateLimit = new UserRateLimit()
 
@@ -84,7 +83,7 @@ class UserRateLimitTest {
         String limitId = "testId"
         HttpMethod method = HttpMethod.GET
         String uriRegex = "foo"
-        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 1)
+        ConfiguredRatelimit configuredRatelimit = validConfiguredRateLimit(limitId, uriRegex, [method], org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 1)
         HashMap<String, CachedRateLimit> startingLimitMap = new HashMap<String, CachedRateLimit>()
         CachedRateLimit cachedRateLimit = new CachedRateLimit(configuredRatelimit)
         startingLimitMap.put(limitId, cachedRateLimit)
@@ -103,7 +102,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.id = "12345-ABCDE"
         configuredRatelimit.uriRegex = "foo"
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
+        configuredRatelimit.unit = org.openrepose.services.ratelimit.config.TimeUnit.MINUTE
         configuredRatelimit.value = 5
         configuredRatelimit.getHttpMethods().add(HttpMethod.GET)
 
@@ -120,7 +119,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.id = "12345-ABCDE"
         configuredRatelimit.uriRegex = "foo"
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
+        configuredRatelimit.unit = org.openrepose.services.ratelimit.config.TimeUnit.MINUTE
         configuredRatelimit.value = 5
         configuredRatelimit.getHttpMethods().addAll([HttpMethod.GET, HttpMethod.POST])
 
@@ -137,7 +136,7 @@ class UserRateLimitTest {
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.id = "12345-ABCDE"
         configuredRatelimit.uriRegex = "foo"
-        configuredRatelimit.unit = com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE
+        configuredRatelimit.unit = org.openrepose.services.ratelimit.config.TimeUnit.MINUTE
         configuredRatelimit.value = 0
         configuredRatelimit.getHttpMethods().add(HttpMethod.GET)
 
@@ -149,7 +148,7 @@ class UserRateLimitTest {
         assertEquals(userRateLimit.limitMap.get("12345-ABCDE").amount(), 1)
     }
 
-    private ConfiguredRatelimit validConfiguredRateLimit(String limitId, String uriRegex, List<HttpMethod> methods, com.rackspace.repose.service.limits.schema.TimeUnit unit, int value) {
+    private ConfiguredRatelimit validConfiguredRateLimit(String limitId, String uriRegex, List<HttpMethod> methods, org.openrepose.services.ratelimit.config.TimeUnit unit, int value) {
         ConfiguredRatelimit configuredRatelimit = new ConfiguredRatelimit()
         configuredRatelimit.id = limitId
         configuredRatelimit.uriRegex = uriRegex

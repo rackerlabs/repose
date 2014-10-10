@@ -1,6 +1,5 @@
 package org.openrepose.services.ratelimit.cache.cache.util
 
-import com.rackspace.repose.service.limits.schema.TimeUnit
 import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter
 import spock.lang.Specification
 

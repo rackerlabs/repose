@@ -1,27 +1,17 @@
 package org.openrepose.services.ratelimit
 
-import com.rackspace.repose.service.limits.schema.HttpMethod
-import com.rackspace.repose.service.limits.schema.RateLimitList
-import com.rackspace.repose.service.limits.schema.TimeUnit
-import org.openrepose.services.ratelimit.RateLimitServiceTestContext
-import org.openrepose.services.ratelimit.RateLimiter
-import org.openrepose.services.ratelimit.RateLimitingService
-import org.openrepose.services.ratelimit.RateLimitingServiceImpl
+import org.apache.commons.lang3.tuple.Pair
+import org.junit.Before
+import org.junit.Test
 import org.openrepose.services.ratelimit.cache.CachedRateLimit
 import org.openrepose.services.ratelimit.cache.ManagedRateLimitCache
 import org.openrepose.services.ratelimit.cache.NextAvailableResponse
 import org.openrepose.services.ratelimit.cache.RateLimitCache
-import com.rackspace.repose.service.ratelimit.config.*
-import org.openrepose.services.ratelimit.config.ConfiguredRateLimitWrapper
+import org.openrepose.services.ratelimit.config.*
 import org.openrepose.services.ratelimit.exception.OverLimitException
-import org.apache.commons.lang3.tuple.Pair
-import org.junit.Before
-import org.junit.Test
 
 import static org.junit.Assert.*
-import static org.mockito.Matchers.eq
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.anyInt
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 public class RateLimitingServiceImplTest extends RateLimitServiceTestContext {

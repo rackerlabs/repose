@@ -1,11 +1,11 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import org.openrepose.services.ratelimit.config.ConfiguredRateLimitWrapper;
-import org.openrepose.services.ratelimit.config.RateLimitingConfigHelper;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.services.ratelimit.config.ConfiguredLimitGroup;
+import org.openrepose.services.ratelimit.config.ConfiguredRateLimitWrapper;
+import org.openrepose.services.ratelimit.config.RateLimitingConfigHelper;
+import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

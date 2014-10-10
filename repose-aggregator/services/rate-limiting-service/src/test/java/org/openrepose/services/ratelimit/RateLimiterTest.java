@@ -1,15 +1,15 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.cache.NextAvailableResponse;
-import org.openrepose.services.ratelimit.cache.RateLimitCache;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-import org.openrepose.services.ratelimit.exception.CacheException;
-import org.openrepose.services.ratelimit.exception.OverLimitException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.services.ratelimit.cache.NextAvailableResponse;
+import org.openrepose.services.ratelimit.cache.RateLimitCache;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.TimeUnit;
+import org.openrepose.services.ratelimit.exception.CacheException;
+import org.openrepose.services.ratelimit.exception.OverLimitException;
 
 import java.io.IOException;
 import java.util.ArrayList;

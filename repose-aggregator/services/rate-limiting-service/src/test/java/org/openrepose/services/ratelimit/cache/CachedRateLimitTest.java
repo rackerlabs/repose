@@ -1,11 +1,10 @@
 package org.openrepose.services.ratelimit.cache;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.HttpMethod;
+import org.openrepose.services.ratelimit.config.TimeUnit;
 
 import java.util.LinkedList;
 

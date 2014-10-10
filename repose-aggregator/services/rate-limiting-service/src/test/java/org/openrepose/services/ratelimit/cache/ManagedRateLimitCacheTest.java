@@ -1,14 +1,14 @@
 package org.openrepose.services.ratelimit.cache;
 
-import org.openrepose.services.datastore.Datastore;
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ public class ManagedRateLimitCacheTest {
         defaultConfig.setUri(".*");
         defaultConfig.setUriRegex(".*");
         defaultConfig.setValue(2);
-        defaultConfig.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+        defaultConfig.setUnit(org.openrepose.services.ratelimit.config.TimeUnit.MINUTE);
         defaultConfig.getHttpMethods().add(HttpMethod.GET);
     }
 
@@ -69,7 +69,7 @@ public class ManagedRateLimitCacheTest {
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(new UserRateLimit(limitMap));
         ArrayList< Pair<String, ConfiguredRatelimit> > matchingLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
-        rateLimitCache.updateLimit("bob", matchingLimits, com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 5);
+        rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 5);
         verify(datastore).patch(eq("bob"), any(UserRateLimit.Patch.class), eq(1), eq(TimeUnit.MINUTES));
     }
 
@@ -85,7 +85,7 @@ public class ManagedRateLimitCacheTest {
         when(datastore.patch(any(String.class), any(UserRateLimit.Patch.class), anyInt(), any(TimeUnit.class))).thenReturn(returnedLimit);
         ArrayList< Pair<String, ConfiguredRatelimit> > matchingLimits = new ArrayList< Pair<String, ConfiguredRatelimit> >();
         matchingLimits.add(Pair.of("testKey", defaultConfig));
-        NextAvailableResponse response = rateLimitCache.updateLimit("bob", matchingLimits, com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE, 5);
+        NextAvailableResponse response = rateLimitCache.updateLimit("bob", matchingLimits, org.openrepose.services.ratelimit.config.TimeUnit.MINUTE, 5);
         assertThat(response, hasValues(true, now, 1));
     }
 

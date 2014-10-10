@@ -3,13 +3,10 @@ package org.openrepose.filters.ipidentity;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.filters.ipidentity.IpIdentityGroup;
-import org.openrepose.filters.ipidentity.IpIdentityHandler;
-import org.openrepose.filters.ipidentity.IpIdentityHandlerFactory;
+import org.openrepose.filters.ipidentity.config.IpIdentityConfig;
 
 import javax.servlet.http.HttpServletRequest;
 

@@ -1,9 +1,6 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.*;
-import org.openrepose.services.ratelimit.config.ConfiguredRateLimitWrapper;
+import org.openrepose.services.ratelimit.config.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,10 +1,9 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.HttpMethod;
+import org.openrepose.services.ratelimit.config.TimeUnit;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class RateLimitServiceTestContext {

@@ -1,19 +1,5 @@
 package org.openrepose.filters.ratelimiting;
 
-import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.http.media.MimeType;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import org.openrepose.services.datastore.Patch;
-import org.openrepose.services.datastore.distributed.DistributedDatastore;
-import org.openrepose.core.filter.logic.FilterAction;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.services.datastore.DatastoreService;
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import org.openrepose.services.ratelimit.cache.UserRateLimit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,6 +7,20 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.openrepose.commons.utils.http.HttpStatusCode;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.http.media.MimeType;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterAction;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.services.datastore.DatastoreService;
+import org.openrepose.services.datastore.Patch;
+import org.openrepose.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.services.ratelimit.cache.CachedRateLimit;
+import org.openrepose.services.ratelimit.cache.UserRateLimit;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -70,7 +70,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         defaultConfig.setUriRegex(".*");
         defaultConfig.getHttpMethods().add(HttpMethod.GET);
         defaultConfig.setValue(10);
-        defaultConfig.setUnit(com.rackspace.repose.service.limits.schema.TimeUnit.MINUTE);
+        defaultConfig.setUnit(org.openrepose.services.ratelimit.config.TimeUnit.MINUTE);
 
       when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
 

@@ -1,18 +1,12 @@
 package org.openrepose.filters.ratelimiting;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.repose.service.ratelimit.config.RequestEndpoint;
+import org.openrepose.services.ratelimit.config.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 
 public abstract class RateLimitingTestSupport {
 
