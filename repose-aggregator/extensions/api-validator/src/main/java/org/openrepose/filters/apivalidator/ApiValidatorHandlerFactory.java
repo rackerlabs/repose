@@ -5,8 +5,8 @@ import org.openrepose.commons.config.parser.generic.GenericResourceConfiguration
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.core.service.config.ConfigurationService;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

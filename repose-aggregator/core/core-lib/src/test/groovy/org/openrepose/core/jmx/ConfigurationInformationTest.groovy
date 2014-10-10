@@ -4,7 +4,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
 import com.rackspace.papi.model.*
-import org.openrepose.core.service.config.ConfigurationService
+import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.services.healthcheck.HealthCheckService
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.services.healthcheck.Severity

@@ -1,6 +1,6 @@
 package org.openrepose.core.jmx;
 
-import org.openrepose.core.service.reporting.jmx.CompositeDataBuilder;
+import org.openrepose.core.services.reporting.jmx.CompositeDataBuilder;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;

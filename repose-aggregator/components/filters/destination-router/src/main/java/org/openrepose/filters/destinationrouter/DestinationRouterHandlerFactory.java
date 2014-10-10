@@ -2,7 +2,7 @@ package org.openrepose.filters.destinationrouter;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.filters.routing.servlet.config.DestinationRouterConfiguration;
 import org.openrepose.filters.routing.servlet.config.Target;
 import org.slf4j.Logger;

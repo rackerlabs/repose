@@ -5,11 +5,11 @@ import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
-import org.openrepose.core.service.context.ContextAdapter;
-import org.openrepose.core.service.context.ServletContextHelper;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.context.ContextAdapter;
+import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.services.healthcheck.HealthCheckService;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 
 import javax.servlet.*;

@@ -3,8 +3,8 @@ package org.openrepose.filters.headeridentity;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.openrepose.core.service.config.ConfigurationService;
-import org.openrepose.core.service.context.ServletContextHelper;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.context.ServletContextHelper;
 
 import javax.servlet.*;
 import java.io.IOException;

@@ -1,7 +1,7 @@
 package org.openrepose.core.valve.jetty.servlet;
 
 import org.openrepose.commons.utils.http.HttpStatusCode;
-import org.openrepose.core.service.context.impl.PowerApiContextManager;
+import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

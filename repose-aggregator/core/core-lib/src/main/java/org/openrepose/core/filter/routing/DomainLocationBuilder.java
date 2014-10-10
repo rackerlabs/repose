@@ -3,7 +3,7 @@ package org.openrepose.core.filter.routing;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.Node;
-import org.openrepose.core.service.routing.RoutingService;
+import org.openrepose.core.services.routing.RoutingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

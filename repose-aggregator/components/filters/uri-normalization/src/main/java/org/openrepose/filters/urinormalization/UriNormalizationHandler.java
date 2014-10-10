@@ -8,8 +8,8 @@ import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 import org.openrepose.core.filters.UriNormalization;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
-import org.openrepose.core.service.reporting.metrics.impl.MeterByCategorySum;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.impl.MeterByCategorySum;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;

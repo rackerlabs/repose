@@ -7,8 +7,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import com.rackspace.papi.components.rackspace.identity.basicauth.config.RackspaceIdentityBasicAuthConfig
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate
-import org.openrepose.core.service.config.ConfigurationService
-import org.openrepose.core.service.context.ServletContextHelper
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.context.ServletContextHelper
 import org.slf4j.LoggerFactory
 
 class RackspaceIdentityBasicAuthFilter extends Filter {

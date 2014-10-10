@@ -16,7 +16,7 @@ import com.rackspace.papi.model.SystemModel;
 import org.openrepose.services.healthcheck.HealthCheckService;
 import org.openrepose.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.services.healthcheck.Severity;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

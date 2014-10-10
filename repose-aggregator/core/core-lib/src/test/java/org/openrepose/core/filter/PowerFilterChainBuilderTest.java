@@ -9,7 +9,7 @@ import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.domain.ServicePorts;
 import com.rackspace.papi.model.*;
-import org.openrepose.core.service.classloader.ClassLoaderManagerService;
+import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

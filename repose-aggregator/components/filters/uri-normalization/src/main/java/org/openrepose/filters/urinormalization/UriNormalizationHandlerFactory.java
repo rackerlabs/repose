@@ -9,7 +9,7 @@ import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.core.service.reporting.metrics.MetricsService;
+import org.openrepose.core.services.reporting.metrics.MetricsService;
 
 import java.util.Collection;
 import java.util.HashMap;

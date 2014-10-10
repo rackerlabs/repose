@@ -4,7 +4,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.services.config.ConfigurationService;
 
 import java.util.HashSet;
 import java.util.Set;

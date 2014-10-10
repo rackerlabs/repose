@@ -21,7 +21,7 @@
     
     <listener>
         <display-name>Repose Context Loader</display-name>
-        <listener-class>org.openrepose.core.service.context.impl.PowerApiContextManager</listener-class>
+        <listener-class>org.openrepose.core.services.context.impl.PowerApiContextManager</listener-class>
     </listener>
 
     <!-- Servlets -->

@@ -34,7 +34,7 @@
     </bean>
 
     <!-- Service Contexts -->
-    <bean name="artifactManagerServiceContext" class="org.openrepose.core.service.deploy.ArtifactManagerServiceContext">
+    <bean name="artifactManagerServiceContext" class="org.openrepose.core.services.deploy.ArtifactManagerServiceContext">
         <constructor-arg index="0" ref="artifactManager"/>
         <constructor-arg index="1" ref="eventManager"/>
         <constructor-arg index="2" ref="containerConfigurationListener"/>
@@ -43,30 +43,30 @@
         <constructor-arg index="5" ref="threadingServiceContext"/>
     </bean>
 
-    <bean name="loggingServiceContext" class="org.openrepose.core.service.context.impl.LoggingServiceContext">
+    <bean name="loggingServiceContext" class="org.openrepose.core.services.context.impl.LoggingServiceContext">
         <constructor-arg index="0" ref="loggingService"/>
         <constructor-arg index="1" ref="serviceRegistry"/>
         <constructor-arg index="2" ref="configurationManager"/>
     </bean>
 
     <!-- Services -->
-    <bean name="artifactManager" class="org.openrepose.core.service.deploy.ArtifactManager">
+    <bean name="artifactManager" class="org.openrepose.core.services.deploy.ArtifactManager">
         <constructor-arg index="0" ref="containerConfigurationListener"/>
     </bean>
 
     <bean name="loggingService"
-          class="org.openrepose.core.service.logging.LoggingServiceImpl"/>
+          class="org.openrepose.core.services.logging.LoggingServiceImpl"/>
 
     <bean name="healthCheckServiceContext"
-          class="org.openrepose.core.service.context.impl.HealthServiceContext"/>
+          class="org.openrepose.core.services.context.impl.HealthServiceContext"/>
 
     <bean name="healthCheckService" scope="singleton" lazy-init="true"
           class="org.openrepose.services.healthcheck.impl.HealthCheckServiceImpl"/>
 
     <bean name="distributedDatastoreServiceContext"
-          class="org.openrepose.core.service.context.impl.DistributedDatastoreServiceContext"/>
+          class="org.openrepose.core.services.context.impl.DistributedDatastoreServiceContext"/>
 
     <bean name="distributedDatastoreServiceClusterContext"
-          class="org.openrepose.core.service.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
+          class="org.openrepose.core.services.datastore.distributed.impl.distributed.cluster.DistributedDatastoreServiceClusterContext"/>
 
 </beans>

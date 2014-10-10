@@ -5,7 +5,7 @@ import org.openrepose.core.domain.Port
 import org.openrepose.core.domain.ServicePorts
 import com.rackspace.papi.model.SystemModel
 import org.openrepose.services.healthcheck.HealthCheckService
-import org.openrepose.core.service.reporting.metrics.MetricsService
+import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.mockito.Mockito
 import spock.lang.Specification
 

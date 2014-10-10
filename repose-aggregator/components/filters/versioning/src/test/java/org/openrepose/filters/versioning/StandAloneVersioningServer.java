@@ -4,7 +4,7 @@ import org.openrepose.core.filter.PowerFilter;
 import org.openrepose.commons.utils.jetty.JettyException;
 import org.openrepose.commons.utils.jetty.JettyServerBuilder;
 import org.openrepose.commons.utils.jetty.JettyTestingContext;
-import org.openrepose.core.service.context.impl.PowerApiContextManager;
+import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.openrepose.core.servlet.InitParameter;
 import org.openrepose.commons.utils.test.DummyServlet;
 

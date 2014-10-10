@@ -5,7 +5,7 @@ import org.openrepose.core.domain.ReposeInstanceInfo;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import org.openrepose.core.service.classloader.ClassLoaderManagerService;
+import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;

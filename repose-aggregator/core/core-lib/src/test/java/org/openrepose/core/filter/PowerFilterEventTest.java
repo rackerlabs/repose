@@ -1,6 +1,6 @@
 package org.openrepose.core.filter;
 
-import org.openrepose.core.service.event.PowerFilterEvent;
+import org.openrepose.core.services.event.PowerFilterEvent;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

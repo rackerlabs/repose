@@ -10,12 +10,12 @@
     <bean name="httpConnectionPoolService" scope="singleton"
           class="org.openrepose.services.httpclient.impl.HttpConnectionPoolServiceImpl"/>
 
-    <bean name="requestProxyService" class="org.openrepose.core.service.proxy.httpcomponent.RequestProxyServiceImpl">
+    <bean name="requestProxyService" class="org.openrepose.core.services.httpcomponent.RequestProxyServiceImpl">
         <property name="httpClientService" ref="httpConnectionPoolService"/>
     </bean>
 
     <bean name="httpConnectionPoolServiceContext"
-          class="org.openrepose.core.service.context.impl.HttpConnectionPoolServiceContext">
+          class="org.openrepose.core.services.context.impl.HttpConnectionPoolServiceContext">
       
         <constructor-arg index="0" ref="serviceRegistry"/>
         <constructor-arg index="1" ref="configurationManager"/>
@@ -29,7 +29,7 @@
     </bean>
 
     <bean name="akkaServiceClientContext"
-          class="org.openrepose.core.service.context.impl.AkkaServiceClientContext">
+          class="org.openrepose.core.services.context.impl.AkkaServiceClientContext">
 
         <constructor-arg index="0" ref="serviceRegistry"/>
         <constructor-arg index="1" ref="akkaServiceClientService"/>

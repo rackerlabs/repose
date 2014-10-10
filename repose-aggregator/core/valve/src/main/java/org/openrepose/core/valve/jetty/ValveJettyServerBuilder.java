@@ -6,7 +6,7 @@ import org.openrepose.core.domain.Port;
 import org.openrepose.core.domain.ReposeInstanceInfo;
 import org.openrepose.core.domain.ServicePorts;
 import org.openrepose.core.filter.ValvePowerFilter;
-import org.openrepose.core.service.context.impl.PowerApiContextManager;
+import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.openrepose.core.servlet.InitParameter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;

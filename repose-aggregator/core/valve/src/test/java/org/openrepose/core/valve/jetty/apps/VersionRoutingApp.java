@@ -3,7 +3,7 @@ package org.openrepose.core.valve.jetty.apps;
 import org.openrepose.core.valve.jetty.servlet.VersionOneServlet;
 import org.openrepose.core.valve.jetty.servlet.VersionTwoServlet;
 import org.openrepose.filters.versioning.VersioningFilter;
-import org.openrepose.core.service.context.impl.PowerApiContextManager;
+import org.openrepose.core.services.context.impl.PowerApiContextManager;
 import org.openrepose.core.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;

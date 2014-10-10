@@ -1,11 +1,11 @@
 package org.openrepose.core.servlet.boot.service.config;
 
-import org.openrepose.core.service.config.impl.PowerApiConfigurationManager;
-import org.openrepose.core.service.context.ContextAdapter;
-import org.openrepose.core.service.context.ServletContextHelper;
-import org.openrepose.core.service.context.impl.ConfigurationServiceContext;
-import org.openrepose.core.service.event.common.EventService;
-import org.openrepose.core.service.threading.ThreadingService;
+import org.openrepose.core.services.config.impl.PowerApiConfigurationManager;
+import org.openrepose.core.services.context.ContextAdapter;
+import org.openrepose.core.services.context.ServletContextHelper;
+import org.openrepose.core.services.context.impl.ConfigurationServiceContext;
+import org.openrepose.core.services.event.common.EventService;
+import org.openrepose.core.services.threading.ThreadingService;
 import org.openrepose.core.servlet.InitParameter;
 import org.openrepose.core.servlet.PowerApiContextException;
 import org.junit.Before;

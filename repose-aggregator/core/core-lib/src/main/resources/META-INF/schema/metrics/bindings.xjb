@@ -6,6 +6,6 @@
           schemaLocation="metrics.xsd">
 
     <schemaBindings>
-        <package name="org.openrepose.core.service.reporting.metrics.config" />
+        <package name="org.openrepose.core.services.reporting.metrics.config" />
     </schemaBindings>
 </bindings>

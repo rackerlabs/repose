@@ -1,14 +1,14 @@
 package org.openrepose.core.valve.services.controller.impl;
 
-import org.openrepose.core.service.ServiceRegistry;
-import org.openrepose.core.service.context.ContextAdapter;
-import org.openrepose.core.service.context.ServiceContext;
-import org.openrepose.core.service.context.ServletContextHelper;
-import org.openrepose.core.service.context.impl.ConfigurationServiceContext;
-import org.openrepose.core.service.context.impl.EventManagerServiceContext;
-import org.openrepose.core.service.context.impl.LoggingServiceContext;
-import org.openrepose.core.service.context.impl.ReportingServiceContext;
-import org.openrepose.core.service.threading.impl.ThreadingServiceContext;
+import org.openrepose.core.services.ServiceRegistry;
+import org.openrepose.core.services.context.ContextAdapter;
+import org.openrepose.core.services.context.ServiceContext;
+import org.openrepose.core.services.context.ServletContextHelper;
+import org.openrepose.core.services.context.impl.ConfigurationServiceContext;
+import org.openrepose.core.services.context.impl.EventManagerServiceContext;
+import org.openrepose.core.services.context.impl.LoggingServiceContext;
+import org.openrepose.core.services.context.impl.ReportingServiceContext;
+import org.openrepose.core.services.threading.impl.ThreadingServiceContext;
 import org.openrepose.core.spring.SpringConfiguration;
 import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;

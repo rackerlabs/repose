@@ -4,7 +4,7 @@ import org.openrepose.commons.config.parser.generic.GenericResourceConfiguration
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.http.header.HeaderValueImpl;
-import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

@@ -1,7 +1,7 @@
 package org.openrepose.core.filter;
 
 import org.openrepose.core.proxy.HttpRequestDispatcher;
-import org.openrepose.core.service.context.ServletContextHelper;
+import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.servlet.InitParameter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;

@@ -3,8 +3,8 @@ package org.openrepose.filters.translation;
 import org.openrepose.filters.translation.config.TranslationConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.openrepose.core.service.config.ConfigurationService;
-import org.openrepose.core.service.context.ServletContextHelper;
+import org.openrepose.core.services.config.ConfigurationService;
+import org.openrepose.core.services.context.ServletContextHelper;
 import org.openrepose.core.servlet.InitParameter;
 import org.slf4j.Logger;
 

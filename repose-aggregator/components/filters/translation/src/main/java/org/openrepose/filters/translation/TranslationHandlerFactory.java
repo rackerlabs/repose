@@ -8,7 +8,7 @@ import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlFilterChain;
 import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import org.openrepose.filters.translation.xslt.xmlfilterchain.XmlFilterChainFactory;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 

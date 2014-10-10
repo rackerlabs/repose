@@ -6,8 +6,8 @@ import com.rackspace.papi.model.DestinationEndpoint
 import com.rackspace.papi.model.DestinationList
 import com.rackspace.papi.model.ReposeCluster
 import com.rackspace.papi.model.SystemModel
-import org.openrepose.core.service.ServiceRegistry
-import org.openrepose.core.service.config.ConfigurationService
+import org.openrepose.core.services.ServiceRegistry
+import org.openrepose.core.services.config.ConfigurationService
 import spock.lang.Specification
 
 import javax.servlet.ServletContextEvent

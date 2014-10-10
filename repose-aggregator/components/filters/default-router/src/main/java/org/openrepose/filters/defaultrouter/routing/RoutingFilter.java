@@ -2,7 +2,7 @@ package org.openrepose.filters.defaultrouter.routing;
 
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
-import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.services.config.ConfigurationService;
 import java.io.IOException;
 import javax.servlet.*;
 import org.springframework.context.ApplicationContext;

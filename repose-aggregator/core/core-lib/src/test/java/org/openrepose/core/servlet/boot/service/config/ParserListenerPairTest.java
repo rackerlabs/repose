@@ -1,6 +1,6 @@
 package org.openrepose.core.servlet.boot.service.config;
 
-import org.openrepose.core.service.config.impl.ParserListenerPair;
+import org.openrepose.core.services.config.impl.ParserListenerPair;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

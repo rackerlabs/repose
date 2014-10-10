@@ -7,7 +7,7 @@ import org.openrepose.commons.utils.servlet.http.MutableHttpServletResponse;
 import org.openrepose.filters.translation.config.*;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.service.config.ConfigurationService;
+import org.openrepose.core.services.config.ConfigurationService;
 import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;

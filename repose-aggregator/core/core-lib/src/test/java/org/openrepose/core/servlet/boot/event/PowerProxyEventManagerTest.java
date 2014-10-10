@@ -1,10 +1,10 @@
 package org.openrepose.core.servlet.boot.event;
 
-import org.openrepose.core.service.event.PowerProxyEventManager;
-import org.openrepose.core.service.event.common.Event;
-import org.openrepose.core.service.event.common.EventDispatcher;
-import org.openrepose.core.service.event.common.EventListener;
-import org.openrepose.core.service.event.common.EventService;
+import org.openrepose.core.services.event.PowerProxyEventManager;
+import org.openrepose.core.services.event.common.Event;
+import org.openrepose.core.services.event.common.EventDispatcher;
+import org.openrepose.core.services.event.common.EventListener;
+import org.openrepose.core.services.event.common.EventService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

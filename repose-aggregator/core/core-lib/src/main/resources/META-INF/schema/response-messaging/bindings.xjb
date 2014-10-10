@@ -6,6 +6,6 @@
         schemaLocation="response-messaging.xsd">
           
     <schemaBindings>
-        <package name="org.openrepose.core.service.rms.config" />
+        <package name="org.openrepose.core.services.rms.config" />
     </schemaBindings>
 </bindings>
