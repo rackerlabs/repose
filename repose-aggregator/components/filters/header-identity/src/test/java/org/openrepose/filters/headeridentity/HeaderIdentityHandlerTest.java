@@ -1,17 +1,17 @@
 package org.openrepose.filters.headeridentity;
 
-import org.openrepose.commons.utils.http.PowerApiHeader;
-import org.openrepose.commons.utils.http.header.HeaderName;
-import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
-import com.rackspace.papi.components.identity.header.config.HttpHeader;
-import com.rackspace.papi.components.identity.header.config.HttpHeaderList;
-import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.PowerApiHeader;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.filters.headeridentity.config.HeaderIdentityConfig;
+import org.openrepose.filters.headeridentity.config.HttpHeader;
+import org.openrepose.filters.headeridentity.config.HttpHeaderList;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
@@ -45,7 +45,6 @@ public class HeaderIdentityHandlerTest {
             factory = new HeaderIdentityHandlerFactory();
             config = new HeaderIdentityConfig();
             HttpHeaderList headerList = new HttpHeaderList();
-            
 
             // Tell the handler to look for two headers called IP1 and IP2
             //config.setQuality(QUALITY);

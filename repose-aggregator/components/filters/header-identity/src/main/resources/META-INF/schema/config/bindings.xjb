@@ -6,6 +6,6 @@
         schemaLocation="header-identity-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.components.identity.header.config" />
+        <package name="org.openrepose.filters.headeridentity.config" />
     </schemaBindings>
 </bindings>

@@ -1,6 +1,5 @@
 package org.openrepose.filters.headeridentity;
 
-import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -9,6 +8,8 @@ import org.openrepose.core.services.context.ServletContextHelper;
 import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
+
+import org.openrepose.filters.headeridentity.config.HeaderIdentityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

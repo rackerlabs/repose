@@ -1,11 +1,11 @@
 package org.openrepose.filters.headeridentity.extractor;
 
-import org.openrepose.commons.utils.regex.ExtractorResult;
-import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.regex.ExtractorResult;
+import org.openrepose.filters.headeridentity.config.HttpHeader;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

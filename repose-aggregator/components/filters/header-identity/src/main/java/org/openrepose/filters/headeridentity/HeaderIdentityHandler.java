@@ -3,13 +3,13 @@ package org.openrepose.filters.headeridentity;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.regex.ExtractorResult;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.header.config.HttpHeader;
-import org.openrepose.filters.headeridentity.extractor.HeaderValueExtractor;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.headeridentity.config.HttpHeader;
+import org.openrepose.filters.headeridentity.extractor.HeaderValueExtractor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

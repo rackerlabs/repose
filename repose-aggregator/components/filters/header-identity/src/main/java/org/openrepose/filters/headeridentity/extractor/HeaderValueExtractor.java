@@ -1,7 +1,7 @@
 package org.openrepose.filters.headeridentity.extractor;
 
 import org.openrepose.commons.utils.regex.ExtractorResult;
-import com.rackspace.papi.components.identity.header.config.HttpHeader;
+import org.openrepose.filters.headeridentity.config.HttpHeader;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
