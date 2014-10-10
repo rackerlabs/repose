@@ -1,9 +1,9 @@
-package org.openrepose.filters.clientipidentity;
+package org.openrepose.filters.ipidentity;
 
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.net.IpAddressRange;
-import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.openrepose.filters.ipidentity.config.IpIdentityConfig;
 import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;

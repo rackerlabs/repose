@@ -6,6 +6,6 @@
         schemaLocation="ip-identity-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.components.identity.ip.config" />
+        <package name="org.openrepose.filters.ipidentity.config" />
     </schemaBindings>
 </bindings>

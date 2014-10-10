@@ -89,7 +89,7 @@
 
     <filter>
         <filter-name>ip-identity</filter-name>
-        <filter-class>org.openrepose.filters.clientipidentity.IpIdentityFilter</filter-class>
+        <filter-class>org.openrepose.filters.ipidentity.IpIdentityFilter</filter-class>
     </filter>
 
     <filter>

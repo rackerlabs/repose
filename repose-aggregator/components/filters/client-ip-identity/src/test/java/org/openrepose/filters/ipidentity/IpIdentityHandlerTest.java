@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientipidentity;
+package org.openrepose.filters.ipidentity;
 
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
@@ -10,6 +10,9 @@ import com.rackspace.papi.components.identity.ip.config.WhiteList;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.filters.ipidentity.IpIdentityGroup;
+import org.openrepose.filters.ipidentity.IpIdentityHandler;
+import org.openrepose.filters.ipidentity.IpIdentityHandlerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.UnknownHostException;

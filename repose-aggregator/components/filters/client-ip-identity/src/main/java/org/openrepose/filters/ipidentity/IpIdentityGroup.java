@@ -1,4 +1,4 @@
-package org.openrepose.filters.clientipidentity;
+package org.openrepose.filters.ipidentity;
 
 
 public final class IpIdentityGroup {

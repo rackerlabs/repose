@@ -1,17 +1,17 @@
-package org.openrepose.filters.clientipidentity;
+package org.openrepose.filters.ipidentity;
 
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.net.IpAddressRange;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
-import com.rackspace.papi.components.identity.ip.config.WhiteList;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;
 import org.openrepose.core.filter.logic.common.AbstractFilterLogicHandler;
 import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.ipidentity.config.IpIdentityConfig;
+import org.openrepose.filters.ipidentity.config.WhiteList;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
