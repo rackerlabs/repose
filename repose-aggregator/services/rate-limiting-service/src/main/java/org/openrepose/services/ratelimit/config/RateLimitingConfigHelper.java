@@ -1,9 +1,5 @@
 package org.openrepose.services.ratelimit.config;
 
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.repose.service.ratelimit.config.GlobalLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

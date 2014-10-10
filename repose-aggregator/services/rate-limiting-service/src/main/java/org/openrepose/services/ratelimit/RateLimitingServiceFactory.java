@@ -1,7 +1,7 @@
 package org.openrepose.services.ratelimit;
 
 import org.openrepose.services.ratelimit.cache.RateLimitCache;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
 
 public final class RateLimitingServiceFactory {
 

@@ -3,10 +3,10 @@ package org.openrepose.filters.ratelimiting.util;
 import org.openrepose.commons.utils.transform.StreamTransform;
 import org.openrepose.commons.utils.transform.jaxb.JaxbToStreamTransform;
 import org.openrepose.commons.utils.transform.xslt.StreamToXsltTransform;
-import com.rackspace.repose.service.limits.schema.Limits;
-import com.rackspace.repose.service.limits.schema.ObjectFactory;
 import org.openrepose.filters.ratelimiting.util.combine.CombinedLimitsTransformer;
 import org.openrepose.filters.ratelimiting.util.combine.LimitsTransformPair;
+import org.openrepose.services.ratelimit.config.Limits;
+import org.openrepose.services.ratelimit.config.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

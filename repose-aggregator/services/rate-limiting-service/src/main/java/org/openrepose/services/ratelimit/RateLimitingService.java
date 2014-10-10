@@ -1,6 +1,6 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.RateLimitList;
+import org.openrepose.services.ratelimit.config.RateLimitList;
 import org.openrepose.services.ratelimit.exception.OverLimitException;
 
 import java.util.List;

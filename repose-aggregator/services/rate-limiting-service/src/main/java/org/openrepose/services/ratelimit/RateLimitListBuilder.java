@@ -1,12 +1,7 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.RateLimit;
-import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.limits.schema.ResourceRateLimits;
 import org.openrepose.services.ratelimit.cache.CachedRateLimit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.*;
 import org.slf4j.Logger;
 
 import javax.xml.datatype.DatatypeConfigurationException;

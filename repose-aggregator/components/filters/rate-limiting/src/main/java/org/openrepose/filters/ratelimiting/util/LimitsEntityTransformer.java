@@ -3,8 +3,8 @@ package org.openrepose.filters.ratelimiting.util;
 import org.openrepose.commons.utils.transform.Transform;
 import org.openrepose.commons.utils.transform.jaxb.JaxbEntityToXml;
 import org.openrepose.commons.utils.transform.xslt.JaxbXsltToStringTransform;
-import com.rackspace.repose.service.limits.schema.Limits;
-import com.rackspace.repose.service.limits.schema.ObjectFactory;
+import org.openrepose.services.ratelimit.config.Limits;
+import org.openrepose.services.ratelimit.config.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

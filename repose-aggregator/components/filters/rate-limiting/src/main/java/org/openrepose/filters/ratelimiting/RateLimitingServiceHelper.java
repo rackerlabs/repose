@@ -8,8 +8,8 @@ import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.MutableHttpServletRequest;
 import org.openrepose.filters.ratelimiting.write.ActiveLimitsWriter;
 import org.openrepose.filters.ratelimiting.write.CombinedLimitsWriter;
-import com.rackspace.repose.service.limits.schema.RateLimitList;
 import org.openrepose.services.ratelimit.RateLimitingService;
+import org.openrepose.services.ratelimit.config.RateLimitList;
 import org.openrepose.services.ratelimit.exception.OverLimitException;
 
 import javax.servlet.http.HttpServletRequest;

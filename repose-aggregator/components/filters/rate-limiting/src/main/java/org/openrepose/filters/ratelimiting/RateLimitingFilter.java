@@ -5,7 +5,7 @@ import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.service.config.ConfigurationService;
 import org.openrepose.core.service.context.ContextAdapter;
 import org.openrepose.core.service.context.ServletContextHelper;
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import org.openrepose.services.ratelimit.config.RateLimitingConfiguration;
 import org.slf4j.Logger;
 
 import javax.servlet.*;

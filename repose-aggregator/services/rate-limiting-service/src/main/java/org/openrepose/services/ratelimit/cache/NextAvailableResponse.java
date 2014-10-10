@@ -1,7 +1,7 @@
 package org.openrepose.services.ratelimit.cache;
 
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
 
 import java.util.Date;
 

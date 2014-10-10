@@ -1,9 +1,5 @@
 package org.openrepose.services.ratelimit.config;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
-
 import java.util.List;
 import java.util.regex.Pattern;
 

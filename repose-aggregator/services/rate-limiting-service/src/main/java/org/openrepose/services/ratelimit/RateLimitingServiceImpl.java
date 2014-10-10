@@ -1,16 +1,11 @@
 package org.openrepose.services.ratelimit;
 
-import com.rackspace.repose.service.limits.schema.HttpMethod;
-import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openrepose.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.services.ratelimit.cache.RateLimitCache;
-import com.rackspace.repose.service.ratelimit.config.*;
-import org.openrepose.services.ratelimit.config.ConfiguredRateLimitWrapper;
+import org.openrepose.services.ratelimit.config.*;
 import org.openrepose.services.ratelimit.exception.OverLimitException;
 import org.openrepose.services.ratelimit.utils.StringUtilities;
-import org.apache.commons.lang3.tuple.Pair;
-import org.openrepose.services.ratelimit.config.RateLimitingConfigHelper;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;

@@ -4,9 +4,8 @@ import org.openrepose.commons.utils.pooling.SimpleResourceContext;
 import org.openrepose.commons.utils.transform.StreamTransform;
 import org.openrepose.commons.utils.transform.xslt.AbstractXslTransform;
 import org.openrepose.commons.utils.transform.xslt.XsltTransformationException;
-
-import com.rackspace.repose.service.limits.schema.Limits;
-import com.rackspace.repose.service.limits.schema.ObjectFactory;
+import org.openrepose.services.ratelimit.config.Limits;
+import org.openrepose.services.ratelimit.config.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.util.JAXBSource;

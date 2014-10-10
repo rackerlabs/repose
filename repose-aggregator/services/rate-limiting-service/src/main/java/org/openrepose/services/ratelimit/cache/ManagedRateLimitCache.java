@@ -1,10 +1,10 @@
 package org.openrepose.services.ratelimit.cache;
 
-import org.openrepose.services.datastore.Datastore;
-import com.rackspace.repose.service.limits.schema.TimeUnit;
-import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openrepose.services.datastore.Datastore;
+import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.TimeUnit;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
     }
 
     @Override
-    public NextAvailableResponse updateLimit(String user, List< Pair<String, ConfiguredRatelimit> > matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws IOException {
+    public NextAvailableResponse updateLimit(String user, List<Pair<String, ConfiguredRatelimit>> matchingLimits, TimeUnit largestUnit, int datastoreWarnLimit) throws IOException {
         UserRateLimit patchResult = (UserRateLimit) datastore.patch(user, new UserRateLimit.Patch(matchingLimits), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(largestUnit));
 
         if (patchResult.getLimitMap().keySet().size() >= datastoreWarnLimit) {

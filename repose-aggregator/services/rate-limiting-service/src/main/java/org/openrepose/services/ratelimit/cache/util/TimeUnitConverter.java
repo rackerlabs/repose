@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public final class TimeUnitConverter {
     private TimeUnitConverter() {}
 
-    public static TimeUnit fromSchemaTypeToConcurrent(com.rackspace.repose.service.limits.schema.TimeUnit unit) {
+    public static TimeUnit fromSchemaTypeToConcurrent(org.openrepose.services.ratelimit.config.TimeUnit unit) {
         switch (unit) {
             case SECOND:
                 return TimeUnit.SECONDS;

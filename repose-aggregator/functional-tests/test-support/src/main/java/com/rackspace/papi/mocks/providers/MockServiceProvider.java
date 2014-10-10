@@ -1,15 +1,17 @@
 package com.rackspace.papi.mocks.providers;
 
-import com.rackspace.repose.service.limits.schema.AbsoluteLimit;
-import com.rackspace.repose.service.limits.schema.AbsoluteLimitList;
-import com.rackspace.repose.service.limits.schema.Limits;
-import com.rackspace.repose.service.limits.schema.ObjectFactory;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
+import org.openrepose.services.ratelimit.config.AbsoluteLimit;
+import org.openrepose.services.ratelimit.config.AbsoluteLimitList;
+import org.openrepose.services.ratelimit.config.Limits;
+import org.openrepose.services.ratelimit.config.ObjectFactory;
 import org.openstack.docs.identity.api.v2.UnauthorizedFault;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.InetAddress;
 import java.net.URI;
@@ -17,8 +19,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriBuilder;
 
 public class MockServiceProvider {
 

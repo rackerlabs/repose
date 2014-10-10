@@ -1,7 +1,7 @@
 package org.openrepose.services.ratelimit.cache;
 
 import org.openrepose.services.ratelimit.cache.util.TimeUnitConverter;
-import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import org.openrepose.services.ratelimit.config.ConfiguredRatelimit;
 
 import java.io.Serializable;
 
