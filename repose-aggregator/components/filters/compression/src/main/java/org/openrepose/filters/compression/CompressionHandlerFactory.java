@@ -1,25 +1,22 @@
 package org.openrepose.filters.compression;
 
-import com.rackspace.components.compression.Compression;
-import com.rackspace.components.compression.ContentCompressionConfig;
 import com.rackspace.external.pjlcompression.CompressingFilter;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.filters.compression.utils.CompressionConfigWrapper;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import java.util.Map;
-import javax.servlet.FilterConfig;
+import org.openrepose.filters.compression.utils.CompressionConfigWrapper;
 import org.openrepose.filters.compression.utils.CompressionParameters;
-import java.util.HashMap;
-import javax.servlet.ServletException;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFactory<CompressionHandler> {
 
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CompressionHandlerFactory.class);
    private CompressionConfigWrapper config;
-   private Compression contentCompressionConfig;
    private CompressingFilter filter;
 
    public CompressionHandlerFactory(FilterConfig config) {
@@ -43,13 +40,13 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
       @Override
       public void configurationUpdated(ContentCompressionConfig configurationObject) {
-         contentCompressionConfig = configurationObject.getCompression();
+         Compression contentCompressionConfig = configurationObject.getCompression();
 
          config.setInitParameter(CompressionParameters.STATS_ENABLED.getParam(), String.valueOf(contentCompressionConfig.isStatsEnabled()));
          config.setInitParameter(CompressionParameters.JAVA_UTIL_LOGGER.getParam(), LOG.getName());
          config.setInitParameter(CompressionParameters.DEBUG.getParam(), String.valueOf(contentCompressionConfig.isDebug()));
          config.setInitParameter(CompressionParameters.COMPRESSION_THRESHHOLD.getParam(), String.valueOf(contentCompressionConfig.getCompressionThreshold()));
-         
+
          if (!contentCompressionConfig.getIncludeContentTypes().isEmpty()) {
             config.setInitParameter(CompressionParameters.INCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getIncludeContentTypes()));
 
@@ -57,14 +54,14 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
             config.setInitParameter(CompressionParameters.EXCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeContentTypes()));
 
          }
-         
+
          if (!contentCompressionConfig.getIncludeUserAgentPatterns().isEmpty()) {
             config.setInitParameter(CompressionParameters.INCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getIncludeUserAgentPatterns()));
 
          } else if (!contentCompressionConfig.getExcludeUserAgentPatterns().isEmpty()) {
             config.setInitParameter(CompressionParameters.EXCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeUserAgentPatterns()));
          }
-            
+
          filter = new CompressingFilter();
          try {
             filter.init(config);

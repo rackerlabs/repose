@@ -6,6 +6,6 @@
         schemaLocation="content-compression-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.components.compression" />
+        <package name="org.openrepose.filters.compression" />
     </schemaBindings>
 </bindings>
