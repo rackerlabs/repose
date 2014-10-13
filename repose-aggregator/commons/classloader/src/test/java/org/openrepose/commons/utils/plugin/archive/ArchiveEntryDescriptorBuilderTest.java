@@ -35,18 +35,18 @@ public class ArchiveEntryDescriptorBuilderTest {
 
         @Test
         public void shouldParseComplexDirectoryNames() {
-            final JarEntry e = new JarEntry("META-INF/maven/com.rackspace.papi.components/filter-bundle");
+            final JarEntry e = new JarEntry("META-INF/maven/org.openrepose.components/filter-bundle");
             final ArchiveEntryDescriptor desc = ArchiveEntryDescriptorBuilder.build("ROOT", e.getName());
 
-            assertEquals("META-INF/maven/com.rackspace.papi.components/", desc.getPrefix());
+            assertEquals("META-INF/maven/org.openrepose.components/", desc.getPrefix());
         }
 
         @Test
         public void shouldParseArchivePath() {
-            final JarEntry e = new JarEntry("com/rackspace/papi/util/test.class");
+            final JarEntry e = new JarEntry("org/openrepose/utils/test.class");
             final ArchiveEntryDescriptor desc = ArchiveEntryDescriptorBuilder.build("ROOT", e.getName());
 
-            assertEquals("com/rackspace/papi/util/", desc.getPrefix());
+            assertEquals("org/openrepose/utils/", desc.getPrefix());
             assertEquals("class", desc.getExtension());
         }
 
