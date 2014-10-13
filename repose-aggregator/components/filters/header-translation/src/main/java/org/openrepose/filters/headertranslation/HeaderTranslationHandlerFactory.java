@@ -1,8 +1,8 @@
 package org.openrepose.filters.headertranslation;
 
+import org.openrepose.filters.headertranslation.config.Header;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.openrepose.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.header.translation.config.Header;
-import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
 import org.openrepose.core.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
 import java.util.ArrayList;

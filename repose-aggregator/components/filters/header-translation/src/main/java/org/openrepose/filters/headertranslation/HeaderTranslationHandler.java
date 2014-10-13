@@ -1,8 +1,8 @@
 package org.openrepose.filters.headertranslation;
 
+import org.openrepose.filters.headertranslation.config.Header;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.header.translation.config.Header;
 import org.openrepose.core.filter.logic.FilterAction;
 import org.openrepose.core.filter.logic.FilterDirector;
 import org.openrepose.core.filter.logic.HeaderManager;

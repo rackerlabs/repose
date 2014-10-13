@@ -6,6 +6,6 @@
         schemaLocation="header-translation.xsd">
 
     <schemaBindings>
-        <package name="com.rackspace.papi.components.header.translation.config" />
+        <package name="org.openrepose.filters.headertranslation.config" />
     </schemaBindings>
 </bindings>
