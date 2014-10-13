@@ -1,7 +1,5 @@
 package org.openrepose.filters.serviceauthentication;
 
-import com.rackspace.papi.components.service.authentication.Credentials;
-import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.HttpStatusCode;
 import org.openrepose.commons.utils.http.header.HeaderName;

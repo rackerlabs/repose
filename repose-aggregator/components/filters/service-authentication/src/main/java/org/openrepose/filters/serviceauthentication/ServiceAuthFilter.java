@@ -1,15 +1,15 @@
 package org.openrepose.filters.serviceauthentication;
 
 
-import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServletContextHelper;
+import org.slf4j.Logger;
+
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import javax.servlet.*;
-import org.slf4j.Logger;
 
 public class ServiceAuthFilter implements Filter {
 
