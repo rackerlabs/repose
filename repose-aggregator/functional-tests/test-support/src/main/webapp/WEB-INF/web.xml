@@ -7,11 +7,11 @@
    </servlet>
    <servlet>
       <servlet-name>ErrorServlet</servlet-name>
-      <servlet-class>org.openrepose.mocks.ErrorServlet</servlet-class>
+      <servlet-class>org.openrepose.commons.utils.test.mocks.ErrorServlet</servlet-class>
    </servlet>
    <servlet>
       <servlet-name>ResponseSizeServlet</servlet-name>
-      <servlet-class>org.openrepose.mocks.ResponseSizeServlet</servlet-class>
+      <servlet-class>org.openrepose.commons.utils.test.mocks.ResponseSizeServlet</servlet-class>
    </servlet>
    <servlet-mapping>
       <servlet-name>ServletAdapter</servlet-name>

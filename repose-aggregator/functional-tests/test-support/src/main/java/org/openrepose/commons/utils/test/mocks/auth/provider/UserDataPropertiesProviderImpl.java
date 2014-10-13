@@ -1,6 +1,6 @@
-package org.openrepose.mocks.auth.provider;
+package org.openrepose.commons.utils.test.mocks.auth.provider;
 
-import org.openrepose.mocks.DataProviderImpl;
+import org.openrepose.commons.utils.test.mocks.DataProviderImpl;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;

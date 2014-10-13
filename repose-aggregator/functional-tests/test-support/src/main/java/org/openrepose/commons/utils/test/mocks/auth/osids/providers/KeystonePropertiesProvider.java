@@ -1,8 +1,8 @@
-package org.openrepose.mocks.auth.osids.providers;
+package org.openrepose.commons.utils.test.mocks.auth.osids.providers;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openrepose.mocks.auth.provider.UserDataPropertiesProviderImpl;
+import org.openrepose.commons.utils.test.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;

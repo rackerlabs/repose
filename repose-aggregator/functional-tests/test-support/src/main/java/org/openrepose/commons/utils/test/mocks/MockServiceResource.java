@@ -1,6 +1,6 @@
-package org.openrepose.mocks;
+package org.openrepose.commons.utils.test.mocks;
 
-import org.openrepose.mocks.providers.MockServiceProvider;
+import org.openrepose.commons.utils.test.mocks.providers.MockServiceProvider;
 
 import java.io.*;
 

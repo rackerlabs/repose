@@ -1,6 +1,7 @@
-package org.openrepose.mocks;
+package org.openrepose.commons.utils.test.mocks;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,37 +10,47 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ErrorServlet extends HttpServlet {
+public class ResponseSizeServlet extends HttpServlet {
+
     private Pattern pattern = Pattern.compile(".*/([\\d]+)");
 
-    private String getCode(String uri) {
+    private String getSize(String uri) {
         Matcher matcher = pattern.matcher(uri);
         if (matcher.matches() && matcher.groupCount() > 0) {
             return matcher.group(1);
         }
-        
-        return "";
+
+        return null;
     }
-    
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String code = getCode(request.getRequestURI());
-        
-        if (code != null) {
-            response.sendError(Integer.parseInt(code), "Error Message");
+        String size = getSize(request.getRequestURI());
+
+        if (size != null) {
+            OutputStream out = response.getOutputStream();
+            response.setContentLength(-1);
+            int len = Integer.valueOf(size);
+            for (int i = 0; i < len; i++) {
+                out.write((byte) (i % 128));
+            }
+
+            out.flush();
+            out.close();
         }
-        
+
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ErrorServlet</title>");            
+            out.println("<title>Servlet ErrorServlet</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ErrorServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h2>Request URL " + request.getRequestURL() + "</h2>");
             out.println("</body>");
             out.println("</html>");
-        } finally {            
+        } finally {
             out.close();
         }
     }

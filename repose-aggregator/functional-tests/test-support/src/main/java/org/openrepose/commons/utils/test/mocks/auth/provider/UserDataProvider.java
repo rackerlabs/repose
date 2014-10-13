@@ -1,6 +1,6 @@
-package org.openrepose.mocks.auth.provider;
+package org.openrepose.commons.utils.test.mocks.auth.provider;
 
-import org.openrepose.mocks.DataProvider;
+import org.openrepose.commons.utils.test.mocks.DataProvider;
 
 public interface UserDataProvider extends DataProvider {
 

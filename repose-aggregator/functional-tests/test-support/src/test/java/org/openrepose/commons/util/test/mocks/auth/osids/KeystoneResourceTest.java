@@ -1,10 +1,11 @@
-package org.openrepose.mocks.auth.osids;
+package org.openrepose.commons.util.test.mocks.auth.osids;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.test.mocks.auth.osids.KeystoneResource;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.ws.rs.core.Response;

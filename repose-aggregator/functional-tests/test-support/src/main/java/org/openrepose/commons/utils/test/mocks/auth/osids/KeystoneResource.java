@@ -1,12 +1,12 @@
-package org.openrepose.mocks.auth.osids;
+package org.openrepose.commons.utils.test.mocks.auth.osids;
 
 import com.sun.jersey.spi.resource.Singleton;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.mocks.BaseResource;
-import org.openrepose.mocks.auth.osids.providers.KeystonePropertiesProvider;
-import org.openrepose.mocks.auth.osids.providers.KeystoneProvider;
-import org.openrepose.mocks.auth.osids.wrappers.JaxbElementWrapper;
-import org.openrepose.mocks.auth.osids.wrappers.ResponseWrapper;
+import org.openrepose.commons.utils.test.mocks.BaseResource;
+import org.openrepose.commons.utils.test.mocks.auth.osids.providers.KeystonePropertiesProvider;
+import org.openrepose.commons.utils.test.mocks.auth.osids.providers.KeystoneProvider;
+import org.openrepose.commons.utils.test.mocks.auth.osids.wrappers.JaxbElementWrapper;
+import org.openrepose.commons.utils.test.mocks.auth.osids.wrappers.ResponseWrapper;
 import org.openstack.docs.identity.api.v2.*;
 
 import javax.ws.rs.*;

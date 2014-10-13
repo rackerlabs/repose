@@ -1,4 +1,4 @@
-package org.openrepose.mocks.auth.osids.wrappers;
+package org.openrepose.commons.utils.test.mocks.auth.osids.wrappers;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openstack.docs.identity.api.v2.*;

@@ -1,4 +1,4 @@
-package org.openrepose.mocks;
+package org.openrepose.commons.utils.test.mocks;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

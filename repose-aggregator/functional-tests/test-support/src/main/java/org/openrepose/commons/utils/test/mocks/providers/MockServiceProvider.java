@@ -1,4 +1,4 @@
-package org.openrepose.mocks.providers;
+package org.openrepose.commons.utils.test.mocks.providers;
 
 import org.openrepose.filters.ratelimiting.util.LimitsEntityTransformer;
 import org.openrepose.services.ratelimit.config.AbsoluteLimit;
