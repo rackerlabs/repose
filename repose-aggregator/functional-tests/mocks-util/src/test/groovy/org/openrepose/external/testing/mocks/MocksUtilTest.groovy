@@ -1,4 +1,4 @@
-package com.rackspace.papi.external.testing.mocks
+package org.openrepose.external.testing.mocks
 
 import org.openrepose.commons.utils.test.mocks.*
 import org.openrepose.commons.utils.test.mocks.util.MocksUtil
