@@ -1,7 +1,7 @@
 package org.openrepose.filters.headertranslation;
 
 
-import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -9,12 +9,7 @@ import org.openrepose.core.services.context.ServletContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
 

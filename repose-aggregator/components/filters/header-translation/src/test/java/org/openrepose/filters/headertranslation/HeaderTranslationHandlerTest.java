@@ -4,15 +4,15 @@
  */
 package org.openrepose.filters.headertranslation;
 
-import org.openrepose.commons.utils.http.header.HeaderName;
-import com.rackspace.papi.components.header.translation.config.Header;
-import com.rackspace.papi.components.header.translation.config.HeaderTranslationType;
-import org.openrepose.core.filter.logic.FilterDirector;
-import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
+import org.openrepose.filters.headertranslation.config.Header;
+import org.openrepose.filters.headertranslation.config.HeaderTranslationType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.openrepose.commons.utils.http.header.HeaderName;
+import org.openrepose.core.filter.logic.FilterDirector;
+import org.openrepose.core.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
