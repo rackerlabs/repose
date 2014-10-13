@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rate-limiting-service</artifactId>
-    <groupId>org.openrepose.core.service</groupId>
+    <groupId>com.rackspace.papi.service</groupId>
 
     <name>Repose Services - Rate Limiting</name>
 

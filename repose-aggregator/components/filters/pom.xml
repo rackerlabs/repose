@@ -42,7 +42,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.openrepose.core.service</groupId>
+                <groupId>com.rackspace.papi.service</groupId>
                 <artifactId>rate-limiting-service</artifactId>
                 <version>${project.version}</version>
             </dependency>

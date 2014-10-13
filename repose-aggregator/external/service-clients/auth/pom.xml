@@ -55,7 +55,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openrepose.core.service</groupId>
+            <groupId>com.rackspace.papi.service</groupId>
             <artifactId>service-client-api</artifactId>
             <version>${project.version}</version>
         </dependency>
