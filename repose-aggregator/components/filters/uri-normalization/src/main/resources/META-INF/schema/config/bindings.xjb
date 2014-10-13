@@ -6,6 +6,6 @@
         schemaLocation="uri-normalization-configuration.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.filters.urinormalization.config" />
+        <package name="com.rackspace.papi.components.uri.normalization.config" />
     </schemaBindings>
 </bindings>

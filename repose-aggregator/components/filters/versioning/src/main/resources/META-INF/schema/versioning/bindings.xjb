@@ -6,6 +6,6 @@
         schemaLocation="versioning.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.filters.versioning.schema" />
+        <package name="com.rackspace.papi.components.versioning.schema" />
     </schemaBindings>
 </bindings>
