@@ -27,7 +27,7 @@ public enum InitParameter {
     CONNECTION_TIMEOUT("connection-timeout"),
     READ_TIMEOUT("read-timeout"),
     INSECURE("insecure"),
-    MANAGEMENT_CONTEXT("com.rackspace.repose.management.context"),
+    MANAGEMENT_CONTEXT("org.openrepose.repose.management.context"),
     REPOSE_CLUSTER_ID("repose-cluster-id"),
     REPOSE_NODE_ID("repose-node-id");
 

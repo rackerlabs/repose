@@ -41,7 +41,7 @@ public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
     private static final Logger INTRAFILTER_LOG = LoggerFactory.getLogger("intrafilter-logging");
-    private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
+    private static final String START_TIME_ATTRIBUTE = "org.openrepose.repose.logging.start.time";
     private static final String INTRAFILTER_UUID = "Intrafilter-UUID";
 
     private final List<FilterContext> filterChainCopy;
