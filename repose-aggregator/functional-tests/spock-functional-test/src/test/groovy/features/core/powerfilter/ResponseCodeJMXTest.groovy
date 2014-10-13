@@ -11,7 +11,7 @@ import spock.lang.Ignore
 @Category(Slow.class)
 class ResponseCodeJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"ResponseCode\",scope=\""
+    String PREFIX = "\"repose-node1-org.openrepose.core\":type=\"ResponseCode\",scope=\""
 
     String NAME_2XX = "\",name=\"2XX\""
     String ALL_2XX = PREFIX + "All Endpoints" + NAME_2XX
