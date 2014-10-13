@@ -1,11 +1,10 @@
 package org.openrepose.filters.uristripper;
 
-
-import com.rackspace.papi.components.uristripper.config.UriStripperConfig;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.filter.logic.impl.FilterLogicHandlerDelegate;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.context.ServletContextHelper;
+import org.openrepose.filters.uristripper.config.UriStripperConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

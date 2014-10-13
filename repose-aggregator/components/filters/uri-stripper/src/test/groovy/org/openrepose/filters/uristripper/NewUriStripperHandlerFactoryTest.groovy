@@ -1,9 +1,9 @@
 package org.openrepose.filters.uristripper
+
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.header.HeaderName
 import org.openrepose.commons.utils.servlet.http.ReadableHttpServletResponse
-import com.rackspace.papi.components.uristripper.config.UriStripperConfig
-import org.openrepose.filters.uristripper.UriStripperHandlerFactory
+import org.openrepose.filters.uristripper.config.UriStripperConfig
 import spock.lang.Specification
 import spock.lang.Unroll
 
