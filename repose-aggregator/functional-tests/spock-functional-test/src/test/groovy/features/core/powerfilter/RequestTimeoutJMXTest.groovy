@@ -9,7 +9,7 @@ import org.rackspace.deproxy.Response
 @Category(Slow.class)
 class RequestTimeoutJMXTest extends ReposeValveTest {
 
-    String PREFIX = "\"repose-node1-com.rackspace.papi\":type=\"RequestTimeout\",scope=\""
+    String PREFIX = "\"repose-node1-org.openrepose.core\":type=\"RequestTimeout\",scope=\""
 
     String NAME_OPENREPOSE_ENDPOINT = "\",name=\"localhost:${properties.targetPort}/root_path\""
     String ALL_ENDPOINTS = "\",name=\"All Endpoints\""
