@@ -129,7 +129,7 @@
                             </mappings>
 
                             <requires>
-                                <require>valve</require>
+                                <require>valve = ${project.version}</require>
                             </requires>
                             <group>Applications/Internet</group>
                         </configuration>

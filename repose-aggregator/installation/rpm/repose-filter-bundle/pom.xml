@@ -141,7 +141,7 @@
                             </mappings>
 
                             <requires>
-                                <require>repose</require>
+                                <require>repose = ${project.version}</require>
                             </requires>
 
                             <group>Applications/Internet</group>
